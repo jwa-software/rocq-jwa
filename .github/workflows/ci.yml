@@ -24,10 +24,14 @@ jobs:
           # The container user (uid 1000) does not own the checkout
           # (uid 1001). git then refuses to run in it, which breaks the
           # install step's opam pin, so the chown has to happen before
-          # install, not in before_script. The opam list is the action's
-          # default for this step, kept because it shows what the image ships.
+          # install, not in before_script. The image pins dune to an older
+          # version and opam never upgrades a pinned package, so the pin is
+          # removed here and the install step's --deps-only then picks a dune
+          # satisfying dune-project. The opam list is the action's default for
+          # this step, kept because it shows what the image ships.
           before_install: |
             sudo chown -R "$(id -u):$(id -g)" .
+            opam pin remove -n -y dune
             startGroup "Print opam config"
               opam config list; opam repo list; opam list
             endGroup
