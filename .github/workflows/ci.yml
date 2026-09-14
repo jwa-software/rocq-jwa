@@ -22,9 +22,15 @@ jobs:
           coq_version: '9.2'
           opam_file: '.'
           # The container user (uid 1000) does not own the checkout
-          # (uid 1001), so dune could not create _build without this.
-          before_script: |
+          # (uid 1001). git then refuses to run in it, which breaks the
+          # install step's opam pin, so the chown has to happen before
+          # install, not in before_script. The opam list is the action's
+          # default for this step, kept because it shows what the image ships.
+          before_install: |
             sudo chown -R "$(id -u):$(id -g)" .
+            startGroup "Print opam config"
+              opam config list; opam repo list; opam list
+            endGroup
           # Replaces the default script, which would opam-install the
           # package; the three checks below are what a PR must keep green.
           script: |
