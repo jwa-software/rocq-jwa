@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # docker-coq-action picks the rocq/rocq-prover image for Rocq >= 9.0.
       # Its default install step pins the checkout as an opam path and
@@ -35,15 +35,16 @@ jobs:
             endGroup
           # Replaces the default script, which would opam-install the
           # package; the three checks below are what a PR must keep green.
-          # Under (lang dune 3.21) the @opam alias rewrites the checked-in
-          # opam file instead of reporting a diff, so git is what catches
-          # a stale one.
+          # The opam file is built by its target path rather than the @opam
+          # alias, which the image's dune does not have; under (lang dune
+          # 3.21) that rewrites the checked-in file in place instead of
+          # reporting a diff, so git is what catches a stale one.
           script: |
             startGroup "Build"
               opam exec -- dune build
             endGroup
             startGroup "opam file in sync with dune-project"
-              opam exec -- dune build @opam
+              opam exec -- dune build opam/rocq-jwa.opam
               git diff --exit-code opam/
             endGroup
             startGroup "dune files formatted"
@@ -52,3 +53,10 @@ jobs:
           # The default uninstall test would opam remove the package, which
           # the script above never installed.
           uninstall: ''
+
+      # The chown above leaves the checkout owned by the container user, and
+      # the checkout action's cleanup then cannot write .git/config. Runs on
+      # the runner, so id resolves to the runner user.
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R "$(id -u):$(id -g)" .
