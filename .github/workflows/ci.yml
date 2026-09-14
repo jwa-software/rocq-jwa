@@ -1,0 +1,39 @@
+# Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # docker-coq-action picks the rocq/rocq-prover image for Rocq >= 9.0.
+      # Its default install step pins the checkout as an opam path and
+      # installs the dependencies of opam/rocq-jwa.opam, which upgrades dune
+      # inside the image if the one shipped is older than dune-project asks.
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: '9.2'
+          opam_file: '.'
+          # The container user (uid 1000) does not own the checkout
+          # (uid 1001), so dune could not create _build without this.
+          before_script: |
+            sudo chown -R "$(id -u):$(id -g)" .
+          # Replaces the default script, which would opam-install the
+          # package; the three checks below are what a PR must keep green.
+          script: |
+            startGroup "Build"
+              opam exec -- dune build
+            endGroup
+            startGroup "opam file in sync with dune-project"
+              opam exec -- dune build @opam
+            endGroup
+            startGroup "dune files formatted"
+              opam exec -- dune build @fmt
+            endGroup
