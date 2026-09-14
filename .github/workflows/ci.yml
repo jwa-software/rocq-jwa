@@ -24,26 +24,31 @@ jobs:
           # The container user (uid 1000) does not own the checkout
           # (uid 1001). git then refuses to run in it, which breaks the
           # install step's opam pin, so the chown has to happen before
-          # install, not in before_script. The image pins dune to an older
-          # version and opam never upgrades a pinned package, so the pin is
-          # removed here and the install step's --deps-only then picks a dune
-          # satisfying dune-project. The opam list is the action's default for
-          # this step, kept because it shows what the image ships.
+          # install, not in before_script. The opam list is the action's
+          # default for this step, kept because it shows what the image ships.
+          # dune-project asks for no newer dune than the image pins: opam
+          # would otherwise recompile Rocq itself along with the upgrade.
           before_install: |
             sudo chown -R "$(id -u):$(id -g)" .
-            opam pin remove -n -y dune
             startGroup "Print opam config"
               opam config list; opam repo list; opam list
             endGroup
           # Replaces the default script, which would opam-install the
           # package; the three checks below are what a PR must keep green.
+          # Under (lang dune 3.21) the @opam alias rewrites the checked-in
+          # opam file instead of reporting a diff, so git is what catches
+          # a stale one.
           script: |
             startGroup "Build"
               opam exec -- dune build
             endGroup
             startGroup "opam file in sync with dune-project"
               opam exec -- dune build @opam
+              git diff --exit-code opam/
             endGroup
             startGroup "dune files formatted"
               opam exec -- dune build @fmt
             endGroup
+          # The default uninstall test would opam remove the package, which
+          # the script above never installed.
+          uninstall: ''
