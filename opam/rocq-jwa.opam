@@ -12,7 +12,7 @@ tags: ["rocq" "logpath:jwa"]
 homepage: "https://github.com/jwa-software/rocq-jwa"
 bug-reports: "https://github.com/jwa-software/rocq-jwa/issues"
 depends: [
-  "dune" {>= "3.23"}
+  "dune" {>= "3.21"}
   "rocq-core" {>= "9.2"}
   "odoc" {with-doc}
 ]
