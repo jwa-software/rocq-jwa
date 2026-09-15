@@ -14,9 +14,12 @@ Open Scope jwa_type_scope.
 
 (* A level is a claim against every other notation in the library, so every one
    is declared here even when the meaning is supplied elsewhere -- [=] in
-   [Core.Eq]. These are the levels Rocq developments read [->] and [=] at;
-   changing them would silently reassociate terms written anywhere else. *)
+   [Core.Eq], [/\] and [\/] in [Core.Logic]. These are the levels every Rocq
+   development reads them at, and 70 < 80 < 85 < 99 is what groups
+   [x = y /\ P -> Q] as [((x = y) /\ P) -> Q]. *)
 Reserved Notation "x -> y" (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"  (at level 70, no associativity).
+Reserved Notation "x /\ y" (at level 80, right associativity).
+Reserved Notation "x \/ y" (at level 85, right associativity).
 
 Notation "A -> B" := (forall (_ : A), B) : jwa_type_scope.
