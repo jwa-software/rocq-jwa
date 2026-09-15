@@ -21,6 +21,10 @@ Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) =>
   | Some a => Some (f a)
   end.
 
+(* The two functor laws: [map] preserves the identity function and preserves
+   composition. Stated for every [o] rather than as an equality between
+   functions, since nothing here assumes functional extensionality. *)
+
 Theorem map_identity
   : forall (A : Type) (o : Option A), map (fun a => a) o = o.
 Proof.
@@ -48,4 +52,29 @@ Proof.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
+
+Theorem map_composition
+  : forall (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C)
+      (o : Option A),
+    map g (map f o) = map (fun a => g (f a)) o.
+Proof.
+  (* The context gains [A], [B], [C], [f], [g] and [o]; the goal is now
+     [map g (map f o) = map (fun a => g (f a)) o]. *)
+  intros A B C f g o.
+  (* [o] is either [None] or [Some a]: one goal per ctor, and the second
+     one has [a : A] in its context. *)
+  destruct o as [| a].
+  - (* All three [map]s compute on [None], as spelled out in [map_identity];
+       the goal is now [None = None]. *)
+    simpl.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* The left side computes in two [map] steps to [Some (g (f a))], the
+       right side in one step to the same; the goal is now
+       [Some (g (f a)) = Some (g (f a))]. *)
+    simpl.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End Option.
