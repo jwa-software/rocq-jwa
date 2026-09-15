@@ -7,6 +7,12 @@ A general-purpose Rocq library organised in layers. Each layer is its own dune t
 
 An opam switch with `dune >= 3.21` and `rocq-core >= 9.2`. Every command below runs inside that switch through `opam exec`.
 
+## No prelude
+
+The root `dune` builds every theory with `-noinit`, so `Corelib.Init.Prelude` is not loaded anywhere in this tree. A file has nothing in scope that it did not require by name.
+
+That is wider than the datatypes. There is no tactic language -- `exact` is a syntax error, not an unknown tactic. There are no notations, including `->`, which is spelled `forall _ : A, B`. There is no numeral parsing, so `0` does not elaborate even once `Corelib.Init.Datatypes` is required. A theory requires from `Corelib` whatever it needs.
+
 ## Building
 
 | Command | What it does | When to use it |

@@ -1,0 +1,14 @@
+; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
+
+; -noinit keeps Corelib.Init.Prelude out of every theory: a file has nothing
+; in scope that it did not require by name. It removes the tactic language and
+; every notation, including ->, so a theory requires from Corelib what it needs.
+
+; :standard is load-bearing. Replacing it rather than extending it drops dune's
+; own defaults -- -q and the native-compiler settings -- and it does so
+; silently.
+
+(env
+ (_
+  (rocq
+   (flags :standard -noinit))))
