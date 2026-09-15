@@ -1,0 +1,10 @@
+; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
+
+; Axioms live only in this theory and no other theory depends on it, so
+; Print Assumptions stays clean wherever a client does not import it. The
+; name is that command's word for what this theory adds.
+
+(rocq.theory
+ (name jwa.Assumption)
+ (package rocq-jwa)
+ (theories jwa.Core))

@@ -38,9 +38,9 @@ Layers live under `theories/`, one directory and one `dune` stanza per layer. Ea
 | `jwa.Structures` | Type classes and interfaces: equality, orders, monoids, functors, monads, decidability | Core |
 | `jwa.Relations` | Orders, well-founded and equivalence relations | Core, Structures |
 | `jwa.Data` | Concrete data structures: maps, vectors, naturals, lists, options | Core, Tactics, Structures, Relations |
-| `jwa.Logic` | Classical axioms, extensionality, decidability principles | Core |
+| `jwa.Assumption` | Axioms: classical principles, extensionality, decidability | Core |
 | `jwa.Algebra` | Algebraic structures and their theory | Core, Tactics, Structures, Relations, Data |
 | `jwa.Programming` | Monad instances, effects, extraction-oriented code | Core, Tactics, Structures, Relations, Data |
-| `jwa.All` | `From jwa Require Import All` brings in every layer except Logic | every layer but Logic |
+| `jwa.All` | `From jwa Require Import All` brings in every layer except Assumption | every layer but Assumption |
 
-`Logic` is the only layer that may introduce axioms, and no other layer depends on it. Import it explicitly with `From jwa Require Import Logic.All` when a development needs them; everything else stays axiom-free under `Print Assumptions`.
+`Assumption` is the only layer that may introduce axioms, and no other layer depends on it; its name is the one `Print Assumptions` uses for them. Import it explicitly with `From jwa Require Import Assumption.All` when a development needs them; everything else stays axiom-free under `Print Assumptions`.
