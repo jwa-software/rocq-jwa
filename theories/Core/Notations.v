@@ -32,4 +32,6 @@ Reserved Notation "x <-> y"
 Reserved Notation "~ x"
   (at level 75, right associativity).
 
+(* [->] is the logic's conditional: the kernel's non-dependent [forall],
+   which this line only gives a spelling. *)
 Notation "A -> B" := (forall (_ : A), B) : jwa_type_scope.
