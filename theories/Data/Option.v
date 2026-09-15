@@ -10,7 +10,7 @@ Inductive Option (A : Type) : Type :=
 Arguments None {A}.
 Arguments Some {A} a.
 
-(* Named after the type so operations read [Option.map]; the two coexist. *)
+(* A module may carry the type's name; its members read [Option.map]. *)
 Module Option.
 
 (* [forall {A : Type} {B : Type}, (A -> B) -> Option A -> Option B] *)
