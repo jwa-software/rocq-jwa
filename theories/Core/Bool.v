@@ -1,11 +1,14 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] would be circular from inside [Core]. [Core.Logic] and [Core.Eq]
-   only [Import] the notations, so [~] and [=] have to be required here too;
-   [Core.Ltac] is what makes [Proof] parse at all. *)
+(* [Core.All] would be circular from inside [Core]. [Core.Logic.Not] and
+   [Core.Eq] only [Import] the notations, so [~] and [=] have to be required
+   here too; [Core.Ltac] is what makes [Proof] parse at all. Nothing below
+   names [True], but [discriminate] builds its proof from [I] and [True] and
+   finds them only if the module registering them is loaded. *)
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
-From jwa Require Import Core.Logic.
+From jwa Require Import Core.Logic.True.
+From jwa Require Import Core.Logic.Not.
 From jwa Require Import Core.Eq.
 
 (* [true] first: [if] takes the first constructor as its [then] branch. *)
