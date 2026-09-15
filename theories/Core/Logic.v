@@ -29,5 +29,9 @@ Inductive Or (A : Prop) (B : Prop) : Prop :=
 Arguments Or_left  {A} {B} a.
 Arguments Or_right {A} {B} b.
 
+(* [Prop -> Prop] *)
+Definition Not := fun (A : Prop) => A -> False.
+
 Notation "A /\ B" := (And A B) : jwa_type_scope.
 Notation "A \/ B" := (Or  A B) : jwa_type_scope.
+Notation "~ A"    := (Not A)   : jwa_type_scope.
