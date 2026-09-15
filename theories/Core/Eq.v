@@ -1,7 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] would be circular from inside [Core]. *)
+(* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
+   the level of [=], [Core.Logic.Conditional] carries [->]. *)
 From jwa Require Import Core.Notations.
+From jwa Require Import Core.Logic.Conditional.
 
 (* Gottfried Leibniz, seventeenth century: two things are the same exactly when
    no property tells them apart. If everything true of x is true of y, there is

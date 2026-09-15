@@ -1,5 +1,10 @@
 ; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
 
+; A subdirectory becomes a segment of the module path: Logic/And.v is the
+; module jwa.Core.Logic.And.
+
+(include_subdirs qualified)
+
 (rocq.theory
  (name jwa.Core)
  (package rocq-jwa))
