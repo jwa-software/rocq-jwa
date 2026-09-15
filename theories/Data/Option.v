@@ -9,3 +9,16 @@ Inductive Option (A : Type) : Type :=
 
 Arguments None {A}.
 Arguments Some {A} a.
+
+(* Named after the type so operations read [Option.map]; the two coexist. *)
+Module Option.
+
+(* [forall {A : Type} {B : Type}, (A -> B) -> Option A -> Option B] *)
+Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) =>
+  match o return Option B
+  with
+  | None   => None
+  | Some a => Some (f a)
+  end.
+
+End Option.
