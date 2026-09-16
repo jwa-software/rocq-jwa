@@ -11,7 +11,9 @@ An opam switch with `dune >= 3.21` and `rocq-core >= 9.2`. Every command below r
 
 The root `dune` builds every theory with `-noinit`, so `Corelib.Init.Prelude` is not loaded anywhere in this tree. A file has nothing in scope that it did not require by name.
 
-That is wider than the datatypes. There is no tactic language -- `exact` is a syntax error, not an unknown tactic. There are no notations, including `->`, which is spelled `forall _ : A, B`. There is no numeral parsing, so `0` does not elaborate even once `Corelib.Init.Datatypes` is required. A theory requires from `Corelib` whatever it needs.
+That is wider than the datatypes. There is no tactic language -- `exact` is a syntax error, not an unknown tactic. There are no notations, including `->`, which is spelled `forall _ : A, B`. There is no numeral parsing, so `0` does not elaborate even once `Corelib.Init.Datatypes` is required.
+
+Nothing in this tree requires anything from `Corelib`. The notations, the connectives, equality and the data types are all defined here. The one piece not rebuilt is the tactic language itself, which is a compiled plugin rather than a theory: `theories/Core/Ltac.v` declares it and sets the proof mode.
 
 ## Building
 
@@ -31,6 +33,8 @@ The opam file is generated: after regenerating it, commit the rewritten file lik
 
 Layers live under `theories/`, one directory and one `dune` stanza per layer. Each layer has an umbrella module `All` that re-exports the whole layer.
 
+A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/And.v` is the module `jwa.Core.Logic.And`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`.
+
 | Layer | Purpose | Depends on |
 |:---|:---|:---|
 | `jwa.Core` | Base definitions, notations and the minimal lemmas everything else shares | -- |
@@ -44,3 +48,9 @@ Layers live under `theories/`, one directory and one `dune` stanza per layer. Ea
 | `jwa.All` | `From jwa Require Import All` brings in every layer except Assumption | every layer but Assumption |
 
 `Assumption` is the only layer that may introduce axioms, and no other layer depends on it; its name is the one `Print Assumptions` uses for them. Import it explicitly with `From jwa Require Import Assumption.All` when a development needs them; everything else stays axiom-free under `Print Assumptions`.
+
+## Tests
+
+`test/` is a theory of its own, `jwa_test`, and is not part of the library: its `dune` declares no package, so `dune build` compiles it while `dune build @install` leaves it out.
+
+It holds one file per umbrella, each importing that umbrella and nothing else. An umbrella defines nothing, so it cannot fail to compile on its own -- it either forwards what its modules hold or silently does not, and importing one in isolation is what makes the difference visible. A file importing two would receive from one whatever the other fails to forward.
