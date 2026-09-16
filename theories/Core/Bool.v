@@ -19,7 +19,7 @@ Inductive Bool : Type :=
 Theorem Bool_distinctness : ~ (true = false).
 Proof.
   (* The goal goes from [~ (true = false)] to [true = false -> False]. *)
-  unfold Not.
+  unfold Not in |- *.
   (* The goal goes from [true = false -> False] to [False], and the context
      gains [e : true = false]. *)
   intro e.
