@@ -15,3 +15,9 @@ Definition data_all_delivers_none
       Option.map (fun (a : A) => a) None = None
   := fun (A : Type) =>
       Eq_reflexivity None.
+
+Definition data_all_delivers_nat : Nat := Successor One.
+
+Definition data_all_delivers_zero : NatWithZero := Zero.
+
+Definition data_all_delivers_positive : NatWithZero := Positive One.
