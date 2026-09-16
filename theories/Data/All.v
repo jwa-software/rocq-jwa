@@ -3,8 +3,11 @@
 (* Umbrella for [jwa.Data]: re-exports every module of the layer, so a
    client imports the whole layer with [From jwa Require Import Data.All]. *)
 
-(* Without [Core.All] a client of this umbrella has no [->]. *)
+(* Without [Core.All] a client of this umbrella has no [->]. [Structures.All]
+   joins it now that the modules below declare instances: the classes are part
+   of what this layer offers. *)
 From jwa Require Export Core.All.
+From jwa Require Export Structures.All.
 
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
 From jwa Require Export Data.Option.
