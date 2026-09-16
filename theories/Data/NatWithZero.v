@@ -74,4 +74,14 @@ Proof.
         reflexivity.
 Qed.
 
+Lemma add_zero_left : forall (n : NatWithZero), add Zero n = n.
+Proof.
+  (* The context gains [n]: [|- add Zero n = n] *)
+  intros n.
+  (* [add] matches its first argument, and [Zero] returns the second
+     unchanged: [|- n = n] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
 End NatWithZero.
