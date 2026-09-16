@@ -210,7 +210,8 @@ Proof.
      [|- Holds (and b1 b2) <-> Holds b1 /\ Holds b2] *)
   intros b1 b2.
   (* [<->] is a [Definition], so [split] cannot see the [/\] beneath it:
-     [|- (Holds (and b1 b2) -> Holds b1 /\ Holds b2) /\ (Holds b1 /\ Holds b2 -> Holds (and b1 b2))] *)
+     [|- (Holds (and b1 b2) -> Holds b1 /\ Holds b2)
+         /\ (Holds b1 /\ Holds b2 -> Holds (and b1 b2))] *)
   unfold Biconditional in |- *.
   (* Four cases, each a concrete implication both ways. *)
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
@@ -330,6 +331,13 @@ Qed.
 
 End Bool.
 
+(* The levels are reserved in [Core.Notations]; only the meanings belong
+   here. Declared at file level, they reach a client through
+   [Require Export]. *)
+Notation "b1 && b2" := (Bool.and b1 b2) : jwa_type_scope.
+Notation "b1 ^^ b2" := (Bool.xor b1 b2) : jwa_type_scope.
+Notation "b1 || b2" := (Bool.or  b1 b2) : jwa_type_scope.
+
 Instance Bool_and_monoid : Monoid Bool Bool.and true :=
   {| Monoid_semigroup :=
        {| Semigroup_associativity := Bool.and_associativity |}
@@ -341,3 +349,9 @@ Instance Bool_or_monoid : Monoid Bool Bool.or false :=
        {| Semigroup_associativity := Bool.or_associativity |}
    ; Monoid_identity_left  := Bool.or_false_left
    ; Monoid_identity_right := Bool.or_false_right |}.
+
+Instance Bool_xor_monoid : Monoid Bool Bool.xor false :=
+  {| Monoid_semigroup :=
+       {| Semigroup_associativity := Bool.xor_associativity |}
+   ; Monoid_identity_left  := Bool.xor_false_left
+   ; Monoid_identity_right := Bool.xor_false_right |}.
