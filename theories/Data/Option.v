@@ -40,7 +40,7 @@ Proof.
     unfold map in |- *.
     (* The [match] on the ctor [None] reduces; the goal is now
        [None = None]. *)
-    simpl.
+    simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
   - (* The goal goes from [map (fun a => a) (Some a) = Some a] to a [match]
@@ -48,7 +48,7 @@ Proof.
     unfold map in |- *.
     (* The [match] reduces and [(fun a => a) a] reduces to [a]; the goal is
        now [Some a = Some a]. *)
-    simpl.
+    simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
@@ -66,13 +66,13 @@ Proof.
   destruct o as [| a].
   - (* All three [map]s compute on [None], as spelled out in [map_identity];
        the goal is now [None = None]. *)
-    simpl.
+    simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
   - (* The left side computes in two [map] steps to [Some (g (f a))], the
        right side in one step to the same; the goal is now
        [Some (g (f a)) = Some (g (f a))]. *)
-    simpl.
+    simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
