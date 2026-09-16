@@ -1,0 +1,26 @@
+; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
+
+; No (package ...) field, so this theory is built by dune build and checked by
+; CI while dune build @install leaves it out of what an opam installation
+; ships. It is a guard, not part of the library.
+
+; An umbrella defines nothing, so it cannot fail to compile on its own: it
+; either forwards what its modules hold or silently does not. One file here
+; per umbrella, each importing that umbrella alone, is what makes the
+; difference visible -- a file importing two would receive from one whatever
+; the other fails to forward.
+
+; The full dependency closure is listed, not only the direct dependencies,
+; so the position of this theory in the stack can be read off this file.
+
+(rocq.theory
+ (name jwa_test)
+ (theories
+  jwa
+  jwa.Core
+  jwa.Tactics
+  jwa.Structures
+  jwa.Relations
+  jwa.Data
+  jwa.Algebra
+  jwa.Programming))
