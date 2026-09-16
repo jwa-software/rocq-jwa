@@ -1,7 +1,11 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->]; [Data.Nat] is the type [Positive] wraps. *)
+(* [Core.All] carries [->]; [Data.Nat] is the type [Positive] wraps;
+   [Structures.Semigroup] and [Structures.Monoid] are the classes the instance
+   at the bottom fills. *)
 From jwa Require Import Core.All.
+From jwa Require Import Structures.Semigroup.
+From jwa Require Import Structures.Monoid.
 From jwa Require Import Data.Nat.
 
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
@@ -148,3 +152,13 @@ Proof.
 Qed.
 
 End NatWithZero.
+
+(* [Zero] is exactly what [Nat] lacks, so this one reaches monoid. The
+   [Semigroup] field is filled inline rather than by a second instance:
+   [Monoid_semigroup] is declared with [::], so resolution already finds a
+   [Semigroup NatWithZero add] through it. *)
+Instance NatWithZero_add_monoid : Monoid NatWithZero NatWithZero.add Zero :=
+  {| Monoid_semigroup :=
+       {| Semigroup_associativity := NatWithZero.add_associativity |}
+   ; Monoid_identity_left  := NatWithZero.add_zero_left
+   ; Monoid_identity_right := NatWithZero.add_zero_right |}.
