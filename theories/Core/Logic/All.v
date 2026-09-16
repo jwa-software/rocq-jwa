@@ -16,3 +16,4 @@ From jwa Require Export Core.Logic.Or.
 From jwa Require Export Core.Logic.Not.
 From jwa Require Export Core.Logic.Conditional.
 From jwa Require Export Core.Logic.Biconditional.
+From jwa Require Export Core.Logic.Exists.
