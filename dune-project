@@ -16,7 +16,7 @@
  (name rocq-jwa)
  (synopsis "A layered Rocq library of data structures, structures, relations and tactics")
  (description
-  "rocq-jwa is a general-purpose Rocq library organised in layers, each a separate theory under the logical root jwa: Core, Tactics, Structures, Relations, Data, Logic, Algebra and Programming. Clients import a layer with From jwa Require Import <Layer>.All.")
+  "rocq-jwa is a general-purpose Rocq library organised in layers, each a separate theory under the logical root jwa: Core, Tactics, Structures, Relations, Data, Assumption, Algebra and Programming. Clients import a layer with From jwa Require Import <Layer>.All.")
  (depends
   (rocq-core (>= 9.2)))
  (tags (rocq "logpath:jwa")))
