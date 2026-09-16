@@ -1,7 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->]: with [-noinit] a file has only what it requires. *)
+(* [Core.All] carries [->]: with [-noinit] a file has only what it requires.
+   [Structures.Semigroup] is the class the instance at the bottom fills. *)
 From jwa Require Import Core.All.
+From jwa Require Import Structures.Semigroup.
 
 (* Zero is not a [Nat]; [One] is the smallest. [Data.NatWithZero] is the type
    that has it. *)
@@ -152,3 +154,8 @@ Proof.
 Qed.
 
 End Nat.
+
+(* A semigroup and no more: a monoid needs an identity, and [Nat] has no
+   element that leaves its argument alone under [add]. *)
+Instance Nat_add_semigroup : Semigroup Nat Nat.add :=
+  {| Semigroup_associativity := Nat.add_associativity |}.
