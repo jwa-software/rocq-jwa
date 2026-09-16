@@ -141,6 +141,57 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
+Theorem xor_associativity
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      xor (xor b1 b2) b3 = xor b1 (xor b2 b3).
+Proof.
+  (* The context gains [b1], [b2] and [b3]:
+     [|- xor (xor b1 b2) b3 = xor b1 (xor b2 b3)] *)
+  intros b1 b2 b3.
+  (* Eight cases; [xor] and [negate] both reduce on ctors, so both sides
+     reduce to the same ctor in every one. *)
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+Qed.
+
+Lemma xor_false_left : forall (b : Bool), xor false b = b.
+Proof.
+  (* The context gains [b]. [xor] matches its first argument, and [false]
+     returns the second untouched: [|- b = b] *)
+  intros b.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Lemma xor_false_right : forall (b : Bool), xor b false = b.
+Proof.
+  (* The context gains [b]: [|- xor b false = b] *)
+  intros b.
+  (* Nothing reduces until [b] is a ctor, since [xor] matches it first; the
+     [true] case goes through [negate false]. *)
+  destruct b as [|]; reflexivity.
+Qed.
+
+Theorem xor_commutativity
+  : forall (b1 : Bool) (b2 : Bool), xor b1 b2 = xor b2 b1.
+Proof.
+  (* The context gains [b1] and [b2]: [|- xor b1 b2 = xor b2 b1] *)
+  intros b1 b2.
+  (* Four cases; both sides reduce to the same ctor in every one. *)
+  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+Qed.
+
+(* Every element is its own inverse under [xor], which is what makes
+   [(Bool, xor, false)] more than a monoid; the group structure waits for a
+   [Group] class. *)
+Theorem xor_self_inverse : forall (b : Bool), xor b b = false.
+Proof.
+  (* The context gains [b]: [|- xor b b = false] *)
+  intros b.
+  (* Two cases: [xor true true] is [negate true], [xor false false] is
+     [false]. *)
+  destruct b as [|]; reflexivity.
+Qed.
+
 (* The bridge from a computed answer to a statement. [Holds true] is [True]
    and [Holds false] is [False] by reduction, so case analysis on a [Bool]
    turns each law below into a concrete implication in both directions. *)
