@@ -84,4 +84,24 @@ Proof.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
+
+Lemma add_zero_right : forall (n : NatWithZero), add n Zero = n.
+Proof.
+  (* The context gains [n]: [|- add n Zero = n] *)
+  intros n.
+  (* Nothing reduces until [n] is a ctor, since [add] matches it first.
+     [n] is either [Zero] or [Positive n']: one goal per ctor. *)
+  destruct n as [| n'].
+  - (* [|- add Zero Zero = Zero] *)
+    (* Both matches reduce: [|- Zero = Zero] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- add (Positive n') Zero = Positive n'] *)
+    (* The inner match on [Zero] returns the first argument:
+       [|- Positive n' = Positive n'] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
 End NatWithZero.
