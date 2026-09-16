@@ -50,6 +50,15 @@ Definition or := fun (b1 : Bool) (b2 : Bool) =>
   | false => b2
   end.
 
+(* Exclusive or: [true] when exactly one side is. [true] flips the other
+   side, [false] leaves it alone. *)
+(* [Bool -> Bool -> Bool] *)
+Definition xor := fun (b1 : Bool) (b2 : Bool) =>
+  match b1 with
+  | true  => negate b2
+  | false => b2
+  end.
+
 Theorem negate_involution : forall (b : Bool), negate (negate b) = b.
 Proof.
   (* The context gains [b]: [|- negate (negate b) = b] *)
