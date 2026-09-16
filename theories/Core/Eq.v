@@ -1,8 +1,10 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
-   the level of [=], [Core.Logic.Conditional] carries [->]. *)
+   the level of [=], [Core.Logic.Conditional] carries [->], [Core.Ltac] is
+   what makes [Proof] parse at all. *)
 From jwa Require Import Core.Notations.
+From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Conditional.
 
 (* Gottfried Leibniz, seventeenth century: two things are the same exactly when
@@ -80,12 +82,41 @@ Proof.
   reflexivity.
 Defined.
 
-(* [forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A},
-      Eq x y -> Eq (f x) (f y)] *)
-Definition Eq_congruence
-  : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A}, Eq x y -> Eq (f x) (f y) :=
-  fun {A : Type} {B : Type} (f : A -> B) {x : A} {y : A} (e : Eq x y) =>
-    Eq_transport x y (fun a => Eq (f x) (f a)) (Eq_reflexivity (f x)) e.
+(* [rewrite] builds its proof term out of these two, which carry a proof along
+   the equation into [Type], forwards and backwards. [Defined] keeps them
+   transparent: [rewrite] leaves them in the term, where they have to reduce. *)
+Theorem Eq_rewrite_forward
+  : forall (A : Type) (x : A) (P : A -> Type), P x -> forall (y : A), Eq x y -> P y.
+Proof.
+  (* The context gains [A], [x], [P] and [p]:
+     [|- forall (y : A), Eq x y -> P y] *)
+  intros A x P p.
+  (* The context gains [y] and [e]: [|- P y] *)
+  intros y e.
+  (* The index [y] takes the parameter's value: [|- P x] *)
+  destruct e.
+  (* [p] is a proof of the goal as it stands. *)
+  exact p.
+Defined.
+
+Theorem Eq_rewrite_backward
+  : forall (A : Type) (x : A) (y : A) (P : A -> Type), P y -> Eq x y -> P x.
+Proof.
+  (* The context gains [A], [x], [y], [P] and [p]: [|- Eq x y -> P x] *)
+  intros A x y P p.
+  (* The context gains [e]: [|- P x] *)
+  intro e.
+  (* The index [y] takes the parameter's value, and [p] changes type with it:
+     [|- P x] with [p : P x] *)
+  destruct e.
+  (* [p] is a proof of the goal as it stands. *)
+  exact p.
+Defined.
+
+(* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and
+   [rew_r] are Rocq's own, fixed like a registration key. *)
+Register Scheme Eq_rewrite_forward  as rew   for Eq.
+Register Scheme Eq_rewrite_backward as rew_r for Eq.
 
 (* [build_eqdata_gen] in rocqlib.ml demands exactly these six; a single missing
    one surfaces as [No primitive equality found]. *)
