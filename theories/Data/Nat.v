@@ -45,9 +45,7 @@ Proof.
      [|- add (add l m) n = add l (add m n)] *)
   intros l m n.
   (* [l] is either [One] or [Successor l']: one goal per ctor, and the second
-     has [l'] and [IH : add (add l' m) n = add l' (add m n)] in its context.
-     [using] names the eliminator instead of leaving [induction] to pick the
-     generated [Nat_ind]. *)
+     has [l'] and [IH : add (add l' m) n = add l' (add m n)] in its context. *)
   induction l as [| l' IH] using Nat_induction.
   - (* [|- add (add One m) n = add One (add m n)] *)
     (* Both [add]s on the left compute:
@@ -65,6 +63,10 @@ Proof.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
+
+(* [add] recurses on its first argument, so [add One n] and
+   [add (Successor m) n] reduce while their mirrors on the right do not.
+   These two prove the mirrors, and commutativity needs both. *)
 
 Lemma add_one_right : forall (m : Nat), add m One = Successor m.
 Proof.
@@ -88,4 +90,65 @@ Proof.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
+
+Lemma add_successor_right
+  : forall (m : Nat) (n : Nat), add m (Successor n) = Successor (add m n).
+Proof.
+  (* The context gains [m] and [n]:
+     [|- add m (Successor n) = Successor (add m n)] *)
+  intros m n.
+  (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
+     has [m'] and [IH : add m' (Successor n) = Successor (add m' n)] in its
+     context. *)
+  induction m as [| m' IH] using Nat_induction.
+  - (* [|- add One (Successor n) = Successor (add One n)] *)
+    (* Both sides compute:
+       [|- Successor (Successor n) = Successor (Successor n)] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- add (Successor m') (Successor n)
+           = Successor (add (Successor m') n)] *)
+    (* One [add] step on each side:
+       [|- Successor (add m' (Successor n))
+           = Successor (Successor (add m' n))] *)
+    simpl in |- *.
+    (* [IH] replaces the left side:
+       [|- Successor (Successor (add m' n))
+           = Successor (Successor (add m' n))] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem add_commutativity : forall (m : Nat) (n : Nat), add m n = add n m.
+Proof.
+  (* The context gains [m] and [n]: [|- add m n = add n m] *)
+  intros m n.
+  (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
+     has [m'] and [IH : add m' n = add n m'] in its context. *)
+  induction m as [| m' IH] using Nat_induction.
+  - (* [|- add One n = add n One] *)
+    (* The left side computes; the right cannot, since [add] recurses on its
+       first argument: [|- Successor n = add n One] *)
+    simpl in |- *.
+    (* [add_one_right] is what turns the right side:
+       [|- Successor n = Successor n] *)
+    rewrite add_one_right in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- add (Successor m') n = add n (Successor m')] *)
+    (* The left side computes:
+       [|- Successor (add m' n) = add n (Successor m')] *)
+    simpl in |- *.
+    (* [IH] swaps the arguments under the [Successor]:
+       [|- Successor (add n m') = add n (Successor m')] *)
+    rewrite IH in |- *.
+    (* [add_successor_right] pulls the [Successor] out of the right side:
+       [|- Successor (add n m') = Successor (add n m')] *)
+    rewrite add_successor_right in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End Nat.
