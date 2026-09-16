@@ -8,3 +8,5 @@ From jwa Require Export Core.All.
 
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
 From jwa Require Export Data.Option.
+From jwa Require Export Data.Nat.
+From jwa Require Export Data.NatWithZero.
