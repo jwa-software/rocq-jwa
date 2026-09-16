@@ -132,6 +132,139 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
+(* The bridge from a computed answer to a statement. [Holds true] is [True]
+   and [Holds false] is [False] by reduction, so case analysis on a [Bool]
+   turns each law below into a concrete implication in both directions. *)
+(* [Bool -> Prop] *)
+Definition Holds := fun (b : Bool) =>
+  match b with
+  | true  => True
+  | false => False
+  end.
+
+Theorem and_conjunction
+  : forall (b1 : Bool) (b2 : Bool),
+      Holds (and b1 b2) <-> Holds b1 /\ Holds b2.
+Proof.
+  (* The context gains [b1] and [b2]:
+     [|- Holds (and b1 b2) <-> Holds b1 /\ Holds b2] *)
+  intros b1 b2.
+  (* [<->] is a [Definition], so [split] cannot see the [/\] beneath it:
+     [|- (Holds (and b1 b2) -> Holds b1 /\ Holds b2) /\ (Holds b1 /\ Holds b2 -> Holds (and b1 b2))] *)
+  unfold Biconditional in |- *.
+  (* Four cases, each a concrete implication both ways. *)
+  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
+  - (* [|- (True -> True /\ True) /\ (True /\ True -> True)] *)
+    split; intro h.
+    + (* [|- True /\ True], and [I] proves each side. *)
+      split; exact I.
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (False -> True /\ False) /\ (True /\ False -> False)] *)
+    split; intro h.
+    + (* [h : False], which closes any goal. *)
+      destruct h.
+    + (* [|- False], and the right half of [h] is one. *)
+      destruct h as [h1 h2]. exact h2.
+  - (* [|- (False -> False /\ True) /\ (False /\ True -> False)] *)
+    split; intro h.
+    + (* [h : False]. *)
+      destruct h.
+    + (* [|- False], and the left half of [h] is one. *)
+      destruct h as [h1 h2]. exact h1.
+  - (* [|- (False -> False /\ False) /\ (False /\ False -> False)] *)
+    split; intro h.
+    + (* [h : False]. *)
+      destruct h.
+    + (* [|- False], and the left half of [h] is one. *)
+      destruct h as [h1 h2]. exact h1.
+Qed.
+
+Theorem or_disjunction
+  : forall (b1 : Bool) (b2 : Bool),
+      Holds (or b1 b2) <-> Holds b1 \/ Holds b2.
+Proof.
+  (* The context gains [b1] and [b2]:
+     [|- Holds (or b1 b2) <-> Holds b1 \/ Holds b2] *)
+  intros b1 b2.
+  (* [|- (Holds (or b1 b2) -> Holds b1 \/ Holds b2)
+         /\ (Holds b1 \/ Holds b2 -> Holds (or b1 b2))] *)
+  unfold Biconditional in |- *.
+  (* Four cases; only the last has [or] reduce to [false]. *)
+  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
+  - (* [|- (True -> True \/ True) /\ (True \/ True -> True)] *)
+    split; intro h.
+    + (* Either side will do; the left one is taken. *)
+      exact (Or_left I).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (True -> True \/ False) /\ (True \/ False -> True)] *)
+    split; intro h.
+    + (* Only the left side holds. *)
+      exact (Or_left I).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (True -> False \/ True) /\ (False \/ True -> True)] *)
+    split; intro h.
+    + (* Only the right side holds. *)
+      exact (Or_right I).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (False -> False \/ False) /\ (False \/ False -> False)] *)
+    split; intro h.
+    + (* [h : False]. *)
+      destruct h.
+    + (* Either ctor of [h] carries a [False]. *)
+      destruct h as [h1 | h2]. exact h1. exact h2.
+Qed.
+
+Theorem negate_negation : forall (b : Bool), Holds (negate b) <-> ~ Holds b.
+Proof.
+  (* The context gains [b]: [|- Holds (negate b) <-> ~ Holds b] *)
+  intros b.
+  (* Both [<->] and [~] are definitions and have to come off before the
+     structure underneath is visible. *)
+  unfold Biconditional, Not in |- *.
+  (* Two cases, one per ctor. *)
+  destruct b as [|]; simpl in |- *.
+  - (* [|- (False -> True -> False) /\ ((True -> False) -> False)] *)
+    split; intro h.
+    + (* [h : False]. *)
+      destruct h.
+    + (* [h] turns a [True] into a [False], and [I] is a [True]. *)
+      exact (h I).
+  - (* [|- (True -> False -> False) /\ ((False -> False) -> True)] *)
+    split; intro h.
+    + (* The hypothesis introduced next is a [False]. *)
+      intro k. destruct k.
+    + (* [|- True] *)
+      exact I.
+Qed.
+
+(* The other reading of [Holds], and what makes it usable with [rewrite] and
+   [discriminate]. *)
+Theorem holds_equality : forall (b : Bool), Holds b <-> b = true.
+Proof.
+  (* The context gains [b]: [|- Holds b <-> b = true] *)
+  intros b.
+  (* [|- (Holds b -> b = true) /\ (b = true -> Holds b)] *)
+  unfold Biconditional in |- *.
+  (* Two cases, one per ctor. *)
+  destruct b as [|]; simpl in |- *.
+  - (* [|- (True -> true = true) /\ (true = true -> True)] *)
+    split; intro h.
+    + (* Both sides are the same term. *)
+      reflexivity.
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (False -> false = true) /\ (false = true -> False)] *)
+    split; intro h.
+    + (* [h : False]. *)
+      destruct h.
+    + (* [h] claims [false = true], and the two are different ctors. *)
+      discriminate h.
+Qed.
+
 End Bool.
 
 Instance Bool_and_monoid : Monoid Bool Bool.and true :=
