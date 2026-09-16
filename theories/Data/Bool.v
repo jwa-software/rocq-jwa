@@ -50,7 +50,7 @@ Definition or := fun (b1 : Bool) (b2 : Bool) =>
   | false => b2
   end.
 
-Theorem negate_self_inversion : forall (b : Bool), negate (negate b) = b.
+Theorem negate_involution : forall (b : Bool), negate (negate b) = b.
 Proof.
   (* The context gains [b]: [|- negate (negate b) = b] *)
   intros b.
@@ -142,7 +142,7 @@ Definition Holds := fun (b : Bool) =>
   | false => False
   end.
 
-Theorem and_conjunction
+Theorem holds_conjunction
   : forall (b1 : Bool) (b2 : Bool),
       Holds (and b1 b2) <-> Holds b1 /\ Holds b2.
 Proof.
@@ -164,23 +164,25 @@ Proof.
     split; intro h.
     + (* [h : False], which closes any goal. *)
       destruct h.
-    + (* [|- False], and the right half of [h] is one. *)
-      destruct h as [h1 h2]. exact h2.
+    + (* [|- False], and the right half of [h] is one; the left half is
+         dropped. *)
+      destruct h as [_ h]. exact h.
   - (* [|- (False -> False /\ True) /\ (False /\ True -> False)] *)
     split; intro h.
     + (* [h : False]. *)
       destruct h.
-    + (* [|- False], and the left half of [h] is one. *)
-      destruct h as [h1 h2]. exact h1.
+    + (* [|- False], and the left half of [h] is one; the right half is
+         dropped. *)
+      destruct h as [h _]. exact h.
   - (* [|- (False -> False /\ False) /\ (False /\ False -> False)] *)
     split; intro h.
     + (* [h : False]. *)
       destruct h.
-    + (* [|- False], and the left half of [h] is one. *)
-      destruct h as [h1 h2]. exact h1.
+    + (* [|- False], and either half of [h] is one; the left is taken. *)
+      destruct h as [h _]. exact h.
 Qed.
 
-Theorem or_disjunction
+Theorem holds_disjunction
   : forall (b1 : Bool) (b2 : Bool),
       Holds (or b1 b2) <-> Holds b1 \/ Holds b2.
 Proof.
@@ -194,7 +196,8 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
   - (* [|- (True -> True \/ True) /\ (True \/ True -> True)] *)
     split; intro h.
-    + (* Either side will do; the left one is taken. *)
+    + (* Either side will do, so [exact (Or_right I)] would close it as well;
+         the left one is taken. *)
       exact (Or_left I).
     + (* [|- True] *)
       exact I.
@@ -218,7 +221,7 @@ Proof.
       destruct h as [h1 | h2]. exact h1. exact h2.
 Qed.
 
-Theorem negate_negation : forall (b : Bool), Holds (negate b) <-> ~ Holds b.
+Theorem holds_negation : forall (b : Bool), Holds (negate b) <-> ~ Holds b.
 Proof.
   (* The context gains [b]: [|- Holds (negate b) <-> ~ Holds b] *)
   intros b.
