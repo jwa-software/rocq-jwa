@@ -282,6 +282,47 @@ Proof.
       destruct h as [h1 | h2]. exact h1. exact h2.
 Qed.
 
+Theorem holds_exclusive_disjunction
+  : forall (b1 : Bool) (b2 : Bool),
+      Holds (xor b1 b2) <-> Holds b1 _\/_ Holds b2.
+Proof.
+  (* The context gains [b1] and [b2]:
+     [|- Holds (xor b1 b2) <-> Holds b1 _\/_ Holds b2] *)
+  intros b1 b2.
+  (* [|- (Holds (xor b1 b2) -> Holds b1 _\/_ Holds b2)
+         /\ (Holds b1 _\/_ Holds b2 -> Holds (xor b1 b2))] *)
+  unfold Biconditional in |- *.
+  (* Four cases; [xor] reduces to [false] in the first and the last. *)
+  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
+  - (* [|- (False -> True _\/_ True) /\ (True _\/_ True -> False)] *)
+    split; intro h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* Either ctor of [h] carries a [True] and a [~ True], which is
+         [True -> False]; applying the one to the other gives the goal. *)
+      destruct h as [t nt | nt t]. exact (nt t). exact (nt t).
+  - (* [|- (True -> True _\/_ False) /\ (True _\/_ False -> True)] *)
+    split; intro h.
+    + (* [Xor_left] asks for a [True] and a [~ False], which is
+         [False -> False]; [I] is the first and the identity the second. *)
+      exact (Xor_left I (fun (f : False) => f)).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (True -> False _\/_ True) /\ (False _\/_ True -> True)] *)
+    split; intro h.
+    + (* [Xor_right] asks for the same two in the other order. *)
+      exact (Xor_right (fun (f : False) => f) I).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (False -> False _\/_ False) /\ (False _\/_ False -> False)] *)
+    split; intro h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* Either ctor of [h] carries a [False]; the [~ False] beside it is
+         dropped. *)
+      destruct h as [f _ | _ f]. exact f. exact f.
+Qed.
+
 Theorem holds_negation : forall (b : Bool), Holds (negate b) <-> ~ Holds b.
 Proof.
   (* The context gains [b]: [|- Holds (negate b) <-> ~ Holds b] *)
