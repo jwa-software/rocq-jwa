@@ -50,6 +50,15 @@ Definition or := fun (b1 : Bool) (b2 : Bool) =>
   | false => b2
   end.
 
+(* Exclusive or: [true] when exactly one side is. [true] flips the other
+   side, [false] leaves it alone. *)
+(* [Bool -> Bool -> Bool] *)
+Definition xor := fun (b1 : Bool) (b2 : Bool) =>
+  match b1 with
+  | true  => negate b2
+  | false => b2
+  end.
+
 Theorem negate_involution : forall (b : Bool), negate (negate b) = b.
 Proof.
   (* The context gains [b]: [|- negate (negate b) = b] *)
@@ -132,6 +141,57 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
+Theorem xor_associativity
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      xor (xor b1 b2) b3 = xor b1 (xor b2 b3).
+Proof.
+  (* The context gains [b1], [b2] and [b3]:
+     [|- xor (xor b1 b2) b3 = xor b1 (xor b2 b3)] *)
+  intros b1 b2 b3.
+  (* Eight cases; [xor] and [negate] both reduce on ctors, so both sides
+     reduce to the same ctor in every one. *)
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+Qed.
+
+Lemma xor_false_left : forall (b : Bool), xor false b = b.
+Proof.
+  (* The context gains [b]. [xor] matches its first argument, and [false]
+     returns the second untouched: [|- b = b] *)
+  intros b.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Lemma xor_false_right : forall (b : Bool), xor b false = b.
+Proof.
+  (* The context gains [b]: [|- xor b false = b] *)
+  intros b.
+  (* Nothing reduces until [b] is a ctor, since [xor] matches it first; the
+     [true] case goes through [negate false]. *)
+  destruct b as [|]; reflexivity.
+Qed.
+
+Theorem xor_commutativity
+  : forall (b1 : Bool) (b2 : Bool), xor b1 b2 = xor b2 b1.
+Proof.
+  (* The context gains [b1] and [b2]: [|- xor b1 b2 = xor b2 b1] *)
+  intros b1 b2.
+  (* Four cases; both sides reduce to the same ctor in every one. *)
+  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+Qed.
+
+(* Every element is its own inverse under [xor], which is what makes
+   [(Bool, xor, false)] more than a monoid; the group structure waits for a
+   [Group] class. *)
+Theorem xor_self_inverse : forall (b : Bool), xor b b = false.
+Proof.
+  (* The context gains [b]: [|- xor b b = false] *)
+  intros b.
+  (* Two cases: [xor true true] is [negate true], [xor false false] is
+     [false]. *)
+  destruct b as [|]; reflexivity.
+Qed.
+
 (* The bridge from a computed answer to a statement. [Holds true] is [True]
    and [Holds false] is [False] by reduction, so case analysis on a [Bool]
    turns each law below into a concrete implication in both directions. *)
@@ -150,7 +210,8 @@ Proof.
      [|- Holds (and b1 b2) <-> Holds b1 /\ Holds b2] *)
   intros b1 b2.
   (* [<->] is a [Definition], so [split] cannot see the [/\] beneath it:
-     [|- (Holds (and b1 b2) -> Holds b1 /\ Holds b2) /\ (Holds b1 /\ Holds b2 -> Holds (and b1 b2))] *)
+     [|- (Holds (and b1 b2) -> Holds b1 /\ Holds b2)
+         /\ (Holds b1 /\ Holds b2 -> Holds (and b1 b2))] *)
   unfold Biconditional in |- *.
   (* Four cases, each a concrete implication both ways. *)
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
@@ -270,6 +331,13 @@ Qed.
 
 End Bool.
 
+(* The levels are reserved in [Core.Notations]; only the meanings belong
+   here. Declared at file level, they reach a client through
+   [Require Export]. *)
+Notation "b1 && b2" := (Bool.and b1 b2) : jwa_type_scope.
+Notation "b1 ^^ b2" := (Bool.xor b1 b2) : jwa_type_scope.
+Notation "b1 || b2" := (Bool.or  b1 b2) : jwa_type_scope.
+
 Instance Bool_and_monoid : Monoid Bool Bool.and true :=
   {| Monoid_semigroup :=
        {| Semigroup_associativity := Bool.and_associativity |}
@@ -281,3 +349,9 @@ Instance Bool_or_monoid : Monoid Bool Bool.or false :=
        {| Semigroup_associativity := Bool.or_associativity |}
    ; Monoid_identity_left  := Bool.or_false_left
    ; Monoid_identity_right := Bool.or_false_right |}.
+
+Instance Bool_xor_monoid : Monoid Bool Bool.xor false :=
+  {| Monoid_semigroup :=
+       {| Semigroup_associativity := Bool.xor_associativity |}
+   ; Monoid_identity_left  := Bool.xor_false_left
+   ; Monoid_identity_right := Bool.xor_false_right |}.

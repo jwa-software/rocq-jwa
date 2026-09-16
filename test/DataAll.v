@@ -40,8 +40,10 @@ Definition data_all_delivers_monoid
 Definition data_all_delivers_functor : Option Bool
   := Functor_map (fun (b : Bool) => b) (Some true).
 
+(* The three operators are notations, so this also checks that they reach a
+   client through the umbrella. *)
 Definition data_all_delivers_bool_operations : Bool
-  := Bool.and (Bool.or true false) (Bool.negate false).
+  := (true || false) && (Bool.negate false ^^ true).
 
 Definition data_all_delivers_bool_monoids
   : forall (b : Bool), Bool.and true b = b
