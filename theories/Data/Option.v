@@ -1,7 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->]: with [-noinit] a file has only what it requires. *)
+(* [Core.All] carries [->]: with [-noinit] a file has only what it requires.
+   [Structures.Functor] is the class the instance at the bottom fills. *)
 From jwa Require Import Core.All.
+From jwa Require Import Structures.Functor.
 
 Inductive Option (A : Type) : Type :=
   | None : Option A
@@ -78,3 +80,12 @@ Proof.
 Qed.
 
 End Option.
+
+(* The two laws were already proved above, so the instance only hands them
+   over. [map]'s type arguments are maximally inserted, so the bare name
+   collapses to one fixed pair of them; binding [A] and [B] first is what
+   keeps it general enough for the field. *)
+Instance Option_functor : Functor Option :=
+  {| Functor_map             := fun (A : Type) (B : Type) => Option.map
+   ; Functor_map_identity    := Option.map_identity
+   ; Functor_map_composition := Option.map_composition |}.
