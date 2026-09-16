@@ -6,9 +6,11 @@
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Class.
 
-(* An associative binary operation and nothing more. The field name is
-   prefixed because a class field becomes a top-level projection, so a bare
-   [associativity] would spend that name for the whole library. *)
-Class Semigroup (A : Type) (op : A -> A -> A) : Prop :=
-  { Semigroup_associativity
-      : forall (x : A) (y : A) (z : A), op (op x y) z = op x (op y z) }.
+(* The module is the prefix: the class reads [Semigroup.T] and its
+   law [Semigroup.associativity], the bare name being spent nowhere. *)
+Module Semigroup.
+  (* An associative binary operation and nothing more. *)
+  Class T (A : Type) (op : A -> A -> A) : Prop :=
+    { associativity
+        : forall (x : A) (y : A) (z : A), op (op x y) z = op x (op y z) }.
+End Semigroup.

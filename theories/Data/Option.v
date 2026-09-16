@@ -85,7 +85,7 @@ End Option.
    over. [map]'s type arguments are maximally inserted, so the bare name
    collapses to one fixed pair of them; binding [A] and [B] first is what
    keeps it general enough for the field. *)
-Instance Option_functor : Functor Option :=
-  {| Functor_map             := fun (A : Type) (B : Type) => Option.map
-   ; Functor_map_identity    := Option.map_identity
-   ; Functor_map_composition := Option.map_composition |}.
+Instance Option_functor : Functor.T Option :=
+  {| Functor.map             := fun (A : Type) (B : Type) => Option.map
+   ; Functor.map_identity    := Option.map_identity
+   ; Functor.map_composition := Option.map_composition |}.

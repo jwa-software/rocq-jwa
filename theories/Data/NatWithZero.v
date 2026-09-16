@@ -154,11 +154,11 @@ Qed.
 End NatWithZero.
 
 (* [Zero] is exactly what [Nat] lacks, so this one reaches monoid. The
-   [Semigroup] field is filled inline rather than by a second instance:
-   [Monoid_semigroup] is declared with [::], so resolution already finds a
-   [Semigroup NatWithZero add] through it. *)
-Instance NatWithZero_add_monoid : Monoid NatWithZero NatWithZero.add Zero :=
-  {| Monoid_semigroup :=
-       {| Semigroup_associativity := NatWithZero.add_associativity |}
-   ; Monoid_identity_left  := NatWithZero.add_zero_left
-   ; Monoid_identity_right := NatWithZero.add_zero_right |}.
+   [semigroup] field is filled inline rather than by a second instance:
+   [Monoid.semigroup] is declared with [::], so resolution already finds a
+   [Semigroup.T NatWithZero add] through it. *)
+Instance NatWithZero_add_monoid : Monoid.T NatWithZero NatWithZero.add Zero :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := NatWithZero.add_associativity |}
+   ; Monoid.identity_left  := NatWithZero.add_zero_left
+   ; Monoid.identity_right := NatWithZero.add_zero_right |}.

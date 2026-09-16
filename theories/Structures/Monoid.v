@@ -7,12 +7,23 @@ From jwa Require Import Core.All.
 From jwa Require Import Structures.Class.
 From jwa Require Import Structures.Semigroup.
 
-(* A [Semigroup] with an element that changes nothing on either side.
-   [identity] is a binder here rather than a global, so the name costs the
-   library nothing. The [::] on the first field declares it an instance as
-   well as a projection, which is what lets a [Monoid] be used wherever a
-   [Semigroup] is asked for. *)
-Class Monoid (A : Type) (op : A -> A -> A) (identity : A) : Prop :=
-  { Monoid_semigroup      :: Semigroup A op
-  ; Monoid_identity_left  : forall (x : A), op identity x = x
-  ; Monoid_identity_right : forall (x : A), op x identity = x }.
+(* The module is the prefix: the class reads [Monoid.T] and its
+   fields [Monoid.semigroup], [Monoid.identity_left] and
+   [Monoid.identity_right]. *)
+Module Monoid.
+  (* A [Semigroup.T] with an element that changes nothing on either
+     side. [identity] is a binder here rather than a global, so the name
+     costs the library nothing. The [::] on the first field declares it an
+     instance as well as a projection, which is what lets a monoid be used
+     wherever a semigroup is asked for. *)
+  Class T (A : Type) (op : A -> A -> A) (identity : A) : Prop :=
+    { semigroup      :: Semigroup.T A op
+    ; identity_left  : forall (x : A), op identity x = x
+    ; identity_right : forall (x : A), op x identity = x }.
+End Monoid.
+
+(* The instance hint that [::] declares is scoped to the module it is
+   declared in; this lets it out while the names stay qualified. Without it
+   [Semigroup.T A op] is not found from a [Monoid.T A op e]
+   outside the module. *)
+Export (hints) Monoid.

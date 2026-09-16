@@ -157,5 +157,5 @@ End Nat.
 
 (* A semigroup and no more: a monoid needs an identity, and [Nat] has no
    element that leaves its argument alone under [add]. *)
-Instance Nat_add_semigroup : Semigroup Nat Nat.add :=
-  {| Semigroup_associativity := Nat.add_associativity |}.
+Instance Nat_add_semigroup : Semigroup.T Nat Nat.add :=
+  {| Semigroup.associativity := Nat.add_associativity |}.
