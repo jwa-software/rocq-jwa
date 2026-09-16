@@ -32,3 +32,27 @@ Proof.
     (* [a] is a proof of the goal as it stands. *)
     exact a.
 Qed.
+
+
+Theorem Biconditional_symmetry
+  : forall (A : Prop) (B : Prop), (A <-> B) -> (B <-> A).
+Proof.
+  (* The context gains [A] and [B]; the goal is now
+     [(A <-> B) -> (B <-> A)]. *)
+  intros A B.
+  (* The context gains [h : A <-> B]; the goal is now [B <-> A]. *)
+  intro h.
+  (* [h] goes from [A <-> B] to [And (A -> B) (B -> A)]; the goal goes from
+     [B <-> A] to [And (B -> A) (A -> B)]. *)
+  unfold Biconditional in h |- *.
+  (* [And] has one ctor with two fields, so [h] splits into [ab : A -> B]
+     and [ba : B -> A]. *)
+  destruct h as [ab ba].
+  (* [And] has one ctor with two fields, so the goal splits into two goals:
+     [B -> A] and [A -> B]. *)
+  split.
+  - (* [ba] is a proof of the goal as it stands. *)
+    exact ba.
+  - (* [ab] is a proof of the goal as it stands. *)
+    exact ab.
+Qed.
