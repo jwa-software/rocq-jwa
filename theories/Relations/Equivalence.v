@@ -10,22 +10,22 @@ From jwa Require Import Relations.Reflexive.
 From jwa Require Import Relations.Symmetric.
 From jwa Require Import Relations.Transitive.
 
-(* The module is the prefix: the class reads [Equivalence.Relation] and its
+(* The module is the prefix: the class reads [Equivalence.R] and its
    fields [Equivalence.reflexive] and so on. *)
 Module Equivalence.
   (* The three properties together. The [::] on each field declares it an
      instance as well as a projection, which is what lets an
-     [Equivalence.Relation] be used wherever a [Reflexive.Relation], a
-     [Symmetric.Relation] or a [Transitive.Relation] is asked for. *)
-  Class Relation (A : Type) (R : A -> A -> Prop) : Prop :=
-    { reflexive  :: Reflexive.Relation A R
-    ; symmetric  :: Symmetric.Relation A R
-    ; transitive :: Transitive.Relation A R }.
+     [Equivalence.R] be used wherever a [Reflexive.R], a
+     [Symmetric.R] or a [Transitive.R] is asked for. *)
+  Class R (A : Type) (relation : A -> A -> Prop) : Prop :=
+    { reflexive  :: Reflexive.R A relation
+    ; symmetric  :: Symmetric.R A relation
+    ; transitive :: Transitive.R A relation }.
 End Equivalence.
 
 (* The instance hints that [::] declares are scoped to the module they are
    declared in; this lets them out while the names stay qualified. Without
-   it [Reflexive.Relation A R] is not found from an [Equivalence.Relation A R]
+   it [Reflexive.R A R] is not found from an [Equivalence.R A R]
    outside the module. *)
 Export (hints) Equivalence.
 
@@ -33,7 +33,7 @@ Export (hints) Equivalence.
    them, since [Core] sees no class. Each field is the matching theorem of
    [Core]. *)
 
-Instance Biconditional_equivalence : Equivalence.Relation Prop Biconditional :=
+Instance Biconditional_equivalence : Equivalence.R Prop Biconditional :=
   {| Equivalence.reflexive :=
        {| Reflexive.reflexivity := Biconditional_reflexivity |}
    ; Equivalence.symmetric :=
@@ -43,7 +43,7 @@ Instance Biconditional_equivalence : Equivalence.Relation Prop Biconditional :=
 
 (* [@] makes [A] explicit, which the field types need since [R] is applied
    to two elements of [A] and nothing else. *)
-Instance Eq_equivalence : forall (A : Type), Equivalence.Relation A (@Eq A) :=
+Instance Eq_equivalence : forall (A : Type), Equivalence.R A (@Eq A) :=
   fun (A : Type) =>
     {| Equivalence.reflexive :=
          {| Reflexive.reflexivity := @Eq_reflexivity A |}

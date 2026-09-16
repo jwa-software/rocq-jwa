@@ -6,23 +6,23 @@ From jwa Require Import Relations.All.
 
 Definition relations_all_delivers
   : forall (A : Type) (R : A -> A -> Prop),
-      Reflexive.Relation A R -> Symmetric.Relation A R
-      -> Transitive.Relation A R -> Equivalence.Relation A R
+      Reflexive.R A R -> Symmetric.R A R
+      -> Transitive.R A R -> Equivalence.R A R
       -> ~ False -> True
   := fun (A : Type) (R : A -> A -> Prop)
-         (_ : Reflexive.Relation A R) (_ : Symmetric.Relation A R)
-         (_ : Transitive.Relation A R) (_ : Equivalence.Relation A R)
+         (_ : Reflexive.R A R) (_ : Symmetric.R A R)
+         (_ : Transitive.R A R) (_ : Equivalence.R A R)
          (_ : ~ False) => I.
 
 (* The projections are constants of their modules, so the umbrella has to
    forward them too; the one below is reached through the [::] field of
-   [Equivalence.Relation], which also checks that its hint left the
+   [Equivalence.R], which also checks that its hint left the
    module. *)
 Definition relations_all_delivers_projections
-  : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence.Relation A R)
+  : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence.R A R)
            (x : A),
       R x x
-  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence.Relation A R)
+  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence.R A R)
          (x : A) =>
        Reflexive.reflexivity x.
 
