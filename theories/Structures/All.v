@@ -10,3 +10,4 @@ From jwa Require Export Core.All.
 From jwa Require Export Structures.Class.
 From jwa Require Export Structures.Semigroup.
 From jwa Require Export Structures.Monoid.
+From jwa Require Export Structures.Functor.

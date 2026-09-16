@@ -36,3 +36,6 @@ Definition data_all_delivers_instances
 Definition data_all_delivers_monoid
   : forall (w : NatWithZero), NatWithZero.add Zero w = w
   := Monoid_identity_left.
+
+Definition data_all_delivers_functor : Option Bool
+  := Functor_map (fun (b : Bool) => b) (Some true).

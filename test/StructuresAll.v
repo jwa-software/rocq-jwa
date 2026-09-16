@@ -6,9 +6,11 @@ From jwa Require Import Structures.All.
 
 Definition structures_all_delivers
   : forall (A : Type) (op : A -> A -> A) (e : A),
-      Semigroup A op -> Monoid A op e -> ~ (true = false) -> True
-  := fun (A : Type) (op : A -> A -> A) (e : A)
-         (_ : Semigroup A op) (_ : Monoid A op e) (_ : ~ (true = false)) => I.
+      forall (F : Type -> Type),
+      Semigroup A op -> Monoid A op e -> Functor F -> ~ (true = false) -> True
+  := fun (A : Type) (op : A -> A -> A) (e : A) (F : Type -> Type)
+         (_ : Semigroup A op) (_ : Monoid A op e) (_ : Functor F)
+         (_ : ~ (true = false)) => I.
 
 (* The projections are top-level constants, so the umbrella has to forward
    them too. *)
