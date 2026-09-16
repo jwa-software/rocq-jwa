@@ -26,14 +26,25 @@ Arguments Eq_reflexivity {A} x.
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Eq x y) : jwa_type_scope.
 
-(* Carries a proof across the equation. *)
-Definition Eq_transport
-  : forall {A : Type} (x : A) (y : A) (P : A -> Prop), P x -> Eq x y -> P y :=
-  fun {A : Type} (x : A) (y : A) (P : A -> Prop) (p : P x) (e : Eq x y) =>
-    match e in (Eq _ y') return P y'
-    with
-    | Eq_reflexivity _ => p
-    end.
+(* Carries a proof across the equation. The tactics fill the slots of
+   [core.eq.ind] by position, so this order -- [P] before the proof and [y]
+   after it -- is the order the registration needs. *)
+Theorem Eq_transport
+  : forall {A : Type} (x : A) (P : A -> Prop), P x -> forall (y : A), Eq x y -> P y.
+Proof.
+  (* The context gains [A], [x], [P] and [p]:
+     [|- forall (y : A), Eq x y -> P y] *)
+  intros A x P p.
+  (* The context gains [y] and [e]: [|- P y] *)
+  intros y e.
+  (* [x] is a parameter, so fixed for every ctor; [y] is an index, so each
+     ctor chooses it. [Eq_reflexivity] is the only ctor and it chooses the
+     parameter, which is why [y] becomes [x] and not the other way:
+     [|- P x] *)
+  destruct e.
+  (* [p] is a proof of the goal as it stands. *)
+  exact p.
+Defined.
 
 (* The tactics fill the slots of [core.eq.ind] by position, in the order
    [Corelib] uses, so the registration needs that order and not the one above.
