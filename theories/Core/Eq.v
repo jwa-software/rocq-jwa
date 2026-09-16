@@ -46,27 +46,39 @@ Proof.
   exact p.
 Defined.
 
-(* The tactics fill the slots of [core.eq.ind] by position, in the order
-   [Corelib] uses, so the registration needs that order and not the one above.
-   Rewriting the arguments here is what keeps [discriminate] and [rewrite]
-   working. *)
-Definition Eq_transport_registered
-  : forall {A : Type} (x : A) (P : A -> Prop), P x -> forall (y : A), Eq x y -> P y :=
-  fun {A : Type} (x : A) (P : A -> Prop) (p : P x) (y : A) (e : Eq x y) =>
-    Eq_transport x y P p e.
+Theorem Eq_symmetry : forall {A : Type} {x : A} {y : A}, Eq x y -> Eq y x.
+Proof.
+  (* The context gains [A], [x], [y] and [e]: [|- Eq y x] *)
+  intros A x y e.
+  (* The index [y] takes the parameter's value: [|- Eq x x] *)
+  destruct e.
+  (* Both sides are the same term. *)
+  reflexivity.
+Defined.
 
-(* [forall {A : Type} {x : A} {y : A}, Eq x y -> Eq y x] *)
-Definition Eq_symmetry
-  : forall {A : Type} {x : A} {y : A}, Eq x y -> Eq y x :=
-  fun {A : Type} {x : A} {y : A} (e : Eq x y) =>
-    Eq_transport x y (fun a => Eq a x) (Eq_reflexivity x) e.
+Theorem Eq_transitivity
+  : forall {A : Type} {x : A} {y : A} {z : A}, Eq x y -> Eq y z -> Eq x z.
+Proof.
+  (* The context gains [A], [x], [y], [z], [e1] and [e2]: [|- Eq x z] *)
+  intros A x y z e1 e2.
+  (* In [e2 : Eq y z] the parameter is [y] and the index [z], so the index
+     takes [y]: [|- Eq x y] *)
+  destruct e2.
+  (* [e1] is a proof of the goal as it stands. *)
+  exact e1.
+Defined.
 
-(* [forall {A : Type} {x : A} {y : A} {z : A},
-      Eq x y -> Eq y z -> Eq x z] *)
-Definition Eq_transitivity
-  : forall {A : Type} {x : A} {y : A} {z : A}, Eq x y -> Eq y z -> Eq x z :=
-  fun {A : Type} {x : A} {y : A} {z : A} (e1 : Eq x y) (e2 : Eq y z) =>
-    Eq_transport y z (fun a => Eq x a) e1 e2.
+Theorem Eq_congruence
+  : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A},
+      Eq x y -> Eq (f x) (f y).
+Proof.
+  (* The context gains [A], [B], [f], [x], [y] and [e]: [|- Eq (f x) (f y)] *)
+  intros A B f x y e.
+  (* The index [y] takes the parameter's value: [|- Eq (f x) (f x)] *)
+  destruct e.
+  (* Both sides are the same term. *)
+  reflexivity.
+Defined.
 
 (* [forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A},
       Eq x y -> Eq (f x) (f y)] *)
@@ -77,9 +89,9 @@ Definition Eq_congruence
 
 (* [build_eqdata_gen] in rocqlib.ml demands exactly these six; a single missing
    one surfaces as [No primitive equality found]. *)
-Register Eq                      as core.eq.type.
-Register Eq_reflexivity          as core.eq.refl.
-Register Eq_transport_registered as core.eq.ind.
-Register Eq_symmetry             as core.eq.sym.
-Register Eq_transitivity         as core.eq.trans.
-Register Eq_congruence           as core.eq.congr.
+Register Eq              as core.eq.type.
+Register Eq_reflexivity  as core.eq.refl.
+Register Eq_transport    as core.eq.ind.
+Register Eq_symmetry     as core.eq.sym.
+Register Eq_transitivity as core.eq.trans.
+Register Eq_congruence   as core.eq.congr.
