@@ -21,3 +21,6 @@ Definition data_all_delivers_nat : Nat := Successor One.
 Definition data_all_delivers_zero : NatWithZero := Zero.
 
 Definition data_all_delivers_positive : NatWithZero := Positive One.
+
+Definition data_all_delivers_add : NatWithZero
+  := NatWithZero.add (Positive (Nat.add One One)) Zero.
