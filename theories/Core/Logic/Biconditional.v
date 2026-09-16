@@ -32,3 +32,76 @@ Proof.
     (* [a] is a proof of the goal as it stands. *)
     exact a.
 Qed.
+
+(* With reflexivity above, symmetry and transitivity make [<->] an
+   equivalence relation: each is the two halves of the [And] handled one
+   direction at a time. *)
+
+Theorem Biconditional_symmetry
+  : forall (A : Prop) (B : Prop), (A <-> B) -> (B <-> A).
+Proof.
+  (* The context gains [A] and [B]; the goal is now
+     [(A <-> B) -> (B <-> A)]. *)
+  intros A B.
+  (* The context gains [h : A <-> B]; the goal is now [B <-> A]. *)
+  intro h.
+  (* [h] goes from [A <-> B] to [And (A -> B) (B -> A)]; the goal goes from
+     [B <-> A] to [And (B -> A) (A -> B)]. *)
+  unfold Biconditional in h |- *.
+  (* [And] has one ctor with two fields, so [h] splits into [ab : A -> B]
+     and [ba : B -> A]. *)
+  destruct h as [ab ba].
+  (* [And] has one ctor with two fields, so the goal splits into two goals:
+     [B -> A] and [A -> B]. *)
+  split.
+  - (* [ba] is a proof of the goal as it stands. *)
+    exact ba.
+  - (* [ab] is a proof of the goal as it stands. *)
+    exact ab.
+Qed.
+
+Theorem Biconditional_transitivity
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A <-> B) -> (B <-> C) -> (A <-> C).
+Proof.
+  (* The context gains [A], [B] and [C]; the goal is now
+     [(A <-> B) -> (B <-> C) -> (A <-> C)]. *)
+  intros A B C.
+  (* The context gains [hab : A <-> B]; the goal is now
+     [(B <-> C) -> (A <-> C)]. *)
+  intro hab.
+  (* The context gains [hbc : B <-> C]; the goal is now [A <-> C]. *)
+  intro hbc.
+  (* [hab] goes from [A <-> B] to [And (A -> B) (B -> A)], [hbc] from
+     [B <-> C] to [And (B -> C) (C -> B)], and the goal from [A <-> C] to
+     [And (A -> C) (C -> A)]. *)
+  unfold Biconditional in hab, hbc |- *.
+  (* [And] has one ctor with two fields, so [hab] splits into [ab : A -> B]
+     and [ba : B -> A]. *)
+  destruct hab as [ab ba].
+  (* Likewise [hbc] splits into [bc : B -> C] and [cb : C -> B]. *)
+  destruct hbc as [bc cb].
+  (* [And] has one ctor with two fields, so the goal splits into two goals:
+     [A -> C] and [C -> A]. *)
+  split.
+  - (* The context gains [a : A]; the goal is now [C]. *)
+    intro a.
+    (* [bc : B -> C] turns a proof of [B] into a proof of [C], so proving
+       [C] reduces to proving [B]; the goal is now [B]. *)
+    apply bc.
+    (* [ab : A -> B] turns a proof of [A] into a proof of [B]; the goal is
+       now [A]. *)
+    apply ab.
+    (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* The context gains [c : C]; the goal is now [A]. *)
+    intro c.
+    (* [ba : B -> A] turns a proof of [B] into a proof of [A], so proving
+       [A] reduces to proving [B]; the goal is now [B]. *)
+    apply ba.
+    (* [cb : C -> B] turns a proof of [C] into a proof of [B]; the goal is
+       now [C]. *)
+    apply cb.
+    (* [c] is a proof of the goal as it stands. *)
+    exact c.
+Qed.
