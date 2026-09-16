@@ -24,3 +24,15 @@ Definition data_all_delivers_positive : NatWithZero := Positive One.
 
 Definition data_all_delivers_add : NatWithZero
   := NatWithZero.add (Positive (Nat.add One One)) Zero.
+
+(* The instances are found by resolution rather than named, so this also
+   checks that [Structures.All] reaches a client through this umbrella. *)
+Definition data_all_delivers_instances
+  : forall (x : Nat) (y : Nat) (z : Nat) (w : NatWithZero),
+      Nat.add (Nat.add x y) z = Nat.add x (Nat.add y z)
+  := fun (x : Nat) (y : Nat) (z : Nat) (_ : NatWithZero) =>
+       Semigroup_associativity x y z.
+
+Definition data_all_delivers_monoid
+  : forall (w : NatWithZero), NatWithZero.add Zero w = w
+  := Monoid_identity_left.
