@@ -1,21 +1,24 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* Guards [Structures.All], imported alone. It forwards [Core.All] as well as
-   the two classes, so names from both appear below. *)
+   the three modules, so names from both appear below. *)
 From jwa Require Import Structures.All.
 
 Definition structures_all_delivers
   : forall (A : Type) (op : A -> A -> A) (e : A),
       forall (F : Type -> Type),
-      Semigroup A op -> Monoid A op e -> Functor F -> ~ False -> True
+      Semigroup.T A op -> Monoid.T A op e
+      -> Functor.T F -> ~ False -> True
   := fun (A : Type) (op : A -> A -> A) (e : A) (F : Type -> Type)
-         (_ : Semigroup A op) (_ : Monoid A op e) (_ : Functor F)
-         (_ : ~ False) => I.
+         (_ : Semigroup.T A op) (_ : Monoid.T A op e)
+         (_ : Functor.T F) (_ : ~ False) => I.
 
-(* The projections are top-level constants, so the umbrella has to forward
-   them too. *)
+(* The projections are constants of their modules, so the umbrella has to
+   forward them too. *)
 Definition structures_all_delivers_projections
-  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid A op e) (x : A),
+  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e)
+           (x : A),
       op e x = x
-  := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid A op e) (x : A) =>
-       Monoid_identity_left x.
+  := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e)
+         (x : A) =>
+       Monoid.identity_left x.

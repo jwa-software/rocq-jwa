@@ -379,20 +379,20 @@ Notation "b1 && b2" := (Bool.and b1 b2) : jwa_type_scope.
 Notation "b1 ^^ b2" := (Bool.xor b1 b2) : jwa_type_scope.
 Notation "b1 || b2" := (Bool.or  b1 b2) : jwa_type_scope.
 
-Instance Bool_and_monoid : Monoid Bool Bool.and true :=
-  {| Monoid_semigroup :=
-       {| Semigroup_associativity := Bool.and_associativity |}
-   ; Monoid_identity_left  := Bool.and_true_left
-   ; Monoid_identity_right := Bool.and_true_right |}.
+Instance Bool_and_monoid : Monoid.T Bool Bool.and true :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Bool.and_associativity |}
+   ; Monoid.identity_left  := Bool.and_true_left
+   ; Monoid.identity_right := Bool.and_true_right |}.
 
-Instance Bool_or_monoid : Monoid Bool Bool.or false :=
-  {| Monoid_semigroup :=
-       {| Semigroup_associativity := Bool.or_associativity |}
-   ; Monoid_identity_left  := Bool.or_false_left
-   ; Monoid_identity_right := Bool.or_false_right |}.
+Instance Bool_or_monoid : Monoid.T Bool Bool.or false :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Bool.or_associativity |}
+   ; Monoid.identity_left  := Bool.or_false_left
+   ; Monoid.identity_right := Bool.or_false_right |}.
 
-Instance Bool_xor_monoid : Monoid Bool Bool.xor false :=
-  {| Monoid_semigroup :=
-       {| Semigroup_associativity := Bool.xor_associativity |}
-   ; Monoid_identity_left  := Bool.xor_false_left
-   ; Monoid_identity_right := Bool.xor_false_right |}.
+Instance Bool_xor_monoid : Monoid.T Bool Bool.xor false :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Bool.xor_associativity |}
+   ; Monoid.identity_left  := Bool.xor_false_left
+   ; Monoid.identity_right := Bool.xor_false_right |}.

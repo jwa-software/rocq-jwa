@@ -31,14 +31,14 @@ Definition data_all_delivers_instances
   : forall (x : Nat) (y : Nat) (z : Nat) (w : NatWithZero),
       Nat.add (Nat.add x y) z = Nat.add x (Nat.add y z)
   := fun (x : Nat) (y : Nat) (z : Nat) (_ : NatWithZero) =>
-       Semigroup_associativity x y z.
+       Semigroup.associativity x y z.
 
 Definition data_all_delivers_monoid
   : forall (w : NatWithZero), NatWithZero.add Zero w = w
-  := Monoid_identity_left.
+  := Monoid.identity_left.
 
 Definition data_all_delivers_functor : Option Bool
-  := Functor_map (fun (b : Bool) => b) (Some true).
+  := Functor.map (fun (b : Bool) => b) (Some true).
 
 (* The three operators are notations, so this also checks that they reach a
    client through the umbrella. *)
@@ -47,7 +47,7 @@ Definition data_all_delivers_bool_operations : Bool
 
 Definition data_all_delivers_bool_monoids
   : forall (b : Bool), Bool.and true b = b
-  := Monoid_identity_left.
+  := Monoid.identity_left.
 
 Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool),
