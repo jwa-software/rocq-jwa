@@ -2,3 +2,12 @@
 
 (* Umbrella for [jwa.Relations]: re-exports every module of the layer, so a
    client imports the whole layer with [From jwa Require Import Relations.All]. *)
+
+(* The modules below only [Import] [Core.All], so the open scope reaches a
+   client of this umbrella only from here. *)
+From jwa Require Export Core.All.
+
+From jwa Require Export Relations.Reflexive.
+From jwa Require Export Relations.Symmetric.
+From jwa Require Export Relations.Transitive.
+From jwa Require Export Relations.Equivalence.
