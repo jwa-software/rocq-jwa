@@ -66,4 +66,26 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma add_one_right : forall (m : Nat), add m One = Successor m.
+Proof.
+  (* The context gains [m]: [|- add m One = Successor m] *)
+  intros m.
+  (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
+     has [m'] and [IH : add m' One = Successor m'] in its context. *)
+  induction m as [| m' IH] using Nat_induction.
+  - (* [|- add One One = Successor One] *)
+    (* The left side computes: [|- Successor One = Successor One] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- add (Successor m') One = Successor (Successor m')] *)
+    (* One [add] step on the left:
+       [|- Successor (add m' One) = Successor (Successor m')] *)
+    simpl in |- *.
+    (* [IH] replaces the left side:
+       [|- Successor (Successor m') = Successor (Successor m')] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
 End Nat.
