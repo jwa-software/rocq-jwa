@@ -41,7 +41,7 @@ A layer may group related modules in a subdirectory. `theories/Core/dune` carrie
 | `jwa.Tactics` | Ltac and Ltac2 tactics | Core |
 | `jwa.Structures` | Type classes and interfaces: equality, orders, monoids, functors, monads, decidability | Core |
 | `jwa.Relations` | Orders, well-founded and equivalence relations | Core, Structures |
-| `jwa.Data` | Concrete data structures: maps, vectors, naturals, lists, options | Core, Tactics, Structures, Relations |
+| `jwa.Data` | Concrete data structures: booleans, naturals, options, lists, vectors, maps | Core, Tactics, Structures, Relations |
 | `jwa.Assumption` | Axioms: classical principles, extensionality, decidability | Core |
 | `jwa.Algebra` | Algebraic structures and their theory | Core, Tactics, Structures, Relations, Data |
 | `jwa.Programming` | Monad instances, effects, extraction-oriented code | Core, Tactics, Structures, Relations, Data |
