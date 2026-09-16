@@ -223,22 +223,22 @@ Proof.
       exact I.
   - (* [|- (False -> True /\ False) /\ (True /\ False -> False)] *)
     split; intro h.
-    + (* [h : False], which closes any goal. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [|- False], and the right half of [h] is one; the left half is
          dropped. *)
       destruct h as [_ h]. exact h.
   - (* [|- (False -> False /\ True) /\ (False /\ True -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [|- False], and the left half of [h] is one; the right half is
          dropped. *)
       destruct h as [h _]. exact h.
   - (* [|- (False -> False /\ False) /\ (False /\ False -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [|- False], and either half of [h] is one; the left is taken. *)
       destruct h as [h _]. exact h.
 Qed.
@@ -276,8 +276,8 @@ Proof.
       exact I.
   - (* [|- (False -> False \/ False) /\ (False \/ False -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* Either ctor of [h] carries a [False]. *)
       destruct h as [h1 | h2]. exact h1. exact h2.
 Qed.
@@ -334,8 +334,8 @@ Proof.
   destruct b as [|]; simpl in |- *.
   - (* [|- (False -> True -> False) /\ ((True -> False) -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [h] turns a [True] into a [False], and [I] is a [True]. *)
       exact (h I).
   - (* [|- (True -> False -> False) /\ ((False -> False) -> True)] *)
@@ -364,8 +364,8 @@ Proof.
       exact I.
   - (* [|- (False -> false = true) /\ (false = true -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [h] claims [false = true], and the two are different ctors. *)
       discriminate h.
 Qed.
