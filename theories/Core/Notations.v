@@ -15,11 +15,12 @@ Open Scope jwa_type_scope.
 
 (* A level is a claim against every other notation in the library, so all of
    them are declared here, while every meaning is supplied elsewhere: [=] in
-   [Core.Eq]; [->], [~], [/\], [\/] and [<->] in [Core.Logic]. *)
+   [Core.Eq]; [->], [~], [/\], [\/], [<->] and [exists] in [Core.Logic]. *)
 
 (* The ordering is the load-bearing part: 70 < 75 < 80 < 85 < 95 < 99 is what
    reads [~ x = y /\ P -> Q] as [((~ (x = y)) /\ P) -> Q], and [A \/ B <-> C]
-   as [(A \/ B) <-> C]. *)
+   as [(A \/ B) <-> C]. At 200 [exists] is looser than all of them, so its
+   body runs to the end: [exists n, P n -> Q] is [exists n, (P n -> Q)]. *)
 Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
@@ -32,3 +33,8 @@ Reserved Notation "x <-> y"
   (at level 95, no associativity).
 Reserved Notation "~ x"
   (at level 75, right associativity).
+
+(* [x binder] is what lets [x] be written with or without its type, and the
+   [..] is what lets one [exists] carry several of them. *)
+Reserved Notation "'exists' x .. y , p"
+  (at level 200, x binder, y binder, right associativity).
