@@ -223,22 +223,22 @@ Proof.
       exact I.
   - (* [|- (False -> True /\ False) /\ (True /\ False -> False)] *)
     split; intro h.
-    + (* [h : False], which closes any goal. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [|- False], and the right half of [h] is one; the left half is
          dropped. *)
       destruct h as [_ h]. exact h.
   - (* [|- (False -> False /\ True) /\ (False /\ True -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [|- False], and the left half of [h] is one; the right half is
          dropped. *)
       destruct h as [h _]. exact h.
   - (* [|- (False -> False /\ False) /\ (False /\ False -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [|- False], and either half of [h] is one; the left is taken. *)
       destruct h as [h _]. exact h.
 Qed.
@@ -276,10 +276,51 @@ Proof.
       exact I.
   - (* [|- (False -> False \/ False) /\ (False \/ False -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* Either ctor of [h] carries a [False]. *)
       destruct h as [h1 | h2]. exact h1. exact h2.
+Qed.
+
+Theorem holds_exclusive_disjunction
+  : forall (b1 : Bool) (b2 : Bool),
+      Holds (xor b1 b2) <-> Holds b1 _\/_ Holds b2.
+Proof.
+  (* The context gains [b1] and [b2]:
+     [|- Holds (xor b1 b2) <-> Holds b1 _\/_ Holds b2] *)
+  intros b1 b2.
+  (* [|- (Holds (xor b1 b2) -> Holds b1 _\/_ Holds b2)
+         /\ (Holds b1 _\/_ Holds b2 -> Holds (xor b1 b2))] *)
+  unfold Biconditional in |- *.
+  (* Four cases; [xor] reduces to [false] in the first and the last. *)
+  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
+  - (* [|- (False -> True _\/_ True) /\ (True _\/_ True -> False)] *)
+    split; intro h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* Either ctor of [h] carries a [True] and a [~ True], which is
+         [True -> False]; applying the one to the other gives the goal. *)
+      destruct h as [t nt | nt t]. exact (nt t). exact (nt t).
+  - (* [|- (True -> True _\/_ False) /\ (True _\/_ False -> True)] *)
+    split; intro h.
+    + (* [Xor_left] asks for a [True] and a [~ False], which is
+         [False -> False]; [I] is the first and the identity the second. *)
+      exact (Xor_left I (fun (f : False) => f)).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (True -> False _\/_ True) /\ (False _\/_ True -> True)] *)
+    split; intro h.
+    + (* [Xor_right] asks for the same two in the other order. *)
+      exact (Xor_right (fun (f : False) => f) I).
+    + (* [|- True] *)
+      exact I.
+  - (* [|- (False -> False _\/_ False) /\ (False _\/_ False -> False)] *)
+    split; intro h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* Either ctor of [h] carries a [False]; the [~ False] beside it is
+         dropped. *)
+      destruct h as [f _ | _ f]. exact f. exact f.
 Qed.
 
 Theorem holds_negation : forall (b : Bool), Holds (negate b) <-> ~ Holds b.
@@ -293,8 +334,8 @@ Proof.
   destruct b as [|]; simpl in |- *.
   - (* [|- (False -> True -> False) /\ ((True -> False) -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [h] turns a [True] into a [False], and [I] is a [True]. *)
       exact (h I).
   - (* [|- (True -> False -> False) /\ ((False -> False) -> True)] *)
@@ -323,8 +364,8 @@ Proof.
       exact I.
   - (* [|- (False -> false = true) /\ (false = true -> False)] *)
     split; intro h.
-    + (* [h : False]. *)
-      destruct h.
+    + (* [h : False], which is what [contradiction] looks for. *)
+      contradiction.
     + (* [h] claims [false = true], and the two are different ctors. *)
       discriminate h.
 Qed.
