@@ -46,3 +46,8 @@ Definition data_all_delivers_bool_operations : Bool
 Definition data_all_delivers_bool_monoids
   : forall (b : Bool), Bool.and true b = b
   := Monoid_identity_left.
+
+Definition data_all_delivers_bool_bridge
+  : forall (b1 : Bool) (b2 : Bool),
+      Bool.Holds (Bool.and b1 b2) <-> Bool.Holds b1 /\ Bool.Holds b2
+  := Bool.and_conjunction.
