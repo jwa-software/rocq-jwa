@@ -42,6 +42,49 @@ Definition second := fun {A : Type} {B : Type} (p : Pair A B) =>
   | Pair_introduction _ b => b
   end.
 
+Theorem introduction_injectivity
+  : forall (A : Type) (B : Type) (a1 : A) (b1 : B) (a2 : A) (b2 : B),
+      Pair_introduction a1 b1 = Pair_introduction a2 b2 -> a1 = a2 /\ b1 = b2.
+Proof.
+  (* The context gains [A], [B], [a1], [b1], [a2], [b2] and
+     [e : Pair_introduction a1 b1 = Pair_introduction a2 b2]:
+     [|- a1 = a2 /\ b1 = b2] *)
+  intros A B a1 b1 a2 b2 e.
+  (* The context gains
+     [ea : first (Pair_introduction a1 b1) = first (Pair_introduction a2 b2)]. *)
+  pose proof (Equijunction_congruence first e) as ea.
+  (* Both [first]s compute: [ea : a1 = a2] *)
+  simpl in ea.
+  (* The context gains
+     [eb : second (Pair_introduction a1 b1) = second (Pair_introduction a2 b2)]. *)
+  pose proof (Equijunction_congruence second e) as eb.
+  (* Both [second]s compute: [eb : b1 = b2] *)
+  simpl in eb.
+  (* [/\] is built from a proof of each side. *)
+  exact (Conjunction_introduction ea eb).
+Qed.
+
+(* [Pair_introduction] is surjective: every pair is the pairing of its own
+   projections. This is the eta rule for pairs, which an [Inductive] does not
+   compute, so it is proved. *)
+Theorem introduction_surjectivity
+  : forall (A : Type) (B : Type) (p : Pair A B),
+      p = Pair_introduction (first p) (second p).
+Proof.
+  (* The context gains [A], [B] and [p]:
+     [|- p = Pair_introduction (first p) (second p)] *)
+  intros A B p.
+  (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
+     [|- Pair_introduction a b
+         = Pair_introduction (first (Pair_introduction a b))
+                             (second (Pair_introduction a b))] *)
+  destruct p as [a b].
+  (* Both projections compute:
+     [|- Pair_introduction a b = Pair_introduction a b] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
 
 (* [forall {A : Type} {B : Type}, Pair A B -> Pair B A] *)
 Definition swap := fun {A : Type} {B : Type} (p : Pair A B) =>
