@@ -829,6 +829,46 @@ Fixpoint filter {A : Type} (p : A -> Bool) (l : List A) : List A :=
       | false => filter p l'
       end
   end.
+(* [filter] is a catamorphism too: [Cons] becomes a conditional [Cons]. *)
+Theorem filter_catamorphism
+  : forall (A : Type) (p : A -> Bool) (l : List A),
+      filter p l
+      = fold_right (fun (a : A) (kept : List A) =>
+                      match p a with
+                      | true  => Cons a kept
+                      | false => kept
+                      end)
+                   Nil
+                   l.
+Proof.
+  (* The context gains [A], [p] and [l]:
+     [|- filter p l = fold_right (fun a kept => match p a with ...) Nil l] *)
+  intros A p l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and [IH], the statement for [l'], in its context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* Both sides compute to [Nil]: [|- Nil = Nil] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each side, and the function applied to [b] reduces to
+       the same [match p b] as [filter] leaves:
+       [|- match p b with
+           | true => Cons b (filter p l')
+           | false => filter p l'
+           end
+           = match p b with
+             | true => Cons b (fold_right ... Nil l')
+             | false => fold_right ... Nil l'
+             end] *)
+    simpl in |- *.
+    (* [IH] replaces [filter p l'] in both branches; both sides are then the
+       same term. *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
