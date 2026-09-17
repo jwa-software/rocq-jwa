@@ -54,6 +54,8 @@ Reserved Notation "x ^^ y"
   (at level 45, left associativity).
 Reserved Notation "x || y"
   (at level 50, left associativity).
+Reserved Notation "x + y"
+  (at level 50, left associativity).
 Reserved Notation "x ++ y"
   (at level 60, right associativity).
 Reserved Notation "a :: l"
