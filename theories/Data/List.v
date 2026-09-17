@@ -90,7 +90,7 @@ Qed.
 (* [append] recurses on its first argument, so [append Nil l] reduces while
    [append l Nil] does not; the second identity takes an induction. *)
 
-Lemma append_nil_left : forall {A : Type} (l : List A), append Nil l = l.
+Lemma append_left_identity : forall {A : Type} (l : List A), append Nil l = l.
 Proof.
   (* The context gains [A] and [l]: [|- append Nil l = l] *)
   intros A l.
@@ -101,7 +101,7 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma append_nil_right : forall {A : Type} (l : List A), append l Nil = l.
+Lemma append_right_identity : forall {A : Type} (l : List A), append l Nil = l.
 Proof.
   (* The context gains [A] and [l]: [|- append l Nil = l] *)
   intros A l.
@@ -314,9 +314,9 @@ Proof.
        does not, since its first argument is not a ctor:
        [|- reverse l2 = append (reverse l2) Nil] *)
     simpl in |- *.
-    (* [append_nil_right] removes the trailing [Nil]:
+    (* [append_right_identity] removes the trailing [Nil]:
        [|- reverse l2 = reverse l2] *)
-    rewrite append_nil_right in |- *.
+    rewrite append_right_identity in |- *.
     (* Both sides are the same term. *)
     reflexivity.
   - (* [|- reverse (append (Cons a l1') l2)
@@ -2223,7 +2223,7 @@ Qed.
    Induction on [l1] with [l2] kept in the motive, since [zip] and
    [length] step on both lists at once; the two mismatched cases contradict
    [NatWithZero.add_positive_refutes_zero] and the matched case feeds the
-   hypothesis through [NatWithZero.add_cancellation_right]. *)
+   hypothesis through [NatWithZero.add_right_cancellation]. *)
 Theorem unzip_zip_identity
   : forall (A : Type) (B : Type) (l1 : List A) (l2 : List B),
       length l1 = length l2 -> unzip (zip l1 l2) = Pair_introduction l1 l2.
@@ -2287,7 +2287,7 @@ Proof.
               = NatWithZero.add (length l2') (Positive One)] *)
       simpl in e.
       (* The [Positive One] cancels: [e' : length l1' = length l2'] *)
-      pose proof (NatWithZero.add_cancellation_right
+      pose proof (NatWithZero.add_right_cancellation
                     (length l1') (length l2') (Positive One) e) as e'.
       (* [IH] on [l2'] and [e']:
          [IH' : unzip (zip l1' l2') = Pair_introduction l1' l2'] *)
@@ -2457,8 +2457,8 @@ Instance List_append_monoid
   fun (A : Type) =>
     {| Monoid.semigroup :=
          {| Semigroup.associativity := @List.append_associativity A |}
-     ; Monoid.identity_left  := @List.append_nil_left A
-     ; Monoid.identity_right := @List.append_nil_right A |}.
+     ; Monoid.left_identity  := @List.append_left_identity A
+     ; Monoid.right_identity := @List.append_right_identity A |}.
 
 (* The two functor laws were already proved above, so the instance only
    hands them over. [map]'s type arguments are maximally inserted, so the

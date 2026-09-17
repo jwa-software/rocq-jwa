@@ -308,9 +308,9 @@ Instance Bool_and_monoid
   : Monoid.T Bool Bool.and true :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bool.and_associativity |}
-   ; Monoid.identity_left  :=
+   ; Monoid.left_identity  :=
       fun (b : Bool) => Equijunction_reflexivity (Bool.and true b)
-   ; Monoid.identity_right :=
+   ; Monoid.right_identity :=
       fun (b : Bool) => Bool.and_commutativity b true
   |}.
 
@@ -318,9 +318,9 @@ Instance Bool_or_monoid
   : Monoid.T Bool Bool.or false :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bool.or_associativity |}
-   ; Monoid.identity_left  :=
+   ; Monoid.left_identity  :=
       fun (b : Bool) => Equijunction_reflexivity (Bool.or false b)
-   ; Monoid.identity_right :=
+   ; Monoid.right_identity :=
       fun (b : Bool) => Bool.or_commutativity b false
   |}.
 
@@ -328,9 +328,9 @@ Instance Bool_xor_monoid
   : Monoid.T Bool Bool.xor false :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bool.xor_associativity |}
-  ; Monoid.identity_left :=
+  ; Monoid.left_identity :=
       fun (b : Bool) => Equijunction_reflexivity (Bool.xor false b)
-  ; Monoid.identity_right :=
+  ; Monoid.right_identity :=
       fun (b : Bool) => Bool.xor_commutativity b false
   |}.
 
