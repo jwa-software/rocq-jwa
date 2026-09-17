@@ -1,10 +1,23 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->]: with [-noinit] a file has only what it requires.
-   [Structures.Semigroup], [Structures.Monoid], [Structures.Commutative] and
-   [Structures.Cancellative] are the classes the instances at the bottom
-   fill. *)
+(* [Core.All] carries [->], [=], [~], [\/] and [exists]: with [-noinit] a
+   file has only what it requires. [Structures.Semigroup],
+   [Structures.Monoid], [Structures.Commutative], [Structures.Cancellative]
+   and the [Relations] order classes are what the instances at the bottom
+   fill; [Data.Comparison] is what [compare] answers in, [Data.Bool] what
+   [equal] answers in, and [Data.Option] what [subtract] answers in. *)
 From jwa Require Import Core.All.
+From jwa Require Import Data.Bool.
+From jwa Require Import Data.Comparison.
+From jwa Require Import Data.Option.
+From jwa Require Import Relations.Reflexive.
+From jwa Require Import Relations.Irreflexive.
+From jwa Require Import Relations.Antisymmetric.
+From jwa Require Import Relations.Transitive.
+From jwa Require Import Relations.Total.
+From jwa Require Import Relations.StrictOrder.
+From jwa Require Import Relations.PartialOrder.
+From jwa Require Import Relations.TotalOrder.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Commutative.
@@ -595,13 +608,1110 @@ Definition LessThan := fun (m : Nat) (n : Nat) => exists (k : Nat), add m k = n.
 
 (* [Nat -> Nat -> Prop] *)
 Definition LessOrEqual := fun (m : Nat) (n : Nat) => m = n \/ LessThan m n.
+
+Theorem less_than_irreflexivity : forall (n : Nat), ~ (LessThan n n).
+Proof.
+  (* The context gains [n]: [|- ~ (LessThan n n)] *)
+  intros n.
+  (* [|- LessThan n n -> Falsum] *)
+  unfold Unjunction in |- *.
+  (* The context gains [h : LessThan n n]: [|- Falsum] *)
+  intro h.
+  (* [h : exists (k : Nat), add n k = n] *)
+  unfold LessThan in h.
+  (* [h] opens into a witness [k : Nat] and [e : add n k = n]. *)
+  destruct h as [k e].
+  (* Commutativity turns the sum round: [e : add k n = n] *)
+  rewrite (add_commutativity n k) in e.
+  (* [i : add k n = n -> Falsum], once unfolded *)
+  pose proof (add_identity_absence k n) as i.
+  unfold Unjunction in i.
+  (* [f : Falsum] *)
+  pose proof (i e) as f.
+  (* [f : Falsum], which is what [contradiction] looks for. *)
+  contradiction.
+Qed.
+
+Theorem less_than_transitivity
+  : forall (l : Nat) (m : Nat) (n : Nat),
+      LessThan l m -> LessThan m n -> LessThan l n.
+Proof.
+  (* The context gains [l], [m], [n], [h1 : LessThan l m] and
+     [h2 : LessThan m n]: [|- LessThan l n] *)
+  intros l m n h1 h2.
+  (* Each hypothesis opens into a witness and an equation:
+     [e1 : add l k1 = m], [e2 : add m k2 = n]. *)
+  unfold LessThan in h1.
+  unfold LessThan in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  (* [|- exists (k : Nat), add l k = n] *)
+  unfold LessThan in |- *.
+  (* The witness is the sum of the two: [|- add l (add k1 k2) = n] *)
+  apply (Exists_introduction (add k1 k2)).
+  (* Associativity read right to left groups the left side:
+     [|- add (add l k1) k2 = n] *)
+  pose proof (Equijunction_symmetry (add_associativity l k1 k2)) as a.
+  rewrite a in |- *.
+  (* [e1] replaces [add l k1]: [|- add m k2 = n] *)
+  rewrite e1 in |- *.
+  (* [e2] is a proof of the goal as it stands. *)
+  exact e2.
+Qed.
+
+Theorem less_than_asymmetry
+  : forall (m : Nat) (n : Nat), LessThan m n -> ~ (LessThan n m).
+Proof.
+  (* The context gains [m], [n] and [h1 : LessThan m n]:
+     [|- ~ (LessThan n m)] *)
+  intros m n h1.
+  (* [h1] opens into [k1] and [e1 : add m k1 = n]. *)
+  unfold LessThan in h1.
+  destruct h1 as [k1 e1].
+  (* [|- LessThan n m -> Falsum] *)
+  unfold Unjunction in |- *.
+  (* The context gains [h2 : LessThan n m]: [|- Falsum] *)
+  intro h2.
+  (* [h2] opens into [k2] and [e2 : add n k2 = m]. *)
+  unfold LessThan in h2.
+  destruct h2 as [k2 e2].
+  (* [e1] turned round replaces [n] in [e2]: [e2 : add (add m k1) k2 = m] *)
+  pose proof (Equijunction_symmetry e1) as e1'.
+  rewrite e1' in e2.
+  (* Associativity, then commutativity: [e2 : add (add k1 k2) m = m] *)
+  rewrite (add_associativity m k1 k2) in e2.
+  rewrite (add_commutativity m (add k1 k2)) in e2.
+  (* [i : add (add k1 k2) m = m -> Falsum], once unfolded *)
+  pose proof (add_identity_absence (add k1 k2) m) as i.
+  unfold Unjunction in i.
+  (* [f : Falsum] *)
+  pose proof (i e2) as f.
+  (* [f : Falsum], which is what [contradiction] looks for. *)
+  contradiction.
+Qed.
+
+Theorem less_than_successor : forall (n : Nat), LessThan n (Successor n).
+Proof.
+  (* The context gains [n]: [|- LessThan n (Successor n)] *)
+  intros n.
+  (* [|- exists (k : Nat), add n k = Successor n] *)
+  unfold LessThan in |- *.
+  (* The witness is [One]: [|- add n One = Successor n] *)
+  apply (Exists_introduction One).
+  (* Commutativity turns the sum round, and [add One n] computes:
+     [|- Successor n = Successor n] *)
+  rewrite (add_commutativity n One) in |- *.
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+(* "Strict" says which order is preserved, not which direction: a strictly
+   monotone function carries [<] to [<] (equality excluded), a monotone one
+   carries [<=] to [<=]. Both go the same way; the reversed relation [>] is
+   [<] read from the other side and needs no law of its own. *)
+Theorem successor_strict_monotonicity
+  : forall (m : Nat) (n : Nat),
+      LessThan m n -> LessThan (Successor m) (Successor n).
+Proof.
+  (* The context gains [m], [n] and [h : LessThan m n]:
+     [|- LessThan (Successor m) (Successor n)] *)
+  intros m n h.
+  (* [h] opens into [k] and [e : add m k = n]. *)
+  unfold LessThan in h.
+  destruct h as [k e].
+  (* The same witness serves: [|- add (Successor m) k = Successor n] *)
+  unfold LessThan in |- *.
+  apply (Exists_introduction k).
+  (* One [add] step: [|- Successor (add m k) = Successor n] *)
+  simpl in |- *.
+  (* [e] replaces [add m k]: [|- Successor n = Successor n] *)
+  rewrite e in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Lemma less_than_successor_cancellation
+  : forall (m : Nat) (n : Nat),
+      LessThan (Successor m) (Successor n) -> LessThan m n.
+Proof.
+  (* The context gains [m], [n] and [h]:
+     [|- LessThan m n] *)
+  intros m n h.
+  (* [h] opens into [k] and [e : add (Successor m) k = Successor n]. *)
+  unfold LessThan in h.
+  destruct h as [k e].
+  (* One [add] step: [e : Successor (add m k) = Successor n] *)
+  simpl in e.
+  (* [successor_injectivity] strips the [Successor]s: [e' : add m k = n] *)
+  pose proof (successor_injectivity (add m k) n e) as e'.
+  (* The same witness serves. *)
+  unfold LessThan in |- *.
+  exact (Exists_introduction k e').
+Qed.
+
+Theorem add_strict_monotonicity
+  : forall (k : Nat) (m : Nat) (n : Nat),
+      LessThan m n -> LessThan (add k m) (add k n).
+Proof.
+  (* The context gains [k], [m], [n] and [h : LessThan m n]:
+     [|- LessThan (add k m) (add k n)] *)
+  intros k m n h.
+  (* [h] opens into [d] and [e : add m d = n]. *)
+  unfold LessThan in h.
+  destruct h as [d e].
+  (* The same witness serves: [|- add (add k m) d = add k n] *)
+  unfold LessThan in |- *.
+  apply (Exists_introduction d).
+  (* Associativity opens the left side: [|- add k (add m d) = add k n] *)
+  rewrite (add_associativity k m d) in |- *.
+  (* [e] replaces [add m d]: [|- add k n = add k n] *)
+  rewrite e in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem mul_strict_monotonicity
+  : forall (k : Nat) (m : Nat) (n : Nat),
+      LessThan m n -> LessThan (mul k m) (mul k n).
+Proof.
+  (* The context gains [k], [m], [n] and [h : LessThan m n]:
+     [|- LessThan (mul k m) (mul k n)] *)
+  intros k m n h.
+  (* [h] opens into [d] and [e : add m d = n]. *)
+  unfold LessThan in h.
+  destruct h as [d e].
+  (* The witness is [d] scaled by [k]:
+     [|- add (mul k m) (mul k d) = mul k n] *)
+  unfold LessThan in |- *.
+  apply (Exists_introduction (mul k d)).
+  (* The left distributivity law read right to left folds the left side:
+     [|- mul k (add m d) = mul k n] *)
+  pose proof (Equijunction_symmetry (mul_left_distributivity_over_add k m d)) as dist.
+  rewrite dist in |- *.
+  (* [e] replaces [add m d]: [|- mul k n = mul k n] *)
+  rewrite e in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+(* Trichotomy, "cut in three": whichever two numbers [m] and [n] are taken,
+   exactly one of `[m] is below [n]`, `[m] is [n]`, `[n] is below [m]` is the case.
+   This theorem is the "at least one" half;
+   "at most one" is [less_than_irreflexivity] and [less_than_asymmetry]. *)
+Theorem less_than_trichotomy
+  : forall (m : Nat) (n : Nat), (LessThan m n) \/ (m = n) \/ (LessThan n m).
+Proof.
+  (* The context gains [m]:
+     [|- forall (n : Nat), LessThan m n \/ m = n \/ LessThan n m] *)
+  intros m.
+  (* [m] is either [One] or [Successor m']: one goal per ctor, and the
+     second has [m'] and [IH : forall n, LessThan m' n \/ m' = n \/ LessThan n m']
+     in its context. *)
+  induction m as [| m' IH] using Nat_induction.
+  - (* The context gains [n]. *)
+    intros n.
+    (* [n] is either [One] or [Successor n']: one goal per ctor. *)
+    destruct n as [| n'].
+    + (* The middle case holds by reflexivity. *)
+      exact (Disjunction_right (Disjunction_left (Equijunction_reflexivity One))).
+    + (* [One] is below any [Successor], the witness being what follows:
+         [|- add One n' = Successor n'] after choosing it *)
+      apply Disjunction_left.
+      unfold LessThan in |- *.
+      apply (Exists_introduction n').
+      (* [add One n'] computes: [|- Successor n' = Successor n'] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+  - (* The context gains [n]. *)
+    intros n.
+    (* [n] is either [One] or [Successor n']: one goal per ctor. *)
+    destruct n as [| n'].
+    + (* The mirror of the case above: [|- add One m' = Successor m'] after
+         choosing the witness *)
+      apply Disjunction_right.
+      apply Disjunction_right.
+      unfold LessThan in |- *.
+      apply (Exists_introduction m').
+      (* [add One m'] computes: [|- Successor m' = Successor m'] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* [IH] at [n'] gives the three cases one level down. *)
+      pose proof (IH n') as t.
+      destruct t as [lt | rest].
+      * (* [lt : LessThan m' n'] lifts through the [Successor]s. *)
+        apply Disjunction_left.
+        exact (successor_strict_monotonicity m' n' lt).
+      * destruct rest as [eq | gt].
+        { (* [eq : m' = n'] replaces [m']:
+             [|- Successor n' = Successor n'] *)
+          apply Disjunction_right.
+          apply Disjunction_left.
+          rewrite eq in |- *.
+          reflexivity. }
+        { (* [gt : LessThan n' m'] lifts through the [Successor]s. *)
+          apply Disjunction_right.
+          apply Disjunction_right.
+          exact (successor_strict_monotonicity n' m' gt). }
+Qed.
+
+Theorem less_or_equal_reflexivity : forall (n : Nat), LessOrEqual n n.
+Proof.
+  (* The context gains [n]: [|- LessOrEqual n n] *)
+  intros n.
+  (* [|- n = n \/ LessThan n n], and the left side holds. *)
+  unfold LessOrEqual in |- *.
+  exact (Disjunction_left (Equijunction_reflexivity n)).
+Qed.
+
+Theorem less_or_equal_transitivity
+  : forall (l : Nat) (m : Nat) (n : Nat),
+      LessOrEqual l m -> LessOrEqual m n -> LessOrEqual l n.
+Proof.
+  (* The context gains [l], [m], [n], [h1] and [h2]: [|- LessOrEqual l n] *)
+  intros l m n h1 h2.
+  (* Each side is an equality or a strict step. *)
+  unfold LessOrEqual in h1.
+  unfold LessOrEqual in h2.
+  unfold LessOrEqual in |- *.
+  destruct h1 as [e1 | lt1].
+  - (* [e1 : l = m] replaces [l], and [h2] is the goal. *)
+    rewrite e1 in |- *.
+    exact h2.
+  - destruct h2 as [e2 | lt2].
+    + (* [e2 : m = n] replaces [m] in [lt1 : LessThan l m]. *)
+      rewrite e2 in lt1.
+      exact (Disjunction_right lt1).
+    + (* Two strict steps compose. *)
+      exact (Disjunction_right (less_than_transitivity l m n lt1 lt2)).
+Qed.
+
+Theorem less_or_equal_antisymmetry
+  : forall (m : Nat) (n : Nat), LessOrEqual m n -> LessOrEqual n m -> m = n.
+Proof.
+  (* The context gains [m], [n], [h1] and [h2]: [|- m = n] *)
+  intros m n h1 h2.
+  unfold LessOrEqual in h1.
+  unfold LessOrEqual in h2.
+  destruct h1 as [e1 | lt1].
+  - (* [e1] is the goal as it stands. *)
+    exact e1.
+  - destruct h2 as [e2 | lt2].
+    + (* [e2 : n = m] turned round. *)
+      exact (Equijunction_symmetry e2).
+    + (* Two strict steps in opposite directions contradict asymmetry. *)
+      pose proof (less_than_asymmetry m n lt1) as h.
+      unfold Unjunction in h.
+      pose proof (h lt2) as f.
+      (* [f : Falsum], which is what [contradiction] looks for. *)
+      contradiction.
+Qed.
+
+Theorem less_or_equal_totality
+  : forall (m : Nat) (n : Nat), (LessOrEqual m n) \/ (LessOrEqual n m).
+Proof.
+  (* The context gains [m] and [n]: [|- LessOrEqual m n \/ LessOrEqual n m] *)
+  intros m n.
+  (* Trichotomy gives the three cases; each lands on one side. *)
+  pose proof (less_than_trichotomy m n) as t.
+  unfold LessOrEqual in |- *.
+  destruct t as [lt | rest].
+  - exact (Disjunction_left (Disjunction_right lt)).
+  - destruct rest as [eq | gt].
+    + exact (Disjunction_left (Disjunction_left eq)).
+    + exact (Disjunction_right (Disjunction_right gt)).
+Qed.
+
+(* Three-way comparison, by walking both numbers down together: the one
+   that reaches [One] first is the smaller. *)
+Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
+  match m, n with
+  | One, One                   => Eq
+  | One, Successor _           => Lt
+  | Successor _, One           => Gt
+  | Successor m', Successor n' => compare m' n'
+  end.
+
+Lemma compare_reflexivity : forall (n : Nat), compare n n = Eq.
+Proof.
+  (* The context gains [n]: [|- compare n n = Eq] *)
+  intros n.
+  (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+     second has [n'] and [IH : compare n' n' = Eq] in its context. *)
+  induction n as [| n' IH] using Nat_induction.
+  - (* [compare One One] computes: [|- Eq = Eq] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One [compare] step: [|- compare n' n' = Eq] *)
+    simpl in |- *.
+    (* [IH] is a proof of the goal as it stands. *)
+    exact IH.
+Qed.
+
+(* [compare] answers each of its three ways exactly when the order says so.
+   Each specification is induction on [m] with [n] kept in the motive, one
+   case per ctor pair; the base cases compute and the step case peels a
+   [Successor] from both sides. *)
+
+Lemma compare_lt_specification_forward
+  : forall (m : Nat) (n : Nat), compare m n = Lt -> LessThan m n.
+Proof.
+  (* The context gains [m]. *)
+  intros m.
+  induction m as [| m' IH] using Nat_induction.
+  - intros n.
+    destruct n as [| n'].
+    + (* [compare One One] computes: [|- Eq = Lt -> LessThan One One] *)
+      simpl in |- *.
+      intro e.
+      (* [e] equates two distinct ctors, which closes any goal. *)
+      discriminate.
+    + (* [One] is below any [Successor], the witness being what follows. *)
+      intro e.
+      unfold LessThan in |- *.
+      apply (Exists_introduction n').
+      (* [add One n'] computes: [|- Successor n' = Successor n'] *)
+      simpl in |- *.
+      reflexivity.
+  - intros n.
+    destruct n as [| n'].
+    + (* [|- Gt = Lt -> LessThan (Successor m') One] *)
+      simpl in |- *.
+      intro e.
+      (* [e] equates two distinct ctors, which closes any goal. *)
+      discriminate.
+    + (* One [compare] step: [|- compare m' n' = Lt -> ...] *)
+      simpl in |- *.
+      intro e.
+      (* [IH] one level down, lifted through the [Successor]s. *)
+      exact (successor_strict_monotonicity m' n' (IH n' e)).
+Qed.
+
+Lemma compare_lt_specification_backward
+  : forall (m : Nat) (n : Nat), LessThan m n -> compare m n = Lt.
+Proof.
+  (* The context gains [m]. *)
+  intros m.
+  induction m as [| m' IH] using Nat_induction.
+  - intros n.
+    destruct n as [| n'].
+    + (* [LessThan One One] contradicts irreflexivity. *)
+      intro h.
+      pose proof (less_than_irreflexivity One) as i.
+      unfold Unjunction in i.
+      pose proof (i h) as f.
+      (* [f : Falsum], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* [compare One (Successor n')] computes: [|- Lt = Lt] *)
+      intro h.
+      simpl in |- *.
+      reflexivity.
+  - intros n.
+    destruct n as [| n'].
+    + (* Nothing is below [One]: the witness equation
+         [e : add (Successor m') k = One] computes to a [Successor] against
+         [One]. *)
+      intro h.
+      unfold LessThan in h.
+      destruct h as [k e].
+      simpl in e.
+      (* [e] equates two distinct ctors, which closes any goal. *)
+      discriminate.
+    + (* One [compare] step: [|- compare m' n' = Lt] *)
+      intro h.
+      simpl in |- *.
+      (* [IH] one level down, on the hypothesis with its [Successor]s
+         peeled. *)
+      exact (IH n' (less_than_successor_cancellation m' n' h)).
+Qed.
+
+Theorem compare_lt_specification
+  : forall (m : Nat) (n : Nat), compare m n = Lt <-> LessThan m n.
+Proof.
+  (* The context gains [m] and [n]:
+     [|- compare m n = Lt <-> LessThan m n] *)
+  intros m n.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (compare_lt_specification_forward  m n).
+  - exact (compare_lt_specification_backward m n).
+Qed.
+
+Lemma compare_eq_specification_forward
+  : forall (m : Nat) (n : Nat), compare m n = Eq -> m = n.
+Proof.
+  (* The context gains [m]. *)
+  intros m.
+  induction m as [| m' IH] using Nat_induction.
+  - intros n.
+    destruct n as [| n'].
+    + (* [|- compare One One = Eq -> One = One] *)
+      intro e.
+      reflexivity.
+    + (* [|- Lt = Eq -> One = Successor n'] *)
+      simpl in |- *.
+      intro e.
+      (* [e] equates two distinct ctors, which closes any goal. *)
+      discriminate.
+  - intros n.
+    destruct n as [| n'].
+    + (* [|- Gt = Eq -> Successor m' = One] *)
+      simpl in |- *.
+      intro e.
+      (* [e] equates two distinct ctors, which closes any goal. *)
+      discriminate.
+    + (* One [compare] step: [|- compare m' n' = Eq -> ...] *)
+      simpl in |- *.
+      intro e.
+      (* [IH n' e : m' = n'] replaces [m']:
+         [|- Successor n' = Successor n'] *)
+      rewrite (IH n' e) in |- *.
+      reflexivity.
+Qed.
+
+Lemma compare_eq_specification_backward
+  : forall (m : Nat) (n : Nat), m = n -> compare m n = Eq.
+Proof.
+  (* The context gains [m], [n] and [e : m = n]: [|- compare m n = Eq] *)
+  intros m n e.
+  (* [e] replaces [m]: [|- compare n n = Eq] *)
+  rewrite e in |- *.
+  (* [compare_reflexivity n] is a proof of the goal as it stands. *)
+  exact (compare_reflexivity n).
+Qed.
+
+Theorem compare_eq_specification
+  : forall (m : Nat) (n : Nat), compare m n = Eq <-> m = n.
+Proof.
+  (* The context gains [m] and [n]: [|- compare m n = Eq <-> m = n] *)
+  intros m n.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (compare_eq_specification_forward m n).
+  - exact (compare_eq_specification_backward m n).
+Qed.
+
+Theorem compare_antisymmetry
+  : forall (m : Nat) (n : Nat), compare m n = Comparison.converse (compare n m).
+Proof.
+  (* The context gains [m]. *)
+  intros m.
+  induction m as [| m' IH] using Nat_induction.
+  - intros n.
+    destruct n as [| n'].
+    + (* Both sides compute: [|- Eq = Eq] *)
+      simpl in |- *.
+      reflexivity.
+    + (* Both sides compute: [|- Lt = Lt] *)
+      simpl in |- *.
+      reflexivity.
+  - intros n.
+    destruct n as [| n'].
+    + (* Both sides compute: [|- Gt = Gt] *)
+      simpl in |- *.
+      reflexivity.
+    + (* One [compare] step on each side:
+         [|- compare m' n' = Comparison.converse (compare n' m')] *)
+      simpl in |- *.
+      (* [IH n'] is a proof of the goal as it stands. *)
+      exact (IH n').
+Qed.
+
+(* The third answer follows from the first by [compare_antisymmetry]. *)
+
+Lemma compare_gt_specification_forward
+  : forall (m : Nat) (n : Nat), compare m n = Gt -> LessThan n m.
+Proof.
+  (* The context gains [m], [n] and [e : compare m n = Gt]:
+     [|- LessThan n m] *)
+  intros m n e.
+  (* [e : Comparison.converse (compare n m) = Gt] *)
+  rewrite (compare_antisymmetry m n) in e.
+  (* [compare n m] is one of three answers; only [Lt] has [Gt] as
+     its converse. *)
+  destruct (compare n m) as [| |] eqn:c.
+  - (* [c : compare n m = Lt] is the case that holds. *)
+    exact (compare_lt_specification_forward n m c).
+  - (* [e : Eq = Gt] after computing. *)
+    simpl in e.
+    discriminate.
+  - (* [e : Lt = Gt] after computing. *)
+    simpl in e.
+    discriminate.
+Qed.
+
+Lemma compare_gt_specification_backward
+  : forall (m : Nat) (n : Nat), LessThan n m -> compare m n = Gt.
+Proof.
+  (* The context gains [m], [n] and [h : LessThan n m]:
+     [|- compare m n = Gt] *)
+  intros m n h.
+  (* [|- Comparison.converse (compare n m) = Gt] *)
+  rewrite (compare_antisymmetry m n) in |- *.
+  (* [compare n m] is [Lt] by the first specification:
+     [|- Comparison.converse Lt = Gt] *)
+  rewrite (compare_lt_specification_backward n m h) in |- *.
+  (* [Comparison.converse Lt] computes: [|- Gt = Gt] *)
+  simpl in |- *.
+  reflexivity.
+Qed.
+
+Theorem compare_gt_specification
+  : forall (m : Nat) (n : Nat), compare m n = Gt <-> LessThan n m.
+Proof.
+  (* The context gains [m] and [n]:
+     [|- compare m n = Gt <-> LessThan n m] *)
+  intros m n.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (compare_gt_specification_forward m n).
+  - exact (compare_gt_specification_backward m n).
+Qed.
+
+(* [Nat -> Nat -> Bool] *)
+Definition equal := fun (m : Nat) (n : Nat) =>
+  match compare m n with
+  | Lt => false
+  | Eq => true
+  | Gt => false
+  end.
+
+Lemma equal_specification_forward
+  : forall (m : Nat) (n : Nat), equal m n = true -> m = n.
+Proof.
+  (* The context gains [m], [n] and [e : equal m n = true]: [|- m = n] *)
+  intros m n e.
+  (* [e] is a [match] on [compare m n]; one goal per answer. *)
+  unfold equal in e.
+  destruct (compare m n) as [| |] eqn:c.
+  - (* [e : false = true] *)
+    discriminate.
+  - (* [c : compare m n = Eq] is the case that holds. *)
+    exact (compare_eq_specification_forward m n c).
+  - (* [e : false = true] *)
+    discriminate.
+Qed.
+
+Lemma equal_specification_backward
+  : forall (m : Nat) (n : Nat), m = n -> equal m n = true.
+Proof.
+  (* The context gains [m], [n] and [e : m = n]: [|- equal m n = true] *)
+  intros m n e.
+  (* [|- match compare m n with ... end = true] *)
+  unfold equal in |- *.
+  (* [compare m n] is [Eq]: [|- true = true] *)
+  rewrite (compare_eq_specification_backward m n e) in |- *.
+  reflexivity.
+Qed.
+
+Theorem equal_specification
+  : forall (m : Nat) (n : Nat), equal m n = true <-> m = n.
+Proof.
+  (* The context gains [m] and [n]: [|- equal m n = true <-> m = n] *)
+  intros m n.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (equal_specification_forward m n).
+  - exact (equal_specification_backward m n).
+Qed.
+
+(* The smaller and the larger of two, read off [compare]; every law below
+   is case analysis on the answer and the order laws, and associativity is
+   antisymmetry applied to the bounds. *)
+
+(* [Nat -> Nat -> Nat] *)
+Definition min := fun (m : Nat) (n : Nat) =>
+  match compare m n with
+  | Lt => m
+  | Eq => m
+  | Gt => n
+  end.
+
+(* [Nat -> Nat -> Nat] *)
+Definition max := fun (m : Nat) (n : Nat) =>
+  match compare m n with
+  | Lt => n
+  | Eq => m
+  | Gt => m
+  end.
+
+Theorem min_specification
+  : forall (m : Nat) (n : Nat), min m n = m <-> LessOrEqual m n.
+Proof.
+  (* The context gains [m] and [n]; both sides open into their cases. *)
+  intros m n.
+  unfold min in |- *.
+  unfold LessOrEqual in |- *.
+  split.
+  - (* The context gains [e]; one goal per answer of [compare m n]. *)
+    intro e.
+    destruct (compare m n) as [| |] eqn:c.
+    + (* [Lt]: the strict step, by the specification. *)
+      apply Disjunction_right.
+      exact (Bijunction_elimination_forward
+               (compare m n = Lt) (LessThan m n)
+               (compare_lt_specification m n) c).
+    + (* [Eq]: the equality, by the specification. *)
+      apply Disjunction_left.
+      exact (Bijunction_elimination_forward
+               (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
+    + (* [Gt]: then [e : n = m], turned round. *)
+      apply Disjunction_left.
+      exact (Equijunction_symmetry e).
+  - (* The context gains [h]; the first two answers give [m] outright, and
+       [Gt] contradicts [h] either way. *)
+    intro h.
+    destruct (compare m n) as [| |] eqn:c.
+    + reflexivity.
+    + reflexivity.
+    + pose proof (Bijunction_elimination_forward
+                    (compare m n = Gt) (LessThan n m)
+                    (compare_gt_specification m n) c) as gt.
+      destruct h as [e | lt].
+      * (* [e : m = n] makes [gt : LessThan n n], against irreflexivity. *)
+        rewrite e in gt.
+        pose proof (less_than_irreflexivity n) as i.
+        unfold Unjunction in i.
+        pose proof (i gt) as f.
+        contradiction.
+      * (* [lt] and [gt] run opposite ways, against asymmetry. *)
+        pose proof (less_than_asymmetry m n lt) as a.
+        unfold Unjunction in a.
+        pose proof (a gt) as f.
+        contradiction.
+Qed.
+
+Theorem max_specification
+  : forall (m : Nat) (n : Nat), max m n = m <-> LessOrEqual n m.
+Proof.
+  (* The mirror of [min_specification]: [Lt] is now the case that
+     contradicts. *)
+  intros m n.
+  unfold max in |- *.
+  unfold LessOrEqual in |- *.
+  split.
+  - intro e.
+    destruct (compare m n) as [| |] eqn:c.
+    + apply Disjunction_left.
+      exact e.
+    + apply Disjunction_left.
+      exact (Equijunction_symmetry
+               (Bijunction_elimination_forward
+                  (compare m n = Eq) (m = n) (compare_eq_specification m n) c)).
+    + apply Disjunction_right.
+      exact (Bijunction_elimination_forward
+               (compare m n = Gt) (LessThan n m)
+               (compare_gt_specification m n) c).
+  - intro h.
+    destruct (compare m n) as [| |] eqn:c.
+    + pose proof (Bijunction_elimination_forward
+                    (compare m n = Lt) (LessThan m n)
+                    (compare_lt_specification m n) c) as lt.
+      destruct h as [e | gt].
+      * rewrite e in lt.
+        pose proof (less_than_irreflexivity m) as i.
+        unfold Unjunction in i.
+        pose proof (i lt) as f.
+        contradiction.
+      * pose proof (less_than_asymmetry m n lt) as a.
+        unfold Unjunction in a.
+        pose proof (a gt) as f.
+        contradiction.
+    + reflexivity.
+    + reflexivity.
+Qed.
+
+(* [min l r] is the meet of [l] and [r], the product in the order read as a
+   category: the two projections say it lies below each argument, and the
+   universal property says anything below both lies below it. *)
+
+Lemma min_left_projection : forall (l : Nat) (r : Nat), LessOrEqual (min l r) l.
+Proof.
+  (* One goal per answer of [compare l r]: the first two give [l] itself,
+     the third gives [r], which is below [l] by the specification. *)
+  intros l r.
+  unfold min in |- *.
+  unfold LessOrEqual in |- *.
+  destruct (compare l r) as [| |] eqn:c.
+  - exact (Disjunction_left (Equijunction_reflexivity l)).
+  - exact (Disjunction_left (Equijunction_reflexivity l)).
+  - apply Disjunction_right.
+    exact (Bijunction_elimination_forward
+             (compare l r = Gt) (LessThan r l)
+             (compare_gt_specification l r) c).
+Qed.
+
+Lemma min_right_projection : forall (l : Nat) (r : Nat), LessOrEqual (min l r) r.
+Proof.
+  (* One goal per answer: [Lt] and [Eq] give [l], which is below or
+     equal to [r] by the specifications; [Gt] gives [r] itself. *)
+  intros l r.
+  unfold min in |- *.
+  unfold LessOrEqual in |- *.
+  destruct (compare l r) as [| |] eqn:c.
+  - apply Disjunction_right.
+    exact (Bijunction_elimination_forward
+             (compare l r = Lt) (LessThan l r)
+             (compare_lt_specification l r) c).
+  - apply Disjunction_left.
+    exact (Bijunction_elimination_forward
+             (compare l r = Eq) (l = r) (compare_eq_specification l r) c).
+  - exact (Disjunction_left (Equijunction_reflexivity r)).
+Qed.
+
+Lemma min_universality
+  : forall (k : Nat) (m : Nat) (n : Nat),
+      LessOrEqual k m -> LessOrEqual k n -> LessOrEqual k (min m n).
+Proof.
+  (* Whichever of [m] and [n] the smaller is, [k] is below it. *)
+  intros k m n h1 h2.
+  unfold min in |- *.
+  destruct (compare m n) as [| |] eqn:c.
+  - exact h1.
+  - exact h1.
+  - exact h2.
+Qed.
+
+(* [max l r] is the join, the coproduct: the two injections say each argument
+   lies below it, and the universal property says it lies below anything
+   above both. *)
+
+Lemma max_left_injection : forall (l : Nat) (r : Nat), LessOrEqual l (max l r).
+Proof.
+  intros l r.
+  unfold max in |- *.
+  unfold LessOrEqual in |- *.
+  destruct (compare l r) as [| |] eqn:c.
+  - apply Disjunction_right.
+    exact (Bijunction_elimination_forward
+             (compare l r = Lt) (LessThan l r)
+             (compare_lt_specification l r) c).
+  - exact (Disjunction_left (Equijunction_reflexivity l)).
+  - exact (Disjunction_left (Equijunction_reflexivity l)).
+Qed.
+
+Lemma max_right_injection : forall (l : Nat) (r : Nat), LessOrEqual r (max l r).
+Proof.
+  intros l r.
+  unfold max in |- *.
+  unfold LessOrEqual in |- *.
+  destruct (compare l r) as [| |] eqn:c.
+  - exact (Disjunction_left (Equijunction_reflexivity r)).
+  - apply Disjunction_left.
+    exact (Equijunction_symmetry
+             (Bijunction_elimination_forward
+                (compare l r = Eq) (l = r) (compare_eq_specification l r) c)).
+  - apply Disjunction_right.
+    exact (Bijunction_elimination_forward
+             (compare l r = Gt) (LessThan r l)
+             (compare_gt_specification l r) c).
+Qed.
+
+Lemma max_universality
+  : forall (k : Nat) (m : Nat) (n : Nat),
+      LessOrEqual m k -> LessOrEqual n k -> LessOrEqual (max m n) k.
+Proof.
+  intros k m n h1 h2.
+  unfold max in |- *.
+  destruct (compare m n) as [| |] eqn:c.
+  - exact h2.
+  - exact h1.
+  - exact h1.
+Qed.
+
+(* Two greatest lower bounds of the same pair are equal, by antisymmetry;
+   the same for the least upper bounds. *)
+
+Theorem min_commutativity : forall (m : Nat) (n : Nat), min m n = min n m.
+Proof.
+  (* Each side is below both [m] and [n], hence below the other. *)
+  intros m n.
+  apply (less_or_equal_antisymmetry (min m n) (min n m)).
+  - exact (min_universality (min m n) n m
+            (min_right_projection m n) (min_left_projection m n)).
+  - exact (min_universality (min n m) m n
+            (min_right_projection n m) (min_left_projection n m)).
+Qed.
+
+Theorem max_commutativity : forall (m : Nat) (n : Nat), max m n = max n m.
+Proof.
+  (* Each side is above both [m] and [n], hence above the other. *)
+  intros m n.
+  apply (less_or_equal_antisymmetry (max m n) (max n m)).
+  - exact (max_universality (max n m) m n
+            (max_right_injection n m) (max_left_injection n m)).
+  - exact (max_universality (max m n) n m
+            (max_right_injection m n) (max_left_injection m n)).
+Qed.
+
+Theorem min_associativity
+  : forall (l : Nat) (m : Nat) (n : Nat), min (min l m) n = min l (min m n).
+Proof.
+  (* Both sides are below each of [l], [m] and [n], the inner bound
+     reached through transitivity, so each is below the other. *)
+  intros l m n.
+  apply (less_or_equal_antisymmetry (min (min l m) n) (min l (min m n))).
+  - apply (min_universality (min (min l m) n) l (min m n)).
+    + exact (less_or_equal_transitivity (min (min l m) n) (min l m) l
+              (min_left_projection (min l m) n) (min_left_projection l m)).
+    + apply (min_universality (min (min l m) n) m n).
+      * exact (less_or_equal_transitivity (min (min l m) n) (min l m) m
+                (min_left_projection (min l m) n) (min_right_projection l m)).
+      * exact (min_right_projection (min l m) n).
+  - apply (min_universality (min l (min m n)) (min l m) n).
+    + apply (min_universality (min l (min m n)) l m).
+      * exact (min_left_projection l (min m n)).
+      * exact (less_or_equal_transitivity (min l (min m n)) (min m n) m
+                (min_right_projection l (min m n)) (min_left_projection m n)).
+    + exact (less_or_equal_transitivity (min l (min m n)) (min m n) n
+              (min_right_projection l (min m n)) (min_right_projection m n)).
+Qed.
+
+Theorem max_associativity
+  : forall (l : Nat) (m : Nat) (n : Nat), max (max l m) n = max l (max m n).
+Proof.
+  (* The mirror of [min_associativity]. *)
+  intros l m n.
+  apply (less_or_equal_antisymmetry (max (max l m) n) (max l (max m n))).
+  - apply (max_universality (max l (max m n)) (max l m) n).
+    + apply (max_universality (max l (max m n)) l m).
+      * exact (max_left_injection l (max m n)).
+      * exact (less_or_equal_transitivity m (max m n) (max l (max m n))
+                (max_left_injection m n) (max_right_injection l (max m n))).
+    + exact (less_or_equal_transitivity n (max m n) (max l (max m n))
+              (max_right_injection m n) (max_right_injection l (max m n))).
+  - apply (max_universality (max (max l m) n) l (max m n)).
+    + exact (less_or_equal_transitivity l (max l m) (max (max l m) n)
+              (max_left_injection l m) (max_left_injection (max l m) n)).
+    + apply (max_universality (max (max l m) n) m n).
+      * exact (less_or_equal_transitivity m (max l m) (max (max l m) n)
+                (max_right_injection l m) (max_left_injection (max l m) n)).
+      * exact (max_right_injection (max l m) n).
+Qed.
+
+Theorem min_idempotence : forall (n : Nat), min n n = n.
+Proof.
+  (* [compare n n] is [Eq], whose branch answers [n]. *)
+  intros n.
+  unfold min in |- *.
+  rewrite (compare_reflexivity n) in |- *.
+  reflexivity.
+Qed.
+
+Theorem max_idempotence : forall (n : Nat), max n n = n.
+Proof.
+  (* [compare n n] is [Eq], whose branch answers [n]. *)
+  intros n.
+  unfold max in |- *.
+  rewrite (compare_reflexivity n) in |- *.
+  reflexivity.
+Qed.
+
+(* Nothing is below [One], so [One] is the identity of [max]. *)
+
+Lemma max_right_identity : forall (n : Nat), max n One = n.
+Proof.
+  (* The context gains [n]: [|- max n One = n] *)
+  intros n.
+  (* One goal per answer of [compare n One]; [Eq] and [Gt] answer [n], and
+     [Lt] cannot happen. *)
+  unfold max in |- *.
+  destruct (compare n One) as [| |] eqn:c.
+  - (* [c] would put [n] below [One]: [lt] opens into [k] and
+       [e : add n k = One], which computes to a [Successor] against [One]
+       whichever ctor [n] is. *)
+    pose proof (compare_lt_specification_forward n One c) as lt.
+    unfold LessThan in lt.
+    destruct lt as [k e].
+    destruct n as [| n'].
+    + simpl in e.
+      discriminate.
+    + simpl in e.
+      discriminate.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Lemma max_left_identity : forall (n : Nat), max One n = n.
+Proof.
+  (* Commutativity brings it to the right law. *)
+  intros n.
+  rewrite (max_commutativity One n) in |- *.
+  exact (max_right_identity n).
+Qed.
+
+(* Subtraction. The recursion walks both numbers down together; the
+   difference may vanish or go below, which [Nat] cannot express, so the
+   answer is an [Option]: [None] exactly when [n] is not below [m]. *)
+
+(* [Nat -> Nat -> Option Nat] *)
+Fixpoint subtract (m : Nat) (n : Nat) : Option Nat :=
+  match m with
+  | One => None
+  | Successor m' =>
+      match n with
+      | One          => Some m'
+      | Successor n' => subtract m' n'
+      end
+  end.
+
+(* Below or equal, there is nothing left: subtraction truncates. *)
+Theorem subtract_truncation
+  : forall (m : Nat) (n : Nat), LessOrEqual m n -> subtract m n = None.
+Proof.
+  (* The context gains [m], [n] and [h], an equality or a strict step. *)
+  intros m n h.
+  unfold LessOrEqual in h.
+  destruct h as [e | lt].
+  - (* [e : m = n] replaces [m]: [|- subtract n n = None] *)
+    rewrite e in |- *.
+    (* [e] mentions [n], so it would be folded into the motive of the
+       induction; the context loses it. *)
+    clear e.
+    (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+       second has [n'] and [IH : subtract n' n' = None] in its context. *)
+    induction n as [| n' IH] using Nat_induction.
+    + (* [subtract One One] computes: [|- None = None] *)
+      simpl in |- *.
+      reflexivity.
+    + (* One step: [|- subtract n' n' = None] *)
+      simpl in |- *.
+      exact IH.
+  - (* [lt] opens into [k] and [e : add m k = n]; turned round it replaces
+       [n]: [|- subtract m (add m k) = None] *)
+    unfold LessThan in lt.
+    destruct lt as [k e].
+    pose proof (Equijunction_symmetry e) as e'.
+    rewrite e' in |- *.
+    (* [e] and [e'] mention [m], so they would be folded into the motive of
+       the induction; the context loses them. *)
+    clear e e'.
+    (* [m] is either [One] or [Successor m']: one goal per ctor, and the
+       second has [m'] and [IH : subtract m' (add m' k) = None] in its
+       context. *)
+    induction m as [| m' IH] using Nat_induction.
+    + (* [add One k] is [Successor k] and the subtraction computes:
+         [|- None = None] *)
+      simpl in |- *.
+      reflexivity.
+    + (* One [add] step and one subtraction step:
+         [|- subtract m' (add m' k) = None] *)
+      simpl in |- *.
+      exact IH.
+Qed.
+
+(* Taking away what was added gives the rest back: subtraction inverts
+   addition. *)
+Theorem subtract_inversion_of_add
+  : forall (m : Nat) (n : Nat), subtract (add m n) n = Some m.
+Proof.
+  (* The context gains [m] and [n]. *)
+  intros m n.
+  (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+     second has [n'] and [IH : subtract (add m n') n' = Some m] in its
+     context. Each case turns the sum round so that it computes. *)
+  induction n as [| n' IH] using Nat_induction.
+  - (* [|- subtract (add One m) One = Some m] *)
+    rewrite (add_commutativity m One) in |- *.
+    (* Both compute: [|- Some m = Some m] *)
+    simpl in |- *.
+    reflexivity.
+  - (* [|- subtract (add (Successor n') m) (Successor n') = Some m] *)
+    rewrite (add_commutativity m (Successor n')) in |- *.
+    (* One step each: [|- subtract (add n' m) n' = Some m] *)
+    simpl in |- *.
+    (* Commutativity turns the sum back to [IH]'s shape. *)
+    rewrite (add_commutativity n' m) in |- *.
+    exact IH.
+Qed.
+
+(* [subtract] inverts [add] exactly where it answers: [Some k] says [k] is
+   what [n] lacks to be [m]. *)
+
+Lemma subtract_specification_forward
+  : forall (m : Nat) (n : Nat) (k : Nat), subtract m n = Some k -> add n k = m.
+Proof.
+  (* The context gains [m]. *)
+  intros m.
+  induction m as [| m' IH] using Nat_induction.
+  - (* [subtract One n] computes to [None] whatever [n] is: [e] equates two
+       distinct ctors, which closes any goal. *)
+    intros n k e.
+    simpl in e.
+    discriminate.
+  - intros n k.
+    destruct n as [| n'].
+    + (* [subtract (Successor m') One] and [add One k] compute:
+         [|- Some m' = Some k -> Successor k = Successor m'] *)
+      simpl in |- *.
+      intro e.
+      (* [Some] is injective: [e' : m' = k] *)
+      pose proof (Option.some_injectivity Nat m' k e) as e'.
+      (* [e'] replaces [m']: [|- Successor k = Successor k] *)
+      rewrite e' in |- *.
+      reflexivity.
+    + (* One step each:
+         [|- subtract m' n' = Some k -> Successor (add n' k) = Successor m'] *)
+      simpl in |- *.
+      intro e.
+      (* [IH] one level down replaces the sum: [|- Successor m' = Successor m'] *)
+      rewrite (IH n' k e) in |- *.
+      reflexivity.
+Qed.
+
+Lemma subtract_specification_backward
+  : forall (m : Nat) (n : Nat) (k : Nat), add n k = m -> subtract m n = Some k.
+Proof.
+  (* The context gains [m], [n], [k] and [e]; turned round, [e] replaces [m]:
+     [|- subtract (add n k) n = Some k] *)
+  intros m n k e.
+  pose proof (Equijunction_symmetry e) as e'.
+  rewrite e' in |- *.
+  (* Commutativity puts the sum into the inversion's shape. *)
+  rewrite (add_commutativity n k) in |- *.
+  exact (subtract_inversion_of_add k n).
+Qed.
+
+Theorem subtract_specification
+  : forall (m : Nat) (n : Nat) (k : Nat), subtract m n = Some k <-> add n k = m.
+Proof.
+  (* The context gains [m], [n] and [k]:
+     [|- subtract m n = Some k <-> add n k = m] *)
+  intros m n k.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (subtract_specification_forward  m n k).
+  - exact (subtract_specification_backward m n k).
+Qed.
+
 End Nat.
 
 (* The scope is declared in [Core.Notations] and never opened: a client
    writes [(m + n)%nat]. [only parsing] keeps the operations printed by
    name. *)
-Notation "m + n" := (Nat.add m n) (only parsing) : jwa_nat_scope.
-Notation "m * n" := (Nat.mul m n) (only parsing) : jwa_nat_scope.
+Notation "m + n" := (Nat.add m n) (only parsing)
+  : jwa_nat_scope.
+Notation "m * n" := (Nat.mul m n) (only parsing)
+  : jwa_nat_scope.
+Notation "m < n" := (Nat.LessThan m n) (only parsing)
+  : jwa_nat_scope.
+Notation "m <= n" := (Nat.LessOrEqual m n) (only parsing)
+  : jwa_nat_scope.
+
+(* The reversed spellings name no new relation: [m > n] is [n < m] with the
+   arguments the other way round, so no law is stated for them. *)
+Notation "m > n" := (Nat.LessThan n m) (only parsing)
+  : jwa_nat_scope.
+Notation "m >= n" := (Nat.LessOrEqual n m) (only parsing)
+  : jwa_nat_scope.
 
 (* A semigroup and no more: a monoid needs an identity, and [Nat] has no
    element that leaves its argument alone under [add]. *)
@@ -630,3 +1740,40 @@ Instance Nat_add_commutative : Commutative.T Nat Nat.add :=
 
 Instance Nat_mul_commutative : Commutative.T Nat Nat.mul :=
   {| Commutative.commutativity := Nat.mul_commutativity |}.
+
+(* The two orders as instances of the [Relations] classes. The laws were
+   already proved above, so each instance only hands them over; the nested
+   records fill the [::] fields one class at a time. *)
+Instance Nat_less_than_strict_order : StrictOrder.R Nat Nat.LessThan :=
+  {| StrictOrder.irreflexive :=
+       {| Irreflexive.irreflexivity := Nat.less_than_irreflexivity |}
+   ; StrictOrder.transitive :=
+       {| Transitive.transitivity := Nat.less_than_transitivity |} |}.
+
+Instance Nat_less_or_equal_total_order : TotalOrder.R Nat Nat.LessOrEqual :=
+  {| TotalOrder.partial_order :=
+       {| PartialOrder.reflexive :=
+            {| Reflexive.reflexivity := Nat.less_or_equal_reflexivity |}
+        ; PartialOrder.antisymmetric :=
+            {| Antisymmetric.antisymmetry := Nat.less_or_equal_antisymmetry |}
+        ; PartialOrder.transitive :=
+            {| Transitive.transitivity := Nat.less_or_equal_transitivity |} |}
+   ; TotalOrder.total :=
+       {| Total.totality := Nat.less_or_equal_totality |} |}.
+
+(* [min] is a commutative semigroup with no identity, since [Nat] has no
+   greatest element; [max] reaches monoid, [One] being the least. *)
+Instance Nat_min_semigroup : Semigroup.T Nat Nat.min :=
+  {| Semigroup.associativity := Nat.min_associativity |}.
+
+Instance Nat_max_monoid : Monoid.T Nat Nat.max One :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Nat.max_associativity |}
+   ; Monoid.left_identity  := Nat.max_left_identity
+   ; Monoid.right_identity := Nat.max_right_identity |}.
+
+Instance Nat_min_commutative : Commutative.T Nat Nat.min :=
+  {| Commutative.commutativity := Nat.min_commutativity |}.
+
+Instance Nat_max_commutative : Commutative.T Nat Nat.max :=
+  {| Commutative.commutativity := Nat.max_commutativity |}.
