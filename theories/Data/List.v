@@ -829,6 +829,59 @@ Fixpoint filter {A : Type} (p : A -> Bool) (l : List A) : List A :=
       | false => filter p l'
       end
   end.
+
+(* Filtering a concatenation filters each half. The head's answer decides
+   the shape, so each step is a case analysis on [p b]. *)
+Theorem filter_distributivity_over_append
+  : forall (A : Type) (p : A -> Bool) (l1 : List A) (l2 : List A),
+      filter p (append l1 l2) = append (filter p l1) (filter p l2).
+Proof.
+  (* The context gains [A], [p], [l1] and [l2]:
+     [|- filter p (append l1 l2) = append (filter p l1) (filter p l2)] *)
+  intros A p l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : filter p (append l1' l2) = append (filter p l1') (filter p l2)]
+     in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- filter p (append Nil l2) = append (filter p Nil) (filter p l2)] *)
+    (* [append Nil], [filter p Nil] and [append Nil] again compute:
+       [|- filter p l2 = filter p l2] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- filter p (append (Cons b l1') l2)
+         = append (filter p (Cons b l1')) (filter p l2)] *)
+    (* One [append] step and one [filter] step on each side leave a
+       [match p b] on both:
+       [|- match p b with
+           | true => Cons b (filter p (append l1' l2))
+           | false => filter p (append l1' l2)
+           end
+           = append (match p b with
+                     | true => Cons b (filter p l1')
+                     | false => filter p l1'
+                     end)
+                    (filter p l2)] *)
+    simpl in |- *.
+    (* [p b] is either [true] or [false]: one goal per ctor. *)
+    destruct (p b) as [|].
+    + (* Both [match]es take their [true] branch, and [append] steps:
+         [|- Cons b (filter p (append l1' l2))
+             = Cons b (append (filter p l1') (filter p l2))] *)
+      simpl in |- *.
+      (* [IH] replaces the inner [filter]; both sides are then the same
+         term. *)
+      rewrite IH in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* Both [match]es take their [false] branch:
+         [|- filter p (append l1' l2) = append (filter p l1') (filter p l2)] *)
+      simpl in |- *.
+      (* [IH] is a proof of the goal as it stands. *)
+      exact IH.
+Qed.
+
 (* [filter] is a catamorphism too: [Cons] becomes a conditional [Cons]. *)
 Theorem filter_catamorphism
   : forall (A : Type) (p : A -> Bool) (l : List A),
@@ -838,8 +891,8 @@ Theorem filter_catamorphism
                       | true  => Cons a kept
                       | false => kept
                       end)
-                   Nil
-                   l.
+                    Nil
+                    l.
 Proof.
   (* The context gains [A], [p] and [l]:
      [|- filter p l = fold_right (fun a kept => match p a with ...) Nil l] *)
@@ -867,6 +920,193 @@ Proof.
     rewrite IH in |- *.
     (* Both sides are the same term. *)
     reflexivity.
+Qed.
+
+(* The specification of [filter]: an element is in the result exactly when
+   it was in the input and [p] answers [true] on it. The two halves are
+   lemmas, the [<->] the theorem. Where the head's answer matters later,
+   [destruct ... eqn:] keeps it as an equation in the context. *)
+
+Lemma filter_specification_forward
+  : forall (A : Type) (p : A -> Bool) (a : A) (l : List A),
+      Contains a (filter p l) -> Contains a l /\ p a = true.
+Proof.
+  (* The context gains [A], [p], [a] and [l]:
+     [|- Contains a (filter p l) -> Contains a l /\ p a = true] *)
+  intros A p a l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and
+     [IH : Contains a (filter p l') -> Contains a l' /\ p a = true] in its
+     context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- Contains a (filter p Nil) -> Contains a Nil /\ p a = true] *)
+    (* [filter p Nil] and both [Contains] compute:
+       [|- Falsum -> Falsum /\ p a = true] *)
+    simpl in |- *.
+    (* The context gains [f : Falsum]: [|- Falsum /\ p a = true] *)
+    intro f.
+    (* [f : Falsum], which is what [contradiction] looks for. *)
+    contradiction.
+  - (* [|- Contains a (filter p (Cons b l'))
+         -> Contains a (Cons b l') /\ p a = true] *)
+    (* The [filter] step leaves a [match p b] under [Contains], and the
+       [Contains] on the right computes:
+       [|- Contains a (match p b with
+                       | true => Cons b (filter p l')
+                       | false => filter p l'
+                       end)
+           -> (a = b \/ Contains a l') /\ p a = true] *)
+    simpl in |- *.
+    (* [p b] is either [true] or [false]: one goal per ctor, each keeping
+       the answer as [pb]. *)
+    destruct (p b) as [|] eqn:pb.
+    + (* The [match] takes its [true] branch and [Contains] computes:
+         [|- a = b \/ Contains a (filter p l')
+             -> (a = b \/ Contains a l') /\ p a = true] *)
+      simpl in |- *.
+      (* The context gains [h : a = b \/ Contains a (filter p l')]:
+         [|- (a = b \/ Contains a l') /\ p a = true] *)
+      intro h.
+      (* [h] gives two goals: one with [e : a = b], one with
+         [h' : Contains a (filter p l')]. *)
+      destruct h as [e | h'].
+      * (* The goal splits into two goals: [|- a = b \/ Contains a l'] and
+           [|- p a = true]. *)
+        split.
+        -- (* [e] is the left side. *)
+           exact (Disjunction_left e).
+        -- (* [e] replaces [a] by [b]: [|- p b = true] *)
+           rewrite e in |- *.
+           (* [pb] is a proof of the goal as it stands. *)
+           exact pb.
+      * (* [IH] turns [h'] into [Contains a l' /\ p a = true], which splits
+           into [hl : Contains a l'] and [pa : p a = true]. *)
+        destruct (IH h') as [hl pa].
+        (* The goal splits into two goals: [|- a = b \/ Contains a l'] and
+           [|- p a = true]. *)
+        split.
+        -- (* [hl] is the right side. *)
+           exact (Disjunction_right hl).
+        -- (* [pa] is a proof of the goal as it stands. *)
+           exact pa.
+    + (* The [match] takes its [false] branch:
+         [|- Contains a (filter p l')
+             -> (a = b \/ Contains a l') /\ p a = true] *)
+      simpl in |- *.
+      (* The context gains [h' : Contains a (filter p l')]:
+         [|- (a = b \/ Contains a l') /\ p a = true] *)
+      intro h'.
+      (* [IH] turns [h'] into [Contains a l' /\ p a = true], which splits
+         into [hl : Contains a l'] and [pa : p a = true]. *)
+      destruct (IH h') as [hl pa].
+      (* The goal splits into two goals: [|- a = b \/ Contains a l'] and
+         [|- p a = true]. *)
+      split.
+      * (* [hl] is the right side. *)
+        exact (Disjunction_right hl).
+      * (* [pa] is a proof of the goal as it stands. *)
+        exact pa.
+Qed.
+
+Lemma filter_specification_backward
+  : forall (A : Type) (p : A -> Bool) (a : A) (l : List A),
+      Contains a l /\ p a = true -> Contains a (filter p l).
+Proof.
+  (* The context gains [A], [p], [a] and [l]:
+     [|- Contains a l /\ p a = true -> Contains a (filter p l)] *)
+  intros A p a l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and
+     [IH : Contains a l' /\ p a = true -> Contains a (filter p l')] in its
+     context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- Contains a Nil /\ p a = true -> Contains a (filter p Nil)] *)
+    (* Both [Contains] and [filter p Nil] compute:
+       [|- Falsum /\ p a = true -> Falsum] *)
+    simpl in |- *.
+    (* The context gains [h : Falsum /\ p a = true]: [|- Falsum] *)
+    intro h.
+    (* Only the left half of [h] is needed: [f : Falsum]. *)
+    destruct h as [f _].
+    (* [f : Falsum], which is what [contradiction] looks for. *)
+    contradiction.
+  - (* [|- Contains a (Cons b l') /\ p a = true
+         -> Contains a (filter p (Cons b l'))] *)
+    (* The [Contains] on the left computes and the [filter] step leaves a
+       [match p b]:
+       [|- (a = b \/ Contains a l') /\ p a = true
+           -> Contains a (match p b with
+                          | true => Cons b (filter p l')
+                          | false => filter p l'
+                          end)] *)
+    simpl in |- *.
+    (* The context gains [h : (a = b \/ Contains a l') /\ p a = true]:
+       the goal is the [Contains] of the [match]. *)
+    intro h.
+    (* [h] splits into [h1 : a = b \/ Contains a l'] and [pa : p a = true]. *)
+    destruct h as [h1 pa].
+    (* [h1] gives two goals: one with [e : a = b], one with
+       [h' : Contains a l']. *)
+    destruct h1 as [e | h'].
+    + (* [e] replaces [a] by [b] in [pa]: [pa : p b = true]. *)
+      rewrite e in pa.
+      (* [pa] replaces [p b] by [true], and the [match] takes that branch:
+         [|- Contains a (Cons b (filter p l'))] *)
+      rewrite pa in |- *.
+      (* [Contains] on a [Cons] computes:
+         [|- a = b \/ Contains a (filter p l')] *)
+      simpl in |- *.
+      (* [e] is the left side. *)
+      exact (Disjunction_left e).
+    + (* [p b] is either [true] or [false]: one goal per ctor. *)
+      destruct (p b) as [|].
+      * (* The [match] takes its [true] branch and [Contains] computes:
+           [|- a = b \/ Contains a (filter p l')] *)
+        simpl in |- *.
+        (* [Disjunction_right] turns the goal into its right side:
+           [|- Contains a (filter p l')] *)
+        apply Disjunction_right.
+        (* [IH] turns a proof of [Contains a l' /\ p a = true] into one of
+           the goal: [|- Contains a l' /\ p a = true] *)
+        apply IH.
+        (* The goal splits into two goals: [|- Contains a l'] and
+           [|- p a = true]. *)
+        split.
+        -- (* [h'] is a proof of the goal as it stands. *)
+           exact h'.
+        -- (* [pa] is a proof of the goal as it stands. *)
+           exact pa.
+      * (* The [match] takes its [false] branch:
+           [|- Contains a (filter p l')] *)
+        simpl in |- *.
+        (* [IH] turns a proof of [Contains a l' /\ p a = true] into one of
+           the goal: [|- Contains a l' /\ p a = true] *)
+        apply IH.
+        (* The goal splits into two goals: [|- Contains a l'] and
+           [|- p a = true]. *)
+        split.
+        -- (* [h'] is a proof of the goal as it stands. *)
+           exact h'.
+        -- (* [pa] is a proof of the goal as it stands. *)
+           exact pa.
+Qed.
+
+Theorem filter_specification
+  : forall (A : Type) (p : A -> Bool) (a : A) (l : List A),
+      Contains a (filter p l) <-> Contains a l /\ p a = true.
+Proof.
+  (* The context gains [A], [p], [a] and [l]:
+     [|- Contains a (filter p l) <-> Contains a l /\ p a = true] *)
+  intros A p a l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [filter_specification_forward A p a l] is a proof of the goal
+       as it stands. *)
+    exact (filter_specification_forward A p a l).
+  - (* [filter_specification_backward A p a l] is a proof of the
+       goal as it stands. *)
+    exact (filter_specification_backward A p a l).
 Qed.
 
 End List.
