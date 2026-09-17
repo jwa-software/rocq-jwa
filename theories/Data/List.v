@@ -2218,6 +2218,116 @@ Proof.
     reflexivity.
 Qed.
 
+(* Unzipping a [zip] gives the two lists back when they are of one length;
+   [zip] stops with the shorter list, so a longer one is not recovered.
+   Induction on [l1] with [l2] kept in the motive, since [zip] and
+   [length] step on both lists at once; the two mismatched cases contradict
+   [NatWithZero.add_positive_refutes_zero] and the matched case feeds the
+   hypothesis through [NatWithZero.add_cancellation_right]. *)
+Theorem unzip_zip_identity
+  : forall (A : Type) (B : Type) (l1 : List A) (l2 : List B),
+      length l1 = length l2 -> unzip (zip l1 l2) = Pair_introduction l1 l2.
+Proof.
+  (* The context gains [A], [B] and [l1]:
+     [|- forall (l2 : List B), length l1 = length l2
+         -> unzip (zip l1 l2) = Pair_introduction l1 l2] *)
+  intros A B l1.
+  (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the
+     second has [a], [l1'] and
+     [IH : forall (l2 : List B), length l1' = length l2
+           -> unzip (zip l1' l2) = Pair_introduction l1' l2]
+     in its context. *)
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* The context gains [l2] and [e : length Nil = length l2]:
+       [|- unzip (zip Nil l2) = Pair_introduction Nil l2] *)
+    intros l2 e.
+    (* [l2] is either [Nil] or [Cons b l2']: one goal per ctor. *)
+    destruct l2 as [| b l2'].
+    + (* [|- Pair_introduction (map Pair.first (zip Nil Nil))
+                               (map Pair.second (zip Nil Nil))
+           = Pair_introduction Nil Nil] *)
+      unfold unzip in |- *.
+      (* [zip] and both [map]s compute on [Nil]:
+         [|- Pair_introduction Nil Nil = Pair_introduction Nil Nil] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* Both [length]s step:
+         [e : Zero = NatWithZero.add (length l2') (Positive One)] *)
+      simpl in e.
+      (* Turned round:
+         [e' : NatWithZero.add (length l2') (Positive One) = Zero] *)
+      pose proof (Equijunction_symmetry e) as e'.
+      (* [h : ~ (NatWithZero.add (length l2') (Positive One) = Zero)] *)
+      pose proof (NatWithZero.add_positive_refutes_zero (length l2') One) as h.
+      (* [h : NatWithZero.add (length l2') (Positive One) = Zero -> Falsum] *)
+      unfold Unjunction in h.
+      (* [f : Falsum] *)
+      pose proof (h e') as f.
+      (* [f : Falsum], which is what [contradiction] looks for. *)
+      contradiction.
+  - (* The context gains [l2] and [e : length (Cons a l1') = length l2]:
+       [|- unzip (zip (Cons a l1') l2) = Pair_introduction (Cons a l1') l2] *)
+    intros l2 e.
+    (* [l2] is either [Nil] or [Cons b l2']: one goal per ctor. *)
+    destruct l2 as [| b l2'].
+    + (* Both [length]s step:
+         [e : NatWithZero.add (length l1') (Positive One) = Zero] *)
+      simpl in e.
+      (* [h : ~ (NatWithZero.add (length l1') (Positive One) = Zero)] *)
+      pose proof (NatWithZero.add_positive_refutes_zero (length l1') One) as h.
+      (* [h : NatWithZero.add (length l1') (Positive One) = Zero -> Falsum] *)
+      unfold Unjunction in h.
+      (* [f : Falsum] *)
+      pose proof (h e) as f.
+      (* [f : Falsum], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* Both [length]s step:
+         [e : NatWithZero.add (length l1') (Positive One)
+              = NatWithZero.add (length l2') (Positive One)] *)
+      simpl in e.
+      (* The [Positive One] cancels: [e' : length l1' = length l2'] *)
+      pose proof (NatWithZero.add_cancellation_right
+                    (length l1') (length l2') (Positive One) e) as e'.
+      (* [IH] on [l2'] and [e']:
+         [IH' : unzip (zip l1' l2') = Pair_introduction l1' l2'] *)
+      pose proof (IH l2' e') as IH'.
+      (* [IH' : Pair_introduction (map Pair.first (zip l1' l2'))
+                                  (map Pair.second (zip l1' l2'))
+                = Pair_introduction l1' l2'] *)
+      unfold unzip in IH'.
+      (* [Pair.introduction_injectivity] splits the pair:
+         [e'' : map Pair.first (zip l1' l2') = l1'
+                /\ map Pair.second (zip l1' l2') = l2'] *)
+      pose proof (Pair.introduction_injectivity (List A) (List B)
+                    (map Pair.first (zip l1' l2'))
+                    (map Pair.second (zip l1' l2'))
+                    l1' l2' IH') as e''.
+      (* The conjunction opens into [e1] and [e2], one per component. *)
+      destruct e'' as [e1 e2].
+      (* [|- Pair_introduction
+               (map Pair.first (zip (Cons a l1') (Cons b l2')))
+               (map Pair.second (zip (Cons a l1') (Cons b l2')))
+           = Pair_introduction (Cons a l1') (Cons b l2')] *)
+      unfold unzip in |- *.
+      (* [zip] steps once and each [map] steps once:
+         [|- Pair_introduction (Cons a (map Pair.first (zip l1' l2')))
+                               (Cons b (map Pair.second (zip l1' l2')))
+             = Pair_introduction (Cons a l1') (Cons b l2')] *)
+      simpl in |- *.
+      (* [e1] replaces the first [map]:
+         [|- Pair_introduction (Cons a l1')
+                               (Cons b (map Pair.second (zip l1' l2')))
+             = Pair_introduction (Cons a l1') (Cons b l2')] *)
+      rewrite e1 in |- *.
+      (* [e2] replaces the second:
+         [|- Pair_introduction (Cons a l1') (Cons b l2')
+             = Pair_introduction (Cons a l1') (Cons b l2')] *)
+      rewrite e2 in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+Qed.
+
 (* Splits a list into the elements [p] accepts and the ones it rejects, in
    one pass; the recursive result is opened by a [match] so both halves
    are extended in place. *)
