@@ -8,11 +8,10 @@ From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
 
-Record Conjunction (A : Prop) (B : Prop) : Prop :=
-  { Conjunction_left : A ; Conjunction_right : B }.
+Inductive Conjunction (A : Prop) (B : Prop) : Prop :=
+  | Conjunction_introduction : A -> B -> Conjunction A B.
 
-Arguments Conjunction_left  {A} {B} _.
-Arguments Conjunction_right {A} {B} _.
+Arguments Conjunction_introduction {A} {B} a b.
 
 Notation "A /\ B" := (Conjunction A B) : jwa_type_scope.
 

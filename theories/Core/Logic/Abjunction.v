@@ -9,10 +9,9 @@ From jwa Require Import Core.Logic.Unjunction.
 
 (* Abjunction is material nonimplication: [A] holds and [B] does not, the
    one case in which [A -> B] fails. *)
-Record Abjunction (A : Prop) (B : Prop) : Prop :=
-  { Abjunction_left : A ; Abjunction_right : ~ B }.
+Inductive Abjunction (A : Prop) (B : Prop) : Prop :=
+  | Abjunction_introduction : A -> ~ B -> Abjunction A B.
 
-Arguments Abjunction_left  {A} {B} _.
-Arguments Abjunction_right {A} {B} _.
+Arguments Abjunction_introduction {A} {B} a not_b.
 
 Notation "A -/> B" := (Abjunction A B) : jwa_type_scope.
