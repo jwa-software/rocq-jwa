@@ -820,12 +820,13 @@ Qed.
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
-   Declared at file level, it reaches a client through [Require Export]. *)
-Notation "l1 ++ l2" := (List.append l1 l2) : jwa_type_scope.
+   Declared at file level, it reaches a client through [Require Export].
+   Every list notation lives in [jwa_list_scope], which [Core.Notations]
+   declares without opening: a client writes [(l1 ++ l2)%list] or opens the
+   scope. *)
+Notation "l1 ++ l2" := (List.append l1 l2) : jwa_list_scope.
 
-(* [[]] lives in [jwa_list_scope], which [Core.Notations] declares without
-   opening: a client writes [[]%list] or opens the scope. The token is
-   [[]] as one piece; [[ ]] with a space is not it. *)
+(* The token is [[]] as one piece; [[ ]] with a space is not it. *)
 Notation "[]" := Nil : jwa_list_scope.
 
 (* Membership reads as a sentence, [l contains a], with the list first; the

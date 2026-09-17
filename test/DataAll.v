@@ -54,13 +54,14 @@ Definition data_all_delivers_bool_bridge
       Bool.Assert (Bool.and b1 b2) <-> Bool.Assert b1 /\ Bool.Assert b2
   := Bool.assert_conjunction.
 
-(* [++] is a notation, so this also checks that it reaches a client through
-   the umbrella. *)
+(* [++] is a notation in [jwa_list_scope], reached here through its
+   delimiter; this also checks that it reaches a client through the
+   umbrella. *)
 Definition data_all_delivers_list : List Bool
-  := Cons true Nil ++ Cons false Nil.
+  := (Cons true Nil ++ Cons false Nil)%list.
 
 Definition data_all_delivers_list_monoid
-  : forall (A : Type) (l : List A), Nil ++ l = l
+  : forall (A : Type) (l : List A), (Nil ++ l)%list = l
   := fun (A : Type) => Monoid.identity_left.
 
 (* [[]] is in [jwa_list_scope], reached here through its delimiter. *)
