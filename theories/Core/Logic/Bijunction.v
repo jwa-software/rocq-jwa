@@ -98,3 +98,153 @@ Proof.
     (* [c] is a proof of the goal as it stands. *)
     exact c.
 Qed.
+
+(* Bijunction elimination: either direction of a [<->] on its own, so a law
+   stated as a [<->] can be used one way without naming its halves. *)
+
+Theorem Bijunction_elimination_forward
+  : forall (A : Prop) (B : Prop), (A <-> B) -> A -> B.
+Proof.
+  (* The context gains [A] and [B]: [|- (A <-> B) -> A -> B] *)
+  intros A B.
+  (* The context gains [e : A <-> B]: [|- A -> B] *)
+  intro e.
+  (* [e] splits into [ab : A -> B] and [ba : B -> A]. *)
+  destruct e as [ab ba].
+  (* [ab] is a proof of the goal as it stands. *)
+  exact ab.
+Qed.
+
+Theorem Bijunction_elimination_backward
+  : forall (A : Prop) (B : Prop), (A <-> B) -> B -> A.
+Proof.
+  (* The context gains [A] and [B]: [|- (A <-> B) -> B -> A] *)
+  intros A B.
+  (* The context gains [e : A <-> B]: [|- B -> A] *)
+  intro e.
+  (* [e] splits into [ab : A -> B] and [ba : B -> A]. *)
+  destruct e as [ab ba].
+  (* [ba] is a proof of the goal as it stands. *)
+  exact ba.
+Qed.
+
+(* [<->] is respected by [->] and by [<->] itself. [Core.Logic.Subjunction]
+   cannot see [<->], so the congruence of [->] sits here. *)
+
+Theorem Subjunction_congruence
+  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+      (A1 <-> A2) -> (B1 <-> B2) -> ((A1 -> B1) <-> (A2 -> B2)).
+Proof.
+  (* The context gains [A1], [A2], [B1] and [B2]:
+     [|- (A1 <-> A2) -> (B1 <-> B2) -> ((A1 -> B1) <-> (A2 -> B2))] *)
+  intros A1 A2 B1 B2.
+  (* The context gains [ea : A1 <-> A2]:
+     [|- (B1 <-> B2) -> ((A1 -> B1) <-> (A2 -> B2))] *)
+  intro ea.
+  (* The context gains [eb : B1 <-> B2]: [|- (A1 -> B1) <-> (A2 -> B2)] *)
+  intro eb.
+  (* [ea] splits into [a12 : A1 -> A2] and [a21 : A2 -> A1]. *)
+  destruct ea as [a12 a21].
+  (* [eb] splits into [b12 : B1 -> B2] and [b21 : B2 -> B1]. *)
+  destruct eb as [b12 b21].
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals: [|- (A1 -> B1) -> A2 -> B2] and [|- (A2 -> B2) -> A1 -> B1]. *)
+  split.
+  - (* The context gains [f : A1 -> B1]: [|- A2 -> B2] *)
+    intro f.
+    (* The context gains [a2 : A2]: [|- B2] *)
+    intro a2.
+    (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+    apply b12.
+    (* [f] turns a proof of [A1] into a proof of [B1]: [|- A1] *)
+    apply f.
+    (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+    apply a21.
+    (* [a2] is a proof of the goal as it stands. *)
+    exact a2.
+  - (* The context gains [f : A2 -> B2]: [|- A1 -> B1] *)
+    intro f.
+    (* The context gains [a1 : A1]: [|- B1] *)
+    intro a1.
+    (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+    apply b21.
+    (* [f] turns a proof of [A2] into a proof of [B2]: [|- A2] *)
+    apply f.
+    (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+    apply a12.
+    (* [a1] is a proof of the goal as it stands. *)
+    exact a1.
+Qed.
+
+Theorem Bijunction_congruence
+  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+      (A1 <-> A2) -> (B1 <-> B2) -> ((A1 <-> B1) <-> (A2 <-> B2)).
+Proof.
+  (* The context gains [A1], [A2], [B1] and [B2]:
+     [|- (A1 <-> A2) -> (B1 <-> B2) -> ((A1 <-> B1) <-> (A2 <-> B2))] *)
+  intros A1 A2 B1 B2.
+  (* The context gains [ea : A1 <-> A2]:
+     [|- (B1 <-> B2) -> ((A1 <-> B1) <-> (A2 <-> B2))] *)
+  intro ea.
+  (* The context gains [eb : B1 <-> B2]: [|- (A1 <-> B1) <-> (A2 <-> B2)] *)
+  intro eb.
+  (* [ea] splits into [a12 : A1 -> A2] and [a21 : A2 -> A1]. *)
+  destruct ea as [a12 a21].
+  (* [eb] splits into [b12 : B1 -> B2] and [b21 : B2 -> B1]. *)
+  destruct eb as [b12 b21].
+  (* The goal splits into two goals: [|- (A1 <-> B1) -> (A2 <-> B2)] and
+     [|- (A2 <-> B2) -> (A1 <-> B1)]. *)
+  split.
+  - (* The context gains [e : A1 <-> B1]: [|- A2 <-> B2] *)
+    intro e.
+    (* [e] splits into [ab : A1 -> B1] and [ba : B1 -> A1]. *)
+    destruct e as [ab ba].
+    (* The goal splits into two goals: [|- A2 -> B2] and [|- B2 -> A2]. *)
+    split.
+    + (* The context gains [a2 : A2]: [|- B2] *)
+      intro a2.
+      (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+      apply b12.
+      (* [ab] turns a proof of [A1] into a proof of [B1]: [|- A1] *)
+      apply ab.
+      (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+      apply a21.
+      (* [a2] is a proof of the goal as it stands. *)
+      exact a2.
+    + (* The context gains [b2 : B2]: [|- A2] *)
+      intro b2.
+      (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+      apply a12.
+      (* [ba] turns a proof of [B1] into a proof of [A1]: [|- B1] *)
+      apply ba.
+      (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+      apply b21.
+      (* [b2] is a proof of the goal as it stands. *)
+      exact b2.
+  - (* The context gains [e : A2 <-> B2]: [|- A1 <-> B1] *)
+    intro e.
+    (* [e] splits into [ab : A2 -> B2] and [ba : B2 -> A2]. *)
+    destruct e as [ab ba].
+    (* The goal splits into two goals: [|- A1 -> B1] and [|- B1 -> A1]. *)
+    split.
+    + (* The context gains [a1 : A1]: [|- B1] *)
+      intro a1.
+      (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+      apply b21.
+      (* [ab] turns a proof of [A2] into a proof of [B2]: [|- A2] *)
+      apply ab.
+      (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+      apply a12.
+      (* [a1] is a proof of the goal as it stands. *)
+      exact a1.
+    + (* The context gains [b1 : B1]: [|- A1] *)
+      intro b1.
+      (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+      apply a21.
+      (* [ba] turns a proof of [B2] into a proof of [A2]: [|- B2] *)
+      apply ba.
+      (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+      apply b12.
+      (* [b1] is a proof of the goal as it stands. *)
+      exact b1.
+Qed.

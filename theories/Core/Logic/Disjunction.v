@@ -3,11 +3,12 @@
 (* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
    the level that the notation below needs, [Core.Ltac] carries the tactic
    language, [Core.Logic.Subjunction] carries [->], [Core.Logic.Conjunction]
-   carries [/\]. *)
+   carries [/\], [Core.Logic.Bijunction] carries [<->]. *)
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
 From jwa Require Import Core.Logic.Conjunction.
+From jwa Require Import Core.Logic.Bijunction.
 
 Inductive Disjunction (A : Prop) (B : Prop) : Prop :=
   | Disjunction_left  : A -> Disjunction A B
@@ -263,4 +264,133 @@ Proof.
   - (* [Disjunction_distributivity_over_Conjunction_backward A B C] is a
        proof of the goal as it stands. *)
     exact (Disjunction_distributivity_over_Conjunction_backward A B C).
+Qed.
+
+(* Disjunction elimination, the rule that a proof of [C] from each side is a
+   proof of [C] from [A \/ B], stated with its inverse: an arrow out of a
+   disjunction is an arrow out of each side. A [<->] with its halves as
+   lemmas. *)
+
+Lemma Disjunction_elimination_forward
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A \/ B -> C) -> (A -> C) /\ (B -> C).
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A \/ B -> C) -> (A -> C) /\ (B -> C)] *)
+  intros A B C.
+  (* The context gains [f : A \/ B -> C]: [|- (A -> C) /\ (B -> C)] *)
+  intro f.
+  (* The goal splits into two goals: [|- A -> C] and [|- B -> C]. *)
+  split.
+  - (* The context gains [a : A]: [|- C] *)
+    intro a.
+    (* [f] turns a proof of [A \/ B] into a proof of [C]: [|- A \/ B] *)
+    apply f.
+    (* [a] is the left side of [A \/ B]. *)
+    exact (Disjunction_left a).
+  - (* The context gains [b : B]: [|- C] *)
+    intro b.
+    (* [f] turns a proof of [A \/ B] into a proof of [C]: [|- A \/ B] *)
+    apply f.
+    (* [b] is the right side of [A \/ B]. *)
+    exact (Disjunction_right b).
+Qed.
+
+Lemma Disjunction_elimination_backward
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A -> C) /\ (B -> C) -> A \/ B -> C.
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A -> C) /\ (B -> C) -> A \/ B -> C] *)
+  intros A B C.
+  (* The context gains [h : (A -> C) /\ (B -> C)]: [|- A \/ B -> C] *)
+  intro h.
+  (* [h] splits into [ac : A -> C] and [bc : B -> C]. *)
+  destruct h as [ac bc].
+  (* The context gains [ab : A \/ B]: [|- C] *)
+  intro ab.
+  (* [ab] gives two goals: one with [a : A], one with [b : B]. *)
+  destruct ab as [a | b].
+  - (* [ac] turns a proof of [A] into a proof of [C]: [|- A] *)
+    apply ac.
+    (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* [bc] turns a proof of [B] into a proof of [C]: [|- B] *)
+    apply bc.
+    (* [b] is a proof of the goal as it stands. *)
+    exact b.
+Qed.
+
+Theorem Disjunction_elimination
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A \/ B -> C) <-> (A -> C) /\ (B -> C).
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A \/ B -> C) <-> (A -> C) /\ (B -> C)] *)
+  intros A B C.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals: [|- (A \/ B -> C) -> (A -> C) /\ (B -> C)] and
+     [|- (A -> C) /\ (B -> C) -> A \/ B -> C]. *)
+  split.
+  - (* [Disjunction_elimination_forward A B C] is a proof of the goal
+       as it stands. *)
+    exact (Disjunction_elimination_forward A B C).
+  - (* [Disjunction_elimination_backward A B C] is a proof of the goal
+       as it stands. *)
+    exact (Disjunction_elimination_backward A B C).
+Qed.
+
+(* [<->] is respected by [\/]: replacing each side by an equivalent one
+   gives an equivalent disjunction. *)
+Theorem Disjunction_congruence
+  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+      (A1 <-> A2) -> (B1 <-> B2) -> (A1 \/ B1 <-> A2 \/ B2).
+Proof.
+  (* The context gains [A1], [A2], [B1] and [B2]:
+     [|- (A1 <-> A2) -> (B1 <-> B2) -> (A1 \/ B1 <-> A2 \/ B2)] *)
+  intros A1 A2 B1 B2.
+  (* The context gains [ea : A1 <-> A2]:
+     [|- (B1 <-> B2) -> (A1 \/ B1 <-> A2 \/ B2)] *)
+  intro ea.
+  (* The context gains [eb : B1 <-> B2]: [|- A1 \/ B1 <-> A2 \/ B2] *)
+  intro eb.
+  (* [ea] splits into [a12 : A1 -> A2] and [a21 : A2 -> A1]. *)
+  destruct ea as [a12 a21].
+  (* [eb] splits into [b12 : B1 -> B2] and [b21 : B2 -> B1]. *)
+  destruct eb as [b12 b21].
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals: [|- A1 \/ B1 -> A2 \/ B2] and [|- A2 \/ B2 -> A1 \/ B1]. *)
+  split.
+  - (* The context gains [h : A1 \/ B1]: [|- A2 \/ B2] *)
+    intro h.
+    (* [h] gives two goals: one with [a1 : A1], one with [b1 : B1]. *)
+    destruct h as [a1 | b1].
+    + (* [Disjunction_left] turns the goal into its left side: [|- A2] *)
+      apply Disjunction_left.
+      (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+      apply a12.
+      (* [a1] is a proof of the goal as it stands. *)
+      exact a1.
+    + (* [Disjunction_right] turns the goal into its right side: [|- B2] *)
+      apply Disjunction_right.
+      (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+      apply b12.
+      (* [b1] is a proof of the goal as it stands. *)
+      exact b1.
+  - (* The context gains [h : A2 \/ B2]: [|- A1 \/ B1] *)
+    intro h.
+    (* [h] gives two goals: one with [a2 : A2], one with [b2 : B2]. *)
+    destruct h as [a2 | b2].
+    + (* [Disjunction_left] turns the goal into its left side: [|- A1] *)
+      apply Disjunction_left.
+      (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+      apply a21.
+      (* [a2] is a proof of the goal as it stands. *)
+      exact a2.
+    + (* [Disjunction_right] turns the goal into its right side: [|- B1] *)
+      apply Disjunction_right.
+      (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+      apply b21.
+      (* [b2] is a proof of the goal as it stands. *)
+      exact b2.
 Qed.
