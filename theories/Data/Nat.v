@@ -590,6 +590,11 @@ Proof.
     reflexivity.
 Qed.
 
+(* [Nat -> Nat -> Prop] *)
+Definition LessThan := fun (m : Nat) (n : Nat) => exists (k : Nat), add m k = n.
+
+(* [Nat -> Nat -> Prop] *)
+Definition LessOrEqual := fun (m : Nat) (n : Nat) => m = n \/ LessThan m n.
 End Nat.
 
 (* The scope is declared in [Core.Notations] and never opened: a client
