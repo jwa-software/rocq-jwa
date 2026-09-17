@@ -3,11 +3,13 @@
 (* [Core.All] carries [->] and [=]; [Structures.Semigroup],
    [Structures.Monoid] and [Structures.Functor] are the classes the
    instances at the bottom fill; [Data.NatWithZero] is what [length] counts
-   in, and [Data.Nat] carries the [One] inside [Positive One]. *)
+   in, [Data.Nat] carries the [One] inside [Positive One], and [Data.Bool]
+   is what a [filter] predicate answers in. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Functor.
+From jwa Require Import Data.Bool.
 From jwa Require Import Data.Nat.
 From jwa Require Import Data.NatWithZero.
 
@@ -817,6 +819,16 @@ Proof.
     exact (reverse_containment_preservation_backward A a l).
 Qed.
 
+(* [filter p] keeps the elements [p] answers [true] on, in their order. *)
+Fixpoint filter {A : Type} (p : A -> Bool) (l : List A) : List A :=
+  match l with
+  | Nil       => Nil
+  | Cons a l' =>
+      match p a with
+      | true  => Cons a (filter p l')
+      | false => filter p l'
+      end
+  end.
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
