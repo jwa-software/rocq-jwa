@@ -35,7 +35,7 @@ Definition data_all_delivers_pair_monoid
   : forall (p : Bool * Bool),
       Pair.product_operation Bool.and Bool.or (Pair_introduction true false) p
       = p
-  := Monoid.identity_left.
+  := Monoid.left_identity.
 
 (* [+] is a notation in [jwa_type_scope]. *)
 Definition data_all_delivers_sum : Bool + Bool := Sum_left true.
@@ -73,17 +73,40 @@ Definition data_all_delivers_instances
 
 Definition data_all_delivers_monoid
   : forall (w : NatWithZero), NatWithZero.add Zero w = w
-  := Monoid.identity_left.
+  := Monoid.left_identity.
 
 (* The cancellative instances are found by resolution, one per type. *)
 Definition data_all_delivers_cancellative
   : forall (n : Nat) (m : Nat) (k : Nat), Nat.add n m = Nat.add n k -> m = k
-  := Cancellative.cancellation_left.
+  := Cancellative.left_cancellation.
 
 Definition data_all_delivers_cancellative_with_zero
   : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero),
       NatWithZero.add m n = NatWithZero.add k n -> m = k
-  := Cancellative.cancellation_right.
+  := Cancellative.right_cancellation.
+
+(* [+] and [*] live in one unopened scope per numeral type, reached here
+   through the delimiters; [*] binds tighter, so the first is
+   [add One (mul One (Successor One))]. *)
+Definition data_all_delivers_nat_operations : Nat
+  := (One + One * Successor One)%nat.
+
+Definition data_all_delivers_nat_with_zero_operations : NatWithZero
+  := (Zero + Positive One * Positive One)%nat_with_zero.
+
+Definition data_all_delivers_power : Nat := Nat.power (Successor One) One.
+
+Definition data_all_delivers_mul_monoid
+  : forall (n : Nat), Nat.mul One n = n
+  := Monoid.left_identity.
+
+(* The commutative instances are found by resolution; the [Pair] one from
+   the two component instances. *)
+Definition data_all_delivers_commutative
+  : forall (p1 : Nat * Bool) (p2 : Nat * Bool),
+      Pair.product_operation Nat.mul Bool.xor p1 p2
+      = Pair.product_operation Nat.mul Bool.xor p2 p1
+  := Commutative.commutativity.
 
 Definition data_all_delivers_functor : Option Bool
   := Functor.map (fun (b : Bool) => b) (Some true).
@@ -95,7 +118,7 @@ Definition data_all_delivers_bool_operations : Bool
 
 Definition data_all_delivers_bool_monoids
   : forall (b : Bool), Bool.and true b = b
-  := Monoid.identity_left.
+  := Monoid.left_identity.
 
 Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool),
@@ -110,7 +133,7 @@ Definition data_all_delivers_list : List Bool
 
 Definition data_all_delivers_list_monoid
   : forall (A : Type) (l : List A), (Nil ++ l)%list = l
-  := fun (A : Type) => Monoid.identity_left.
+  := fun (A : Type) => Monoid.left_identity.
 
 (* [[]] and [::] are in [jwa_list_scope], reached here through its
    delimiter. *)
