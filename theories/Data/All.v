@@ -12,6 +12,7 @@ From jwa Require Export Structures.All.
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
 From jwa Require Export Data.Bool.
 From jwa Require Export Data.Option.
+From jwa Require Export Data.Pair.
 From jwa Require Export Data.Nat.
 From jwa Require Export Data.NatWithZero.
 From jwa Require Export Data.List.

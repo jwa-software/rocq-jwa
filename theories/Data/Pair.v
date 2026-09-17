@@ -1,0 +1,62 @@
+(* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
+
+(* [Core.All] carries [->] and [=]: with [-noinit] a file has only what it
+   requires. *)
+From jwa Require Import Core.All.
+
+(* A pair holds one [A] and one [B], in that order. Both are parameters: the
+   type of each component is fixed for the whole pair. The ctor is named as
+   the [-junction] ctors are, since a pair is to types what [/\] is to
+   propositions. *)
+Inductive Pair (A : Type) (B : Type) : Type :=
+  | Pair_introduction : A -> B -> Pair A B.
+
+(* Both types are inferred from the components. *)
+Arguments Pair_introduction {A} {B} a b.
+
+(* The eliminator behind [induction], written out. Nothing recurses: a pair
+   holds no smaller pair, so one [match] is the whole content. *)
+Definition Pair_induction
+  : forall (A : Type) (B : Type) (P : Pair A B -> Prop),
+      (forall (a : A) (b : B), P (Pair_introduction a b)) ->
+      forall (p : Pair A B), P p
+  := fun (A : Type) (B : Type) (P : Pair A B -> Prop)
+         (step : forall (a : A) (b : B), P (Pair_introduction a b))
+         (p : Pair A B) =>
+       match p with
+       | Pair_introduction a b => step a b
+       end.
+
+(* A module may carry the type's name; its members read [Pair.first]. *)
+Module Pair.
+
+(* [forall {A : Type} {B : Type}, Pair A B -> A] *)
+Definition first := fun {A : Type} {B : Type} (p : Pair A B) =>
+  match p return A with
+  | Pair_introduction a _ => a
+  end.
+
+(* [forall {A : Type} {B : Type}, Pair A B -> B] *)
+Definition second := fun {A : Type} {B : Type} (p : Pair A B) =>
+  match p return B with
+  | Pair_introduction _ b => b
+  end.
+
+End Pair.
+
+(* The level is reserved in [Core.Notations]; only the meaning belongs here.
+   Declared at file level, it reaches a client through [Require Export]. A
+   type former sits in [jwa_type_scope] beside [->], so [A * B -> C] needs
+   no delimiter. *)
+Notation "A * B" := (Pair A B) : jwa_type_scope.
+
+(* The value-level notations live in [jwa_pair_scope], which [Core.Notations]
+   declares without opening: a client writes [(a , b)%pair] or opens the
+   scope. *)
+Notation "( a , b )" := (Pair_introduction a b) : jwa_pair_scope.
+
+(* The projections under their textbook names. Each is a keyword standing
+   for the function itself, so [pi_1 p] is ordinary application and
+   [pi_1 (a , b)] computes as [Pair.first (a , b)] does. *)
+Notation "'pi_1'" := Pair.first : jwa_pair_scope.
+Notation "'pi_2'" := Pair.second : jwa_pair_scope.

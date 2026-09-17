@@ -16,6 +16,17 @@ Definition data_all_delivers_none
   := fun (A : Type) =>
       Equijunction_reflexivity None.
 
+(* [*] is a notation in [jwa_type_scope]; [( , )], [pi_1] and [pi_2] are in
+   [jwa_pair_scope], reached here through its delimiter. *)
+Definition data_all_delivers_pair : Bool * Bool := (true , false)%pair.
+
+Definition data_all_delivers_first
+  : forall (A : Type) (a : A) (b : A), Pair.first (Pair_introduction a b) = a
+  := fun (A : Type) (a : A) (b : A) => Equijunction_reflexivity a.
+
+Definition data_all_delivers_projections : Bool * Bool
+  := (pi_2 (true , false) , pi_1 (true , false))%pair.
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
