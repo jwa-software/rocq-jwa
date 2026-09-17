@@ -14,15 +14,15 @@ Inductive Bool : Type :=
 
 Theorem Bool_distinctness : ~ (true = false).
 Proof.
-  (* The goal goes from [~ (true = false)] to [true = false -> False]. *)
-  unfold Not in |- *.
-  (* The goal goes from [true = false -> False] to [False], and the context
+  (* The goal goes from [~ (true = false)] to [true = false -> Falsum]. *)
+  unfold Unjunction in |- *.
+  (* The goal goes from [true = false -> Falsum] to [Falsum], and the context
      gains [e : true = false]. *)
   intro e.
   (* [e] claims [true = false], but the only way to build an equality is
-     [Eq_reflexivity], whose two sides are the same term, and [true] and
-     [false] are different ctors. No such proof exists, and from that
-     impossibility [discriminate] proves the goal [False]. *)
+     [Equijunction_reflexivity], whose two sides are the same term, and
+     [true] and [false] are different ctors. No such proof exists, and from
+     that impossibility [discriminate] proves the goal [Falsum]. *)
   discriminate e.
 Qed.
 
@@ -192,179 +192,180 @@ Proof.
   destruct b as [|]; reflexivity.
 Qed.
 
-(* The bridge from a computed answer to a statement. [Holds true] is [True]
-   and [Holds false] is [False] by reduction, so case analysis on a [Bool]
+(* The bridge from a computed answer to a statement. [Assert true] is [Verum]
+   and [Assert false] is [Falsum] by reduction, so case analysis on a [Bool]
    turns each law below into a concrete implication in both directions. *)
 (* [Bool -> Prop] *)
-Definition Holds := fun (b : Bool) =>
+Definition Assert := fun (b : Bool) =>
   match b with
-  | true  => True
-  | false => False
+  | true  => Verum
+  | false => Falsum
   end.
 
-Theorem holds_conjunction
+Theorem assert_conjunction
   : forall (b1 : Bool) (b2 : Bool),
-      Holds (and b1 b2) <-> Holds b1 /\ Holds b2.
+      Assert (and b1 b2) <-> Assert b1 /\ Assert b2.
 Proof.
   (* The context gains [b1] and [b2]:
-     [|- Holds (and b1 b2) <-> Holds b1 /\ Holds b2] *)
+     [|- Assert (and b1 b2) <-> Assert b1 /\ Assert b2] *)
   intros b1 b2.
   (* [<->] is a [Definition], so [split] cannot see the [/\] beneath it:
-     [|- (Holds (and b1 b2) -> Holds b1 /\ Holds b2)
-         /\ (Holds b1 /\ Holds b2 -> Holds (and b1 b2))] *)
-  unfold Biconditional in |- *.
+     [|- (Assert (and b1 b2) -> Assert b1 /\ Assert b2)
+         /\ (Assert b1 /\ Assert b2 -> Assert (and b1 b2))] *)
+  unfold Bijunction in |- *.
   (* Four cases, each a concrete implication both ways. *)
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
-  - (* [|- (True -> True /\ True) /\ (True /\ True -> True)] *)
+  - (* [|- (Verum -> Verum /\ Verum) /\ (Verum /\ Verum -> Verum)] *)
     split; intro h.
-    + (* [|- True /\ True], and [I] proves each side. *)
+    + (* [|- Verum /\ Verum], and [I] proves each side. *)
       split; exact I.
-    + (* [|- True] *)
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (False -> True /\ False) /\ (True /\ False -> False)] *)
+  - (* [|- (Falsum -> Verum /\ Falsum) /\ (Verum /\ Falsum -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* [|- False], and the right half of [h] is one; the left half is
+    + (* [|- Falsum], and the right half of [h] is one; the left half is
          dropped. *)
       destruct h as [_ h]. exact h.
-  - (* [|- (False -> False /\ True) /\ (False /\ True -> False)] *)
+  - (* [|- (Falsum -> Falsum /\ Verum) /\ (Falsum /\ Verum -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* [|- False], and the left half of [h] is one; the right half is
+    + (* [|- Falsum], and the left half of [h] is one; the right half is
          dropped. *)
       destruct h as [h _]. exact h.
-  - (* [|- (False -> False /\ False) /\ (False /\ False -> False)] *)
+  - (* [|- (Falsum -> Falsum /\ Falsum) /\ (Falsum /\ Falsum -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* [|- False], and either half of [h] is one; the left is taken. *)
+    + (* [|- Falsum], and either half of [h] is one; the left is taken. *)
       destruct h as [h _]. exact h.
 Qed.
 
-Theorem holds_disjunction
+Theorem assert_disjunction
   : forall (b1 : Bool) (b2 : Bool),
-      Holds (or b1 b2) <-> Holds b1 \/ Holds b2.
+      Assert (or b1 b2) <-> Assert b1 \/ Assert b2.
 Proof.
   (* The context gains [b1] and [b2]:
-     [|- Holds (or b1 b2) <-> Holds b1 \/ Holds b2] *)
+     [|- Assert (or b1 b2) <-> Assert b1 \/ Assert b2] *)
   intros b1 b2.
-  (* [|- (Holds (or b1 b2) -> Holds b1 \/ Holds b2)
-         /\ (Holds b1 \/ Holds b2 -> Holds (or b1 b2))] *)
-  unfold Biconditional in |- *.
+  (* [|- (Assert (or b1 b2) -> Assert b1 \/ Assert b2)
+         /\ (Assert b1 \/ Assert b2 -> Assert (or b1 b2))] *)
+  unfold Bijunction in |- *.
   (* Four cases; only the last has [or] reduce to [false]. *)
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
-  - (* [|- (True -> True \/ True) /\ (True \/ True -> True)] *)
+  - (* [|- (Verum -> Verum \/ Verum) /\ (Verum \/ Verum -> Verum)] *)
     split; intro h.
-    + (* Either side will do, so [exact (Or_right I)] would close it as well;
-         the left one is taken. *)
-      exact (Or_left I).
-    + (* [|- True] *)
+    + (* Either side will do, so [exact (Disjunction_right I)] would close it
+         as well; the left one is taken. *)
+      exact (Disjunction_left I).
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (True -> True \/ False) /\ (True \/ False -> True)] *)
+  - (* [|- (Verum -> Verum \/ Falsum) /\ (Verum \/ Falsum -> Verum)] *)
     split; intro h.
     + (* Only the left side holds. *)
-      exact (Or_left I).
-    + (* [|- True] *)
+      exact (Disjunction_left I).
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (True -> False \/ True) /\ (False \/ True -> True)] *)
+  - (* [|- (Verum -> Falsum \/ Verum) /\ (Falsum \/ Verum -> Verum)] *)
     split; intro h.
     + (* Only the right side holds. *)
-      exact (Or_right I).
-    + (* [|- True] *)
+      exact (Disjunction_right I).
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (False -> False \/ False) /\ (False \/ False -> False)] *)
+  - (* [|- (Falsum -> Falsum \/ Falsum) /\ (Falsum \/ Falsum -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* Either ctor of [h] carries a [False]. *)
+    + (* Either ctor of [h] carries a [Falsum]. *)
       destruct h as [h1 | h2]. exact h1. exact h2.
 Qed.
 
-Theorem holds_exclusive_disjunction
+Theorem assert_sejunction
   : forall (b1 : Bool) (b2 : Bool),
-      Holds (xor b1 b2) <-> Holds b1 _\/_ Holds b2.
+      Assert (xor b1 b2) <-> Assert b1 _\/_ Assert b2.
 Proof.
   (* The context gains [b1] and [b2]:
-     [|- Holds (xor b1 b2) <-> Holds b1 _\/_ Holds b2] *)
+     [|- Assert (xor b1 b2) <-> Assert b1 _\/_ Assert b2] *)
   intros b1 b2.
-  (* [|- (Holds (xor b1 b2) -> Holds b1 _\/_ Holds b2)
-         /\ (Holds b1 _\/_ Holds b2 -> Holds (xor b1 b2))] *)
-  unfold Biconditional in |- *.
+  (* [|- (Assert (xor b1 b2) -> Assert b1 _\/_ Assert b2)
+         /\ (Assert b1 _\/_ Assert b2 -> Assert (xor b1 b2))] *)
+  unfold Bijunction in |- *.
   (* Four cases; [xor] reduces to [false] in the first and the last. *)
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
-  - (* [|- (False -> True _\/_ True) /\ (True _\/_ True -> False)] *)
+  - (* [|- (Falsum -> Verum _\/_ Verum) /\ (Verum _\/_ Verum -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* Either ctor of [h] carries a [True] and a [~ True], which is
-         [True -> False]; applying the one to the other gives the goal. *)
+    + (* Either ctor of [h] carries a [Verum] and a [~ Verum], which is
+         [Verum -> Falsum]; applying the one to the other gives the goal. *)
       destruct h as [t nt | nt t]. exact (nt t). exact (nt t).
-  - (* [|- (True -> True _\/_ False) /\ (True _\/_ False -> True)] *)
+  - (* [|- (Verum -> Verum _\/_ Falsum) /\ (Verum _\/_ Falsum -> Verum)] *)
     split; intro h.
-    + (* [Xor_left] asks for a [True] and a [~ False], which is
-         [False -> False]; [I] is the first and the identity the second. *)
-      exact (Xor_left I (fun (f : False) => f)).
-    + (* [|- True] *)
+    + (* [Sejunction_left] asks for a [Verum] and a [~ Falsum], which is
+         [Falsum -> Falsum]; [I] is the first and the identity the second. *)
+      exact (Sejunction_left I (fun (f : Falsum) => f)).
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (True -> False _\/_ True) /\ (False _\/_ True -> True)] *)
+  - (* [|- (Verum -> Falsum _\/_ Verum) /\ (Falsum _\/_ Verum -> Verum)] *)
     split; intro h.
-    + (* [Xor_right] asks for the same two in the other order. *)
-      exact (Xor_right (fun (f : False) => f) I).
-    + (* [|- True] *)
+    + (* [Sejunction_right] asks for the same two in the other order. *)
+      exact (Sejunction_right (fun (f : Falsum) => f) I).
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (False -> False _\/_ False) /\ (False _\/_ False -> False)] *)
+  - (* [|- (Falsum -> Falsum _\/_ Falsum) /\ (Falsum _\/_ Falsum -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* Either ctor of [h] carries a [False]; the [~ False] beside it is
+    + (* Either ctor of [h] carries a [Falsum]; the [~ Falsum] beside it is
          dropped. *)
       destruct h as [f _ | _ f]. exact f. exact f.
 Qed.
 
-Theorem holds_negation : forall (b : Bool), Holds (negate b) <-> ~ Holds b.
+Theorem assert_unjunction
+  : forall (b : Bool), Assert (negate b) <-> ~ Assert b.
 Proof.
-  (* The context gains [b]: [|- Holds (negate b) <-> ~ Holds b] *)
+  (* The context gains [b]: [|- Assert (negate b) <-> ~ Assert b] *)
   intros b.
   (* Both [<->] and [~] are definitions and have to come off before the
      structure underneath is visible. *)
-  unfold Biconditional, Not in |- *.
+  unfold Bijunction, Unjunction in |- *.
   (* Two cases, one per ctor. *)
   destruct b as [|]; simpl in |- *.
-  - (* [|- (False -> True -> False) /\ ((True -> False) -> False)] *)
+  - (* [|- (Falsum -> Verum -> Falsum) /\ ((Verum -> Falsum) -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
-    + (* [h] turns a [True] into a [False], and [I] is a [True]. *)
+    + (* [h] turns a [Verum] into a [Falsum], and [I] is a [Verum]. *)
       exact (h I).
-  - (* [|- (True -> False -> False) /\ ((False -> False) -> True)] *)
+  - (* [|- (Verum -> Falsum -> Falsum) /\ ((Falsum -> Falsum) -> Verum)] *)
     split; intro h.
-    + (* The hypothesis introduced next is a [False]. *)
+    + (* The hypothesis introduced next is a [Falsum]. *)
       intro k. destruct k.
-    + (* [|- True] *)
+    + (* [|- Verum] *)
       exact I.
 Qed.
 
-(* The other reading of [Holds], and what makes it usable with [rewrite] and
+(* The other reading of [Assert], and what makes it usable with [rewrite] and
    [discriminate]. *)
-Theorem holds_equality : forall (b : Bool), Holds b <-> b = true.
+Theorem assert_equijunction : forall (b : Bool), Assert b <-> b = true.
 Proof.
-  (* The context gains [b]: [|- Holds b <-> b = true] *)
+  (* The context gains [b]: [|- Assert b <-> b = true] *)
   intros b.
-  (* [|- (Holds b -> b = true) /\ (b = true -> Holds b)] *)
-  unfold Biconditional in |- *.
+  (* [|- (Assert b -> b = true) /\ (b = true -> Assert b)] *)
+  unfold Bijunction in |- *.
   (* Two cases, one per ctor. *)
   destruct b as [|]; simpl in |- *.
-  - (* [|- (True -> true = true) /\ (true = true -> True)] *)
+  - (* [|- (Verum -> true = true) /\ (true = true -> Verum)] *)
     split; intro h.
     + (* Both sides are the same term. *)
       reflexivity.
-    + (* [|- True] *)
+    + (* [|- Verum] *)
       exact I.
-  - (* [|- (False -> false = true) /\ (false = true -> False)] *)
+  - (* [|- (Falsum -> false = true) /\ (false = true -> Falsum)] *)
     split; intro h.
-    + (* [h : False], which is what [contradiction] looks for. *)
+    + (* [h : Falsum], which is what [contradiction] looks for. *)
       contradiction.
     + (* [h] claims [false = true], and the two are different ctors. *)
       discriminate h.
