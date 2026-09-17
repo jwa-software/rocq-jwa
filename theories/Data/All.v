@@ -4,15 +4,17 @@
    client imports the whole layer with [From jwa Require Import Data.All]. *)
 
 (* Without [Core.All] a client of this umbrella has no [->]. [Structures.All]
-   joins it now that the modules below declare instances: the classes are part
-   of what this layer offers. *)
+   and [Relations.All] join it since the modules below declare instances of
+   their classes: the classes are part of what this layer offers. *)
 From jwa Require Export Core.All.
 From jwa Require Export Structures.All.
+From jwa Require Export Relations.All.
 
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
 From jwa Require Export Data.Bool.
 From jwa Require Export Data.Unit.
 From jwa Require Export Data.Empty.
+From jwa Require Export Data.Comparison.
 From jwa Require Export Data.Option.
 From jwa Require Export Data.Pair.
 From jwa Require Export Data.Sum.

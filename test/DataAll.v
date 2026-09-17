@@ -33,7 +33,7 @@ Definition data_all_delivers_pair_functor : Bool * Bool
 (* The product monoid is found from the two [Bool] monoids by resolution. *)
 Definition data_all_delivers_pair_monoid
   : forall (p : Bool * Bool),
-      Pair.product_operation Bool.and Bool.or (Pair_introduction true false) p
+      Pair.product Bool.and Bool.or (Pair_introduction true false) p
       = p
   := Monoid.left_identity.
 
@@ -96,6 +96,8 @@ Definition data_all_delivers_nat_with_zero_operations : NatWithZero
 
 Definition data_all_delivers_power : Nat := Nat.power (Successor One) One.
 
+Definition data_all_delivers_subtract : Option Nat := Nat.subtract (Successor One) One.
+
 Definition data_all_delivers_mul_monoid
   : forall (n : Nat), Nat.mul One n = n
   := Monoid.left_identity.
@@ -104,8 +106,8 @@ Definition data_all_delivers_mul_monoid
    the two component instances. *)
 Definition data_all_delivers_commutative
   : forall (p1 : Nat * Bool) (p2 : Nat * Bool),
-      Pair.product_operation Nat.mul Bool.xor p1 p2
-      = Pair.product_operation Nat.mul Bool.xor p2 p1
+      Pair.product Nat.mul Bool.xor p1 p2
+      = Pair.product Nat.mul Bool.xor p2 p1
   := Commutative.commutativity.
 
 Definition data_all_delivers_functor : Option Bool
@@ -157,3 +159,39 @@ Definition data_all_delivers_does_not_contain_member : Prop
 
 Definition data_all_delivers_does_not_belong_to : Prop
   := (true does_not_belong_to Nil)%list.
+
+(* [<] and [<=] sit beside [+] and [*] in each numeral scope. *)
+Definition data_all_delivers_nat_order : Prop := (One < Successor One)%nat.
+
+Definition data_all_delivers_nat_with_zero_order : Prop
+  := (Zero <= Positive One)%nat_with_zero.
+
+Definition data_all_delivers_reversed_order : Prop
+  := (Successor One > One)%nat /\ (Positive One >= Zero)%nat_with_zero.
+
+Definition data_all_delivers_compare : Comparison
+  := Nat.compare One (Successor One).
+
+Definition data_all_delivers_equal : Bool := NatWithZero.equal Zero Zero.
+
+(* The order instances are found by resolution, which also checks that
+   [Relations.All] reaches a client through this umbrella. *)
+Definition data_all_delivers_total_order
+  : forall (m : Nat) (n : Nat), Nat.LessOrEqual m n \/ Nat.LessOrEqual n m
+  := Total.totality.
+
+Definition data_all_delivers_strict_order
+  : forall (n : NatWithZero), ~ NatWithZero.LessThan n n
+  := Irreflexive.irreflexivity.
+
+Definition data_all_delivers_max_monoid
+  : forall (n : NatWithZero), NatWithZero.max Zero n = n
+  := Monoid.left_identity.
+
+Definition data_all_delivers_nat_max_monoid
+  : forall (n : Nat), Nat.max One n = n
+  := Monoid.left_identity.
+
+Definition data_all_delivers_division : NatWithZero * NatWithZero
+  := Pair_introduction (NatWithZero.divide (Positive One) One)
+                       (NatWithZero.modulo (Positive One) One).
