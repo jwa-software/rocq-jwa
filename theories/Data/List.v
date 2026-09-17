@@ -3,13 +3,15 @@
 (* [Core.All] carries [->] and [=]; [Structures.Semigroup],
    [Structures.Monoid] and [Structures.Functor] are the classes the
    instances at the bottom fill; [Data.NatWithZero] is what [length] counts
-   in, [Data.Nat] carries the [One] inside [Positive One], and [Data.Bool]
-   is what a [filter] predicate answers in. *)
+   in, [Data.Nat] carries the [One] inside [Positive One], [Data.Bool] is
+   what a [filter] predicate answers in, and [Data.Option] is what [head]
+   and [tail] answer in. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Functor.
 From jwa Require Import Data.Bool.
+From jwa Require Import Data.Option.
 From jwa Require Import Data.Nat.
 From jwa Require Import Data.NatWithZero.
 
@@ -1684,6 +1686,168 @@ Proof.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
+
+(* Taking a list apart at the front: [head] looks at the first element and
+   [tail] drops it. Both answer in [Option], since the empty list has
+   neither. *)
+
+(* [forall {A : Type}, List A -> Option A] *)
+Definition head := fun {A : Type} (l : List A) =>
+  match l with
+  | Nil      => None
+  | Cons a _ => Some a
+  end.
+
+(* [forall {A : Type}, List A -> Option (List A)] *)
+Definition tail := fun {A : Type} (l : List A) =>
+  match l with
+  | Nil       => None
+  | Cons _ l' => Some l'
+  end.
+
+(* The specifications: [head l] is [Some a] exactly when [l] starts with
+   [a], and [tail l] is [Some l'] exactly when [l] is [l'] behind one
+   element. Each is a [<->] with its halves as lemmas. *)
+
+Lemma head_specification_forward
+  : forall (A : Type) (a : A) (l : List A),
+      head l = Some a -> exists (l' : List A), l = Cons a l'.
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- head l = Some a -> exists (l' : List A), l = Cons a l'] *)
+  intros A a l.
+  (* [l] is either [Nil] or [Cons b rest]: one goal per ctor. *)
+  destruct l as [| b rest].
+  - (* [|- head Nil = Some a -> exists (l' : List A), Nil = Cons a l'] *)
+    (* [head Nil] computes: [|- None = Some a -> ...] *)
+    simpl in |- *.
+    (* The context gains [e : None = Some a]: the goal is the [exists]. *)
+    intro e.
+    (* [e] claims [None = Some a], and the two are different ctors. *)
+    discriminate.
+  - (* [|- head (Cons b rest) = Some a
+         -> exists (l' : List A), Cons b rest = Cons a l'] *)
+    (* [head (Cons b rest)] computes: [|- Some b = Some a -> ...] *)
+    simpl in |- *.
+    (* The context gains [e : Some b = Some a]: the goal is the [exists]. *)
+    intro e.
+    (* [Option.some_injectivity] turns [e] into [e' : b = a]. *)
+    pose proof (Option.some_injectivity A b a e) as e'.
+    (* [rest] is the witness: [|- Cons b rest = Cons a rest] *)
+    apply (Exists_introduction rest).
+    (* [e'] replaces [b] by [a]: [|- Cons a rest = Cons a rest] *)
+    rewrite e' in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Lemma head_specification_backward
+  : forall (A : Type) (a : A) (l : List A),
+      (exists (l' : List A), l = Cons a l') -> head l = Some a.
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- (exists (l' : List A), l = Cons a l') -> head l = Some a] *)
+  intros A a l.
+  (* The context gains [h], the [exists]: [|- head l = Some a] *)
+  intro h.
+  (* [h] opens into a witness [l'] and [e : l = Cons a l']. *)
+  destruct h as [l' e].
+  (* [e] replaces [l]: [|- head (Cons a l') = Some a] *)
+  rewrite e in |- *.
+  (* [head (Cons a l')] computes: [|- Some a = Some a] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem head_specification
+  : forall (A : Type) (a : A) (l : List A),
+      head l = Some a <-> (exists (l' : List A), l = Cons a l').
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- head l = Some a <-> (exists (l' : List A), l = Cons a l')] *)
+  intros A a l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [head_specification_forward A a l] is a proof of the goal as it
+       stands. *)
+    exact (head_specification_forward A a l).
+  - (* [head_specification_backward A a l] is a proof of the goal as it
+       stands. *)
+    exact (head_specification_backward A a l).
+Qed.
+
+Lemma tail_specification_forward
+  : forall (A : Type) (l : List A) (l' : List A),
+      tail l = Some l' -> exists (a : A), l = Cons a l'.
+Proof.
+  (* The context gains [A], [l] and [l']:
+     [|- tail l = Some l' -> exists (a : A), l = Cons a l'] *)
+  intros A l l'.
+  (* [l] is either [Nil] or [Cons b rest]: one goal per ctor. *)
+  destruct l as [| b rest].
+  - (* [|- tail Nil = Some l' -> exists (a : A), Nil = Cons a l'] *)
+    (* [tail Nil] computes: [|- None = Some l' -> ...] *)
+    simpl in |- *.
+    (* The context gains [e : None = Some l']: the goal is the [exists]. *)
+    intro e.
+    (* [e] claims [None = Some l'], and the two are different ctors. *)
+    discriminate.
+  - (* [|- tail (Cons b rest) = Some l'
+         -> exists (a : A), Cons b rest = Cons a l'] *)
+    (* [tail (Cons b rest)] computes: [|- Some rest = Some l' -> ...] *)
+    simpl in |- *.
+    (* The context gains [e : Some rest = Some l']: the goal is the
+       [exists]. *)
+    intro e.
+    (* [Option.some_injectivity] turns [e] into [e' : rest = l']. *)
+    pose proof (Option.some_injectivity (List A) rest l' e) as e'.
+    (* [b] is the witness: [|- Cons b rest = Cons b l'] *)
+    apply (Exists_introduction b).
+    (* [e'] replaces [rest] by [l']: [|- Cons b l' = Cons b l'] *)
+    rewrite e' in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Lemma tail_specification_backward
+  : forall (A : Type) (l : List A) (l' : List A),
+      (exists (a : A), l = Cons a l') -> tail l = Some l'.
+Proof.
+  (* The context gains [A], [l] and [l']:
+     [|- (exists (a : A), l = Cons a l') -> tail l = Some l'] *)
+  intros A l l'.
+  (* The context gains [h], the [exists]: [|- tail l = Some l'] *)
+  intro h.
+  (* [h] opens into a witness [a] and [e : l = Cons a l']. *)
+  destruct h as [a e].
+  (* [e] replaces [l]: [|- tail (Cons a l') = Some l'] *)
+  rewrite e in |- *.
+  (* [tail (Cons a l')] computes: [|- Some l' = Some l'] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem tail_specification
+  : forall (A : Type) (l : List A) (l' : List A),
+      tail l = Some l' <-> (exists (a : A), l = Cons a l').
+Proof.
+  (* The context gains [A], [l] and [l']:
+     [|- tail l = Some l' <-> (exists (a : A), l = Cons a l')] *)
+  intros A l l'.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [tail_specification_forward A l l'] is a proof of the goal as it
+       stands. *)
+    exact (tail_specification_forward A l l').
+  - (* [tail_specification_backward A l l'] is a proof of the goal as it
+       stands. *)
+    exact (tail_specification_backward A l l').
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
