@@ -356,8 +356,7 @@ Definition product_operation := fun {A : Type} {B : Type}
                                     (opA : A -> A -> A) (opB : B -> B -> B)
                                     (p1 : Pair A B) (p2 : Pair A B) =>
   match p1, p2 return Pair A B with
-  | Pair_introduction a1 b1, Pair_introduction a2 b2 =>
-      Pair_introduction (opA a1 a2) (opB b1 b2)
+  | Pair_introduction a1 b1, Pair_introduction a2 b2 => Pair_introduction (opA a1 a2) (opB b1 b2)
   end.
 
 (* The laws of the direct product follow from the laws of the components,
@@ -457,18 +456,24 @@ End Pair.
    Declared at file level, it reaches a client through [Require Export]. A
    type former sits in [jwa_type_scope] beside [->], so [A * B -> C] needs
    no delimiter. *)
-Notation "A * B" := (Pair A B) : jwa_type_scope.
+Notation "A * B" := (Pair A B)
+  : jwa_type_scope.
 
 (* The value-level notations live in [jwa_pair_scope], which [Core.Notations]
    declares without opening: a client writes [(a , b)%pair] or opens the
-   scope. *)
-Notation "( a , b )" := (Pair_introduction a b) : jwa_pair_scope.
+   scope. [only parsing] keeps them out of printing, so a goal shows
+   [Pair_introduction a b] as the code names it rather than
+   [(a, b)%pair]. *)
+Notation "( a , b )" := (Pair_introduction a b) (only parsing)
+  : jwa_pair_scope.
 
 (* The projections under their textbook names. Each is a keyword standing
    for the function itself, so [pi_1 p] is ordinary application and
    [pi_1 (a , b)] computes as [Pair.first (a , b)] does. *)
-Notation "'pi_1'" := Pair.first : jwa_pair_scope.
-Notation "'pi_2'" := Pair.second : jwa_pair_scope.
+Notation "'pi_1'" := Pair.first (only parsing)
+  : jwa_pair_scope.
+Notation "'pi_2'" := Pair.second (only parsing)
+  : jwa_pair_scope.
 
 (* [Pair A] is a functor in its second component; [A] is a parameter of the
    instance, so every first component gets one. The two laws were already
