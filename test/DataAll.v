@@ -70,6 +70,16 @@ Definition data_all_delivers_monoid
   : forall (w : NatWithZero), NatWithZero.add Zero w = w
   := Monoid.identity_left.
 
+(* The cancellative instances are found by resolution, one per type. *)
+Definition data_all_delivers_cancellative
+  : forall (n : Nat) (m : Nat) (k : Nat), Nat.add n m = Nat.add n k -> m = k
+  := Cancellative.cancellation_left.
+
+Definition data_all_delivers_cancellative_with_zero
+  : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero),
+      NatWithZero.add m n = NatWithZero.add k n -> m = k
+  := Cancellative.cancellation_right.
+
 Definition data_all_delivers_functor : Option Bool
   := Functor.map (fun (b : Bool) => b) (Some true).
 
