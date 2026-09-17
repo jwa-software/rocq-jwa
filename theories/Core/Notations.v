@@ -22,8 +22,9 @@ Delimit Scope jwa_list_scope with list.
 (* A level is a claim against every other notation in the library, so all of
    them are declared here, while every meaning is supplied elsewhere: [=] in
    [Core.Equijunction]; [->], [-/>], [~], [/\], [_\/_], [\/], [<->] and
-   [exists] in [Core.Logic]; [&&], [^^] and [||] in [Data.Bool]; [++] in
-   [Data.List]. *)
+   [exists] in [Core.Logic]; [&&], [^^] and [||] in [Data.Bool]; [++],
+   [contains], [belongs_to] and their negations [does_not_contain],
+   [does_not_belong_to] in [Data.List]. *)
 
 (* The ordering is the load-bearing part: 70 < 75 < 80 < 82 < 85 < 90 < 95
    < 99 is what reads [~ x = y /\ P -> Q] as [((~ (x = y)) /\ P) -> Q], and
@@ -35,7 +36,13 @@ Delimit Scope jwa_list_scope with list.
    [exists n, (P n -> Q)]. The boolean operators sit below [=] at
    40 < 45 < 50, so [a && b = c] is [(a && b) = c] and [a && b ^^ c || d] is
    [((a && b) ^^ c) || d]. [++] at 60 sits between them and [=], right
-   associative, so [l1 ++ l2 ++ l3 = l] is [(l1 ++ (l2 ++ l3)) = l]. *)
+   associative, so [l1 ++ l2 ++ l3 = l] is [(l1 ++ (l2 ++ l3)) = l].
+   [contains] is a relation like [=], at 70 with no associativity, so
+   [l1 ++ l2 contains a] is [(l1 ++ l2) contains a] and
+   [~ l contains a \/ l contains b] is [(~ (l contains a)) \/ (l contains b)].
+   The quotes make [contains] a keyword rather than a variable;
+   [belongs_to] is the same relation read from the element's side, at the
+   same level. *)
 Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
@@ -60,6 +67,14 @@ Reserved Notation "x || y"
   (at level 50, left associativity).
 Reserved Notation "x ++ y"
   (at level 60, right associativity).
+Reserved Notation "l 'contains' a"
+  (at level 70, no associativity).
+Reserved Notation "a 'belongs_to' l"
+  (at level 70, no associativity).
+Reserved Notation "l 'does_not_contain' a"
+  (at level 70, no associativity).
+Reserved Notation "a 'does_not_belong_to' l"
+  (at level 70, no associativity).
 
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
