@@ -136,3 +136,69 @@ Proof.
        it stands. *)
     exact (Unjunction_over_Abjunction_backward A B).
 Qed.
+
+(* [<->] is respected by [-/>]: the held side and the refuted side each
+   travel across their equivalence. *)
+Theorem Abjunction_congruence
+  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+      (A1 <-> A2) -> (B1 <-> B2) -> (A1 -/> B1 <-> A2 -/> B2).
+Proof.
+  (* The context gains [A1], [A2], [B1] and [B2]:
+     [|- (A1 <-> A2) -> (B1 <-> B2) -> (A1 -/> B1 <-> A2 -/> B2)] *)
+  intros A1 A2 B1 B2.
+  (* The context gains [ea : A1 <-> A2]:
+     [|- (B1 <-> B2) -> (A1 -/> B1 <-> A2 -/> B2)] *)
+  intro ea.
+  (* The context gains [eb : B1 <-> B2]: [|- A1 -/> B1 <-> A2 -/> B2] *)
+  intro eb.
+  (* [ea] splits into [a12 : A1 -> A2] and [a21 : A2 -> A1]. *)
+  destruct ea as [a12 a21].
+  (* [eb] splits into [b12 : B1 -> B2] and [b21 : B2 -> B1]. *)
+  destruct eb as [b12 b21].
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals: [|- A1 -/> B1 -> A2 -/> B2] and [|- A2 -/> B2 -> A1 -/> B1]. *)
+  split.
+  - (* The context gains [h : A1 -/> B1]: [|- A2 -/> B2] *)
+    intro h.
+    (* [h] splits into [a1 : A1] and [not_b1 : ~ B1]. *)
+    destruct h as [a1 not_b1].
+    (* [Abjunction] has one ctor with two fields, so the goal splits into
+       two goals: [|- A2] and [|- ~ B2]. *)
+    split.
+    + (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+      apply a12.
+      (* [a1] is a proof of the goal as it stands. *)
+      exact a1.
+    + (* [not_b1] goes from [~ B1] to [B1 -> Falsum]; the goal from [~ B2]
+         to [B2 -> Falsum]. *)
+      unfold Unjunction in not_b1 |- *.
+      (* The context gains [b2 : B2]: [|- Falsum] *)
+      intro b2.
+      (* [not_b1] turns a proof of [B1] into a proof of [Falsum]: [|- B1] *)
+      apply not_b1.
+      (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+      apply b21.
+      (* [b2] is a proof of the goal as it stands. *)
+      exact b2.
+  - (* The context gains [h : A2 -/> B2]: [|- A1 -/> B1] *)
+    intro h.
+    (* [h] splits into [a2 : A2] and [not_b2 : ~ B2]. *)
+    destruct h as [a2 not_b2].
+    (* The goal splits into two goals: [|- A1] and [|- ~ B1]. *)
+    split.
+    + (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+      apply a21.
+      (* [a2] is a proof of the goal as it stands. *)
+      exact a2.
+    + (* [not_b2] goes from [~ B2] to [B2 -> Falsum]; the goal from [~ B1]
+         to [B1 -> Falsum]. *)
+      unfold Unjunction in not_b2 |- *.
+      (* The context gains [b1 : B1]: [|- Falsum] *)
+      intro b1.
+      (* [not_b2] turns a proof of [B2] into a proof of [Falsum]: [|- B2] *)
+      apply not_b2.
+      (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+      apply b12.
+      (* [b1] is a proof of the goal as it stands. *)
+      exact b1.
+Qed.
