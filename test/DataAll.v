@@ -37,6 +37,15 @@ Definition data_all_delivers_pair_monoid
       = p
   := Monoid.identity_left.
 
+(* [+] is a notation in [jwa_type_scope]. *)
+Definition data_all_delivers_sum : Bool + Bool := Sum_left true.
+
+Definition data_all_delivers_copair
+  : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B),
+      Sum.copair f g (Sum_right b) = g b
+  := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
+       Equijunction_reflexivity (g b).
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
