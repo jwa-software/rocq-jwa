@@ -92,6 +92,10 @@ Proof.
     exact (not_b b).
 Qed.
 
+(* Negation on its own: what [~] does to [Falsum], to a proposition, to its
+   own iterations, and to an implication. Every proof unfolds [Unjunction]
+   first, so the arrows show, and refutes the argument it is handed. *)
+
 Theorem Unjunction_of_Falsum : ~ Falsum.
 Proof.
   (* [|- Falsum -> Falsum] *)
@@ -100,3 +104,58 @@ Proof.
   exact f.
 Qed.
 
+Theorem Unjunction_twice : forall (A : Prop), A -> ~ ~ A.
+Proof.
+  (* The context gains [A]: [|- A -> ~ ~ A] *)
+  intro A.
+  (* The context gains [a : A]: [|- ~ ~ A] *)
+  intro a.
+  (* [|- (A -> Falsum) -> Falsum] *)
+  unfold Unjunction in |- *.
+  (* The context gains [not_a : A -> Falsum]: [|- Falsum] *)
+  intro not_a.
+  (* [not_a] turns [a] into a proof of [Falsum]. *)
+  exact (not_a a).
+Qed.
+
+(* Two negations do not cancel here, but three collapse to one. *)
+Theorem Unjunction_thrice : forall (A : Prop), ~ ~ ~ A -> ~ A.
+Proof.
+  (* The context gains [A]: [|- ~ ~ ~ A -> ~ A] *)
+  intro A.
+  (* [|- (((A -> Falsum) -> Falsum) -> Falsum) -> A -> Falsum] *)
+  unfold Unjunction in |- *.
+  (* The context gains [not_not_not_a : ((A -> Falsum) -> Falsum) -> Falsum]:
+     [|- A -> Falsum] *)
+  intro not_not_not_a.
+  (* The context gains [a : A]: [|- Falsum] *)
+  intro a.
+  (* [not_not_not_a] turns a proof of [(A -> Falsum) -> Falsum] into a proof
+     of [Falsum]: [|- (A -> Falsum) -> Falsum] *)
+  apply not_not_not_a.
+  (* The context gains [not_a : A -> Falsum]: [|- Falsum] *)
+  intro not_a.
+  (* [not_a] turns [a] into a proof of [Falsum]. *)
+  exact (not_a a).
+Qed.
+
+Theorem Subjunction_contraposition
+  : forall (A : Prop) (B : Prop), (A -> B) -> ~ B -> ~ A.
+Proof.
+  (* The context gains [A] and [B]: [|- (A -> B) -> ~ B -> ~ A] *)
+  intros A B.
+  (* [|- (A -> B) -> (B -> Falsum) -> A -> Falsum] *)
+  unfold Unjunction in |- *.
+  (* The context gains [ab : A -> B]: [|- (B -> Falsum) -> A -> Falsum] *)
+  intro ab.
+  (* The context gains [not_b : B -> Falsum]: [|- A -> Falsum] *)
+  intro not_b.
+  (* The context gains [a : A]: [|- Falsum] *)
+  intro a.
+  (* [not_b] turns a proof of [B] into a proof of [Falsum]: [|- B] *)
+  apply not_b.
+  (* [ab] turns a proof of [A] into a proof of [B]: [|- A] *)
+  apply ab.
+  (* [a] is a proof of the goal as it stands. *)
+  exact a.
+Qed.
