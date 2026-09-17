@@ -13,6 +13,12 @@ Delimit Scope jwa_type_scope with jwa_type.
 Bind Scope jwa_type_scope with Sortclass.
 Open Scope jwa_type_scope.
 
+(* A second scope for list literals, delimited but not opened: [[]] is the
+   empty list only where a file opens the scope or writes [[]%list], so the
+   same spelling stays free for other containers in scopes of their own. *)
+Declare Scope jwa_list_scope.
+Delimit Scope jwa_list_scope with list.
+
 (* A level is a claim against every other notation in the library, so all of
    them are declared here, while every meaning is supplied elsewhere: [=] in
    [Core.Equijunction]; [->], [-/>], [~], [/\], [_\/_], [\/], [<->] and
