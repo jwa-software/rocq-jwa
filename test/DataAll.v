@@ -68,3 +68,16 @@ Definition data_all_delivers_empty_list : List Bool := []%list.
 
 Definition data_all_delivers_list_functor : List Bool
   := Functor.map (fun (b : Bool) => b) (Cons true Nil).
+
+(* [contains] and [belongs_to] are keyword notations in [jwa_list_scope]. *)
+Definition data_all_delivers_contains : Prop
+  := (Cons true Nil contains true)%list.
+
+Definition data_all_delivers_belongs_to : Prop
+  := (true belongs_to Cons true Nil)%list.
+
+Definition data_all_delivers_does_not_contain : Prop
+  := (Nil does_not_contain true)%list.
+
+Definition data_all_delivers_does_not_belong_to : Prop
+  := (true does_not_belong_to Nil)%list.
