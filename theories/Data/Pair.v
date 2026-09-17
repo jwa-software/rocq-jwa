@@ -121,6 +121,14 @@ Definition map_second := fun {A : Type} {B : Type} {C : Type}
   | Pair_introduction a b => Pair_introduction a (f b)
   end.
 
+(* [forall {A : Type} {B : Type} {C : Type} {D : Type},
+     (A -> C) -> (B -> D) -> Pair A B -> Pair C D] *)
+Definition bimap := fun {A : Type} {B : Type} {C : Type} {D : Type}
+                           (f : A -> C) (g : B -> D)
+                           (p : Pair A B) =>
+  match p return Pair C D with
+  | Pair_introduction a b => Pair_introduction (f a) (g b)
+  end.
 End Pair.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
