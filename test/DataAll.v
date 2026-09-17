@@ -30,6 +30,13 @@ Definition data_all_delivers_projections : Bool * Bool
 Definition data_all_delivers_pair_functor : Bool * Bool
   := Functor.map (fun (b : Bool) => b) (Pair_introduction true false).
 
+(* The product monoid is found from the two [Bool] monoids by resolution. *)
+Definition data_all_delivers_pair_monoid
+  : forall (p : Bool * Bool),
+      Pair.product_operation Bool.and Bool.or (Pair_introduction true false) p
+      = p
+  := Monoid.identity_left.
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
