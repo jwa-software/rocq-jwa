@@ -65,3 +65,6 @@ Definition data_all_delivers_list_monoid
 
 (* [[]] is in [jwa_list_scope], reached here through its delimiter. *)
 Definition data_all_delivers_empty_list : List Bool := []%list.
+
+Definition data_all_delivers_list_functor : List Bool
+  := Functor.map (fun (b : Bool) => b) (Cons true Nil).
