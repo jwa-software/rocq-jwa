@@ -21,7 +21,7 @@ Notation "~ A" := (Unjunction A) : jwa_type_scope.
    first and the arrows underneath show; a negation is then introduced and
    its argument refuted. *)
 
-Lemma De_Morgan_Disjunction_forward
+Theorem De_Morgan_Disjunction
   : forall (A : Prop) (B : Prop), ~ (A \/ B) -> ~ A /\ ~ B.
 Proof.
   (* The context gains [A] and [B]: [|- ~ (A \/ B) -> ~ A /\ ~ B] *)
@@ -47,7 +47,7 @@ Proof.
     exact (Disjunction_right b).
 Qed.
 
-Lemma De_Morgan_Disjunction_backward
+Theorem De_Morgan_Disjunction_backward
   : forall (A : Prop) (B : Prop), ~ A /\ ~ B -> ~ (A \/ B).
 Proof.
   (* The context gains [A] and [B]: [|- ~ A /\ ~ B -> ~ (A \/ B)] *)
@@ -69,28 +69,6 @@ Proof.
     exact (not_b b).
 Qed.
 
-Theorem De_Morgan_Disjunction
-  : forall (A : Prop) (B : Prop),
-      (~ (A \/ B) -> ~ A /\ ~ B) /\ (~ A /\ ~ B -> ~ (A \/ B)).
-Proof.
-  (* The context gains [A] and [B]:
-     [|- (~ (A \/ B) -> ~ A /\ ~ B) /\ (~ A /\ ~ B -> ~ (A \/ B))] *)
-  intros A B.
-  (* The goal splits into two goals: [|- ~ (A \/ B) -> ~ A /\ ~ B] and
-     [|- ~ A /\ ~ B -> ~ (A \/ B)]. *)
-  split.
-  - (* [De_Morgan_Disjunction_forward A B] is a proof of the goal as it
-       stands. *)
-    exact (De_Morgan_Disjunction_forward A B).
-  - (* [De_Morgan_Disjunction_backward A B] is a proof of the goal as it
-       stands. *)
-    exact (De_Morgan_Disjunction_backward A B).
-Qed.
-
-(* Only this direction of the law for [Conjunction] is a theorem here. Its
-   converse, [~ (A /\ B) -> ~ A \/ ~ B], has to pick a ctor of [~ A \/ ~ B],
-   and which one is right depends on whether [A] holds; no term decides
-   that. *)
 Theorem De_Morgan_Conjunction
   : forall (A : Prop) (B : Prop), ~ A \/ ~ B -> ~ (A /\ B).
 Proof.
@@ -113,3 +91,4 @@ Proof.
   - (* [not_b] turns [b] into a proof of [Falsum]. *)
     exact (not_b b).
 Qed.
+
