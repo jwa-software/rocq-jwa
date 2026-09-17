@@ -3,10 +3,11 @@
 (* [Core.All] would be circular from inside [Core]; [Core.Notations] declares
    the scope and reserves the level that the notation below needs,
    [Core.Ltac] carries the tactic language, [Core.Logic.Subjunction]
-   carries [->]. *)
+   carries [->], [Core.Logic.Bijunction] carries [<->]. *)
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
+From jwa Require Import Core.Logic.Bijunction.
 
 Inductive Conjunction (A : Prop) (B : Prop) : Prop :=
   | Conjunction_introduction : A -> B -> Conjunction A B.
@@ -95,6 +96,10 @@ Proof.
     exact (Conjunction_associativity_backward A B C).
 Qed.
 
+(* How [->] interacts with [/\]: a conjunction on the left of an arrow is
+   two arrows in a row, and a conjunction on the right is two arrows side by
+   side. Each is a [<->] with its halves as lemmas. *)
+
 Lemma Subjunction_currying_forward
   : forall (A : Prop) (B : Prop) (C : Prop), (A /\ B -> C) -> A -> B -> C.
 Proof.
@@ -152,4 +157,68 @@ Proof.
   - (* [Subjunction_currying_backward A B C] is a proof of the goal as it
        stands. *)
     exact (Subjunction_currying_backward A B C).
+Qed.
+
+Lemma Subjunction_distributivity_over_Conjunction_forward
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A -> B /\ C) -> (A -> B) /\ (A -> C).
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A -> B /\ C) -> (A -> B) /\ (A -> C)] *)
+  intros A B C.
+  (* The context gains [f : A -> B /\ C]: [|- (A -> B) /\ (A -> C)] *)
+  intro f.
+  (* The goal splits into two goals: [|- A -> B] and [|- A -> C]. *)
+  split.
+  - (* The context gains [a : A]: [|- B] *)
+    intro a.
+    (* [f a] is a proof of [B /\ C]; only its left half is needed:
+       [b : B]. *)
+    destruct (f a) as [b _].
+    (* [b] is a proof of the goal as it stands. *)
+    exact b.
+  - (* The context gains [a : A]: [|- C] *)
+    intro a.
+    (* [f a] is a proof of [B /\ C]; only its right half is needed:
+       [c : C]. *)
+    destruct (f a) as [_ c].
+    (* [c] is a proof of the goal as it stands. *)
+    exact c.
+Qed.
+
+Lemma Subjunction_distributivity_over_Conjunction_backward
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A -> B) /\ (A -> C) -> A -> B /\ C.
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A -> B) /\ (A -> C) -> A -> B /\ C] *)
+  intros A B C.
+  (* The context gains [h : (A -> B) /\ (A -> C)]: [|- A -> B /\ C] *)
+  intro h.
+  (* [h] splits into [ab : A -> B] and [ac : A -> C]. *)
+  destruct h as [ab ac].
+  (* The context gains [a : A]: [|- B /\ C] *)
+  intro a.
+  (* The goal splits into two goals: [|- B] and [|- C]. *)
+  split.
+  - (* [ab] turns a proof of [A] into a proof of [B]: [|- A] *)
+    apply ab.
+    (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* [ac] turns a proof of [A] into a proof of [C]: [|- A] *)
+    apply ac.
+    (* [a] is a proof of the goal as it stands. *)
+    exact a.
+Qed.
+
+Theorem Subjunction_distributivity_over_Conjunction
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A -> B /\ C) <-> (A -> B) /\ (A -> C).
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A -> B /\ C) <-> (A -> B) /\ (A -> C)] *)
+  intros A B C.
+  split.
+  - exact (Subjunction_distributivity_over_Conjunction_forward A B C).
+  - exact (Subjunction_distributivity_over_Conjunction_backward A B C).
 Qed.
