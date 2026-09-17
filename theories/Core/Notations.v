@@ -43,6 +43,14 @@ Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
   (at level 70, no associativity).
+Reserved Notation "x < y"
+  (at level 70, no associativity).
+Reserved Notation "x <= y"
+  (at level 70, no associativity).
+Reserved Notation "x > y"
+  (at level 70, no associativity).
+Reserved Notation "x >= y"
+  (at level 70, no associativity).
 Reserved Notation "x /\ y"
   (at level 80, right associativity).
 Reserved Notation "x _\/_ y"
