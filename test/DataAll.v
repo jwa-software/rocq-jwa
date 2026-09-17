@@ -53,3 +53,36 @@ Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool),
       Bool.Assert (Bool.and b1 b2) <-> Bool.Assert b1 /\ Bool.Assert b2
   := Bool.assert_conjunction.
+
+(* [++] is a notation in [jwa_list_scope], reached here through its
+   delimiter; this also checks that it reaches a client through the
+   umbrella. *)
+Definition data_all_delivers_list : List Bool
+  := (Cons true Nil ++ Cons false Nil)%list.
+
+Definition data_all_delivers_list_monoid
+  : forall (A : Type) (l : List A), (Nil ++ l)%list = l
+  := fun (A : Type) => Monoid.identity_left.
+
+(* [[]] and [::] are in [jwa_list_scope], reached here through its
+   delimiter. *)
+Definition data_all_delivers_empty_list : List Bool := []%list.
+
+Definition data_all_delivers_cons : List Bool := (true :: false :: [])%list.
+
+Definition data_all_delivers_list_functor : List Bool
+  := Functor.map (fun (b : Bool) => b) (Cons true Nil).
+
+(* [contains_member] and [belongs_to] are keyword notations in
+   [jwa_list_scope]. *)
+Definition data_all_delivers_contains : Prop
+  := (Cons true Nil contains_member true)%list.
+
+Definition data_all_delivers_belongs_to : Prop
+  := (true belongs_to Cons true Nil)%list.
+
+Definition data_all_delivers_does_not_contain_member : Prop
+  := (Nil does_not_contain_member true)%list.
+
+Definition data_all_delivers_does_not_belong_to : Prop
+  := (true does_not_belong_to Nil)%list.

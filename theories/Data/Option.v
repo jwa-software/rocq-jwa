@@ -79,6 +79,25 @@ Proof.
     reflexivity.
 Qed.
 
+(* [Some] is injective: a function that unwraps a [Some], applied to both
+   sides of [Some a = Some b], computes to [a = b]. *)
+Theorem some_injectivity
+  : forall (A : Type) (a : A) (b : A), Some a = Some b -> a = b.
+Proof.
+  (* The context gains [A], [a], [b] and [e : Some a = Some b]: [|- a = b] *)
+  intros A a b e.
+  (* The context gains
+     [e' : (fun (o : Option A) => match o with | Some x => x | None => a end) (Some a)
+         = (fun (o : Option A) => match o with | Some x => x | None => a end) (Some b)]. *)
+  pose proof (Equijunction_congruence
+                (fun (o : Option A) => match o with | Some x => x | None => a end)
+                e) as e'.
+  (* Both applications compute: [e' : a = b] *)
+  simpl in e'.
+  (* [e'] is a proof of the goal as it stands. *)
+  exact e'.
+Qed.
+
 End Option.
 
 (* The two laws were already proved above, so the instance only hands them
