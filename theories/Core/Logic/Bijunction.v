@@ -98,3 +98,30 @@ Proof.
     (* [c] is a proof of the goal as it stands. *)
     exact c.
 Qed.
+
+
+Theorem Bijunction_elimination_forward
+  : forall (A : Prop) (B : Prop), (A <-> B) -> A -> B.
+Proof.
+  (* The context gains [A] and [B]: [|- (A <-> B) -> A -> B] *)
+  intros A B.
+  (* The context gains [e : A <-> B]: [|- A -> B] *)
+  intro e.
+  (* [e] splits into [ab : A -> B] and [ba : B -> A]. *)
+  destruct e as [ab ba].
+  (* [ab] is a proof of the goal as it stands. *)
+  exact ab.
+Qed.
+
+Theorem Bijunction_elimination_backward
+  : forall (A : Prop) (B : Prop), (A <-> B) -> B -> A.
+Proof.
+  (* The context gains [A] and [B]: [|- (A <-> B) -> B -> A] *)
+  intros A B.
+  (* The context gains [e : A <-> B]: [|- B -> A] *)
+  intro e.
+  (* [e] splits into [ab : A -> B] and [ba : B -> A]. *)
+  destruct e as [ab ba].
+  (* [ba] is a proof of the goal as it stands. *)
+  exact ba.
+Qed.
