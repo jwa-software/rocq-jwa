@@ -1,10 +1,13 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] carries [->]: with [-noinit] a file has only what it requires.
-   [Structures.Semigroup] and [Structures.Cancellative] are the classes the
-   instances at the bottom fill. *)
+   [Structures.Semigroup], [Structures.Monoid], [Structures.Commutative] and
+   [Structures.Cancellative] are the classes the instances at the bottom
+   fill. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
+From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Commutative.
 From jwa Require Import Structures.Cancellative.
 
 (* Zero is not a [Nat]; [One] is the smallest. [Data.NatWithZero] is the type
@@ -68,63 +71,6 @@ Proof.
     reflexivity.
 Qed.
 
-(* [add] recurses on its first argument, so [add One n] and
-   [add (Successor m) n] reduce while their mirrors on the right do not.
-   These two prove the mirrors, and commutativity needs both. *)
-
-Lemma add_one_right : forall (m : Nat), add m One = Successor m.
-Proof.
-  (* The context gains [m]: [|- add m One = Successor m] *)
-  intros m.
-  (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
-     has [m'] and [IH : add m' One = Successor m'] in its context. *)
-  induction m as [| m' IH] using Nat_induction.
-  - (* [|- add One One = Successor One] *)
-    (* The left side computes: [|- Successor One = Successor One] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
-    reflexivity.
-  - (* [|- add (Successor m') One = Successor (Successor m')] *)
-    (* One [add] step on the left:
-       [|- Successor (add m' One) = Successor (Successor m')] *)
-    simpl in |- *.
-    (* [IH] replaces the left side:
-       [|- Successor (Successor m') = Successor (Successor m')] *)
-    rewrite IH in |- *.
-    (* Both sides are the same term. *)
-    reflexivity.
-Qed.
-
-Lemma add_successor_right
-  : forall (m : Nat) (n : Nat), add m (Successor n) = Successor (add m n).
-Proof.
-  (* The context gains [m] and [n]:
-     [|- add m (Successor n) = Successor (add m n)] *)
-  intros m n.
-  (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
-     has [m'] and [IH : add m' (Successor n) = Successor (add m' n)] in its
-     context. *)
-  induction m as [| m' IH] using Nat_induction.
-  - (* [|- add One (Successor n) = Successor (add One n)] *)
-    (* Both sides compute:
-       [|- Successor (Successor n) = Successor (Successor n)] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
-    reflexivity.
-  - (* [|- add (Successor m') (Successor n)
-           = Successor (add (Successor m') n)] *)
-    (* One [add] step on each side:
-       [|- Successor (add m' (Successor n))
-           = Successor (Successor (add m' n))] *)
-    simpl in |- *.
-    (* [IH] replaces the left side:
-       [|- Successor (Successor (add m' n))
-           = Successor (Successor (add m' n))] *)
-    rewrite IH in |- *.
-    (* Both sides are the same term. *)
-    reflexivity.
-Qed.
-
 Theorem add_commutativity : forall (m : Nat) (n : Nat), add m n = add n m.
 Proof.
   (* The context gains [m] and [n]: [|- add m n = add n m] *)
@@ -132,27 +78,57 @@ Proof.
   (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
      has [m'] and [IH : add m' n = add n m'] in its context. *)
   induction m as [| m' IH] using Nat_induction.
-  - (* [|- add One n = add n One] *)
-    (* The left side computes; the right cannot, since [add] recurses on its
-       first argument: [|- Successor n = add n One] *)
+  - (* The left side computes: [|- Successor n = add n One] *)
     simpl in |- *.
-    (* [add_one_right] is what turns the right side:
-       [|- Successor n = Successor n] *)
-    rewrite add_one_right in |- *.
-    (* Both sides are the same term. *)
-    reflexivity.
-  - (* [|- add (Successor m') n = add n (Successor m')] *)
-    (* The left side computes:
+    (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+       second has [n'] and [IH2 : Successor n' = add n' One] in its
+       context. *)
+    induction n as [| n' IH2] using Nat_induction.
+    + (* [add One One] computes: [|- Successor One = Successor One] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* One [add] step on the right:
+         [|- Successor (Successor n') = Successor (add n' One)] *)
+      simpl in |- *.
+      (* Turned round: [IH2' : add n' One = Successor n'] *)
+      pose proof (Equijunction_symmetry IH2) as IH2'.
+      (* [IH2'] replaces [add n' One]:
+         [|- Successor (Successor n') = Successor (Successor n')] *)
+      rewrite IH2' in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+  - (* The left side computes:
        [|- Successor (add m' n) = add n (Successor m')] *)
     simpl in |- *.
     (* [IH] swaps the arguments under the [Successor]:
        [|- Successor (add n m') = add n (Successor m')] *)
     rewrite IH in |- *.
-    (* [add_successor_right] pulls the [Successor] out of the right side:
-       [|- Successor (add n m') = Successor (add n m')] *)
-    rewrite add_successor_right in |- *.
-    (* Both sides are the same term. *)
-    reflexivity.
+    (* [IH] mentions [n], so it would be folded into the motive of the next
+       induction; the context loses it. *)
+    clear IH.
+    (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+       second has [n'] and
+       [IH2 : Successor (add n' m') = add n' (Successor m')] in its
+       context. *)
+    induction n as [| n' IH2] using Nat_induction.
+    + (* Both sides compute:
+         [|- Successor (Successor m') = Successor (Successor m')] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* One [add] step on each side:
+         [|- Successor (Successor (add n' m'))
+             = Successor (add n' (Successor m'))] *)
+      simpl in |- *.
+      (* Turned round: [IH2' : add n' (Successor m') = Successor (add n' m')] *)
+      pose proof (Equijunction_symmetry IH2) as IH2'.
+      (* [IH2'] replaces [add n' (Successor m')]:
+         [|- Successor (Successor (add n' m'))
+             = Successor (Successor (add n' m'))] *)
+      rewrite IH2' in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
 Qed.
 
 (* [Successor] is injective: a function that unwraps it, applied to both
@@ -174,10 +150,11 @@ Proof.
   exact e'.
 Qed.
 
-(* Adding never returns its argument: without a zero, [add k n] is at least
-   [Successor n]. Induction on [n], since [add] steps on its right argument
-   only through [add_one_right] and [add_successor_right]. *)
-Theorem add_no_fixed_point : forall (k : Nat) (n : Nat), ~ (add k n = n).
+(* No [k] is an identity for [add], not even at a single [n]: without a
+   zero, [add k n] is at least [Successor n]. Induction on [n]; each case
+   turns the sum round by commutativity so that [simpl] can step it on
+   [n]. *)
+Theorem add_identity_absence : forall (k : Nat) (n : Nat), ~ (add k n = n).
 Proof.
   (* The context gains [k] and [n]: [|- ~ (add k n = n)] *)
   intros k n.
@@ -188,8 +165,10 @@ Proof.
     unfold Unjunction in |- *.
     (* The context gains [e : add k One = One]: [|- Falsum] *)
     intro e.
-    (* [add_one_right] rewrites the left side: [e : Successor k = One] *)
-    rewrite (add_one_right k) in e.
+    (* Commutativity turns the sum round: [e : add One k = One] *)
+    rewrite (add_commutativity k One) in e.
+    (* [add One k] computes: [e : Successor k = One] *)
+    simpl in e.
     (* [e] equates two distinct ctors, which closes any goal. *)
     discriminate.
   - (* [|- add k (Successor n') = Successor n' -> Falsum] *)
@@ -197,62 +176,42 @@ Proof.
     (* The context gains [e : add k (Successor n') = Successor n']:
        [|- Falsum] *)
     intro e.
-    (* [add_successor_right] rewrites the left side:
-       [e : Successor (add k n') = Successor n'] *)
-    rewrite (add_successor_right k n') in e.
-    (* [successor_injectivity] strips the [Successor]s: [e' : add k n' = n'] *)
-    pose proof (successor_injectivity (add k n') n' e) as e'.
+    (* Commutativity turns the sum round:
+       [e : add (Successor n') k = Successor n'] *)
+    rewrite (add_commutativity k (Successor n')) in e.
+    (* One [add] step: [e : Successor (add n' k) = Successor n'] *)
+    simpl in e.
+    (* [successor_injectivity] strips the [Successor]s: [e' : add n' k = n'] *)
+    pose proof (successor_injectivity (add n' k) n' e) as e'.
+    (* Commutativity turns it back to [IH]'s shape: [e' : add k n' = n'] *)
+    rewrite (add_commutativity n' k) in e'.
     (* [IH : add k n' = n' -> Falsum] *)
     unfold Unjunction in IH.
     (* [IH e'] is a proof of the goal as it stands. *)
     exact (IH e').
 Qed.
 
-(* The right summand cancels: induction on [n] again, and at each step
-   [successor_injectivity] strips one [Successor] from both sides. *)
-Theorem add_cancellation_right
-  : forall (m : Nat) (k : Nat) (n : Nat), add m n = add k n -> m = k.
+Theorem add_left_cancellation
+  : forall (n : Nat) (m : Nat) (k : Nat), add n m = add n k -> m = k.
 Proof.
-  (* The context gains [m], [k] and [n]: [|- add m n = add k n -> m = k] *)
-  intros m k n.
-  (* [n] is either [One] or [Successor n']: one goal per ctor, and the
-     second has [n'] and [IH : add m n' = add k n' -> m = k] in its
-     context. *)
+  intros n m k.
   induction n as [| n' IH] using Nat_induction.
-  - (* The context gains [e : add m One = add k One]: [|- m = k] *)
+  - simpl in |- *.
     intro e.
-    (* [add_one_right] rewrites each side: [e : Successor m = Successor k] *)
-    rewrite (add_one_right m) in e.
-    rewrite (add_one_right k) in e.
-    (* [successor_injectivity m k e] is a proof of the goal as it stands. *)
     exact (successor_injectivity m k e).
-  - (* The context gains [e : add m (Successor n') = add k (Successor n')]:
-       [|- m = k] *)
+  - simpl in |- *.
     intro e.
-    (* [add_successor_right] rewrites each side:
-       [e : Successor (add m n') = Successor (add k n')] *)
-    rewrite (add_successor_right m n') in e.
-    rewrite (add_successor_right k n') in e.
-    (* [successor_injectivity] strips the [Successor]s:
-       [e' : add m n' = add k n'] *)
-    pose proof (successor_injectivity (add m n') (add k n') e) as e'.
-    (* [IH e'] is a proof of the goal as it stands. *)
+    pose proof (successor_injectivity (add n' m) (add n' k) e) as e'.
     exact (IH e').
 Qed.
 
-(* The left summand cancels too, by commuting both sides into the right
-   form. *)
-Theorem add_cancellation_left
-  : forall (n : Nat) (m : Nat) (k : Nat), add n m = add n k -> m = k.
+Theorem add_right_cancellation
+  : forall (m : Nat) (k : Nat) (n : Nat), add m n = add k n -> m = k.
 Proof.
-  (* The context gains [n], [m], [k] and [e : add n m = add n k]:
-     [|- m = k] *)
-  intros n m k e.
-  (* [add_commutativity] turns each side round: [e : add m n = add k n] *)
-  rewrite (add_commutativity n m) in e.
-  rewrite (add_commutativity n k) in e.
-  (* [add_cancellation_right m k n e] is a proof of the goal as it stands. *)
-  exact (add_cancellation_right m k n e).
+  intros m k n e.
+  rewrite (add_commutativity m n) in e.
+  rewrite (add_commutativity k n) in e.
+  exact (add_left_cancellation n m k e).
 Qed.
 
 Lemma add_left_commutativity
@@ -291,7 +250,353 @@ Proof.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
+
+Fixpoint mul (m : Nat) (n : Nat) : Nat :=
+  match m with
+  | One          => n
+  | Successor m' => add n (mul m' n)
+  end.
+
+Theorem mul_commutativity : forall (m : Nat) (n : Nat), mul m n = mul n m.
+Proof.
+  (* The context gains [m] and [n]: [|- mul m n = mul n m] *)
+  intros m n.
+  (* [m] is either [One] or [Successor m']: one goal per ctor, and the second
+     has [m'] and [IH : mul m' n = mul n m'] in its context. *)
+  induction m as [| m' IH] using Nat_induction.
+  - (* The left side computes: [|- n = mul n One] *)
+    simpl in |- *.
+    (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+       second has [n'] and [IH2 : n' = mul n' One] in its context. *)
+    induction n as [| n' IH2] using Nat_induction.
+    + (* [mul One One] computes: [|- One = One] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* One [mul] step, then [add One] computes:
+         [|- Successor n' = Successor (mul n' One)] *)
+      simpl in |- *.
+      (* Turned round: [IH2' : mul n' One = n'] *)
+      pose proof (Equijunction_symmetry IH2) as IH2'.
+      (* [IH2'] replaces [mul n' One]: [|- Successor n' = Successor n'] *)
+      rewrite IH2' in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+  - (* The left side computes:
+       [|- add n (mul m' n) = mul n (Successor m')] *)
+    simpl in |- *.
+    (* [IH] swaps the arguments under the [add]:
+       [|- add n (mul n m') = mul n (Successor m')] *)
+    rewrite IH in |- *.
+    (* [IH] mentions [n], so it would be folded into the motive of the next
+       induction; the context loses it. *)
+    clear IH.
+    (* [n] is either [One] or [Successor n']: one goal per ctor, and the
+       second has [n'] and
+       [IH2 : add n' (mul n' m') = mul n' (Successor m')] in its context. *)
+    induction n as [| n' IH2] using Nat_induction.
+    + (* Both sides compute: [|- Successor m' = Successor m'] *)
+      simpl in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* One [add] and one [mul] step on the left, one [mul] and one [add]
+         step on the right:
+         [|- Successor (add n' (add m' (mul n' m')))
+             = Successor (add m' (mul n' (Successor m')))] *)
+      simpl in |- *.
+      (* Turned round: [IH2' : mul n' (Successor m') = add n' (mul n' m')] *)
+      pose proof (Equijunction_symmetry IH2) as IH2'.
+      (* [IH2'] replaces [mul n' (Successor m')]:
+         [|- Successor (add n' (add m' (mul n' m')))
+             = Successor (add m' (add n' (mul n' m')))] *)
+      rewrite IH2' in |- *.
+      (* [add_left_commutativity] brings [m'] to the front on the left:
+         [|- Successor (add m' (add n' (mul n' m')))
+             = Successor (add m' (add n' (mul n' m')))] *)
+      rewrite (add_left_commutativity n' m' (mul n' m')) in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+Qed.
+
+Theorem mul_left_distributivity_over_add
+  : forall (l : Nat) (m : Nat) (n : Nat),
+      mul l (add m n) = add (mul l m) (mul l n).
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- mul l (add m n) = add (mul l m) (mul l n)] *)
+  intros l m n.
+  (* [l] is either [One] or [Successor l']: one goal per ctor, and the second
+     has [l'] and [IH : mul l' (add m n) = add (mul l' m) (mul l' n)] in its
+     context. *)
+  induction l as [| l' IH] using Nat_induction.
+  - (* All three [mul One]s compute: [|- add m n = add m n] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each [mul]:
+       [|- add (add m n) (mul l' (add m n))
+           = add (add m (mul l' m)) (add n (mul l' n))] *)
+    simpl in |- *.
+    (* [IH] replaces [mul l' (add m n)]:
+       [|- add (add m n) (add (mul l' m) (mul l' n))
+           = add (add m (mul l' m)) (add n (mul l' n))] *)
+    rewrite IH in |- *.
+    (* Associativity opens the left side:
+       [|- add m (add n (add (mul l' m) (mul l' n)))
+           = add (add m (mul l' m)) (add n (mul l' n))] *)
+    rewrite (add_associativity m n (add (mul l' m) (mul l' n))) in |- *.
+    (* [add_left_commutativity] moves [mul l' m] in front of [n]:
+       [|- add m (add (mul l' m) (add n (mul l' n)))
+           = add (add m (mul l' m)) (add n (mul l' n))] *)
+    rewrite (add_left_commutativity n (mul l' m) (mul l' n)) in |- *.
+    (* Associativity opens the right side into the same shape:
+       [|- add m (add (mul l' m) (add n (mul l' n)))
+           = add m (add (mul l' m) (add n (mul l' n)))] *)
+    rewrite (add_associativity m (mul l' m) (add n (mul l' n))) in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem mul_right_distributivity_over_add
+  : forall (l : Nat) (m : Nat) (n : Nat),
+      mul (add m n) l = add (mul m l) (mul n l).
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- mul (add m n) l = add (mul m l) (mul n l)] *)
+  intros l m n.
+  (* [|- mul l (add m n) = add (mul m l) (mul n l)] *)
+  rewrite (mul_commutativity (add m n) l) in |- *.
+  (* [|- add (mul l m) (mul l n) = add (mul m l) (mul n l)] *)
+  rewrite (mul_left_distributivity_over_add l m n) in |- *.
+  (* [|- add (mul m l) (mul l n) = add (mul m l) (mul n l)] *)
+  rewrite (mul_commutativity l m) in |- *.
+  (* [|- add (mul m l) (mul n l) = add (mul m l) (mul n l)] *)
+  rewrite (mul_commutativity l n) in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem mul_distributivity_over_add
+  : forall (a : Nat) (b : Nat) (c : Nat) (d : Nat),
+      mul (add a b) (add c d)
+      = add (add (mul a c) (mul a d)) (add (mul b c) (mul b d)).
+Proof.
+  intros a b c d.
+  rewrite (mul_right_distributivity_over_add (add c d) a b) in |- *.
+  rewrite (mul_left_distributivity_over_add a c d) in |- *.
+  rewrite (mul_left_distributivity_over_add b c d) in |- *.
+  reflexivity.
+Qed.
+
+Theorem mul_associativity
+  : forall (l : Nat) (m : Nat) (n : Nat), mul (mul l m) n = mul l (mul m n).
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- mul (mul l m) n = mul l (mul m n)] *)
+  intros l m n.
+  (* [l] is either [One] or [Successor l']: one goal per ctor, and the second
+     has [l'] and [IH : mul (mul l' m) n = mul l' (mul m n)] in its context. *)
+  induction l as [| l' IH] using Nat_induction.
+  - (* Both [mul One]s compute: [|- mul m n = mul m n] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One [mul] step on each side:
+       [|- mul (add m (mul l' m)) n = add (mul m n) (mul l' (mul m n))] *)
+    simpl in |- *.
+    (* The right distributivity law splits the left side:
+       [|- add (mul m n) (mul (mul l' m) n)
+           = add (mul m n) (mul l' (mul m n))] *)
+    rewrite (mul_right_distributivity_over_add n m (mul l' m)) in |- *.
+    (* [IH] replaces [mul (mul l' m) n]:
+       [|- add (mul m n) (mul l' (mul m n))
+           = add (mul m n) (mul l' (mul m n))] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Lemma mul_left_commutativity
+  : forall (l : Nat) (m : Nat) (n : Nat), mul l (mul m n) = mul m (mul l n).
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- mul l (mul m n) = mul m (mul l n)] *)
+  intros l m n.
+  (* [|- mul (mul m n) l = mul m (mul l n)] *)
+  rewrite (mul_commutativity l (mul m n)) in |- *.
+  (* [|- mul m (mul n l) = mul m (mul l n)] *)
+  rewrite (mul_associativity m n l) in |- *.
+  (* [|- mul m (mul l n) = mul m (mul l n)] *)
+  rewrite (mul_commutativity n l) in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Lemma mul_right_commutativity
+  : forall (l : Nat) (m : Nat) (n : Nat), mul (mul l m) n = mul (mul l n) m.
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- mul (mul l m) n = mul (mul l n) m] *)
+  intros l m n.
+  (* [|- mul l (mul m n) = mul (mul l n) m] *)
+  rewrite (mul_associativity l m n) in |- *.
+  (* [|- mul l (mul m n) = mul l (mul n m)] *)
+  rewrite (mul_associativity l n m) in |- *.
+  (* [|- mul l (mul n m) = mul l (mul n m)] *)
+  rewrite (mul_commutativity m n) in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+(* [Nat -> Nat -> Nat] *)
+Fixpoint power (m : Nat) (n : Nat) : Nat :=
+  match n with
+  | One          => m
+  | Successor n' => mul m (power m n')
+  end.
+
+Lemma power_identity : forall (m : Nat), power m One = m.
+Proof.
+  (* The context gains [m]: [|- power m One = m] *)
+  intros m.
+  (* [power m One] computes: [|- m = m] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Lemma power_absorption : forall (n : Nat), power One n = One.
+Proof.
+  (* The context gains [n : Nat]: [|- power One n = One] *)
+  intros n.
+  (* [n] is either [One] or [Successor n']: one goal per ctor, and the second
+     has [n'] and [IH : power One n' = One] in its context. *)
+  induction n as [| n' IH] using Nat_induction.
+  - (* [power One One] computes: [|- One = One] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One [power] step, then [mul One] computes: [|- power One n' = One] *)
+    simpl in |- *.
+    (* [IH] is the goal as it stands, so [rewrite] closes the left side:
+       [|- One = One] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem product_of_powers
+  : forall (m : Nat) (a : Nat) (b : Nat),
+      mul (power m a) (power m b) = power m (add a b).
+Proof.
+  (* The context gains [m], [a] and [b]:
+     [|- mul (power m a) (power m b) = power m (add a b)] *)
+  intros m a b.
+  (* [a] is either [One] or [Successor a']: one goal per ctor, and the second
+     has [a'] and [IH : mul (power m a') (power m b) = power m (add a' b)]
+     in its context. *)
+  induction a as [| a' IH] using Nat_induction.
+  - (* [power m One] is [m] and [add One b] is [Successor b], so both sides
+       compute to [mul m (power m b)]:
+       [|- mul m (power m b) = mul m (power m b)] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One [power] step on the left, one [add] step and one [power] step on
+       the right:
+       [|- mul (mul m (power m a')) (power m b) = mul m (power m (add a' b))] *)
+    simpl in |- *.
+    (* Associativity opens the left side:
+       [|- mul m (mul (power m a') (power m b)) = mul m (power m (add a' b))] *)
+    rewrite (mul_associativity m (power m a') (power m b)) in |- *.
+    (* [IH] replaces the inner product:
+       [|- mul m (power m (add a' b)) = mul m (power m (add a' b))] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem power_of_a_power
+  : forall (m : Nat) (a : Nat) (b : Nat),
+      power (power m a) b = power m (mul a b).
+Proof.
+  (* The context gains [m], [a] and [b]:
+     [|- power (power m a) b = power m (mul a b)] *)
+  intros m a b.
+  (* [b] is either [One] or [Successor b']: one goal per ctor, and the second
+     has [b'] and [IH : power (power m a) b' = power m (mul a b')] in its
+     context. *)
+  induction b as [| b' IH] using Nat_induction.
+  - (* [|- power (power m a) One = power m (mul One a)] *)
+    rewrite (mul_commutativity a One) in |- *.
+    (* [power _ One] and [mul One a] compute: [|- power m a = power m a] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- power (power m a) (Successor b') = power m (mul (Successor b') a)] *)
+    rewrite (mul_commutativity a (Successor b')) in |- *.
+    (* One [power] step on the left, one [mul] step in the exponent:
+       [|- mul (power m a) (power (power m a) b') = power m (add a (mul b' a))] *)
+    simpl in |- *.
+    (* Commutativity turns the inner product back:
+       [|- mul (power m a) (power (power m a) b') = power m (add a (mul a b'))] *)
+    rewrite (mul_commutativity b' a) in |- *.
+    (* [product_of_powers] read right to left splits the right side:
+       [|- mul (power m a) (power (power m a) b')
+           = mul (power m a) (power m (mul a b'))] *)
+    rewrite <- (product_of_powers m a (mul a b')) in |- *.
+    (* [IH] replaces [power (power m a) b']:
+       [|- mul (power m a) (power m (mul a b'))
+           = mul (power m a) (power m (mul a b'))] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem power_distributivity_over_mul
+  : forall (m : Nat) (n : Nat) (a : Nat),
+      power (mul m n) a = mul (power m a) (power n a).
+Proof.
+  (* The context gains [m], [n] and [a]:
+     [|- power (mul m n) a = mul (power m a) (power n a)] *)
+  intros m n a.
+  (* [a] is either [One] or [Successor a']: one goal per ctor, and the second
+     has [a'] and [IH : power (mul m n) a' = mul (power m a') (power n a')]
+     in its context. *)
+  induction a as [| a' IH] using Nat_induction.
+  - (* All three [power _ One]s compute: [|- mul m n = mul m n] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One [power] step on each:
+       [|- mul (mul m n) (power (mul m n) a')
+           = mul (mul m (power m a')) (mul n (power n a'))] *)
+    simpl in |- *.
+    (* [IH] replaces [power (mul m n) a']:
+       [|- mul (mul m n) (mul (power m a') (power n a'))
+           = mul (mul m (power m a')) (mul n (power n a'))] *)
+    rewrite IH in |- *.
+    (* The same three rearrangements as in
+       [mul_left_distributivity_over_add], for [mul]:
+       [|- mul m (mul n (mul (power m a') (power n a'))) = ...] *)
+    rewrite (mul_associativity m n (mul (power m a') (power n a'))) in |- *.
+    (* [|- mul m (mul (power m a') (mul n (power n a'))) = ...] *)
+    rewrite (mul_left_commutativity n (power m a') (power n a')) in |- *.
+    (* Associativity opens the right side into the same shape:
+       [|- mul m (mul (power m a') (mul n (power n a')))
+           = mul m (mul (power m a') (mul n (power n a')))] *)
+    rewrite (mul_associativity m (power m a') (mul n (power n a'))) in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End Nat.
+
+(* The scope is declared in [Core.Notations] and never opened: a client
+   writes [(m + n)%nat]. [only parsing] keeps the operations printed by
+   name. *)
+Notation "m + n" := (Nat.add m n) (only parsing) : jwa_nat_scope.
+Notation "m * n" := (Nat.mul m n) (only parsing) : jwa_nat_scope.
 
 (* A semigroup and no more: a monoid needs an identity, and [Nat] has no
    element that leaves its argument alone under [add]. *)
@@ -301,5 +606,22 @@ Instance Nat_add_semigroup : Semigroup.T Nat Nat.add :=
 (* Both cancellation laws were already proved above, so the instance only
    hands them over. *)
 Instance Nat_add_cancellative : Cancellative.T Nat Nat.add :=
-  {| Cancellative.cancellation_left  := Nat.add_cancellation_left
-   ; Cancellative.cancellation_right := Nat.add_cancellation_right |}.
+  {| Cancellative.left_cancellation  := Nat.add_left_cancellation
+   ; Cancellative.right_cancellation := Nat.add_right_cancellation |}.
+
+(* [One] leaves its argument alone under [mul], so multiplication reaches
+   monoid where addition stopped at semigroup. [mul One n] computes to [n],
+   so the left law is reflexivity stated on the reduced term; the right law
+   is commutativity at [One], whose right side computes the same way. *)
+Instance Nat_mul_monoid : Monoid.T Nat Nat.mul One :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Nat.mul_associativity |}
+   ; Monoid.left_identity  :=
+       fun (n : Nat) => Equijunction_reflexivity (Nat.mul One n)
+   ; Monoid.right_identity := fun (m : Nat) => Nat.mul_commutativity m One |}.
+
+Instance Nat_add_commutative : Commutative.T Nat Nat.add :=
+  {| Commutative.commutativity := Nat.add_commutativity |}.
+
+Instance Nat_mul_commutative : Commutative.T Nat Nat.mul :=
+  {| Commutative.commutativity := Nat.mul_commutativity |}.
