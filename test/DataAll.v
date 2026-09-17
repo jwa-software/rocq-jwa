@@ -62,3 +62,6 @@ Definition data_all_delivers_list : List Bool
 Definition data_all_delivers_list_monoid
   : forall (A : Type) (l : List A), Nil ++ l = l
   := fun (A : Type) => Monoid.identity_left.
+
+(* [[]] is in [jwa_list_scope], reached here through its delimiter. *)
+Definition data_all_delivers_empty_list : List Bool := []%list.
