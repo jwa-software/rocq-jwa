@@ -21,4 +21,4 @@ Definition structures_all_delivers_projections
       op e x = x
   := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e)
          (x : A) =>
-       Monoid.identity_left x.
+       Monoid.left_identity x.
