@@ -1,7 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.Ltac] carries the tactic language, [Core.Logic.Subjunction]
-   carries [->]. *)
+(* [Core.Notations] opens the scope every notation lives in, [Core.Ltac]
+   carries the tactic language, [Core.Logic.Subjunction] carries [->]. *)
+From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
 
