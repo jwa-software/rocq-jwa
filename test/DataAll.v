@@ -8,13 +8,13 @@ Definition data_all_delivers_some
   : forall (A : Type) (B : Type) (f : A -> B) (a : A),
       ~ (true = false) -> Option.map f (Some a) = Some (f a)
   := fun (A : Type) (B : Type) (f : A -> B) (a : A) (_ : ~ (true = false)) =>
-       Eq_reflexivity (Some (f a)).
+       Equijunction_reflexivity (Some (f a)).
 
 Definition data_all_delivers_none
   : forall (A : Type),
       Option.map (fun (a : A) => a) None = None
   := fun (A : Type) =>
-      Eq_reflexivity None.
+      Equijunction_reflexivity None.
 
 Definition data_all_delivers_nat : Nat := Successor One.
 
@@ -51,5 +51,5 @@ Definition data_all_delivers_bool_monoids
 
 Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool),
-      Bool.Holds (Bool.and b1 b2) <-> Bool.Holds b1 /\ Bool.Holds b2
-  := Bool.holds_conjunction.
+      Bool.Assert (Bool.and b1 b2) <-> Bool.Assert b1 /\ Bool.Assert b2
+  := Bool.assert_conjunction.
