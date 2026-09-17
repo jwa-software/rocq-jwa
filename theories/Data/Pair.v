@@ -42,6 +42,28 @@ Definition second := fun {A : Type} {B : Type} (p : Pair A B) =>
   | Pair_introduction _ b => b
   end.
 
+
+(* [forall {A : Type} {B : Type}, Pair A B -> Pair B A] *)
+Definition swap := fun {A : Type} {B : Type} (p : Pair A B) =>
+  match p return Pair B A with
+  | Pair_introduction a b => Pair_introduction b a
+  end.
+
+Theorem swap_involution
+  : forall (A : Type) (B : Type) (p : Pair A B), swap (swap p) = p.
+Proof.
+  (* The context gains [A], [B] and [p]: [|- swap (swap p) = p] *)
+  intros A B p.
+  (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
+     [|- swap (swap (Pair_introduction a b)) = Pair_introduction a b] *)
+  destruct p as [a b].
+  (* Both [swap]s compute:
+     [|- Pair_introduction a b = Pair_introduction a b] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
 End Pair.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
