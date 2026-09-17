@@ -8,10 +8,10 @@ Definition structures_all_delivers
   : forall (A : Type) (op : A -> A -> A) (e : A),
       forall (F : Type -> Type),
       Semigroup.T A op -> Monoid.T A op e
-      -> Functor.T F -> ~ False -> True
+      -> Functor.T F -> ~ Falsum -> Verum
   := fun (A : Type) (op : A -> A -> A) (e : A) (F : Type -> Type)
          (_ : Semigroup.T A op) (_ : Monoid.T A op e)
-         (_ : Functor.T F) (_ : ~ False) => I.
+         (_ : Functor.T F) (_ : ~ Falsum) => I.
 
 (* The projections are constants of their modules, so the umbrella has to
    forward them too. *)

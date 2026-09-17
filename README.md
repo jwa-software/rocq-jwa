@@ -33,7 +33,7 @@ The opam file is generated: after regenerating it, commit the rewritten file lik
 
 Layers live under `theories/`, one directory and one `dune` stanza per layer. Each layer has an umbrella module `All` that re-exports the whole layer.
 
-A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/And.v` is the module `jwa.Core.Logic.And`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`.
+A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/Conjunction.v` is the module `jwa.Core.Logic.Conjunction`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`.
 
 | Layer | Purpose | Depends on |
 |:---|:---|:---|

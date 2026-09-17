@@ -33,21 +33,22 @@ Export (hints) Equivalence.
    them, since [Core] sees no class. Each field is the matching theorem of
    [Core]. *)
 
-Instance Biconditional_equivalence : Equivalence.R Prop Biconditional :=
+Instance Bijunction_equivalence : Equivalence.R Prop Bijunction :=
   {| Equivalence.reflexive :=
-       {| Reflexive.reflexivity := Biconditional_reflexivity |}
+       {| Reflexive.reflexivity := Bijunction_reflexivity |}
    ; Equivalence.symmetric :=
-       {| Symmetric.symmetry := Biconditional_symmetry |}
+       {| Symmetric.symmetry := Bijunction_symmetry |}
    ; Equivalence.transitive :=
-       {| Transitive.transitivity := Biconditional_transitivity |} |}.
+       {| Transitive.transitivity := Bijunction_transitivity |} |}.
 
-(* [@] makes [A] explicit, which the field types need since [R] is applied
-   to two elements of [A] and nothing else. *)
-Instance Eq_equivalence : forall (A : Type), Equivalence.R A (@Eq A) :=
+(* [@] makes [A] explicit, which the field types need since [relation] is
+   applied to two elements of [A] and nothing else. *)
+Instance Equijunction_equivalence
+  : forall (A : Type), Equivalence.R A (@Equijunction A) :=
   fun (A : Type) =>
     {| Equivalence.reflexive :=
-         {| Reflexive.reflexivity := @Eq_reflexivity A |}
+         {| Reflexive.reflexivity := @Equijunction_reflexivity A |}
      ; Equivalence.symmetric :=
-         {| Symmetric.symmetry := @Eq_symmetry A |}
+         {| Symmetric.symmetry := @Equijunction_symmetry A |}
      ; Equivalence.transitive :=
-         {| Transitive.transitivity := @Eq_transitivity A |} |}.
+         {| Transitive.transitivity := @Equijunction_transitivity A |} |}.

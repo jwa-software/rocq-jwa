@@ -9,12 +9,13 @@ From jwa Require Export Core.Notations.
 
 (* [Require Export], not a plain [Require]: a notation reaches a client only
    through [Import]. *)
-From jwa Require Export Core.Logic.True.
-From jwa Require Export Core.Logic.False.
-From jwa Require Export Core.Logic.And.
-From jwa Require Export Core.Logic.Or.
-From jwa Require Export Core.Logic.Xor.
-From jwa Require Export Core.Logic.Not.
-From jwa Require Export Core.Logic.Conditional.
-From jwa Require Export Core.Logic.Biconditional.
+From jwa Require Export Core.Logic.Verum.
+From jwa Require Export Core.Logic.Falsum.
+From jwa Require Export Core.Logic.Conjunction.
+From jwa Require Export Core.Logic.Disjunction.
+From jwa Require Export Core.Logic.Sejunction.
+From jwa Require Export Core.Logic.Unjunction.
+From jwa Require Export Core.Logic.Subjunction.
+From jwa Require Export Core.Logic.Bijunction.
+From jwa Require Export Core.Logic.Abjunction.
 From jwa Require Export Core.Logic.Exists.

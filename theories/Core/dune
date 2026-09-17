@@ -1,7 +1,7 @@
 ; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
 
-; A subdirectory becomes a segment of the module path: Logic/And.v is the
-; module jwa.Core.Logic.And.
+; A subdirectory becomes a segment of the module path: Logic/Conjunction.v
+; is the module jwa.Core.Logic.Conjunction.
 
 (include_subdirs qualified)
 

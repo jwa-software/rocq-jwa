@@ -8,11 +8,11 @@ Definition relations_all_delivers
   : forall (A : Type) (R : A -> A -> Prop),
       Reflexive.R A R -> Symmetric.R A R
       -> Transitive.R A R -> Equivalence.R A R
-      -> ~ False -> True
+      -> ~ Falsum -> Verum
   := fun (A : Type) (R : A -> A -> Prop)
          (_ : Reflexive.R A R) (_ : Symmetric.R A R)
          (_ : Transitive.R A R) (_ : Equivalence.R A R)
-         (_ : ~ False) => I.
+         (_ : ~ Falsum) => I.
 
 (* The projections are constants of their modules, so the umbrella has to
    forward them too; the one below is reached through the [::] field of
@@ -27,11 +27,11 @@ Definition relations_all_delivers_projections
        Reflexive.reflexivity x.
 
 (* The instances are found by resolution rather than named. *)
-Definition relations_all_delivers_eq_instance
+Definition relations_all_delivers_equijunction_instance
   : forall (A : Type) (x : A) (y : A), x = y -> y = x
   := fun (A : Type) (x : A) (y : A) => Symmetric.symmetry x y.
 
-Definition relations_all_delivers_biconditional_instance
+Definition relations_all_delivers_bijunction_instance
   : forall (P : Prop) (Q : Prop) (S : Prop),
       (P <-> Q) -> (Q <-> S) -> (P <-> S)
   := fun (P : Prop) (Q : Prop) (S : Prop) => Transitive.transitivity P Q S.

@@ -15,13 +15,16 @@ Open Scope jwa_type_scope.
 
 (* A level is a claim against every other notation in the library, so all of
    them are declared here, while every meaning is supplied elsewhere: [=] in
-   [Core.Eq]; [->], [~], [/\], [_\/_], [\/], [<->] and [exists] in
+   [Core.Equijunction]; [->], [-/>], [~], [/\], [_\/_], [\/], [<->] and
+   [exists] in
    [Core.Logic]; [&&], [^^] and [||] in [Data.Bool]. *)
 
-(* The ordering is the load-bearing part: 70 < 75 < 80 < 82 < 85 < 95 < 99
-   is what reads [~ x = y /\ P -> Q] as [((~ (x = y)) /\ P) -> Q], and
+(* The ordering is the load-bearing part: 70 < 75 < 80 < 82 < 85 < 90 < 95
+   < 99 is what reads [~ x = y /\ P -> Q] as [((~ (x = y)) /\ P) -> Q], and
    [A \/ B <-> C] as [(A \/ B) <-> C]; [_\/_] sits between [/\] and [\/] as
-   [^^] sits between [&&] and [||]. At 200 [exists] is looser than all of
+   [^^] sits between [&&] and [||]. [-/>] at 90 binds tighter than [->], so
+   [A -/> B -> C] is [(A -/> B) -> C], and looser than [\/], so
+   [A \/ B -/> C] is [(A \/ B) -/> C]. At 200 [exists] is looser than all of
    them, so its body runs to the end: [exists n, P n -> Q] is
    [exists n, (P n -> Q)]. The boolean operators sit below [=] at
    40 < 45 < 50, so [a && b = c] is [(a && b) = c] and [a && b ^^ c || d] is
@@ -36,6 +39,8 @@ Reserved Notation "x _\/_ y"
   (at level 82, right associativity).
 Reserved Notation "x \/ y"
   (at level 85, right associativity).
+Reserved Notation "x -/> y"
+  (at level 90, no associativity).
 Reserved Notation "x <-> y"
   (at level 95, no associativity).
 Reserved Notation "~ x"
