@@ -293,6 +293,59 @@ Proof.
   reflexivity.
 Qed.
 
+(* [forall {A : Type} {B : Type} {C : Type}, (Pair A B -> C) -> A -> B -> C] *)
+Definition curry := fun {A : Type} {B : Type} {C : Type}
+                        (f : Pair A B -> C) (a : A) (b : B) =>
+  f (Pair_introduction a b).
+
+(* [forall {A : Type} {B : Type} {C : Type}, (A -> B -> C) -> Pair A B -> C]
+   The [match] is what makes [uncurry f] applied to a [Pair_introduction]
+   compute to [f a b] outright, which both round trips below rest on. *)
+Definition uncurry := fun {A : Type} {B : Type} {C : Type}
+                          (f : A -> B -> C) (p : Pair A B) =>
+  match p return C with
+  | Pair_introduction a b => f a b
+  end.
+
+(* The two round trips, each stated for every argument rather than as an
+   equality between functions, since nothing here assumes functional
+   extensionality. *)
+
+Theorem uncurry_curry_identity
+  : forall (A : Type) (B : Type) (C : Type) (f : Pair A B -> C) (p : Pair A B),
+      uncurry (curry f) p = f p.
+Proof.
+  (* The context gains [A], [B], [C], [f] and [p]:
+     [|- uncurry (curry f) p = f p] *)
+  intros A B C f p.
+  (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
+     [|- uncurry (curry f) (Pair_introduction a b) = f (Pair_introduction a b)] *)
+  destruct p as [a b].
+  (* [uncurry] computes on the ctor; [curry] has no [match] to step, so
+     [simpl] leaves it folded:
+     [|- curry f a b = f (Pair_introduction a b)] *)
+  simpl in |- *.
+  (* [|- f (Pair_introduction a b) = f (Pair_introduction a b)] *)
+  unfold curry in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem curry_uncurry_identity
+  : forall (A : Type) (B : Type) (C : Type) (f : A -> B -> C) (a : A) (b : B),
+      curry (uncurry f) a b = f a b.
+Proof.
+  (* The context gains [A], [B], [C], [f], [a] and [b]:
+     [|- curry (uncurry f) a b = f a b] *)
+  intros A B C f a b.
+  (* [|- uncurry f (Pair_introduction a b) = f a b] *)
+  unfold curry in |- *.
+  (* [uncurry] computes on the ctor: [|- f a b = f a b] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
 End Pair.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
