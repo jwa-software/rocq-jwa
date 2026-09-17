@@ -1848,6 +1848,188 @@ Proof.
     exact (tail_specification_backward A l l').
 Qed.
 
+(* Taking a list apart at the back, through [reverse]: the last element is
+   the head of the reversal, and what precedes it is the tail of the
+   reversal turned back around. *)
+
+(* [forall {A : Type}, List A -> Option A] *)
+Definition last := fun {A : Type} (l : List A) => head (reverse l).
+
+(* [forall {A : Type}, List A -> Option (List A)] *)
+Definition initial := fun {A : Type} (l : List A) => Option.map reverse (tail (reverse l)).
+
+(* The specifications mirror those of [head] and [tail]: [last l] is
+   [Some a] exactly when [l] ends with [a], and [initial l] is [Some l']
+   exactly when [l] is [l'] followed by one element. *)
+
+Lemma last_specification_forward
+  : forall (A : Type) (a : A) (l : List A),
+      last l = Some a -> exists (l' : List A), l = append l' (Cons a Nil).
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- last l = Some a -> exists (l' : List A), l = append l' (Cons a Nil)] *)
+  intros A a l.
+  (* [|- head (reverse l) = Some a -> ...] *)
+  unfold last in |- *.
+  (* The context gains [h : head (reverse l) = Some a]: the goal is the
+     [exists]. *)
+  intro h.
+  (* The specification of [head] turns [h] into an [exists], which opens
+     into a witness [r] and [e : reverse l = Cons a r]. *)
+  destruct (head_specification_forward A a (reverse l) h) as [r e].
+  (* [reverse r] is the witness: [|- l = append (reverse r) (Cons a Nil)] *)
+  apply (Exists_introduction (reverse r)).
+  (* [reverse] applied to both sides of [e]; the context gains
+     [e' : reverse (reverse l) = reverse (Cons a r)]. *)
+  pose proof (Equijunction_congruence reverse e) as e'.
+  (* [reverse_involution] undoes the double reversal:
+     [e' : l = reverse (Cons a r)] *)
+  rewrite reverse_involution in e'.
+  (* The [reverse] step computes: [e' : l = append (reverse r) (Cons a Nil)] *)
+  simpl in e'.
+  (* [e'] is a proof of the goal as it stands. *)
+  exact e'.
+Qed.
+
+Lemma last_specification_backward
+  : forall (A : Type) (a : A) (l : List A),
+      (exists (l' : List A), l = append l' (Cons a Nil)) -> last l = Some a.
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- (exists (l' : List A), l = append l' (Cons a Nil))
+         -> last l = Some a] *)
+  intros A a l.
+  (* The context gains [h], the [exists]: [|- last l = Some a] *)
+  intro h.
+  (* [h] opens into a witness [l'] and [e : l = append l' (Cons a Nil)]. *)
+  destruct h as [l' e].
+  (* [|- head (reverse l) = Some a] *)
+  unfold last in |- *.
+  (* [e] replaces [l]: [|- head (reverse (append l' (Cons a Nil))) = Some a] *)
+  rewrite e in |- *.
+  (* [reverse_antidistributivity_over_append] turns the [append] around:
+     [|- head (append (reverse (Cons a Nil)) (reverse l')) = Some a] *)
+  rewrite reverse_antidistributivity_over_append in |- *.
+  (* [reverse (Cons a Nil)] computes to [Cons a Nil], the [append] steps
+     once and [head] reads the front: [|- Some a = Some a] *)
+  simpl in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem last_specification
+  : forall (A : Type) (a : A) (l : List A),
+      last l = Some a <-> (exists (l' : List A), l = append l' (Cons a Nil)).
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- last l = Some a
+         <-> (exists (l' : List A), l = append l' (Cons a Nil))] *)
+  intros A a l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [last_specification_forward A a l] is a proof of the goal as it
+       stands. *)
+    exact (last_specification_forward A a l).
+  - (* [last_specification_backward A a l] is a proof of the goal as it
+       stands. *)
+    exact (last_specification_backward A a l).
+Qed.
+
+Lemma initial_specification_forward
+  : forall (A : Type) (l : List A) (l' : List A),
+      initial l = Some l' -> exists (a : A), l = append l' (Cons a Nil).
+Proof.
+  (* The context gains [A], [l] and [l']:
+     [|- initial l = Some l' -> exists (a : A), l = append l' (Cons a Nil)] *)
+  intros A l l'.
+  (* [|- Option.map reverse (tail (reverse l)) = Some l' -> ...] *)
+  unfold initial in |- *.
+  (* [reverse l] is either [Nil] or [Cons b r]: one goal per ctor, each
+     keeping the equation as [er]. *)
+  destruct (reverse l) as [| b r] eqn:er.
+  - (* [tail Nil] and then [Option.map] compute:
+       [|- None = Some l' -> ...] *)
+    simpl in |- *.
+    (* The context gains [h : None = Some l']: the goal is the [exists]. *)
+    intro h.
+    (* [h] claims [None = Some l'], and the two are different ctors. *)
+    discriminate.
+  - (* [tail (Cons b r)] and then [Option.map] compute:
+       [|- Some (reverse r) = Some l' -> ...] *)
+    simpl in |- *.
+    (* The context gains [h : Some (reverse r) = Some l']: the goal is the
+       [exists]. *)
+    intro h.
+    (* [Option.some_injectivity] turns [h] into [e' : reverse r = l']. *)
+    pose proof (Option.some_injectivity (List A) (reverse r) l' h) as e'.
+    (* [b] is the witness: [|- l = append l' (Cons b Nil)] *)
+    apply (Exists_introduction b).
+    (* [reverse] applied to both sides of [er]; the context gains
+       [er' : reverse (reverse l) = reverse (Cons b r)]. *)
+    pose proof (Equijunction_congruence reverse er) as er'.
+    (* [reverse_involution] undoes the double reversal:
+       [er' : l = reverse (Cons b r)] *)
+    rewrite reverse_involution in er'.
+    (* The [reverse] step computes:
+       [er' : l = append (reverse r) (Cons b Nil)] *)
+    simpl in er'.
+    (* [e'] replaces [reverse r] by [l']: [er' : l = append l' (Cons b Nil)] *)
+    rewrite e' in er'.
+    (* [er'] is a proof of the goal as it stands. *)
+    exact er'.
+Qed.
+
+Lemma initial_specification_backward
+  : forall (A : Type) (l : List A) (l' : List A),
+      (exists (a : A), l = append l' (Cons a Nil)) -> initial l = Some l'.
+Proof.
+  (* The context gains [A], [l] and [l']:
+     [|- (exists (a : A), l = append l' (Cons a Nil)) -> initial l = Some l'] *)
+  intros A l l'.
+  (* The context gains [h], the [exists]: [|- initial l = Some l'] *)
+  intro h.
+  (* [h] opens into a witness [a] and [e : l = append l' (Cons a Nil)]. *)
+  destruct h as [a e].
+  (* [|- Option.map reverse (tail (reverse l)) = Some l'] *)
+  unfold initial in |- *.
+  (* [e] replaces [l]:
+     [|- Option.map reverse (tail (reverse (append l' (Cons a Nil))))
+         = Some l'] *)
+  rewrite e in |- *.
+  (* [reverse_antidistributivity_over_append] turns the [append] around:
+     [|- Option.map reverse (tail (append (reverse (Cons a Nil)) (reverse l')))
+         = Some l'] *)
+  rewrite reverse_antidistributivity_over_append in |- *.
+  (* [reverse (Cons a Nil)] computes to [Cons a Nil], the [append] steps
+     once, [tail] drops [a] and [Option.map] reaches the payload:
+     [|- Some (reverse (reverse l')) = Some l'] *)
+  simpl in |- *.
+  (* [reverse_involution] undoes the double reversal: [|- Some l' = Some l'] *)
+  rewrite reverse_involution in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem initial_specification
+  : forall (A : Type) (l : List A) (l' : List A),
+      initial l = Some l' <-> (exists (a : A), l = append l' (Cons a Nil)).
+Proof.
+  (* The context gains [A], [l] and [l']:
+     [|- initial l = Some l'
+         <-> (exists (a : A), l = append l' (Cons a Nil))] *)
+  intros A l l'.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [initial_specification_forward A l l'] is a proof of the goal as it
+       stands. *)
+    exact (initial_specification_forward A l l').
+  - (* [initial_specification_backward A l l'] is a proof of the goal as it
+       stands. *)
+    exact (initial_specification_backward A l l').
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
