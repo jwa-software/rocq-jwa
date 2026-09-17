@@ -107,6 +107,20 @@ Proof.
   reflexivity.
 Qed.
 
+(* [forall {A : Type} {B : Type} {C : Type}, (A -> C) -> Pair A B -> Pair C B] *)
+Definition map_first := fun {A : Type} {B : Type} {C : Type}
+                            (f : A -> C) (p : Pair A B) =>
+  match p return Pair C B with
+  | Pair_introduction a b => Pair_introduction (f a) b
+  end.
+
+(* [forall {A : Type} {B : Type} {C : Type}, (B -> C) -> Pair A B -> Pair A C] *)
+Definition map_second := fun {A : Type} {B : Type} {C : Type}
+                             (f : B -> C) (p : Pair A B) =>
+  match p return Pair A C with
+  | Pair_introduction a b => Pair_introduction a (f b)
+  end.
+
 End Pair.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
