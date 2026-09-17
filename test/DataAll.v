@@ -53,3 +53,12 @@ Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool),
       Bool.Assert (Bool.and b1 b2) <-> Bool.Assert b1 /\ Bool.Assert b2
   := Bool.assert_conjunction.
+
+(* [++] is a notation, so this also checks that it reaches a client through
+   the umbrella. *)
+Definition data_all_delivers_list : List Bool
+  := Cons true Nil ++ Cons false Nil.
+
+Definition data_all_delivers_list_monoid
+  : forall (A : Type) (l : List A), Nil ++ l = l
+  := fun (A : Type) => Monoid.identity_left.

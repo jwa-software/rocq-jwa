@@ -16,8 +16,8 @@ Open Scope jwa_type_scope.
 (* A level is a claim against every other notation in the library, so all of
    them are declared here, while every meaning is supplied elsewhere: [=] in
    [Core.Equijunction]; [->], [-/>], [~], [/\], [_\/_], [\/], [<->] and
-   [exists] in
-   [Core.Logic]; [&&], [^^] and [||] in [Data.Bool]. *)
+   [exists] in [Core.Logic]; [&&], [^^] and [||] in [Data.Bool]; [++] in
+   [Data.List]. *)
 
 (* The ordering is the load-bearing part: 70 < 75 < 80 < 82 < 85 < 90 < 95
    < 99 is what reads [~ x = y /\ P -> Q] as [((~ (x = y)) /\ P) -> Q], and
@@ -28,7 +28,8 @@ Open Scope jwa_type_scope.
    them, so its body runs to the end: [exists n, P n -> Q] is
    [exists n, (P n -> Q)]. The boolean operators sit below [=] at
    40 < 45 < 50, so [a && b = c] is [(a && b) = c] and [a && b ^^ c || d] is
-   [((a && b) ^^ c) || d]. *)
+   [((a && b) ^^ c) || d]. [++] at 60 sits between them and [=], right
+   associative, so [l1 ++ l2 ++ l3 = l] is [(l1 ++ (l2 ++ l3)) = l]. *)
 Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
@@ -51,6 +52,8 @@ Reserved Notation "x ^^ y"
   (at level 45, left associativity).
 Reserved Notation "x || y"
   (at level 50, left associativity).
+Reserved Notation "x ++ y"
+  (at level 60, right associativity).
 
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
