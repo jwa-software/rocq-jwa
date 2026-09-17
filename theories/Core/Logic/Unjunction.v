@@ -92,3 +92,11 @@ Proof.
     exact (not_b b).
 Qed.
 
+Theorem Unjunction_of_Falsum : ~ Falsum.
+Proof.
+  (* [|- Falsum -> Falsum] *)
+  unfold Unjunction in |- *.
+  intro f.
+  exact f.
+Qed.
+
