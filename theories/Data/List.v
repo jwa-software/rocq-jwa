@@ -499,6 +499,324 @@ Proof.
     reflexivity.
 Qed.
 
+(* Membership, defined by recursion into [Prop]: [Contains a Nil] computes
+   to [Falsum] and [Contains a (Cons b l)] to [a = b \/ Contains a l], so
+   [simpl] exposes the cases and every proof below is a case analysis. *)
+Fixpoint Contains {A : Type} (a : A) (l : List A) : Prop :=
+  match l with
+  | Nil       => Falsum
+  | Cons b l' => a = b \/ Contains a l'
+  end.
+
+Theorem nil_contains_nothing
+  : forall (A : Type) (a : A), ~ Contains a Nil.
+Proof.
+  (* The context gains [A] and [a]: [|- ~ Contains a Nil] *)
+  intros A a.
+  (* [|- Contains a Nil -> Falsum] *)
+  unfold Unjunction in |- *.
+  (* [Contains a Nil] computes: [|- Falsum -> Falsum] *)
+  simpl in |- *.
+  (* The context gains [f : Falsum]: [|- Falsum] *)
+  intro f.
+  (* [f] is a proof of the goal as it stands. *)
+  exact f.
+Qed.
+
+(* Membership in a concatenation is membership in either half. The two
+   halves are lemmas, the [<->] the theorem. *)
+
+Lemma contains_distributivity_over_append_forward
+  : forall (A : Type) (a : A) (l1 : List A) (l2 : List A),
+      Contains a (append l1 l2) -> Contains a l1 \/ Contains a l2.
+Proof.
+  (* The context gains [A], [a], [l1] and [l2]:
+     [|- Contains a (append l1 l2) -> Contains a l1 \/ Contains a l2] *)
+  intros A a l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : Contains a (append l1' l2) -> Contains a l1' \/ Contains a l2]
+     in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- Contains a (append Nil l2) -> Contains a Nil \/ Contains a l2] *)
+    (* [append Nil] and [Contains a Nil] compute:
+       [|- Contains a l2 -> Falsum \/ Contains a l2] *)
+    simpl in |- *.
+    (* The context gains [h : Contains a l2]: [|- Falsum \/ Contains a l2] *)
+    intro h.
+    (* [h] is the right side. *)
+    exact (Disjunction_right h).
+  - (* [|- Contains a (append (Cons b l1') l2)
+         -> Contains a (Cons b l1') \/ Contains a l2] *)
+    (* One [append] step and both [Contains] on a [Cons] compute:
+       [|- a = b \/ Contains a (append l1' l2)
+           -> (a = b \/ Contains a l1') \/ Contains a l2] *)
+    simpl in |- *.
+    (* The context gains [h : a = b \/ Contains a (append l1' l2)]:
+       [|- (a = b \/ Contains a l1') \/ Contains a l2] *)
+    intro h.
+    (* [h] gives two goals: one with [e : a = b], one with
+       [h' : Contains a (append l1' l2)]. *)
+    destruct h as [e | h'].
+    + (* [e] is the left side of the left side. *)
+      exact (Disjunction_left (Disjunction_left e)).
+    + (* [IH] turns [h'] into [Contains a l1' \/ Contains a l2], which
+         gives two goals: one with [h1 : Contains a l1'], one with
+         [h2 : Contains a l2]. *)
+      destruct (IH h') as [h1 | h2].
+      * (* [h1] is the right side of the left side. *)
+        exact (Disjunction_left (Disjunction_right h1)).
+      * (* [h2] is the right side. *)
+        exact (Disjunction_right h2).
+Qed.
+
+Lemma contains_distributivity_over_append_backward
+  : forall (A : Type) (a : A) (l1 : List A) (l2 : List A),
+      Contains a l1 \/ Contains a l2 -> Contains a (append l1 l2).
+Proof.
+  (* The context gains [A], [a], [l1] and [l2]:
+     [|- Contains a l1 \/ Contains a l2 -> Contains a (append l1 l2)] *)
+  intros A a l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : Contains a l1' \/ Contains a l2 -> Contains a (append l1' l2)]
+     in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- Contains a Nil \/ Contains a l2 -> Contains a (append Nil l2)] *)
+    (* [Contains a Nil] and [append Nil] compute:
+       [|- Falsum \/ Contains a l2 -> Contains a l2] *)
+    simpl in |- *.
+    (* The context gains [h : Falsum \/ Contains a l2]: [|- Contains a l2] *)
+    intro h.
+    (* [h] gives two goals: one with [f : Falsum], one with
+       [h2 : Contains a l2]. *)
+    destruct h as [f | h2].
+    + (* [f : Falsum], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* [h2] is a proof of the goal as it stands. *)
+      exact h2.
+  - (* [|- Contains a (Cons b l1') \/ Contains a l2
+         -> Contains a (append (Cons b l1') l2)] *)
+    (* Both [Contains] on a [Cons] and the [append] step compute:
+       [|- (a = b \/ Contains a l1') \/ Contains a l2
+           -> a = b \/ Contains a (append l1' l2)] *)
+    simpl in |- *.
+    (* The context gains [h : (a = b \/ Contains a l1') \/ Contains a l2]:
+       [|- a = b \/ Contains a (append l1' l2)] *)
+    intro h.
+    (* [h] gives two goals: one with [h1 : a = b \/ Contains a l1'], one
+       with [h2 : Contains a l2]. *)
+    destruct h as [h1 | h2].
+    + (* [h1] gives two goals: one with [e : a = b], one with
+         [h1' : Contains a l1']. *)
+      destruct h1 as [e | h1'].
+      * (* [e] is the left side. *)
+        exact (Disjunction_left e).
+      * (* [Disjunction_right] turns the goal into its right side:
+           [|- Contains a (append l1' l2)] *)
+        apply Disjunction_right.
+        (* [IH] turns a proof of [Contains a l1' \/ Contains a l2] into
+           one of the goal: [|- Contains a l1' \/ Contains a l2] *)
+        apply IH.
+        (* [h1'] is the left side. *)
+        exact (Disjunction_left h1').
+    + (* [Disjunction_right] turns the goal into its right side:
+         [|- Contains a (append l1' l2)] *)
+      apply Disjunction_right.
+      (* [IH] turns a proof of [Contains a l1' \/ Contains a l2] into one
+         of the goal: [|- Contains a l1' \/ Contains a l2] *)
+      apply IH.
+      (* [h2] is the right side. *)
+      exact (Disjunction_right h2).
+Qed.
+
+Theorem contains_distributivity_over_append
+  : forall (A : Type) (a : A) (l1 : List A) (l2 : List A),
+      Contains a (append l1 l2) <-> Contains a l1 \/ Contains a l2.
+Proof.
+  (* The context gains [A], [a], [l1] and [l2]:
+     [|- Contains a (append l1 l2) <-> Contains a l1 \/ Contains a l2] *)
+  intros A a l1 l2.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [contains_distributivity_over_append_forward A a l1 l2] is a proof
+       of the goal as it stands. *)
+    exact (contains_distributivity_over_append_forward A a l1 l2).
+  - (* [contains_distributivity_over_append_backward A a l1 l2] is a proof
+       of the goal as it stands. *)
+    exact (contains_distributivity_over_append_backward A a l1 l2).
+Qed.
+
+(* [map] carries membership along: an element of [l] has its image in
+   [map f l]. *)
+Theorem map_containment_preservation
+  : forall (A : Type) (B : Type) (f : A -> B) (a : A) (l : List A),
+      Contains a l -> Contains (f a) (map f l).
+Proof.
+  (* The context gains [A], [B], [f], [a] and [l]:
+     [|- Contains a l -> Contains (f a) (map f l)] *)
+  intros A B f a l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and [IH : Contains a l' -> Contains (f a) (map f l')] in
+     its context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- Contains a Nil -> Contains (f a) (map f Nil)] *)
+    (* [map f Nil] and both [Contains] compute: [|- Falsum -> Falsum] *)
+    simpl in |- *.
+    (* The context gains [g : Falsum]: [|- Falsum] *)
+    intro g.
+    (* [g] is a proof of the goal as it stands. *)
+    exact g.
+  - (* [|- Contains a (Cons b l') -> Contains (f a) (map f (Cons b l'))] *)
+    (* The [map] step and both [Contains] compute:
+       [|- a = b \/ Contains a l' -> f a = f b \/ Contains (f a) (map f l')] *)
+    simpl in |- *.
+    (* The context gains [h : a = b \/ Contains a l']:
+       [|- f a = f b \/ Contains (f a) (map f l')] *)
+    intro h.
+    (* [h] gives two goals: one with [e : a = b], one with
+       [h' : Contains a l']. *)
+    destruct h as [e | h'].
+    + (* [Disjunction_left] turns the goal into its left side:
+         [|- f a = f b] *)
+      apply Disjunction_left.
+      (* [e] replaces [a] by [b]: [|- f b = f b] *)
+      rewrite e in |- *.
+      (* Both sides are the same term. *)
+      reflexivity.
+    + (* [Disjunction_right] turns the goal into its right side:
+         [|- Contains (f a) (map f l')] *)
+      apply Disjunction_right.
+      (* [IH] turns a proof of [Contains a l'] into one of the goal:
+         [|- Contains a l'] *)
+      apply IH.
+      (* [h'] is a proof of the goal as it stands. *)
+      exact h'.
+Qed.
+
+(* [reverse] keeps membership, in both directions; each direction goes
+   through the distributivity over [append], since [reverse] is built from
+   it. *)
+
+Lemma reverse_containment_preservation_forward
+  : forall (A : Type) (a : A) (l : List A),
+      Contains a (reverse l) -> Contains a l.
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- Contains a (reverse l) -> Contains a l] *)
+  intros A a l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and [IH : Contains a (reverse l') -> Contains a l'] in
+     its context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- Contains a (reverse Nil) -> Contains a Nil] *)
+    (* [reverse Nil] and [Contains a Nil] compute: [|- Falsum -> Falsum] *)
+    simpl in |- *.
+    (* The context gains [f : Falsum]: [|- Falsum] *)
+    intro f.
+    (* [f] is a proof of the goal as it stands. *)
+    exact f.
+  - (* [|- Contains a (reverse (Cons b l')) -> Contains a (Cons b l')] *)
+    (* The [reverse] step and the [Contains] on the right compute:
+       [|- Contains a (append (reverse l') (Cons b Nil))
+           -> a = b \/ Contains a l'] *)
+    simpl in |- *.
+    (* The context gains [h : Contains a (append (reverse l') (Cons b Nil))]:
+       [|- a = b \/ Contains a l'] *)
+    intro h.
+    (* The forward distributivity splits [h] into two goals: one with
+       [h1 : Contains a (reverse l')], one with
+       [h2 : Contains a (Cons b Nil)]. *)
+    destruct (contains_distributivity_over_append_forward
+                A a (reverse l') (Cons b Nil) h) as [h1 | h2].
+    + (* [Disjunction_right] turns the goal into its right side:
+         [|- Contains a l'] *)
+      apply Disjunction_right.
+      (* [IH] turns a proof of [Contains a (reverse l')] into one of the
+         goal: [|- Contains a (reverse l')] *)
+      apply IH.
+      (* [h1] is a proof of the goal as it stands. *)
+      exact h1.
+    + (* [h2] computes to [a = b \/ Falsum]. *)
+      simpl in h2.
+      (* [h2] gives two goals: one with [e : a = b], one with
+         [f : Falsum]. *)
+      destruct h2 as [e | f].
+      * (* [e] is the left side. *)
+        exact (Disjunction_left e).
+      * (* [f : Falsum], which is what [contradiction] looks for. *)
+        contradiction.
+Qed.
+
+Lemma reverse_containment_preservation_backward
+  : forall (A : Type) (a : A) (l : List A),
+      Contains a l -> Contains a (reverse l).
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- Contains a l -> Contains a (reverse l)] *)
+  intros A a l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and [IH : Contains a l' -> Contains a (reverse l')] in
+     its context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- Contains a Nil -> Contains a (reverse Nil)] *)
+    (* [Contains a Nil] and [reverse Nil] compute: [|- Falsum -> Falsum] *)
+    simpl in |- *.
+    (* The context gains [f : Falsum]: [|- Falsum] *)
+    intro f.
+    (* [f] is a proof of the goal as it stands. *)
+    exact f.
+  - (* [|- Contains a (Cons b l') -> Contains a (reverse (Cons b l'))] *)
+    (* The [Contains] on the left and the [reverse] step compute:
+       [|- a = b \/ Contains a l'
+           -> Contains a (append (reverse l') (Cons b Nil))] *)
+    simpl in |- *.
+    (* The context gains [h : a = b \/ Contains a l']:
+       [|- Contains a (append (reverse l') (Cons b Nil))] *)
+    intro h.
+    (* The backward distributivity turns a proof of
+       [Contains a (reverse l') \/ Contains a (Cons b Nil)] into one of the
+       goal: [|- Contains a (reverse l') \/ Contains a (Cons b Nil)] *)
+    apply contains_distributivity_over_append_backward.
+    (* [h] gives two goals: one with [e : a = b], one with
+       [h' : Contains a l']. *)
+    destruct h as [e | h'].
+    + (* [Disjunction_right] turns the goal into its right side:
+         [|- Contains a (Cons b Nil)] *)
+      apply Disjunction_right.
+      (* [Contains a (Cons b Nil)] computes: [|- a = b \/ Falsum] *)
+      simpl in |- *.
+      (* [e] is the left side. *)
+      exact (Disjunction_left e).
+    + (* [Disjunction_left] turns the goal into its left side:
+         [|- Contains a (reverse l')] *)
+      apply Disjunction_left.
+      (* [IH] turns a proof of [Contains a l'] into one of the goal:
+         [|- Contains a l'] *)
+      apply IH.
+      (* [h'] is a proof of the goal as it stands. *)
+      exact h'.
+Qed.
+
+Theorem reverse_containment_preservation
+  : forall (A : Type) (a : A) (l : List A),
+      Contains a (reverse l) <-> Contains a l.
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- Contains a (reverse l) <-> Contains a l] *)
+  intros A a l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [reverse_containment_preservation_forward A a l] is a proof of the
+       goal as it stands. *)
+    exact (reverse_containment_preservation_forward A a l).
+  - (* [reverse_containment_preservation_backward A a l] is a proof of the
+       goal as it stands. *)
+    exact (reverse_containment_preservation_backward A a l).
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
@@ -509,6 +827,24 @@ Notation "l1 ++ l2" := (List.append l1 l2) : jwa_type_scope.
    opening: a client writes [[]%list] or opens the scope. The token is
    [[]] as one piece; [[ ]] with a space is not it. *)
 Notation "[]" := Nil : jwa_list_scope.
+
+(* Membership reads as a sentence, [l contains a], with the list first; the
+   arguments of [Contains] are the other way round, element first, so that
+   [Contains a] is a predicate on lists. *)
+Notation "l 'contains' a" := (List.Contains a l)
+  : jwa_list_scope.
+
+(* The same relation read from the element's side. [only parsing] keeps one
+   spelling for printing, so a goal always shows [l contains a]. *)
+Notation "a 'belongs_to' l" := (List.Contains a l) (only parsing)
+  : jwa_list_scope.
+
+(* The negations, so that [~ Contains a l] reads and prints as a sentence
+   too; the element-first form is again [only parsing]. *)
+Notation "l 'does_not_contain' a" := (~ (List.Contains a l))
+  : jwa_list_scope.
+Notation "a 'does_not_belong_to' l" := (~ (List.Contains a l)) (only parsing)
+  : jwa_list_scope.
 
 (* [append] with [Nil] is the monoid on lists. [A] is a parameter of the
    instance, so every element type gets one; [@] makes it explicit where
