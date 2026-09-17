@@ -44,3 +44,58 @@ Proof.
   (* [a] is a proof of the goal as it stands. *)
   exact a.
 Qed.
+
+(* The three structural rules: a hypothesis may be added unused
+   (weakening), a repeated one may be merged (contraction), and two may
+   change places (exchange). *)
+
+Theorem Subjunction_weakening : forall (A : Prop) (B : Prop), A -> B -> A.
+Proof.
+  (* The context gains [A] and [B]: [|- A -> B -> A] *)
+  intros A B.
+  (* The context gains [a : A]: [|- B -> A] *)
+  intro a.
+  (* The context gains [b : B], which is never used: [|- A] *)
+  intro b.
+  (* [a] is a proof of the goal as it stands. *)
+  exact a.
+Qed.
+
+Theorem Subjunction_contraction
+  : forall (A : Prop) (B : Prop), (A -> A -> B) -> A -> B.
+Proof.
+  (* The context gains [A] and [B]: [|- (A -> A -> B) -> A -> B] *)
+  intros A B.
+  (* The context gains [f : A -> A -> B]: [|- A -> B] *)
+  intro f.
+  (* The context gains [a : A]: [|- B] *)
+  intro a.
+  (* [f] turns two proofs of [A] into a proof of [B], so the goal splits
+     into two goals, [|- A] and [|- A]. *)
+  apply f.
+  - (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* [a] is a proof of the goal as it stands. *)
+    exact a.
+Qed.
+
+(* Its own converse: applying it twice restores the order. *)
+Theorem Subjunction_exchange
+  : forall (A : Prop) (B : Prop) (C : Prop), (A -> B -> C) -> B -> A -> C.
+Proof.
+  (* The context gains [A], [B] and [C]: [|- (A -> B -> C) -> B -> A -> C] *)
+  intros A B C.
+  (* The context gains [f : A -> B -> C]: [|- B -> A -> C] *)
+  intro f.
+  (* The context gains [b : B]: [|- A -> C] *)
+  intro b.
+  (* The context gains [a : A]: [|- C] *)
+  intro a.
+  (* [f] turns proofs of [A] and of [B] into a proof of [C], so the goal
+     splits into two goals: [|- A] and [|- B]. *)
+  apply f.
+  - (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* [b] is a proof of the goal as it stands. *)
+    exact b.
+Qed.
