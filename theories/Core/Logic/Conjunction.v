@@ -94,3 +94,62 @@ Proof.
        it stands. *)
     exact (Conjunction_associativity_backward A B C).
 Qed.
+
+Lemma Subjunction_currying_forward
+  : forall (A : Prop) (B : Prop) (C : Prop), (A /\ B -> C) -> A -> B -> C.
+Proof.
+  (* The context gains [A], [B] and [C]: [|- (A /\ B -> C) -> A -> B -> C] *)
+  intros A B C.
+  (* The context gains [f : A /\ B -> C]: [|- A -> B -> C] *)
+  intro f.
+  (* The context gains [a : A]: [|- B -> C] *)
+  intro a.
+  (* The context gains [b : B]: [|- C] *)
+  intro b.
+  (* [f] turns a proof of [A /\ B] into a proof of [C]: [|- A /\ B] *)
+  apply f.
+  (* The goal splits into two goals: [|- A] and [|- B]. *)
+  split.
+  - (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* [b] is a proof of the goal as it stands. *)
+    exact b.
+Qed.
+
+Lemma Subjunction_currying_backward
+  : forall (A : Prop) (B : Prop) (C : Prop), (A -> B -> C) -> A /\ B -> C.
+Proof.
+  (* The context gains [A], [B] and [C]: [|- (A -> B -> C) -> A /\ B -> C] *)
+  intros A B C.
+  (* The context gains [f : A -> B -> C]: [|- A /\ B -> C] *)
+  intro f.
+  (* The context gains [h : A /\ B]: [|- C] *)
+  intro h.
+  (* [h] splits into [a : A] and [b : B]. *)
+  destruct h as [a b].
+  (* [f] turns proofs of [A] and of [B] into a proof of [C], so the goal
+     splits into two goals: [|- A] and [|- B]. *)
+  apply f.
+  - (* [a] is a proof of the goal as it stands. *)
+    exact a.
+  - (* [b] is a proof of the goal as it stands. *)
+    exact b.
+Qed.
+
+Theorem Subjunction_currying
+  : forall (A : Prop) (B : Prop) (C : Prop), (A /\ B -> C) <-> (A -> B -> C).
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A /\ B -> C) <-> (A -> B -> C)] *)
+  intros A B C.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals: [|- (A /\ B -> C) -> A -> B -> C] and
+     [|- (A -> B -> C) -> A /\ B -> C]. *)
+  split.
+  - (* [Subjunction_currying_forward A B C] is a proof of the goal as it
+       stands. *)
+    exact (Subjunction_currying_forward A B C).
+  - (* [Subjunction_currying_backward A B C] is a proof of the goal as it
+       stands. *)
+    exact (Subjunction_currying_backward A B C).
+Qed.
