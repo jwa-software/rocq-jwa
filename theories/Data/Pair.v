@@ -6,6 +6,7 @@
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Commutative.
 From jwa Require Import Structures.Functor.
 
 (* A pair holds one [A] and one [B], in that order. Both are parameters: the
@@ -368,7 +369,7 @@ Theorem product_operation_associativity
       Semigroup.T A opA -> Semigroup.T B opB ->
       forall (p1 : Pair A B) (p2 : Pair A B) (p3 : Pair A B),
         product_operation opA opB (product_operation opA opB p1 p2) p3
-        = product_operation opA opB p1 (product_operation opA opB p2 p3).
+      = product_operation opA opB p1 (product_operation opA opB p2 p3).
 Proof.
   (* The context gains [A], [opA], [B], [opB], [SA : Semigroup.T A opA],
      [SB : Semigroup.T B opB], [p1], [p2] and [p3]:
@@ -399,7 +400,8 @@ Qed.
 Theorem product_operation_identity_left
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
-      Monoid.T A opA eA -> Monoid.T B opB eB ->
+      Monoid.T A opA eA ->
+      Monoid.T B opB eB ->
       forall (p : Pair A B),
         product_operation opA opB (Pair_introduction eA eB) p = p.
 Proof.
@@ -426,7 +428,8 @@ Qed.
 Theorem product_operation_identity_right
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
-      Monoid.T A opA eA -> Monoid.T B opB eB ->
+      Monoid.T A opA eA ->
+      Monoid.T B opB eB ->
       forall (p : Pair A B),
         product_operation opA opB p (Pair_introduction eA eB) = p.
 Proof.
@@ -446,6 +449,37 @@ Proof.
   rewrite (Monoid.identity_right a) in |- *.
   (* [|- Pair_introduction a b = Pair_introduction a b] *)
   rewrite (Monoid.identity_right b) in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem product_operation_commutativity
+  : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
+      Commutative.T A opA ->
+      Commutative.T B opB ->
+      forall (p1 : Pair A B) (p2 : Pair A B),
+        product_operation opA opB p1 p2 = product_operation opA opB p2 p1.
+Proof.
+  (* The context gains [A], [opA], [B], [opB], [CA : Commutative.T A opA],
+     [CB : Commutative.T B opB], [p1] and [p2]:
+     [|- product_operation opA opB p1 p2 = product_operation opA opB p2 p1] *)
+  intros A opA B opB CA CB p1 p2.
+  (* Each pair is a [Pair_introduction] of two components, which enter the
+     context. *)
+  destruct p1 as [a1 b1].
+  destruct p2 as [a2 b2].
+  (* Both sides compute:
+     [|- Pair_introduction (opA a1 a2) (opB b1 b2)
+         = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
+  simpl in |- *.
+  (* The first components agree:
+     [|- Pair_introduction (opA a2 a1) (opB b1 b2)
+         = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
+  rewrite (Commutative.commutativity a1 a2) in |- *.
+  (* The second components agree:
+     [|- Pair_introduction (opA a2 a1) (opB b2 b1)
+         = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
+  rewrite (Commutative.commutativity b1 b2) in |- *.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
@@ -487,11 +521,6 @@ Instance Pair_functor : forall (A : Type), Functor.T (Pair A) :=
      ; Functor.map_identity    := Pair.map_second_identity A
      ; Functor.map_composition := Pair.map_second_composition A |}.
 
-(* The direct product of two semigroups, and of two monoids. The component
-   instances are premises, which resolution treats as subgoals: asking for
-   the monoid on [Bool * Bool] under [product_operation Bool.and Bool.or]
-   finds the two [Bool] monoids on its own. The laws were already proved
-   above, so each instance only hands them over. *)
 Instance Pair_semigroup
   : forall (A : Type) (opA : A -> A -> A)
       (B : Type) (opB : B -> B -> B),
@@ -504,22 +533,27 @@ Instance Pair_semigroup
       (SB : Semigroup.T B opB) =>
     {| Semigroup.associativity := Pair.product_operation_associativity A opA B opB SA SB |}.
 
-(* The semigroup field is filled by [Pair_semigroup] on the semigroups
-   inside [MA] and [MB], which the two holes ask resolution for. *)
 Instance Pair_monoid
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
       Monoid.T A opA eA ->
       Monoid.T B opB eB ->
-      Monoid.T
-        (Pair A B)
-        (Pair.product_operation opA opB)
-        (Pair_introduction eA eB) :=
+      Monoid.T (Pair A B) (Pair.product_operation opA opB) (Pair_introduction eA eB) :=
   fun (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B)
-      (MA : Monoid.T A opA eA) (MB : Monoid.T B opB eB) =>
+      (MA : Monoid.T A opA eA)
+      (MB : Monoid.T B opB eB) =>
     {| Monoid.semigroup := Pair_semigroup A opA B opB _ _
      ; Monoid.identity_left :=
         Pair.product_operation_identity_left A opA eA B opB eB MA MB
      ; Monoid.identity_right :=
         Pair.product_operation_identity_right A opA eA B opB eB MA MB |}.
+
+Instance Pair_commutative
+  : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
+      Commutative.T A opA -> Commutative.T B opB ->
+      Commutative.T (Pair A B) (Pair.product_operation opA opB) :=
+  fun (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B)
+      (CA : Commutative.T A opA) (CB : Commutative.T B opB) =>
+    {| Commutative.commutativity :=
+         Pair.product_operation_commutativity A opA B opB CA CB |}.
