@@ -6,12 +6,13 @@
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
-From jwa Require Import Core.Logic.Conjunction.
 
-(* Bijunction is the biconditional: each side implies the other. *)
-(* [Prop -> Prop -> Prop] *)
-Definition Bijunction := fun (A : Prop) (B : Prop) =>
-  Conjunction (A -> B) (B -> A).
+(* Bijunction is the biconditional: each side implies the other, and the one
+   ctor carries both directions. *)
+Inductive Bijunction (A : Prop) (B : Prop) : Prop :=
+  | Bijunction_introduction : (A -> B) -> (B -> A) -> Bijunction A B.
+
+Arguments Bijunction_introduction {A} {B} forward backward.
 
 Notation "A <-> B" := (Bijunction A B) : jwa_type_scope.
 
@@ -19,9 +20,7 @@ Theorem Bijunction_reflexivity : forall (A : Prop), A <-> A.
 Proof.
   (* The context gains [A : Prop]; the goal is now [A <-> A]. *)
   intro A.
-  (* The goal goes from [A <-> A] to [Conjunction (A -> A) (A -> A)]. *)
-  unfold Bijunction in |- *.
-  (* [Conjunction] has one ctor with two fields, so the goal splits into two
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
      goals: [A -> A] and [A -> A]. *)
   split.
   - (* The context gains [a : A]; the goal is now [A]. *)
@@ -35,7 +34,7 @@ Proof.
 Qed.
 
 (* With reflexivity above, symmetry and transitivity make [<->] an
-   equivalence relation: each is the two halves of the [Conjunction] handled
+   equivalence relation: each is the two halves of the [Bijunction] handled
    one direction at a time. *)
 
 Theorem Bijunction_symmetry
@@ -46,13 +45,10 @@ Proof.
   intros A B.
   (* The context gains [h : A <-> B]; the goal is now [B <-> A]. *)
   intro h.
-  (* [h] goes from [A <-> B] to [Conjunction (A -> B) (B -> A)]; the goal
-     goes from [B <-> A] to [Conjunction (B -> A) (A -> B)]. *)
-  unfold Bijunction in h |- *.
-  (* [Conjunction] has one ctor with two fields, so [h] splits into
+  (* [Bijunction] has one ctor with two fields, so [h] splits into
      [ab : A -> B] and [ba : B -> A]. *)
   destruct h as [ab ba].
-  (* [Conjunction] has one ctor with two fields, so the goal splits into two
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
      goals: [B -> A] and [A -> B]. *)
   split.
   - (* [ba] is a proof of the goal as it stands. *)
@@ -73,16 +69,12 @@ Proof.
   intro hab.
   (* The context gains [hbc : B <-> C]; the goal is now [A <-> C]. *)
   intro hbc.
-  (* [hab] goes from [A <-> B] to [Conjunction (A -> B) (B -> A)], [hbc]
-     from [B <-> C] to [Conjunction (B -> C) (C -> B)], and the goal from
-     [A <-> C] to [Conjunction (A -> C) (C -> A)]. *)
-  unfold Bijunction in hab, hbc |- *.
-  (* [Conjunction] has one ctor with two fields, so [hab] splits into
+  (* [Bijunction] has one ctor with two fields, so [hab] splits into
      [ab : A -> B] and [ba : B -> A]. *)
   destruct hab as [ab ba].
   (* Likewise [hbc] splits into [bc : B -> C] and [cb : C -> B]. *)
   destruct hbc as [bc cb].
-  (* [Conjunction] has one ctor with two fields, so the goal splits into two
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
      goals: [A -> C] and [C -> A]. *)
   split.
   - (* The context gains [a : A]; the goal is now [C]. *)
