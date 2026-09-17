@@ -3,11 +3,12 @@
 (* [Core.All] carries [->] and [=]; [Structures.Semigroup],
    [Structures.Monoid] and [Structures.Functor] are the classes the
    instances at the bottom fill; [Data.NatWithZero] is what [length] counts
-   in. *)
+   in, and [Data.Nat] carries the [One] inside [Positive One]. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Functor.
+From jwa Require Import Data.Nat.
 From jwa Require Import Data.NatWithZero.
 
 (* A list is empty, or one element in front of a list. [A] is a parameter:
@@ -356,6 +357,143 @@ Proof.
        one-element list steps: [|- Cons a (reverse (reverse l')) = Cons a l'] *)
     simpl in |- *.
     (* [IH] replaces the double [reverse]: [|- Cons a l' = Cons a l'] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+(* [fold_right f z] replaces every [Cons] by [f] and the final [Nil] by [z],
+   working from the right: [Cons a (Cons b Nil)] becomes [f a (f b z)]. *)
+Fixpoint fold_right {A : Type} {B : Type} (f : A -> B -> B) (z : B)
+                    (l : List A) : B :=
+  match l with
+  | Nil       => z
+  | Cons a l' => f a (fold_right f z l')
+  end.
+
+(* Read [fold_right f _ l] as a function of its seed; then the fold of a
+   concatenation is the composition of the two folds, the second list's
+   applied first. *)
+Theorem fold_right_composition_over_append
+  : forall (A : Type) (B : Type) (f : A -> B -> B) (z : B)
+      (l1 : List A) (l2 : List A),
+    fold_right f z (append l1 l2) = fold_right f (fold_right f z l2) l1.
+Proof.
+  (* The context gains [A], [B], [f], [z], [l1] and [l2]:
+     [|- fold_right f z (append l1 l2)
+         = fold_right f (fold_right f z l2) l1] *)
+  intros A B f z l1 l2.
+  (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the second
+     has [a], [l1'] and
+     [IH : fold_right f z (append l1' l2)
+           = fold_right f (fold_right f z l2) l1']
+     in its context. *)
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [|- fold_right f z (append Nil l2)
+         = fold_right f (fold_right f z l2) Nil] *)
+    (* [append Nil] and the outer fold on [Nil] compute:
+       [|- fold_right f z l2 = fold_right f z l2] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- fold_right f z (append (Cons a l1') l2)
+         = fold_right f (fold_right f z l2) (Cons a l1')] *)
+    (* One [append] step and one fold step on each side:
+       [|- f a (fold_right f z (append l1' l2))
+           = f a (fold_right f (fold_right f z l2) l1')] *)
+    simpl in |- *.
+    (* [IH] replaces the inner fold:
+       [|- f a (fold_right f (fold_right f z l2) l1')
+           = f a (fold_right f (fold_right f z l2) l1')] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+(* A catamorphism is a function on lists that is some [fold_right]: it only
+   fixes what replaces [Cons] and what replaces [Nil]. [append], [length]
+   and [map] are three of them. *)
+
+Theorem append_catamorphism
+  : forall (A : Type) (l1 : List A) (l2 : List A),
+      append l1 l2 = fold_right Cons l2 l1.
+Proof.
+  (* The context gains [A], [l1] and [l2]:
+     [|- append l1 l2 = fold_right Cons l2 l1] *)
+  intros A l1 l2.
+  (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the second
+     has [a], [l1'] and [IH : append l1' l2 = fold_right Cons l2 l1'] in its
+     context. *)
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [|- append Nil l2 = fold_right Cons l2 Nil] *)
+    (* Both sides compute to [l2]: [|- l2 = l2] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- append (Cons a l1') l2 = fold_right Cons l2 (Cons a l1')] *)
+    (* One step on each side:
+       [|- Cons a (append l1' l2) = Cons a (fold_right Cons l2 l1')] *)
+    simpl in |- *.
+    (* [IH] replaces the inner [append]:
+       [|- Cons a (fold_right Cons l2 l1') = Cons a (fold_right Cons l2 l1')] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem length_catamorphism
+  : forall (A : Type) (l : List A),
+      length l
+      = fold_right (fun (_ : A) (n : NatWithZero) => NatWithZero.add n (Positive One))
+                   Zero
+                   l.
+Proof.
+  (* The context gains [A] and [l]:
+     [|- length l = fold_right (fun _ n => add n (Positive One)) Zero l] *)
+  intros A l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH], the statement for [l'], in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* Both sides compute to [Zero]: [|- Zero = Zero] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each side, and the function applied to [a] reduces:
+       [|- NatWithZero.add (length l') (Positive One)
+           = NatWithZero.add (fold_right (fun _ n => add n (Positive One))
+                                          Zero
+                                          l')
+                             (Positive One)] *)
+    simpl in |- *.
+    (* [IH] replaces [length l']; both sides are then the same term. *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem map_catamorphism
+  : forall (A : Type) (B : Type) (f : A -> B) (l : List A),
+      map f l
+      = fold_right (fun (a : A) (mapped : List B) => Cons (f a) mapped)
+                   Nil
+                   l.
+Proof.
+  (* The context gains [A], [B], [f] and [l]:
+     [|- map f l = fold_right (fun a mapped => Cons (f a) mapped) Nil l] *)
+  intros A B f l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH], the statement for [l'], in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* Both sides compute to [Nil]: [|- Nil = Nil] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each side, and the function applied to [a] reduces:
+       [|- Cons (f a) (map f l')
+           = Cons (f a) (fold_right (fun a mapped => Cons (f a) mapped)
+                                    Nil l')] *)
+    simpl in |- *.
+    (* [IH] replaces [map f l']; both sides are then the same term. *)
     rewrite IH in |- *.
     (* Both sides are the same term. *)
     reflexivity.
