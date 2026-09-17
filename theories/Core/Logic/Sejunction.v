@@ -228,6 +228,116 @@ Proof.
     exact (Sejunction_as_disjunction_without_conjunction_backward A B).
 Qed.
 
+(* [<->] is respected by [_\/_]: each ctor carries one side and the
+   negation of the other, and both travel across the equivalences. *)
+Theorem Sejunction_congruence
+  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+      (A1 <-> A2) -> (B1 <-> B2) -> (A1 _\/_ B1 <-> A2 _\/_ B2).
+Proof.
+  (* The context gains [A1], [A2], [B1] and [B2]:
+     [|- (A1 <-> A2) -> (B1 <-> B2) -> (A1 _\/_ B1 <-> A2 _\/_ B2)] *)
+  intros A1 A2 B1 B2.
+  (* The context gains [ea : A1 <-> A2]:
+     [|- (B1 <-> B2) -> (A1 _\/_ B1 <-> A2 _\/_ B2)] *)
+  intro ea.
+  (* The context gains [eb : B1 <-> B2]: [|- A1 _\/_ B1 <-> A2 _\/_ B2] *)
+  intro eb.
+  (* [ea] splits into [a12 : A1 -> A2] and [a21 : A2 -> A1]. *)
+  destruct ea as [a12 a21].
+  (* [eb] splits into [b12 : B1 -> B2] and [b21 : B2 -> B1]. *)
+  destruct eb as [b12 b21].
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals: [|- A1 _\/_ B1 -> A2 _\/_ B2] and
+     [|- A2 _\/_ B2 -> A1 _\/_ B1]. *)
+  split.
+  - (* The context gains [h : A1 _\/_ B1]: [|- A2 _\/_ B2] *)
+    intro h.
+    (* [h] gives two goals: one with [a1 : A1] and [not_b1 : ~ B1], one with
+       [not_a1 : ~ A1] and [b1 : B1]. *)
+    destruct h as [a1 not_b1 | not_a1 b1].
+    + (* [Sejunction_left] asks for [A2] then [~ B2], so the goal splits
+         into two goals: [|- A2] and [|- ~ B2]. *)
+      apply Sejunction_left.
+      * (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+        apply a12.
+        (* [a1] is a proof of the goal as it stands. *)
+        exact a1.
+      * (* [not_b1] goes from [~ B1] to [B1 -> Falsum]; the goal from
+           [~ B2] to [B2 -> Falsum]. *)
+        unfold Unjunction in not_b1 |- *.
+        (* The context gains [b2 : B2]: [|- Falsum] *)
+        intro b2.
+        (* [not_b1] turns a proof of [B1] into a proof of [Falsum]:
+           [|- B1] *)
+        apply not_b1.
+        (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+        apply b21.
+        (* [b2] is a proof of the goal as it stands. *)
+        exact b2.
+    + (* [Sejunction_right] asks for [~ A2] then [B2], so the goal splits
+         into two goals: [|- ~ A2] and [|- B2]. *)
+      apply Sejunction_right.
+      * (* [not_a1] goes from [~ A1] to [A1 -> Falsum]; the goal from
+           [~ A2] to [A2 -> Falsum]. *)
+        unfold Unjunction in not_a1 |- *.
+        (* The context gains [a2 : A2]: [|- Falsum] *)
+        intro a2.
+        (* [not_a1] turns a proof of [A1] into a proof of [Falsum]:
+           [|- A1] *)
+        apply not_a1.
+        (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+        apply a21.
+        (* [a2] is a proof of the goal as it stands. *)
+        exact a2.
+      * (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+        apply b12.
+        (* [b1] is a proof of the goal as it stands. *)
+        exact b1.
+  - (* The context gains [h : A2 _\/_ B2]: [|- A1 _\/_ B1] *)
+    intro h.
+    (* [h] gives two goals: one with [a2 : A2] and [not_b2 : ~ B2], one with
+       [not_a2 : ~ A2] and [b2 : B2]. *)
+    destruct h as [a2 not_b2 | not_a2 b2].
+    + (* [Sejunction_left] asks for [A1] then [~ B1], so the goal splits
+         into two goals: [|- A1] and [|- ~ B1]. *)
+      apply Sejunction_left.
+      * (* [a21] turns a proof of [A2] into a proof of [A1]: [|- A2] *)
+        apply a21.
+        (* [a2] is a proof of the goal as it stands. *)
+        exact a2.
+      * (* [not_b2] goes from [~ B2] to [B2 -> Falsum]; the goal from
+           [~ B1] to [B1 -> Falsum]. *)
+        unfold Unjunction in not_b2 |- *.
+        (* The context gains [b1 : B1]: [|- Falsum] *)
+        intro b1.
+        (* [not_b2] turns a proof of [B2] into a proof of [Falsum]:
+           [|- B2] *)
+        apply not_b2.
+        (* [b12] turns a proof of [B1] into a proof of [B2]: [|- B1] *)
+        apply b12.
+        (* [b1] is a proof of the goal as it stands. *)
+        exact b1.
+    + (* [Sejunction_right] asks for [~ A1] then [B1], so the goal splits
+         into two goals: [|- ~ A1] and [|- B1]. *)
+      apply Sejunction_right.
+      * (* [not_a2] goes from [~ A2] to [A2 -> Falsum]; the goal from
+           [~ A1] to [A1 -> Falsum]. *)
+        unfold Unjunction in not_a2 |- *.
+        (* The context gains [a1 : A1]: [|- Falsum] *)
+        intro a1.
+        (* [not_a2] turns a proof of [A2] into a proof of [Falsum]:
+           [|- A2] *)
+        apply not_a2.
+        (* [a12] turns a proof of [A1] into a proof of [A2]: [|- A1] *)
+        apply a12.
+        (* [a1] is a proof of the goal as it stands. *)
+        exact a1.
+      * (* [b21] turns a proof of [B2] into a proof of [B1]: [|- B2] *)
+        apply b21.
+        (* [b2] is a proof of the goal as it stands. *)
+        exact b2.
+Qed.
+
 (* What [_\/_] gives and what it excludes: it implies [\/], it refutes [/\],
    and it and [<->] refute each other. *)
 
