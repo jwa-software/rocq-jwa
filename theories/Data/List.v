@@ -1,10 +1,12 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] carries [->] and [=]; [Structures.Semigroup] and
-   [Structures.Monoid] are the classes the instance at the bottom fills. *)
+   [Structures.Monoid] are the classes the instance at the bottom fills;
+   [Data.NatWithZero] is what [length] counts in. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
+From jwa Require Import Data.NatWithZero.
 
 (* A list is empty, or one element in front of a list. [A] is a parameter:
    every element has the one type. *)
@@ -111,11 +113,82 @@ Proof.
     reflexivity.
 Qed.
 
+(* The empty list has length zero, which is why the count is a
+   [NatWithZero] and not a [Nat]. Each [Cons] adds one on the right:
+   [add] matches its first argument, so with the recursive call there
+   [simpl] leaves [add (length l') (Positive One)] folded instead of
+   opening a [match] on a term it cannot reduce. *)
+Fixpoint length {A : Type} (l : List A) : NatWithZero :=
+  match l with
+  | Nil       => Zero
+  | Cons _ l' => NatWithZero.add (length l') (Positive One)
+  end.
+
+Theorem length_additivity_over_append
+  : forall {A : Type} (l1 : List A) (l2 : List A),
+      length (append l1 l2) = NatWithZero.add (length l1) (length l2).
+Proof.
+  (* The context gains [A], [l1] and [l2]:
+     [|- length (append l1 l2) = NatWithZero.add (length l1) (length l2)] *)
+  intros A l1 l2.
+  (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the second
+     has [a], [l1'] and
+     [IH : length (append l1' l2) = NatWithZero.add (length l1') (length l2)]
+     in its context. *)
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [|- length (append Nil l2) = NatWithZero.add (length Nil) (length l2)] *)
+    (* [append Nil] and [length Nil] compute, and [add Zero] returns its
+       second argument: [|- length l2 = length l2] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- length (append (Cons a l1') l2)
+         = NatWithZero.add (length (Cons a l1')) (length l2)] *)
+    (* One step of [append] and one of [length] on each side; the [add]s
+       stay, since their first arguments are not ctors:
+       [|- NatWithZero.add (length (append l1' l2)) (Positive One)
+           = NatWithZero.add (NatWithZero.add (length l1') (Positive One))
+                             (length l2)] *)
+    simpl in |- *.
+    (* [IH] replaces the inner [length]:
+       [|- NatWithZero.add (NatWithZero.add (length l1') (length l2))
+                           (Positive One)
+           = NatWithZero.add (NatWithZero.add (length l1') (Positive One))
+                             (length l2)] *)
+    rewrite IH in |- *.
+    (* Associativity regroups the left side:
+       [|- NatWithZero.add (length l1')
+                           (NatWithZero.add (length l2) (Positive One))
+           = NatWithZero.add (NatWithZero.add (length l1') (Positive One))
+                             (length l2)] *)
+    rewrite NatWithZero.add_associativity in |- *.
+    (* And the right side:
+       [|- NatWithZero.add (length l1')
+                           (NatWithZero.add (length l2) (Positive One))
+           = NatWithZero.add (length l1')
+                             (NatWithZero.add (Positive One) (length l2))] *)
+    rewrite NatWithZero.add_associativity in |- *.
+    (* Commutativity of the inner sum on the left, with its arguments named
+       so that [rewrite] does not pick the outer sum:
+       [|- NatWithZero.add (length l1')
+                           (NatWithZero.add (Positive One) (length l2))
+           = NatWithZero.add (length l1')
+                             (NatWithZero.add (Positive One) (length l2))] *)
+    rewrite (NatWithZero.add_commutativity (length l2) (Positive One)) in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
    Declared at file level, it reaches a client through [Require Export]. *)
 Notation "l1 ++ l2" := (List.append l1 l2) : jwa_type_scope.
+
+(* [[]] lives in [jwa_list_scope], which [Core.Notations] declares without
+   opening: a client writes [[]%list] or opens the scope. The token is
+   [[]] as one piece; [[ ]] with a space is not it. *)
+Notation "[]" := Nil : jwa_list_scope.
 
 (* [append] with [Nil] is the monoid on lists. [A] is a parameter of the
    instance, so every element type gets one; [@] makes it explicit where
