@@ -24,8 +24,8 @@ Delimit Scope jwa_list_scope with list.
    them are declared here, while every meaning is supplied elsewhere: [=] in
    [Core.Equijunction]; [->], [-/>], [~], [/\], [_\/_], [\/], [<->] and
    [exists] in [Core.Logic]; [&&], [^^] and [||] in [Data.Bool]; [++],
-   [contains], [belongs_to] and their negations [does_not_contain],
-   [does_not_belong_to] in [Data.List]. *)
+   [contains_member], [belongs_to] and their negations
+   [does_not_contain_member], [does_not_belong_to] in [Data.List]. *)
 
 (* The ordering is the load-bearing part: 70 < 75 < 80 < 82 < 85 < 90 < 95
    < 99 is what reads [~ x = y /\ P -> Q] as [((~ (x = y)) /\ P) -> Q], and
@@ -38,10 +38,11 @@ Delimit Scope jwa_list_scope with list.
    40 < 45 < 50, so [a && b = c] is [(a && b) = c] and [a && b ^^ c || d] is
    [((a && b) ^^ c) || d]. [++] at 60 sits between them and [=], right
    associative, so [l1 ++ l2 ++ l3 = l] is [(l1 ++ (l2 ++ l3)) = l].
-   [contains] is a relation like [=], at 70 with no associativity, so
-   [l1 ++ l2 contains a] is [(l1 ++ l2) contains a] and
-   [~ l contains a \/ l contains b] is [(~ (l contains a)) \/ (l contains b)].
-   The quotes make [contains] a keyword rather than a variable;
+   [contains_member] is a relation like [=], at 70 with no associativity,
+   so [l1 ++ l2 contains_member a] is [(l1 ++ l2) contains_member a] and
+   [~ l contains_member a \/ l contains_member b] is
+   [(~ (l contains_member a)) \/ (l contains_member b)]. The quotes make
+   [contains_member] a keyword rather than a variable;
    [belongs_to] is the same relation read from the element's side, at the
    same level. *)
 Reserved Notation "x -> y"
@@ -68,11 +69,11 @@ Reserved Notation "x || y"
   (at level 50, left associativity).
 Reserved Notation "x ++ y"
   (at level 60, right associativity).
-Reserved Notation "l 'contains' a"
+Reserved Notation "l 'contains_member' a"
   (at level 70, no associativity).
 Reserved Notation "a 'belongs_to' l"
   (at level 70, no associativity).
-Reserved Notation "l 'does_not_contain' a"
+Reserved Notation "l 'does_not_contain_member' a"
   (at level 70, no associativity).
 Reserved Notation "a 'does_not_belong_to' l"
   (at level 70, no associativity).

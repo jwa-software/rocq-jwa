@@ -1121,20 +1121,20 @@ Notation "l1 ++ l2" := (List.append l1 l2) : jwa_list_scope.
 (* The token is [[]] as one piece; [[ ]] with a space is not it. *)
 Notation "[]" := Nil : jwa_list_scope.
 
-(* Membership reads as a sentence, [l contains a], with the list first; the
-   arguments of [Contains] are the other way round, element first, so that
-   [Contains a] is a predicate on lists. *)
-Notation "l 'contains' a" := (List.Contains a l)
+(* Membership reads as a sentence, [l contains_member a], with the list
+   first; the arguments of [Contains] are the other way round, element
+   first, so that [Contains a] is a predicate on lists. *)
+Notation "l 'contains_member' a" := (List.Contains a l)
   : jwa_list_scope.
 
 (* The same relation read from the element's side. [only parsing] keeps one
-   spelling for printing, so a goal always shows [l contains a]. *)
+   spelling for printing, so a goal always shows [l contains_member a]. *)
 Notation "a 'belongs_to' l" := (List.Contains a l) (only parsing)
   : jwa_list_scope.
 
 (* The negations, so that [~ Contains a l] reads and prints as a sentence
    too; the element-first form is again [only parsing]. *)
-Notation "l 'does_not_contain' a" := (~ (List.Contains a l))
+Notation "l 'does_not_contain_member' a" := (~ (List.Contains a l))
   : jwa_list_scope.
 Notation "a 'does_not_belong_to' l" := (~ (List.Contains a l)) (only parsing)
   : jwa_list_scope.
