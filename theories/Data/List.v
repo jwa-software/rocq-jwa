@@ -1,11 +1,13 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->] and [=]; [Structures.Semigroup] and
-   [Structures.Monoid] are the classes the instance at the bottom fills;
-   [Data.NatWithZero] is what [length] counts in. *)
+(* [Core.All] carries [->] and [=]; [Structures.Semigroup],
+   [Structures.Monoid] and [Structures.Functor] are the classes the
+   instances at the bottom fill; [Data.NatWithZero] is what [length] counts
+   in. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Functor.
 From jwa Require Import Data.NatWithZero.
 
 (* A list is empty, or one element in front of a list. [A] is a parameter:
@@ -179,6 +181,104 @@ Proof.
     reflexivity.
 Qed.
 
+(* [map] applies [f] to every element and keeps the shape. *)
+Fixpoint map {A : Type} {B : Type} (f : A -> B) (l : List A) : List B :=
+  match l with
+  | Nil       => Nil
+  | Cons a l' => Cons (f a) (map f l')
+  end.
+
+(* The two functor laws, stated for every [l] as in [Data.Option]: nothing
+   here assumes functional extensionality. *)
+
+Theorem map_identity
+  : forall (A : Type) (l : List A), map (fun a => a) l = l.
+Proof.
+  (* The context gains [A] and [l]: [|- map (fun a => a) l = l] *)
+  intros A l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH : map (fun a => a) l' = l'] in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* [|- map (fun a => a) Nil = Nil] *)
+    (* [map] on [Nil] computes: [|- Nil = Nil] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- map (fun a => a) (Cons a l') = Cons a l'] *)
+    (* One [map] step, and [(fun a => a) a] reduces to [a]:
+       [|- Cons a (map (fun a => a) l') = Cons a l'] *)
+    simpl in |- *.
+    (* [IH] replaces the inner [map]: [|- Cons a l' = Cons a l'] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem map_composition
+  : forall (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C)
+      (l : List A),
+    map g (map f l) = map (fun a => g (f a)) l.
+Proof.
+  (* The context gains [A], [B], [C], [f], [g] and [l]:
+     [|- map g (map f l) = map (fun a => g (f a)) l] *)
+  intros A B C f g l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH : map g (map f l') = map (fun a => g (f a)) l']
+     in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* [|- map g (map f Nil) = map (fun a => g (f a)) Nil] *)
+    (* Every [map] on [Nil] computes: [|- Nil = Nil] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- map g (map f (Cons a l')) = map (fun a => g (f a)) (Cons a l')] *)
+    (* Two [map] steps on the left, one on the right, and the composed
+       function applied to [a] reduces to [g (f a)]:
+       [|- Cons (g (f a)) (map g (map f l'))
+           = Cons (g (f a)) (map (fun a => g (f a)) l')] *)
+    simpl in |- *.
+    (* [IH] replaces the inner [map]s:
+       [|- Cons (g (f a)) (map (fun a => g (f a)) l')
+           = Cons (g (f a)) (map (fun a => g (f a)) l')] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+(* [map] distributes over [append]: mapping a concatenation is
+   concatenating the mapped halves. *)
+Theorem map_distributivity_over_append
+  : forall (A : Type) (B : Type) (f : A -> B) (l1 : List A) (l2 : List A),
+      map f (append l1 l2) = append (map f l1) (map f l2).
+Proof.
+  (* The context gains [A], [B], [f], [l1] and [l2]:
+     [|- map f (append l1 l2) = append (map f l1) (map f l2)] *)
+  intros A B f l1 l2.
+  (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the second
+     has [a], [l1'] and
+     [IH : map f (append l1' l2) = append (map f l1') (map f l2)] in its
+     context. *)
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [|- map f (append Nil l2) = append (map f Nil) (map f l2)] *)
+    (* [append Nil], [map f Nil] and then [append Nil] again compute:
+       [|- map f l2 = map f l2] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- map f (append (Cons a l1') l2)
+         = append (map f (Cons a l1')) (map f l2)] *)
+    (* One step of [append] and of [map] on each side:
+       [|- Cons (f a) (map f (append l1' l2))
+           = Cons (f a) (append (map f l1') (map f l2))] *)
+    simpl in |- *.
+    (* [IH] replaces the inner [map]:
+       [|- Cons (f a) (append (map f l1') (map f l2))
+           = Cons (f a) (append (map f l1') (map f l2))] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
@@ -200,3 +300,12 @@ Instance List_append_monoid
          {| Semigroup.associativity := @List.append_associativity A |}
      ; Monoid.identity_left  := @List.append_nil_left A
      ; Monoid.identity_right := @List.append_nil_right A |}.
+
+(* The two functor laws were already proved above, so the instance only
+   hands them over. [map]'s type arguments are maximally inserted, so the
+   bare name collapses to one fixed pair of them; binding [A] and [B] first
+   is what keeps it general enough for the field, as in [Data.Option]. *)
+Instance List_functor : Functor.T List :=
+  {| Functor.map             := fun (A : Type) (B : Type) => List.map
+   ; Functor.map_identity    := List.map_identity
+   ; Functor.map_composition := List.map_composition |}.
