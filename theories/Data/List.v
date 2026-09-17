@@ -1109,6 +1109,506 @@ Proof.
     exact (filter_specification_backward A p a l).
 Qed.
 
+(* [All P] holds when every element satisfies [P], [Any P] when some
+   element does. Both recurse into [Prop] as [Contains] does: [Nil] gives
+   the neutral proposition, [Cons] a conjunction or a disjunction. *)
+
+Fixpoint All {A : Type} (P : A -> Prop) (l : List A) : Prop :=
+  match l with
+  | Nil       => Verum
+  | Cons a l' => P a /\ All P l'
+  end.
+
+Fixpoint Any {A : Type} (P : A -> Prop) (l : List A) : Prop :=
+  match l with
+  | Nil       => Falsum
+  | Cons a l' => P a \/ Any P l'
+  end.
+
+(* [All] over a concatenation is [All] over each half. *)
+
+Lemma all_distributivity_over_append_forward
+  : forall (A : Type) (P : A -> Prop) (l1 : List A) (l2 : List A),
+      All P (append l1 l2) -> All P l1 /\ All P l2.
+Proof.
+  (* The context gains [A], [P], [l1] and [l2]:
+     [|- All P (append l1 l2) -> All P l1 /\ All P l2] *)
+  intros A P l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : All P (append l1' l2) -> All P l1' /\ All P l2] in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- All P (append Nil l2) -> All P Nil /\ All P l2] *)
+    (* [append Nil] and [All P Nil] compute:
+       [|- All P l2 -> Verum /\ All P l2] *)
+    simpl in |- *.
+    (* The context gains [h : All P l2]: [|- Verum /\ All P l2] *)
+    intro h.
+    (* The goal splits into two goals: [|- Verum] and [|- All P l2]. *)
+    split.
+    + (* [I] is the proof of [Verum]. *)
+      exact I.
+    + (* [h] is a proof of the goal as it stands. *)
+      exact h.
+  - (* [|- All P (append (Cons b l1') l2) -> All P (Cons b l1') /\ All P l2] *)
+    (* One [append] step and both [All] on a [Cons] compute:
+       [|- P b /\ All P (append l1' l2) -> (P b /\ All P l1') /\ All P l2] *)
+    simpl in |- *.
+    (* The context gains [h : P b /\ All P (append l1' l2)]:
+       [|- (P b /\ All P l1') /\ All P l2] *)
+    intro h.
+    (* [h] splits into [pb : P b] and [h' : All P (append l1' l2)]. *)
+    destruct h as [pb h'].
+    (* [IH] turns [h'] into [All P l1' /\ All P l2], which splits into
+       [h1 : All P l1'] and [h2 : All P l2]. *)
+    destruct (IH h') as [h1 h2].
+    (* The goal splits into two goals: [|- P b /\ All P l1'] and
+       [|- All P l2]. *)
+    split.
+    + (* The goal splits into two goals: [|- P b] and [|- All P l1']. *)
+      split.
+      * (* [pb] is a proof of the goal as it stands. *)
+        exact pb.
+      * (* [h1] is a proof of the goal as it stands. *)
+        exact h1.
+    + (* [h2] is a proof of the goal as it stands. *)
+      exact h2.
+Qed.
+
+Lemma all_distributivity_over_append_backward
+  : forall (A : Type) (P : A -> Prop) (l1 : List A) (l2 : List A),
+      All P l1 /\ All P l2 -> All P (append l1 l2).
+Proof.
+  (* The context gains [A], [P], [l1] and [l2]:
+     [|- All P l1 /\ All P l2 -> All P (append l1 l2)] *)
+  intros A P l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : All P l1' /\ All P l2 -> All P (append l1' l2)] in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- All P Nil /\ All P l2 -> All P (append Nil l2)] *)
+    (* [All P Nil] and [append Nil] compute:
+       [|- Verum /\ All P l2 -> All P l2] *)
+    simpl in |- *.
+    (* The context gains [h : Verum /\ All P l2]: [|- All P l2] *)
+    intro h.
+    (* Only the right half of [h] is needed: [h2 : All P l2]. *)
+    destruct h as [_ h2].
+    (* [h2] is a proof of the goal as it stands. *)
+    exact h2.
+  - (* [|- All P (Cons b l1') /\ All P l2 -> All P (append (Cons b l1') l2)] *)
+    (* Both [All] on a [Cons] and the [append] step compute:
+       [|- (P b /\ All P l1') /\ All P l2 -> P b /\ All P (append l1' l2)] *)
+    simpl in |- *.
+    (* The context gains [h : (P b /\ All P l1') /\ All P l2]:
+       [|- P b /\ All P (append l1' l2)] *)
+    intro h.
+    (* [h] splits into [h1 : P b /\ All P l1'] and [h2 : All P l2]. *)
+    destruct h as [h1 h2].
+    (* [h1] splits into [pb : P b] and [h1' : All P l1']. *)
+    destruct h1 as [pb h1'].
+    (* The goal splits into two goals: [|- P b] and
+       [|- All P (append l1' l2)]. *)
+    split.
+    + (* [pb] is a proof of the goal as it stands. *)
+      exact pb.
+    + (* [IH] turns a proof of [All P l1' /\ All P l2] into one of the goal:
+         [|- All P l1' /\ All P l2] *)
+      apply IH.
+      (* The goal splits into two goals: [|- All P l1'] and [|- All P l2]. *)
+      split.
+      * (* [h1'] is a proof of the goal as it stands. *)
+        exact h1'.
+      * (* [h2] is a proof of the goal as it stands. *)
+        exact h2.
+Qed.
+
+Theorem all_distributivity_over_append
+  : forall (A : Type) (P : A -> Prop) (l1 : List A) (l2 : List A),
+      All P (append l1 l2) <-> All P l1 /\ All P l2.
+Proof.
+  (* The context gains [A], [P], [l1] and [l2]:
+     [|- All P (append l1 l2) <-> All P l1 /\ All P l2] *)
+  intros A P l1 l2.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [all_distributivity_over_append_forward A P l1 l2] is a proof of the
+       goal as it stands. *)
+    exact (all_distributivity_over_append_forward A P l1 l2).
+  - (* [all_distributivity_over_append_backward A P l1 l2] is a proof of the
+       goal as it stands. *)
+    exact (all_distributivity_over_append_backward A P l1 l2).
+Qed.
+
+(* [Any] over a concatenation is [Any] over either half. *)
+
+Lemma any_distributivity_over_append_forward
+  : forall (A : Type) (P : A -> Prop) (l1 : List A) (l2 : List A),
+      Any P (append l1 l2) -> Any P l1 \/ Any P l2.
+Proof.
+  (* The context gains [A], [P], [l1] and [l2]:
+     [|- Any P (append l1 l2) -> Any P l1 \/ Any P l2] *)
+  intros A P l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : Any P (append l1' l2) -> Any P l1' \/ Any P l2] in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- Any P (append Nil l2) -> Any P Nil \/ Any P l2] *)
+    (* [append Nil] and [Any P Nil] compute:
+       [|- Any P l2 -> Falsum \/ Any P l2] *)
+    simpl in |- *.
+    (* The context gains [h : Any P l2]: [|- Falsum \/ Any P l2] *)
+    intro h.
+    (* [h] is the right side. *)
+    exact (Disjunction_right h).
+  - (* [|- Any P (append (Cons b l1') l2) -> Any P (Cons b l1') \/ Any P l2] *)
+    (* One [append] step and both [Any] on a [Cons] compute:
+       [|- P b \/ Any P (append l1' l2) -> (P b \/ Any P l1') \/ Any P l2] *)
+    simpl in |- *.
+    (* The context gains [h : P b \/ Any P (append l1' l2)]:
+       [|- (P b \/ Any P l1') \/ Any P l2] *)
+    intro h.
+    (* [h] gives two goals: one with [pb : P b], one with
+       [h' : Any P (append l1' l2)]. *)
+    destruct h as [pb | h'].
+    + (* [pb] is the left side of the left side. *)
+      exact (Disjunction_left (Disjunction_left pb)).
+    + (* [IH] turns [h'] into [Any P l1' \/ Any P l2], which gives two
+         goals: one with [h1 : Any P l1'], one with [h2 : Any P l2]. *)
+      destruct (IH h') as [h1 | h2].
+      * (* [h1] is the right side of the left side. *)
+        exact (Disjunction_left (Disjunction_right h1)).
+      * (* [h2] is the right side. *)
+        exact (Disjunction_right h2).
+Qed.
+
+Lemma any_distributivity_over_append_backward
+  : forall (A : Type) (P : A -> Prop) (l1 : List A) (l2 : List A),
+      Any P l1 \/ Any P l2 -> Any P (append l1 l2).
+Proof.
+  (* The context gains [A], [P], [l1] and [l2]:
+     [|- Any P l1 \/ Any P l2 -> Any P (append l1 l2)] *)
+  intros A P l1 l2.
+  (* [l1] is either [Nil] or [Cons b l1']: one goal per ctor, and the second
+     has [b], [l1'] and
+     [IH : Any P l1' \/ Any P l2 -> Any P (append l1' l2)] in its context. *)
+  induction l1 as [| b l1' IH] using List_induction.
+  - (* [|- Any P Nil \/ Any P l2 -> Any P (append Nil l2)] *)
+    (* [Any P Nil] and [append Nil] compute:
+       [|- Falsum \/ Any P l2 -> Any P l2] *)
+    simpl in |- *.
+    (* The context gains [h : Falsum \/ Any P l2]: [|- Any P l2] *)
+    intro h.
+    (* [h] gives two goals: one with [f : Falsum], one with
+       [h2 : Any P l2]. *)
+    destruct h as [f | h2].
+    + (* [f : Falsum], which is what [contradiction] looks for. *)
+      contradiction.
+    + (* [h2] is a proof of the goal as it stands. *)
+      exact h2.
+  - (* [|- Any P (Cons b l1') \/ Any P l2 -> Any P (append (Cons b l1') l2)] *)
+    (* Both [Any] on a [Cons] and the [append] step compute:
+       [|- (P b \/ Any P l1') \/ Any P l2 -> P b \/ Any P (append l1' l2)] *)
+    simpl in |- *.
+    (* The context gains [h : (P b \/ Any P l1') \/ Any P l2]:
+       [|- P b \/ Any P (append l1' l2)] *)
+    intro h.
+    (* [h] gives two goals: one with [h1 : P b \/ Any P l1'], one with
+       [h2 : Any P l2]. *)
+    destruct h as [h1 | h2].
+    + (* [h1] gives two goals: one with [pb : P b], one with
+         [h1' : Any P l1']. *)
+      destruct h1 as [pb | h1'].
+      * (* [pb] is the left side. *)
+        exact (Disjunction_left pb).
+      * (* [Disjunction_right] turns the goal into its right side:
+           [|- Any P (append l1' l2)] *)
+        apply Disjunction_right.
+        (* [IH] turns a proof of [Any P l1' \/ Any P l2] into one of the
+           goal: [|- Any P l1' \/ Any P l2] *)
+        apply IH.
+        (* [h1'] is the left side. *)
+        exact (Disjunction_left h1').
+    + (* [Disjunction_right] turns the goal into its right side:
+         [|- Any P (append l1' l2)] *)
+      apply Disjunction_right.
+      (* [IH] turns a proof of [Any P l1' \/ Any P l2] into one of the goal:
+         [|- Any P l1' \/ Any P l2] *)
+      apply IH.
+      (* [h2] is the right side. *)
+      exact (Disjunction_right h2).
+Qed.
+
+Theorem any_distributivity_over_append
+  : forall (A : Type) (P : A -> Prop) (l1 : List A) (l2 : List A),
+      Any P (append l1 l2) <-> Any P l1 \/ Any P l2.
+Proof.
+  (* The context gains [A], [P], [l1] and [l2]:
+     [|- Any P (append l1 l2) <-> Any P l1 \/ Any P l2] *)
+  intros A P l1 l2.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [any_distributivity_over_append_forward A P l1 l2] is a proof of the
+       goal as it stands. *)
+    exact (any_distributivity_over_append_forward A P l1 l2).
+  - (* [any_distributivity_over_append_backward A P l1 l2] is a proof of the
+       goal as it stands. *)
+    exact (any_distributivity_over_append_backward A P l1 l2).
+Qed.
+
+(* The specifications of [All] and [Any] through membership: [All P l] says
+   [P] of every member, [Any P l] that some member satisfies [P]. The
+   second is the first use of [exists] in the library. *)
+
+Lemma all_specification_forward
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      All P l -> forall (a : A), Contains a l -> P a.
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- All P l -> forall (a : A), Contains a l -> P a] *)
+  intros A P l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and
+     [IH : All P l' -> forall (a : A), Contains a l' -> P a] in its
+     context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- All P Nil -> forall (a : A), Contains a Nil -> P a] *)
+    (* [All P Nil] and [Contains a Nil] compute:
+       [|- Verum -> forall (a : A), Falsum -> P a] *)
+    simpl in |- *.
+    (* The context gains [v : Verum], [a] and [f : Falsum]: [|- P a] *)
+    intros v a f.
+    (* [f : Falsum], which is what [contradiction] looks for. *)
+    contradiction.
+  - (* [|- All P (Cons b l')
+         -> forall (a : A), Contains a (Cons b l') -> P a] *)
+    (* Both [All] and [Contains] on a [Cons] compute:
+       [|- P b /\ All P l' -> forall (a : A), a = b \/ Contains a l' -> P a] *)
+    simpl in |- *.
+    (* The context gains [h : P b /\ All P l']:
+       [|- forall (a : A), a = b \/ Contains a l' -> P a] *)
+    intro h.
+    (* [h] splits into [pb : P b] and [h' : All P l']. *)
+    destruct h as [pb h'].
+    (* The context gains [a] and [ha : a = b \/ Contains a l']: [|- P a] *)
+    intros a ha.
+    (* [ha] gives two goals: one with [e : a = b], one with
+       [ha' : Contains a l']. *)
+    destruct ha as [e | ha'].
+    + (* [e] replaces [a] by [b]: [|- P b] *)
+      rewrite e in |- *.
+      (* [pb] is a proof of the goal as it stands. *)
+      exact pb.
+    + (* [IH h'] turns membership in [l'] into [P]: [|- Contains a l'] *)
+      apply (IH h').
+      (* [ha'] is a proof of the goal as it stands. *)
+      exact ha'.
+Qed.
+
+Lemma all_specification_backward
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      (forall (a : A), Contains a l -> P a) -> All P l.
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- (forall (a : A), Contains a l -> P a) -> All P l] *)
+  intros A P l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and
+     [IH : (forall (a : A), Contains a l' -> P a) -> All P l'] in its
+     context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- (forall (a : A), Contains a Nil -> P a) -> All P Nil] *)
+    (* [Contains a Nil] and [All P Nil] compute:
+       [|- (forall (a : A), Falsum -> P a) -> Verum] *)
+    simpl in |- *.
+    (* The context gains [h], which is never used: [|- Verum] *)
+    intro h.
+    (* [I] is the proof of [Verum]. *)
+    exact I.
+  - (* [|- (forall (a : A), Contains a (Cons b l') -> P a)
+         -> All P (Cons b l')] *)
+    (* Both [Contains] and [All] on a [Cons] compute:
+       [|- (forall (a : A), a = b \/ Contains a l' -> P a)
+           -> P b /\ All P l'] *)
+    simpl in |- *.
+    (* The context gains [h : forall (a : A), a = b \/ Contains a l' -> P a]:
+       [|- P b /\ All P l'] *)
+    intro h.
+    (* The goal splits into two goals: [|- P b] and [|- All P l']. *)
+    split.
+    + (* [h b] turns a proof of [b = b \/ Contains b l'] into one of [P b]:
+         [|- b = b \/ Contains b l'] *)
+      apply (h b).
+      (* [b = b] is the left side, proved by reflexivity of [=]. *)
+      exact (Disjunction_left (Equijunction_reflexivity b)).
+    + (* [IH] turns a proof of the membership hypothesis for [l'] into one
+         of the goal: [|- forall (a : A), Contains a l' -> P a] *)
+      apply IH.
+      (* The context gains [a] and [ha : Contains a l']: [|- P a] *)
+      intros a ha.
+      (* [h a] turns a proof of [a = b \/ Contains a l'] into one of [P a]:
+         [|- a = b \/ Contains a l'] *)
+      apply (h a).
+      (* [ha] is the right side. *)
+      exact (Disjunction_right ha).
+Qed.
+
+Theorem all_specification
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      All P l <-> (forall (a : A), Contains a l -> P a).
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- All P l <-> (forall (a : A), Contains a l -> P a)] *)
+  intros A P l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [all_specification_forward A P l] is a proof of the goal as it
+       stands. *)
+    exact (all_specification_forward A P l).
+  - (* [all_specification_backward A P l] is a proof of the goal as it
+       stands. *)
+    exact (all_specification_backward A P l).
+Qed.
+
+Lemma any_specification_forward
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      Any P l -> exists (a : A), Contains a l /\ P a.
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- Any P l -> exists (a : A), Contains a l /\ P a] *)
+  intros A P l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and
+     [IH : Any P l' -> exists (a : A), Contains a l' /\ P a] in its
+     context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- Any P Nil -> exists (a : A), Contains a Nil /\ P a] *)
+    (* [Any P Nil] computes: [|- Falsum -> exists (a : A), ...] *)
+    simpl in |- *.
+    (* The context gains [f : Falsum]: the goal is the [exists]. *)
+    intro f.
+    (* [f : Falsum], which is what [contradiction] looks for. *)
+    contradiction.
+  - (* [|- Any P (Cons b l')
+         -> exists (a : A), Contains a (Cons b l') /\ P a] *)
+    (* Both [Any] and [Contains] on a [Cons] compute:
+       [|- P b \/ Any P l'
+           -> exists (a : A), (a = b \/ Contains a l') /\ P a] *)
+    simpl in |- *.
+    (* The context gains [h : P b \/ Any P l']: the goal is the [exists]. *)
+    intro h.
+    (* [h] gives two goals: one with [pb : P b], one with
+       [h' : Any P l']. *)
+    destruct h as [pb | h'].
+    + (* [b] is the witness: [Exists_introduction b] asks for
+         [(b = b \/ Contains b l') /\ P b]. *)
+      apply (Exists_introduction b).
+      (* The goal splits into two goals: [|- b = b \/ Contains b l'] and
+         [|- P b]. *)
+      split.
+      * (* [b = b] is the left side, proved by reflexivity of [=]. *)
+        exact (Disjunction_left (Equijunction_reflexivity b)).
+      * (* [pb] is a proof of the goal as it stands. *)
+        exact pb.
+    + (* [IH] turns [h'] into an [exists], which [destruct] opens into a
+         witness [a] and [ha : Contains a l' /\ P a]. *)
+      destruct (IH h') as [a ha].
+      (* [ha] splits into [ha' : Contains a l'] and [pa : P a]. *)
+      destruct ha as [ha' pa].
+      (* [a] is the witness: [Exists_introduction a] asks for
+         [(a = b \/ Contains a l') /\ P a]. *)
+      apply (Exists_introduction a).
+      (* The goal splits into two goals: [|- a = b \/ Contains a l'] and
+         [|- P a]. *)
+      split.
+      * (* [ha'] is the right side. *)
+        exact (Disjunction_right ha').
+      * (* [pa] is a proof of the goal as it stands. *)
+        exact pa.
+Qed.
+
+Lemma any_specification_backward
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      (exists (a : A), Contains a l /\ P a) -> Any P l.
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- (exists (a : A), Contains a l /\ P a) -> Any P l] *)
+  intros A P l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and
+     [IH : (exists (a : A), Contains a l' /\ P a) -> Any P l'] in its
+     context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [|- (exists (a : A), Contains a Nil /\ P a) -> Any P Nil] *)
+    (* [Contains a Nil] and [Any P Nil] compute:
+       [|- (exists (a : A), Falsum /\ P a) -> Falsum] *)
+    simpl in |- *.
+    (* The context gains [h], the [exists]: [|- Falsum] *)
+    intro h.
+    (* [h] opens into a witness [a] and [ha : Falsum /\ P a]. *)
+    destruct h as [a ha].
+    (* Only the left half of [ha] is needed: [f : Falsum]. *)
+    destruct ha as [f _].
+    (* [f : Falsum], which is what [contradiction] looks for. *)
+    contradiction.
+  - (* [|- (exists (a : A), Contains a (Cons b l') /\ P a)
+         -> Any P (Cons b l')] *)
+    (* Both [Contains] and [Any] on a [Cons] compute:
+       [|- (exists (a : A), (a = b \/ Contains a l') /\ P a)
+           -> P b \/ Any P l'] *)
+    simpl in |- *.
+    (* The context gains [h], the [exists]: [|- P b \/ Any P l'] *)
+    intro h.
+    (* [h] opens into a witness [a] and
+       [ha : (a = b \/ Contains a l') /\ P a]. *)
+    destruct h as [a ha].
+    (* [ha] splits into [ha' : a = b \/ Contains a l'] and [pa : P a]. *)
+    destruct ha as [ha' pa].
+    (* [ha'] gives two goals: one with [e : a = b], one with
+       [ha'' : Contains a l']. *)
+    destruct ha' as [e | ha''].
+    + (* [e] replaces [a] by [b] in [pa]: [pa : P b]. *)
+      rewrite e in pa.
+      (* [pa] is the left side. *)
+      exact (Disjunction_left pa).
+    + (* [Disjunction_right] turns the goal into its right side:
+         [|- Any P l'] *)
+      apply Disjunction_right.
+      (* [IH] turns a proof of the [exists] for [l'] into one of the goal:
+         [|- exists (a : A), Contains a l' /\ P a] *)
+      apply IH.
+      (* [a] is the witness: [Exists_introduction a] asks for
+         [Contains a l' /\ P a]. *)
+      apply (Exists_introduction a).
+      (* The goal splits into two goals: [|- Contains a l'] and [|- P a]. *)
+      split.
+      * (* [ha''] is a proof of the goal as it stands. *)
+        exact ha''.
+      * (* [pa] is a proof of the goal as it stands. *)
+        exact pa.
+Qed.
+
+Theorem any_specification
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      Any P l <-> (exists (a : A), Contains a l /\ P a).
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- Any P l <-> (exists (a : A), Contains a l /\ P a)] *)
+  intros A P l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - (* [any_specification_forward A P l] is a proof of the goal as it
+       stands. *)
+    exact (any_specification_forward A P l).
+  - (* [any_specification_backward A P l] is a proof of the goal as it
+       stands. *)
+    exact (any_specification_backward A P l).
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
