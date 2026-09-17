@@ -279,6 +279,88 @@ Proof.
     reflexivity.
 Qed.
 
+(* [reverse] moves each element to the end of the reversed rest. Quadratic,
+   and the simplest shape for the proofs below; an accumulator version can
+   come with a proof that it agrees. *)
+Fixpoint reverse {A : Type} (l : List A) : List A :=
+  match l with
+  | Nil       => Nil
+  | Cons a l' => append (reverse l') (Cons a Nil)
+  end.
+
+(* [reverse] turns a concatenation around: the reversed halves come back in
+   the opposite order. *)
+Theorem reverse_antidistributivity_over_append
+  : forall (A : Type) (l1 : List A) (l2 : List A),
+      reverse (append l1 l2) = append (reverse l2) (reverse l1).
+Proof.
+  (* The context gains [A], [l1] and [l2]:
+     [|- reverse (append l1 l2) = append (reverse l2) (reverse l1)] *)
+  intros A l1 l2.
+  (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the second
+     has [a], [l1'] and
+     [IH : reverse (append l1' l2) = append (reverse l2) (reverse l1')] in
+     its context. *)
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [|- reverse (append Nil l2) = append (reverse l2) (reverse Nil)] *)
+    (* [append Nil] and [reverse Nil] compute; [append (reverse l2) Nil]
+       does not, since its first argument is not a ctor:
+       [|- reverse l2 = append (reverse l2) Nil] *)
+    simpl in |- *.
+    (* [append_nil_right] removes the trailing [Nil]:
+       [|- reverse l2 = reverse l2] *)
+    rewrite append_nil_right in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- reverse (append (Cons a l1') l2)
+         = append (reverse l2) (reverse (Cons a l1'))] *)
+    (* One [append] step and one [reverse] step on the left, one [reverse]
+       step on the right:
+       [|- append (reverse (append l1' l2)) (Cons a Nil)
+           = append (reverse l2) (append (reverse l1') (Cons a Nil))] *)
+    simpl in |- *.
+    (* [IH] replaces the inner [reverse]:
+       [|- append (append (reverse l2) (reverse l1')) (Cons a Nil)
+           = append (reverse l2) (append (reverse l1') (Cons a Nil))] *)
+    rewrite IH in |- *.
+    (* Associativity regroups the left side:
+       [|- append (reverse l2) (append (reverse l1') (Cons a Nil))
+           = append (reverse l2) (append (reverse l1') (Cons a Nil))] *)
+    rewrite append_associativity in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem reverse_involution
+  : forall (A : Type) (l : List A), reverse (reverse l) = l.
+Proof.
+  (* The context gains [A] and [l]: [|- reverse (reverse l) = l] *)
+  intros A l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH : reverse (reverse l') = l'] in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* [|- reverse (reverse Nil) = Nil] *)
+    (* Both [reverse]s compute: [|- Nil = Nil] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* [|- reverse (reverse (Cons a l')) = Cons a l'] *)
+    (* The inner [reverse] steps once; the outer one is stuck on the
+       [append] that results:
+       [|- reverse (append (reverse l') (Cons a Nil)) = Cons a l'] *)
+    simpl in |- *.
+    (* [reverse_antidistributivity_over_append] turns the [append] around:
+       [|- append (reverse (Cons a Nil)) (reverse (reverse l')) = Cons a l'] *)
+    rewrite reverse_antidistributivity_over_append in |- *.
+    (* [reverse (Cons a Nil)] computes to [Cons a Nil], and [append] of a
+       one-element list steps: [|- Cons a (reverse (reverse l')) = Cons a l'] *)
+    simpl in |- *.
+    (* [IH] replaces the double [reverse]: [|- Cons a l' = Cons a l'] *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
