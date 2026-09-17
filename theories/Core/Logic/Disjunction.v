@@ -264,3 +264,29 @@ Proof.
        proof of the goal as it stands. *)
     exact (Disjunction_distributivity_over_Conjunction_backward A B C).
 Qed.
+
+
+Lemma Disjunction_elimination_forward
+  : forall (A : Prop) (B : Prop) (C : Prop),
+      (A \/ B -> C) -> (A -> C) /\ (B -> C).
+Proof.
+  (* The context gains [A], [B] and [C]:
+     [|- (A \/ B -> C) -> (A -> C) /\ (B -> C)] *)
+  intros A B C.
+  (* The context gains [f : A \/ B -> C]: [|- (A -> C) /\ (B -> C)] *)
+  intro f.
+  (* The goal splits into two goals: [|- A -> C] and [|- B -> C]. *)
+  split.
+  - (* The context gains [a : A]: [|- C] *)
+    intro a.
+    (* [f] turns a proof of [A \/ B] into a proof of [C]: [|- A \/ B] *)
+    apply f.
+    (* [a] is the left side of [A \/ B]. *)
+    exact (Disjunction_left a).
+  - (* The context gains [b : B]: [|- C] *)
+    intro b.
+    (* [f] turns a proof of [A \/ B] into a proof of [C]: [|- A \/ B] *)
+    apply f.
+    (* [b] is the right side of [A \/ B]. *)
+    exact (Disjunction_right b).
+Qed.
