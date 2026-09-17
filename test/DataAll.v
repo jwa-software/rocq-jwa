@@ -27,6 +27,9 @@ Definition data_all_delivers_first
 Definition data_all_delivers_projections : Bool * Bool
   := (pi_2 (true , false) , pi_1 (true , false))%pair.
 
+Definition data_all_delivers_pair_functor : Bool * Bool
+  := Functor.map (fun (b : Bool) => b) (Pair_introduction true false).
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
