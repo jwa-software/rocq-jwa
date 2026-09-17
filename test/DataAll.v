@@ -46,6 +46,9 @@ Definition data_all_delivers_copair
   := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
        Equijunction_reflexivity (g b).
 
+Definition data_all_delivers_sum_functor : Bool + Bool
+  := Functor.map (fun (b : Bool) => b) (Sum_right true).
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
