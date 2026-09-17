@@ -1,11 +1,13 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] carries [->], [~] and [=]: with [-noinit] a file has only what
-   it requires. [Structures.Semigroup] and [Structures.Monoid] are the classes
-   the instances at the bottom fill. *)
+   it requires. [Structures.Semigroup], [Structures.Monoid] and
+   [Structures.Commutative] are the classes the instances at the bottom
+   fill. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Commutative.
 
 (* [true] first: [if] takes the first constructor as its [then] branch. *)
 Inductive Bool : Type :=
@@ -385,3 +387,12 @@ Instance Bool_xor_monoid : Monoid.T Bool Bool.xor false :=
        {| Semigroup.associativity := Bool.xor_associativity |}
    ; Monoid.identity_left  := Bool.xor_false_left
    ; Monoid.identity_right := Bool.xor_false_right |}.
+
+Instance Bool_and_commutative : Commutative.T Bool Bool.and :=
+  {| Commutative.commutativity := Bool.and_commutativity |}.
+
+Instance Bool_or_commutative : Commutative.T Bool Bool.or :=
+  {| Commutative.commutativity := Bool.or_commutativity |}.
+
+Instance Bool_xor_commutative : Commutative.T Bool Bool.xor :=
+  {| Commutative.commutativity := Bool.xor_commutativity |}.
