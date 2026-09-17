@@ -255,6 +255,42 @@ Proof.
   exact (add_cancellation_right m k n e).
 Qed.
 
+Lemma add_left_commutativity
+  : forall (l : Nat) (m : Nat) (n : Nat), add l (add m n) = add m (add l n).
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- add l (add m n) = add m (add l n)] *)
+  intros l m n.
+  (* Commutativity turns the left side round:
+     [|- add (add m n) l = add m (add l n)] *)
+  rewrite (add_commutativity l (add m n)) in |- *.
+  (* Associativity opens it: [|- add m (add n l) = add m (add l n)] *)
+  rewrite (add_associativity m n l) in |- *.
+  (* Commutativity swaps the inner pair:
+     [|- add m (add l n) = add m (add l n)] *)
+  rewrite (add_commutativity n l) in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Lemma add_right_commutativity
+  : forall (l : Nat) (m : Nat) (n : Nat), add (add l m) n = add (add l n) m.
+Proof.
+  (* The context gains [l], [m] and [n]:
+     [|- add (add l m) n = add (add l n) m] *)
+  intros l m n.
+  (* Associativity opens the left side:
+     [|- add l (add m n) = add (add l n) m] *)
+  rewrite (add_associativity l m n) in |- *.
+  (* Associativity opens the right side:
+     [|- add l (add m n) = add l (add n m)] *)
+  rewrite (add_associativity l n m) in |- *.
+  (* Commutativity swaps the inner pair on the left:
+     [|- add l (add n m) = add l (add n m)] *)
+  rewrite (add_commutativity m n) in |- *.
+  (* Both sides are the same term. *)
+  reflexivity.
+Qed.
 End Nat.
 
 (* A semigroup and no more: a monoid needs an identity, and [Nat] has no
