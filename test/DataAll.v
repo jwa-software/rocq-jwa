@@ -49,6 +49,11 @@ Definition data_all_delivers_copair
 Definition data_all_delivers_sum_functor : Bool + Bool
   := Functor.map (fun (b : Bool) => b) (Sum_right true).
 
+Definition data_all_delivers_unit : forall (u : Unit), u = Unit_introduction
+  := Unit.introduction_surjectivity.
+
+Definition data_all_delivers_empty : Empty -> Bool := Empty.elimination Bool.
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
