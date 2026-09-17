@@ -16,6 +16,44 @@ Definition data_all_delivers_none
   := fun (A : Type) =>
       Equijunction_reflexivity None.
 
+(* [*] is a notation in [jwa_type_scope]; [( , )], [pi_1] and [pi_2] are in
+   [jwa_pair_scope], reached here through its delimiter. *)
+Definition data_all_delivers_pair : Bool * Bool := (true , false)%pair.
+
+Definition data_all_delivers_first
+  : forall (A : Type) (a : A) (b : A), Pair.first (Pair_introduction a b) = a
+  := fun (A : Type) (a : A) (b : A) => Equijunction_reflexivity a.
+
+Definition data_all_delivers_projections : Bool * Bool
+  := (pi_2 (true , false) , pi_1 (true , false))%pair.
+
+Definition data_all_delivers_pair_functor : Bool * Bool
+  := Functor.map (fun (b : Bool) => b) (Pair_introduction true false).
+
+(* The product monoid is found from the two [Bool] monoids by resolution. *)
+Definition data_all_delivers_pair_monoid
+  : forall (p : Bool * Bool),
+      Pair.product_operation Bool.and Bool.or (Pair_introduction true false) p
+      = p
+  := Monoid.identity_left.
+
+(* [+] is a notation in [jwa_type_scope]. *)
+Definition data_all_delivers_sum : Bool + Bool := Sum_left true.
+
+Definition data_all_delivers_copair
+  : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B),
+      Sum.copair f g (Sum_right b) = g b
+  := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
+       Equijunction_reflexivity (g b).
+
+Definition data_all_delivers_sum_functor : Bool + Bool
+  := Functor.map (fun (b : Bool) => b) (Sum_right true).
+
+Definition data_all_delivers_unit : forall (u : Unit), u = Unit_introduction
+  := Unit.introduction_surjectivity.
+
+Definition data_all_delivers_empty : Empty -> Bool := Empty.elimination Bool.
+
 Definition data_all_delivers_nat : Nat := Successor One.
 
 Definition data_all_delivers_zero : NatWithZero := Zero.
@@ -36,6 +74,16 @@ Definition data_all_delivers_instances
 Definition data_all_delivers_monoid
   : forall (w : NatWithZero), NatWithZero.add Zero w = w
   := Monoid.identity_left.
+
+(* The cancellative instances are found by resolution, one per type. *)
+Definition data_all_delivers_cancellative
+  : forall (n : Nat) (m : Nat) (k : Nat), Nat.add n m = Nat.add n k -> m = k
+  := Cancellative.cancellation_left.
+
+Definition data_all_delivers_cancellative_with_zero
+  : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero),
+      NatWithZero.add m n = NatWithZero.add k n -> m = k
+  := Cancellative.cancellation_right.
 
 Definition data_all_delivers_functor : Option Bool
   := Functor.map (fun (b : Bool) => b) (Some true).
