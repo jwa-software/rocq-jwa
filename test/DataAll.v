@@ -64,8 +64,11 @@ Definition data_all_delivers_list_monoid
   : forall (A : Type) (l : List A), (Nil ++ l)%list = l
   := fun (A : Type) => Monoid.identity_left.
 
-(* [[]] is in [jwa_list_scope], reached here through its delimiter. *)
+(* [[]] and [::] are in [jwa_list_scope], reached here through its
+   delimiter. *)
 Definition data_all_delivers_empty_list : List Bool := []%list.
+
+Definition data_all_delivers_cons : List Bool := (true :: false :: [])%list.
 
 Definition data_all_delivers_list_functor : List Bool
   := Functor.map (fun (b : Bool) => b) (Cons true Nil).

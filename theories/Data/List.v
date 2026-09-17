@@ -2042,6 +2042,10 @@ Notation "l1 ++ l2" := (List.append l1 l2) : jwa_list_scope.
 (* The token is [[]] as one piece; [[ ]] with a space is not it. *)
 Notation "[]" := Nil : jwa_list_scope.
 
+(* [a :: l] puts one element in front; with [[]] it spells a list out:
+   [a :: b :: []]. *)
+Notation "a :: l" := (Cons a l) : jwa_list_scope.
+
 (* Membership reads as a sentence, [l contains_member a], with the list
    first; the arguments of [Contains] are the other way round, element
    first, so that [Contains a] is a predicate on lists. *)
