@@ -5,14 +5,14 @@
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 
-(* [->] is the logic's conditional: the kernel's non-dependent [forall],
-   which this line only gives a spelling. *)
+(* Subjunction is the conditional, [if A then B]. [->] is the kernel's
+   non-dependent [forall], which this line only gives a spelling. *)
 Notation "A -> B" := (forall (_ : A), B) : jwa_type_scope.
 
 (* The two basic facts of the conditional are the identity function and
    function composition, stated as theorems. *)
 
-Theorem Conditional_reflexivity : forall (A : Prop), A -> A.
+Theorem Subjunction_reflexivity : forall (A : Prop), A -> A.
 Proof.
   (* The context gains [A : Prop]; the goal is now [A -> A]. *)
   intro A.
@@ -22,7 +22,7 @@ Proof.
   exact a.
 Qed.
 
-Theorem Conditional_transitivity
+Theorem Subjunction_transitivity
   : forall (A : Prop) (B : Prop) (C : Prop), (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   (* The context gains [A], [B] and [C]; the goal is now
