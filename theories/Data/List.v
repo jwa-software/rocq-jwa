@@ -1609,6 +1609,81 @@ Proof.
     exact (any_specification_backward A P l).
 Qed.
 
+(* [Contains], [All] and [Any] are catamorphisms into [Prop]: [Cons]
+   becomes a connective and [Nil] its neutral proposition. *)
+
+Theorem contains_catamorphism
+  : forall (A : Type) (a : A) (l : List A),
+      Contains a l
+      = fold_right (fun (b : A) (rest : Prop) => a = b \/ rest) Falsum l.
+Proof.
+  (* The context gains [A], [a] and [l]:
+     [|- Contains a l = fold_right (fun b rest => a = b \/ rest) Falsum l] *)
+  intros A a l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and [IH], the statement for [l'], in its context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* Both sides compute to [Falsum]: [|- Falsum = Falsum] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each side, and the function applied to [b] reduces:
+       [|- a = b \/ Contains a l'
+           = a = b \/ fold_right (fun b rest => a = b \/ rest) Falsum l'] *)
+    simpl in |- *.
+    (* [IH] replaces [Contains a l']; both sides are then the same term. *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem all_catamorphism
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      All P l = fold_right (fun (a : A) (rest : Prop) => P a /\ rest) Verum l.
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- All P l = fold_right (fun a rest => P a /\ rest) Verum l] *)
+  intros A P l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH], the statement for [l'], in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* Both sides compute to [Verum]: [|- Verum = Verum] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each side, and the function applied to [a] reduces:
+       [|- P a /\ All P l'
+           = P a /\ fold_right (fun a rest => P a /\ rest) Verum l'] *)
+    simpl in |- *.
+    (* [IH] replaces [All P l']; both sides are then the same term. *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
+
+Theorem any_catamorphism
+  : forall (A : Type) (P : A -> Prop) (l : List A),
+      Any P l = fold_right (fun (a : A) (rest : Prop) => P a \/ rest) Falsum l.
+Proof.
+  (* The context gains [A], [P] and [l]:
+     [|- Any P l = fold_right (fun a rest => P a \/ rest) Falsum l] *)
+  intros A P l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH], the statement for [l'], in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* Both sides compute to [Falsum]: [|- Falsum = Falsum] *)
+    simpl in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+  - (* One step on each side, and the function applied to [a] reduces:
+       [|- P a \/ Any P l'
+           = P a \/ fold_right (fun a rest => P a \/ rest) Falsum l'] *)
+    simpl in |- *.
+    (* [IH] replaces [Any P l']; both sides are then the same term. *)
+    rewrite IH in |- *.
+    (* Both sides are the same term. *)
+    reflexivity.
+Qed.
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
