@@ -56,12 +56,14 @@ Proof.
      [|- a1 = a2 /\ b1 = b2] *)
   intros A B a1 b1 a2 b2 e.
   (* The context gains
-     [ea : first (Pair_introduction a1 b1) = first (Pair_introduction a2 b2)]. *)
+     [ea : first (Pair_introduction a1 b1)
+         = first (Pair_introduction a2 b2)]. *)
   pose proof (Equijunction_congruence first e) as ea.
   (* Both [first]s compute: [ea : a1 = a2] *)
   simpl in ea.
   (* The context gains
-     [eb : second (Pair_introduction a1 b1) = second (Pair_introduction a2 b2)]. *)
+     [eb : second (Pair_introduction a1 b1)
+         = second (Pair_introduction a2 b2)]. *)
   pose proof (Equijunction_congruence second e) as eb.
   (* Both [second]s compute: [eb : b1 = b2] *)
   simpl in eb.
@@ -81,8 +83,7 @@ Proof.
   intros A B p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
      [|- Pair_introduction a b
-         = Pair_introduction (first (Pair_introduction a b))
-                             (second (Pair_introduction a b))] *)
+      = Pair_introduction (first (Pair_introduction a b)) (second (Pair_introduction a b))] *)
   destruct p as [a b].
   (* Both projections compute:
      [|- Pair_introduction a b = Pair_introduction a b] *)
@@ -112,14 +113,16 @@ Proof.
   reflexivity.
 Qed.
 
-(* [forall {A : Type} {B : Type} {C : Type}, (A -> C) -> Pair A B -> Pair C B] *)
+(* [forall {A : Type} {B : Type} {C : Type},
+     (A -> C) -> Pair A B -> Pair C B] *)
 Definition map_first := fun {A : Type} {B : Type} {C : Type}
                             (f : A -> C) (p : Pair A B) =>
   match p return Pair C B with
   | Pair_introduction a b => Pair_introduction (f a) b
   end.
 
-(* [forall {A : Type} {B : Type} {C : Type}, (B -> C) -> Pair A B -> Pair A C] *)
+(* [forall {A : Type} {B : Type} {C : Type},
+     (B -> C) -> Pair A B -> Pair A C] *)
 Definition map_second := fun {A : Type} {B : Type} {C : Type}
                              (f : B -> C) (p : Pair A B) =>
   match p return Pair A C with
@@ -147,7 +150,8 @@ Proof.
   (* The context gains [A], [B] and [p]: [|- map_first (fun a => a) p = p] *)
   intros A B p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
-     [|- map_first (fun a => a) (Pair_introduction a b) = Pair_introduction a b] *)
+     [|- map_first (fun a => a) (Pair_introduction a b)
+      = Pair_introduction a b] *)
   destruct p as [a b].
   (* [map_first] computes and [(fun a => a) a] reduces to [a]:
      [|- Pair_introduction a b = Pair_introduction a b] *)
@@ -166,7 +170,7 @@ Proof.
   intros A B C D f g p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
      [|- map_first g (map_first f (Pair_introduction a b))
-         = map_first (fun a => g (f a)) (Pair_introduction a b)] *)
+      = map_first (fun a => g (f a)) (Pair_introduction a b)] *)
   destruct p as [a b].
   (* The left side computes in two [map_first] steps to
      [Pair_introduction (g (f a)) b], the right side in one step to the
@@ -183,7 +187,8 @@ Proof.
   (* The context gains [A], [B] and [p]: [|- map_second (fun b => b) p = p] *)
   intros A B p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
-     [|- map_second (fun b => b) (Pair_introduction a b) = Pair_introduction a b] *)
+     [|- map_second (fun b => b) (Pair_introduction a b)
+      = Pair_introduction a b] *)
   destruct p as [a b].
   (* [map_second] computes and [(fun b => b) b] reduces to [b]:
      [|- Pair_introduction a b = Pair_introduction a b] *)
@@ -202,7 +207,7 @@ Proof.
   intros A B C D f g p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
      [|- map_second g (map_second f (Pair_introduction a b))
-         = map_second (fun b => g (f b)) (Pair_introduction a b)] *)
+      = map_second (fun b => g (f b)) (Pair_introduction a b)] *)
   destruct p as [a b].
   (* The left side computes in two [map_second] steps to
      [Pair_introduction a (g (f b))], the right side in one step to the
@@ -237,17 +242,9 @@ Theorem bimap_identity
   : forall (A : Type) (B : Type) (p : Pair A B),
       bimap (fun (a : A) => a) (fun (b : B) => b) p = p.
 Proof.
-  (* The context gains [A], [B] and [p]:
-     [|- bimap (fun a => a) (fun b => b) p = p] *)
   intros A B p.
-  (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
-     [|- bimap (fun a => a) (fun b => b) (Pair_introduction a b)
-         = Pair_introduction a b] *)
   destruct p as [a b].
-  (* [bimap] computes and both identities reduce:
-     [|- Pair_introduction a b = Pair_introduction a b] *)
   simpl in |- *.
-  (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
@@ -263,14 +260,13 @@ Proof.
   intros A B C D E F f1 f2 g1 g2 p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
      [|- bimap g1 g2 (bimap f1 f2 (Pair_introduction a b))
-         = bimap (fun a => g1 (f1 a)) (fun b => g2 (f2 b))
-             (Pair_introduction a b)] *)
+      = bimap (fun a => g1 (f1 a)) (fun b => g2 (f2 b)) (Pair_introduction a b)] *)
   destruct p as [a b].
   (* The left side computes in two [bimap] steps to
      [Pair_introduction (g1 (f1 a)) (g2 (f2 b))], the right side in one
      step to the same:
      [|- Pair_introduction (g1 (f1 a)) (g2 (f2 b))
-         = Pair_introduction (g1 (f1 a)) (g2 (f2 b))] *)
+      = Pair_introduction (g1 (f1 a)) (g2 (f2 b))] *)
   simpl in |- *.
   (* Both sides are the same term. *)
   reflexivity.
@@ -287,10 +283,12 @@ Proof.
   intros A B C D f g p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
      [|- bimap f g (Pair_introduction a b)
-         = map_first f (map_second g (Pair_introduction a b))] *)
+      = map_first f (map_second g (Pair_introduction a b))] *)
   destruct p as [a b].
   (* The left side computes in one step, the right side in two, to the
-     same pair: [|- Pair_introduction (f a) (g b) = Pair_introduction (f a) (g b)] *)
+     same pair:
+     [|- Pair_introduction (f a) (g b)
+      = Pair_introduction (f a) (g b)] *)
   simpl in |- *.
   (* Both sides are the same term. *)
   reflexivity.
@@ -353,9 +351,9 @@ Qed.
       (A -> A -> A) -> (B -> B -> B) -> Pair A B -> Pair A B -> Pair A B]
    The operation of the direct product: each component is combined by its
    own operation. *)
-Definition product_operation := fun {A : Type} {B : Type}
-                                    (opA : A -> A -> A) (opB : B -> B -> B)
-                                    (p1 : Pair A B) (p2 : Pair A B) =>
+Definition product := fun {A : Type} {B : Type}
+                          (opA : A -> A -> A) (opB : B -> B -> B)
+                          (p1 : Pair A B) (p2 : Pair A B) =>
   match p1, p2 return Pair A B with
   | Pair_introduction a1 b1, Pair_introduction a2 b2 => Pair_introduction (opA a1 a2) (opB b1 b2)
   end.
@@ -364,17 +362,17 @@ Definition product_operation := fun {A : Type} {B : Type}
    which the class premises supply; [rewrite] finds each one by resolution
    from the premise in the context. *)
 
-Theorem product_operation_associativity
+Theorem product_associativity
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
       Semigroup.T A opA -> Semigroup.T B opB ->
       forall (p1 : Pair A B) (p2 : Pair A B) (p3 : Pair A B),
-        product_operation opA opB (product_operation opA opB p1 p2) p3
-      = product_operation opA opB p1 (product_operation opA opB p2 p3).
+        product opA opB (product opA opB p1 p2) p3
+        = product opA opB p1 (product opA opB p2 p3).
 Proof.
   (* The context gains [A], [opA], [B], [opB], [SA : Semigroup.T A opA],
      [SB : Semigroup.T B opB], [p1], [p2] and [p3]:
-     [|- product_operation opA opB (product_operation opA opB p1 p2) p3
-         = product_operation opA opB p1 (product_operation opA opB p2 p3)] *)
+     [|- product opA opB (product opA opB p1 p2) p3
+      = product opA opB p1 (product opA opB p2 p3)] *)
   intros A opA B opB SA SB p1 p2 p3.
   (* Each pair is a [Pair_introduction] of two components, which enter the
      context. *)
@@ -383,86 +381,85 @@ Proof.
   destruct p3 as [a3 b3].
   (* Both sides compute in two steps:
      [|- Pair_introduction (opA (opA a1 a2) a3) (opB (opB b1 b2) b3)
-         = Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))] *)
+      = Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))] *)
   simpl in |- *.
   (* The first components agree:
      [|- Pair_introduction (opA a1 (opA a2 a3)) (opB (opB b1 b2) b3)
-         = Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))] *)
+      = Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))] *)
   rewrite (Semigroup.associativity a1 a2 a3) in |- *.
   (* The second components agree:
      [|- Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))
-         = Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))] *)
+      = Pair_introduction (opA a1 (opA a2 a3)) (opB b1 (opB b2 b3))] *)
   rewrite (Semigroup.associativity b1 b2 b3) in |- *.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
-Theorem product_operation_identity_left
+Theorem product_left_identity
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
       Monoid.T A opA eA ->
       Monoid.T B opB eB ->
       forall (p : Pair A B),
-        product_operation opA opB (Pair_introduction eA eB) p = p.
+        product opA opB (Pair_introduction eA eB) p = p.
 Proof.
   (* The context gains [A], [opA], [eA], [B], [opB], [eB],
      [MA : Monoid.T A opA eA], [MB : Monoid.T B opB eB] and [p]:
-     [|- product_operation opA opB (Pair_introduction eA eB) p = p] *)
+     [|- product opA opB (Pair_introduction eA eB) p = p] *)
   intros A opA eA B opB eB MA MB p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
-     [|- product_operation opA opB (Pair_introduction eA eB)
-           (Pair_introduction a b)
-         = Pair_introduction a b] *)
+     [|- product opA opB (Pair_introduction eA eB) (Pair_introduction a b)
+      = Pair_introduction a b] *)
   destruct p as [a b].
   (* The left side computes:
      [|- Pair_introduction (opA eA a) (opB eB b) = Pair_introduction a b] *)
   simpl in |- *.
   (* [|- Pair_introduction a (opB eB b) = Pair_introduction a b] *)
-  rewrite (Monoid.identity_left a) in |- *.
+  rewrite (Monoid.left_identity a) in |- *.
   (* [|- Pair_introduction a b = Pair_introduction a b] *)
-  rewrite (Monoid.identity_left b) in |- *.
+  rewrite (Monoid.left_identity b) in |- *.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
-Theorem product_operation_identity_right
+Theorem product_right_identity
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
       Monoid.T A opA eA ->
       Monoid.T B opB eB ->
       forall (p : Pair A B),
-        product_operation opA opB p (Pair_introduction eA eB) = p.
+      product opA opB p (Pair_introduction eA eB) = p.
 Proof.
   (* The context gains [A], [opA], [eA], [B], [opB], [eB],
      [MA : Monoid.T A opA eA], [MB : Monoid.T B opB eB] and [p]:
-     [|- product_operation opA opB p (Pair_introduction eA eB) = p] *)
+     [|- product opA opB p (Pair_introduction eA eB) = p] *)
   intros A opA eA B opB eB MA MB p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
-     [|- product_operation opA opB (Pair_introduction a b)
-           (Pair_introduction eA eB)
-         = Pair_introduction a b] *)
+     [|- product opA opB (Pair_introduction a b) (Pair_introduction eA eB)
+      = Pair_introduction a b] *)
   destruct p as [a b].
   (* The left side computes:
-     [|- Pair_introduction (opA a eA) (opB b eB) = Pair_introduction a b] *)
+     [|- Pair_introduction (opA a eA) (opB b eB)
+      = Pair_introduction a          b] *)
   simpl in |- *.
   (* [|- Pair_introduction a (opB b eB) = Pair_introduction a b] *)
-  rewrite (Monoid.identity_right a) in |- *.
+  rewrite (Monoid.right_identity a) in |- *.
   (* [|- Pair_introduction a b = Pair_introduction a b] *)
-  rewrite (Monoid.identity_right b) in |- *.
+  rewrite (Monoid.right_identity b) in |- *.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
-Theorem product_operation_commutativity
+Theorem product_commutativity
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
       Commutative.T A opA ->
       Commutative.T B opB ->
       forall (p1 : Pair A B) (p2 : Pair A B),
-        product_operation opA opB p1 p2 = product_operation opA opB p2 p1.
+        product opA opB p1 p2 = product opA opB p2 p1.
 Proof.
   (* The context gains [A], [opA], [B], [opB], [CA : Commutative.T A opA],
      [CB : Commutative.T B opB], [p1] and [p2]:
-     [|- product_operation opA opB p1 p2 = product_operation opA opB p2 p1] *)
+     [|- product opA opB p1 p2 = product opA opB p2 p1] *)
   intros A opA B opB CA CB p1 p2.
   (* Each pair is a [Pair_introduction] of two components, which enter the
      context. *)
@@ -470,15 +467,15 @@ Proof.
   destruct p2 as [a2 b2].
   (* Both sides compute:
      [|- Pair_introduction (opA a1 a2) (opB b1 b2)
-         = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
+      = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
   simpl in |- *.
   (* The first components agree:
      [|- Pair_introduction (opA a2 a1) (opB b1 b2)
-         = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
+      = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
   rewrite (Commutative.commutativity a1 a2) in |- *.
   (* The second components agree:
      [|- Pair_introduction (opA a2 a1) (opB b2 b1)
-         = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
+      = Pair_introduction (opA a2 a1) (opB b2 b1)] *)
   rewrite (Commutative.commutativity b1 b2) in |- *.
   (* Both sides are the same term. *)
   reflexivity.
@@ -515,7 +512,8 @@ Notation "'pi_2'" := Pair.second (only parsing)
    [map_second]'s type arguments are maximally inserted, so the bare name
    collapses to one fixed triple of them; binding [B] and [C] first is what
    keeps it general enough for the field, as in [Data.Option]. *)
-Instance Pair_functor : forall (A : Type), Functor.T (Pair A) :=
+Instance Pair_functor
+  : forall (A : Type), Functor.T (Pair A) :=
   fun (A : Type) =>
     {| Functor.map             := fun (B : Type) (C : Type) => Pair.map_second
      ; Functor.map_identity    := Pair.map_second_identity A
@@ -526,34 +524,33 @@ Instance Pair_semigroup
       (B : Type) (opB : B -> B -> B),
       Semigroup.T A opA ->
       Semigroup.T B opB ->
-      Semigroup.T (Pair A B) (Pair.product_operation opA opB) :=
+      Semigroup.T (Pair A B) (Pair.product opA opB) :=
   fun (A : Type) (opA : A -> A -> A)
       (B : Type) (opB : B -> B -> B)
       (SA : Semigroup.T A opA)
       (SB : Semigroup.T B opB) =>
-    {| Semigroup.associativity := Pair.product_operation_associativity A opA B opB SA SB |}.
+    {| Semigroup.associativity :=
+        Pair.product_associativity A opA B opB SA SB |}.
 
 Instance Pair_monoid
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
       Monoid.T A opA eA ->
       Monoid.T B opB eB ->
-      Monoid.T (Pair A B) (Pair.product_operation opA opB) (Pair_introduction eA eB) :=
+      Monoid.T (Pair A B) (Pair.product opA opB) (Pair_introduction eA eB) :=
   fun (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B)
       (MA : Monoid.T A opA eA)
       (MB : Monoid.T B opB eB) =>
     {| Monoid.semigroup := Pair_semigroup A opA B opB _ _
-     ; Monoid.identity_left :=
-        Pair.product_operation_identity_left A opA eA B opB eB MA MB
-     ; Monoid.identity_right :=
-        Pair.product_operation_identity_right A opA eA B opB eB MA MB |}.
+     ; Monoid.left_identity  := Pair.product_left_identity A opA eA B opB eB MA MB
+     ; Monoid.right_identity := Pair.product_right_identity A opA eA B opB eB MA MB |}.
 
 Instance Pair_commutative
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
       Commutative.T A opA -> Commutative.T B opB ->
-      Commutative.T (Pair A B) (Pair.product_operation opA opB) :=
+      Commutative.T (Pair A B) (Pair.product opA opB) :=
   fun (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B)
       (CA : Commutative.T A opA) (CB : Commutative.T B opB) =>
     {| Commutative.commutativity :=
-         Pair.product_operation_commutativity A opA B opB CA CB |}.
+        Pair.product_commutativity A opA B opB CA CB |}.
