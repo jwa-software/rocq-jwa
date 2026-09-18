@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->], [=], [~], [/\], [\/] and [exists]; [Data.Nat] is
+(* [Core.All] carries [->], [=], [~], [/\], [\/] and [exists]; [Data.Number.Nat] is
    the type [Positive] wraps and the source of every law under [Positive];
    [Structures.Semigroup], [Structures.Monoid], [Structures.Commutative],
    [Structures.Cancellative] and the [Relation] order classes are what the
@@ -10,7 +10,7 @@
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
-From jwa Require Import Data.Nat.
+From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Pair.
 From jwa Require Import Relation.Antisymmetric.

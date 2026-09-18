@@ -3,8 +3,8 @@
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
-From jwa Require Import Data.Nat.
-From jwa Require Import Data.NatWithZero.
+From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.

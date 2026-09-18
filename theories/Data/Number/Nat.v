@@ -21,7 +21,7 @@ From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Semigroup.
 
 (* Zero is not a [Nat]; [One] is the smallest.
- * [Data.NatWithZero] is the type that has it.
+ * [Data.Number.NatWithZero] is the type that has it.
  *)
 Inductive Nat : Type :=
   | One       : Nat
