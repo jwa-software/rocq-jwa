@@ -4,11 +4,11 @@ From jwa Require Import Algebra.All.
 
 Definition algebra_all_delivers
   : forall (A : Type) (op : A -> A -> A) (e : A),
-      Semigroup op -> Monoid op e -> Commutative.T A op
-      -> Cancellative.T A op -> ~ Falsum -> Verum
+      Semigroup op -> Monoid op e -> Commutative op -> AbelianMonoid op e
+      -> Cancellative op -> ~ Falsum -> Verum
   := fun (A : Type) (op : A -> A -> A) (e : A)
-         (_ : Semigroup op) (_ : Monoid op e) (_ : Commutative.T A op)
-         (_ : Cancellative.T A op) (_ : ~ Falsum) => I.
+         (_ : Semigroup op) (_ : Monoid op e) (_ : Commutative op) (_ : AbelianMonoid op e)
+         (_ : Cancellative op) (_ : ~ Falsum) => I.
 
 Definition algebra_all_delivers_projections
   : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid op e) (x : A),
@@ -19,19 +19,19 @@ Definition algebra_all_delivers_projections
 Definition algebra_all_delivers_groups_and_rings
   : forall (A : Type) (add : A -> A -> A) (zero : A) (negate : A -> A)
            (mul : A -> A -> A) (one : A),
-      Group.T A add zero negate -> AbelianGroup.T A add zero negate
-      -> Semiring.T A add zero mul one -> Ring.T A add zero negate mul one -> Verum
+      Group add zero negate -> AbelianGroup add zero negate
+      -> Semiring add zero mul one -> Ring add zero negate mul one -> Verum
   := fun (A : Type) (add : A -> A -> A) (zero : A) (negate : A -> A)
          (mul : A -> A -> A) (one : A)
-         (_ : Group.T A add zero negate) (_ : AbelianGroup.T A add zero negate)
-         (_ : Semiring.T A add zero mul one) (_ : Ring.T A add zero negate mul one) => I.
+         (_ : Group add zero negate) (_ : AbelianGroup add zero negate)
+         (_ : Semiring add zero mul one) (_ : Ring add zero negate mul one) => I.
 
 Definition algebra_all_delivers_ring_projection
   : forall (A : Type) (add : A -> A -> A) (zero : A) (negate : A -> A)
-           (mul : A -> A -> A) (one : A) (r : Ring.T A add zero negate mul one)
+           (mul : A -> A -> A) (one : A) (r : Ring add zero negate mul one)
            (x : A) (y : A) (z : A),
-      mul x (add y z) = add (mul x y) (mul x z)
+      mul x (add y z) = add (mul x y) (mul x z) /\ mul (add y z) x = add (mul y x) (mul z x)
   := fun (A : Type) (add : A -> A -> A) (zero : A) (negate : A -> A)
-         (mul : A -> A -> A) (one : A) (r : Ring.T A add zero negate mul one)
+         (mul : A -> A -> A) (one : A) (r : Ring add zero negate mul one)
          (x : A) (y : A) (z : A) =>
-       Ring.left_distributivity x y z.
+       Ring.distributivity x y z.

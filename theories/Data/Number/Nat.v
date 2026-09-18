@@ -1813,15 +1813,21 @@ Instance Nat_add_semigroup : Semigroup Nat.add :=
 
 (* Both cancellation laws were already proved above, so the instance only
    hands them over. *)
-Instance Nat_add_cancellative : Cancellative.T Nat Nat.add :=
-  {| Cancellative.left_cancellation  := Nat.add_left_cancellation
-   ; Cancellative.right_cancellation := Nat.add_right_cancellation |}.
+Instance Nat_add_cancellative : Cancellative Nat.add :=
+  {| Cancellative.cancellation :=
+       fun (x : Nat) (y : Nat) (z : Nat) =>
+         Conjunction_introduction
+           (Nat.add_left_cancellation x y z)
+           (Nat.add_right_cancellation x y z) |}.
 
 (* Both cancellation laws of [mul] were already proved above as well. *)
 Instance Nat_mul_cancellative
-  : Cancellative.T Nat Nat.mul :=
-  {| Cancellative.left_cancellation  := Nat.mul_left_cancellation
-   ; Cancellative.right_cancellation := Nat.mul_right_cancellation |}.
+  : Cancellative Nat.mul :=
+  {| Cancellative.cancellation :=
+       fun (x : Nat) (y : Nat) (z : Nat) =>
+         Conjunction_introduction
+           (Nat.mul_left_cancellation x y z)
+           (Nat.mul_right_cancellation x y z) |}.
 
 (* [One] leaves its argument alone under [mul], so multiplication reaches
    monoid where addition stopped at semigroup. [mul One n] computes to [n],
@@ -1836,10 +1842,10 @@ Instance Nat_mul_monoid : Monoid Nat.mul One :=
            (Identity.reflexivity (Nat.mul One n))
            (Nat.mul_commutativity n One) |}.
 
-Instance Nat_add_commutative : Commutative.T Nat Nat.add :=
+Instance Nat_add_commutative : Commutative Nat.add :=
   {| Commutative.commutativity := Nat.add_commutativity |}.
 
-Instance Nat_mul_commutative : Commutative.T Nat Nat.mul :=
+Instance Nat_mul_commutative : Commutative Nat.mul :=
   {| Commutative.commutativity := Nat.mul_commutativity |}.
 
 (* The two orders as instances of the [Relation] classes. The laws were
@@ -1874,8 +1880,8 @@ Instance Nat_max_monoid : Monoid Nat.max One :=
        fun (n : Nat) =>
          Conjunction_introduction (Nat.max_left_identity n) (Nat.max_right_identity n) |}.
 
-Instance Nat_min_commutative : Commutative.T Nat Nat.min :=
+Instance Nat_min_commutative : Commutative Nat.min :=
   {| Commutative.commutativity := Nat.min_commutativity |}.
 
-Instance Nat_max_commutative : Commutative.T Nat Nat.max :=
+Instance Nat_max_commutative : Commutative Nat.max :=
   {| Commutative.commutativity := Nat.max_commutativity |}.

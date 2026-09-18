@@ -86,13 +86,15 @@ Definition data_all_delivers_monoid
   := Monoid.identity.
 
 Definition data_all_delivers_cancellative
-  : forall (n : Nat) (m : Nat) (k : Nat), Nat.add n m = Nat.add n k -> m = k
-  := Cancellative.left_cancellation.
+  : forall (x : Nat) (y : Nat) (z : Nat),
+      (Nat.add x y = Nat.add x z -> y = z) /\ (Nat.add x z = Nat.add y z -> x = y)
+  := Cancellative.cancellation.
 
 Definition data_all_delivers_cancellative_with_zero
-  : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero),
-      NatWithZero.add m n = NatWithZero.add k n -> m = k
-  := Cancellative.right_cancellation.
+  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero),
+      (NatWithZero.add x y = NatWithZero.add x z -> y = z)
+      /\ (NatWithZero.add x z = NatWithZero.add y z -> x = y)
+  := Cancellative.cancellation.
 
 Definition data_all_delivers_nat_operations
   : Nat
@@ -263,9 +265,10 @@ Definition data_all_delivers_integer_mul_monoid
   := Monoid.identity.
 
 Definition data_all_delivers_integer_cancellative
-  : forall (k : Integer) (m : Integer) (n : Integer),
-      Integer.add k m = Integer.add k n -> m = n
-  := Cancellative.left_cancellation.
+  : forall (x : Integer) (y : Integer) (z : Integer),
+      (Integer.add x y = Integer.add x z -> y = z)
+      /\ (Integer.add x z = Integer.add y z -> x = y)
+  := Cancellative.cancellation.
 
 Definition data_all_delivers_integer_total_order
   : forall (m : Integer) (n : Integer), Integer.LessOrEqual m n \/ Integer.LessOrEqual n m
@@ -308,23 +311,30 @@ Definition data_all_delivers_parity
   := NatWithZero.Even NatWithZero.Zero /\ Integer.Odd (Negative One).
 
 Definition data_all_delivers_semiring
-  : forall (n : NatWithZero), NatWithZero.mul NatWithZero.Zero n = NatWithZero.Zero
-  := Semiring.left_absorption.
+  : forall (n : NatWithZero),
+      NatWithZero.mul NatWithZero.Zero n = NatWithZero.Zero
+      /\ NatWithZero.mul n NatWithZero.Zero = NatWithZero.Zero
+  := Semiring.annihilation.
 
 Definition data_all_delivers_group
-  : forall (x : Integer), Integer.add (Integer.negate x) x = Integer.Zero
-  := Group.left_inverse.
+  : forall (x : Integer),
+      Integer.add (Integer.negate x) x = Integer.Zero
+      /\ Integer.add x (Integer.negate x) = Integer.Zero
+  := Group.inverse.
 
 Definition data_all_delivers_ring
   : forall (x : Integer) (y : Integer) (z : Integer),
       Integer.mul x (Integer.add y z) = Integer.add (Integer.mul x y) (Integer.mul x z)
-  := Ring.left_distributivity.
+      /\ Integer.mul (Integer.add y z) x = Integer.add (Integer.mul y x) (Integer.mul z x)
+  := Ring.distributivity.
 
 Definition data_all_delivers_boolean_ring
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
       Bool.and b1 (Bool.xor b2 b3) = Bool.xor (Bool.and b1 b2) (Bool.and b1 b3)
-  := Ring.left_distributivity.
+      /\ Bool.and (Bool.xor b2 b3) b1 = Bool.xor (Bool.and b2 b1) (Bool.and b3 b1)
+  := Ring.distributivity.
 
 Definition data_all_delivers_mul_cancellative
-  : forall (k : Nat) (m : Nat) (n : Nat), Nat.mul k m = Nat.mul k n -> m = n
-  := Cancellative.left_cancellation.
+  : forall (x : Nat) (y : Nat) (z : Nat),
+      (Nat.mul x y = Nat.mul x z -> y = z) /\ (Nat.mul x z = Nat.mul y z -> x = y)
+  := Cancellative.cancellation.

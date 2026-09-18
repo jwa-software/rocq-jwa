@@ -2172,11 +2172,14 @@ Instance Integer_add_monoid : Monoid Integer.add Zero :=
        fun (x : Integer) =>
          Conjunction_introduction (Integer.add_left_identity x) (Integer.add_right_identity x) |}.
 
-Instance Integer_add_cancellative : Cancellative.T Integer Integer.add :=
-  {| Cancellative.left_cancellation  := Integer.add_left_cancellation
-   ; Cancellative.right_cancellation := Integer.add_right_cancellation |}.
+Instance Integer_add_cancellative : Cancellative Integer.add :=
+  {| Cancellative.cancellation :=
+       fun (x : Integer) (y : Integer) (z : Integer) =>
+         Conjunction_introduction
+           (Integer.add_left_cancellation x y z)
+           (Integer.add_right_cancellation x y z) |}.
 
-Instance Integer_add_commutative : Commutative.T Integer Integer.add :=
+Instance Integer_add_commutative : Commutative Integer.add :=
   {| Commutative.commutativity := Integer.add_commutativity |}.
 
 (* Multiplication is a commutative monoid, [Positive One] the identity. *)
@@ -2187,7 +2190,7 @@ Instance Integer_mul_monoid : Monoid Integer.mul (Positive One) :=
        fun (x : Integer) =>
          Conjunction_introduction (Integer.mul_left_identity x) (Integer.mul_right_identity x) |}.
 
-Instance Integer_mul_commutative : Commutative.T Integer Integer.mul :=
+Instance Integer_mul_commutative : Commutative Integer.mul :=
   {| Commutative.commutativity := Integer.mul_commutativity |}.
 
 Instance Integer_less_than_strict_order : StrictOrder Integer.LessThan :=
@@ -2211,19 +2214,23 @@ Instance Integer_less_or_equal_total_order : TotalOrder Integer.LessOrEqual :=
  * ring. Each instance only hands over the laws and instances above.
  *)
 Instance Integer_add_group
-  : Group.T Integer Integer.add Zero Integer.negate :=
-  {| Group.monoid        := Integer_add_monoid
-   ; Group.left_inverse  := Integer.add_left_inverse
-   ; Group.right_inverse := Integer.add_right_inverse |}.
+  : Group Integer.add Zero Integer.negate :=
+  {| Group.monoid  := Integer_add_monoid
+   ; Group.inverse :=
+       fun (x : Integer) =>
+         Conjunction_introduction (Integer.add_left_inverse x) (Integer.add_right_inverse x) |}.
 
 Instance Integer_add_abelian_group
-  : AbelianGroup.T Integer Integer.add Zero Integer.negate :=
+  : AbelianGroup Integer.add Zero Integer.negate :=
   {| AbelianGroup.group       := Integer_add_group
    ; AbelianGroup.commutative := Integer_add_commutative |}.
 
 Instance Integer_ring
-  : Ring.T Integer Integer.add Zero Integer.negate Integer.mul (Positive One) :=
-  {| Ring.add_group            := Integer_add_abelian_group
-   ; Ring.mul_monoid           := Integer_mul_monoid
-   ; Ring.left_distributivity  := Integer.mul_left_distributivity_over_add
-   ; Ring.right_distributivity := Integer.mul_right_distributivity_over_add |}.
+  : Ring Integer.add Zero Integer.negate Integer.mul (Positive One) :=
+  {| Ring.abelian_group  := Integer_add_abelian_group
+   ; Ring.monoid         := Integer_mul_monoid
+   ; Ring.distributivity :=
+       fun (x : Integer) (y : Integer) (z : Integer) =>
+         Conjunction_introduction
+           (Integer.mul_left_distributivity_over_add x y z)
+           (Integer.mul_right_distributivity_over_add x y z) |}.

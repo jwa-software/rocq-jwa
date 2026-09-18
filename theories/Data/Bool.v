@@ -265,31 +265,35 @@ Instance Bool_xor_monoid
            (Bool.xor_commutativity b false) |}.
 
 Instance Bool_and_commutative
-  : Commutative.T Bool Bool.and :=
+  : Commutative Bool.and :=
   {| Commutative.commutativity := Bool.and_commutativity |}.
 
 Instance Bool_or_commutative
-  : Commutative.T Bool Bool.or :=
+  : Commutative Bool.or :=
   {| Commutative.commutativity := Bool.or_commutativity |}.
 
 Instance Bool_xor_commutative
-  : Commutative.T Bool Bool.xor :=
+  : Commutative Bool.xor :=
   {| Commutative.commutativity := Bool.xor_commutativity |}.
 
 Instance Bool_xor_group
-  : Group.T Bool Bool.xor false (fun (b : Bool) => b) :=
-  {| Group.monoid        := Bool_xor_monoid
-   ; Group.left_inverse  := Bool.xor_irreflexivity
-   ; Group.right_inverse := Bool.xor_irreflexivity |}.
+  : Group Bool.xor false (fun (b : Bool) => b) :=
+  {| Group.monoid  := Bool_xor_monoid
+   ; Group.inverse :=
+       fun (b : Bool) =>
+         Conjunction_introduction (Bool.xor_irreflexivity b) (Bool.xor_irreflexivity b) |}.
 
 Instance Bool_xor_abelian_group
-  : AbelianGroup.T Bool Bool.xor false (fun (b : Bool) => b) :=
+  : AbelianGroup Bool.xor false (fun (b : Bool) => b) :=
   {| AbelianGroup.group       := Bool_xor_group
    ; AbelianGroup.commutative := Bool_xor_commutative |}.
 
 Instance Bool_ring
-  : Ring.T Bool Bool.xor false (fun (b : Bool) => b) Bool.and true :=
-  {| Ring.add_group            := Bool_xor_abelian_group
-   ; Ring.mul_monoid           := Bool_and_monoid
-   ; Ring.left_distributivity  := Bool.and_left_distributivity_over_xor
-   ; Ring.right_distributivity := Bool.and_right_distributivity_over_xor |}.
+  : Ring Bool.xor false (fun (b : Bool) => b) Bool.and true :=
+  {| Ring.abelian_group  := Bool_xor_abelian_group
+   ; Ring.monoid         := Bool_and_monoid
+   ; Ring.distributivity :=
+       fun (b1 : Bool) (b2 : Bool) (b3 : Bool) =>
+         Conjunction_introduction
+           (Bool.and_left_distributivity_over_xor b1 b2 b3)
+           (Bool.and_right_distributivity_over_xor b1 b2 b3) |}.

@@ -7,6 +7,7 @@
    instances at the bottom fill; [Data.Comparison] is what [compare] answers
    in, [Data.Bool] what [equal] answers in, [Data.Pair] what [division]
    answers in, and [Data.Option] what [Nat.subtract] answers in. *)
+From jwa Require Import Algebra.AbelianMonoid.
 From jwa Require Import Algebra.Cancellative.
 From jwa Require Import Algebra.Commutative.
 From jwa Require Import Algebra.Monoid.
@@ -2653,9 +2654,12 @@ Instance NatWithZero_add_monoid
 (* Both cancellation laws were already proved above, so the instance only
    hands them over. *)
 Instance NatWithZero_add_cancellative
-  : Cancellative.T NatWithZero NatWithZero.add := {|
-    Cancellative.left_cancellation  := NatWithZero.add_left_cancellation
-  ; Cancellative.right_cancellation := NatWithZero.add_right_cancellation
+  : Cancellative NatWithZero.add := {|
+    Cancellative.cancellation :=
+      fun (x : NatWithZero) (y : NatWithZero) (z : NatWithZero) =>
+        Conjunction_introduction
+          (NatWithZero.add_left_cancellation x y z)
+          (NatWithZero.add_right_cancellation x y z)
   |}.
 
 (* [Positive One] leaves its argument alone under [mul]. *)
@@ -2670,12 +2674,17 @@ Instance NatWithZero_mul_monoid
   |}.
 
 Instance NatWithZero_add_commutative
-  : Commutative.T NatWithZero NatWithZero.add := {|
+  : Commutative NatWithZero.add := {|
       Commutative.commutativity := NatWithZero.add_commutativity
   |}.
 
+Instance NatWithZero_add_abelian_monoid
+  : AbelianMonoid NatWithZero.add Zero :=
+  {| AbelianMonoid.monoid      := NatWithZero_add_monoid
+   ; AbelianMonoid.commutative := NatWithZero_add_commutative |}.
+
 Instance NatWithZero_mul_commutative
-  : Commutative.T NatWithZero NatWithZero.mul := {|
+  : Commutative NatWithZero.mul := {|
     Commutative.commutativity := NatWithZero.mul_commutativity
   |}.
 
@@ -2716,11 +2725,11 @@ Instance NatWithZero_max_monoid
            (NatWithZero.max_right_identity n) |}.
 
 Instance NatWithZero_min_commutative
-  : Commutative.T NatWithZero NatWithZero.min :=
+  : Commutative NatWithZero.min :=
   {| Commutative.commutativity := NatWithZero.min_commutativity |}.
 
 Instance NatWithZero_max_commutative
-  : Commutative.T NatWithZero NatWithZero.max :=
+  : Commutative NatWithZero.max :=
   {| Commutative.commutativity := NatWithZero.max_commutativity |}.
 
 (* With [add] and [mul] together, [NatWithZero] is a semiring: the two
@@ -2728,16 +2737,19 @@ Instance NatWithZero_max_commutative
  * computes on the left and is commutativity on the right.
  *)
 Instance NatWithZero_semiring
-  : Semiring.T NatWithZero NatWithZero.add Zero NatWithZero.mul (Positive One) :=
-  {| Semiring.add_monoid           := NatWithZero_add_monoid
-   ; Semiring.add_commutative      := NatWithZero_add_commutative
-   ; Semiring.mul_monoid           := NatWithZero_mul_monoid
-   ; Semiring.left_distributivity  := NatWithZero.mul_left_distributivity_over_add
-   ; Semiring.right_distributivity := NatWithZero.mul_right_distributivity_over_add
-   ; Semiring.left_absorption      :=
-       fun (n : NatWithZero) => Identity.reflexivity (NatWithZero.mul Zero n)
-   ; Semiring.right_absorption     :=
-       fun (n : NatWithZero) => NatWithZero.mul_commutativity n Zero |}.
+  : Semiring NatWithZero.add Zero NatWithZero.mul (Positive One) :=
+  {| Semiring.abelian_monoid := NatWithZero_add_abelian_monoid
+   ; Semiring.monoid         := NatWithZero_mul_monoid
+   ; Semiring.distributivity :=
+       fun (x : NatWithZero) (y : NatWithZero) (z : NatWithZero) =>
+         Conjunction_introduction
+           (NatWithZero.mul_left_distributivity_over_add x y z)
+           (NatWithZero.mul_right_distributivity_over_add x y z)
+   ; Semiring.annihilation   :=
+       fun (n : NatWithZero) =>
+         Conjunction_introduction
+           (Identity.reflexivity (NatWithZero.mul Zero n))
+           (NatWithZero.mul_commutativity n Zero) |}.
 
 (* Divisibility as an instance of the partial order class. *)
 Instance NatWithZero_divides_partial_order

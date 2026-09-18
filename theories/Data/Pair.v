@@ -460,13 +460,13 @@ Qed.
 
 Theorem product_commutativity
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
-      Commutative.T A opA ->
-      Commutative.T B opB ->
+      Commutative opA ->
+      Commutative opB ->
       forall (p1 : Pair A B) (p2 : Pair A B),
         product opA opB p1 p2 = product opA opB p2 p1.
 Proof.
-  (* The context gains [A], [opA], [B], [opB], [CA : Commutative.T A opA],
-     [CB : Commutative.T B opB], [p1] and [p2]:
+  (* The context gains [A], [opA], [B], [opB], [CA : Commutative opA],
+     [CB : Commutative opB], [p1] and [p2]:
      [|- product opA opB p1 p2 = product opA opB p2 p1] *)
   intros A opA B opB CA CB p1 p2.
   (* Each pair is a [Pair_introduction] of two components, which enter the
@@ -559,9 +559,9 @@ Instance Pair_monoid
 
 Instance Pair_commutative
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
-      Commutative.T A opA -> Commutative.T B opB ->
-      Commutative.T (Pair A B) (Pair.product opA opB) :=
+      Commutative opA -> Commutative opB ->
+      Commutative (Pair.product opA opB) :=
   fun (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B)
-      (CA : Commutative.T A opA) (CB : Commutative.T B opB) =>
+      (CA : Commutative opA) (CB : Commutative opB) =>
     {| Commutative.commutativity :=
         Pair.product_commutativity A opA B opB CA CB |}.
