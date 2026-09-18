@@ -48,15 +48,18 @@ Proof.
   exact p.
 Defined.
 
+(* A module may carry the type's name; its laws read [Equijunction.symmetry]. *)
+Module Equijunction.
+
 (* Every term equals itself: the reflexivity law of [=]. *)
-Theorem Equijunction_reflexivity
+Theorem reflexivity
   : forall {A : Type} (x : A), Equijunction x x.
 Proof.
   intros A x.
   exact (Equijunction_introduction x).
 Qed.
 
-Theorem Equijunction_symmetry
+Theorem symmetry
   : forall {A : Type} {x : A} {y : A}, Equijunction x y -> Equijunction y x.
 Proof.
   intros A x y e.
@@ -64,7 +67,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem Equijunction_transitivity
+Theorem transitivity
   : forall {A : Type} {x : A} {y : A} {z : A},
       Equijunction x y -> Equijunction y z -> Equijunction x z.
 Proof.
@@ -73,7 +76,7 @@ Proof.
   exact e1.
 Qed.
 
-Theorem Equijunction_congruence
+Theorem congruence
   : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A},
       Equijunction x y -> Equijunction (f x) (f y).
 Proof.
@@ -81,6 +84,8 @@ Proof.
   destruct e.
   reflexivity.
 Qed.
+
+End Equijunction.
 
 (* [rewrite] builds its proof term out of these two, which carry a proof
  * along the equation into [Type], forwards and backwards. [Defined] keeps
@@ -107,7 +112,6 @@ Proof.
   exact p.
 Defined.
 
-
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Equijunction x y)
   : jwa_type_scope.
@@ -124,6 +128,6 @@ Register Scheme Equijunction_rewrite_backward as rew_r for Equijunction.
 Register Equijunction              as core.eq.type.
 Register Equijunction_introduction as core.eq.refl.
 Register Equijunction_induction    as core.eq.ind.
-Register Equijunction_symmetry     as core.eq.sym.
-Register Equijunction_transitivity as core.eq.trans.
-Register Equijunction_congruence   as core.eq.congr.
+Register Equijunction.symmetry     as core.eq.sym.
+Register Equijunction.transitivity as core.eq.trans.
+Register Equijunction.congruence   as core.eq.congr.
