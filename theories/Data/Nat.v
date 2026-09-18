@@ -1,11 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->], [=], [~], [\/] and [exists]: with [-noinit] a
-   file has only what it requires. [Structures.Semigroup],
-   [Structures.Monoid], [Structures.Commutative], [Structures.Cancellative]
-   and the [Relations] order classes are what the instances at the bottom
-   fill; [Data.Comparison] is what [compare] answers in, [Data.Bool] what
-   [equal] answers in, and [Data.Option] what [subtract] answers in. *)
+(* [Core.All] carries [->], [=], [~], [\/] and [exists]:
+ * with [-noinit] a file has only what it requires.
+ *)
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
@@ -23,8 +20,9 @@ From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Commutative.
 From jwa Require Import Structures.Cancellative.
 
-(* Zero is not a [Nat]; [One] is the smallest. [Data.NatWithZero] is the type
-   that has it. *)
+(* Zero is not a [Nat]; [One] is the smallest.
+ * [Data.NatWithZero] is the type that has it.
+ *)
 Inductive Nat : Type :=
   | One       : Nat
   | Successor : Nat -> Nat.
@@ -703,6 +701,14 @@ Proof.
   rewrite (add_commutativity n One) in |- *.
   simpl in |- *.
   (* Both sides are the same term. *)
+  reflexivity.
+Qed.
+
+Theorem add_left_inflation : forall (m : Nat) (k : Nat), LessThan m (add m k).
+Proof.
+  intros m k.
+  unfold LessThan in |- *.
+  apply (Exists_introduction k).
   reflexivity.
 Qed.
 
@@ -1562,7 +1568,7 @@ Fixpoint subtract (m : Nat) (n : Nat) : Option Nat :=
       end
   end.
 
-(* Below or equal, there is nothing left: subtraction truncates. *)
+(* Below or equal, there is nothing left in Nat -- its subtraction truncates. *)
 Theorem subtract_truncation
   : forall (m : Nat) (n : Nat), LessOrEqual m n -> subtract m n = None.
 Proof.
@@ -1607,8 +1613,7 @@ Proof.
       exact IH.
 Qed.
 
-(* Taking away what was added gives the rest back: subtraction inverts
-   addition. *)
+(* Taking away what was added gives the rest back: subtraction inverts addition. *)
 Theorem subtract_inversion_of_add
   : forall (m : Nat) (n : Nat), subtract (add m n) n = Some m.
 Proof.
@@ -1632,8 +1637,26 @@ Proof.
     exact IH.
 Qed.
 
+(* Shifting both numbers by the same amount leaves the difference alone. *)
+Theorem subtract_translation_invariance
+  : forall (k : Nat) (m : Nat) (n : Nat), subtract (add k m) (add k n) = subtract m n.
+Proof.
+  intros k m n.
+  (* [k] is either [One] or [Successor k']: one goal per ctor,
+   * and the second has [k']
+   * and [IH : subtract (add k' m) (add k' n) = subtract m n] in its context.
+   *)
+  induction k as [| k' IH] using Nat_induction.
+  - (* [|- subtract m n = subtract m n] *)
+    simpl in |- *.
+    reflexivity.
+  - (* [|- subtract (add k' m) (add k' n) = subtract m n] *)
+    simpl in |- *.
+    exact IH.
+Qed.
+
 (* [subtract] inverts [add] exactly where it answers: [Some k] says [k] is
-   what [n] lacks to be [m]. *)
+   what [n] needs to be [m]. *)
 
 Lemma subtract_specification_forward
   : forall (m : Nat) (n : Nat) (k : Nat), subtract m n = Some k -> add n k = m.
