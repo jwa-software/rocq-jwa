@@ -25,6 +25,7 @@ From jwa Require Import Structures.Commutative.
 From jwa Require Import Structures.Cancellative.
 From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Semigroup.
+From jwa Require Import Structures.Semiring.
 
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
    plus the [Zero] cases. *)
@@ -1073,6 +1074,67 @@ Proof.
   - destruct rest as [eq | gt].
     + exact (Disjunction_left (Disjunction_left eq)).
     + exact (Disjunction_right (Disjunction_right gt)).
+Qed.
+
+(* Strictly below [n] plus one is at most [n]: a witness of [One] is
+ * equality by cancellation, a larger one a strict step with the rest as
+ * witness, and back.
+ *)
+Theorem less_than_successor_specification
+  : forall (m : NatWithZero) (n : NatWithZero),
+      LessThan m (add n (Positive One)) <-> LessOrEqual m n.
+Proof.
+  (* The context gains [m] and [n]. *)
+  intros m n.
+  split.
+  - (* [h] opens into [k] and [e : add m (Positive k) = add n (Positive One)];
+     * one goal per ctor of [k].
+     *)
+    intro h.
+    unfold LessThan in h.
+    destruct h as [k e].
+    unfold LessOrEqual in |- *.
+    destruct k as [| k'].
+    + (* The shared step cancels on the right: [m = n]. *)
+      apply Disjunction_left.
+      exact (add_right_cancellation m n (Positive One) e).
+    + (* [Positive (Successor k')] is [add (Positive One) (Positive k')] by
+       * computation; turned round and regrouped, [e] puts the step last on
+       * both sides, where it cancels: [|- add m (Positive k') = n]
+       *)
+      apply Disjunction_right.
+      unfold LessThan in |- *.
+      apply (Exists_introduction k').
+      change (Positive (Successor k')) with (add (Positive One) (Positive k')) in e.
+      rewrite (add_commutativity (Positive One) (Positive k')) in e.
+      pose proof (Equijunction_symmetry (add_associativity m (Positive k') (Positive One)))
+        as a.
+      rewrite a in e.
+      exact (add_right_cancellation (add m (Positive k')) n (Positive One) e).
+  - (* [h] is an equality or a strict step; the witness is [One] or one more
+     * than the step's.
+     *)
+    intro h.
+    unfold LessOrEqual in h.
+    unfold LessThan in |- *.
+    destruct h as [e | lt].
+    + apply (Exists_introduction One).
+      rewrite e in |- *.
+      reflexivity.
+    + unfold LessThan in lt.
+      destruct lt as [k e].
+      apply (Exists_introduction (Successor k)).
+      (* [Positive (Successor k)] is [add (Positive One) (Positive k)] by
+       * computation; turned round and regrouped, the inner sum is [e]:
+       * [|- add (add m (Positive k)) (Positive One) = add n (Positive One)]
+       *)
+      change (Positive (Successor k)) with (add (Positive One) (Positive k)) in |- *.
+      rewrite (add_commutativity (Positive One) (Positive k)) in |- *.
+      pose proof (Equijunction_symmetry (add_associativity m (Positive k) (Positive One)))
+        as a.
+      rewrite a in |- *.
+      rewrite e in |- *.
+      reflexivity.
 Qed.
 
 (* Three-way comparison: [Zero] is below every [Positive], and two
@@ -2255,6 +2317,304 @@ Proof.
     exact (division_invariant p d).
 Qed.
 
+(* Divisibility: [d] divides [n] when some multiple of [d] is [n]. It is a
+ * partial order: reflexive with [Positive One], transitive by multiplying
+ * the witnesses, antisymmetric since [One] is the only unit.
+ *)
+(* [NatWithZero -> NatWithZero -> Prop] *)
+Definition Divides := fun (d : NatWithZero) (n : NatWithZero) =>
+  exists (k : NatWithZero), mul d k = n.
+
+Theorem divides_reflexivity : forall (n : NatWithZero), Divides n n.
+Proof.
+  (* The context gains [n]; the witness is [Positive One]. *)
+  intros n.
+  unfold Divides in |- *.
+  apply (Exists_introduction (Positive One)).
+  exact (mul_right_identity n).
+Qed.
+
+Theorem divides_transitivity
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+      Divides l m -> Divides m n -> Divides l n.
+Proof.
+  (* The context gains [l], [m], [n], [h1] and [h2]; they open into [k1],
+   * [e1 : mul l k1 = m], [k2] and [e2 : mul m k2 = n]; the witness is the
+   * product of the two.
+   *)
+  intros l m n h1 h2.
+  unfold Divides in h1.
+  unfold Divides in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  unfold Divides in |- *.
+  apply (Exists_introduction (mul k1 k2)).
+  (* Associativity read right to left regroups, and [e1] then [e2] close
+   * it: [|- mul (mul l k1) k2 = n]
+   *)
+  pose proof (Equijunction_symmetry (mul_associativity l k1 k2)) as a.
+  rewrite a in |- *.
+  rewrite e1 in |- *.
+  exact e2.
+Qed.
+
+(* Antisymmetry: with [m] a positive, the two witnesses multiply to a unit
+ * of [Nat], which factors only as [One] times [One].
+ *)
+Theorem divides_antisymmetry
+  : forall (m : NatWithZero) (n : NatWithZero), Divides m n -> Divides n m -> m = n.
+Proof.
+  (* The context gains [m], [n], [h1] and [h2]; they open into [k],
+   * [e1 : mul m k = n], [j] and [e2 : mul n j = m].
+   *)
+  intros m n h1 h2.
+  unfold Divides in h1.
+  unfold Divides in h2.
+  destruct h1 as [k e1].
+  destruct h2 as [j e2].
+  destruct m as [| p].
+  - (* [mul Zero k] computes: [e1 : Zero = n] is the goal. *)
+    simpl in e1.
+    exact e1.
+  - (* [e1] turned round puts [n] into [e2]:
+     * [e2 : mul (mul (Positive p) k) j = Positive p]; one goal per ctor of
+     * [k] and [j], a [Zero] making the product [Zero].
+     *)
+    pose proof (Equijunction_symmetry e1) as e1'.
+    rewrite e1' in e2.
+    destruct k as [| k'].
+    + simpl in e2.
+      discriminate.
+    + destruct j as [| j'].
+      * simpl in e2.
+        discriminate.
+      * (* [e2] computes to
+         * [Positive (Nat.mul (Nat.mul p k') j') = Positive p]; injectivity
+         * and associativity give [e3], and [Nat.mul One p] is [p] by
+         * computation, so [e4 : Nat.mul p (Nat.mul k' j') = Nat.mul p One];
+         * cancellation and the factorization of [One] leave [ek : k' = One].
+         *)
+        simpl in e2.
+        pose proof (positive_injectivity (Nat.mul (Nat.mul p k') j') p e2) as e3.
+        rewrite (Nat.mul_associativity p k' j') in e3.
+        pose proof (Nat.mul_commutativity One p) as c.
+        simpl in c.
+        pose proof (Equijunction_transitivity e3 c) as e4.
+        pose proof (Nat.mul_left_cancellation p (Nat.mul k' j') One e4) as e5.
+        pose proof (Nat.mul_identity_factorization k' j' e5) as f.
+        destruct f as [ek ej].
+        (* [ek] replaces [k'] in [e1], where [mul (Positive p) (Positive One)]
+         * is [Positive p] by the identity: [e1] is the goal.
+         *)
+        rewrite ek in e1.
+        rewrite (mul_right_identity (Positive p)) in e1.
+        exact e1.
+Qed.
+
+(* The multiples of [d] are closed under addition, by distributivity, and
+ * under multiplication by anything, by associativity.
+ *)
+
+Theorem divides_add_closure
+  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+      Divides d m -> Divides d n -> Divides d (add m n).
+Proof.
+  (* The context gains [d], [m], [n], [h1] and [h2]; they open into [k1],
+   * [e1 : mul d k1 = m], [k2] and [e2 : mul d k2 = n]; the witness is the
+   * sum of the two.
+   *)
+  intros d m n h1 h2.
+  unfold Divides in h1.
+  unfold Divides in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  unfold Divides in |- *.
+  apply (Exists_introduction (add k1 k2)).
+  (* Distributivity opens the product, and [e1] then [e2] close it. *)
+  rewrite (mul_left_distributivity_over_add d k1 k2) in |- *.
+  rewrite e1 in |- *.
+  rewrite e2 in |- *.
+  reflexivity.
+Qed.
+
+Theorem divides_mul_closure
+  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+      Divides d m -> Divides d (mul m n).
+Proof.
+  (* The context gains [d], [m], [n] and [h]; [h] opens into [k] and
+   * [e : mul d k = m]; the witness is [mul k n].
+   *)
+  intros d m n h.
+  unfold Divides in h.
+  destruct h as [k e].
+  unfold Divides in |- *.
+  apply (Exists_introduction (mul k n)).
+  (* Associativity read right to left regroups, and [e] closes it. *)
+  pose proof (Equijunction_symmetry (mul_associativity d k n)) as a.
+  rewrite a in |- *.
+  rewrite e in |- *.
+  reflexivity.
+Qed.
+
+(* [Positive One] is the least element of divisibility and [Zero] the
+ * greatest: everything is a multiple of the first, the second a multiple
+ * of everything.
+ *)
+
+Theorem divides_least : forall (n : NatWithZero), Divides (Positive One) n.
+Proof.
+  (* The context gains [n]; the witness is [n] itself. *)
+  intros n.
+  unfold Divides in |- *.
+  apply (Exists_introduction n).
+  exact (mul_left_identity n).
+Qed.
+
+Theorem divides_greatest : forall (n : NatWithZero), Divides n Zero.
+Proof.
+  (* The context gains [n]; the witness is [Zero], and commutativity turns
+   * the product round to compute.
+   *)
+  intros n.
+  unfold Divides in |- *.
+  apply (Exists_introduction Zero).
+  rewrite (mul_commutativity n Zero) in |- *.
+  simpl in |- *.
+  reflexivity.
+Qed.
+
+(* Parity: even is divisible by two, odd is one more than an even number. *)
+
+(* [NatWithZero -> Prop] *)
+Definition Even := fun (n : NatWithZero) => Divides (Positive (Successor One)) n.
+
+(* [NatWithZero -> Prop] *)
+Definition Odd := fun (n : NatWithZero) =>
+  exists (k : NatWithZero), add (mul (Positive (Successor One)) k) (Positive One) = n.
+
+(* Every number is even or odd: [Zero] is even, and each step from a
+ * number swaps its parity, the odd witness being the even one and the
+ * even witness one more than the odd one.
+ *)
+Theorem even_or_odd : forall (n : NatWithZero), Even n \/ Odd n.
+Proof.
+  (* The context gains [n]; one goal per ctor. *)
+  intros n.
+  destruct n as [| p].
+  - (* [Zero] is twice [Zero]. *)
+    apply Disjunction_left.
+    unfold Even in |- *.
+    unfold Divides in |- *.
+    apply (Exists_introduction Zero).
+    simpl in |- *.
+    reflexivity.
+  - (* [p] is either [One] or [Successor p']: one goal per ctor, and the
+     * second has [IH : Even (Positive p') \/ Odd (Positive p')] in its
+     * context.
+     *)
+    induction p as [| p' IH] using Nat_induction.
+    + (* [Positive One] is one more than twice [Zero]. *)
+      apply Disjunction_right.
+      unfold Odd in |- *.
+      apply (Exists_introduction Zero).
+      simpl in |- *.
+      reflexivity.
+    + destruct IH as [ev | od].
+      * (* [ev] opens into [k] and [e : mul two k = Positive p']; the same
+         * witness makes the next number odd: [e] replaces the product, and
+         * [add (Positive p') (Positive One)] computes to
+         * [Positive (Nat.add p' One)], the sum turned round.
+         *)
+        apply Disjunction_right.
+        unfold Even in ev.
+        unfold Divides in ev.
+        destruct ev as [k e].
+        unfold Odd in |- *.
+        apply (Exists_introduction k).
+        rewrite e in |- *.
+        simpl in |- *.
+        rewrite (Nat.add_commutativity p' One) in |- *.
+        simpl in |- *.
+        reflexivity.
+      * (* [od] opens into [k] and
+         * [e : add (mul two k) (Positive One) = Positive p']; one more than
+         * [k] makes the next number even: distributivity opens the product,
+         * [mul two (Positive One)] is [add (Positive One) (Positive One)] by
+         * computation, and regrouping puts [e] back together.
+         *)
+        apply Disjunction_left.
+        unfold Odd in od.
+        destruct od as [k e].
+        unfold Even in |- *.
+        unfold Divides in |- *.
+        apply (Exists_introduction (add k (Positive One))).
+        rewrite (mul_left_distributivity_over_add
+                   (Positive (Successor One)) k (Positive One)) in |- *.
+        change (mul (Positive (Successor One)) (Positive One))
+          with (add (Positive One) (Positive One)) in |- *.
+        pose proof (Equijunction_symmetry
+                      (add_associativity
+                         (mul (Positive (Successor One)) k) (Positive One) (Positive One)))
+          as a.
+        rewrite a in |- *.
+        rewrite e in |- *.
+        (* [add (Positive p') (Positive One)] computes to
+         * [Positive (Nat.add p' One)], the sum turned round.
+         *)
+        simpl in |- *.
+        rewrite (Nat.add_commutativity p' One) in |- *.
+        simpl in |- *.
+        reflexivity.
+Qed.
+
+Theorem even_add_even
+  : forall (m : NatWithZero) (n : NatWithZero), Even m -> Even n -> Even (add m n).
+Proof.
+  (* Closure of the multiples of two under addition. *)
+  intros m n h1 h2.
+  unfold Even in h1.
+  unfold Even in h2.
+  unfold Even in |- *.
+  exact (divides_add_closure (Positive (Successor One)) m n h1 h2).
+Qed.
+
+(* Two odd numbers add to an even one: the two ones make a two, which
+ * distributivity absorbs into the witness.
+ *)
+Theorem odd_add_odd
+  : forall (m : NatWithZero) (n : NatWithZero), Odd m -> Odd n -> Even (add m n).
+Proof.
+  (* The context gains [m], [n], [h1] and [h2]; they open into [k1], [e1],
+   * [k2] and [e2]; the witness is [add (add k1 k2) (Positive One)].
+   *)
+  intros m n h1 h2.
+  unfold Odd in h1.
+  unfold Odd in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  unfold Even in |- *.
+  unfold Divides in |- *.
+  apply (Exists_introduction (add (add k1 k2) (Positive One))).
+  (* [e1] and [e2] turned round replace [m] and [n]; distributivity opens
+   * the product twice, [mul two (Positive One)] is
+   * [add (Positive One) (Positive One)] by computation, and the interchange
+   * law pairs the right side the same way.
+   *)
+  pose proof (Equijunction_symmetry e1) as e1'.
+  pose proof (Equijunction_symmetry e2) as e2'.
+  rewrite e1' in |- *.
+  rewrite e2' in |- *.
+  rewrite (mul_left_distributivity_over_add
+             (Positive (Successor One)) (add k1 k2) (Positive One)) in |- *.
+  rewrite (mul_left_distributivity_over_add (Positive (Successor One)) k1 k2) in |- *.
+  change (mul (Positive (Successor One)) (Positive One))
+    with (add (Positive One) (Positive One)) in |- *.
+  rewrite (add_interchange
+             (mul (Positive (Successor One)) k1) (Positive One)
+             (mul (Positive (Successor One)) k2) (Positive One)) in |- *.
+  reflexivity.
+Qed.
+
 End NatWithZero.
 
 (* The scope is declared in [Core.Notations] and never opened: a client
@@ -2355,3 +2715,29 @@ Instance NatWithZero_min_commutative
 Instance NatWithZero_max_commutative
   : Commutative.T NatWithZero NatWithZero.max :=
   {| Commutative.commutativity := NatWithZero.max_commutativity |}.
+
+(* With [add] and [mul] together, [NatWithZero] is a semiring: the two
+ * monoids above, distributivity, and [Zero] absorbing under [mul], which
+ * computes on the left and is commutativity on the right.
+ *)
+Instance NatWithZero_semiring
+  : Semiring.T NatWithZero NatWithZero.add Zero NatWithZero.mul (Positive One) :=
+  {| Semiring.add_monoid           := NatWithZero_add_monoid
+   ; Semiring.add_commutative      := NatWithZero_add_commutative
+   ; Semiring.mul_monoid           := NatWithZero_mul_monoid
+   ; Semiring.left_distributivity  := NatWithZero.mul_left_distributivity_over_add
+   ; Semiring.right_distributivity := NatWithZero.mul_right_distributivity_over_add
+   ; Semiring.left_absorption      :=
+       fun (n : NatWithZero) => Equijunction_reflexivity (NatWithZero.mul Zero n)
+   ; Semiring.right_absorption     :=
+       fun (n : NatWithZero) => NatWithZero.mul_commutativity n Zero |}.
+
+(* Divisibility as an instance of the partial order class. *)
+Instance NatWithZero_divides_partial_order
+  : PartialOrder.R NatWithZero NatWithZero.Divides :=
+  {| PartialOrder.reflexive :=
+       {| Reflexive.reflexivity := NatWithZero.divides_reflexivity |}
+   ; PartialOrder.antisymmetric :=
+       {| Antisymmetric.antisymmetry := NatWithZero.divides_antisymmetry |}
+   ; PartialOrder.transitive :=
+       {| Transitive.transitivity := NatWithZero.divides_transitivity |} |}.
