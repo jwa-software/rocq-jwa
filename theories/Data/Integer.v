@@ -1421,7 +1421,7 @@ Proof.
 Qed.
 
 Theorem compare_antisymmetry
-  : forall (m : Integer) (n : Integer), compare m n = Comparison.converse (compare n m).
+  : forall (m : Integer) (n : Integer), compare m n = Comparison.transpose (compare n m).
 Proof.
   (* The context gains [m] and [n]; one goal per ctor pair, the two
      same-sign pairs falling to [Nat]'s law and the rest computing. *)
@@ -1660,8 +1660,8 @@ Proof.
   intros m n.
   split.
   - (* The context gains [e]; [compare_antisymmetry] turns it into
-       [e : Comparison.converse (compare n m) = Gt], and only [Lt] has
-       [Gt] as its converse. *)
+       [e : Comparison.transpose (compare n m) = Gt], and only [Lt] has
+       [Gt] as its transpose. *)
     intro e.
     rewrite (compare_antisymmetry m n) in e.
     destruct (compare n m) as [| |] eqn:c.
@@ -1672,7 +1672,7 @@ Proof.
     + simpl in e.
       discriminate.
   - (* The context gains [h : LessThan n m]; [compare n m] is [Lt] by the
-       first specification, and its converse computes to [Gt]. *)
+       first specification, and its transpose computes to [Gt]. *)
     intro h.
     rewrite (compare_antisymmetry m n) in |- *.
     rewrite (Biimplication.elimination_backward

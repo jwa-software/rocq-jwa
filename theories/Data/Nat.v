@@ -1173,7 +1173,7 @@ Proof.
 Qed.
 
 Theorem compare_antisymmetry
-  : forall (m : Nat) (n : Nat), compare m n = Comparison.converse (compare n m).
+  : forall (m : Nat) (n : Nat), compare m n = Comparison.transpose (compare n m).
 Proof.
   (* The context gains [m]. *)
   intros m.
@@ -1192,7 +1192,7 @@ Proof.
       simpl in |- *.
       reflexivity.
     + (* One [compare] step on each side:
-         [|- compare m' n' = Comparison.converse (compare n' m')] *)
+         [|- compare m' n' = Comparison.transpose (compare n' m')] *)
       simpl in |- *.
       (* [IH n'] is a proof of the goal as it stands. *)
       exact (IH n').
@@ -1206,10 +1206,10 @@ Proof.
   (* The context gains [m], [n] and [e : compare m n = Gt]:
      [|- LessThan n m] *)
   intros m n e.
-  (* [e : Comparison.converse (compare n m) = Gt] *)
+  (* [e : Comparison.transpose (compare n m) = Gt] *)
   rewrite (compare_antisymmetry m n) in e.
   (* [compare n m] is one of three answers; only [Lt] has [Gt] as
-     its converse. *)
+     its transpose. *)
   destruct (compare n m) as [| |] eqn:c.
   - (* [c : compare n m = Lt] is the case that holds. *)
     exact (compare_lt_specification_forward n m c).
@@ -1227,12 +1227,12 @@ Proof.
   (* The context gains [m], [n] and [h : LessThan n m]:
      [|- compare m n = Gt] *)
   intros m n h.
-  (* [|- Comparison.converse (compare n m) = Gt] *)
+  (* [|- Comparison.transpose (compare n m) = Gt] *)
   rewrite (compare_antisymmetry m n) in |- *.
   (* [compare n m] is [Lt] by the first specification:
-     [|- Comparison.converse Lt = Gt] *)
+     [|- Comparison.transpose Lt = Gt] *)
   rewrite (compare_lt_specification_backward n m h) in |- *.
-  (* [Comparison.converse Lt] computes: [|- Gt = Gt] *)
+  (* [Comparison.transpose Lt] computes: [|- Gt = Gt] *)
   simpl in |- *.
   reflexivity.
 Qed.
