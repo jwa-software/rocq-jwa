@@ -3847,7 +3847,7 @@ Instance List_append_monoid
    bare name collapses to one fixed pair of them; binding [A] and [B] first
    is what keeps it general enough for the field, as in [Data.Option]. *)
 Instance List_functor
-  : Functor.T List :=
+  : Functor List :=
   {| Functor.map             := fun (A : Type) (B : Type) => List.map
    ; Functor.map_identity    := List.map_identity
    ; Functor.map_composition := List.map_composition |}.

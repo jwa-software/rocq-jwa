@@ -48,7 +48,7 @@ Qed.
 End Option.
 
 Instance Option_functor
-  : Functor.T Option :=
+  : Functor Option :=
   {| Functor.map             := fun (A : Type) (B : Type) => Option.map
    ; Functor.map_identity    := Option.map_identity
    ; Functor.map_composition := Option.map_composition |}.

@@ -513,7 +513,7 @@ Notation "'pi_2'" := Pair.second (only parsing)
    collapses to one fixed triple of them; binding [B] and [C] first is what
    keeps it general enough for the field, as in [Data.Option]. *)
 Instance Pair_functor
-  : forall (A : Type), Functor.T (Pair A) :=
+  : forall (A : Type), Functor (Pair A) :=
   fun (A : Type) =>
     {| Functor.map             := fun (B : Type) (C : Type) => Pair.map_second
      ; Functor.map_identity    := Pair.map_second_identity A

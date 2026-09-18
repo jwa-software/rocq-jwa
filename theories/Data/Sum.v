@@ -394,7 +394,7 @@ Notation "A + B" := (Sum A B) : jwa_type_scope.
    [map_right]'s type arguments are maximally inserted, so the bare name
    collapses to one fixed triple of them; binding [B] and [C] first is what
    keeps it general enough for the field, as in [Data.Pair]. *)
-Instance Sum_functor : forall (A : Type), Functor.T (Sum A) :=
+Instance Sum_functor : forall (A : Type), Functor (Sum A) :=
   fun (A : Type) =>
     {| Functor.map             := fun (B : Type) (C : Type) => Sum.map_right
      ; Functor.map_identity    := Sum.map_right_identity A
