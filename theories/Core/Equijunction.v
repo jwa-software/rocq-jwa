@@ -24,15 +24,6 @@ Inductive Equijunction (A : Type) (x : A) : A -> Prop :=
 Arguments Equijunction              {A} x _.
 Arguments Equijunction_introduction {A} x.
 
-(* Every term equals itself: the reflexivity law of [=]. *)
-Theorem Equijunction_reflexivity
-  : forall {A : Type} (x : A), Equijunction x x.
-Proof.
-  (* The context gains [A] and [x]: [|- Equijunction x x] *)
-  intros A x.
-  exact (Equijunction_introduction x).
-Defined.
-
 (* Carries a proof across the equation. The tactics fill the slots of
  * [core.eq.ind] by position, so this order -- [P] before the proof and
  * [y] after it -- is the order the registration needs.
@@ -57,87 +48,65 @@ Proof.
   exact p.
 Defined.
 
+(* Every term equals itself: the reflexivity law of [=]. *)
+Theorem Equijunction_reflexivity
+  : forall {A : Type} (x : A), Equijunction x x.
+Proof.
+  intros A x.
+  exact (Equijunction_introduction x).
+Qed.
+
 Theorem Equijunction_symmetry
   : forall {A : Type} {x : A} {y : A}, Equijunction x y -> Equijunction y x.
 Proof.
-  (* The context gains [A], [x], [y] and [e]: [|- Equijunction y x] *)
   intros A x y e.
-  (* The index [y] takes the parameter's value: [|- Equijunction x x] *)
   destruct e.
-  (* Both sides are the same term. *)
   reflexivity.
-Defined.
+Qed.
 
 Theorem Equijunction_transitivity
   : forall {A : Type} {x : A} {y : A} {z : A},
       Equijunction x y -> Equijunction y z -> Equijunction x z.
 Proof.
-  (* The context gains [A], [x], [y], [z], [e1] and [e2]:
-   * [|- Equijunction x z]
-   *)
   intros A x y z e1 e2.
-  (* In [e2 : Equijunction y z] the parameter is [y] and the index [z], so
-   * the index takes [y]: [|- Equijunction x y]
-   *)
   destruct e2.
-  (* [e1] is a proof of the goal as it stands. *)
   exact e1.
-Defined.
+Qed.
 
 Theorem Equijunction_congruence
   : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A},
       Equijunction x y -> Equijunction (f x) (f y).
 Proof.
-  (* The context gains [A], [B], [f], [x], [y] and [e]:
-   * [|- Equijunction (f x) (f y)]
-   *)
   intros A B f x y e.
-  (* The index [y] takes the parameter's value:
-   * [|- Equijunction (f x) (f x)]
-   *)
   destruct e.
-  (* Both sides are the same term. *)
   reflexivity.
-Defined.
+Qed.
 
 (* [rewrite] builds its proof term out of these two, which carry a proof
  * along the equation into [Type], forwards and backwards. [Defined] keeps
- * them transparent: [rewrite] leaves them in the term, where they have to
- * reduce.
+ * them transparent.
  *)
-Theorem Equijunction_rewrite_forward
+
+Definition Equijunction_rewrite_forward
   : forall (A : Type) (x : A) (P : A -> Type),
       P x -> forall (y : A), Equijunction x y -> P y.
 Proof.
-  (* The context gains [A], [x], [P] and [p]:
-   * [|- forall (y : A), Equijunction x y -> P y]
-   *)
   intros A x P p.
-  (* The context gains [y] and [e]: [|- P y] *)
   intros y e.
-  (* The index [y] takes the parameter's value: [|- P x] *)
   destruct e.
-  (* [p] is a proof of the goal as it stands. *)
   exact p.
 Defined.
 
-Theorem Equijunction_rewrite_backward
+Definition Equijunction_rewrite_backward
   : forall (A : Type) (x : A) (y : A) (P : A -> Type),
       P y -> Equijunction x y -> P x.
 Proof.
-  (* The context gains [A], [x], [y], [P] and [p]:
-   * [|- Equijunction x y -> P x]
-   *)
   intros A x y P p.
-  (* The context gains [e]: [|- P x] *)
   intro e.
-  (* The index [y] takes the parameter's value, and [p] changes type with
-   * it: [|- P x] with [p : P x]
-   *)
   destruct e.
-  (* [p] is a proof of the goal as it stands. *)
   exact p.
 Defined.
+
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Equijunction x y)
