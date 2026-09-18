@@ -246,15 +246,15 @@ Proof.
       destruct h as [t nt | nt t]. exact (nt t). exact (nt t).
   - (* [|- Verum <-> Verum _\/_ Falsum] *)
     split; intro h.
-    + (* [Sejunction_left] asks for a [Verum] and a [~ Falsum], which is
+    + (* [Sejunction.left] asks for a [Verum] and a [~ Falsum], which is
          [Falsum -> Falsum]; [I] is the first and the identity the second. *)
-      exact (Sejunction_left I (fun (f : Falsum) => f)).
+      exact (Sejunction.left I (fun (f : Falsum) => f)).
     + (* [|- Verum] *)
       exact I.
   - (* [|- Verum <-> Falsum _\/_ Verum] *)
     split; intro h.
-    + (* [Sejunction_right] asks for the same two in the other order. *)
-      exact (Sejunction_right (fun (f : Falsum) => f) I).
+    + (* [Sejunction.right] asks for the same two in the other order. *)
+      exact (Sejunction.right (fun (f : Falsum) => f) I).
     + (* [|- Verum] *)
       exact I.
   - (* [|- Falsum <-> Falsum _\/_ Falsum] *)
