@@ -8,6 +8,9 @@ From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
 From jwa Require Import Structures.Commutative.
+From jwa Require Import Structures.AbelianGroup.
+From jwa Require Import Structures.Group.
+From jwa Require Import Structures.Ring.
 
 (* [true] first: [if] takes the first constructor as its [then] branch. *)
 Inductive Bool : Type :=
@@ -120,6 +123,26 @@ Theorem xor_self_inverse : forall (b : Bool), xor b b = false.
 Proof.
   intros b.
   destruct b as [|]; reflexivity.
+Qed.
+
+(* [and] distributes over [xor] on both sides: the law that makes
+ * [(Bool, xor, and)] a ring, a truth table as the laws above.
+ *)
+
+Theorem and_left_distributivity_over_xor
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3).
+Proof.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+Qed.
+
+Theorem and_right_distributivity_over_xor
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1).
+Proof.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
 (* The bridge from a computed answer to a statement. [Assert true] is [Verum]
@@ -348,3 +371,26 @@ Instance Bool_xor_commutative
   : Commutative.T Bool Bool.xor := {|
       Commutative.commutativity := Bool.xor_commutativity
   |}.
+
+(* Every element is its own inverse under [xor], so [(Bool, xor, false)] is
+ * a group, and a commutative one; with [and] as the product it is a ring,
+ * the Boolean ring. [inverse] is the identity function, so the two inverse
+ * laws are [xor_self_inverse] as it stands.
+ *)
+Instance Bool_xor_group
+  : Group.T Bool Bool.xor false (fun (b : Bool) => b) :=
+  {| Group.monoid        := Bool_xor_monoid
+   ; Group.left_inverse  := Bool.xor_self_inverse
+   ; Group.right_inverse := Bool.xor_self_inverse |}.
+
+Instance Bool_xor_abelian_group
+  : AbelianGroup.T Bool Bool.xor false (fun (b : Bool) => b) :=
+  {| AbelianGroup.group       := Bool_xor_group
+   ; AbelianGroup.commutative := Bool_xor_commutative |}.
+
+Instance Bool_ring
+  : Ring.T Bool Bool.xor false (fun (b : Bool) => b) Bool.and true :=
+  {| Ring.add_group            := Bool_xor_abelian_group
+   ; Ring.mul_monoid           := Bool_and_monoid
+   ; Ring.left_distributivity  := Bool.and_left_distributivity_over_xor
+   ; Ring.right_distributivity := Bool.and_right_distributivity_over_xor |}.
