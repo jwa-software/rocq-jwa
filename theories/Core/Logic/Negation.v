@@ -33,10 +33,10 @@ Proof.
     split.
     + intro a.
       apply h.
-      exact (Disjunction_left a).
+      exact (Disjunction.left a).
     + intro b.
       apply h.
-      exact (Disjunction_right b).
+      exact (Disjunction.right b).
   - intro h.
     destruct h as [not_a not_b].
     intro ab.

@@ -1690,15 +1690,15 @@ Proof.
   (* The context gains [m] and [n]; one goal per answer of [compare m n]. *)
   intros m n.
   destruct (compare m n) as [| |] eqn:c.
-  - exact (Disjunction_left
+  - exact (Disjunction.left
              (Bijunction_elimination_forward
                 (compare m n = Lt) (LessThan m n) (compare_lt_specification m n) c)).
-  - exact (Disjunction_right
-             (Disjunction_left
+  - exact (Disjunction.right
+             (Disjunction.left
                 (Bijunction_elimination_forward
                    (compare m n = Eq) (m = n) (compare_eq_specification m n) c))).
-  - exact (Disjunction_right
-             (Disjunction_right
+  - exact (Disjunction.right
+             (Disjunction.right
                 (Bijunction_elimination_forward
                    (compare m n = Gt) (LessThan n m) (compare_gt_specification m n) c))).
 Qed.
@@ -1709,7 +1709,7 @@ Proof.
      holds. *)
   intros n.
   unfold LessOrEqual in |- *.
-  exact (Disjunction_left (Equijunction.reflexivity n)).
+  exact (Disjunction.left (Equijunction.reflexivity n)).
 Qed.
 
 Theorem less_or_equal_transitivity
@@ -1729,9 +1729,9 @@ Proof.
   - destruct h2 as [e2 | lt2].
     + (* [e2 : m = n] replaces [m] in [lt1]. *)
       rewrite e2 in lt1.
-      exact (Disjunction_right lt1).
+      exact (Disjunction.right lt1).
     + (* Two strict steps compose. *)
-      exact (Disjunction_right (less_than_transitivity l m n lt1 lt2)).
+      exact (Disjunction.right (less_than_transitivity l m n lt1 lt2)).
 Qed.
 
 Theorem less_or_equal_antisymmetry
@@ -1761,10 +1761,10 @@ Proof.
   pose proof (less_than_trichotomy m n) as t.
   unfold LessOrEqual in |- *.
   destruct t as [lt | rest].
-  - exact (Disjunction_left (Disjunction_right lt)).
+  - exact (Disjunction.left (Disjunction.right lt)).
   - destruct rest as [eq | gt].
-    + exact (Disjunction_left (Disjunction_left eq)).
-    + exact (Disjunction_right (Disjunction_right gt)).
+    + exact (Disjunction.left (Disjunction.left eq)).
+    + exact (Disjunction.right (Disjunction.right gt)).
 Qed.
 
 (* Decidable equality, read off [compare]. *)
@@ -1972,7 +1972,7 @@ Proof.
        * computes to [Negative (Successor One)], and the sum to
        * [difference One (Successor One)].
        *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       unfold Odd in |- *.
       apply (Exists_introduction (Negative One)).
       unfold add in |- *.
@@ -1987,7 +1987,7 @@ Proof.
          * goal is [add (Negative p') (Negative One) = Negative (Successor p')],
          * which computes up to the sum turned round.
          *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         unfold Even in ev.
         unfold Divides in ev.
         destruct ev as [k e].
@@ -2012,7 +2012,7 @@ Proof.
          * both sides of [e] cancels the [Positive One], by regrouping and
          * computation, and leaves [e' : mul two k = add (Negative p') (Negative One)].
          *)
-        apply Disjunction_left.
+        apply Disjunction.left.
         unfold Odd in od.
         destruct od as [k e].
         unfold Even in |- *.
@@ -2033,7 +2033,7 @@ Proof.
         simpl in |- *.
         reflexivity.
   - (* [Zero] is twice [Zero]. *)
-    apply Disjunction_left.
+    apply Disjunction.left.
     unfold Even in |- *.
     unfold Divides in |- *.
     apply (Exists_introduction Zero).
@@ -2043,7 +2043,7 @@ Proof.
      * each step up swaps the parity.
      *)
     induction p as [| p' IH] using Nat_induction.
-    + apply Disjunction_right.
+    + apply Disjunction.right.
       unfold Odd in |- *.
       apply (Exists_introduction Zero).
       unfold add in |- *.
@@ -2055,7 +2055,7 @@ Proof.
          * [add (Positive p') (Positive One)] computes up to the sum turned
          * round.
          *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         unfold Even in ev.
         unfold Divides in ev.
         destruct ev as [k e].
@@ -2073,7 +2073,7 @@ Proof.
          * [mul two (Positive One)] is [add (Positive One) (Positive One)]
          * by computation, and regrouping puts [e] back together.
          *)
-        apply Disjunction_left.
+        apply Disjunction.left.
         unfold Odd in od.
         destruct od as [k e].
         unfold Even in |- *.

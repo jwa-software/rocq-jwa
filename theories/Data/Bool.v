@@ -203,21 +203,21 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
   - (* [|- Verum <-> Verum \/ Verum] *)
     split; intro h.
-    + (* Either side will do, so [exact (Disjunction_right I)] would close it
+    + (* Either side will do, so [exact (Disjunction.right I)] would close it
          as well; the left one is taken. *)
-      exact (Disjunction_left I).
+      exact (Disjunction.left I).
     + (* [|- Verum] *)
       exact I.
   - (* [|- Verum <-> Verum \/ Falsum] *)
     split; intro h.
     + (* Only the left side holds. *)
-      exact (Disjunction_left I).
+      exact (Disjunction.left I).
     + (* [|- Verum] *)
       exact I.
   - (* [|- Verum <-> Falsum \/ Verum] *)
     split; intro h.
     + (* Only the right side holds. *)
-      exact (Disjunction_right I).
+      exact (Disjunction.right I).
     + (* [|- Verum] *)
       exact I.
   - (* [|- Falsum <-> Falsum \/ Falsum] *)

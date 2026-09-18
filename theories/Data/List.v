@@ -551,7 +551,7 @@ Proof.
     (* The context gains [h : Contains a l2]: [|- Falsum \/ Contains a l2] *)
     intro h.
     (* [h] is the right side. *)
-    exact (Disjunction_right h).
+    exact (Disjunction.right h).
   - (* [|- Contains a (append (Cons b l1') l2)
          -> Contains a (Cons b l1') \/ Contains a l2] *)
     (* One [append] step and both [Contains] on a [Cons] compute:
@@ -565,15 +565,15 @@ Proof.
        [h' : Contains a (append l1' l2)]. *)
     destruct h as [e | h'].
     + (* [e] is the left side of the left side. *)
-      exact (Disjunction_left (Disjunction_left e)).
+      exact (Disjunction.left (Disjunction.left e)).
     + (* [IH] turns [h'] into [Contains a l1' \/ Contains a l2], which
          gives two goals: one with [h1 : Contains a l1'], one with
          [h2 : Contains a l2]. *)
       destruct (IH h') as [h1 | h2].
       * (* [h1] is the right side of the left side. *)
-        exact (Disjunction_left (Disjunction_right h1)).
+        exact (Disjunction.left (Disjunction.right h1)).
       * (* [h2] is the right side. *)
-        exact (Disjunction_right h2).
+        exact (Disjunction.right h2).
 Qed.
 
 Lemma contains_distributivity_over_append_backward
@@ -617,23 +617,23 @@ Proof.
          [h1' : Contains a l1']. *)
       destruct h1 as [e | h1'].
       * (* [e] is the left side. *)
-        exact (Disjunction_left e).
-      * (* [Disjunction_right] turns the goal into its right side:
+        exact (Disjunction.left e).
+      * (* [Disjunction.right] turns the goal into its right side:
            [|- Contains a (append l1' l2)] *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         (* [IH] turns a proof of [Contains a l1' \/ Contains a l2] into
            one of the goal: [|- Contains a l1' \/ Contains a l2] *)
         apply IH.
         (* [h1'] is the left side. *)
-        exact (Disjunction_left h1').
-    + (* [Disjunction_right] turns the goal into its right side:
+        exact (Disjunction.left h1').
+    + (* [Disjunction.right] turns the goal into its right side:
          [|- Contains a (append l1' l2)] *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       (* [IH] turns a proof of [Contains a l1' \/ Contains a l2] into one
          of the goal: [|- Contains a l1' \/ Contains a l2] *)
       apply IH.
       (* [h2] is the right side. *)
-      exact (Disjunction_right h2).
+      exact (Disjunction.right h2).
 Qed.
 
 Theorem contains_distributivity_over_append
@@ -684,16 +684,16 @@ Proof.
     (* [h] gives two goals: one with [e : a = b], one with
        [h' : Contains a l']. *)
     destruct h as [e | h'].
-    + (* [Disjunction_left] turns the goal into its left side:
+    + (* [Disjunction.left] turns the goal into its left side:
          [|- f a = f b] *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       (* [e] replaces [a] by [b]: [|- f b = f b] *)
       rewrite e in |- *.
       (* Both sides are the same term. *)
       reflexivity.
-    + (* [Disjunction_right] turns the goal into its right side:
+    + (* [Disjunction.right] turns the goal into its right side:
          [|- Contains (f a) (map f l')] *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       (* [IH] turns a proof of [Contains a l'] into one of the goal:
          [|- Contains a l'] *)
       apply IH.
@@ -736,9 +736,9 @@ Proof.
        [h2 : Contains a (Cons b Nil)]. *)
     destruct (contains_distributivity_over_append_forward
                 A a (reverse l') (Cons b Nil) h) as [h1 | h2].
-    + (* [Disjunction_right] turns the goal into its right side:
+    + (* [Disjunction.right] turns the goal into its right side:
          [|- Contains a l'] *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       (* [IH] turns a proof of [Contains a (reverse l')] into one of the
          goal: [|- Contains a (reverse l')] *)
       apply IH.
@@ -750,7 +750,7 @@ Proof.
          [f : Falsum]. *)
       destruct h2 as [e | f].
       * (* [e] is the left side. *)
-        exact (Disjunction_left e).
+        exact (Disjunction.left e).
       * (* [f : Falsum], which is what [contradiction] looks for. *)
         contradiction.
 Qed.
@@ -788,16 +788,16 @@ Proof.
     (* [h] gives two goals: one with [e : a = b], one with
        [h' : Contains a l']. *)
     destruct h as [e | h'].
-    + (* [Disjunction_right] turns the goal into its right side:
+    + (* [Disjunction.right] turns the goal into its right side:
          [|- Contains a (Cons b Nil)] *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       (* [Contains a (Cons b Nil)] computes: [|- a = b \/ Falsum] *)
       simpl in |- *.
       (* [e] is the left side. *)
-      exact (Disjunction_left e).
-    + (* [Disjunction_left] turns the goal into its left side:
+      exact (Disjunction.left e).
+    + (* [Disjunction.left] turns the goal into its left side:
          [|- Contains a (reverse l')] *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       (* [IH] turns a proof of [Contains a l'] into one of the goal:
          [|- Contains a l'] *)
       apply IH.
@@ -978,7 +978,7 @@ Proof.
            [|- p a = true]. *)
         split.
         -- (* [e] is the left side. *)
-           exact (Disjunction_left e).
+           exact (Disjunction.left e).
         -- (* [e] replaces [a] by [b]: [|- p b = true] *)
            rewrite e in |- *.
            (* [pb] is a proof of the goal as it stands. *)
@@ -990,7 +990,7 @@ Proof.
            [|- p a = true]. *)
         split.
         -- (* [hl] is the right side. *)
-           exact (Disjunction_right hl).
+           exact (Disjunction.right hl).
         -- (* [pa] is a proof of the goal as it stands. *)
            exact pa.
     + (* The [match] takes its [false] branch:
@@ -1007,7 +1007,7 @@ Proof.
          [|- p a = true]. *)
       split.
       * (* [hl] is the right side. *)
-        exact (Disjunction_right hl).
+        exact (Disjunction.right hl).
       * (* [pa] is a proof of the goal as it stands. *)
         exact pa.
 Qed.
@@ -1061,15 +1061,15 @@ Proof.
          [|- a = b \/ Contains a (filter p l')] *)
       simpl in |- *.
       (* [e] is the left side. *)
-      exact (Disjunction_left e).
+      exact (Disjunction.left e).
     + (* [p b] is either [true] or [false]: one goal per ctor. *)
       destruct (p b) as [|].
       * (* The [match] takes its [true] branch and [Contains] computes:
            [|- a = b \/ Contains a (filter p l')] *)
         simpl in |- *.
-        (* [Disjunction_right] turns the goal into its right side:
+        (* [Disjunction.right] turns the goal into its right side:
            [|- Contains a (filter p l')] *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         (* [IH] turns a proof of [Contains a l' /\ p a = true] into one of
            the goal: [|- Contains a l' /\ p a = true] *)
         apply IH.
@@ -1265,7 +1265,7 @@ Proof.
     (* The context gains [h : Any P l2]: [|- Falsum \/ Any P l2] *)
     intro h.
     (* [h] is the right side. *)
-    exact (Disjunction_right h).
+    exact (Disjunction.right h).
   - (* [|- Any P (append (Cons b l1') l2) -> Any P (Cons b l1') \/ Any P l2] *)
     (* One [append] step and both [Any] on a [Cons] compute:
        [|- P b \/ Any P (append l1' l2) -> (P b \/ Any P l1') \/ Any P l2] *)
@@ -1277,14 +1277,14 @@ Proof.
        [h' : Any P (append l1' l2)]. *)
     destruct h as [pb | h'].
     + (* [pb] is the left side of the left side. *)
-      exact (Disjunction_left (Disjunction_left pb)).
+      exact (Disjunction.left (Disjunction.left pb)).
     + (* [IH] turns [h'] into [Any P l1' \/ Any P l2], which gives two
          goals: one with [h1 : Any P l1'], one with [h2 : Any P l2]. *)
       destruct (IH h') as [h1 | h2].
       * (* [h1] is the right side of the left side. *)
-        exact (Disjunction_left (Disjunction_right h1)).
+        exact (Disjunction.left (Disjunction.right h1)).
       * (* [h2] is the right side. *)
-        exact (Disjunction_right h2).
+        exact (Disjunction.right h2).
 Qed.
 
 Lemma any_distributivity_over_append_backward
@@ -1325,23 +1325,23 @@ Proof.
          [h1' : Any P l1']. *)
       destruct h1 as [pb | h1'].
       * (* [pb] is the left side. *)
-        exact (Disjunction_left pb).
-      * (* [Disjunction_right] turns the goal into its right side:
+        exact (Disjunction.left pb).
+      * (* [Disjunction.right] turns the goal into its right side:
            [|- Any P (append l1' l2)] *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         (* [IH] turns a proof of [Any P l1' \/ Any P l2] into one of the
            goal: [|- Any P l1' \/ Any P l2] *)
         apply IH.
         (* [h1'] is the left side. *)
-        exact (Disjunction_left h1').
-    + (* [Disjunction_right] turns the goal into its right side:
+        exact (Disjunction.left h1').
+    + (* [Disjunction.right] turns the goal into its right side:
          [|- Any P (append l1' l2)] *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       (* [IH] turns a proof of [Any P l1' \/ Any P l2] into one of the goal:
          [|- Any P l1' \/ Any P l2] *)
       apply IH.
       (* [h2] is the right side. *)
-      exact (Disjunction_right h2).
+      exact (Disjunction.right h2).
 Qed.
 
 Theorem any_distributivity_over_append
@@ -1446,7 +1446,7 @@ Proof.
          [|- b = b \/ Contains b l'] *)
       apply (h b).
       (* [b = b] is the left side, proved by reflexivity of [=]. *)
-      exact (Disjunction_left (Equijunction.reflexivity b)).
+      exact (Disjunction.left (Equijunction.reflexivity b)).
     + (* [IH] turns a proof of the membership hypothesis for [l'] into one
          of the goal: [|- forall (a : A), Contains a l' -> P a] *)
       apply IH.
@@ -1456,7 +1456,7 @@ Proof.
          [|- a = b \/ Contains a l'] *)
       apply (h a).
       (* [ha] is the right side. *)
-      exact (Disjunction_right ha).
+      exact (Disjunction.right ha).
 Qed.
 
 Theorem all_specification
@@ -1514,7 +1514,7 @@ Proof.
          [|- P b]. *)
       split.
       * (* [b = b] is the left side, proved by reflexivity of [=]. *)
-        exact (Disjunction_left (Equijunction.reflexivity b)).
+        exact (Disjunction.left (Equijunction.reflexivity b)).
       * (* [pb] is a proof of the goal as it stands. *)
         exact pb.
     + (* [IH] turns [h'] into an [exists], which [destruct] opens into a
@@ -1529,7 +1529,7 @@ Proof.
          [|- P a]. *)
       split.
       * (* [ha'] is the right side. *)
-        exact (Disjunction_right ha').
+        exact (Disjunction.right ha').
       * (* [pa] is a proof of the goal as it stands. *)
         exact pa.
 Qed.
@@ -1577,10 +1577,10 @@ Proof.
     + (* [e] replaces [a] by [b] in [pa]: [pa : P b]. *)
       rewrite e in pa.
       (* [pa] is the left side. *)
-      exact (Disjunction_left pa).
-    + (* [Disjunction_right] turns the goal into its right side:
+      exact (Disjunction.left pa).
+    + (* [Disjunction.right] turns the goal into its right side:
          [|- Any P l'] *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       (* [IH] turns a proof of the [exists] for [l'] into one of the goal:
          [|- exists (a : A), Contains a l' /\ P a] *)
       apply IH.
@@ -3083,12 +3083,12 @@ Proof.
       simpl in |- *.
       intro h.
       destruct h as [e | h'].
-      * exact (Disjunction_right (Disjunction_left e)).
+      * exact (Disjunction.right (Disjunction.left e)).
       * (* [IH] sorts the tail's membership into the two sides. *)
         pose proof (IH h') as h''.
         destruct h'' as [e | h'''].
-        { exact (Disjunction_left e). }
-        { exact (Disjunction_right (Disjunction_right h''')). }
+        { exact (Disjunction.left e). }
+        { exact (Disjunction.right (Disjunction.right h''')). }
 Qed.
 
 Lemma insert_containment_backward
@@ -3114,10 +3114,10 @@ Proof.
       intro h.
       destruct h as [e | h'].
       * (* [b] is [a], which [IH] places in the tail. *)
-        exact (Disjunction_right (IH (Disjunction_left e))).
+        exact (Disjunction.right (IH (Disjunction.left e))).
       * destruct h' as [e | h''].
-        { exact (Disjunction_left e). }
-        { exact (Disjunction_right (IH (Disjunction_right h''))). }
+        { exact (Disjunction.left e). }
+        { exact (Disjunction.right (IH (Disjunction.right h''))). }
 Qed.
 
 Theorem insert_containment
@@ -3152,8 +3152,8 @@ Proof.
     intro h.
     pose proof (insert_containment_forward A le b a (insertion_sort le l') h) as h'.
     destruct h' as [e | h''].
-    + exact (Disjunction_left e).
-    + exact (Disjunction_right (IH h'')).
+    + exact (Disjunction.left e).
+    + exact (Disjunction.right (IH h'')).
 Qed.
 
 Lemma insertion_sort_containment_preservation_backward
@@ -3172,8 +3172,8 @@ Proof.
     intro h.
     apply (insert_containment_backward A le b a (insertion_sort le l')).
     destruct h as [e | h'].
-    + exact (Disjunction_left e).
-    + exact (Disjunction_right (IH h')).
+    + exact (Disjunction.left e).
+    + exact (Disjunction.right (IH h')).
 Qed.
 
 Theorem insertion_sort_containment_preservation
@@ -3350,11 +3350,11 @@ Proof.
     unfold NatWithZero.LessOrEqual in |- *.
     destruct h' as [h1 | h2].
     + (* In the first part: below [Positive p'] by [IH]. *)
-      exact (Disjunction_right (IH i h1)).
+      exact (Disjunction.right (IH i h1)).
     + (* In the second part, which computes to [i = Positive p' \/ Falsum]. *)
       simpl in h2.
       destruct h2 as [e | f].
-      * exact (Disjunction_left e).
+      * exact (Disjunction.left e).
       * contradiction.
 Qed.
 
@@ -3375,7 +3375,7 @@ Proof.
     destruct h as [k e].
     destruct i as [| q].
     + simpl in |- *.
-      exact (Disjunction_left (Equijunction.reflexivity Zero)).
+      exact (Disjunction.left (Equijunction.reflexivity Zero)).
     + (* [e] computes to [Positive (Nat.add q k) = Positive One]; the sum is
        * a [Successor] whichever ctor [q] is.
        *)
@@ -3408,10 +3408,10 @@ Proof.
                 NatWithZero i (range_positive p') (Cons (Positive p') Nil))).
     unfold NatWithZero.LessOrEqual in h'.
     destruct h' as [e | lt].
-    + apply Disjunction_right.
+    + apply Disjunction.right.
       simpl in |- *.
-      exact (Disjunction_left e).
-    + exact (Disjunction_left (IH i lt)).
+      exact (Disjunction.left e).
+    + exact (Disjunction.left (IH i lt)).
 Qed.
 
 Theorem range_containment_specification
@@ -3509,7 +3509,7 @@ Proof.
     + (* One element: the fold is [max a Zero], which is [a]. *)
       simpl in |- *.
       rewrite (NatWithZero.max_right_identity a) in |- *.
-      exact (Disjunction_left (Equijunction.reflexivity a)).
+      exact (Disjunction.left (Equijunction.reflexivity a)).
     + (* One step of the fold and of [Contains], written out so that the
        * fold of the tail stays as [IH] and [c] state it:
        * [|- max a M = a \/ Contains (max a M) (Cons b l'')] with [M] the
@@ -3524,7 +3524,7 @@ Proof.
                     (fold_right NatWithZero.max Zero (Cons b l'')) a) as t.
       destruct t as [le | ge].
       * (* [M] is at most [a]: the maximum is [a], the head. *)
-        apply Disjunction_left.
+        apply Disjunction.left.
         exact (Bijunction_elimination_backward
                  (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a)
                  (NatWithZero.LessOrEqual (fold_right NatWithZero.max Zero (Cons b l'')) a)
@@ -3533,7 +3533,7 @@ Proof.
       * (* [a] is at most [M]: the maximum is [M], turned round by
          * commutativity, which [c] places in the tail.
          *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         rewrite (NatWithZero.max_commutativity
                    a (fold_right NatWithZero.max Zero (Cons b l''))) in |- *.
         rewrite (Bijunction_elimination_backward
@@ -3662,7 +3662,7 @@ Proof.
       simpl in e.
       pose proof (Option.some_injectivity NatWithZero a m e) as e'.
       simpl in |- *.
-      exact (Disjunction_left (Equijunction.symmetry e')).
+      exact (Disjunction.left (Equijunction.symmetry e')).
     + (* [e] computes to [Some (min a m') = Some m]; whichever of [a] and
        * [m'] is below, [min] is it: the head, or a member of [l'] by [IH]
        * at [m'], whose premise the case analysis has turned into
@@ -3675,11 +3675,11 @@ Proof.
       simpl in |- *.
       pose proof (NatWithZero.less_or_equal_totality a m') as t.
       destruct t as [le | ge].
-      * apply Disjunction_left.
+      * apply Disjunction.left.
         exact (Bijunction_elimination_backward
                  (NatWithZero.min a m' = a) (NatWithZero.LessOrEqual a m')
                  (NatWithZero.min_specification a m') le).
-      * apply Disjunction_right.
+      * apply Disjunction.right.
         rewrite (NatWithZero.min_commutativity a m') in |- *.
         rewrite (Bijunction_elimination_backward
                    (NatWithZero.min m' a = m') (NatWithZero.LessOrEqual m' a)

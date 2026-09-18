@@ -62,8 +62,8 @@ Proof.
   (* [h] gives two goals: one with [a : A] and [not_b : ~ B], one with
      [not_a : ~ A] and [b : B]. *)
   destruct h as [a not_b | not_a b].
-  - (* [Disjunction_left] turns the goal into its left side: [|- A -/> B] *)
-    apply Disjunction_left.
+  - (* [Disjunction.left] turns the goal into its left side: [|- A -/> B] *)
+    apply Disjunction.left.
     (* [Abjunction] has one ctor with two fields, so the goal splits into two
        goals: [|- A] and [|- ~ B]. *)
     split.
@@ -71,9 +71,9 @@ Proof.
       exact a.
     + (* [not_b] is a proof of the goal as it stands. *)
       exact not_b.
-  - (* [Disjunction_right] turns the goal into its right side:
+  - (* [Disjunction.right] turns the goal into its right side:
        [|- B -/> A] *)
-    apply Disjunction_right.
+    apply Disjunction.right.
     (* The goal splits into two goals: [|- B] and [|- ~ A]. *)
     split.
     + (* [b] is a proof of the goal as it stands. *)
@@ -133,7 +133,7 @@ Proof.
   - (* The goal splits into two goals: [|- A \/ B] and [|- ~ (A /\ B)]. *)
     split.
     + (* [a] is the left side of [A \/ B]. *)
-      exact (Disjunction_left a).
+      exact (Disjunction.left a).
     + (* [not_b] goes from [~ B] to [B -> Falsum]; the goal from
          [~ (A /\ B)] to [A /\ B -> Falsum]. *)
       unfold Negation in not_b |- *.
@@ -146,7 +146,7 @@ Proof.
   - (* The goal splits into two goals: [|- A \/ B] and [|- ~ (A /\ B)]. *)
     split.
     + (* [b] is the right side of [A \/ B]. *)
-      exact (Disjunction_right b).
+      exact (Disjunction.right b).
     + (* [not_a] goes from [~ A] to [A -> Falsum]; the goal from
          [~ (A /\ B)] to [A /\ B -> Falsum]. *)
       unfold Negation in not_a |- *.
@@ -352,9 +352,9 @@ Proof.
      [not_a : ~ A] and [b : B]. *)
   destruct h as [a not_b | not_a b].
   - (* [a] is the left side of [A \/ B]. *)
-    exact (Disjunction_left a).
+    exact (Disjunction.left a).
   - (* [b] is the right side of [A \/ B]. *)
-    exact (Disjunction_right b).
+    exact (Disjunction.right b).
 Qed.
 
 Theorem Sejunction_refutes_Conjunction

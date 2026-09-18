@@ -833,10 +833,10 @@ Proof.
   - (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
     destruct n as [| n'].
     + (* Equal. *)
-      exact (Disjunction_right (Disjunction_left (Equijunction.reflexivity Zero))).
+      exact (Disjunction.right (Disjunction.left (Equijunction.reflexivity Zero))).
     + (* [Zero] is below, with [n'] as the witness:
          [|- add Zero (Positive n') = Positive n'] *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       unfold LessThan in |- *.
       apply (Exists_introduction n').
       simpl in |- *.
@@ -844,8 +844,8 @@ Proof.
   - (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
     destruct n as [| n'].
     + (* The mirror: [|- add Zero (Positive m') = Positive m'] *)
-      apply Disjunction_right.
-      apply Disjunction_right.
+      apply Disjunction.right.
+      apply Disjunction.right.
       unfold LessThan in |- *.
       apply (Exists_introduction m').
       simpl in |- *.
@@ -854,18 +854,18 @@ Proof.
          [Positive]. *)
       pose proof (Nat.less_than_trichotomy m' n') as t.
       destruct t as [lt | rest].
-      * apply Disjunction_left.
+      * apply Disjunction.left.
         exact (Bijunction_elimination_backward
                  (LessThan (Positive m') (Positive n')) (Nat.LessThan m' n')
                  (less_than_positive_embedding m' n') lt).
       * destruct rest as [eq | gt].
         { (* [eq : m' = n'] replaces [m']. *)
-          apply Disjunction_right.
-          apply Disjunction_left.
+          apply Disjunction.right.
+          apply Disjunction.left.
           rewrite eq in |- *.
           reflexivity. }
-        { apply Disjunction_right.
-          apply Disjunction_right.
+        { apply Disjunction.right.
+          apply Disjunction.right.
           exact (Bijunction_elimination_backward
                    (LessThan (Positive n') (Positive m')) (Nat.LessThan n' m')
                    (less_than_positive_embedding n' m') gt). }
@@ -944,9 +944,9 @@ Proof.
   - (* [e : m = n] replaces [m]. *)
     rewrite e in |- *.
     unfold LessOrEqual in |- *.
-    exact (Disjunction_left (Equijunction.reflexivity (add k n))).
+    exact (Disjunction.left (Equijunction.reflexivity (add k n))).
   - unfold LessOrEqual in |- *.
-    apply Disjunction_right.
+    apply Disjunction.right.
     exact (add_strict_monotonicity k m n lt).
 Qed.
 
@@ -979,8 +979,8 @@ Proof.
   destruct m as [| m'].
   - (* [add Zero n] computes: [|- n = n \/ LessThan n n] *)
     simpl in |- *.
-    exact (Disjunction_left (Equijunction.reflexivity n)).
-  - apply Disjunction_right.
+    exact (Disjunction.left (Equijunction.reflexivity n)).
+  - apply Disjunction.right.
     (* [|- exists (k : Nat), add n (Positive k) = add (Positive m') n] *)
     unfold LessThan in |- *.
     apply (Exists_introduction m').
@@ -1013,7 +1013,7 @@ Proof.
   intros n.
   (* [|- n = n \/ LessThan n n], and the left side holds. *)
   unfold LessOrEqual in |- *.
-  exact (Disjunction_left (Equijunction.reflexivity n)).
+  exact (Disjunction.left (Equijunction.reflexivity n)).
 Qed.
 
 Theorem less_or_equal_transitivity
@@ -1033,9 +1033,9 @@ Proof.
   - destruct h2 as [e2 | lt2].
     + (* [e2 : m = n] replaces [m] in [lt1]. *)
       rewrite e2 in lt1.
-      exact (Disjunction_right lt1).
+      exact (Disjunction.right lt1).
     + (* Two strict steps compose. *)
-      exact (Disjunction_right (less_than_transitivity l m n lt1 lt2)).
+      exact (Disjunction.right (less_than_transitivity l m n lt1 lt2)).
 Qed.
 
 Theorem less_or_equal_antisymmetry
@@ -1070,10 +1070,10 @@ Proof.
   pose proof (less_than_trichotomy m n) as t.
   unfold LessOrEqual in |- *.
   destruct t as [lt | rest].
-  - exact (Disjunction_left (Disjunction_right lt)).
+  - exact (Disjunction.left (Disjunction.right lt)).
   - destruct rest as [eq | gt].
-    + exact (Disjunction_left (Disjunction_left eq)).
-    + exact (Disjunction_right (Disjunction_right gt)).
+    + exact (Disjunction.left (Disjunction.left eq)).
+    + exact (Disjunction.right (Disjunction.right gt)).
 Qed.
 
 (* Strictly below [n] plus one is at most [n]: a witness of [One] is
@@ -1096,13 +1096,13 @@ Proof.
     unfold LessOrEqual in |- *.
     destruct k as [| k'].
     + (* The shared step cancels on the right: [m = n]. *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       exact (add_right_cancellation m n (Positive One) e).
     + (* [Positive (Successor k')] is [add (Positive One) (Positive k')] by
        * computation; turned round and regrouped, [e] puts the step last on
        * both sides, where it cancels: [|- add m (Positive k') = n]
        *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       unfold LessThan in |- *.
       apply (Exists_introduction k').
       change (Positive (Successor k')) with (add (Positive One) (Positive k')) in e.
@@ -1394,7 +1394,7 @@ Proof.
     + (* [c] says [m] is below [n]. *)
       intro e.
       unfold LessOrEqual in |- *.
-      apply Disjunction_right.
+      apply Disjunction.right.
       exact (Bijunction_elimination_forward
                (compare m n = Lt) (LessThan m n) (compare_lt_specification m n) c).
     + intro h.
@@ -1405,7 +1405,7 @@ Proof.
     + (* [c] says [m] is [n]. *)
       intro e.
       unfold LessOrEqual in |- *.
-      apply Disjunction_left.
+      apply Disjunction.left.
       exact (Bijunction_elimination_forward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + intro h.
@@ -1446,10 +1446,10 @@ Proof.
   intros m n.
   pose proof (less_or_equal_totality m n) as t.
   destruct t as [h | h].
-  - apply Disjunction_left.
+  - apply Disjunction.left.
     exact (Bijunction_elimination_backward
              (at_most m n = true) (LessOrEqual m n) (at_most_specification m n) h).
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_backward
              (at_most n m = true) (LessOrEqual n m) (at_most_specification n m) h).
 Qed.
@@ -1505,21 +1505,21 @@ Proof.
     intro e.
     destruct (compare m n) as [| |] eqn:c.
     + (* [Lt]: the strict step, by the specification. *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       exact (Bijunction_elimination_forward
               (compare m n = Lt)
               (LessThan m n)
               (compare_lt_specification m n)
               c).
     + (* [Eq]: the equality, by the specification. *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       exact (Bijunction_elimination_forward
               (compare m n = Eq)
               (m = n)
               (compare_eq_specification m n)
               c).
     + (* [Gt]: then [e : n = m], turned round. *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       exact (Equijunction.symmetry e).
   - (* The context gains [h]; the first two answers give [m] outright, and
        [Gt] contradicts [h] either way. *)
@@ -1557,16 +1557,16 @@ Proof.
   split.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction_left.
+    + apply Disjunction.left.
       exact e.
-    + apply Disjunction_left.
+    + apply Disjunction.left.
       exact (Equijunction.symmetry
               (Bijunction_elimination_forward
                 (compare m n = Eq)
                 (m = n)
                 (compare_eq_specification m n)
                 c)).
-    + apply Disjunction_right.
+    + apply Disjunction.right.
       exact (Bijunction_elimination_forward
               (compare m n = Gt)
               (LessThan n m)
@@ -1604,9 +1604,9 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
-  - apply Disjunction_right.
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
             (compare l r = Gt)
             (LessThan r l)
@@ -1621,19 +1621,19 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
             (compare l r = Lt)
             (LessThan l r)
             (compare_lt_specification l r)
             c).
-  - apply Disjunction_left.
+  - apply Disjunction.left.
     exact (Bijunction_elimination_forward
             (compare l r = Eq)
             (l = r)
             (compare_eq_specification l r)
             c).
-  - exact (Disjunction_left (Equijunction.reflexivity r)).
+  - exact (Disjunction.left (Equijunction.reflexivity r)).
 Qed.
 
 Lemma min_universality
@@ -1660,14 +1660,14 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
             (compare l r = Lt)
             (LessThan l r)
             (compare_lt_specification l r)
             c).
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
 Qed.
 
 Lemma max_right_injection
@@ -1677,15 +1677,15 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction_left (Equijunction.reflexivity r)).
-  - apply Disjunction_left.
+  - exact (Disjunction.left (Equijunction.reflexivity r)).
+  - apply Disjunction.left.
     exact (Equijunction.symmetry
              (Bijunction_elimination_forward
                 (compare l r = Eq)
                 (l = r)
                 (compare_eq_specification l r)
                 c)).
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
              (compare l r = Gt) (LessThan r l)
              (compare_gt_specification l r) c).
@@ -2013,7 +2013,7 @@ Proof.
       (* [m'] is below the sum, so truncation answers [None], whose branch
          computes: [|- Zero = Zero] *)
       rewrite (Nat.subtract_truncation m' (Nat.add m' k)
-                 (Disjunction_right (Nat.add_left_inflation m' k))) in |- *.
+                 (Disjunction.right (Nat.add_left_inflation m' k))) in |- *.
       simpl in |- *.
       reflexivity.
 Qed.
@@ -2095,7 +2095,7 @@ Proof.
         (* [k'] is below the sum, so truncation answers [None], whose branch
            computes: [|- Zero = Zero] *)
         rewrite (Nat.subtract_truncation k' (Nat.add k' n')
-                   (Disjunction_right (Nat.add_left_inflation k' n'))) in |- *.
+                   (Disjunction.right (Nat.add_left_inflation k' n'))) in |- *.
         simpl in |- *.
         reflexivity.
     + destruct n as [| n'].
@@ -2502,7 +2502,7 @@ Proof.
   intros n.
   destruct n as [| p].
   - (* [Zero] is twice [Zero]. *)
-    apply Disjunction_left.
+    apply Disjunction.left.
     unfold Even in |- *.
     unfold Divides in |- *.
     apply (Exists_introduction Zero).
@@ -2514,7 +2514,7 @@ Proof.
      *)
     induction p as [| p' IH] using Nat_induction.
     + (* [Positive One] is one more than twice [Zero]. *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       unfold Odd in |- *.
       apply (Exists_introduction Zero).
       simpl in |- *.
@@ -2525,7 +2525,7 @@ Proof.
          * [add (Positive p') (Positive One)] computes to
          * [Positive (Nat.add p' One)], the sum turned round.
          *)
-        apply Disjunction_right.
+        apply Disjunction.right.
         unfold Even in ev.
         unfold Divides in ev.
         destruct ev as [k e].
@@ -2542,7 +2542,7 @@ Proof.
          * [mul two (Positive One)] is [add (Positive One) (Positive One)] by
          * computation, and regrouping puts [e] back together.
          *)
-        apply Disjunction_left.
+        apply Disjunction.left.
         unfold Odd in od.
         destruct od as [k e].
         unfold Even in |- *.

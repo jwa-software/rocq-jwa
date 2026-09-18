@@ -820,10 +820,10 @@ Proof.
     (* [n] is either [One] or [Successor n']: one goal per ctor. *)
     destruct n as [| n'].
     + (* The middle case holds by reflexivity. *)
-      exact (Disjunction_right (Disjunction_left (Equijunction.reflexivity One))).
+      exact (Disjunction.right (Disjunction.left (Equijunction.reflexivity One))).
     + (* [One] is below any [Successor], the witness being what follows:
          [|- add One n' = Successor n'] after choosing it *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       unfold LessThan in |- *.
       apply (Exists_introduction n').
       (* [add One n'] computes: [|- Successor n' = Successor n'] *)
@@ -836,8 +836,8 @@ Proof.
     destruct n as [| n'].
     + (* The mirror of the case above: [|- add One m' = Successor m'] after
          choosing the witness *)
-      apply Disjunction_right.
-      apply Disjunction_right.
+      apply Disjunction.right.
+      apply Disjunction.right.
       unfold LessThan in |- *.
       apply (Exists_introduction m').
       (* [add One m'] computes: [|- Successor m' = Successor m'] *)
@@ -848,18 +848,18 @@ Proof.
       pose proof (IH n') as t.
       destruct t as [lt | rest].
       * (* [lt : LessThan m' n'] lifts through the [Successor]s. *)
-        apply Disjunction_left.
+        apply Disjunction.left.
         exact (successor_strict_monotonicity m' n' lt).
       * destruct rest as [eq | gt].
         { (* [eq : m' = n'] replaces [m']:
              [|- Successor n' = Successor n'] *)
-          apply Disjunction_right.
-          apply Disjunction_left.
+          apply Disjunction.right.
+          apply Disjunction.left.
           rewrite eq in |- *.
           reflexivity. }
         { (* [gt : LessThan n' m'] lifts through the [Successor]s. *)
-          apply Disjunction_right.
-          apply Disjunction_right.
+          apply Disjunction.right.
+          apply Disjunction.right.
           exact (successor_strict_monotonicity n' m' gt). }
 Qed.
 
@@ -939,7 +939,7 @@ Proof.
   intros n.
   (* [|- n = n \/ LessThan n n], and the left side holds. *)
   unfold LessOrEqual in |- *.
-  exact (Disjunction_left (Equijunction.reflexivity n)).
+  exact (Disjunction.left (Equijunction.reflexivity n)).
 Qed.
 
 Theorem less_or_equal_transitivity
@@ -959,9 +959,9 @@ Proof.
   - destruct h2 as [e2 | lt2].
     + (* [e2 : m = n] replaces [m] in [lt1 : LessThan l m]. *)
       rewrite e2 in lt1.
-      exact (Disjunction_right lt1).
+      exact (Disjunction.right lt1).
     + (* Two strict steps compose. *)
-      exact (Disjunction_right (less_than_transitivity l m n lt1 lt2)).
+      exact (Disjunction.right (less_than_transitivity l m n lt1 lt2)).
 Qed.
 
 Theorem less_or_equal_antisymmetry
@@ -994,10 +994,10 @@ Proof.
   pose proof (less_than_trichotomy m n) as t.
   unfold LessOrEqual in |- *.
   destruct t as [lt | rest].
-  - exact (Disjunction_left (Disjunction_right lt)).
+  - exact (Disjunction.left (Disjunction.right lt)).
   - destruct rest as [eq | gt].
-    + exact (Disjunction_left (Disjunction_left eq)).
-    + exact (Disjunction_right (Disjunction_right gt)).
+    + exact (Disjunction.left (Disjunction.left eq)).
+    + exact (Disjunction.right (Disjunction.right gt)).
 Qed.
 
 (* Three-way comparison, by walking both numbers down together: the one
@@ -1330,16 +1330,16 @@ Proof.
     intro e.
     destruct (compare m n) as [| |] eqn:c.
     + (* [Lt]: the strict step, by the specification. *)
-      apply Disjunction_right.
+      apply Disjunction.right.
       exact (Bijunction_elimination_forward
                (compare m n = Lt) (LessThan m n)
                (compare_lt_specification m n) c).
     + (* [Eq]: the equality, by the specification. *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       exact (Bijunction_elimination_forward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + (* [Gt]: then [e : n = m], turned round. *)
-      apply Disjunction_left.
+      apply Disjunction.left.
       exact (Equijunction.symmetry e).
   - (* The context gains [h]; the first two answers give [m] outright, and
        [Gt] contradicts [h] either way. *)
@@ -1375,13 +1375,13 @@ Proof.
   split.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction_left.
+    + apply Disjunction.left.
       exact e.
-    + apply Disjunction_left.
+    + apply Disjunction.left.
       exact (Equijunction.symmetry
                (Bijunction_elimination_forward
                   (compare m n = Eq) (m = n) (compare_eq_specification m n) c)).
-    + apply Disjunction_right.
+    + apply Disjunction.right.
       exact (Bijunction_elimination_forward
                (compare m n = Gt) (LessThan n m)
                (compare_gt_specification m n) c).
@@ -1416,9 +1416,9 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
-  - apply Disjunction_right.
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
              (compare l r = Gt) (LessThan r l)
              (compare_gt_specification l r) c).
@@ -1432,14 +1432,14 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
              (compare l r = Lt) (LessThan l r)
              (compare_lt_specification l r) c).
-  - apply Disjunction_left.
+  - apply Disjunction.left.
     exact (Bijunction_elimination_forward
              (compare l r = Eq) (l = r) (compare_eq_specification l r) c).
-  - exact (Disjunction_left (Equijunction.reflexivity r)).
+  - exact (Disjunction.left (Equijunction.reflexivity r)).
 Qed.
 
 Lemma min_universality
@@ -1465,12 +1465,12 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
              (compare l r = Lt) (LessThan l r)
              (compare_lt_specification l r) c).
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
-  - exact (Disjunction_left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Equijunction.reflexivity l)).
 Qed.
 
 Lemma max_right_injection : forall (l : Nat) (r : Nat), LessOrEqual r (max l r).
@@ -1479,12 +1479,12 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction_left (Equijunction.reflexivity r)).
-  - apply Disjunction_left.
+  - exact (Disjunction.left (Equijunction.reflexivity r)).
+  - apply Disjunction.left.
     exact (Equijunction.symmetry
              (Bijunction_elimination_forward
                 (compare l r = Eq) (l = r) (compare_eq_specification l r) c)).
-  - apply Disjunction_right.
+  - apply Disjunction.right.
     exact (Bijunction_elimination_forward
              (compare l r = Gt) (LessThan r l)
              (compare_gt_specification l r) c).
