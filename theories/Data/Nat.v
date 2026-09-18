@@ -7,18 +7,18 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
-From jwa Require Import Relations.Reflexive.
-From jwa Require Import Relations.Irreflexive.
-From jwa Require Import Relations.Antisymmetric.
-From jwa Require Import Relations.Transitive.
-From jwa Require Import Relations.Total.
-From jwa Require Import Relations.StrictOrder.
-From jwa Require Import Relations.PartialOrder.
-From jwa Require Import Relations.TotalOrder.
-From jwa Require Import Structures.Semigroup.
-From jwa Require Import Structures.Monoid.
-From jwa Require Import Structures.Commutative.
+From jwa Require Import Relation.Antisymmetric.
+From jwa Require Import Relation.Irreflexive.
+From jwa Require Import Relation.Order.PartialOrder.
+From jwa Require Import Relation.Order.StrictOrder.
+From jwa Require Import Relation.Order.TotalOrder.
+From jwa Require Import Relation.Reflexive.
+From jwa Require Import Relation.Total.
+From jwa Require Import Relation.Transitive.
 From jwa Require Import Structures.Cancellative.
+From jwa Require Import Structures.Commutative.
+From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Semigroup.
 
 (* Zero is not a [Nat]; [One] is the smallest.
  * [Data.NatWithZero] is the type that has it.
@@ -1840,7 +1840,7 @@ Instance Nat_add_commutative : Commutative.T Nat Nat.add :=
 Instance Nat_mul_commutative : Commutative.T Nat Nat.mul :=
   {| Commutative.commutativity := Nat.mul_commutativity |}.
 
-(* The two orders as instances of the [Relations] classes. The laws were
+(* The two orders as instances of the [Relation] classes. The laws were
    already proved above, so each instance only hands them over; the nested
    records fill the [::] fields one class at a time. *)
 Instance Nat_less_than_strict_order : StrictOrder Nat.LessThan :=

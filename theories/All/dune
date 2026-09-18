@@ -11,7 +11,7 @@
   jwa.Core
   jwa.Tactics
   jwa.Structures
-  jwa.Relations
+  jwa.Relation
   jwa.Data
   jwa.Algebra
   jwa.Programming))

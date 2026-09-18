@@ -6,7 +6,7 @@
 
 (* Without [Core.All] a client of this umbrella has no [->]. *)
 From jwa Require Export Core.All.
-From jwa Require Export Relations.All.
+From jwa Require Export Relation.All.
 From jwa Require Export Structures.All.
 
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)

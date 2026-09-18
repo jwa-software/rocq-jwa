@@ -1,8 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Relations.All.
+From jwa Require Import Relation.All.
 
-Definition relations_all_delivers
+Definition relation_all_delivers
   : forall (A : Type) (R : A -> A -> Prop),
       Reflexive R -> Irreflexive R -> Symmetric R
       -> Antisymmetric R -> Transitive R -> Total R
@@ -14,23 +14,23 @@ Definition relations_all_delivers
          (_ : Equivalence R) (_ : StrictOrder R) (_ : PartialOrder R)
          (_ : TotalOrder R) (_ : ~ Falsum) => I.
 
-Definition relations_all_delivers_order_projections
+Definition relation_all_delivers_order_projections
   : forall (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A),
       R x x
   := fun (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A) =>
        Reflexive.reflexivity x.
 
-Definition relations_all_delivers_projections
+Definition relation_all_delivers_projections
   : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A),
       R x x
   := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) =>
        Reflexive.reflexivity x.
 
-Definition relations_all_delivers_identity_instance
+Definition relation_all_delivers_identity_instance
   : forall (A : Type) (x : A) (y : A), x = y -> y = x
   := fun (A : Type) (x : A) (y : A) => Symmetric.symmetry x y.
 
-Definition relations_all_delivers_biimplication_instance
+Definition relation_all_delivers_biimplication_instance
   : forall (P : Prop) (Q : Prop) (S : Prop),
       (P <-> Q) -> (Q <-> S) -> (P <-> S)
   := fun (P : Prop) (Q : Prop) (S : Prop) => Transitive.transitivity P Q S.
