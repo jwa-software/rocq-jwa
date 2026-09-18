@@ -2188,23 +2188,21 @@ Instance Integer_mul_monoid : Monoid.T Integer Integer.mul (Positive One) :=
 Instance Integer_mul_commutative : Commutative.T Integer Integer.mul :=
   {| Commutative.commutativity := Integer.mul_commutativity |}.
 
-(* The two orders as instances of the [Relations] classes, the nested
-   records filling the [::] fields one class at a time. *)
-Instance Integer_less_than_strict_order : StrictOrder.R Integer Integer.LessThan :=
-  {| StrictOrder.irreflexive :=
+Instance Integer_less_than_strict_order : StrictOrder Integer.LessThan :=
+  {| StrictOrder.irreflexivity :=
        {| Irreflexive.irreflexivity := Integer.less_than_irreflexivity |}
-   ; StrictOrder.transitive :=
+   ; StrictOrder.transitivity :=
        {| Transitive.transitivity := Integer.less_than_transitivity |} |}.
 
-Instance Integer_less_or_equal_total_order : TotalOrder.R Integer Integer.LessOrEqual :=
+Instance Integer_less_or_equal_total_order : TotalOrder Integer.LessOrEqual :=
   {| TotalOrder.partial_order :=
-       {| PartialOrder.reflexive :=
+       {| PartialOrder.reflexivity :=
             {| Reflexive.reflexivity := Integer.less_or_equal_reflexivity |}
-        ; PartialOrder.antisymmetric :=
+        ; PartialOrder.antisymmetry :=
             {| Antisymmetric.antisymmetry := Integer.less_or_equal_antisymmetry |}
-        ; PartialOrder.transitive :=
+        ; PartialOrder.transitivity :=
             {| Transitive.transitivity := Integer.less_or_equal_transitivity |} |}
-   ; TotalOrder.total :=
+   ; TotalOrder.totality :=
        {| Total.totality := Integer.less_or_equal_totality |} |}.
 
 (* Addition is an abelian group, negation the inverse; with [mul] it is a

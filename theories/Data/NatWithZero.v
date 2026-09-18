@@ -2677,22 +2677,22 @@ Instance NatWithZero_mul_commutative
 
 (* The two orders as instances of the [Relations] classes, as for [Nat]. *)
 Instance NatWithZero_less_than_strict_order
-  : StrictOrder.R NatWithZero NatWithZero.LessThan :=
-  {| StrictOrder.irreflexive :=
+  : StrictOrder NatWithZero.LessThan :=
+  {| StrictOrder.irreflexivity :=
        {| Irreflexive.irreflexivity := NatWithZero.less_than_irreflexivity |}
-   ; StrictOrder.transitive :=
+   ; StrictOrder.transitivity :=
        {| Transitive.transitivity := NatWithZero.less_than_transitivity |} |}.
 
 Instance NatWithZero_less_or_equal_total_order
-  : TotalOrder.R NatWithZero NatWithZero.LessOrEqual :=
+  : TotalOrder NatWithZero.LessOrEqual :=
   {| TotalOrder.partial_order :=
-      {| PartialOrder.reflexive :=
+      {| PartialOrder.reflexivity :=
           {| Reflexive.reflexivity := NatWithZero.less_or_equal_reflexivity |}
-       ; PartialOrder.antisymmetric :=
+       ; PartialOrder.antisymmetry :=
           {| Antisymmetric.antisymmetry := NatWithZero.less_or_equal_antisymmetry |}
-       ; PartialOrder.transitive :=
+       ; PartialOrder.transitivity :=
           {| Transitive.transitivity := NatWithZero.less_or_equal_transitivity |} |}
-   ; TotalOrder.total :=
+   ; TotalOrder.totality :=
       {| Total.totality := NatWithZero.less_or_equal_totality |} |}.
 
 (* [min] has no identity, since [Zero] absorbs it; [max] has [Zero].
@@ -2734,10 +2734,10 @@ Instance NatWithZero_semiring
 
 (* Divisibility as an instance of the partial order class. *)
 Instance NatWithZero_divides_partial_order
-  : PartialOrder.R NatWithZero NatWithZero.Divides :=
-  {| PartialOrder.reflexive :=
+  : PartialOrder NatWithZero.Divides :=
+  {| PartialOrder.reflexivity :=
        {| Reflexive.reflexivity := NatWithZero.divides_reflexivity |}
-   ; PartialOrder.antisymmetric :=
+   ; PartialOrder.antisymmetry :=
        {| Antisymmetric.antisymmetry := NatWithZero.divides_antisymmetry |}
-   ; PartialOrder.transitive :=
+   ; PartialOrder.transitivity :=
        {| Transitive.transitivity := NatWithZero.divides_transitivity |} |}.

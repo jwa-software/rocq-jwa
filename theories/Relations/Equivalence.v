@@ -1,37 +1,15 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Relations.All] would be circular from inside [Relations]; [Core.All]
- * carries [->], [<->] and [=] with the three laws of each,
- * [Structures.Class] the hint database, and the three modules below the
- * classes this one is built on.
- *)
 From jwa Require Import Core.All.
 From jwa Require Import Relations.Reflexive.
 From jwa Require Import Relations.Symmetric.
 From jwa Require Import Relations.Transitive.
 From jwa Require Import Structures.Class.
 
-(* The module is the prefix: the class reads [Equivalence.R] and its
- * fields [Equivalence.reflexive] and so on.
- *)
-Module Equivalence.
-  (* The three properties together. The [::] on each field declares it an
-   * instance as well as a projection, which is what lets an
-   * [Equivalence.R] be used wherever a [Reflexive.R], a
-   * [Symmetric.R] or a [Transitive.R] is asked for.
-   *)
-  Class R (A : Type) (relation : A -> A -> Prop) : Prop :=
-    { reflexive  :: Reflexive.R A relation
-    ; symmetric  :: Symmetric.R A relation
-    ; transitive :: Transitive.R A relation }.
-End Equivalence.
-
-(* The instance hints that [::] declares are scoped to the module they are
- * declared in; this lets them out while the names stay qualified. Without
- * it [Reflexive.R A R] is not found from an [Equivalence.R A R]
- * outside the module.
- *)
-Export (hints) Equivalence.
+Class Equivalence {A : Type} (R : A -> A -> Prop) : Prop :=
+  { reflexivity  :: Reflexive  R
+  ; symmetry     :: Symmetric  R
+  ; transitivity :: Transitive R }.
 
 (* The instances for the two relations of [Core] sit here and not beside
  * them, since [Core] sees no class. Each field is the matching theorem of
@@ -39,23 +17,20 @@ Export (hints) Equivalence.
  *)
 
 Instance Biimplication_equivalence
-  : Equivalence.R Prop Biimplication :=
-  {| Equivalence.reflexive :=
+  : Equivalence Biimplication :=
+  {| Equivalence.reflexivity :=
        {| Reflexive.reflexivity := Biimplication.reflexivity |}
-   ; Equivalence.symmetric :=
+   ; Equivalence.symmetry :=
        {| Symmetric.symmetry := Biimplication.symmetry |}
-   ; Equivalence.transitive :=
+   ; Equivalence.transitivity :=
        {| Transitive.transitivity := Biimplication.transitivity |} |}.
 
-(* [@] makes [A] explicit, which the field types need since [relation] is
- * applied to two elements of [A] and nothing else.
- *)
 Instance Identity_equivalence
-  : forall (A : Type), Equivalence.R A (@Identity A) :=
+  : forall (A : Type), Equivalence (@Identity A) :=
   fun (A : Type) =>
-    {| Equivalence.reflexive :=
+    {| Equivalence.reflexivity :=
          {| Reflexive.reflexivity := @Identity.reflexivity A |}
-     ; Equivalence.symmetric :=
+     ; Equivalence.symmetry :=
          {| Symmetric.symmetry := @Identity.symmetry A |}
-     ; Equivalence.transitive :=
+     ; Equivalence.transitivity :=
          {| Transitive.transitivity := @Identity.transitivity A |} |}.

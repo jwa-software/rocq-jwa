@@ -1843,21 +1843,21 @@ Instance Nat_mul_commutative : Commutative.T Nat Nat.mul :=
 (* The two orders as instances of the [Relations] classes. The laws were
    already proved above, so each instance only hands them over; the nested
    records fill the [::] fields one class at a time. *)
-Instance Nat_less_than_strict_order : StrictOrder.R Nat Nat.LessThan :=
-  {| StrictOrder.irreflexive :=
+Instance Nat_less_than_strict_order : StrictOrder Nat.LessThan :=
+  {| StrictOrder.irreflexivity :=
        {| Irreflexive.irreflexivity := Nat.less_than_irreflexivity |}
-   ; StrictOrder.transitive :=
+   ; StrictOrder.transitivity :=
        {| Transitive.transitivity := Nat.less_than_transitivity |} |}.
 
-Instance Nat_less_or_equal_total_order : TotalOrder.R Nat Nat.LessOrEqual :=
+Instance Nat_less_or_equal_total_order : TotalOrder Nat.LessOrEqual :=
   {| TotalOrder.partial_order :=
-       {| PartialOrder.reflexive :=
+       {| PartialOrder.reflexivity :=
             {| Reflexive.reflexivity := Nat.less_or_equal_reflexivity |}
-        ; PartialOrder.antisymmetric :=
+        ; PartialOrder.antisymmetry :=
             {| Antisymmetric.antisymmetry := Nat.less_or_equal_antisymmetry |}
-        ; PartialOrder.transitive :=
+        ; PartialOrder.transitivity :=
             {| Transitive.transitivity := Nat.less_or_equal_transitivity |} |}
-   ; TotalOrder.total :=
+   ; TotalOrder.totality :=
        {| Total.totality := Nat.less_or_equal_totality |} |}.
 
 (* [min] is a commutative semigroup with no identity, since [Nat] has no
