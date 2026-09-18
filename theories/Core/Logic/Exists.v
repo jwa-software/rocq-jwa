@@ -1,9 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
-   the level below, [Core.Logic.Subjunction] carries [->]. *)
+   the level below, [Core.Logic.Implication] carries [->]. *)
 From jwa Require Import Core.Notations.
-From jwa Require Import Core.Logic.Subjunction.
+From jwa Require Import Core.Logic.Implication.
 
 (* [P] is a predicate, not a binder: [exists x, p] is [Exists (fun x => p)],
    so the [x] is bound by the [fun] and [Exists] never binds anything. *)

@@ -2,10 +2,10 @@
 
 (* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
    the level below, [Core.Ltac] carries the tactic language,
-   [Core.Logic.Subjunction] carries [->]. *)
+   [Core.Logic.Implication] carries [->]. *)
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
-From jwa Require Import Core.Logic.Subjunction.
+From jwa Require Import Core.Logic.Implication.
 
 (* Bijunction is the biconditional: each side implies the other, and the one
    ctor carries both directions. *)
@@ -128,10 +128,10 @@ Proof.
   exact ba.
 Qed.
 
-(* [<->] is respected by [->] and by [<->] itself. [Core.Logic.Subjunction]
+(* [<->] is respected by [->] and by [<->] itself. [Core.Logic.Implication]
    cannot see [<->], so the congruence of [->] sits here. *)
 
-Theorem Subjunction_congruence
+Theorem Implication_congruence
   : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
       (A1 <-> A2) -> (B1 <-> B2) -> ((A1 -> B1) <-> (A2 -> B2)).
 Proof.

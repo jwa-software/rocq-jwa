@@ -1,8 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Bijunction.
+From jwa Require Import Core.Logic.Implication.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Logic.Subjunction.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
@@ -23,9 +23,9 @@ Notation "A -/> B" := (Abjunction A B)
 Module Abjunction.
 
 (* Two propositions are incompatible when they cannot both hold: an
- * abjunction and the subjunction of the same two sides.
+ * abjunction and the implication between the same two sides.
  *)
-Theorem subjunction_incompatibility
+Theorem implication_incompatibility
   : forall (A : Prop) (B : Prop), A -/> B -> ~ (A -> B).
 Proof.
   intros A B.
@@ -92,12 +92,12 @@ Qed.
 
 End Abjunction.
 
-(* The same incompatibility read from the subjunction's side belongs to
- * [Subjunction], but it can be stated only here, where [-/>] is known. A
+(* The same incompatibility read from the implication's side belongs to
+ * [Implication], but it can be stated only here, where [-/>] is known. A
  * second module of that name carries it, and a client reads
- * [Subjunction.abjunction_incompatibility].
+ * [Implication.abjunction_incompatibility].
  *)
-Module Subjunction.
+Module Implication.
 
 Theorem abjunction_incompatibility
   : forall (A : Prop) (B : Prop), (A -> B) -> ~ (A -/> B).
@@ -113,4 +113,4 @@ Proof.
   exact a.
 Qed.
 
-End Subjunction.
+End Implication.

@@ -4,8 +4,8 @@ From jwa Require Import Core.Logic.Abjunction.
 From jwa Require Import Core.Logic.Bijunction.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
+From jwa Require Import Core.Logic.Implication.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Logic.Subjunction.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
