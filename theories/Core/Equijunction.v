@@ -1,8 +1,5 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
-   the level of [=], [Core.Logic.Subjunction] carries [->], [Core.Ltac] is
-   what makes [Proof] parse at all. *)
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
@@ -21,13 +18,22 @@ Definition Leibniz := fun {A : Type} (x : A) (y : A) =>
    equals something exists only when that something is [x], and that is the
    whole content of equality here. *)
 Inductive Equijunction (A : Type) (x : A) : A -> Prop :=
-  | Equijunction_reflexivity : Equijunction A x x.
+  | Equijunction_introduction : Equijunction A x x.
 
-Arguments Equijunction             {A} x _.
-Arguments Equijunction_reflexivity {A} x.
+Arguments Equijunction              {A} x _.
+Arguments Equijunction_introduction {A} x.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Equijunction x y) : jwa_type_scope.
+
+(* Every term equals itself: the reflexivity law of [=]. *)
+Theorem Equijunction_reflexivity
+  : forall {A : Type} (x : A), Equijunction x x.
+Proof.
+  (* The context gains [A] and [x]: [|- Equijunction x x] *)
+  intros A x.
+  exact (Equijunction_introduction x).
+Defined.
 
 (* Carries a proof across the equation. The tactics fill the slots of
    [core.eq.ind] by position, so this order -- [P] before the proof and [y]
@@ -42,7 +48,7 @@ Proof.
   (* The context gains [y] and [e]: [|- P y] *)
   intros y e.
   (* [x] is a parameter, so fixed for every ctor; [y] is an index, so each
-     ctor chooses it. [Equijunction_reflexivity] is the only ctor and it
+     ctor chooses it. [Equijunction_introduction] is the only ctor and it
      chooses the parameter, which is why [y] becomes [x] and not the other
      way: [|- P x] *)
   destruct e.
@@ -131,7 +137,7 @@ Register Scheme Equijunction_rewrite_backward as rew_r for Equijunction.
 (* [build_eqdata_gen] in rocqlib.ml demands exactly these six; a single missing
    one surfaces as [No primitive equality found]. *)
 Register Equijunction              as core.eq.type.
-Register Equijunction_reflexivity  as core.eq.refl.
+Register Equijunction_introduction as core.eq.refl.
 Register Equijunction_transport    as core.eq.ind.
 Register Equijunction_symmetry     as core.eq.sym.
 Register Equijunction_transitivity as core.eq.trans.
