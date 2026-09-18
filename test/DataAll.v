@@ -56,12 +56,15 @@ Definition data_all_delivers_empty : Empty -> Bool := Empty.elimination Bool.
 
 Definition data_all_delivers_nat : Nat := Successor One.
 
-Definition data_all_delivers_zero : NatWithZero := Zero.
+(* [Integer] defines [Zero] and [Positive] too, so the ctors of both types
+ * are written qualified; [Negative] is only [Integer]'s.
+ *)
+Definition data_all_delivers_zero : NatWithZero := NatWithZero.Zero.
 
-Definition data_all_delivers_positive : NatWithZero := Positive One.
+Definition data_all_delivers_positive : NatWithZero := NatWithZero.Positive One.
 
 Definition data_all_delivers_add : NatWithZero
-  := NatWithZero.add (Positive (Nat.add One One)) Zero.
+  := NatWithZero.add (NatWithZero.Positive (Nat.add One One)) NatWithZero.Zero.
 
 (* The instances are found by resolution rather than named, so this also
    checks that [Structures.All] reaches a client through this umbrella. *)
@@ -72,7 +75,7 @@ Definition data_all_delivers_instances
        Semigroup.associativity x y z.
 
 Definition data_all_delivers_monoid
-  : forall (w : NatWithZero), NatWithZero.add Zero w = w
+  : forall (w : NatWithZero), NatWithZero.add NatWithZero.Zero w = w
   := Monoid.left_identity.
 
 (* The cancellative instances are found by resolution, one per type. *)
@@ -92,7 +95,7 @@ Definition data_all_delivers_nat_operations : Nat
   := (One + One * Successor One)%nat.
 
 Definition data_all_delivers_nat_with_zero_operations : NatWithZero
-  := (Zero + Positive One * Positive One)%nat_with_zero.
+  := (NatWithZero.Zero + NatWithZero.Positive One * NatWithZero.Positive One)%nat_with_zero.
 
 Definition data_all_delivers_power : Nat := Nat.power (Successor One) One.
 
@@ -164,15 +167,16 @@ Definition data_all_delivers_does_not_belong_to : Prop
 Definition data_all_delivers_nat_order : Prop := (One < Successor One)%nat.
 
 Definition data_all_delivers_nat_with_zero_order : Prop
-  := (Zero <= Positive One)%nat_with_zero.
+  := (NatWithZero.Zero <= NatWithZero.Positive One)%nat_with_zero.
 
 Definition data_all_delivers_reversed_order : Prop
-  := (Successor One > One)%nat /\ (Positive One >= Zero)%nat_with_zero.
+  := (Successor One > One)%nat /\ (NatWithZero.Positive One >= NatWithZero.Zero)%nat_with_zero.
 
 Definition data_all_delivers_compare : Comparison
   := Nat.compare One (Successor One).
 
-Definition data_all_delivers_equal : Bool := NatWithZero.equal Zero Zero.
+Definition data_all_delivers_equal : Bool
+  := NatWithZero.equal NatWithZero.Zero NatWithZero.Zero.
 
 (* The order instances are found by resolution, which also checks that
    [Relations.All] reaches a client through this umbrella. *)
@@ -185,7 +189,7 @@ Definition data_all_delivers_strict_order
   := Irreflexive.irreflexivity.
 
 Definition data_all_delivers_max_monoid
-  : forall (n : NatWithZero), NatWithZero.max Zero n = n
+  : forall (n : NatWithZero), NatWithZero.max NatWithZero.Zero n = n
   := Monoid.left_identity.
 
 Definition data_all_delivers_nat_max_monoid
@@ -193,18 +197,20 @@ Definition data_all_delivers_nat_max_monoid
   := Monoid.left_identity.
 
 Definition data_all_delivers_division : NatWithZero * NatWithZero
-  := Pair_introduction (NatWithZero.divide (Positive One) One)
-                       (NatWithZero.modulo (Positive One) One).
+  := Pair_introduction (NatWithZero.divide (NatWithZero.Positive One) One)
+                       (NatWithZero.modulo (NatWithZero.Positive One) One).
 
-Definition data_all_delivers_nth : Option Bool := List.nth (Cons true Nil) Zero.
+Definition data_all_delivers_nth : Option Bool
+  := List.nth (Cons true Nil) NatWithZero.Zero.
 
 Definition data_all_delivers_split_at : List Bool * List Bool
-  := List.split_at (Positive One) (Cons true (Cons false Nil)).
+  := List.split_at (NatWithZero.Positive One) (Cons true (Cons false Nil)).
 
-Definition data_all_delivers_replicate : List Bool := List.replicate (Positive One) true.
+Definition data_all_delivers_replicate : List Bool
+  := List.replicate (NatWithZero.Positive One) true.
 
 Definition data_all_delivers_list_sum : NatWithZero
-  := NatWithZero.add (List.sum (Cons (Positive One) Nil)) (List.product Nil).
+  := NatWithZero.add (List.sum (Cons (NatWithZero.Positive One) Nil)) (List.product Nil).
 
 Definition data_all_delivers_count : NatWithZero
   := List.count (fun (b : Bool) => b) (Cons true Nil).
@@ -217,9 +223,6 @@ Definition data_all_delivers_sorting
   := List.insertion_sort_sortedness NatWithZero NatWithZero.at_most
        NatWithZero.at_most_totality NatWithZero.at_most_transitivity.
 
-(* [Integer] is exported before [NatWithZero], so the bare [Zero] and
-   [Positive] above are the latter's; the integer ctors are reached
-   qualified, except [Negative], which is only theirs. *)
 Definition data_all_delivers_integer : Integer
   := Integer.add (Negative One) (Integer.Positive One).
 
@@ -250,24 +253,27 @@ Definition data_all_delivers_integer_total_order
   := Total.totality.
 
 Definition data_all_delivers_integer_embedding : Integer
-  := Integer.from_nat_with_zero (Positive One).
+  := Integer.from_nat_with_zero (NatWithZero.Positive One).
 
 Definition data_all_delivers_integer_equal : Bool
   := Integer.equal (Negative One) (Integer.negate (Integer.Positive One)).
 
-Definition data_all_delivers_range : List NatWithZero := List.range (Positive One).
+Definition data_all_delivers_range : List NatWithZero
+  := List.range (NatWithZero.Positive One).
 
 Definition data_all_delivers_extrema : NatWithZero * Option NatWithZero
-  := Pair_introduction (List.maximum_of (Cons Zero Nil)) (List.minimum_of (Cons Zero Nil)).
+  := Pair_introduction (List.maximum_of (Cons NatWithZero.Zero Nil))
+                       (List.minimum_of (Cons NatWithZero.Zero Nil)).
 
 (* The closed form at [p := One], as a check that the theorem is offered. *)
 Definition data_all_delivers_gauss
-  : NatWithZero.mul (Positive (Successor One))
-      (List.sum (List.range (Positive (Successor One))))
-    = NatWithZero.mul (Positive One) (Positive (Successor One))
+  : NatWithZero.mul (NatWithZero.Positive (Successor One))
+      (List.sum (List.range (NatWithZero.Positive (Successor One))))
+    = NatWithZero.mul (NatWithZero.Positive One) (NatWithZero.Positive (Successor One))
   := List.sum_range_closed_form One.
 
-Definition data_all_delivers_divides : Prop := NatWithZero.Divides (Positive One) Zero.
+Definition data_all_delivers_divides : Prop
+  := NatWithZero.Divides (NatWithZero.Positive One) NatWithZero.Zero.
 
 (* The divisibility instance is found by resolution, through the partial
  * order's antisymmetry field.
@@ -278,13 +284,13 @@ Definition data_all_delivers_divides_partial_order
   := Antisymmetric.antisymmetry.
 
 Definition data_all_delivers_parity : Prop
-  := NatWithZero.Even Zero /\ Integer.Odd (Negative One).
+  := NatWithZero.Even NatWithZero.Zero /\ Integer.Odd (Negative One).
 
 (* The semiring, group, ring and the Boolean ring instances are found by
  * resolution, one per operation.
  *)
 Definition data_all_delivers_semiring
-  : forall (n : NatWithZero), NatWithZero.mul Zero n = Zero
+  : forall (n : NatWithZero), NatWithZero.mul NatWithZero.Zero n = NatWithZero.Zero
   := Semiring.left_absorption.
 
 Definition data_all_delivers_group
