@@ -863,6 +863,76 @@ Proof.
           exact (successor_strict_monotonicity n' m' gt). }
 Qed.
 
+(* Multiplication cancels: a strict step between the factors would be
+ * carried to a strict step between the products, which the equation turns
+ * into a step from a product to itself, refuted by irreflexivity; so
+ * trichotomy leaves equality.
+ *)
+Theorem mul_left_cancellation
+  : forall (k : Nat) (m : Nat) (n : Nat), mul k m = mul k n -> m = n.
+Proof.
+  (* The context gains [k], [m], [n] and [e]; one goal per side of
+   * trichotomy.
+   *)
+  intros k m n e.
+  pose proof (less_than_trichotomy m n) as t.
+  destruct t as [lt | rest].
+  - (* [lt] lifts to the products; [e] turns it into
+     * [lt' : LessThan (mul k n) (mul k n)].
+     *)
+    pose proof (mul_strict_monotonicity k m n lt) as lt'.
+    rewrite e in lt'.
+    pose proof (less_than_irreflexivity (mul k n)) as i.
+    unfold Unjunction in i.
+    pose proof (i lt') as f.
+    contradiction.
+  - destruct rest as [eq | gt].
+    + exact eq.
+    + (* The mirror, with [gt' : LessThan (mul k n) (mul k n)] after [e]. *)
+      pose proof (mul_strict_monotonicity k n m gt) as gt'.
+      rewrite e in gt'.
+      pose proof (less_than_irreflexivity (mul k n)) as i.
+      unfold Unjunction in i.
+      pose proof (i gt') as f.
+      contradiction.
+Qed.
+
+Theorem mul_right_cancellation
+  : forall (m : Nat) (n : Nat) (k : Nat), mul m k = mul n k -> m = n.
+Proof.
+  (* Commutativity on both sides brings it to the left law. *)
+  intros m n k e.
+  rewrite (mul_commutativity m k) in e.
+  rewrite (mul_commutativity n k) in e.
+  exact (mul_left_cancellation k m n e).
+Qed.
+
+(* [One] factors only as [One] times [One]: any other first factor makes
+ * the product a sum, which is a [Successor] whichever ctor the second
+ * factor is.
+ *)
+Theorem mul_identity_factorization
+  : forall (k : Nat) (j : Nat), mul k j = One -> k = One /\ j = One.
+Proof.
+  (* The context gains [k], [j] and [e]; one goal per ctor of [k]. *)
+  intros k j e.
+  destruct k as [| k'].
+  - (* [mul One j] computes to [j]: [e : j = One] replaces [j]. *)
+    simpl in e.
+    rewrite e in |- *.
+    exact (Conjunction_introduction
+             (Equijunction_reflexivity One) (Equijunction_reflexivity One)).
+  - (* [mul (Successor k') j] computes to [add j (mul k' j)], a [Successor]
+     * once [j] is a ctor: [e] equates it with [One].
+     *)
+    simpl in e.
+    destruct j as [| j'].
+    + simpl in e.
+      discriminate.
+    + simpl in e.
+      discriminate.
+Qed.
+
 Theorem less_or_equal_reflexivity : forall (n : Nat), LessOrEqual n n.
 Proof.
   (* The context gains [n]: [|- LessOrEqual n n] *)
@@ -1746,6 +1816,12 @@ Instance Nat_add_semigroup : Semigroup.T Nat Nat.add :=
 Instance Nat_add_cancellative : Cancellative.T Nat Nat.add :=
   {| Cancellative.left_cancellation  := Nat.add_left_cancellation
    ; Cancellative.right_cancellation := Nat.add_right_cancellation |}.
+
+(* Both cancellation laws of [mul] were already proved above as well. *)
+Instance Nat_mul_cancellative
+  : Cancellative.T Nat Nat.mul :=
+  {| Cancellative.left_cancellation  := Nat.mul_left_cancellation
+   ; Cancellative.right_cancellation := Nat.mul_right_cancellation |}.
 
 (* [One] leaves its argument alone under [mul], so multiplication reaches
    monoid where addition stopped at semigroup. [mul One n] computes to [n],
