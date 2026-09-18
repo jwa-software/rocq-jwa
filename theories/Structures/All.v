@@ -13,3 +13,7 @@ From jwa Require Export Structures.Monoid.
 From jwa Require Export Structures.Commutative.
 From jwa Require Export Structures.Cancellative.
 From jwa Require Export Structures.Functor.
+From jwa Require Export Structures.AbelianGroup.
+From jwa Require Export Structures.Group.
+From jwa Require Export Structures.Ring.
+From jwa Require Export Structures.Semiring.
