@@ -13,9 +13,12 @@ From jwa Require Import Relations.StrictOrder.
 From jwa Require Import Relations.Total.
 From jwa Require Import Relations.TotalOrder.
 From jwa Require Import Relations.Transitive.
+From jwa Require Import Structures.AbelianGroup.
 From jwa Require Import Structures.Cancellative.
 From jwa Require Import Structures.Commutative.
+From jwa Require Import Structures.Group.
 From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Ring.
 From jwa Require Import Structures.Semigroup.
 
 Inductive Integer : Type :=
@@ -785,6 +788,44 @@ Proof.
   unfold add in |- *.
   rewrite (NatWithZero.add_commutativity (positive_part m) (positive_part n)) in |- *.
   rewrite (NatWithZero.add_commutativity (negative_part m) (negative_part n)) in |- *.
+  reflexivity.
+Qed.
+
+Lemma add_left_commutativity
+  : forall (l : Integer) (m : Integer) (n : Integer), add l (add m n) = add m (add l n).
+Proof.
+  (* The context gains [l], [m] and [n]:
+   * [|- add l (add m n) = add m (add l n)]
+   *)
+  intros l m n.
+  (* Commutativity turns the left side round:
+   * [|- add (add m n) l = add m (add l n)]
+   *)
+  rewrite (add_commutativity l (add m n)) in |- *.
+  (* Associativity opens it: [|- add m (add n l) = add m (add l n)] *)
+  rewrite (add_associativity m n l) in |- *.
+  (* Commutativity swaps the inner pair: both sides are the same term. *)
+  rewrite (add_commutativity n l) in |- *.
+  reflexivity.
+Qed.
+
+(* The interchange law: two sums of two can be added pairwise across. *)
+Theorem add_interchange
+  : forall (a : Integer) (b : Integer) (c : Integer) (d : Integer),
+      add (add a b) (add c d) = add (add a c) (add b d).
+Proof.
+  (* The context gains [a], [b], [c] and [d]:
+   * [|- add (add a b) (add c d) = add (add a c) (add b d)]
+   *)
+  intros a b c d.
+  (* Associativity opens the left side:
+   * [|- add a (add b (add c d)) = add (add a c) (add b d)]
+   *)
+  rewrite (add_associativity a b (add c d)) in |- *.
+  (* [b] moves past [c]: [|- add a (add c (add b d)) = add (add a c) (add b d)] *)
+  rewrite (add_left_commutativity b c d) in |- *.
+  (* Associativity opens the right side: both sides are the same term. *)
+  rewrite (add_associativity a c (add b d)) in |- *.
   reflexivity.
 Qed.
 
@@ -1816,6 +1857,293 @@ Proof.
   reflexivity.
 Qed.
 
+(* Divisibility: [d] divides [n] when some multiple of [d] is [n]. It is
+ * reflexive and transitive, but not antisymmetric: [Positive One] and
+ * [Negative One] divide each other.
+ *)
+(* [Integer -> Integer -> Prop] *)
+Definition Divides := fun (d : Integer) (n : Integer) => exists (k : Integer), mul d k = n.
+
+Theorem divides_reflexivity : forall (n : Integer), Divides n n.
+Proof.
+  (* The context gains [n]; the witness is [Positive One]. *)
+  intros n.
+  unfold Divides in |- *.
+  apply (Exists_introduction (Positive One)).
+  exact (mul_right_identity n).
+Qed.
+
+Theorem divides_transitivity
+  : forall (l : Integer) (m : Integer) (n : Integer),
+      Divides l m -> Divides m n -> Divides l n.
+Proof.
+  (* The context gains [l], [m], [n], [h1] and [h2]; they open into [k1],
+   * [e1 : mul l k1 = m], [k2] and [e2 : mul m k2 = n]; the witness is the
+   * product of the two.
+   *)
+  intros l m n h1 h2.
+  unfold Divides in h1.
+  unfold Divides in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  unfold Divides in |- *.
+  apply (Exists_introduction (mul k1 k2)).
+  (* Associativity read right to left regroups, and [e1] then [e2] close
+   * it: [|- mul (mul l k1) k2 = n]
+   *)
+  pose proof (Equijunction_symmetry (mul_associativity l k1 k2)) as a.
+  rewrite a in |- *.
+  rewrite e1 in |- *.
+  exact e2.
+Qed.
+
+(* The multiples of [d] are closed under addition, by distributivity, and
+ * under multiplication by anything, by associativity.
+ *)
+
+Theorem divides_add_closure
+  : forall (d : Integer) (m : Integer) (n : Integer),
+      Divides d m -> Divides d n -> Divides d (add m n).
+Proof.
+  (* The context gains [d], [m], [n], [h1] and [h2]; they open into [k1],
+   * [e1 : mul d k1 = m], [k2] and [e2 : mul d k2 = n]; the witness is the
+   * sum of the two.
+   *)
+  intros d m n h1 h2.
+  unfold Divides in h1.
+  unfold Divides in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  unfold Divides in |- *.
+  apply (Exists_introduction (add k1 k2)).
+  (* Distributivity opens the product, and [e1] then [e2] close it. *)
+  rewrite (mul_left_distributivity_over_add d k1 k2) in |- *.
+  rewrite e1 in |- *.
+  rewrite e2 in |- *.
+  reflexivity.
+Qed.
+
+Theorem divides_mul_closure
+  : forall (d : Integer) (m : Integer) (n : Integer), Divides d m -> Divides d (mul m n).
+Proof.
+  (* The context gains [d], [m], [n] and [h]; [h] opens into [k] and
+   * [e : mul d k = m]; the witness is [mul k n].
+   *)
+  intros d m n h.
+  unfold Divides in h.
+  destruct h as [k e].
+  unfold Divides in |- *.
+  apply (Exists_introduction (mul k n)).
+  (* Associativity read right to left regroups, and [e] closes it. *)
+  pose proof (Equijunction_symmetry (mul_associativity d k n)) as a.
+  rewrite a in |- *.
+  rewrite e in |- *.
+  reflexivity.
+Qed.
+
+(* Parity: even is divisible by two, odd is one more than an even number,
+ * on the negative side as well.
+ *)
+
+(* [Integer -> Prop] *)
+Definition Even := fun (n : Integer) => Divides (Positive (Successor One)) n.
+
+(* [Integer -> Prop] *)
+Definition Odd := fun (n : Integer) =>
+  exists (k : Integer), add (mul (Positive (Successor One)) k) (Positive One) = n.
+
+(* Every integer is even or odd. [Zero] is even; on the positive side each
+ * step up swaps the parity as on the numbers, on the negative side each
+ * step down does, the odd witness one less than the even one. [simpl] is
+ * kept away from [mul two k] on a variable [k], which it would open into
+ * a [match]; the products on ctors are computed by [change].
+ *)
+Theorem even_or_odd : forall (n : Integer), Even n \/ Odd n.
+Proof.
+  (* The context gains [n]; one goal per ctor. *)
+  intros n.
+  destruct n as [p | | p].
+  - (* [p] is either [One] or [Successor p']: one goal per ctor, and the
+     * second has [IH : Even (Negative p') \/ Odd (Negative p')] in its
+     * context.
+     *)
+    induction p as [| p' IH] using Nat_induction.
+    + (* [Negative One] is one more than twice [Negative One]: the product
+       * computes to [Negative (Successor One)], and the sum to
+       * [difference One (Successor One)].
+       *)
+      apply Disjunction_right.
+      unfold Odd in |- *.
+      apply (Exists_introduction (Negative One)).
+      unfold add in |- *.
+      simpl in |- *.
+      reflexivity.
+    + destruct IH as [ev | od].
+      * (* [ev] opens into [k] and [e : mul two k = Negative p']; one less
+         * than [k] makes the next number down odd: distributivity opens the
+         * product, [mul two (Negative One)] is [Negative (Successor One)]
+         * and [add (Negative (Successor One)) (Positive One)] is
+         * [Negative One] by computation, so after [e] and regrouping the
+         * goal is [add (Negative p') (Negative One) = Negative (Successor p')],
+         * which computes up to the sum turned round.
+         *)
+        apply Disjunction_right.
+        unfold Even in ev.
+        unfold Divides in ev.
+        destruct ev as [k e].
+        unfold Odd in |- *.
+        apply (Exists_introduction (add k (Negative One))).
+        rewrite (mul_left_distributivity_over_add
+                   (Positive (Successor One)) k (Negative One)) in |- *.
+        change (mul (Positive (Successor One)) (Negative One))
+          with (Negative (Successor One)) in |- *.
+        rewrite e in |- *.
+        rewrite (add_associativity (Negative p') (Negative (Successor One)) (Positive One))
+          in |- *.
+        change (add (Negative (Successor One)) (Positive One)) with (Negative One) in |- *.
+        unfold add in |- *.
+        simpl in |- *.
+        rewrite (Nat.add_commutativity p' One) in |- *.
+        simpl in |- *.
+        reflexivity.
+      * (* [od] opens into [k] and
+         * [e : add (mul two k) (Positive One) = Negative p']; the same
+         * witness makes the next number down even: [Negative One] added to
+         * both sides of [e] cancels the [Positive One], by regrouping and
+         * computation, and leaves [e' : mul two k = add (Negative p') (Negative One)].
+         *)
+        apply Disjunction_left.
+        unfold Odd in od.
+        destruct od as [k e].
+        unfold Even in |- *.
+        unfold Divides in |- *.
+        apply (Exists_introduction k).
+        pose proof (Equijunction_congruence (fun (x : Integer) => add x (Negative One)) e)
+          as e'.
+        change (add (add (mul (Positive (Successor One)) k) (Positive One)) (Negative One)
+                = add (Negative p') (Negative One)) in e'.
+        rewrite (add_associativity
+                   (mul (Positive (Successor One)) k) (Positive One) (Negative One)) in e'.
+        change (add (Positive One) (Negative One)) with Zero in e'.
+        rewrite (add_right_identity (mul (Positive (Successor One)) k)) in e'.
+        rewrite e' in |- *.
+        unfold add in |- *.
+        simpl in |- *.
+        rewrite (Nat.add_commutativity p' One) in |- *.
+        simpl in |- *.
+        reflexivity.
+  - (* [Zero] is twice [Zero]. *)
+    apply Disjunction_left.
+    unfold Even in |- *.
+    unfold Divides in |- *.
+    apply (Exists_introduction Zero).
+    simpl in |- *.
+    reflexivity.
+  - (* As on the numbers: [Positive One] is one more than twice [Zero], and
+     * each step up swaps the parity.
+     *)
+    induction p as [| p' IH] using Nat_induction.
+    + apply Disjunction_right.
+      unfold Odd in |- *.
+      apply (Exists_introduction Zero).
+      unfold add in |- *.
+      simpl in |- *.
+      reflexivity.
+    + destruct IH as [ev | od].
+      * (* [ev] opens into [k] and [e : mul two k = Positive p']; the same
+         * witness makes the next number odd, and
+         * [add (Positive p') (Positive One)] computes up to the sum turned
+         * round.
+         *)
+        apply Disjunction_right.
+        unfold Even in ev.
+        unfold Divides in ev.
+        destruct ev as [k e].
+        unfold Odd in |- *.
+        apply (Exists_introduction k).
+        rewrite e in |- *.
+        unfold add in |- *.
+        simpl in |- *.
+        rewrite (Nat.add_commutativity p' One) in |- *.
+        simpl in |- *.
+        reflexivity.
+      * (* [od] opens into [k] and
+         * [e : add (mul two k) (Positive One) = Positive p']; one more than
+         * [k] makes the next number even: distributivity opens the product,
+         * [mul two (Positive One)] is [add (Positive One) (Positive One)]
+         * by computation, and regrouping puts [e] back together.
+         *)
+        apply Disjunction_left.
+        unfold Odd in od.
+        destruct od as [k e].
+        unfold Even in |- *.
+        unfold Divides in |- *.
+        apply (Exists_introduction (add k (Positive One))).
+        rewrite (mul_left_distributivity_over_add
+                   (Positive (Successor One)) k (Positive One)) in |- *.
+        change (mul (Positive (Successor One)) (Positive One))
+          with (add (Positive One) (Positive One)) in |- *.
+        pose proof (Equijunction_symmetry
+                      (add_associativity
+                         (mul (Positive (Successor One)) k) (Positive One) (Positive One)))
+          as a.
+        rewrite a in |- *.
+        rewrite e in |- *.
+        unfold add in |- *.
+        simpl in |- *.
+        rewrite (Nat.add_commutativity p' One) in |- *.
+        simpl in |- *.
+        reflexivity.
+Qed.
+
+Theorem even_add_even
+  : forall (m : Integer) (n : Integer), Even m -> Even n -> Even (add m n).
+Proof.
+  (* Closure of the multiples of two under addition. *)
+  intros m n h1 h2.
+  unfold Even in h1.
+  unfold Even in h2.
+  unfold Even in |- *.
+  exact (divides_add_closure (Positive (Successor One)) m n h1 h2).
+Qed.
+
+(* Two odd integers add to an even one: the two ones make a two, which
+ * distributivity absorbs into the witness.
+ *)
+Theorem odd_add_odd
+  : forall (m : Integer) (n : Integer), Odd m -> Odd n -> Even (add m n).
+Proof.
+  (* The context gains [m], [n], [h1] and [h2]; they open into [k1], [e1],
+   * [k2] and [e2]; the witness is [add (add k1 k2) (Positive One)].
+   *)
+  intros m n h1 h2.
+  unfold Odd in h1.
+  unfold Odd in h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  unfold Even in |- *.
+  unfold Divides in |- *.
+  apply (Exists_introduction (add (add k1 k2) (Positive One))).
+  (* [e1] and [e2] turned round replace [m] and [n]; distributivity opens
+   * the product twice, [mul two (Positive One)] is
+   * [add (Positive One) (Positive One)] by computation, and the interchange
+   * law pairs the right side the same way.
+   *)
+  pose proof (Equijunction_symmetry e1) as e1'.
+  pose proof (Equijunction_symmetry e2) as e2'.
+  rewrite e1' in |- *.
+  rewrite e2' in |- *.
+  rewrite (mul_left_distributivity_over_add
+             (Positive (Successor One)) (add k1 k2) (Positive One)) in |- *.
+  rewrite (mul_left_distributivity_over_add (Positive (Successor One)) k1 k2) in |- *.
+  change (mul (Positive (Successor One)) (Positive One))
+    with (add (Positive One) (Positive One)) in |- *.
+  rewrite (add_interchange
+             (mul (Positive (Successor One)) k1) (Positive One)
+             (mul (Positive (Successor One)) k2) (Positive One)) in |- *.
+  reflexivity.
+Qed.
+
 End Integer.
 
 (* The scope is declared in [Core.Notations] and never opened: a client
@@ -1878,3 +2206,24 @@ Instance Integer_less_or_equal_total_order : TotalOrder.R Integer Integer.LessOr
             {| Transitive.transitivity := Integer.less_or_equal_transitivity |} |}
    ; TotalOrder.total :=
        {| Total.totality := Integer.less_or_equal_totality |} |}.
+
+(* Addition is an abelian group, negation the inverse; with [mul] it is a
+ * ring. Each instance only hands over the laws and instances above.
+ *)
+Instance Integer_add_group
+  : Group.T Integer Integer.add Zero Integer.negate :=
+  {| Group.monoid        := Integer_add_monoid
+   ; Group.left_inverse  := Integer.add_left_inverse
+   ; Group.right_inverse := Integer.add_right_inverse |}.
+
+Instance Integer_add_abelian_group
+  : AbelianGroup.T Integer Integer.add Zero Integer.negate :=
+  {| AbelianGroup.group       := Integer_add_group
+   ; AbelianGroup.commutative := Integer_add_commutative |}.
+
+Instance Integer_ring
+  : Ring.T Integer Integer.add Zero Integer.negate Integer.mul (Positive One) :=
+  {| Ring.add_group            := Integer_add_abelian_group
+   ; Ring.mul_monoid           := Integer_mul_monoid
+   ; Ring.left_distributivity  := Integer.mul_left_distributivity_over_add
+   ; Ring.right_distributivity := Integer.mul_right_distributivity_over_add |}.
