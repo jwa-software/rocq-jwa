@@ -1,13 +1,13 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Notations.
-From jwa Require Import Core.Ltac.
-From jwa Require Import Core.Logic.Subjunction.
-From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Logic.Conjunction.
-From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Abjunction.
 From jwa Require Import Core.Logic.Bijunction.
+From jwa Require Import Core.Logic.Conjunction.
+From jwa Require Import Core.Logic.Disjunction.
+From jwa Require Import Core.Logic.Negation.
+From jwa Require Import Core.Logic.Subjunction.
+From jwa Require Import Core.Ltac.
+From jwa Require Import Core.Notations.
 
 (* Sejunction is exclusive disjunction: one side holds and the other does
  * not. [Theorem t : Verum _\/_ Verum.] is accepted and [Proof.] opens, but no
@@ -15,16 +15,28 @@ From jwa Require Import Core.Logic.Bijunction.
  * type. Being writable does not make a statement provable.
  *)
 Inductive Sejunction (A : Prop) (B : Prop) : Prop :=
-  | Sejunction_left  : A -> ~ B -> Sejunction A B
-  | Sejunction_right : ~ A -> B -> Sejunction A B.
+  | Sejunction_introduction_left  : A -> ~ B -> Sejunction A B
+  | Sejunction_introduction_right : ~ A -> B -> Sejunction A B.
 
-Arguments Sejunction_left  {A} {B} a  nb.
-Arguments Sejunction_right {A} {B} na b.
+Arguments Sejunction_introduction_left  {A} {B} a  nb.
+Arguments Sejunction_introduction_right {A} {B} na b.
 
 Notation "A _\/_ B" := (Sejunction A B)
   : jwa_type_scope.
 
-Theorem Sejunction_commutativity
+(* A module may carry the type's name; its laws read
+ * [Sejunction.commutativity].
+ *)
+Module Sejunction.
+
+(* The two ctors under the names a proof writes: [Sejunction.left a nb] and
+ * [Sejunction.right na b]. An abbreviation is the ctor itself, so it also
+ * serves as a pattern; Rocq prints the ctor's own name.
+ *)
+Abbreviation left  := Sejunction_introduction_left.
+Abbreviation right := Sejunction_introduction_right.
+
+Theorem commutativity
   : forall (A : Prop) (B : Prop), A _\/_ B -> B _\/_ A.
 Proof.
   intros A B.
@@ -35,101 +47,79 @@ Proof.
    * - one with [na : ~ A] and [b : B].
    *)
   destruct h as [a nb | na b].
-  - exact (Sejunction_right nb  a).
-  - exact (Sejunction_left   b na).
+  - exact (Sejunction.right nb  a).
+  - exact (Sejunction.left   b na).
 Qed.
 
-Lemma Sejunction_as_abjunctions_forward
-  : forall (A : Prop) (B : Prop), A _\/_ B -> (A -/> B) \/ (B -/> A).
-Proof.
-  intros A B.
-  intro h.
-  destruct h as [a nb | na b].
-  - apply Disjunction.left.
-    split.
-    + exact a.
-    + exact nb.
-  - apply Disjunction.right.
-    split.
-    + exact b.
-    + exact na.
-Qed.
-
-Lemma Sejunction_as_abjunctions_backward
-  : forall (A : Prop) (B : Prop), (A -/> B) \/ (B -/> A) -> A _\/_ B.
-Proof.
-  intros A B.
-  intro h.
-  destruct h as [ab | ba].
-  - destruct ab as [a nb].
-    exact (Sejunction_left a nb).
-  - destruct ba as [b na].
-    exact (Sejunction_right na b).
-Qed.
-
-Theorem Sejunction_as_abjunctions
+(* A sejunction is one of the two abjunctions: the left side without the
+ * right, or the right side without the left.
+ *)
+Theorem abjunction_decomposition
   : forall (A : Prop) (B : Prop), A _\/_ B <-> (A -/> B) \/ (B -/> A).
 Proof.
   intros A B.
   split.
-  - exact (Sejunction_as_abjunctions_forward  A B).
-  - exact (Sejunction_as_abjunctions_backward A B).
-Qed.
-
-Lemma Sejunction_as_disjunction_without_conjunction_forward
-  : forall (A : Prop) (B : Prop), A _\/_ B -> (A \/ B) /\ ~ (A /\ B).
-Proof.
-  intros A B.
-  intro h.
-  destruct h as [a nb | na b]; split.
-  + exact (Disjunction.left a).
-  + unfold Negation in nb |- *.
-    intro ab.
-    destruct ab as [_ b].
-    exact (nb b).
-  + exact (Disjunction.right b).
-  + unfold Negation in na |- *.
-    intro ab.
-    destruct ab as [a _].
-    exact (na a).
-Qed.
-
-Lemma Sejunction_as_disjunction_without_conjunction_backward
-  : forall (A : Prop) (B : Prop), (A \/ B) /\ ~ (A /\ B) -> A _\/_ B.
-Proof.
-  intros A B.
-  intro h.
-  destruct h as [ab nab].
-  unfold Negation in nab.
-  destruct ab as [a | b].
-  - apply Sejunction_left.
-    + exact a.
-    + unfold Negation in |- *.
-      intro b.
-      apply nab.
+  - intro h.
+    destruct h as [a nb | na b].
+    + apply Disjunction.left.
       split.
       * exact a.
-      * exact b.
-  - apply Sejunction_right.
-    + unfold Negation in |- *.
-      intro a.
-      apply nab.
+      * exact nb.
+    + apply Disjunction.right.
       split.
-      * exact a.
       * exact b.
-    + exact b.
+      * exact na.
+  - intro h.
+    destruct h as [ab | ba].
+    + destruct ab as [a nb].
+      exact (Sejunction.left a nb).
+    + destruct ba as [b na].
+      exact (Sejunction.right na b).
 Qed.
 
-Theorem Sejunction_as_disjunction_without_conjunction
+(* The textbook definition of exclusive disjunction, as a theorem: one of
+ * the two holds, and not both.
+ *)
+Theorem specification
   : forall (A : Prop) (B : Prop), A _\/_ B <-> (A \/ B) /\ ~ (A /\ B).
 Proof.
   intros A B.
   split.
-  - exact (Sejunction_as_disjunction_without_conjunction_forward  A B).
-  - exact (Sejunction_as_disjunction_without_conjunction_backward A B).
+  - intro h.
+    destruct h as [a nb | na b]; split.
+    + exact (Disjunction.left a).
+    + unfold Negation in nb |- *.
+      intro ab.
+      destruct ab as [_ b].
+      exact (nb b).
+    + exact (Disjunction.right b).
+    + unfold Negation in na |- *.
+      intro ab.
+      destruct ab as [a _].
+      exact (na a).
+  - intro h.
+    destruct h as [ab nab].
+    unfold Negation in nab.
+    destruct ab as [a | b].
+    + apply Sejunction.left.
+      * exact a.
+      * unfold Negation in |- *.
+        intro b.
+        apply nab.
+        split.
+        { exact a. }
+        { exact b. }
+    + apply Sejunction.right.
+      * unfold Negation in |- *.
+        intro a.
+        apply nab.
+        split.
+        { exact a. }
+        { exact b. }
+      * exact b.
 Qed.
 
-Theorem Sejunction_congruence
+Theorem congruence
   : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
       (A1 <-> A2) -> (B1 <-> B2) -> (A1 _\/_ B1 <-> A2 _\/_ B2).
 Proof.
@@ -140,7 +130,7 @@ Proof.
   destruct eb as [b12 b21].
   split; intro h.
   - destruct h as [a1 nb1 | na1 b1].
-    + apply Sejunction_left.
+    + apply Sejunction.left.
       * apply a12.
         exact a1.
       * unfold Negation in nb1 |- *.
@@ -148,7 +138,7 @@ Proof.
         apply nb1.
         apply b21.
         exact b2.
-    + apply Sejunction_right.
+    + apply Sejunction.right.
       * unfold Negation in na1 |- *.
         intro a2.
         apply na1.
@@ -157,7 +147,7 @@ Proof.
       * apply b12.
         exact b1.
   - destruct h as [a2 nb2 | na2 b2].
-    + apply Sejunction_left.
+    + apply Sejunction.left.
       * apply a21.
         exact a2.
       * unfold Negation in nb2 |- *.
@@ -165,7 +155,7 @@ Proof.
         apply nb2.
         apply b12.
         exact b1.
-    + apply Sejunction_right.
+    + apply Sejunction.right.
       * unfold Negation in na2 |- *.
         intro a1.
         apply na2.
@@ -175,7 +165,8 @@ Proof.
         exact b2.
 Qed.
 
-Theorem Sejunction_implies_Disjunction
+(* A sejunction is a disjunction that has forgotten which side fails. *)
+Theorem disjunction_weakening
   : forall (A : Prop) (B : Prop), A _\/_ B -> A \/ B.
 Proof.
   intros A B.
@@ -185,7 +176,12 @@ Proof.
   - exact (Disjunction.right b).
 Qed.
 
-Theorem Sejunction_refutes_Conjunction
+(* Two propositions are incompatible when they cannot both hold. A
+ * sejunction is incompatible with the conjunction of its sides and with
+ * their bijunction.
+ *)
+
+Theorem conjunction_incompatibility
   : forall (A : Prop) (B : Prop), A _\/_ B -> ~ (A /\ B).
 Proof.
   intros A B.
@@ -198,7 +194,35 @@ Proof.
   - exact (na a).
 Qed.
 
-Theorem Bijunction_refutes_Sejunction
+Theorem bijunction_incompatibility
+  : forall (A : Prop) (B : Prop), A _\/_ B -> ~ (A <-> B).
+Proof.
+  intros A B.
+  intro h.
+  unfold Negation in |- *.
+  intro e.
+  destruct e as [ab ba].
+  destruct h as [a nb | na b].
+  - unfold Negation in nb.
+    apply nb.
+    apply ab.
+    exact a.
+  - unfold Negation in na.
+    apply na.
+    apply ba.
+    exact b.
+Qed.
+
+End Sejunction.
+
+(* The same incompatibility read from the bijunction's side belongs to
+ * [Bijunction], but it can be stated only here, where [_\/_] is known. A
+ * second module of that name carries it, and a client reads
+ * [Bijunction.sejunction_incompatibility].
+ *)
+Module Bijunction.
+
+Theorem sejunction_incompatibility
   : forall (A : Prop) (B : Prop), (A <-> B) -> ~ (A _\/_ B).
 Proof.
   intros A B.
@@ -217,21 +241,4 @@ Proof.
     exact b.
 Qed.
 
-Theorem Sejunction_refutes_Bijunction
-  : forall (A : Prop) (B : Prop), A _\/_ B -> ~ (A <-> B).
-Proof.
-  intros A B.
-  intro h.
-  unfold Negation in |- *.
-  intro e.
-  destruct e as [ab ba].
-  destruct h as [a nb | na b].
-  - unfold Negation in nb.
-    apply nb.
-    apply ab.
-    exact a.
-  - unfold Negation in na.
-    apply na.
-    apply ba.
-    exact b.
-Qed.
+End Bijunction.
