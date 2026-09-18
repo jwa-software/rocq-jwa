@@ -1,7 +1,5 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* Guards [Core.Logic.All], imported alone. The umbrella carries no tactic
-   language, so everything below is a term. *)
 From jwa Require Import Core.Logic.All.
 
 Definition core_logic_all_delivers

@@ -1,7 +1,5 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* Guards [Structures.All], imported alone. It forwards [Core.All] as well as
-   the five modules, so names from both appear below. *)
 From jwa Require Import Structures.All.
 
 Definition structures_all_delivers
@@ -13,17 +11,12 @@ Definition structures_all_delivers
          (_ : Semigroup.T A op) (_ : Monoid.T A op e) (_ : Commutative.T A op)
          (_ : Cancellative.T A op) (_ : Functor.T F) (_ : ~ Falsum) => I.
 
-(* The projections are constants of their modules, so the umbrella has to
-   forward them too. *)
 Definition structures_all_delivers_projections
-  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e)
-           (x : A),
+  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e) (x : A),
       op e x = x
-  := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e)
-         (x : A) =>
+  := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e) (x : A) =>
        Monoid.left_identity x.
 
-(* The four algebraic classes, and one projection of the last. *)
 Definition structures_all_delivers_algebra
   : forall (A : Type) (add : A -> A -> A) (zero : A) (negate : A -> A)
            (mul : A -> A -> A) (one : A),
