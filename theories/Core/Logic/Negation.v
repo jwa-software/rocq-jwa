@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Bijunction.
+From jwa Require Import Core.Logic.Biimplication.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Falsum.
@@ -119,7 +119,7 @@ Proof.
   (* [|- (A1 -> Falsum) <-> (A2 -> Falsum)] *)
   unfold Negation in |- *.
 
-  (* [Bijunction] has one ctor with two fields,
+  (* [Biimplication] has one ctor with two fields,
    * so the goal splits into two goals:
    * [|- (A1 -> Falsum) -> (A2 -> Falsum)]
    * [|- (A2 -> Falsum) -> (A1 -> Falsum)].

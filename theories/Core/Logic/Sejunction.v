@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Abjunction.
-From jwa Require Import Core.Logic.Bijunction.
+From jwa Require Import Core.Logic.Biimplication.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Implication.
@@ -178,7 +178,7 @@ Qed.
 
 (* Two propositions are incompatible when they cannot both hold. A
  * sejunction is incompatible with the conjunction of its sides and with
- * their bijunction.
+ * their biimplication.
  *)
 
 Theorem conjunction_incompatibility
@@ -194,7 +194,7 @@ Proof.
   - exact (na a).
 Qed.
 
-Theorem bijunction_incompatibility
+Theorem biimplication_incompatibility
   : forall (A : Prop) (B : Prop), A _\/_ B -> ~ (A <-> B).
 Proof.
   intros A B.
@@ -215,12 +215,12 @@ Qed.
 
 End Sejunction.
 
-(* The same incompatibility read from the bijunction's side belongs to
- * [Bijunction], but it can be stated only here, where [_\/_] is known. A
+(* The same incompatibility read from the biimplication's side belongs to
+ * [Biimplication], but it can be stated only here, where [_\/_] is known. A
  * second module of that name carries it, and a client reads
- * [Bijunction.sejunction_incompatibility].
+ * [Biimplication.sejunction_incompatibility].
  *)
-Module Bijunction.
+Module Biimplication.
 
 Theorem sejunction_incompatibility
   : forall (A : Prop) (B : Prop), (A <-> B) -> ~ (A _\/_ B).
@@ -241,4 +241,4 @@ Proof.
     exact b.
 Qed.
 
-End Bijunction.
+End Biimplication.

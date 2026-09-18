@@ -702,7 +702,7 @@ Proof.
   (* The context gains [m] and [n]:
      [|- LessThan (Positive m) (Positive n) <-> Nat.LessThan m n] *)
   intros m n.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* The context gains [h]; it opens into [k] and
@@ -855,7 +855,7 @@ Proof.
       pose proof (Nat.less_than_trichotomy m' n') as t.
       destruct t as [lt | rest].
       * apply Disjunction.left.
-        exact (Bijunction_elimination_backward
+        exact (Biimplication.elimination_backward
                  (LessThan (Positive m') (Positive n')) (Nat.LessThan m' n')
                  (less_than_positive_embedding m' n') lt).
       * destruct rest as [eq | gt].
@@ -866,7 +866,7 @@ Proof.
           reflexivity. }
         { apply Disjunction.right.
           apply Disjunction.right.
-          exact (Bijunction_elimination_backward
+          exact (Biimplication.elimination_backward
                    (LessThan (Positive n') (Positive m')) (Nat.LessThan n' m')
                    (less_than_positive_embedding n' m') gt). }
 Qed.
@@ -1241,7 +1241,7 @@ Proof.
       * (* [compare] computes to [Nat.compare m' n']. *)
         simpl in |- *.
         intro e.
-        exact (Bijunction_elimination_backward
+        exact (Biimplication.elimination_backward
                  (LessThan (Positive m') (Positive n')) (Nat.LessThan m' n')
                  (less_than_positive_embedding m' n')
                  (Nat.compare_lt_specification_forward m' n' e)).
@@ -1250,7 +1250,7 @@ Proof.
         exact (Nat.compare_lt_specification_backward
                 m'
                 n'
-                (Bijunction_elimination_forward
+                (Biimplication.elimination_forward
                   (LessThan (Positive m') (Positive n'))
                   (Nat.LessThan m' n')
                   (less_than_positive_embedding m' n')
@@ -1299,7 +1299,7 @@ Proof.
     intro e.
     rewrite (compare_antisymmetry m n) in e.
     destruct (compare n m) as [| |] eqn:c.
-    + exact (Bijunction_elimination_forward
+    + exact (Biimplication.elimination_forward
                (compare n m = Lt) (LessThan n m)
                (compare_lt_specification n m) c).
     + simpl in e.
@@ -1310,7 +1310,7 @@ Proof.
        first specification, and its converse computes to [Gt]. *)
     intro h.
     rewrite (compare_antisymmetry m n) in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (compare n m = Lt) (LessThan n m)
                (compare_lt_specification n m) h) in |- *.
     simpl in |- *.
@@ -1338,14 +1338,14 @@ Proof.
     unfold equal in e.
     destruct (compare m n) as [| |] eqn:c.
     + discriminate.
-    + exact (Bijunction_elimination_forward
+    + exact (Biimplication.elimination_forward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + discriminate.
   - (* The context gains [e : m = n]; [compare m n] is [Eq]:
        [|- true = true] *)
     intro e.
     unfold equal in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) e)
       in |- *.
     reflexivity.
@@ -1364,7 +1364,7 @@ Proof.
   intro h.
   (* [equal_specification] turns [h] into [equal m n = true], which
      replaces the left side of [e]: [e : true = false] *)
-  rewrite (Bijunction_elimination_backward
+  rewrite (Biimplication.elimination_backward
              (equal m n = true) (m = n) (equal_specification m n) h) in e.
   (* [e] equates two distinct ctors, which closes any goal. *)
   discriminate.
@@ -1395,7 +1395,7 @@ Proof.
       intro e.
       unfold LessOrEqual in |- *.
       apply Disjunction.right.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
                (compare m n = Lt) (LessThan m n) (compare_lt_specification m n) c).
     + intro h.
       reflexivity.
@@ -1406,7 +1406,7 @@ Proof.
       intro e.
       unfold LessOrEqual in |- *.
       apply Disjunction.left.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + intro h.
       reflexivity.
@@ -1418,7 +1418,7 @@ Proof.
       discriminate.
     + (* [c] says [n] is below [m], which neither half of [h] allows. *)
       intro h.
-      pose proof (Bijunction_elimination_forward
+      pose proof (Biimplication.elimination_forward
                     (compare m n = Gt) (LessThan n m) (compare_gt_specification m n) c)
         as gt.
       unfold LessOrEqual in h.
@@ -1447,10 +1447,10 @@ Proof.
   pose proof (less_or_equal_totality m n) as t.
   destruct t as [h | h].
   - apply Disjunction.left.
-    exact (Bijunction_elimination_backward
+    exact (Biimplication.elimination_backward
              (at_most m n = true) (LessOrEqual m n) (at_most_specification m n) h).
   - apply Disjunction.right.
-    exact (Bijunction_elimination_backward
+    exact (Biimplication.elimination_backward
              (at_most n m = true) (LessOrEqual n m) (at_most_specification n m) h).
 Qed.
 
@@ -1461,14 +1461,14 @@ Proof.
   (* The context gains [l], [m], [n], [h1] and [h2]; each answer is read as
      the order it decides: [le1 : LessOrEqual l m], [le2 : LessOrEqual m n]. *)
   intros l m n h1 h2.
-  pose proof (Bijunction_elimination_forward
+  pose proof (Biimplication.elimination_forward
                 (at_most l m = true) (LessOrEqual l m) (at_most_specification l m) h1)
     as le1.
-  pose proof (Bijunction_elimination_forward
+  pose proof (Biimplication.elimination_forward
                 (at_most m n = true) (LessOrEqual m n) (at_most_specification m n) h2)
     as le2.
   (* Transitivity of the order, read back as an answer. *)
-  exact (Bijunction_elimination_backward
+  exact (Biimplication.elimination_backward
            (at_most l n = true) (LessOrEqual l n) (at_most_specification l n)
            (less_or_equal_transitivity l m n le1 le2)).
 Qed.
@@ -1506,14 +1506,14 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + (* [Lt]: the strict step, by the specification. *)
       apply Disjunction.right.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
               (compare m n = Lt)
               (LessThan m n)
               (compare_lt_specification m n)
               c).
     + (* [Eq]: the equality, by the specification. *)
       apply Disjunction.left.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
               (compare m n = Eq)
               (m = n)
               (compare_eq_specification m n)
@@ -1527,7 +1527,7 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + reflexivity.
     + reflexivity.
-    + pose proof (Bijunction_elimination_forward
+    + pose proof (Biimplication.elimination_forward
                     (compare m n = Gt)
                     (LessThan n m)
                     (compare_gt_specification m n)
@@ -1561,20 +1561,20 @@ Proof.
       exact e.
     + apply Disjunction.left.
       exact (Identity.symmetry
-              (Bijunction_elimination_forward
+              (Biimplication.elimination_forward
                 (compare m n = Eq)
                 (m = n)
                 (compare_eq_specification m n)
                 c)).
     + apply Disjunction.right.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
               (compare m n = Gt)
               (LessThan n m)
               (compare_gt_specification m n)
               c).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
-    + pose proof (Bijunction_elimination_forward
+    + pose proof (Biimplication.elimination_forward
                     (compare m n = Lt)
                     (LessThan m n)
                     (compare_lt_specification m n)
@@ -1607,7 +1607,7 @@ Proof.
   - exact (Disjunction.left (Identity.reflexivity l)).
   - exact (Disjunction.left (Identity.reflexivity l)).
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
             (compare l r = Gt)
             (LessThan r l)
             (compare_gt_specification l r)
@@ -1622,13 +1622,13 @@ Proof.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
             (compare l r = Lt)
             (LessThan l r)
             (compare_lt_specification l r)
             c).
   - apply Disjunction.left.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
             (compare l r = Eq)
             (l = r)
             (compare_eq_specification l r)
@@ -1661,7 +1661,7 @@ Proof.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
             (compare l r = Lt)
             (LessThan l r)
             (compare_lt_specification l r)
@@ -1680,13 +1680,13 @@ Proof.
   - exact (Disjunction.left (Identity.reflexivity r)).
   - apply Disjunction.left.
     exact (Identity.symmetry
-             (Bijunction_elimination_forward
+             (Biimplication.elimination_forward
                 (compare l r = Eq)
                 (l = r)
                 (compare_eq_specification l r)
                 c)).
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
              (compare l r = Gt) (LessThan r l)
              (compare_gt_specification l r) c).
 Qed.
@@ -1903,9 +1903,9 @@ Proof.
   destruct t as [h | h].
   - (* [h : LessOrEqual m n]: both [min]s pick the left candidate:
        [|- add k m = add k m] *)
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (min m n = m) (LessOrEqual m n) (min_specification m n) h) in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (min (add k m) (add k n) = add k m) (LessOrEqual (add k m) (add k n))
                (min_specification (add k m) (add k n)) (add_monotonicity k m n h))
       in |- *.
@@ -1914,9 +1914,9 @@ Proof.
        they pick the right candidate: [|- add k n = add k n] *)
     rewrite (min_commutativity m n) in |- *.
     rewrite (min_commutativity (add k m) (add k n)) in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (min n m = n) (LessOrEqual n m) (min_specification n m) h) in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (min (add k n) (add k m) = add k n) (LessOrEqual (add k n) (add k m))
                (min_specification (add k n) (add k m)) (add_monotonicity k n m h))
       in |- *.
@@ -2211,7 +2211,7 @@ Proof.
       split.
       * (* [E] says the remainder plus one reached the divisor:
            [full : add r (Positive One) = Positive d] *)
-        pose proof (Bijunction_elimination_forward
+        pose proof (Biimplication.elimination_forward
                       (equal (add r (Positive One)) (Positive d) = true)
                       (add r (Positive One) = Positive d)
                       (equal_specification (add r (Positive One)) (Positive d))

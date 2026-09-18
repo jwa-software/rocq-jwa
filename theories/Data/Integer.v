@@ -1477,14 +1477,14 @@ Proof.
         destruct lt as [k e].
         apply (Exists_introduction k).
         rewrite (Nat.add_commutativity q k) in e.
-        exact (Bijunction_elimination_backward
+        exact (Biimplication.elimination_backward
                  (difference k p = Negative q) (Nat.add k q = p)
                  (difference_negative_specification k p q) e).
       * (* [h] opens into [k] and [e : difference k p = Negative q], which
            the specification reads as [Nat.add k q = p]: [q] is below [p]. *)
         intro h.
         destruct h as [k e].
-        pose proof (Bijunction_elimination_forward
+        pose proof (Biimplication.elimination_forward
                       (difference k p = Negative q) (Nat.add k q = p)
                       (difference_negative_specification k p q) e) as e'.
         apply (Nat.compare_lt_specification_backward q p).
@@ -1665,7 +1665,7 @@ Proof.
     intro e.
     rewrite (compare_antisymmetry m n) in e.
     destruct (compare n m) as [| |] eqn:c.
-    + exact (Bijunction_elimination_forward
+    + exact (Biimplication.elimination_forward
                (compare n m = Lt) (LessThan n m) (compare_lt_specification n m) c).
     + simpl in e.
       discriminate.
@@ -1675,7 +1675,7 @@ Proof.
        first specification, and its converse computes to [Gt]. *)
     intro h.
     rewrite (compare_antisymmetry m n) in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (compare n m = Lt) (LessThan n m) (compare_lt_specification n m) h)
       in |- *.
     simpl in |- *.
@@ -1691,15 +1691,15 @@ Proof.
   intros m n.
   destruct (compare m n) as [| |] eqn:c.
   - exact (Disjunction.left
-             (Bijunction_elimination_forward
+             (Biimplication.elimination_forward
                 (compare m n = Lt) (LessThan m n) (compare_lt_specification m n) c)).
   - exact (Disjunction.right
              (Disjunction.left
-                (Bijunction_elimination_forward
+                (Biimplication.elimination_forward
                    (compare m n = Eq) (m = n) (compare_eq_specification m n) c))).
   - exact (Disjunction.right
              (Disjunction.right
-                (Bijunction_elimination_forward
+                (Biimplication.elimination_forward
                    (compare m n = Gt) (LessThan n m) (compare_gt_specification m n) c))).
 Qed.
 
@@ -1788,13 +1788,13 @@ Proof.
     unfold equal in e.
     destruct (compare m n) as [| |] eqn:c.
     + discriminate.
-    + exact (Bijunction_elimination_forward
+    + exact (Biimplication.elimination_forward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + discriminate.
   - (* The context gains [e : m = n]; [compare m n] is [Eq]: [|- true = true] *)
     intro e.
     unfold equal in |- *.
-    rewrite (Bijunction_elimination_backward
+    rewrite (Biimplication.elimination_backward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) e) in |- *.
     reflexivity.
 Qed.
@@ -1808,7 +1808,7 @@ Proof.
   intro h.
   (* [equal_specification] turns [h] into [equal m n = true], which replaces
      the left side of [e]: [e : true = false] *)
-  rewrite (Bijunction_elimination_backward
+  rewrite (Biimplication.elimination_backward
              (equal m n = true) (m = n) (equal_specification m n) h) in e.
   discriminate.
 Qed.

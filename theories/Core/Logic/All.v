@@ -16,6 +16,6 @@ From jwa Require Export Core.Logic.Disjunction.
 From jwa Require Export Core.Logic.Sejunction.
 From jwa Require Export Core.Logic.Negation.
 From jwa Require Export Core.Logic.Implication.
-From jwa Require Export Core.Logic.Bijunction.
+From jwa Require Export Core.Logic.Biimplication.
 From jwa Require Export Core.Logic.Abjunction.
 From jwa Require Export Core.Logic.Exists.

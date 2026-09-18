@@ -643,7 +643,7 @@ Proof.
   (* The context gains [A], [a], [l1] and [l2]:
      [|- Contains a (append l1 l2) <-> Contains a l1 \/ Contains a l2] *)
   intros A a l1 l2.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [contains_distributivity_over_append_forward A a l1 l2] is a proof
@@ -812,7 +812,7 @@ Proof.
   (* The context gains [A], [a] and [l]:
      [|- Contains a (reverse l) <-> Contains a l] *)
   intros A a l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [reverse_containment_preservation_forward A a l] is a proof of the
@@ -1102,7 +1102,7 @@ Proof.
   (* The context gains [A], [p], [a] and [l]:
      [|- Contains a (filter p l) <-> Contains a l /\ p a = true] *)
   intros A p a l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [filter_specification_forward A p a l] is a proof of the goal
@@ -1234,7 +1234,7 @@ Proof.
   (* The context gains [A], [P], [l1] and [l2]:
      [|- All P (append l1 l2) <-> All P l1 /\ All P l2] *)
   intros A P l1 l2.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [all_distributivity_over_append_forward A P l1 l2] is a proof of the
@@ -1351,7 +1351,7 @@ Proof.
   (* The context gains [A], [P], [l1] and [l2]:
      [|- Any P (append l1 l2) <-> Any P l1 \/ Any P l2] *)
   intros A P l1 l2.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [any_distributivity_over_append_forward A P l1 l2] is a proof of the
@@ -1466,7 +1466,7 @@ Proof.
   (* The context gains [A], [P] and [l]:
      [|- All P l <-> (forall (a : A), Contains a l -> P a)] *)
   intros A P l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [all_specification_forward A P l] is a proof of the goal as it
@@ -1602,7 +1602,7 @@ Proof.
   (* The context gains [A], [P] and [l]:
      [|- Any P l <-> (exists (a : A), Contains a l /\ P a)] *)
   intros A P l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [any_specification_forward A P l] is a proof of the goal as it
@@ -1769,7 +1769,7 @@ Proof.
   (* The context gains [A], [a] and [l]:
      [|- head l = Some a <-> (exists (l' : List A), l = Cons a l')] *)
   intros A a l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [head_specification_forward A a l] is a proof of the goal as it
@@ -1839,7 +1839,7 @@ Proof.
   (* The context gains [A], [l] and [l']:
      [|- tail l = Some l' <-> (exists (a : A), l = Cons a l')] *)
   intros A l l'.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [tail_specification_forward A l l'] is a proof of the goal as it
@@ -1927,7 +1927,7 @@ Proof.
      [|- last l = Some a
          <-> (exists (l' : List A), l = append l' (Cons a Nil))] *)
   intros A a l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [last_specification_forward A a l] is a proof of the goal as it
@@ -2021,7 +2021,7 @@ Proof.
      [|- initial l = Some l'
          <-> (exists (a : A), l = append l' (Cons a Nil))] *)
   intros A l l'.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [initial_specification_forward A l l'] is a proof of the goal as it
@@ -2107,7 +2107,7 @@ Proof.
   (* The context gains [A], [a], [l'] and [l]:
      [|- pop l = Some (Pair_introduction a l') <-> l = Cons a l'] *)
   intros A a l' l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - (* [pop_specification_forward A a l' l] is a proof of the goal as it
@@ -2534,7 +2534,7 @@ Theorem nth_specification
 Proof.
   (* The context gains [A], [l] and [i]. *)
   intros A l i.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (nth_specification_forward  A l i).
@@ -2638,7 +2638,7 @@ Proof.
                = NatWithZero.min (Positive One)
                    (NatWithZero.add (length l') (Positive One))] *)
         simpl in |- *.
-        rewrite (Bijunction_elimination_backward
+        rewrite (Biimplication.elimination_backward
                    (NatWithZero.min (Positive One)
                       (NatWithZero.add (length l') (Positive One)) = Positive One)
                    (NatWithZero.LessOrEqual (Positive One)
@@ -3126,7 +3126,7 @@ Theorem insert_containment
 Proof.
   (* The context gains [A], [le], [a], [b] and [l]. *)
   intros A le a b l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (insert_containment_forward  A le a b l).
@@ -3182,7 +3182,7 @@ Theorem insertion_sort_containment_preservation
 Proof.
   (* The context gains [A], [le], [a] and [l]. *)
   intros A le a l.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (insertion_sort_containment_preservation_forward  A le a l).
@@ -3334,7 +3334,7 @@ Proof.
      *)
     intros i h.
     simpl in h.
-    pose proof (Bijunction_elimination_forward
+    pose proof (Biimplication.elimination_forward
                   (Contains i (append (range_positive p') (Cons (Positive p') Nil)))
                   (Contains i (range_positive p') \/ Contains i (Cons (Positive p') Nil))
                   (contains_distributivity_over_append
@@ -3343,7 +3343,7 @@ Proof.
     change (Positive (Successor p'))
       with (NatWithZero.add (Positive One) (Positive p')) in |- *.
     rewrite (NatWithZero.add_commutativity (Positive One) (Positive p')) in |- *.
-    apply (Bijunction_elimination_backward
+    apply (Biimplication.elimination_backward
              (NatWithZero.LessThan i (NatWithZero.add (Positive p') (Positive One)))
              (NatWithZero.LessOrEqual i (Positive p'))
              (NatWithZero.less_than_successor_specification i (Positive p'))).
@@ -3395,13 +3395,13 @@ Proof.
     change (Positive (Successor p'))
       with (NatWithZero.add (Positive One) (Positive p')) in h.
     rewrite (NatWithZero.add_commutativity (Positive One) (Positive p')) in h.
-    pose proof (Bijunction_elimination_forward
+    pose proof (Biimplication.elimination_forward
                   (NatWithZero.LessThan i (NatWithZero.add (Positive p') (Positive One)))
                   (NatWithZero.LessOrEqual i (Positive p'))
                   (NatWithZero.less_than_successor_specification i (Positive p')) h)
       as h'.
     simpl in |- *.
-    apply (Bijunction_elimination_backward
+    apply (Biimplication.elimination_backward
              (Contains i (append (range_positive p') (Cons (Positive p') Nil)))
              (Contains i (range_positive p') \/ Contains i (Cons (Positive p') Nil))
              (contains_distributivity_over_append
@@ -3525,7 +3525,7 @@ Proof.
       destruct t as [le | ge].
       * (* [M] is at most [a]: the maximum is [a], the head. *)
         apply Disjunction.left.
-        exact (Bijunction_elimination_backward
+        exact (Biimplication.elimination_backward
                  (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a)
                  (NatWithZero.LessOrEqual (fold_right NatWithZero.max Zero (Cons b l'')) a)
                  (NatWithZero.max_specification
@@ -3536,7 +3536,7 @@ Proof.
         apply Disjunction.right.
         rewrite (NatWithZero.max_commutativity
                    a (fold_right NatWithZero.max Zero (Cons b l''))) in |- *.
-        rewrite (Bijunction_elimination_backward
+        rewrite (Biimplication.elimination_backward
                    (NatWithZero.max (fold_right NatWithZero.max Zero (Cons b l'')) a
                     = fold_right NatWithZero.max Zero (Cons b l''))
                    (NatWithZero.LessOrEqual a (fold_right NatWithZero.max Zero (Cons b l'')))
@@ -3606,7 +3606,7 @@ Proof.
        * [Some a = Some m]: [m] is [a], at most itself and nothing else.
        *)
       simpl in e.
-      pose proof (Bijunction_elimination_forward
+      pose proof (Biimplication.elimination_forward
                     (minimum_of l' = None) (l' = Nil)
                     (minimum_of_none_specification l') r) as en.
       pose proof (Option.some_injectivity NatWithZero a m e) as e'.
@@ -3676,12 +3676,12 @@ Proof.
       pose proof (NatWithZero.less_or_equal_totality a m') as t.
       destruct t as [le | ge].
       * apply Disjunction.left.
-        exact (Bijunction_elimination_backward
+        exact (Biimplication.elimination_backward
                  (NatWithZero.min a m' = a) (NatWithZero.LessOrEqual a m')
                  (NatWithZero.min_specification a m') le).
       * apply Disjunction.right.
         rewrite (NatWithZero.min_commutativity a m') in |- *.
-        rewrite (Bijunction_elimination_backward
+        rewrite (Biimplication.elimination_backward
                    (NatWithZero.min m' a = m') (NatWithZero.LessOrEqual m' a)
                    (NatWithZero.min_specification m' a) ge) in |- *.
         exact (IH m' (Identity.reflexivity (Some m'))).
@@ -3786,11 +3786,11 @@ Proof.
       * intro e.
         exact (Conjunction_introduction
                  (Identity.reflexivity false)
-                 (Bijunction_elimination_forward
+                 (Biimplication.elimination_forward
                     (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH e)).
       * intro c.
         destruct c as [e all'].
-        exact (Bijunction_elimination_backward
+        exact (Biimplication.elimination_backward
                  (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH all').
 Qed.
 

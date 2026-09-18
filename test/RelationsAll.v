@@ -41,7 +41,7 @@ Definition relations_all_delivers_identity_instance
   : forall (A : Type) (x : A) (y : A), x = y -> y = x
   := fun (A : Type) (x : A) (y : A) => Symmetric.symmetry x y.
 
-Definition relations_all_delivers_bijunction_instance
+Definition relations_all_delivers_biimplication_instance
   : forall (P : Prop) (Q : Prop) (S : Prop),
       (P <-> Q) -> (Q <-> S) -> (P <-> S)
   := fun (P : Prop) (Q : Prop) (S : Prop) => Transitive.transitivity P Q S.

@@ -33,13 +33,13 @@ Export (hints) Equivalence.
    them, since [Core] sees no class. Each field is the matching theorem of
    [Core]. *)
 
-Instance Bijunction_equivalence : Equivalence.R Prop Bijunction :=
+Instance Biimplication_equivalence : Equivalence.R Prop Biimplication :=
   {| Equivalence.reflexive :=
-       {| Reflexive.reflexivity := Bijunction_reflexivity |}
+       {| Reflexive.reflexivity := Biimplication.reflexivity |}
    ; Equivalence.symmetric :=
-       {| Symmetric.symmetry := Bijunction_symmetry |}
+       {| Symmetric.symmetry := Biimplication.symmetry |}
    ; Equivalence.transitive :=
-       {| Transitive.transitivity := Bijunction_transitivity |} |}.
+       {| Transitive.transitivity := Biimplication.transitivity |} |}.
 
 (* [@] makes [A] explicit, which the field types need since [relation] is
    applied to two elements of [A] and nothing else. *)

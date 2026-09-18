@@ -1110,7 +1110,7 @@ Proof.
   (* The context gains [m] and [n]:
      [|- compare m n = Lt <-> LessThan m n] *)
   intros m n.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (compare_lt_specification_forward  m n).
@@ -1165,7 +1165,7 @@ Theorem compare_eq_specification
 Proof.
   (* The context gains [m] and [n]: [|- compare m n = Eq <-> m = n] *)
   intros m n.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (compare_eq_specification_forward m n).
@@ -1243,7 +1243,7 @@ Proof.
   (* The context gains [m] and [n]:
      [|- compare m n = Gt <-> LessThan n m] *)
   intros m n.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (compare_gt_specification_forward m n).
@@ -1291,7 +1291,7 @@ Theorem equal_specification
 Proof.
   (* The context gains [m] and [n]: [|- equal m n = true <-> m = n] *)
   intros m n.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (equal_specification_forward m n).
@@ -1331,12 +1331,12 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + (* [Lt]: the strict step, by the specification. *)
       apply Disjunction.right.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
                (compare m n = Lt) (LessThan m n)
                (compare_lt_specification m n) c).
     + (* [Eq]: the equality, by the specification. *)
       apply Disjunction.left.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + (* [Gt]: then [e : n = m], turned round. *)
       apply Disjunction.left.
@@ -1347,7 +1347,7 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + reflexivity.
     + reflexivity.
-    + pose proof (Bijunction_elimination_forward
+    + pose proof (Biimplication.elimination_forward
                     (compare m n = Gt) (LessThan n m)
                     (compare_gt_specification m n) c) as gt.
       destruct h as [e | lt].
@@ -1379,15 +1379,15 @@ Proof.
       exact e.
     + apply Disjunction.left.
       exact (Identity.symmetry
-               (Bijunction_elimination_forward
+               (Biimplication.elimination_forward
                   (compare m n = Eq) (m = n) (compare_eq_specification m n) c)).
     + apply Disjunction.right.
-      exact (Bijunction_elimination_forward
+      exact (Biimplication.elimination_forward
                (compare m n = Gt) (LessThan n m)
                (compare_gt_specification m n) c).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
-    + pose proof (Bijunction_elimination_forward
+    + pose proof (Biimplication.elimination_forward
                     (compare m n = Lt) (LessThan m n)
                     (compare_lt_specification m n) c) as lt.
       destruct h as [e | gt].
@@ -1419,7 +1419,7 @@ Proof.
   - exact (Disjunction.left (Identity.reflexivity l)).
   - exact (Disjunction.left (Identity.reflexivity l)).
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
              (compare l r = Gt) (LessThan r l)
              (compare_gt_specification l r) c).
 Qed.
@@ -1433,11 +1433,11 @@ Proof.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
              (compare l r = Lt) (LessThan l r)
              (compare_lt_specification l r) c).
   - apply Disjunction.left.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
              (compare l r = Eq) (l = r) (compare_eq_specification l r) c).
   - exact (Disjunction.left (Identity.reflexivity r)).
 Qed.
@@ -1466,7 +1466,7 @@ Proof.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
              (compare l r = Lt) (LessThan l r)
              (compare_lt_specification l r) c).
   - exact (Disjunction.left (Identity.reflexivity l)).
@@ -1482,10 +1482,10 @@ Proof.
   - exact (Disjunction.left (Identity.reflexivity r)).
   - apply Disjunction.left.
     exact (Identity.symmetry
-             (Bijunction_elimination_forward
+             (Biimplication.elimination_forward
                 (compare l r = Eq) (l = r) (compare_eq_specification l r) c)).
   - apply Disjunction.right.
-    exact (Bijunction_elimination_forward
+    exact (Biimplication.elimination_forward
              (compare l r = Gt) (LessThan r l)
              (compare_gt_specification l r) c).
 Qed.
@@ -1778,7 +1778,7 @@ Proof.
   (* The context gains [m], [n] and [k]:
      [|- subtract m n = Some k <-> add n k = m] *)
   intros m n k.
-  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+  (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
   split.
   - exact (subtract_specification_forward  m n k).
