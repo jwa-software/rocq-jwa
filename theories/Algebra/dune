@@ -6,4 +6,4 @@
 (rocq.theory
  (name jwa.Algebra)
  (package rocq-jwa)
- (theories jwa.Core jwa.Tactics jwa.Structures jwa.Relation jwa.Data))
+ (theories jwa.Core))

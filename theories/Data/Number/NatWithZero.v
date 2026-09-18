@@ -2,11 +2,16 @@
 
 (* [Core.All] carries [->], [=], [~], [/\], [\/] and [exists]; [Data.Number.Nat] is
    the type [Positive] wraps and the source of every law under [Positive];
-   [Structures.Semigroup], [Structures.Monoid], [Structures.Commutative],
-   [Structures.Cancellative] and the [Relation] order classes are what the
+   [Algebra.Semigroup], [Algebra.Monoid], [Algebra.Commutative],
+   [Algebra.Cancellative] and the [Relation] order classes are what the
    instances at the bottom fill; [Data.Comparison] is what [compare] answers
    in, [Data.Bool] what [equal] answers in, [Data.Pair] what [division]
    answers in, and [Data.Option] what [Nat.subtract] answers in. *)
+From jwa Require Import Algebra.Cancellative.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Semigroup.
+From jwa Require Import Algebra.Semiring.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
@@ -21,11 +26,6 @@ From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
-From jwa Require Import Structures.Cancellative.
-From jwa Require Import Structures.Commutative.
-From jwa Require Import Structures.Monoid.
-From jwa Require Import Structures.Semigroup.
-From jwa Require Import Structures.Semiring.
 
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
    plus the [Zero] cases. *)

@@ -1,14 +1,14 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Structures.All] would be circular from inside [Structures]; [Core.All]
- * carries [->] and [=], [Structures.Class] the hint database, and
- * [Structures.AbelianGroup] and [Structures.Monoid] the classes the two
+(* [Algebra.All] would be circular from inside [Algebra]; [Core.All]
+ * carries [->] and [=], [Core.Class] the hint database, and
+ * [Algebra.AbelianGroup] and [Algebra.Monoid] the classes the two
  * operations satisfy on their own.
  *)
+From jwa Require Import Algebra.AbelianGroup.
+From jwa Require Import Algebra.Monoid.
 From jwa Require Import Core.All.
-From jwa Require Import Structures.AbelianGroup.
-From jwa Require Import Structures.Class.
-From jwa Require Import Structures.Monoid.
+From jwa Require Import Core.Class.
 
 (* The module is the prefix: the class reads [Ring.T] and its fields
  * [Ring.add_group], [Ring.mul_monoid], [Ring.left_distributivity] and

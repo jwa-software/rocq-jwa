@@ -11,4 +11,4 @@
 (rocq.theory
  (name jwa.Data)
  (package rocq-jwa)
- (theories jwa.Core jwa.Tactics jwa.Structures jwa.Relation))
+ (theories jwa.Core jwa.Tactics jwa.Algebra jwa.Relation))

@@ -7,6 +7,7 @@
 (* [Require Export], not a plain [Require]: a notation and an open scope reach
  * a client only through [Import], so qualified access would deliver nothing.
  *)
+From jwa Require Export Core.Class.
 From jwa Require Export Core.Identity.
 From jwa Require Export Core.Logic.All.
 From jwa Require Export Core.Ltac.

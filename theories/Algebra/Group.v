@@ -1,12 +1,12 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Structures.All] would be circular from inside [Structures]; [Core.All]
- * carries [->] and [=], [Structures.Class] the hint database, and
- * [Structures.Monoid] the class this one is built on.
+(* [Algebra.All] would be circular from inside [Algebra]; [Core.All]
+ * carries [->] and [=], [Core.Class] the hint database, and
+ * [Algebra.Monoid] the class this one is built on.
  *)
+From jwa Require Import Algebra.Monoid.
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Class.
-From jwa Require Import Structures.Monoid.
+From jwa Require Import Core.Class.
 
 (* The module is the prefix: the class reads [Group.T] and its fields
  * [Group.monoid], [Group.left_inverse] and [Group.right_inverse].

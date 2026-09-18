@@ -1,10 +1,10 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] carries [->] and [=]: with [-noinit] a file has only what it
-   requires. [Structures.Functor] is the class the instance at the bottom
+   requires. [Data.Functor] is the class the instance at the bottom
    fills. *)
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Functor.
+From jwa Require Import Data.Functor.
 
 (* A sum holds one [A] or one [B], tagged by which. Both are parameters: the
    type behind each tag is fixed for the whole sum. The ctors are named as

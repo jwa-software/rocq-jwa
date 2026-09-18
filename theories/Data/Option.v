@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Functor.
+From jwa Require Import Data.Functor.
 
 Inductive Option (A : Type) : Type :=
   | None : Option A

@@ -1,14 +1,14 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Structures.All] would be circular from inside [Structures]; [Core.All]
- * carries [->], [Structures.Class] the hint database, and
- * [Structures.Commutative] and [Structures.Group] the two classes this one
+(* [Algebra.All] would be circular from inside [Algebra]; [Core.All]
+ * carries [->], [Core.Class] the hint database, and
+ * [Algebra.Commutative] and [Algebra.Group] the two classes this one
  * joins.
  *)
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Group.
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Class.
-From jwa Require Import Structures.Commutative.
-From jwa Require Import Structures.Group.
+From jwa Require Import Core.Class.
 
 (* The module is the prefix: the class reads [AbelianGroup.T] and its
  * fields [AbelianGroup.group] and [AbelianGroup.commutative].

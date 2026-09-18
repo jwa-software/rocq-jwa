@@ -5,15 +5,16 @@
  *)
 
 (* Without [Core.All] a client of this umbrella has no [->]. *)
+From jwa Require Export Algebra.All.
 From jwa Require Export Core.All.
 From jwa Require Export Relation.All.
-From jwa Require Export Structures.All.
 
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
 From jwa Require Export Data.Bool.
 From jwa Require Export Data.Collection.All.
 From jwa Require Export Data.Comparison.
 From jwa Require Export Data.Empty.
+From jwa Require Export Data.Functor.
 From jwa Require Export Data.Number.All.
 From jwa Require Export Data.Option.
 From jwa Require Export Data.Pair.

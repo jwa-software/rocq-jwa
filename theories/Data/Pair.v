@@ -1,13 +1,13 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] carries [->] and [=]: with [-noinit] a file has only what it
-   requires. [Structures.Semigroup], [Structures.Monoid] and
-   [Structures.Functor] are the classes the instances at the bottom fill. *)
+   requires. [Algebra.Semigroup], [Algebra.Monoid] and
+   [Data.Functor] are the classes the instances at the bottom fill. *)
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Semigroup.
-From jwa Require Import Structures.Monoid.
-From jwa Require Import Structures.Commutative.
-From jwa Require Import Structures.Functor.
+From jwa Require Import Data.Functor.
 
 (* A pair holds one [A] and one [B], in that order. Both are parameters: the
    type of each component is fixed for the whole pair. The ctor is named as

@@ -1,12 +1,12 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Algebra.AbelianGroup.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Group.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Ring.
+From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Structures.AbelianGroup.
-From jwa Require Import Structures.Commutative.
-From jwa Require Import Structures.Group.
-From jwa Require Import Structures.Monoid.
-From jwa Require Import Structures.Ring.
-From jwa Require Import Structures.Semigroup.
 
 (* [true] first: [if] takes the first constructor as its [then] branch. *)
 Inductive Bool : Type :=

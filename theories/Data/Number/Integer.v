@@ -1,5 +1,12 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Algebra.AbelianGroup.
+From jwa Require Import Algebra.Cancellative.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Group.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Ring.
+From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
@@ -13,13 +20,6 @@ From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
-From jwa Require Import Structures.AbelianGroup.
-From jwa Require Import Structures.Cancellative.
-From jwa Require Import Structures.Commutative.
-From jwa Require Import Structures.Group.
-From jwa Require Import Structures.Monoid.
-From jwa Require Import Structures.Ring.
-From jwa Require Import Structures.Semigroup.
 
 Inductive Integer : Type :=
   | Negative : Nat -> Integer
