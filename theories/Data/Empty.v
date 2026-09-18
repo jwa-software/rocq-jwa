@@ -21,7 +21,7 @@ Definition Empty_induction
 Module Empty.
 
 (* [forall (A : Type), Empty -> A]
-   From nothing, anything: the [Type]-level counterpart of [Falsum_elimination]. *)
+   From nothing, anything: the [Type]-level counterpart of [Falsum.elimination]. *)
 Definition elimination := fun (A : Type) (e : Empty) =>
   match e return A with
   end.
