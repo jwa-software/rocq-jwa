@@ -2415,6 +2415,821 @@ Proof.
       reflexivity.
 Qed.
 
+(* Indexing from [Zero]: [nth l i] is the element [i] places from the front,
+   [None] past the end. Recursion is on the list; the index is peeled by
+   one alongside, [Positive One] being the last step before [Zero]. *)
+Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
+  match l with
+  | Nil       => None
+  | Cons a l' =>
+      match i with
+      | Zero                    => Some a
+      | Positive One            => nth l' Zero
+      | Positive (Successor i') => nth l' (Positive i')
+      end
+  end.
+
+(* [nth] answers exactly for the indices below the length. Each step of the
+   index is one step of the list, so the halves lift [IH] through
+   [Positive One] added on both sides of the order. *)
+
+Lemma nth_specification_forward
+  : forall (A : Type) (l : List A) (i : NatWithZero),
+      (exists (a : A), nth l i = Some a) -> NatWithZero.LessThan i (length l).
+Proof.
+  (* The context gains [A] and [l]. *)
+  intros A l.
+  (* [l] is either [Nil] or [Cons b l']: one goal per ctor, and the second
+     has [b], [l'] and [IH] for every index in its context. *)
+  induction l as [| b l' IH] using List_induction.
+  - (* [nth Nil i] computes to [None], so the witness equates two distinct
+       ctors, which closes any goal. *)
+    intros i h.
+    destruct h as [a e].
+    simpl in e.
+    discriminate.
+  - (* One goal per shape of the index. *)
+    intros i h.
+    destruct i as [| i'].
+    + (* [Zero] is below the length of a [Cons], the length of [l'] plus one:
+         [|- NatWithZero.LessThan Zero
+               (NatWithZero.add (length l') (Positive One))] *)
+      simpl in |- *.
+      exact (NatWithZero.add_positive_positivity (length l') One).
+    + destruct i' as [| i''].
+      * (* [nth (Cons b l') (Positive One)] computes to [nth l' Zero], so
+           [IH] puts [Zero] below [length l']. *)
+        simpl in h.
+        pose proof (IH Zero h) as lt.
+        (* The step [Positive One] is added on both sides of [lt]; the left
+           sum computes to [Positive One], the right one is turned round:
+           [|- NatWithZero.LessThan (Positive One)
+                 (NatWithZero.add (length l') (Positive One))] *)
+        simpl in |- *.
+        rewrite (NatWithZero.add_commutativity (length l') (Positive One)) in |- *.
+        exact (NatWithZero.add_strict_monotonicity (Positive One) Zero (length l') lt).
+      * (* [nth (Cons b l') (Positive (Successor i''))] computes to
+           [nth l' (Positive i'')], so [IH] puts [Positive i''] below
+           [length l']. *)
+        simpl in h.
+        pose proof (IH (Positive i'') h) as lt.
+        (* The step is added on both sides of [lt]; the left sum computes to
+           [Positive (Successor i'')]. *)
+        simpl in |- *.
+        rewrite (NatWithZero.add_commutativity (length l') (Positive One)) in |- *.
+        exact (NatWithZero.add_strict_monotonicity
+                 (Positive One) (Positive i'') (length l') lt).
+Qed.
+
+Lemma nth_specification_backward
+  : forall (A : Type) (l : List A) (i : NatWithZero),
+      NatWithZero.LessThan i (length l) -> exists (a : A), nth l i = Some a.
+Proof.
+  (* The context gains [A] and [l]. *)
+  intros A l.
+  induction l as [| b l' IH] using List_induction.
+  - (* Nothing is below [length Nil], which computes to [Zero]: [h] opens
+       into [k] and [e : add i (Positive k) = Zero], which
+       [add_positive_refutes_zero] refutes. *)
+    intros i h.
+    simpl in h.
+    unfold NatWithZero.LessThan in h.
+    destruct h as [k e].
+    pose proof (NatWithZero.add_positive_refutes_zero i k) as r.
+    unfold Unjunction in r.
+    pose proof (r e) as f.
+    contradiction.
+  - (* One goal per shape of the index. *)
+    intros i h.
+    destruct i as [| i'].
+    + (* [nth (Cons b l') Zero] computes to [Some b], the witness. *)
+      simpl in |- *.
+      apply (Exists_introduction b).
+      reflexivity.
+    + destruct i' as [| i''].
+      * (* [length (Cons b l')] computes; commutativity turns the sum round
+           and the shared step cancels, the left side being
+           [add (Positive One) Zero]: [lt : LessThan Zero (length l')] *)
+        simpl in h.
+        rewrite (NatWithZero.add_commutativity (length l') (Positive One)) in h.
+        pose proof (NatWithZero.add_strict_cancellation (Positive One) Zero (length l') h)
+          as lt.
+        (* [nth (Cons b l') (Positive One)] computes to [nth l' Zero], which
+           [IH] settles. *)
+        simpl in |- *.
+        exact (IH Zero lt).
+      * (* The same one step further: the left side of [h] is
+           [add (Positive One) (Positive i'')] once computed. *)
+        simpl in h.
+        rewrite (NatWithZero.add_commutativity (length l') (Positive One)) in h.
+        pose proof (NatWithZero.add_strict_cancellation
+                      (Positive One) (Positive i'') (length l') h) as lt.
+        simpl in |- *.
+        exact (IH (Positive i'') lt).
+Qed.
+
+Theorem nth_specification
+  : forall (A : Type) (l : List A) (i : NatWithZero),
+      (exists (a : A), nth l i = Some a) <-> NatWithZero.LessThan i (length l).
+Proof.
+  (* The context gains [A], [l] and [i]. *)
+  intros A l i.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (nth_specification_forward  A l i).
+  - exact (nth_specification_backward A l i).
+Qed.
+
+(* [take n l] is the first [n] elements, all of [l] when there are fewer;
+   [drop n l] is what is left. Both recurse on the list, peeling the count
+   alongside as [nth] does. *)
+Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
+  match l with
+  | Nil       => Nil
+  | Cons a l' =>
+      match n with
+      | Zero                    => Nil
+      | Positive One            => Cons a Nil
+      | Positive (Successor n') => Cons a (take (Positive n') l')
+      end
+  end.
+
+Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
+  match l with
+  | Nil       => Nil
+  | Cons a l' =>
+      match n with
+      | Zero                    => Cons a l'
+      | Positive One            => l'
+      | Positive (Successor n') => drop (Positive n') l'
+      end
+  end.
+
+(* [forall {A : Type}, NatWithZero -> List A -> List A * List A] *)
+Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) =>
+  Pair_introduction (take n l) (drop n l).
+
+(* The two parts put back together give the list. *)
+Theorem take_drop_decomposition
+  : forall (A : Type) (l : List A) (n : NatWithZero),
+      append (take n l) (drop n l) = l.
+Proof.
+  (* The context gains [A] and [l]. *)
+  intros A l.
+  (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
+     has [a], [l'] and [IH] for every count in its context. *)
+  induction l as [| a l' IH] using List_induction.
+  - (* Both parts of [Nil] compute to [Nil], and so does their
+       concatenation. *)
+    intros n.
+    simpl in |- *.
+    reflexivity.
+  - (* One goal per shape of the count. *)
+    intros n.
+    destruct n as [| n'].
+    + (* [take Zero] is [Nil] and [drop Zero] is the list:
+         [|- Cons a l' = Cons a l'] after computing *)
+      simpl in |- *.
+      reflexivity.
+    + destruct n' as [| n''].
+      * (* [take (Positive One)] keeps the head and [drop (Positive One)]
+           the tail: [|- Cons a l' = Cons a l'] after computing *)
+        simpl in |- *.
+        reflexivity.
+      * (* One step of each:
+           [|- Cons a (append (take (Positive n'') l') (drop (Positive n'') l'))
+               = Cons a l'] *)
+        simpl in |- *.
+        (* [IH] at the smaller count closes the tail. *)
+        rewrite (IH (Positive n'')) in |- *.
+        reflexivity.
+Qed.
+
+(* The length of a [take] is the smaller of the count and the length; each
+   step adds one to both candidates, and addition distributes over [min]. *)
+Theorem length_take
+  : forall (A : Type) (l : List A) (n : NatWithZero),
+      length (take n l) = NatWithZero.min n (length l).
+Proof.
+  (* The context gains [A] and [l]. *)
+  intros A l.
+  induction l as [| a l' IH] using List_induction.
+  - (* [take n Nil] and [length Nil] compute to [Nil] and [Zero], and [Zero]
+       absorbs under [min]: [|- Zero = NatWithZero.min n Zero] *)
+    intros n.
+    simpl in |- *.
+    rewrite (NatWithZero.min_right_absorption n) in |- *.
+    reflexivity.
+  - (* One goal per shape of the count. *)
+    intros n.
+    destruct n as [| n'].
+    + (* [take Zero] is [Nil], and [Zero] absorbs under [min]:
+         [|- Zero = NatWithZero.min Zero (NatWithZero.add (length l') (Positive One))] *)
+      simpl in |- *.
+      rewrite (NatWithZero.min_left_absorption
+                 (NatWithZero.add (length l') (Positive One))) in |- *.
+      reflexivity.
+    + destruct n' as [| n''].
+      * (* [take (Positive One)] keeps one element, whose length computes to
+           [Positive One]; that is the smaller candidate, the length of [l']
+           plus one being at least one:
+           [|- Positive One
+               = NatWithZero.min (Positive One)
+                   (NatWithZero.add (length l') (Positive One))] *)
+        simpl in |- *.
+        rewrite (Bijunction_elimination_backward
+                   (NatWithZero.min (Positive One)
+                      (NatWithZero.add (length l') (Positive One)) = Positive One)
+                   (NatWithZero.LessOrEqual (Positive One)
+                      (NatWithZero.add (length l') (Positive One)))
+                   (NatWithZero.min_specification (Positive One)
+                      (NatWithZero.add (length l') (Positive One)))
+                   (NatWithZero.add_right_inflation (length l') (Positive One))) in |- *.
+        reflexivity.
+      * (* One step of [take] and one of [length]:
+           [|- NatWithZero.add (length (take (Positive n'') l')) (Positive One)
+               = NatWithZero.min (Positive (Successor n''))
+                   (NatWithZero.add (length l') (Positive One))] *)
+        simpl in |- *.
+        (* [IH] at the smaller count replaces the inner length. *)
+        rewrite (IH (Positive n'')) in |- *.
+        (* Commutativity puts the step in front, and addition distributes
+           over [min]:
+           [|- NatWithZero.min (NatWithZero.add (Positive One) (Positive n''))
+                 (NatWithZero.add (Positive One) (length l'))
+               = ...] *)
+        rewrite (NatWithZero.add_commutativity
+                   (NatWithZero.min (Positive n'') (length l')) (Positive One)) in |- *.
+        rewrite (NatWithZero.add_left_distributivity_over_min
+                   (Positive One) (Positive n'') (length l')) in |- *.
+        (* The first candidate is [Positive (Successor n'')] by computation;
+           [simpl] would also open the second, whose first argument is a
+           ctor, into a [match] on [length l']. *)
+        change (NatWithZero.add (Positive One) (Positive n''))
+          with (Positive (Successor n'')) in |- *.
+        (* Commutativity turns the second candidate round: both sides are
+           the same term. *)
+        rewrite (NatWithZero.add_commutativity (Positive One) (length l')) in |- *.
+        reflexivity.
+Qed.
+
+(* The length of a [drop] is the length less the count; each step takes one
+   from both, which truncated subtraction ignores. *)
+Theorem length_drop
+  : forall (A : Type) (l : List A) (n : NatWithZero),
+      length (drop n l) = NatWithZero.subtract (length l) n.
+Proof.
+  (* The context gains [A] and [l]. *)
+  intros A l.
+  induction l as [| a l' IH] using List_induction.
+  - (* [drop n Nil] and [length Nil] compute, and [subtract Zero n] computes
+       to [Zero]: [|- Zero = Zero] *)
+    intros n.
+    simpl in |- *.
+    reflexivity.
+  - (* One goal per shape of the count. *)
+    intros n.
+    destruct n as [| n'].
+    + (* [drop Zero] is the list, and [Zero] is a right identity of
+         subtraction. *)
+      simpl in |- *.
+      rewrite (NatWithZero.subtract_right_identity
+                 (NatWithZero.add (length l') (Positive One))) in |- *.
+      reflexivity.
+    + destruct n' as [| n''].
+      * (* [drop (Positive One)] is the tail, and taking the step away from
+           the length plus the step gives the length back:
+           [|- length l'
+               = NatWithZero.subtract (NatWithZero.add (length l') (Positive One))
+                   (Positive One)] *)
+        simpl in |- *.
+        rewrite (NatWithZero.subtract_inversion_of_add (length l') (Positive One)) in |- *.
+        reflexivity.
+      * (* One step of [drop] and one of [length]:
+           [|- length (drop (Positive n'') l')
+               = NatWithZero.subtract (NatWithZero.add (length l') (Positive One))
+                   (Positive (Successor n''))] *)
+        simpl in |- *.
+        rewrite (IH (Positive n'')) in |- *.
+        (* Commutativity puts the step in front on the left; the count is the
+           step plus [Positive n''] by computation; the shared step cancels. *)
+        rewrite (NatWithZero.add_commutativity (length l') (Positive One)) in |- *.
+        change (Positive (Successor n''))
+          with (NatWithZero.add (Positive One) (Positive n'')) in |- *.
+        rewrite (NatWithZero.subtract_translation_invariance
+                   (Positive One) (length l') (Positive n'')) in |- *.
+        reflexivity.
+Qed.
+
+(* [replicate n a] is [a] repeated [n] times. A count of [Zero] gives [Nil];
+   a positive count recurses on its [Nat], one element per step, since a
+   [NatWithZero] has no step of its own to recurse on. *)
+Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
+  match k with
+  | One          => Cons a Nil
+  | Successor k' => Cons a (replicate_positive k' a)
+  end.
+
+(* [forall {A : Type}, NatWithZero -> A -> List A] *)
+Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) =>
+  match n with
+  | Zero       => Nil
+  | Positive k => replicate_positive k a
+  end.
+
+Lemma length_replicate_positive
+  : forall (A : Type) (k : Nat) (a : A), length (replicate_positive k a) = Positive k.
+Proof.
+  (* The context gains [A], [k] and [a]. *)
+  intros A k a.
+  (* [k] is either [One] or [Successor k']: one goal per ctor, and the
+     second has [k'] and [IH : length (replicate_positive k' a) = Positive k']
+     in its context. *)
+  induction k as [| k' IH] using Nat_induction.
+  - (* One element, whose length computes: [|- Positive One = Positive One] *)
+    simpl in |- *.
+    reflexivity.
+  - (* One step: [|- NatWithZero.add (length (replicate_positive k' a)) (Positive One)
+                     = Positive (Successor k')] *)
+    simpl in |- *.
+    rewrite IH in |- *.
+    (* The sum computes to [Positive (Nat.add k' One)]; commutativity turns
+       the inner sum round and it computes to [Successor k']. *)
+    simpl in |- *.
+    rewrite (Nat.add_commutativity k' One) in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
+Theorem length_replicate
+  : forall (A : Type) (n : NatWithZero) (a : A), length (replicate n a) = n.
+Proof.
+  (* The context gains [A], [n] and [a]; one goal per ctor of [n]. *)
+  intros A n a.
+  destruct n as [| k].
+  - simpl in |- *.
+    reflexivity.
+  - (* [replicate (Positive k)] computes to [replicate_positive k]. *)
+    simpl in |- *.
+    exact (length_replicate_positive A k a).
+Qed.
+
+(* [zip] stops with the shorter list, so its length is the smaller of the
+   two; each step adds one to both, and addition distributes over [min]. *)
+Theorem length_zip
+  : forall (A : Type) (B : Type) (l1 : List A) (l2 : List B),
+      length (zip l1 l2) = NatWithZero.min (length l1) (length l2).
+Proof.
+  (* The context gains [A], [B] and [l1]. *)
+  intros A B l1.
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [zip Nil l2] computes to [Nil] whichever ctor [l2] is, and [Zero]
+       absorbs under [min]. *)
+    intros l2.
+    destruct l2 as [| b l2'].
+    + simpl in |- *.
+      reflexivity.
+    + simpl in |- *.
+      rewrite (NatWithZero.min_left_absorption
+                 (NatWithZero.add (length l2') (Positive One))) in |- *.
+      reflexivity.
+  - intros l2.
+    destruct l2 as [| b l2'].
+    + (* [zip (Cons a l1') Nil] computes to [Nil], and [Zero] absorbs on the
+         right. *)
+      simpl in |- *.
+      rewrite (NatWithZero.min_right_absorption
+                 (NatWithZero.add (length l1') (Positive One))) in |- *.
+      reflexivity.
+    + (* One step of [zip] and of each [length]:
+         [|- NatWithZero.add (length (zip l1' l2')) (Positive One)
+             = NatWithZero.min (NatWithZero.add (length l1') (Positive One))
+                 (NatWithZero.add (length l2') (Positive One))] *)
+      simpl in |- *.
+      rewrite (IH l2') in |- *.
+      (* Commutativity puts the step in front, addition distributes over
+         [min], and commutativity turns both candidates back. *)
+      rewrite (NatWithZero.add_commutativity
+                 (NatWithZero.min (length l1') (length l2')) (Positive One)) in |- *.
+      rewrite (NatWithZero.add_left_distributivity_over_min
+                 (Positive One) (length l1') (length l2')) in |- *.
+      rewrite (NatWithZero.add_commutativity (Positive One) (length l1')) in |- *.
+      rewrite (NatWithZero.add_commutativity (Positive One) (length l2')) in |- *.
+      reflexivity.
+Qed.
+
+(* The sum and the product of a list of numbers: [fold_right] over the two
+   monoids of [NatWithZero], the empty list giving the identity. *)
+
+(* [List NatWithZero -> NatWithZero] *)
+Definition sum := fun (l : List NatWithZero) => fold_right NatWithZero.add Zero l.
+
+(* [List NatWithZero -> NatWithZero] *)
+Definition product := fun (l : List NatWithZero) =>
+  fold_right NatWithZero.mul (Positive One) l.
+
+Theorem sum_additivity_over_append
+  : forall (l1 : List NatWithZero) (l2 : List NatWithZero),
+      sum (append l1 l2) = NatWithZero.add (sum l1) (sum l2).
+Proof.
+  (* The context gains [l1] and [l2]; [sum] opens into its fold. *)
+  intros l1 l2.
+  unfold sum in |- *.
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [append Nil] and the fold of [Nil] compute, and [add Zero] returns
+       its second argument: both sides are the same term. *)
+    simpl in |- *.
+    reflexivity.
+  - (* One step of [append] and of each fold:
+       [|- NatWithZero.add a (fold_right NatWithZero.add Zero (append l1' l2))
+           = NatWithZero.add (NatWithZero.add a (fold_right NatWithZero.add Zero l1'))
+               (fold_right NatWithZero.add Zero l2)] *)
+    simpl in |- *.
+    rewrite IH in |- *.
+    (* Associativity regroups the right side: both sides are the same
+       term. *)
+    rewrite (NatWithZero.add_associativity
+               a (fold_right NatWithZero.add Zero l1') (fold_right NatWithZero.add Zero l2))
+      in |- *.
+    reflexivity.
+Qed.
+
+Theorem product_multiplicativity_over_append
+  : forall (l1 : List NatWithZero) (l2 : List NatWithZero),
+      product (append l1 l2) = NatWithZero.mul (product l1) (product l2).
+Proof.
+  (* The context gains [l1] and [l2]; [product] opens into its fold. *)
+  intros l1 l2.
+  unfold product in |- *.
+  induction l1 as [| a l1' IH] using List_induction.
+  - (* [append Nil] is the identity, the fold of [Nil] is the seed, and
+       [Positive One] is the left identity of [mul]. [simpl] is avoided: it
+       would open [mul (Positive One) _] into a [match] on the fold. *)
+    rewrite (append_left_identity l2) in |- *.
+    change (fold_right NatWithZero.mul (Positive One) Nil) with (Positive One) in |- *.
+    rewrite (NatWithZero.mul_left_identity (fold_right NatWithZero.mul (Positive One) l2))
+      in |- *.
+    reflexivity.
+  - (* One step of [append] and of each fold; [IH] replaces the inner fold
+       and associativity regroups the right side. *)
+    simpl in |- *.
+    rewrite IH in |- *.
+    rewrite (NatWithZero.mul_associativity
+               a (fold_right NatWithZero.mul (Positive One) l1')
+               (fold_right NatWithZero.mul (Positive One) l2)) in |- *.
+    reflexivity.
+Qed.
+
+(* [count p l] is how many elements [p] answers [true] on. *)
+Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
+  match l with
+  | Nil       => Zero
+  | Cons a l' =>
+      match p a with
+      | true  => NatWithZero.add (count p l') (Positive One)
+      | false => count p l'
+      end
+  end.
+
+(* [count] is the length of the [filter]: the same case analysis on each
+   answer. *)
+Theorem count_specification
+  : forall (A : Type) (p : A -> Bool) (l : List A), count p l = length (filter p l).
+Proof.
+  (* The context gains [A], [p] and [l]. *)
+  intros A p l.
+  induction l as [| a l' IH] using List_induction.
+  - (* Both sides compute to [Zero]. *)
+    simpl in |- *.
+    reflexivity.
+  - (* Both sides open on [p a]: one goal per answer. *)
+    simpl in |- *.
+    destruct (p a) as [|].
+    + (* [length (Cons a _)] computes:
+         [|- NatWithZero.add (count p l') (Positive One)
+             = NatWithZero.add (length (filter p l')) (Positive One)] *)
+      simpl in |- *.
+      rewrite IH in |- *.
+      reflexivity.
+    + (* [IH] is a proof of the goal as it stands. *)
+      exact IH.
+Qed.
+
+(* [All] is monotone in its predicate: whatever holds of every element under
+   [P] holds under any [Q] that [P] implies. *)
+Lemma all_monotonicity
+  : forall (A : Type) (P : A -> Prop) (Q : A -> Prop) (l : List A),
+      (forall (a : A), P a -> Q a) -> All P l -> All Q l.
+Proof.
+  (* The context gains [A], [P], [Q], [l] and [h]. *)
+  intros A P Q l h.
+  induction l as [| b l' IH] using List_induction.
+  - (* [All _ Nil] computes to [Verum] on both sides. *)
+    simpl in |- *.
+    intro v.
+    exact v.
+  - (* Both [All]s on a [Cons] compute: [|- P b /\ All P l' -> Q b /\ All Q l'] *)
+    simpl in |- *.
+    intro c.
+    destruct c as [pb all'].
+    exact (Conjunction_introduction (h b pb) (IH all')).
+Qed.
+
+(* Insertion sort, relative to a comparison [le] that answers [true] when
+   its first argument may come first. [insert] walks past every element
+   that may precede [a] and puts [a] in front of the first that may not. *)
+Fixpoint insert {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) : List A :=
+  match l with
+  | Nil       => Cons a Nil
+  | Cons b l' =>
+      match le a b with
+      | true  => Cons a (Cons b l')
+      | false => Cons b (insert le a l')
+      end
+  end.
+
+Fixpoint insertion_sort {A : Type} (le : A -> A -> Bool) (l : List A) : List A :=
+  match l with
+  | Nil       => Nil
+  | Cons a l' => insert le a (insertion_sort le l')
+  end.
+
+(* Sortedness: every element may precede all that follow it. Stated with
+   [All] rather than on neighbours, so that [insert] is checked one element
+   at a time. *)
+Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
+  match l with
+  | Nil       => Verum
+  | Cons a l' => All (fun (b : A) => le a b = true) l' /\ Sorted le l'
+  end.
+
+(* Inserting an element every member of which satisfies [P] keeps [All P]. *)
+Lemma insert_all_preservation
+  : forall (A : Type) (le : A -> A -> Bool) (P : A -> Prop) (a : A) (l : List A),
+      P a -> All P l -> All P (insert le a l).
+Proof.
+  (* The context gains [A], [le], [P], [a], [l] and [pa]. *)
+  intros A le P a l pa.
+  induction l as [| b l' IH] using List_induction.
+  - (* [insert] into [Nil] is the one element: [|- Verum -> P a /\ Verum] *)
+    simpl in |- *.
+    intro v.
+    exact (Conjunction_introduction pa v).
+  - (* [|- P b /\ All P l' -> All P (match le a b with ... end)] *)
+    simpl in |- *.
+    intro c.
+    destruct c as [pb all'].
+    (* One goal per answer of [le a b]. *)
+    destruct (le a b) as [|].
+    + (* [a] goes in front: [|- P a /\ P b /\ All P l'] after computing *)
+      simpl in |- *.
+      exact (Conjunction_introduction pa (Conjunction_introduction pb all')).
+    + (* [a] goes into the tail: [|- P b /\ All P (insert le a l')] *)
+      simpl in |- *.
+      exact (Conjunction_introduction pb (IH all')).
+Qed.
+
+(* Inserting into a sorted list keeps it sorted, given that the comparison
+   is total (either of two may come first) and transitive. Where [a] stops,
+   it precedes the head by the answer and the rest by transitivity; where it
+   walks on, the head precedes it by totality. *)
+Lemma insert_sortedness
+  : forall (A : Type) (le : A -> A -> Bool),
+      (forall (a : A) (b : A), le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A),
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall (a : A) (l : List A), Sorted le l -> Sorted le (insert le a l).
+Proof.
+  (* The context gains [A], [le], [total], [transitive], [a] and [l]. *)
+  intros A le total transitive a l.
+  induction l as [| b l' IH] using List_induction.
+  - (* One element is sorted: [|- Verum -> Verum /\ Verum] after computing *)
+    simpl in |- *.
+    intro v.
+    exact (Conjunction_introduction v v).
+  - (* [|- All (fun x => le b x = true) l' /\ Sorted le l'
+         -> Sorted le (match le a b with ... end)] *)
+    simpl in |- *.
+    intro s.
+    destruct s as [below sorted'].
+    (* One goal per answer of [le a b], the answer kept as [c]. *)
+    destruct (le a b) as [|] eqn:c.
+    + (* [a] goes in front of [b]: it precedes [b] by [c] and everything
+         after [b] by transitivity through [b]. *)
+      simpl in |- *.
+      pose proof (all_monotonicity A
+                    (fun (x : A) => le b x = true) (fun (x : A) => le a x = true) l'
+                    (fun (x : A) (h : le b x = true) => transitive a b x c h) below)
+        as below_a.
+      exact (Conjunction_introduction
+               (Conjunction_introduction c below_a)
+               (Conjunction_introduction below sorted')).
+    + (* [a] goes into the tail: [b] precedes [a] by totality, since [c]
+         refutes the other side, and precedes the rest as before; the tail
+         is sorted by [IH]. *)
+      simpl in |- *.
+      pose proof (total a b) as t.
+      destruct t as [ab | ba].
+      * (* [ab] and [c] equate [false] with [true]. *)
+        rewrite c in ab.
+        discriminate.
+      * exact (Conjunction_introduction
+                 (insert_all_preservation A le (fun (x : A) => le b x = true) a l' ba below)
+                 (IH sorted')).
+Qed.
+
+Theorem insertion_sort_sortedness
+  : forall (A : Type) (le : A -> A -> Bool),
+      (forall (a : A) (b : A), le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A),
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall (l : List A), Sorted le (insertion_sort le l).
+Proof.
+  (* The context gains [A], [le], [total], [transitive] and [l]. *)
+  intros A le total transitive l.
+  induction l as [| a l' IH] using List_induction.
+  - (* [insertion_sort Nil] computes to [Nil], which is sorted: [|- Verum] *)
+    simpl in |- *.
+    exact I.
+  - (* One step: [|- Sorted le (insert le a (insertion_sort le l'))] *)
+    simpl in |- *.
+    exact (insert_sortedness A le total transitive a (insertion_sort le l') IH).
+Qed.
+
+(* [insert] adds exactly its element to the members. *)
+
+Lemma insert_containment_forward
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (b : A) (l : List A),
+      Contains b (insert le a l) -> b = a \/ Contains b l.
+Proof.
+  (* The context gains [A], [le], [a], [b] and [l]. *)
+  intros A le a b l.
+  induction l as [| c l' IH] using List_induction.
+  - (* [insert] into [Nil] is the one element: both sides compute to
+       [b = a \/ Falsum]. *)
+    simpl in |- *.
+    intro h.
+    exact h.
+  - (* One goal per answer of [le a c]. *)
+    simpl in |- *.
+    destruct (le a c) as [|].
+    + (* [a] in front: both sides compute to [b = a \/ b = c \/ Contains b l']. *)
+      simpl in |- *.
+      intro h.
+      exact h.
+    + (* [a] in the tail:
+         [|- b = c \/ Contains b (insert le a l') -> b = a \/ b = c \/ Contains b l'] *)
+      simpl in |- *.
+      intro h.
+      destruct h as [e | h'].
+      * exact (Disjunction_right (Disjunction_left e)).
+      * (* [IH] sorts the tail's membership into the two sides. *)
+        pose proof (IH h') as h''.
+        destruct h'' as [e | h'''].
+        { exact (Disjunction_left e). }
+        { exact (Disjunction_right (Disjunction_right h''')). }
+Qed.
+
+Lemma insert_containment_backward
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (b : A) (l : List A),
+      b = a \/ Contains b l -> Contains b (insert le a l).
+Proof.
+  (* The context gains [A], [le], [a], [b] and [l]. *)
+  intros A le a b l.
+  induction l as [| c l' IH] using List_induction.
+  - (* Both sides compute to [b = a \/ Falsum]. *)
+    simpl in |- *.
+    intro h.
+    exact h.
+  - (* One goal per answer of [le a c]. *)
+    simpl in |- *.
+    destruct (le a c) as [|].
+    + (* Both sides compute to [b = a \/ b = c \/ Contains b l']. *)
+      simpl in |- *.
+      intro h.
+      exact h.
+    + (* [|- b = a \/ b = c \/ Contains b l' -> b = c \/ Contains b (insert le a l')] *)
+      simpl in |- *.
+      intro h.
+      destruct h as [e | h'].
+      * (* [b] is [a], which [IH] places in the tail. *)
+        exact (Disjunction_right (IH (Disjunction_left e))).
+      * destruct h' as [e | h''].
+        { exact (Disjunction_left e). }
+        { exact (Disjunction_right (IH (Disjunction_right h''))). }
+Qed.
+
+Theorem insert_containment
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (b : A) (l : List A),
+      Contains b (insert le a l) <-> b = a \/ Contains b l.
+Proof.
+  (* The context gains [A], [le], [a], [b] and [l]. *)
+  intros A le a b l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (insert_containment_forward  A le a b l).
+  - exact (insert_containment_backward A le a b l).
+Qed.
+
+(* Sorting keeps the members: each insertion adds exactly the element the
+   step took off. *)
+
+Lemma insertion_sort_containment_preservation_forward
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (l : List A),
+      Contains a (insertion_sort le l) -> Contains a l.
+Proof.
+  (* The context gains [A], [le], [a] and [l]. *)
+  intros A le a l.
+  induction l as [| b l' IH] using List_induction.
+  - (* [insertion_sort Nil] computes to [Nil]. *)
+    simpl in |- *.
+    intro h.
+    exact h.
+  - (* [|- Contains a (insert le b (insertion_sort le l')) -> a = b \/ Contains a l'] *)
+    simpl in |- *.
+    intro h.
+    pose proof (insert_containment_forward A le b a (insertion_sort le l') h) as h'.
+    destruct h' as [e | h''].
+    + exact (Disjunction_left e).
+    + exact (Disjunction_right (IH h'')).
+Qed.
+
+Lemma insertion_sort_containment_preservation_backward
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (l : List A),
+      Contains a l -> Contains a (insertion_sort le l).
+Proof.
+  (* The context gains [A], [le], [a] and [l]. *)
+  intros A le a l.
+  induction l as [| b l' IH] using List_induction.
+  - (* [insertion_sort Nil] computes to [Nil]. *)
+    simpl in |- *.
+    intro h.
+    exact h.
+  - (* [|- a = b \/ Contains a l' -> Contains a (insert le b (insertion_sort le l'))] *)
+    simpl in |- *.
+    intro h.
+    apply (insert_containment_backward A le b a (insertion_sort le l')).
+    destruct h as [e | h'].
+    + exact (Disjunction_left e).
+    + exact (Disjunction_right (IH h')).
+Qed.
+
+Theorem insertion_sort_containment_preservation
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (l : List A),
+      Contains a (insertion_sort le l) <-> Contains a l.
+Proof.
+  (* The context gains [A], [le], [a] and [l]. *)
+  intros A le a l.
+  (* [Bijunction] has one ctor with two fields, so the goal splits into two
+     goals, the forward and the backward half. *)
+  split.
+  - exact (insertion_sort_containment_preservation_forward  A le a l).
+  - exact (insertion_sort_containment_preservation_backward A le a l).
+Qed.
+
+Lemma insert_length
+  : forall (A : Type) (le : A -> A -> Bool) (a : A) (l : List A),
+      length (insert le a l) = NatWithZero.add (length l) (Positive One).
+Proof.
+  (* The context gains [A], [le], [a] and [l]. *)
+  intros A le a l.
+  induction l as [| b l' IH] using List_induction.
+  - (* One element on each side: both compute to [Positive One]. *)
+    simpl in |- *.
+    reflexivity.
+  - (* One goal per answer of [le a b]. *)
+    simpl in |- *.
+    destruct (le a b) as [|].
+    + (* [a] in front: both sides count two steps over [length l']. *)
+      simpl in |- *.
+      reflexivity.
+    + (* [a] in the tail: [IH] counts it there:
+         [|- NatWithZero.add (length (insert le a l')) (Positive One)
+             = NatWithZero.add (NatWithZero.add (length l') (Positive One)) (Positive One)] *)
+      simpl in |- *.
+      rewrite IH in |- *.
+      reflexivity.
+Qed.
+
+Theorem insertion_sort_length_preservation
+  : forall (A : Type) (le : A -> A -> Bool) (l : List A),
+      length (insertion_sort le l) = length l.
+Proof.
+  (* The context gains [A], [le] and [l]. *)
+  intros A le l.
+  induction l as [| a l' IH] using List_induction.
+  - simpl in |- *.
+    reflexivity.
+  - (* One step: the insertion counts one over the sorted tail, which [IH]
+       counts as [l']. *)
+    simpl in |- *.
+    rewrite (insert_length A le a (insertion_sort le l')) in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
@@ -2422,14 +3237,17 @@ End List.
    Every list notation lives in [jwa_list_scope], which [Core.Notations]
    declares without opening: a client writes [(l1 ++ l2)%list] or opens the
    scope. *)
-Notation "l1 ++ l2" := (List.append l1 l2) : jwa_list_scope.
+Notation "l1 ++ l2" := (List.append l1 l2)
+  : jwa_list_scope.
 
 (* The token is [[]] as one piece; [[ ]] with a space is not it. *)
-Notation "[]" := Nil : jwa_list_scope.
+Notation "[]" := Nil
+  : jwa_list_scope.
 
 (* [a :: l] puts one element in front; with [[]] it spells a list out:
    [a :: b :: []]. *)
-Notation "a :: l" := (Cons a l) : jwa_list_scope.
+Notation "a :: l" := (Cons a l)
+  : jwa_list_scope.
 
 (* Membership reads as a sentence, [l contains_member a], with the list
    first; the arguments of [Contains] are the other way round, element
@@ -2464,7 +3282,8 @@ Instance List_append_monoid
    hands them over. [map]'s type arguments are maximally inserted, so the
    bare name collapses to one fixed pair of them; binding [A] and [B] first
    is what keeps it general enough for the field, as in [Data.Option]. *)
-Instance List_functor : Functor.T List :=
+Instance List_functor
+  : Functor.T List :=
   {| Functor.map             := fun (A : Type) (B : Type) => List.map
    ; Functor.map_identity    := List.map_identity
    ; Functor.map_composition := List.map_composition |}.
