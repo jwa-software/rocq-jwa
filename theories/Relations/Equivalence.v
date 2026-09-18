@@ -47,8 +47,8 @@ Instance Equijunction_equivalence
   : forall (A : Type), Equivalence.R A (@Equijunction A) :=
   fun (A : Type) =>
     {| Equivalence.reflexive :=
-         {| Reflexive.reflexivity := @Equijunction_reflexivity A |}
+         {| Reflexive.reflexivity := @Equijunction.reflexivity A |}
      ; Equivalence.symmetric :=
-         {| Symmetric.symmetry := @Equijunction_symmetry A |}
+         {| Symmetric.symmetry := @Equijunction.symmetry A |}
      ; Equivalence.transitive :=
-         {| Transitive.transitivity := @Equijunction_transitivity A |} |}.
+         {| Transitive.transitivity := @Equijunction.transitivity A |} |}.

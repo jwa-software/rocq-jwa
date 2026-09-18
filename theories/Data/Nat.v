@@ -103,7 +103,7 @@ Proof.
          [|- Successor (Successor n') = Successor (add n' One)] *)
       simpl in |- *.
       (* Turned round: [IH2' : add n' One = Successor n'] *)
-      pose proof (Equijunction_symmetry IH2) as IH2'.
+      pose proof (Equijunction.symmetry IH2) as IH2'.
       (* [IH2'] replaces [add n' One]:
          [|- Successor (Successor n') = Successor (Successor n')] *)
       rewrite IH2' in |- *.
@@ -133,7 +133,7 @@ Proof.
              = Successor (add n' (Successor m'))] *)
       simpl in |- *.
       (* Turned round: [IH2' : add n' (Successor m') = Successor (add n' m')] *)
-      pose proof (Equijunction_symmetry IH2) as IH2'.
+      pose proof (Equijunction.symmetry IH2) as IH2'.
       (* [IH2'] replaces [add n' (Successor m')]:
          [|- Successor (Successor (add n' m'))
              = Successor (Successor (add n' m'))] *)
@@ -152,7 +152,7 @@ Proof.
   (* The context gains [m], [n] and [e : Successor m = Successor n]: [|- m = n] *)
   intros m n e.
   (* [e' : f (Successor m) = f (Successor n)]. *)
-  pose proof (Equijunction_congruence
+  pose proof (Equijunction.congruence
                 (fun (x : Nat) => match x with | One => m | Successor y => y end)
                 e) as e'.
   (* Both applications compute: [e' : m = n] *)
@@ -288,7 +288,7 @@ Proof.
          [|- Successor n' = Successor (mul n' One)] *)
       simpl in |- *.
       (* Turned round: [IH2' : mul n' One = n'] *)
-      pose proof (Equijunction_symmetry IH2) as IH2'.
+      pose proof (Equijunction.symmetry IH2) as IH2'.
       (* [IH2'] replaces [mul n' One]: [|- Successor n' = Successor n'] *)
       rewrite IH2' in |- *.
       (* Both sides are the same term. *)
@@ -316,7 +316,7 @@ Proof.
              = Successor (add m' (mul n' (Successor m')))] *)
       simpl in |- *.
       (* Turned round: [IH2' : mul n' (Successor m') = add n' (mul n' m')] *)
-      pose proof (Equijunction_symmetry IH2) as IH2'.
+      pose proof (Equijunction.symmetry IH2) as IH2'.
       (* [IH2'] replaces [mul n' (Successor m')]:
          [|- Successor (add n' (add m' (mul n' m')))
              = Successor (add m' (add n' (mul n' m')))] *)
@@ -649,7 +649,7 @@ Proof.
   apply (Exists_introduction (add k1 k2)).
   (* Associativity read right to left groups the left side:
      [|- add (add l k1) k2 = n] *)
-  pose proof (Equijunction_symmetry (add_associativity l k1 k2)) as a.
+  pose proof (Equijunction.symmetry (add_associativity l k1 k2)) as a.
   rewrite a in |- *.
   (* [e1] replaces [add l k1]: [|- add m k2 = n] *)
   rewrite e1 in |- *.
@@ -674,7 +674,7 @@ Proof.
   unfold LessThan in h2.
   destruct h2 as [k2 e2].
   (* [e1] turned round replaces [n] in [e2]: [e2 : add (add m k1) k2 = m] *)
-  pose proof (Equijunction_symmetry e1) as e1'.
+  pose proof (Equijunction.symmetry e1) as e1'.
   rewrite e1' in e2.
   (* Associativity, then commutativity: [e2 : add (add k1 k2) m = m] *)
   rewrite (add_associativity m k1 k2) in e2.
@@ -793,7 +793,7 @@ Proof.
   apply (Exists_introduction (mul k d)).
   (* The left distributivity law read right to left folds the left side:
      [|- mul k (add m d) = mul k n] *)
-  pose proof (Equijunction_symmetry (mul_left_distributivity_over_add k m d)) as dist.
+  pose proof (Equijunction.symmetry (mul_left_distributivity_over_add k m d)) as dist.
   rewrite dist in |- *.
   (* [e] replaces [add m d]: [|- mul k n = mul k n] *)
   rewrite e in |- *.
@@ -820,7 +820,7 @@ Proof.
     (* [n] is either [One] or [Successor n']: one goal per ctor. *)
     destruct n as [| n'].
     + (* The middle case holds by reflexivity. *)
-      exact (Disjunction_right (Disjunction_left (Equijunction_reflexivity One))).
+      exact (Disjunction_right (Disjunction_left (Equijunction.reflexivity One))).
     + (* [One] is below any [Successor], the witness being what follows:
          [|- add One n' = Successor n'] after choosing it *)
       apply Disjunction_left.
@@ -921,7 +921,7 @@ Proof.
     simpl in e.
     rewrite e in |- *.
     exact (Conjunction_introduction
-             (Equijunction_reflexivity One) (Equijunction_reflexivity One)).
+             (Equijunction.reflexivity One) (Equijunction.reflexivity One)).
   - (* [mul (Successor k') j] computes to [add j (mul k' j)], a [Successor]
      * once [j] is a ctor: [e] equates it with [One].
      *)
@@ -939,7 +939,7 @@ Proof.
   intros n.
   (* [|- n = n \/ LessThan n n], and the left side holds. *)
   unfold LessOrEqual in |- *.
-  exact (Disjunction_left (Equijunction_reflexivity n)).
+  exact (Disjunction_left (Equijunction.reflexivity n)).
 Qed.
 
 Theorem less_or_equal_transitivity
@@ -976,7 +976,7 @@ Proof.
     exact e1.
   - destruct h2 as [e2 | lt2].
     + (* [e2 : n = m] turned round. *)
-      exact (Equijunction_symmetry e2).
+      exact (Equijunction.symmetry e2).
     + (* Two strict steps in opposite directions contradict asymmetry. *)
       pose proof (less_than_asymmetry m n lt1) as h.
       unfold Unjunction in h.
@@ -1340,7 +1340,7 @@ Proof.
                (compare m n = Eq) (m = n) (compare_eq_specification m n) c).
     + (* [Gt]: then [e : n = m], turned round. *)
       apply Disjunction_left.
-      exact (Equijunction_symmetry e).
+      exact (Equijunction.symmetry e).
   - (* The context gains [h]; the first two answers give [m] outright, and
        [Gt] contradicts [h] either way. *)
     intro h.
@@ -1378,7 +1378,7 @@ Proof.
     + apply Disjunction_left.
       exact e.
     + apply Disjunction_left.
-      exact (Equijunction_symmetry
+      exact (Equijunction.symmetry
                (Bijunction_elimination_forward
                   (compare m n = Eq) (m = n) (compare_eq_specification m n) c)).
     + apply Disjunction_right.
@@ -1416,8 +1416,8 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction_left (Equijunction_reflexivity l)).
-  - exact (Disjunction_left (Equijunction_reflexivity l)).
+  - exact (Disjunction_left (Equijunction.reflexivity l)).
+  - exact (Disjunction_left (Equijunction.reflexivity l)).
   - apply Disjunction_right.
     exact (Bijunction_elimination_forward
              (compare l r = Gt) (LessThan r l)
@@ -1439,7 +1439,7 @@ Proof.
   - apply Disjunction_left.
     exact (Bijunction_elimination_forward
              (compare l r = Eq) (l = r) (compare_eq_specification l r) c).
-  - exact (Disjunction_left (Equijunction_reflexivity r)).
+  - exact (Disjunction_left (Equijunction.reflexivity r)).
 Qed.
 
 Lemma min_universality
@@ -1469,8 +1469,8 @@ Proof.
     exact (Bijunction_elimination_forward
              (compare l r = Lt) (LessThan l r)
              (compare_lt_specification l r) c).
-  - exact (Disjunction_left (Equijunction_reflexivity l)).
-  - exact (Disjunction_left (Equijunction_reflexivity l)).
+  - exact (Disjunction_left (Equijunction.reflexivity l)).
+  - exact (Disjunction_left (Equijunction.reflexivity l)).
 Qed.
 
 Lemma max_right_injection : forall (l : Nat) (r : Nat), LessOrEqual r (max l r).
@@ -1479,9 +1479,9 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction_left (Equijunction_reflexivity r)).
+  - exact (Disjunction_left (Equijunction.reflexivity r)).
   - apply Disjunction_left.
-    exact (Equijunction_symmetry
+    exact (Equijunction.symmetry
              (Bijunction_elimination_forward
                 (compare l r = Eq) (l = r) (compare_eq_specification l r) c)).
   - apply Disjunction_right.
@@ -1664,7 +1664,7 @@ Proof.
        [n]: [|- subtract m (add m k) = None] *)
     unfold LessThan in lt.
     destruct lt as [k e].
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in |- *.
     (* [e] and [e'] mention [m], so they would be folded into the motive of
        the induction; the context loses them. *)
@@ -1765,7 +1765,7 @@ Proof.
   (* The context gains [m], [n], [k] and [e]; turned round, [e] replaces [m]:
      [|- subtract (add n k) n = Some k] *)
   intros m n k e.
-  pose proof (Equijunction_symmetry e) as e'.
+  pose proof (Equijunction.symmetry e) as e'.
   rewrite e' in |- *.
   (* Commutativity puts the sum into the inversion's shape. *)
   rewrite (add_commutativity n k) in |- *.
@@ -1831,7 +1831,7 @@ Instance Nat_mul_monoid : Monoid.T Nat Nat.mul One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Nat.mul_associativity |}
    ; Monoid.left_identity  :=
-       fun (n : Nat) => Equijunction_reflexivity (Nat.mul One n)
+       fun (n : Nat) => Equijunction.reflexivity (Nat.mul One n)
    ; Monoid.right_identity := fun (m : Nat) => Nat.mul_commutativity m One |}.
 
 Instance Nat_add_commutative : Commutative.T Nat Nat.add :=

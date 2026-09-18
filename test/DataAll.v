@@ -8,13 +8,13 @@ Definition data_all_delivers_some
   : forall (A : Type) (B : Type) (f : A -> B) (a : A),
       ~ (true = false) -> Option.map f (Some a) = Some (f a)
   := fun (A : Type) (B : Type) (f : A -> B) (a : A) (_ : ~ (true = false)) =>
-       Equijunction_reflexivity (Some (f a)).
+       Equijunction.reflexivity (Some (f a)).
 
 Definition data_all_delivers_none
   : forall (A : Type),
       Option.map (fun (a : A) => a) None = None
   := fun (A : Type) =>
-      Equijunction_reflexivity None.
+      Equijunction.reflexivity None.
 
 (* [*] is a notation in [jwa_type_scope]; [( , )], [pi_1] and [pi_2] are in
    [jwa_pair_scope], reached here through its delimiter. *)
@@ -22,7 +22,7 @@ Definition data_all_delivers_pair : Bool * Bool := (true , false)%pair.
 
 Definition data_all_delivers_first
   : forall (A : Type) (a : A) (b : A), Pair.first (Pair_introduction a b) = a
-  := fun (A : Type) (a : A) (b : A) => Equijunction_reflexivity a.
+  := fun (A : Type) (a : A) (b : A) => Equijunction.reflexivity a.
 
 Definition data_all_delivers_projections : Bool * Bool
   := (pi_2 (true , false) , pi_1 (true , false))%pair.
@@ -44,7 +44,7 @@ Definition data_all_delivers_copair
   : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B),
       Sum.copair f g (Sum_right b) = g b
   := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
-       Equijunction_reflexivity (g b).
+       Equijunction.reflexivity (g b).
 
 Definition data_all_delivers_sum_functor : Bool + Bool
   := Functor.map (fun (b : Bool) => b) (Sum_right true).

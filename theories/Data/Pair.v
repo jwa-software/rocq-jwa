@@ -58,13 +58,13 @@ Proof.
   (* The context gains
      [ea : first (Pair_introduction a1 b1)
          = first (Pair_introduction a2 b2)]. *)
-  pose proof (Equijunction_congruence first e) as ea.
+  pose proof (Equijunction.congruence first e) as ea.
   (* Both [first]s compute: [ea : a1 = a2] *)
   simpl in ea.
   (* The context gains
      [eb : second (Pair_introduction a1 b1)
          = second (Pair_introduction a2 b2)]. *)
-  pose proof (Equijunction_congruence second e) as eb.
+  pose proof (Equijunction.congruence second e) as eb.
   (* Both [second]s compute: [eb : b1 = b2] *)
   simpl in eb.
   (* [/\] is built from a proof of each side. *)

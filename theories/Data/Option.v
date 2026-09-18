@@ -89,7 +89,7 @@ Proof.
   (* The context gains
      [e' : (fun (o : Option A) => match o with | Some x => x | None => a end) (Some a)
          = (fun (o : Option A) => match o with | Some x => x | None => a end) (Some b)]. *)
-  pose proof (Equijunction_congruence
+  pose proof (Equijunction.congruence
                 (fun (o : Option A) => match o with | Some x => x | None => a end)
                 e) as e'.
   (* Both applications compute: [e' : a = b] *)

@@ -65,7 +65,7 @@ Proof.
              (Sum_left a1)
          = (fun s => match s with | Sum_left x => x | Sum_right _ => a1 end)
              (Sum_left a2)]. *)
-  pose proof (Equijunction_congruence
+  pose proof (Equijunction.congruence
                 (fun (s : Sum A B) =>
                    match s with | Sum_left x => x | Sum_right _ => a1 end)
                 e) as e'.
@@ -87,7 +87,7 @@ Proof.
              (Sum_right b1)
          = (fun s => match s with | Sum_left _ => b1 | Sum_right y => y end)
              (Sum_right b2)]. *)
-  pose proof (Equijunction_congruence
+  pose proof (Equijunction.congruence
                 (fun (s : Sum A B) =>
                    match s with | Sum_left _ => b1 | Sum_right y => y end)
                 e) as e'.

@@ -21,7 +21,7 @@ Notation "'exists' x .. y , p"
 (* A witness, then a proof of [P] at it. [false] cannot be the witness here:
    the second argument would have to prove [false = true].
 
-     Exists_introduction true (Equijunction_reflexivity true)
+     Exists_introduction true (Equijunction.reflexivity true)
                          ^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          |     proof
                          witness

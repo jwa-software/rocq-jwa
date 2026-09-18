@@ -25,7 +25,7 @@ Proof.
      gains [e : true = false]. *)
   intro e.
   (* [e] claims [true = false], but the only way to build an equality is
-     [Equijunction_reflexivity], whose two sides are the same term, and
+     [Equijunction.reflexivity], whose two sides are the same term, and
      [true] and [false] are different ctors. No such proof exists, and from
      that impossibility [discriminate] proves the goal [Falsum]. *)
   discriminate e.
@@ -332,7 +332,7 @@ Instance Bool_and_monoid
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bool.and_associativity |}
    ; Monoid.left_identity  :=
-      fun (b : Bool) => Equijunction_reflexivity (Bool.and true b)
+      fun (b : Bool) => Equijunction.reflexivity (Bool.and true b)
    ; Monoid.right_identity :=
       fun (b : Bool) => Bool.and_commutativity b true
   |}.
@@ -342,7 +342,7 @@ Instance Bool_or_monoid
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bool.or_associativity |}
    ; Monoid.left_identity  :=
-      fun (b : Bool) => Equijunction_reflexivity (Bool.or false b)
+      fun (b : Bool) => Equijunction.reflexivity (Bool.or false b)
    ; Monoid.right_identity :=
       fun (b : Bool) => Bool.or_commutativity b false
   |}.
@@ -352,7 +352,7 @@ Instance Bool_xor_monoid
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bool.xor_associativity |}
   ; Monoid.left_identity :=
-      fun (b : Bool) => Equijunction_reflexivity (Bool.xor false b)
+      fun (b : Bool) => Equijunction.reflexivity (Bool.xor false b)
   ; Monoid.right_identity :=
       fun (b : Bool) => Bool.xor_commutativity b false
   |}.

@@ -56,7 +56,7 @@ Theorem negative_injectivity
 Proof.
   (* The context gains [p], [q] and [e : Negative p = Negative q]: [|- p = q] *)
   intros p q e.
-  pose proof (Equijunction_congruence
+  pose proof (Equijunction.congruence
                 (fun (x : Integer) =>
                    match x with | Negative r => r | Zero => p | Positive _ => p end)
                 e) as e'.
@@ -70,7 +70,7 @@ Theorem positive_injectivity
 Proof.
   (* The context gains [p], [q] and [e : Positive p = Positive q]: [|- p = q] *)
   intros p q e.
-  pose proof (Equijunction_congruence
+  pose proof (Equijunction.congruence
                 (fun (x : Integer) =>
                    match x with | Negative _ => p | Zero => p | Positive r => r end)
                 e) as e'.
@@ -282,7 +282,7 @@ Proof.
        replaces [q] in [h] and in the goal. *)
     unfold Nat.LessThan in lt.
     destruct lt as [k e].
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in h.
     rewrite e' in |- *.
     (* The left side is a difference of a sum on the right:
@@ -314,7 +314,7 @@ Proof.
          replaces [p] in [h] and in the goal. *)
       unfold Nat.LessThan in gt.
       destruct gt as [k e].
-      pose proof (Equijunction_symmetry e) as e'.
+      pose proof (Equijunction.symmetry e) as e'.
       rewrite e' in h.
       rewrite e' in |- *.
       (* The left side is a difference of a sum on the left:
@@ -328,7 +328,7 @@ Proof.
       rewrite (Nat.add_commutativity r q) in h.
       pose proof (Nat.add_left_cancellation q (Nat.add k s) r h) as e''.
       (* [e''] turned round replaces [r]: the right side is the same shape. *)
-      pose proof (Equijunction_symmetry e'') as e'''.
+      pose proof (Equijunction.symmetry e'') as e'''.
       rewrite e''' in |- *.
       rewrite (difference_of_sum_left k s) in |- *.
       reflexivity.
@@ -346,7 +346,7 @@ Proof.
        replaces [q]; both differences are of that sum. *)
     unfold Nat.LessThan in lt.
     destruct lt as [k e].
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in |- *.
     rewrite (Nat.add_commutativity p k) in |- *.
     rewrite (difference_of_sum_right k p) in |- *.
@@ -363,7 +363,7 @@ Proof.
     + (* The mirror of the first case, with [e : Nat.add q k = p]. *)
       unfold Nat.LessThan in gt.
       destruct gt as [k e].
-      pose proof (Equijunction_symmetry e) as e'.
+      pose proof (Equijunction.symmetry e) as e'.
       rewrite e' in |- *.
       rewrite (Nat.add_commutativity q k) in |- *.
       rewrite (difference_of_sum_left k q) in |- *.
@@ -388,7 +388,7 @@ Proof.
        replaces [q]; the difference is [Negative k]. *)
     unfold Nat.LessThan in lt.
     destruct lt as [k e].
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in |- *.
     rewrite (Nat.add_commutativity p k) in |- *.
     rewrite (difference_of_sum_right k p) in |- *.
@@ -407,7 +407,7 @@ Proof.
          [Positive k]. *)
       unfold Nat.LessThan in gt.
       destruct gt as [k e].
-      pose proof (Equijunction_symmetry e) as e'.
+      pose proof (Equijunction.symmetry e) as e'.
       rewrite e' in |- *.
       rewrite (Nat.add_commutativity q k) in |- *.
       rewrite (difference_of_sum_left k q) in |- *.
@@ -436,10 +436,10 @@ Proof.
     pose proof (NatWithZero.positive_injectivity q (Nat.add k p) s) as e'.
     (* Commutativity turns the sum round: [|- Nat.add k p = q] *)
     rewrite (Nat.add_commutativity p k) in |- *.
-    exact (Equijunction_symmetry e').
+    exact (Equijunction.symmetry e').
   - (* [e] turned round replaces [q]: a difference of a sum on the right. *)
     intro e.
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in |- *.
     rewrite (Nat.add_commutativity p k) in |- *.
     exact (difference_of_sum_right k p).
@@ -458,7 +458,7 @@ Proof.
     rewrite e in s.
     simpl in s.
     pose proof (NatWithZero.positive_injectivity q p s) as e'.
-    exact (Equijunction_symmetry e').
+    exact (Equijunction.symmetry e').
   - (* [e : p = q] replaces [p]: the diagonal. *)
     intro e.
     rewrite e in |- *.
@@ -483,7 +483,7 @@ Proof.
     exact e'.
   - (* [e] turned round replaces [p]: a difference of a sum on the left. *)
     intro e.
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in |- *.
     rewrite (Nat.add_commutativity q k) in |- *.
     exact (difference_of_sum_left k q).
@@ -618,7 +618,7 @@ Proof.
          right side is a difference of a sum on the left. *)
       rewrite (NatWithZero.add_commutativity c NatWithZero.Zero) in h.
       change (NatWithZero.add NatWithZero.Zero c) with c in h.
-      pose proof (Equijunction_symmetry h) as h'.
+      pose proof (Equijunction.symmetry h) as h'.
       rewrite h' in |- *.
       rewrite (from_difference_of_sum_left p d) in |- *.
       simpl in |- *.
@@ -640,7 +640,7 @@ Proof.
              the right. *)
           simpl in h.
           pose proof (NatWithZero.positive_injectivity (Nat.add p s) q h) as e.
-          pose proof (Equijunction_symmetry e) as e'.
+          pose proof (Equijunction.symmetry e) as e'.
           rewrite e' in |- *.
           simpl in |- *.
           rewrite (Nat.add_commutativity p s) in |- *.
@@ -750,9 +750,9 @@ Proof.
   (* The context gains [l], [m] and [n]; the parts identity is read right to
      left so that it can replace each of them. *)
   intros l m n.
-  pose proof (Equijunction_symmetry (from_difference_parts_identity l)) as el.
-  pose proof (Equijunction_symmetry (from_difference_parts_identity m)) as em.
-  pose proof (Equijunction_symmetry (from_difference_parts_identity n)) as en.
+  pose proof (Equijunction.symmetry (from_difference_parts_identity l)) as el.
+  pose proof (Equijunction.symmetry (from_difference_parts_identity m)) as em.
+  pose proof (Equijunction.symmetry (from_difference_parts_identity n)) as en.
   rewrite el in |- *.
   rewrite em in |- *.
   rewrite en in |- *.
@@ -888,11 +888,11 @@ Proof.
   (* The context gains [k], [m], [n] and [h]:
      [h' : add (negate k) (add k m) = add (negate k) (add k n)] *)
   intros k m n h.
-  pose proof (Equijunction_congruence (add (negate k)) h) as h'.
+  pose proof (Equijunction.congruence (add (negate k)) h) as h'.
   (* Associativity read right to left regroups each side. *)
-  pose proof (Equijunction_symmetry (add_associativity (negate k) k m)) as a1.
+  pose proof (Equijunction.symmetry (add_associativity (negate k) k m)) as a1.
   rewrite a1 in h'.
-  pose proof (Equijunction_symmetry (add_associativity (negate k) k n)) as a2.
+  pose proof (Equijunction.symmetry (add_associativity (negate k) k n)) as a2.
   rewrite a2 in h'.
   (* The inverse and the identity strip [k]: [h' : m = n] *)
   rewrite (add_left_inverse k) in h'.
@@ -1148,7 +1148,7 @@ Proof.
        replaces [q]; the difference is [Negative j] and the product computes. *)
     unfold Nat.LessThan in lt.
     destruct lt as [j e].
-    pose proof (Equijunction_symmetry e) as e'.
+    pose proof (Equijunction.symmetry e) as e'.
     rewrite e' in |- *.
     rewrite (Nat.add_commutativity p j) in |- *.
     rewrite (difference_of_sum_right j p) in |- *.
@@ -1170,7 +1170,7 @@ Proof.
          [Positive j]. *)
       unfold Nat.LessThan in gt.
       destruct gt as [j e].
-      pose proof (Equijunction_symmetry e) as e'.
+      pose proof (Equijunction.symmetry e) as e'.
       rewrite e' in |- *.
       rewrite (Nat.add_commutativity q j) in |- *.
       rewrite (difference_of_sum_left j q) in |- *.
@@ -1286,7 +1286,7 @@ Proof.
     rewrite (mul_left_negation (Positive p) (add m n)) in |- *.
     rewrite (mul_left_negation (Positive p) m) in |- *.
     rewrite (mul_left_negation (Positive p) n) in |- *.
-    pose proof (Equijunction_symmetry
+    pose proof (Equijunction.symmetry
                   (negate_additivity (mul (Positive p) m) (mul (Positive p) n))) as e.
     rewrite e in |- *.
     rewrite (mul_positive_left_distributivity_over_add p m n) in |- *.
@@ -1335,7 +1335,7 @@ Proof.
   destruct h as [k e].
   (* [n] on the right of [e] is [add n Zero] by the identity, so cancellation
      leaves [f : Positive k = Zero], two distinct ctors. *)
-  pose proof (Equijunction_transitivity e (Equijunction_symmetry (add_right_identity n)))
+  pose proof (Equijunction.transitivity e (Equijunction.symmetry (add_right_identity n)))
     as e'.
   pose proof (add_left_cancellation n (Positive k) Zero e') as f.
   discriminate.
@@ -1358,7 +1358,7 @@ Proof.
   (* That positive is the sum of the two positives by computation, which
      associativity read right to left regroups: [|- add (add l (Positive k1)) (Positive k2) = n] *)
   change (Positive (Nat.add k1 k2)) with (add (Positive k1) (Positive k2)) in |- *.
-  pose proof (Equijunction_symmetry (add_associativity l (Positive k1) (Positive k2))) as a.
+  pose proof (Equijunction.symmetry (add_associativity l (Positive k1) (Positive k2))) as a.
   rewrite a in |- *.
   (* [e1] then [e2] close it. *)
   rewrite e1 in |- *.
@@ -1709,7 +1709,7 @@ Proof.
      holds. *)
   intros n.
   unfold LessOrEqual in |- *.
-  exact (Disjunction_left (Equijunction_reflexivity n)).
+  exact (Disjunction_left (Equijunction.reflexivity n)).
 Qed.
 
 Theorem less_or_equal_transitivity
@@ -1744,7 +1744,7 @@ Proof.
   destruct h1 as [e1 | lt1].
   - exact e1.
   - destruct h2 as [e2 | lt2].
-    + exact (Equijunction_symmetry e2).
+    + exact (Equijunction.symmetry e2).
     + (* Two strict steps in opposite directions contradict asymmetry. *)
       pose proof (less_than_asymmetry m n lt1) as h.
       unfold Unjunction in h.
@@ -1850,7 +1850,7 @@ Proof.
   apply (Exists_introduction (Nat.mul p d)).
   change (Positive (Nat.mul p d)) with (mul (Positive p) (Positive d)) in |- *.
   (* Distributivity read right to left folds the sum, and [e] closes it. *)
-  pose proof (Equijunction_symmetry
+  pose proof (Equijunction.symmetry
                 (mul_left_distributivity_over_add (Positive p) m (Positive d))) as dist.
   rewrite dist in |- *.
   rewrite e in |- *.
@@ -1891,7 +1891,7 @@ Proof.
   (* Associativity read right to left regroups, and [e1] then [e2] close
    * it: [|- mul (mul l k1) k2 = n]
    *)
-  pose proof (Equijunction_symmetry (mul_associativity l k1 k2)) as a.
+  pose proof (Equijunction.symmetry (mul_associativity l k1 k2)) as a.
   rewrite a in |- *.
   rewrite e1 in |- *.
   exact e2.
@@ -1935,7 +1935,7 @@ Proof.
   unfold Divides in |- *.
   apply (Exists_introduction (mul k n)).
   (* Associativity read right to left regroups, and [e] closes it. *)
-  pose proof (Equijunction_symmetry (mul_associativity d k n)) as a.
+  pose proof (Equijunction.symmetry (mul_associativity d k n)) as a.
   rewrite a in |- *.
   rewrite e in |- *.
   reflexivity.
@@ -2018,7 +2018,7 @@ Proof.
         unfold Even in |- *.
         unfold Divides in |- *.
         apply (Exists_introduction k).
-        pose proof (Equijunction_congruence (fun (x : Integer) => add x (Negative One)) e)
+        pose proof (Equijunction.congruence (fun (x : Integer) => add x (Negative One)) e)
           as e'.
         change (add (add (mul (Positive (Successor One)) k) (Positive One)) (Negative One)
                 = add (Negative p') (Negative One)) in e'.
@@ -2083,7 +2083,7 @@ Proof.
                    (Positive (Successor One)) k (Positive One)) in |- *.
         change (mul (Positive (Successor One)) (Positive One))
           with (add (Positive One) (Positive One)) in |- *.
-        pose proof (Equijunction_symmetry
+        pose proof (Equijunction.symmetry
                       (add_associativity
                          (mul (Positive (Successor One)) k) (Positive One) (Positive One)))
           as a.
@@ -2129,8 +2129,8 @@ Proof.
    * [add (Positive One) (Positive One)] by computation, and the interchange
    * law pairs the right side the same way.
    *)
-  pose proof (Equijunction_symmetry e1) as e1'.
-  pose proof (Equijunction_symmetry e2) as e2'.
+  pose proof (Equijunction.symmetry e1) as e1'.
+  pose proof (Equijunction.symmetry e2) as e2'.
   rewrite e1' in |- *.
   rewrite e2' in |- *.
   rewrite (mul_left_distributivity_over_add
