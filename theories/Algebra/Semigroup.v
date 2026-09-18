@@ -1,18 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Algebra.All] would be circular from inside [Algebra]; [Core.All]
- * carries [->] and [=], [Core.Class] the hint database that instance
- * resolution looks up.
- *)
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 
-(* The module is the prefix: the class reads [Semigroup.T] and its
- * law [Semigroup.associativity], the bare name being spent nowhere.
- *)
-Module Semigroup.
-  (* An associative binary operation and nothing more. *)
-  Class T (A : Type) (op : A -> A -> A) : Prop :=
-    { associativity
-        : forall (x : A) (y : A) (z : A), op (op x y) z = op x (op y z) }.
-End Semigroup.
+Class Semigroup {A : Type} (op : A -> A -> A) : Prop :=
+  { associativity
+    : forall (x : A) (y : A) (z : A),
+      op (op x y) z = op x (op y z) }.

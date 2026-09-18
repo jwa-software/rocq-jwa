@@ -12,7 +12,7 @@ From jwa Require Import Core.Class.
  *)
 Module Commutative.
   (* A binary operation whose arguments may be swapped, and nothing more:
-   * associativity is [Semigroup.T]'s business, so the two combine freely.
+   * associativity is [Semigroup]'s business, so the two combine freely.
    *)
   Class T (A : Type) (op : A -> A -> A) : Prop :=
     { commutativity : forall (x : A) (y : A), op x y = op y x }.

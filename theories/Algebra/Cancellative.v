@@ -13,7 +13,7 @@ From jwa Require Import Core.Class.
 Module Cancellative.
   (* A binary operation whose common operand can be struck from both sides
    * of an equation, on the left and on the right. Nothing else is asked:
-   * associativity is [Semigroup.T]'s business.
+   * associativity is [Semigroup]'s business.
    *)
   Class T (A : Type) (op : A -> A -> A) : Prop :=
     { left_cancellation
