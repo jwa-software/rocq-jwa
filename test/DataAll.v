@@ -32,8 +32,8 @@ Definition data_all_delivers_product_functor
 
 Definition data_all_delivers_product_monoid
   : forall (p : Bool * Bool),
-      Product.product Bool.and Bool.or (Product_introduction true false) p = p
-      /\ Product.product Bool.and Bool.or p (Product_introduction true false) = p
+      Product.direct_product Bool.and Bool.or (Product_introduction true false) p = p
+      /\ Product.direct_product Bool.and Bool.or p (Product_introduction true false) = p
   := Monoid.identity.
 
 Definition data_all_delivers_coproduct
@@ -118,8 +118,8 @@ Definition data_all_delivers_mul_monoid
 
 Definition data_all_delivers_commutative
   : forall (p1 : Nat * Bool) (p2 : Nat * Bool),
-      Product.product Nat.mul Bool.xor p1 p2
-      = Product.product Nat.mul Bool.xor p2 p1
+      Product.direct_product Nat.mul Bool.xor p1 p2
+      = Product.direct_product Nat.mul Bool.xor p2 p1
   := Commutative.commutativity.
 
 Definition data_all_delivers_functor
