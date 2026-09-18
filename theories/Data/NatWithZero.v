@@ -149,7 +149,7 @@ Proof.
              (Positive m)
          = (fun x => match x with | Zero => m | Positive y => y end)
              (Positive n)]. *)
-  pose proof (Equijunction.congruence
+  pose proof (Identity.congruence
                 (fun (x : NatWithZero) => match x with | Zero => m | Positive y => y end)
                 e) as e'.
   (* Both applications compute: [e' : m = n] *)
@@ -214,7 +214,7 @@ Proof.
            [e' : n' = Nat.add n' k'] *)
         pose proof (positive_injectivity n' (Nat.add n' k') e) as e'.
         (* Turned round, then commutativity: [e'' : Nat.add k' n' = n'] *)
-        pose proof (Equijunction.symmetry e') as e''.
+        pose proof (Identity.symmetry e') as e''.
         rewrite (Nat.add_commutativity n' k') in e''.
         (* [h : Nat.add k' n' = n' -> Falsum], once unfolded *)
         pose proof (Nat.add_identity_absence k' n') as h.
@@ -784,9 +784,9 @@ Proof.
   (* [e2] turned round replaces [n], then [e1] turned round replaces [m]:
      [|- add l (Positive (Nat.add k1 k2))
          = add (add l (Positive k1)) (Positive k2)] *)
-  pose proof (Equijunction.symmetry e2) as e2'.
+  pose proof (Identity.symmetry e2) as e2'.
   rewrite e2' in |- *.
-  pose proof (Equijunction.symmetry e1) as e1'.
+  pose proof (Identity.symmetry e1) as e1'.
   rewrite e1' in |- *.
   (* Associativity opens the right side:
      [|- add l (Positive (Nat.add k1 k2))
@@ -833,7 +833,7 @@ Proof.
   - (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
     destruct n as [| n'].
     + (* Equal. *)
-      exact (Disjunction.right (Disjunction.left (Equijunction.reflexivity Zero))).
+      exact (Disjunction.right (Disjunction.left (Identity.reflexivity Zero))).
     + (* [Zero] is below, with [n'] as the witness:
          [|- add Zero (Positive n') = Positive n'] *)
       apply Disjunction.left.
@@ -911,7 +911,7 @@ Proof.
   destruct m as [| m'].
   - (* [e : Positive d = n] *)
     simpl in e.
-    pose proof (Equijunction.symmetry e) as e'.
+    pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
     (* Everything computes: [|- Positive (Nat.mul k d) = Positive (Nat.mul k d)] *)
     simpl in |- *.
@@ -919,7 +919,7 @@ Proof.
     reflexivity.
   - (* [e : Positive (Nat.add m' d) = n] *)
     simpl in e.
-    pose proof (Equijunction.symmetry e) as e'.
+    pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
     (* Everything computes under [Positive]:
        [|- Positive (Nat.add (Nat.mul k m') (Nat.mul k d))
@@ -944,7 +944,7 @@ Proof.
   - (* [e : m = n] replaces [m]. *)
     rewrite e in |- *.
     unfold LessOrEqual in |- *.
-    exact (Disjunction.left (Equijunction.reflexivity (add k n))).
+    exact (Disjunction.left (Identity.reflexivity (add k n))).
   - unfold LessOrEqual in |- *.
     apply Disjunction.right.
     exact (add_strict_monotonicity k m n lt).
@@ -979,7 +979,7 @@ Proof.
   destruct m as [| m'].
   - (* [add Zero n] computes: [|- n = n \/ LessThan n n] *)
     simpl in |- *.
-    exact (Disjunction.left (Equijunction.reflexivity n)).
+    exact (Disjunction.left (Identity.reflexivity n)).
   - apply Disjunction.right.
     (* [|- exists (k : Nat), add n (Positive k) = add (Positive m') n] *)
     unfold LessThan in |- *.
@@ -1013,7 +1013,7 @@ Proof.
   intros n.
   (* [|- n = n \/ LessThan n n], and the left side holds. *)
   unfold LessOrEqual in |- *.
-  exact (Disjunction.left (Equijunction.reflexivity n)).
+  exact (Disjunction.left (Identity.reflexivity n)).
 Qed.
 
 Theorem less_or_equal_transitivity
@@ -1051,7 +1051,7 @@ Proof.
     exact e1.
   - destruct h2 as [e2 | lt2].
     + (* [e2 : n = m] turned round. *)
-      exact (Equijunction.symmetry e2).
+      exact (Identity.symmetry e2).
     + (* Two strict steps in opposite directions contradict asymmetry. *)
       pose proof (less_than_asymmetry m n lt1) as h.
       unfold Negation in h.
@@ -1107,7 +1107,7 @@ Proof.
       apply (Exists_introduction k').
       change (Positive (Successor k')) with (add (Positive One) (Positive k')) in e.
       rewrite (add_commutativity (Positive One) (Positive k')) in e.
-      pose proof (Equijunction.symmetry (add_associativity m (Positive k') (Positive One)))
+      pose proof (Identity.symmetry (add_associativity m (Positive k') (Positive One)))
         as a.
       rewrite a in e.
       exact (add_right_cancellation (add m (Positive k')) n (Positive One) e).
@@ -1130,7 +1130,7 @@ Proof.
        *)
       change (Positive (Successor k)) with (add (Positive One) (Positive k)) in |- *.
       rewrite (add_commutativity (Positive One) (Positive k)) in |- *.
-      pose proof (Equijunction.symmetry (add_associativity m (Positive k) (Positive One)))
+      pose proof (Identity.symmetry (add_associativity m (Positive k) (Positive One)))
         as a.
       rewrite a in |- *.
       rewrite e in |- *.
@@ -1520,7 +1520,7 @@ Proof.
               c).
     + (* [Gt]: then [e : n = m], turned round. *)
       apply Disjunction.left.
-      exact (Equijunction.symmetry e).
+      exact (Identity.symmetry e).
   - (* The context gains [h]; the first two answers give [m] outright, and
        [Gt] contradicts [h] either way. *)
     intro h.
@@ -1560,7 +1560,7 @@ Proof.
     + apply Disjunction.left.
       exact e.
     + apply Disjunction.left.
-      exact (Equijunction.symmetry
+      exact (Identity.symmetry
               (Bijunction_elimination_forward
                 (compare m n = Eq)
                 (m = n)
@@ -1604,8 +1604,8 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.left (Equijunction.reflexivity l)).
-  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Identity.reflexivity l)).
+  - exact (Disjunction.left (Identity.reflexivity l)).
   - apply Disjunction.right.
     exact (Bijunction_elimination_forward
             (compare l r = Gt)
@@ -1633,7 +1633,7 @@ Proof.
             (l = r)
             (compare_eq_specification l r)
             c).
-  - exact (Disjunction.left (Equijunction.reflexivity r)).
+  - exact (Disjunction.left (Identity.reflexivity r)).
 Qed.
 
 Lemma min_universality
@@ -1666,8 +1666,8 @@ Proof.
             (LessThan l r)
             (compare_lt_specification l r)
             c).
-  - exact (Disjunction.left (Equijunction.reflexivity l)).
-  - exact (Disjunction.left (Equijunction.reflexivity l)).
+  - exact (Disjunction.left (Identity.reflexivity l)).
+  - exact (Disjunction.left (Identity.reflexivity l)).
 Qed.
 
 Lemma max_right_injection
@@ -1677,9 +1677,9 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.left (Equijunction.reflexivity r)).
+  - exact (Disjunction.left (Identity.reflexivity r)).
   - apply Disjunction.left.
-    exact (Equijunction.symmetry
+    exact (Identity.symmetry
              (Bijunction_elimination_forward
                 (compare l r = Eq)
                 (l = r)
@@ -2001,7 +2001,7 @@ Proof.
        replaces [n]: [|- subtract m (add m (Positive k)) = Zero] *)
     unfold LessThan in lt.
     destruct lt as [k e].
-    pose proof (Equijunction.symmetry e) as e'.
+    pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
     (* One goal per ctor of [m]. *)
     destruct m as [| m'].
@@ -2041,7 +2041,7 @@ Proof.
        replaces [m]: [|- add n (subtract (add n (Positive k)) n) = add n (Positive k)] *)
     unfold LessThan in lt.
     destruct lt as [k e].
-    pose proof (Equijunction.symmetry e) as e'.
+    pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
     (* Commutativity puts the sum into the inversion's shape, and the
        inversion strips it: [|- add n (Positive k) = add (Positive k) n] *)
@@ -2230,18 +2230,18 @@ Proof.
                             = add (mul q (add r (Positive One)))
                                   (add r (Positive One))],
            [e : Positive p' = add (mul q (add r (Positive One))) r] *)
-        pose proof (Equijunction.symmetry full) as full'.
+        pose proof (Identity.symmetry full) as full'.
         rewrite full' in |- *.
         rewrite full' in e.
         (* Associativity read right to left groups the right side:
            [|- ... = add (add (mul q (add r (Positive One))) r) (Positive One)] *)
-        pose proof (Equijunction.symmetry
+        pose proof (Identity.symmetry
                       (add_associativity
                          (mul q (add r (Positive One))) r (Positive One))) as a.
         rewrite a in |- *.
         (* [e] turned round folds the inner sum into [Positive p']:
            [|- Positive (Successor p') = add (Positive p') (Positive One)] *)
-        pose proof (Equijunction.symmetry e) as e'.
+        pose proof (Identity.symmetry e) as e'.
         rewrite e' in |- *.
         (* The right side computes to [Positive (Nat.add p' One)], which
            commutativity and one more computation turn into
@@ -2264,10 +2264,10 @@ Proof.
       * (* Associativity read right to left groups the right side, [e]
            turned round folds the inner sum into [Positive p'], and the
            rest computes as in the other branch. *)
-        pose proof (Equijunction.symmetry
+        pose proof (Identity.symmetry
                       (add_associativity (mul q (Positive d)) r (Positive One))) as a.
         rewrite a in |- *.
-        pose proof (Equijunction.symmetry e) as e'.
+        pose proof (Identity.symmetry e) as e'.
         rewrite e' in |- *.
         simpl in |- *.
         rewrite (Nat.add_commutativity p' One) in |- *.
@@ -2352,7 +2352,7 @@ Proof.
   (* Associativity read right to left regroups, and [e1] then [e2] close
    * it: [|- mul (mul l k1) k2 = n]
    *)
-  pose proof (Equijunction.symmetry (mul_associativity l k1 k2)) as a.
+  pose proof (Identity.symmetry (mul_associativity l k1 k2)) as a.
   rewrite a in |- *.
   rewrite e1 in |- *.
   exact e2.
@@ -2380,7 +2380,7 @@ Proof.
      * [e2 : mul (mul (Positive p) k) j = Positive p]; one goal per ctor of
      * [k] and [j], a [Zero] making the product [Zero].
      *)
-    pose proof (Equijunction.symmetry e1) as e1'.
+    pose proof (Identity.symmetry e1) as e1'.
     rewrite e1' in e2.
     destruct k as [| k'].
     + simpl in e2.
@@ -2399,7 +2399,7 @@ Proof.
         rewrite (Nat.mul_associativity p k' j') in e3.
         pose proof (Nat.mul_commutativity One p) as c.
         simpl in c.
-        pose proof (Equijunction.transitivity e3 c) as e4.
+        pose proof (Identity.transitivity e3 c) as e4.
         pose proof (Nat.mul_left_cancellation p (Nat.mul k' j') One e4) as e5.
         pose proof (Nat.mul_identity_factorization k' j' e5) as f.
         destruct f as [ek ej].
@@ -2450,7 +2450,7 @@ Proof.
   unfold Divides in |- *.
   apply (Exists_introduction (mul k n)).
   (* Associativity read right to left regroups, and [e] closes it. *)
-  pose proof (Equijunction.symmetry (mul_associativity d k n)) as a.
+  pose proof (Identity.symmetry (mul_associativity d k n)) as a.
   rewrite a in |- *.
   rewrite e in |- *.
   reflexivity.
@@ -2552,7 +2552,7 @@ Proof.
                    (Positive (Successor One)) k (Positive One)) in |- *.
         change (mul (Positive (Successor One)) (Positive One))
           with (add (Positive One) (Positive One)) in |- *.
-        pose proof (Equijunction.symmetry
+        pose proof (Identity.symmetry
                       (add_associativity
                          (mul (Positive (Successor One)) k) (Positive One) (Positive One)))
           as a.
@@ -2600,8 +2600,8 @@ Proof.
    * [add (Positive One) (Positive One)] by computation, and the interchange
    * law pairs the right side the same way.
    *)
-  pose proof (Equijunction.symmetry e1) as e1'.
-  pose proof (Equijunction.symmetry e2) as e2'.
+  pose proof (Identity.symmetry e1) as e1'.
+  pose proof (Identity.symmetry e2) as e2'.
   rewrite e1' in |- *.
   rewrite e2' in |- *.
   rewrite (mul_left_distributivity_over_add
@@ -2644,7 +2644,7 @@ Instance NatWithZero_add_monoid
     Monoid.semigroup :=
       {| Semigroup.associativity := NatWithZero.add_associativity |}
   ; Monoid.left_identity  :=
-      fun (n : NatWithZero) => Equijunction.reflexivity (NatWithZero.add Zero n)
+      fun (n : NatWithZero) => Identity.reflexivity (NatWithZero.add Zero n)
   ; Monoid.right_identity :=
       fun (n : NatWithZero) => NatWithZero.add_commutativity n Zero
   |}.
@@ -2728,7 +2728,7 @@ Instance NatWithZero_semiring
    ; Semiring.left_distributivity  := NatWithZero.mul_left_distributivity_over_add
    ; Semiring.right_distributivity := NatWithZero.mul_right_distributivity_over_add
    ; Semiring.left_absorption      :=
-       fun (n : NatWithZero) => Equijunction.reflexivity (NatWithZero.mul Zero n)
+       fun (n : NatWithZero) => Identity.reflexivity (NatWithZero.mul Zero n)
    ; Semiring.right_absorption     :=
        fun (n : NatWithZero) => NatWithZero.mul_commutativity n Zero |}.
 

@@ -8,4 +8,4 @@
 From jwa Require Export Core.Notations.
 From jwa Require Export Core.Ltac.
 From jwa Require Export Core.Logic.All.
-From jwa Require Export Core.Equijunction.
+From jwa Require Export Core.Identity.

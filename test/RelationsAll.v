@@ -37,7 +37,7 @@ Definition relations_all_delivers_projections
        Reflexive.reflexivity x.
 
 (* The instances are found by resolution rather than named. *)
-Definition relations_all_delivers_equijunction_instance
+Definition relations_all_delivers_identity_instance
   : forall (A : Type) (x : A) (y : A), x = y -> y = x
   := fun (A : Type) (x : A) (y : A) => Symmetric.symmetry x y.
 

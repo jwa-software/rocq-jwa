@@ -43,12 +43,12 @@ Instance Bijunction_equivalence : Equivalence.R Prop Bijunction :=
 
 (* [@] makes [A] explicit, which the field types need since [relation] is
    applied to two elements of [A] and nothing else. *)
-Instance Equijunction_equivalence
-  : forall (A : Type), Equivalence.R A (@Equijunction A) :=
+Instance Identity_equivalence
+  : forall (A : Type), Equivalence.R A (@Identity A) :=
   fun (A : Type) =>
     {| Equivalence.reflexive :=
-         {| Reflexive.reflexivity := @Equijunction.reflexivity A |}
+         {| Reflexive.reflexivity := @Identity.reflexivity A |}
      ; Equivalence.symmetric :=
-         {| Symmetric.symmetry := @Equijunction.symmetry A |}
+         {| Symmetric.symmetry := @Identity.symmetry A |}
      ; Equivalence.transitive :=
-         {| Transitive.transitivity := @Equijunction.transitivity A |} |}.
+         {| Transitive.transitivity := @Identity.transitivity A |} |}.

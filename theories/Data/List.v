@@ -1446,7 +1446,7 @@ Proof.
          [|- b = b \/ Contains b l'] *)
       apply (h b).
       (* [b = b] is the left side, proved by reflexivity of [=]. *)
-      exact (Disjunction.left (Equijunction.reflexivity b)).
+      exact (Disjunction.left (Identity.reflexivity b)).
     + (* [IH] turns a proof of the membership hypothesis for [l'] into one
          of the goal: [|- forall (a : A), Contains a l' -> P a] *)
       apply IH.
@@ -1514,7 +1514,7 @@ Proof.
          [|- P b]. *)
       split.
       * (* [b = b] is the left side, proved by reflexivity of [=]. *)
-        exact (Disjunction.left (Equijunction.reflexivity b)).
+        exact (Disjunction.left (Identity.reflexivity b)).
       * (* [pb] is a proof of the goal as it stands. *)
         exact pb.
     + (* [IH] turns [h'] into an [exists], which [destruct] opens into a
@@ -1883,7 +1883,7 @@ Proof.
   apply (Exists_introduction (reverse r)).
   (* [reverse] applied to both sides of [e]; the context gains
      [e' : reverse (reverse l) = reverse (Cons a r)]. *)
-  pose proof (Equijunction.congruence reverse e) as e'.
+  pose proof (Identity.congruence reverse e) as e'.
   (* [reverse_involution] undoes the double reversal:
      [e' : l = reverse (Cons a r)] *)
   rewrite reverse_involution in e'.
@@ -1969,7 +1969,7 @@ Proof.
     apply (Exists_introduction b).
     (* [reverse] applied to both sides of [er]; the context gains
        [er' : reverse (reverse l) = reverse (Cons b r)]. *)
-    pose proof (Equijunction.congruence reverse er) as er'.
+    pose proof (Identity.congruence reverse er) as er'.
     (* [reverse_involution] undoes the double reversal:
        [er' : l = reverse (Cons b r)] *)
     rewrite reverse_involution in er'.
@@ -2257,7 +2257,7 @@ Proof.
       simpl in e.
       (* Turned round:
          [e' : NatWithZero.add (length l2') (Positive One) = Zero] *)
-      pose proof (Equijunction.symmetry e) as e'.
+      pose proof (Identity.symmetry e) as e'.
       (* [h : ~ (NatWithZero.add (length l2') (Positive One) = Zero)] *)
       pose proof (NatWithZero.add_positive_refutes_zero (length l2') One) as h.
       (* [h : NatWithZero.add (length l2') (Positive One) = Zero -> Falsum] *)
@@ -3375,7 +3375,7 @@ Proof.
     destruct h as [k e].
     destruct i as [| q].
     + simpl in |- *.
-      exact (Disjunction.left (Equijunction.reflexivity Zero)).
+      exact (Disjunction.left (Identity.reflexivity Zero)).
     + (* [e] computes to [Positive (Nat.add q k) = Positive One]; the sum is
        * a [Successor] whichever ctor [q] is.
        *)
@@ -3501,7 +3501,7 @@ Proof.
   - (* [Nil] is [Nil]: the premise refutes itself. *)
     intro h.
     unfold Negation in h.
-    pose proof (h (Equijunction.reflexivity Nil)) as f.
+    pose proof (h (Identity.reflexivity Nil)) as f.
     contradiction.
   - (* One goal per ctor of the tail. *)
     intro h.
@@ -3509,7 +3509,7 @@ Proof.
     + (* One element: the fold is [max a Zero], which is [a]. *)
       simpl in |- *.
       rewrite (NatWithZero.max_right_identity a) in |- *.
-      exact (Disjunction.left (Equijunction.reflexivity a)).
+      exact (Disjunction.left (Identity.reflexivity a)).
     + (* One step of the fold and of [Contains], written out so that the
        * fold of the tail stays as [IH] and [c] state it:
        * [|- max a M = a \/ Contains (max a M) (Cons b l'')] with [M] the
@@ -3622,7 +3622,7 @@ Proof.
        *)
       simpl in e.
       pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
-      pose proof (Equijunction.symmetry e') as e''.
+      pose proof (Identity.symmetry e') as e''.
       rewrite e'' in |- *.
       simpl in |- *.
       split.
@@ -3635,7 +3635,7 @@ Proof.
                     NatWithZero.less_or_equal_transitivity
                       (NatWithZero.min a m') m' x
                       (NatWithZero.min_right_projection a m') h)
-                 (IH m' (Equijunction.reflexivity (Some m')))).
+                 (IH m' (Identity.reflexivity (Some m')))).
 Qed.
 
 (* A list contains its minimum: the head when the tail is empty or its
@@ -3662,7 +3662,7 @@ Proof.
       simpl in e.
       pose proof (Option.some_injectivity NatWithZero a m e) as e'.
       simpl in |- *.
-      exact (Disjunction.left (Equijunction.symmetry e')).
+      exact (Disjunction.left (Identity.symmetry e')).
     + (* [e] computes to [Some (min a m') = Some m]; whichever of [a] and
        * [m'] is below, [min] is it: the head, or a member of [l'] by [IH]
        * at [m'], whose premise the case analysis has turned into
@@ -3670,7 +3670,7 @@ Proof.
        *)
       simpl in e.
       pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
-      pose proof (Equijunction.symmetry e') as e''.
+      pose proof (Identity.symmetry e') as e''.
       rewrite e'' in |- *.
       simpl in |- *.
       pose proof (NatWithZero.less_or_equal_totality a m') as t.
@@ -3684,7 +3684,7 @@ Proof.
         rewrite (Bijunction_elimination_backward
                    (NatWithZero.min m' a = m') (NatWithZero.LessOrEqual m' a)
                    (NatWithZero.min_specification m' a) ge) in |- *.
-        exact (IH m' (Equijunction.reflexivity (Some m'))).
+        exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
 (* The closed form of the sum of [Zero] up to [p]: twice it is [p] times
@@ -3729,7 +3729,7 @@ Proof.
                (Positive (Successor One))
                (sum (range (Positive (Successor p')))) (Positive (Successor p'))) in |- *.
     rewrite IH in |- *.
-    pose proof (Equijunction.symmetry
+    pose proof (Identity.symmetry
                   (NatWithZero.mul_right_distributivity_over_add
                      (Positive (Successor p')) (Positive p') (Positive (Successor One))))
       as d.
@@ -3785,7 +3785,7 @@ Proof.
       split.
       * intro e.
         exact (Conjunction_introduction
-                 (Equijunction.reflexivity false)
+                 (Identity.reflexivity false)
                  (Bijunction_elimination_forward
                     (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH e)).
       * intro c.

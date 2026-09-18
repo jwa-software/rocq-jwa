@@ -2,7 +2,7 @@
 
 (* Guards [Core.All], imported alone. One name from each module it forwards:
    the scope from [Core.Notations], the connectives from [Core.Logic.All],
-   [=] from [Core.Equijunction]. *)
+   [=] from [Core.Identity]. *)
 From jwa Require Import Core.All.
 
 Definition core_all_delivers
