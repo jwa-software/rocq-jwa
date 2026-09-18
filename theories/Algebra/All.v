@@ -10,6 +10,7 @@
 From jwa Require Export Core.All.
 
 From jwa Require Export Algebra.AbelianGroup.
+From jwa Require Export Algebra.AbelianMonoid.
 From jwa Require Export Algebra.Cancellative.
 From jwa Require Export Algebra.Commutative.
 From jwa Require Export Algebra.Group.
