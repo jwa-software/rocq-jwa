@@ -99,3 +99,8 @@ Proof.
   - (* [b] is a proof of the goal as it stands. *)
     exact b.
 Qed.
+
+(* [Subjunction.abjunction_incompatibility] is stated in
+ * [Core.Logic.Abjunction], the lowest file that knows both connectives, in
+ * a module named after this one.
+ *)
