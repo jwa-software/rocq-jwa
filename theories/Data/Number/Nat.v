@@ -1808,7 +1808,7 @@ Notation "m >= n" := (Nat.LessOrEqual n m) (only parsing)
 
 (* A semigroup and no more: a monoid needs an identity, and [Nat] has no
    element that leaves its argument alone under [add]. *)
-Instance Nat_add_semigroup : Semigroup.T Nat Nat.add :=
+Instance Nat_add_semigroup : Semigroup Nat.add :=
   {| Semigroup.associativity := Nat.add_associativity |}.
 
 (* Both cancellation laws were already proved above, so the instance only
@@ -1827,12 +1827,14 @@ Instance Nat_mul_cancellative
    monoid where addition stopped at semigroup. [mul One n] computes to [n],
    so the left law is reflexivity stated on the reduced term; the right law
    is commutativity at [One], whose right side computes the same way. *)
-Instance Nat_mul_monoid : Monoid.T Nat Nat.mul One :=
+Instance Nat_mul_monoid : Monoid Nat.mul One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Nat.mul_associativity |}
-   ; Monoid.left_identity  :=
-       fun (n : Nat) => Identity.reflexivity (Nat.mul One n)
-   ; Monoid.right_identity := fun (m : Nat) => Nat.mul_commutativity m One |}.
+   ; Monoid.identity :=
+       fun (n : Nat) =>
+         Conjunction_introduction
+           (Identity.reflexivity (Nat.mul One n))
+           (Nat.mul_commutativity n One) |}.
 
 Instance Nat_add_commutative : Commutative.T Nat Nat.add :=
   {| Commutative.commutativity := Nat.add_commutativity |}.
@@ -1862,14 +1864,15 @@ Instance Nat_less_or_equal_total_order : TotalOrder Nat.LessOrEqual :=
 
 (* [min] is a commutative semigroup with no identity, since [Nat] has no
    greatest element; [max] reaches monoid, [One] being the least. *)
-Instance Nat_min_semigroup : Semigroup.T Nat Nat.min :=
+Instance Nat_min_semigroup : Semigroup Nat.min :=
   {| Semigroup.associativity := Nat.min_associativity |}.
 
-Instance Nat_max_monoid : Monoid.T Nat Nat.max One :=
+Instance Nat_max_monoid : Monoid Nat.max One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Nat.max_associativity |}
-   ; Monoid.left_identity  := Nat.max_left_identity
-   ; Monoid.right_identity := Nat.max_right_identity |}.
+   ; Monoid.identity :=
+       fun (n : Nat) =>
+         Conjunction_introduction (Nat.max_left_identity n) (Nat.max_right_identity n) |}.
 
 Instance Nat_min_commutative : Commutative.T Nat Nat.min :=
   {| Commutative.commutativity := Nat.min_commutativity |}.

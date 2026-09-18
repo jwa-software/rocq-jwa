@@ -364,13 +364,13 @@ Definition product := fun {A : Type} {B : Type}
 
 Theorem product_associativity
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),
-      Semigroup.T A opA -> Semigroup.T B opB ->
+      Semigroup opA -> Semigroup opB ->
       forall (p1 : Pair A B) (p2 : Pair A B) (p3 : Pair A B),
         product opA opB (product opA opB p1 p2) p3
         = product opA opB p1 (product opA opB p2 p3).
 Proof.
-  (* The context gains [A], [opA], [B], [opB], [SA : Semigroup.T A opA],
-     [SB : Semigroup.T B opB], [p1], [p2] and [p3]:
+  (* The context gains [A], [opA], [B], [opB], [SA : Semigroup opA],
+     [SB : Semigroup opB], [p1], [p2] and [p3]:
      [|- product opA opB (product opA opB p1 p2) p3
       = product opA opB p1 (product opA opB p2 p3)] *)
   intros A opA B opB SA SB p1 p2 p3.
@@ -398,13 +398,13 @@ Qed.
 Theorem product_left_identity
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
-      Monoid.T A opA eA ->
-      Monoid.T B opB eB ->
+      Monoid opA eA ->
+      Monoid opB eB ->
       forall (p : Pair A B),
         product opA opB (Pair_introduction eA eB) p = p.
 Proof.
   (* The context gains [A], [opA], [eA], [B], [opB], [eB],
-     [MA : Monoid.T A opA eA], [MB : Monoid.T B opB eB] and [p]:
+     [MA : Monoid opA eA], [MB : Monoid opB eB] and [p]:
      [|- product opA opB (Pair_introduction eA eB) p = p] *)
   intros A opA eA B opB eB MA MB p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
@@ -414,10 +414,14 @@ Proof.
   (* The left side computes:
      [|- Pair_introduction (opA eA a) (opB eB b) = Pair_introduction a b] *)
   simpl in |- *.
+  (* The context gains [la : opA eA a = a]. *)
+  destruct (Monoid.identity a) as [la _].
   (* [|- Pair_introduction a (opB eB b) = Pair_introduction a b] *)
-  rewrite (Monoid.left_identity a) in |- *.
+  rewrite la in |- *.
+  (* The context gains [lb : opB eB b = b]. *)
+  destruct (Monoid.identity b) as [lb _].
   (* [|- Pair_introduction a b = Pair_introduction a b] *)
-  rewrite (Monoid.left_identity b) in |- *.
+  rewrite lb in |- *.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
@@ -425,13 +429,13 @@ Qed.
 Theorem product_right_identity
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
-      Monoid.T A opA eA ->
-      Monoid.T B opB eB ->
+      Monoid opA eA ->
+      Monoid opB eB ->
       forall (p : Pair A B),
       product opA opB p (Pair_introduction eA eB) = p.
 Proof.
   (* The context gains [A], [opA], [eA], [B], [opB], [eB],
-     [MA : Monoid.T A opA eA], [MB : Monoid.T B opB eB] and [p]:
+     [MA : Monoid opA eA], [MB : Monoid opB eB] and [p]:
      [|- product opA opB p (Pair_introduction eA eB) = p] *)
   intros A opA eA B opB eB MA MB p.
   (* [p] is [Pair_introduction a b], with [a] and [b] in the context:
@@ -442,10 +446,14 @@ Proof.
      [|- Pair_introduction (opA a eA) (opB b eB)
       = Pair_introduction a          b] *)
   simpl in |- *.
+  (* The context gains [ra : opA a eA = a]. *)
+  destruct (Monoid.identity a) as [_ ra].
   (* [|- Pair_introduction a (opB b eB) = Pair_introduction a b] *)
-  rewrite (Monoid.right_identity a) in |- *.
+  rewrite ra in |- *.
+  (* The context gains [rb : opB b eB = b]. *)
+  destruct (Monoid.identity b) as [_ rb].
   (* [|- Pair_introduction a b = Pair_introduction a b] *)
-  rewrite (Monoid.right_identity b) in |- *.
+  rewrite rb in |- *.
   (* Both sides are the same term. *)
   reflexivity.
 Qed.
@@ -522,29 +530,32 @@ Instance Pair_functor
 Instance Pair_semigroup
   : forall (A : Type) (opA : A -> A -> A)
       (B : Type) (opB : B -> B -> B),
-      Semigroup.T A opA ->
-      Semigroup.T B opB ->
-      Semigroup.T (Pair A B) (Pair.product opA opB) :=
+      Semigroup opA ->
+      Semigroup opB ->
+      Semigroup (Pair.product opA opB) :=
   fun (A : Type) (opA : A -> A -> A)
       (B : Type) (opB : B -> B -> B)
-      (SA : Semigroup.T A opA)
-      (SB : Semigroup.T B opB) =>
+      (SA : Semigroup opA)
+      (SB : Semigroup opB) =>
     {| Semigroup.associativity :=
         Pair.product_associativity A opA B opB SA SB |}.
 
 Instance Pair_monoid
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B),
-      Monoid.T A opA eA ->
-      Monoid.T B opB eB ->
-      Monoid.T (Pair A B) (Pair.product opA opB) (Pair_introduction eA eB) :=
+      Monoid opA eA ->
+      Monoid opB eB ->
+      Monoid (Pair.product opA opB) (Pair_introduction eA eB) :=
   fun (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B)
-      (MA : Monoid.T A opA eA)
-      (MB : Monoid.T B opB eB) =>
+      (MA : Monoid opA eA)
+      (MB : Monoid opB eB) =>
     {| Monoid.semigroup := Pair_semigroup A opA B opB _ _
-     ; Monoid.left_identity  := Pair.product_left_identity A opA eA B opB eB MA MB
-     ; Monoid.right_identity := Pair.product_right_identity A opA eA B opB eB MA MB |}.
+     ; Monoid.identity :=
+         fun (p : Pair A B) =>
+           Conjunction_introduction
+             (Pair.product_left_identity A opA eA B opB eB MA MB p)
+             (Pair.product_right_identity A opA eA B opB eB MA MB p) |}.
 
 Instance Pair_commutative
   : forall (A : Type) (opA : A -> A -> A) (B : Type) (opB : B -> B -> B),

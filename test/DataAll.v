@@ -32,9 +32,9 @@ Definition data_all_delivers_pair_functor
 
 Definition data_all_delivers_pair_monoid
   : forall (p : Bool * Bool),
-      Pair.product Bool.and Bool.or (Pair_introduction true false) p
-      = p
-  := Monoid.left_identity.
+      Pair.product Bool.and Bool.or (Pair_introduction true false) p = p
+      /\ Pair.product Bool.and Bool.or p (Pair_introduction true false) = p
+  := Monoid.identity.
 
 Definition data_all_delivers_sum
   : Bool + Bool
@@ -81,8 +81,9 @@ Definition data_all_delivers_instances
        Semigroup.associativity x y z.
 
 Definition data_all_delivers_monoid
-  : forall (w : NatWithZero), NatWithZero.add NatWithZero.Zero w = w
-  := Monoid.left_identity.
+  : forall (w : NatWithZero),
+      NatWithZero.add NatWithZero.Zero w = w /\ NatWithZero.add w NatWithZero.Zero = w
+  := Monoid.identity.
 
 Definition data_all_delivers_cancellative
   : forall (n : Nat) (m : Nat) (k : Nat), Nat.add n m = Nat.add n k -> m = k
@@ -110,8 +111,8 @@ Definition data_all_delivers_subtract
   := Nat.subtract (Successor One) One.
 
 Definition data_all_delivers_mul_monoid
-  : forall (n : Nat), Nat.mul One n = n
-  := Monoid.left_identity.
+  : forall (n : Nat), Nat.mul One n = n /\ Nat.mul n One = n
+  := Monoid.identity.
 
 Definition data_all_delivers_commutative
   : forall (p1 : Nat * Bool) (p2 : Nat * Bool),
@@ -128,8 +129,8 @@ Definition data_all_delivers_bool_operations
   := (true || false) && (Bool.negate false ^^ true).
 
 Definition data_all_delivers_bool_monoids
-  : forall (b : Bool), Bool.and true b = b
-  := Monoid.left_identity.
+  : forall (b : Bool), Bool.and true b = b /\ Bool.and b true = b
+  := Monoid.identity.
 
 Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool),
@@ -141,8 +142,8 @@ Definition data_all_delivers_list
   := (Cons true Nil ++ Cons false Nil)%list.
 
 Definition data_all_delivers_list_monoid
-  : forall (A : Type) (l : List A), (Nil ++ l)%list = l
-  := fun (A : Type) => Monoid.left_identity.
+  : forall (A : Type) (l : List A), (Nil ++ l)%list = l /\ (l ++ Nil)%list = l
+  := fun (A : Type) => Monoid.identity.
 
 Definition data_all_delivers_empty_list
   : List Bool
@@ -201,12 +202,13 @@ Definition data_all_delivers_strict_order
   := Irreflexive.irreflexivity.
 
 Definition data_all_delivers_max_monoid
-  : forall (n : NatWithZero), NatWithZero.max NatWithZero.Zero n = n
-  := Monoid.left_identity.
+  : forall (n : NatWithZero),
+      NatWithZero.max NatWithZero.Zero n = n /\ NatWithZero.max n NatWithZero.Zero = n
+  := Monoid.identity.
 
 Definition data_all_delivers_nat_max_monoid
-  : forall (n : Nat), Nat.max One n = n
-  := Monoid.left_identity.
+  : forall (n : Nat), Nat.max One n = n /\ Nat.max n One = n
+  := Monoid.identity.
 
 Definition data_all_delivers_division
   : NatWithZero * NatWithZero
@@ -252,12 +254,13 @@ Definition data_all_delivers_integer_order
   := (Negative One < Integer.Zero)%integer /\ (Integer.Positive One >= Integer.Zero)%integer.
 
 Definition data_all_delivers_integer_monoid
-  : forall (x : Integer), Integer.add Integer.Zero x = x
-  := Monoid.left_identity.
+  : forall (x : Integer), Integer.add Integer.Zero x = x /\ Integer.add x Integer.Zero = x
+  := Monoid.identity.
 
 Definition data_all_delivers_integer_mul_monoid
-  : forall (x : Integer), Integer.mul (Integer.Positive One) x = x
-  := Monoid.left_identity.
+  : forall (x : Integer),
+      Integer.mul (Integer.Positive One) x = x /\ Integer.mul x (Integer.Positive One) = x
+  := Monoid.identity.
 
 Definition data_all_delivers_integer_cancellative
   : forall (k : Integer) (m : Integer) (n : Integer),

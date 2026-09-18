@@ -235,31 +235,34 @@ Notation "b1 || b2" := (Bool.or  b1 b2)
   : jwa_type_scope.
 
 Instance Bool_and_monoid
-  : Monoid.T Bool Bool.and true :=
+  : Monoid Bool.and true :=
   {| Monoid.semigroup      :=
        {| Semigroup.associativity := Bool.and_associativity |}
-   ; Monoid.left_identity  :=
-       fun (b : Bool) => Identity.reflexivity (Bool.and true b)
-   ; Monoid.right_identity :=
-       fun (b : Bool) => Bool.and_commutativity b true |}.
+   ; Monoid.identity :=
+       fun (b : Bool) =>
+         Conjunction_introduction
+           (Identity.reflexivity (Bool.and true b))
+           (Bool.and_commutativity b true) |}.
 
 Instance Bool_or_monoid
-  : Monoid.T Bool Bool.or false :=
+  : Monoid Bool.or false :=
   {| Monoid.semigroup      :=
        {| Semigroup.associativity := Bool.or_associativity |}
-   ; Monoid.left_identity  :=
-       fun (b : Bool) => Identity.reflexivity (Bool.or false b)
-   ; Monoid.right_identity :=
-       fun (b : Bool) => Bool.or_commutativity b false |}.
+   ; Monoid.identity :=
+       fun (b : Bool) =>
+         Conjunction_introduction
+           (Identity.reflexivity (Bool.or false b))
+           (Bool.or_commutativity b false) |}.
 
 Instance Bool_xor_monoid
-  : Monoid.T Bool Bool.xor false :=
+  : Monoid Bool.xor false :=
   {| Monoid.semigroup      :=
        {| Semigroup.associativity := Bool.xor_associativity |}
-   ; Monoid.left_identity  :=
-       fun (b : Bool) => Identity.reflexivity (Bool.xor false b)
-   ; Monoid.right_identity :=
-       fun (b : Bool) => Bool.xor_commutativity b false |}.
+   ; Monoid.identity :=
+       fun (b : Bool) =>
+         Conjunction_introduction
+           (Identity.reflexivity (Bool.xor false b))
+           (Bool.xor_commutativity b false) |}.
 
 Instance Bool_and_commutative
   : Commutative.T Bool Bool.and :=

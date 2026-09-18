@@ -2638,15 +2638,16 @@ Notation "m >= n" := (NatWithZero.LessOrEqual n m) (only parsing)
 (* [Zero] is exactly what [Nat] lacks, so this one reaches monoid. The
    [semigroup] field is filled inline rather than by a second instance:
    [Monoid.semigroup] is declared with [::], so resolution already finds a
-   [Semigroup.T NatWithZero add] through it. *)
+   [Semigroup NatWithZero.add] through it. *)
 Instance NatWithZero_add_monoid
-  : Monoid.T NatWithZero NatWithZero.add Zero := {|
+  : Monoid NatWithZero.add Zero := {|
     Monoid.semigroup :=
       {| Semigroup.associativity := NatWithZero.add_associativity |}
-  ; Monoid.left_identity  :=
-      fun (n : NatWithZero) => Identity.reflexivity (NatWithZero.add Zero n)
-  ; Monoid.right_identity :=
-      fun (n : NatWithZero) => NatWithZero.add_commutativity n Zero
+  ; Monoid.identity :=
+      fun (n : NatWithZero) =>
+        Conjunction_introduction
+          (Identity.reflexivity (NatWithZero.add Zero n))
+          (NatWithZero.add_commutativity n Zero)
   |}.
 
 (* Both cancellation laws were already proved above, so the instance only
@@ -2659,10 +2660,13 @@ Instance NatWithZero_add_cancellative
 
 (* [Positive One] leaves its argument alone under [mul]. *)
 Instance NatWithZero_mul_monoid
-  : Monoid.T NatWithZero NatWithZero.mul (Positive One) := {|
+  : Monoid NatWithZero.mul (Positive One) := {|
     Monoid.semigroup      := {| Semigroup.associativity := NatWithZero.mul_associativity |}
-  ; Monoid.left_identity  := NatWithZero.mul_left_identity
-  ; Monoid.right_identity := NatWithZero.mul_right_identity
+  ; Monoid.identity :=
+      fun (n : NatWithZero) =>
+        Conjunction_introduction
+          (NatWithZero.mul_left_identity n)
+          (NatWithZero.mul_right_identity n)
   |}.
 
 Instance NatWithZero_add_commutative
@@ -2698,15 +2702,18 @@ Instance NatWithZero_less_or_equal_total_order
 (* [min] has no identity, since [Zero] absorbs it; [max] has [Zero].
    Both commute. *)
 Instance NatWithZero_min_semigroup
-  : Semigroup.T NatWithZero NatWithZero.min :=
+  : Semigroup NatWithZero.min :=
   {| Semigroup.associativity := NatWithZero.min_associativity |}.
 
 Instance NatWithZero_max_monoid
-  : Monoid.T NatWithZero NatWithZero.max Zero :=
+  : Monoid NatWithZero.max Zero :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := NatWithZero.max_associativity |}
-   ; Monoid.left_identity  := NatWithZero.max_left_identity
-   ; Monoid.right_identity := NatWithZero.max_right_identity |}.
+   ; Monoid.identity :=
+       fun (n : NatWithZero) =>
+         Conjunction_introduction
+           (NatWithZero.max_left_identity n)
+           (NatWithZero.max_right_identity n) |}.
 
 Instance NatWithZero_min_commutative
   : Commutative.T NatWithZero NatWithZero.min :=

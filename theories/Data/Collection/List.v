@@ -3835,12 +3835,15 @@ Notation "a 'does_not_belong_to' l" := (~ (List.Contains a l)) (only parsing)
    instance, so every element type gets one; [@] makes it explicit where
    the operation and the laws are handed over unapplied. *)
 Instance List_append_monoid
-  : forall (A : Type), Monoid.T (List A) (@List.append A) Nil :=
+  : forall (A : Type), Monoid (@List.append A) Nil :=
   fun (A : Type) =>
     {| Monoid.semigroup :=
          {| Semigroup.associativity := @List.append_associativity A |}
-     ; Monoid.left_identity  := @List.append_left_identity A
-     ; Monoid.right_identity := @List.append_right_identity A |}.
+     ; Monoid.identity :=
+         fun (l : List A) =>
+           Conjunction_introduction
+             (@List.append_left_identity A l)
+             (@List.append_right_identity A l) |}.
 
 (* The two functor laws were already proved above, so the instance only
    hands them over. [map]'s type arguments are maximally inserted, so the

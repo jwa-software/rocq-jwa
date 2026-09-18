@@ -2165,11 +2165,12 @@ Notation "m >= n" := (Integer.LessOrEqual n m) (only parsing)
 (* Addition is a commutative monoid with cancellation, [Zero] the identity;
    the laws were already proved above, so each instance only hands them
    over. *)
-Instance Integer_add_monoid : Monoid.T Integer Integer.add Zero :=
+Instance Integer_add_monoid : Monoid Integer.add Zero :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Integer.add_associativity |}
-   ; Monoid.left_identity  := Integer.add_left_identity
-   ; Monoid.right_identity := Integer.add_right_identity |}.
+   ; Monoid.identity :=
+       fun (x : Integer) =>
+         Conjunction_introduction (Integer.add_left_identity x) (Integer.add_right_identity x) |}.
 
 Instance Integer_add_cancellative : Cancellative.T Integer Integer.add :=
   {| Cancellative.left_cancellation  := Integer.add_left_cancellation
@@ -2179,11 +2180,12 @@ Instance Integer_add_commutative : Commutative.T Integer Integer.add :=
   {| Commutative.commutativity := Integer.add_commutativity |}.
 
 (* Multiplication is a commutative monoid, [Positive One] the identity. *)
-Instance Integer_mul_monoid : Monoid.T Integer Integer.mul (Positive One) :=
+Instance Integer_mul_monoid : Monoid Integer.mul (Positive One) :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Integer.mul_associativity |}
-   ; Monoid.left_identity  := Integer.mul_left_identity
-   ; Monoid.right_identity := Integer.mul_right_identity |}.
+   ; Monoid.identity :=
+       fun (x : Integer) =>
+         Conjunction_introduction (Integer.mul_left_identity x) (Integer.mul_right_identity x) |}.
 
 Instance Integer_mul_commutative : Commutative.T Integer Integer.mul :=
   {| Commutative.commutativity := Integer.mul_commutativity |}.

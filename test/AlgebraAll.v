@@ -4,17 +4,17 @@ From jwa Require Import Algebra.All.
 
 Definition algebra_all_delivers
   : forall (A : Type) (op : A -> A -> A) (e : A),
-      Semigroup.T A op -> Monoid.T A op e -> Commutative.T A op
+      Semigroup op -> Monoid op e -> Commutative.T A op
       -> Cancellative.T A op -> ~ Falsum -> Verum
   := fun (A : Type) (op : A -> A -> A) (e : A)
-         (_ : Semigroup.T A op) (_ : Monoid.T A op e) (_ : Commutative.T A op)
+         (_ : Semigroup op) (_ : Monoid op e) (_ : Commutative.T A op)
          (_ : Cancellative.T A op) (_ : ~ Falsum) => I.
 
 Definition algebra_all_delivers_projections
-  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e) (x : A),
-      op e x = x
-  := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid.T A op e) (x : A) =>
-       Monoid.left_identity x.
+  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid op e) (x : A),
+      op e x = x /\ op x e = x
+  := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid op e) (x : A) =>
+       Monoid.identity x.
 
 Definition algebra_all_delivers_groups_and_rings
   : forall (A : Type) (add : A -> A -> A) (zero : A) (negate : A -> A)
