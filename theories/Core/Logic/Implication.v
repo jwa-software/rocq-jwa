@@ -69,9 +69,10 @@ Proof.
   - exact b.
 Qed.
 
-(* [Implication.abjunction_incompatibility] is stated in
- * [Core.Logic.Abjunction], the lowest file that knows both connectives, in
- * a second module of this name.
+(* Two laws of [->] are stated higher up, each in a second module of this
+ * name in the lowest file that knows both connectives:
+ * [Implication.congruence] in [Core.Logic.Biimplication] and
+ * [Implication.abjunction_incompatibility] in [Core.Logic.Abjunction].
  *)
 
 End Implication.
