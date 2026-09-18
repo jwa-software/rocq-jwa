@@ -1,22 +1,25 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Relations.All] would be circular from inside [Relations]; [Core.All]
-   carries [->], [<->] and [=] with the three laws of each,
-   [Structures.Class] the hint database, and the three modules below the
-   classes this one is built on. *)
+ * carries [->], [<->] and [=] with the three laws of each,
+ * [Structures.Class] the hint database, and the three modules below the
+ * classes this one is built on.
+ *)
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Class.
 From jwa Require Import Relations.Reflexive.
 From jwa Require Import Relations.Symmetric.
 From jwa Require Import Relations.Transitive.
+From jwa Require Import Structures.Class.
 
 (* The module is the prefix: the class reads [Equivalence.R] and its
-   fields [Equivalence.reflexive] and so on. *)
+ * fields [Equivalence.reflexive] and so on.
+ *)
 Module Equivalence.
   (* The three properties together. The [::] on each field declares it an
-     instance as well as a projection, which is what lets an
-     [Equivalence.R] be used wherever a [Reflexive.R], a
-     [Symmetric.R] or a [Transitive.R] is asked for. *)
+   * instance as well as a projection, which is what lets an
+   * [Equivalence.R] be used wherever a [Reflexive.R], a
+   * [Symmetric.R] or a [Transitive.R] is asked for.
+   *)
   Class R (A : Type) (relation : A -> A -> Prop) : Prop :=
     { reflexive  :: Reflexive.R A relation
     ; symmetric  :: Symmetric.R A relation
@@ -24,16 +27,19 @@ Module Equivalence.
 End Equivalence.
 
 (* The instance hints that [::] declares are scoped to the module they are
-   declared in; this lets them out while the names stay qualified. Without
-   it [Reflexive.R A R] is not found from an [Equivalence.R A R]
-   outside the module. *)
+ * declared in; this lets them out while the names stay qualified. Without
+ * it [Reflexive.R A R] is not found from an [Equivalence.R A R]
+ * outside the module.
+ *)
 Export (hints) Equivalence.
 
 (* The instances for the two relations of [Core] sit here and not beside
-   them, since [Core] sees no class. Each field is the matching theorem of
-   [Core]. *)
+ * them, since [Core] sees no class. Each field is the matching theorem of
+ * [Core].
+ *)
 
-Instance Biimplication_equivalence : Equivalence.R Prop Biimplication :=
+Instance Biimplication_equivalence
+  : Equivalence.R Prop Biimplication :=
   {| Equivalence.reflexive :=
        {| Reflexive.reflexivity := Biimplication.reflexivity |}
    ; Equivalence.symmetric :=
@@ -42,7 +48,8 @@ Instance Biimplication_equivalence : Equivalence.R Prop Biimplication :=
        {| Transitive.transitivity := Biimplication.transitivity |} |}.
 
 (* [@] makes [A] explicit, which the field types need since [relation] is
-   applied to two elements of [A] and nothing else. *)
+ * applied to two elements of [A] and nothing else.
+ *)
 Instance Identity_equivalence
   : forall (A : Type), Equivalence.R A (@Identity A) :=
   fun (A : Type) =>
