@@ -5,7 +5,7 @@
    instances at the bottom fill; [Data.Number.NatWithZero] is what [length] counts
    in, [Data.Number.Nat] carries the [One] inside [Positive One], [Data.Bool] is
    what a [filter] predicate answers in, [Data.Option] is what [head] and
-   [tail] answer in, and [Data.Pair] is what [pop], [zip] and [partition]
+   [tail] answer in, and [Data.Product] is what [pop], [zip] and [partition]
    answer in. *)
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
@@ -15,7 +15,7 @@ From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
-From jwa Require Import Data.Pair.
+From jwa Require Import Data.Product.
 
 (* A list is empty, or one element in front of a list. [A] is a parameter:
    every element has the one type. *)
@@ -2038,41 +2038,41 @@ Qed.
 Definition pop := fun {A : Type} (l : List A) =>
   match l return Option (A * List A) with
   | Nil       => None
-  | Cons a l' => Some (Pair_introduction a l')
+  | Cons a l' => Some (Product_introduction a l')
   end.
 
 Lemma pop_specification_forward
   : forall (A : Type) (a : A) (l' : List A) (l : List A),
-      pop l = Some (Pair_introduction a l') -> l = Cons a l'.
+      pop l = Some (Product_introduction a l') -> l = Cons a l'.
 Proof.
   (* The context gains [A], [a], [l'] and [l]:
-     [|- pop l = Some (Pair_introduction a l') -> l = Cons a l'] *)
+     [|- pop l = Some (Product_introduction a l') -> l = Cons a l'] *)
   intros A a l' l.
   (* [l] is either [Nil] or [Cons b rest]: one goal per ctor. *)
   destruct l as [| b rest].
   - (* [pop Nil] computes:
-       [|- None = Some (Pair_introduction a l') -> Nil = Cons a l'] *)
+       [|- None = Some (Product_introduction a l') -> Nil = Cons a l'] *)
     simpl in |- *.
-    (* The context gains [e : None = Some (Pair_introduction a l')]:
+    (* The context gains [e : None = Some (Product_introduction a l')]:
        [|- Nil = Cons a l'] *)
     intro e.
     (* [e] equates two distinct ctors, which closes any goal. *)
     discriminate.
   - (* [pop (Cons b rest)] computes:
-       [|- Some (Pair_introduction b rest) = Some (Pair_introduction a l')
+       [|- Some (Product_introduction b rest) = Some (Product_introduction a l')
            -> Cons b rest = Cons a l'] *)
     simpl in |- *.
     (* The context gains
-       [e : Some (Pair_introduction b rest) = Some (Pair_introduction a l')]:
+       [e : Some (Product_introduction b rest) = Some (Product_introduction a l')]:
        [|- Cons b rest = Cons a l'] *)
     intro e.
     (* [Option.some_injectivity] strips the [Some]:
-       [e' : Pair_introduction b rest = Pair_introduction a l'] *)
+       [e' : Product_introduction b rest = Product_introduction a l'] *)
     pose proof (Option.some_injectivity (A * List A)
-                  (Pair_introduction b rest) (Pair_introduction a l') e) as e'.
-    (* [Pair.introduction_injectivity] splits the pair:
+                  (Product_introduction b rest) (Product_introduction a l') e) as e'.
+    (* [Product.introduction_injectivity] splits the pair:
        [e'' : b = a /\ rest = l'] *)
-    pose proof (Pair.introduction_injectivity A (List A) b rest a l' e') as e''.
+    pose proof (Product.introduction_injectivity A (List A) b rest a l' e') as e''.
     (* The conjunction opens into [eb : b = a] and [erest : rest = l']. *)
     destruct e'' as [eb erest].
     (* [eb] replaces [b]: [|- Cons a rest = Cons a l'] *)
@@ -2085,15 +2085,15 @@ Qed.
 
 Lemma pop_specification_backward
   : forall (A : Type) (a : A) (l' : List A) (l : List A),
-      l = Cons a l' -> pop l = Some (Pair_introduction a l').
+      l = Cons a l' -> pop l = Some (Product_introduction a l').
 Proof.
   (* The context gains [A], [a], [l'], [l] and [e : l = Cons a l']:
-     [|- pop l = Some (Pair_introduction a l')] *)
+     [|- pop l = Some (Product_introduction a l')] *)
   intros A a l' l e.
-  (* [e] replaces [l]: [|- pop (Cons a l') = Some (Pair_introduction a l')] *)
+  (* [e] replaces [l]: [|- pop (Cons a l') = Some (Product_introduction a l')] *)
   rewrite e in |- *.
   (* [pop (Cons a l')] computes:
-     [|- Some (Pair_introduction a l') = Some (Pair_introduction a l')] *)
+     [|- Some (Product_introduction a l') = Some (Product_introduction a l')] *)
   simpl in |- *.
   (* Both sides are the same term. *)
   reflexivity.
@@ -2102,10 +2102,10 @@ Qed.
 (* [pop] answers [Some (a , l')] exactly on [Cons a l']. *)
 Theorem pop_specification
   : forall (A : Type) (a : A) (l' : List A) (l : List A),
-      pop l = Some (Pair_introduction a l') <-> l = Cons a l'.
+      pop l = Some (Product_introduction a l') <-> l = Cons a l'.
 Proof.
   (* The context gains [A], [a], [l'] and [l]:
-     [|- pop l = Some (Pair_introduction a l') <-> l = Cons a l'] *)
+     [|- pop l = Some (Product_introduction a l') <-> l = Cons a l'] *)
   intros A a l' l.
   (* [Biimplication] has one ctor with two fields, so the goal splits into two
      goals, the forward and the backward half. *)
@@ -2121,9 +2121,9 @@ Qed.
 (* Projecting a [pop] gives back [head] and [tail]. *)
 
 Theorem pop_head_projection
-  : forall (A : Type) (l : List A), Option.map Pair.first (pop l) = head l.
+  : forall (A : Type) (l : List A), Option.map Product.first (pop l) = head l.
 Proof.
-  (* The context gains [A] and [l]: [|- Option.map Pair.first (pop l) = head l] *)
+  (* The context gains [A] and [l]: [|- Option.map Product.first (pop l) = head l] *)
   intros A l.
   (* [l] is either [Nil] or [Cons a l']: one goal per ctor. *)
   destruct l as [| a l'].
@@ -2131,18 +2131,18 @@ Proof.
     simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
-  - (* [pop] gives [Some (Pair_introduction a l')], [Option.map] applies
-       [Pair.first] inside, [head] gives [Some a]: [|- Some a = Some a] *)
+  - (* [pop] gives [Some (Product_introduction a l')], [Option.map] applies
+       [Product.first] inside, [head] gives [Some a]: [|- Some a = Some a] *)
     simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
 
 Theorem pop_tail_projection
-  : forall (A : Type) (l : List A), Option.map Pair.second (pop l) = tail l.
+  : forall (A : Type) (l : List A), Option.map Product.second (pop l) = tail l.
 Proof.
   (* The context gains [A] and [l]:
-     [|- Option.map Pair.second (pop l) = tail l] *)
+     [|- Option.map Product.second (pop l) = tail l] *)
   intros A l.
   (* [l] is either [Nil] or [Cons a l']: one goal per ctor. *)
   destruct l as [| a l'].
@@ -2150,8 +2150,8 @@ Proof.
     simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
-  - (* [pop] gives [Some (Pair_introduction a l')], [Option.map] applies
-       [Pair.second] inside, [tail] gives [Some l']: [|- Some l' = Some l'] *)
+  - (* [pop] gives [Some (Product_introduction a l')], [Option.map] applies
+       [Product.second] inside, [tail] gives [Some l']: [|- Some l' = Some l'] *)
     simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
@@ -2160,7 +2160,7 @@ Qed.
 Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
   : List (A * B) :=
   match l1, l2 with
-  | Cons a l1', Cons b l2' => Cons (Pair_introduction a b) (zip l1' l2')
+  | Cons a l1', Cons b l2' => Cons (Product_introduction a b) (zip l1' l2')
   | Nil, Nil               => Nil
   | Nil, Cons _ _          => Nil
   | Cons _ _, Nil          => Nil
@@ -2170,50 +2170,50 @@ Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
    The two projections mapped over the list, so the laws of [map] carry
    over. *)
 Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) =>
-  Pair_introduction (map Pair.first l) (map Pair.second l).
+  Product_introduction (map Product.first l) (map Product.second l).
 
 (* Zipping the two halves of an [unzip] rebuilds the list. The other order,
    [unzip (zip l1 l2)], needs the two lists to be of one length. *)
 Theorem zip_unzip_identity
   : forall (A : Type) (B : Type) (l : List (A * B)),
-      zip (Pair.first (unzip l)) (Pair.second (unzip l)) = l.
+      zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
 Proof.
   (* The context gains [A], [B] and [l]:
-     [|- zip (Pair.first (unzip l)) (Pair.second (unzip l)) = l] *)
+     [|- zip (Product.first (unzip l)) (Product.second (unzip l)) = l] *)
   intros A B l.
   (* [l] is either [Nil] or [Cons p l']: one goal per ctor, and the second
      has [p], [l'] and
-     [IH : zip (Pair.first (unzip l')) (Pair.second (unzip l')) = l'] in its
+     [IH : zip (Product.first (unzip l')) (Product.second (unzip l')) = l'] in its
      context. *)
   induction l as [| p l' IH] using List_induction.
-  - (* [unzip Nil] is [Pair_introduction Nil Nil], the projections and [zip]
+  - (* [unzip Nil] is [Product_introduction Nil Nil], the projections and [zip]
        compute: [|- Nil = Nil] *)
     simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
   - (* [unzip (Cons p l')] unfolds to a pair of two [map]s, each stepping
        once, the projections compute and [zip] steps once:
-       [|- Cons (Pair_introduction (Pair.first p) (Pair.second p))
-                (zip (map Pair.first l') (map Pair.second l'))
+       [|- Cons (Product_introduction (Product.first p) (Product.second p))
+                (zip (map Product.first l') (map Product.second l'))
            = Cons p l'] *)
     simpl in |- *.
     (* [IH] unfolds to the same shape:
-       [IH : zip (Pair.first (Pair_introduction (map Pair.first l')
-                                                (map Pair.second l')))
-                 (Pair.second (Pair_introduction (map Pair.first l')
-                                                 (map Pair.second l')))
+       [IH : zip (Product.first (Product_introduction (map Product.first l')
+                                                (map Product.second l')))
+                 (Product.second (Product_introduction (map Product.first l')
+                                                 (map Product.second l')))
              = l'] *)
     unfold unzip in IH.
     (* The projections compute:
-       [IH : zip (map Pair.first l') (map Pair.second l') = l'] *)
+       [IH : zip (map Product.first l') (map Product.second l') = l'] *)
     simpl in IH.
     (* [IH] replaces the inner [zip]:
-       [|- Cons (Pair_introduction (Pair.first p) (Pair.second p)) l'
+       [|- Cons (Product_introduction (Product.first p) (Product.second p)) l'
            = Cons p l'] *)
     rewrite IH in |- *.
-    (* [Pair.introduction_surjectivity] read right to left folds the pair
+    (* [Product.introduction_surjectivity] read right to left folds the pair
        of projections back into [p]: [|- Cons p l' = Cons p l'] *)
-    rewrite <- (Pair.introduction_surjectivity A B p) in |- *.
+    rewrite <- (Product.introduction_surjectivity A B p) in |- *.
     (* Both sides are the same term. *)
     reflexivity.
 Qed.
@@ -2226,29 +2226,29 @@ Qed.
    hypothesis through [NatWithZero.add_right_cancellation]. *)
 Theorem unzip_zip_identity
   : forall (A : Type) (B : Type) (l1 : List A) (l2 : List B),
-      length l1 = length l2 -> unzip (zip l1 l2) = Pair_introduction l1 l2.
+      length l1 = length l2 -> unzip (zip l1 l2) = Product_introduction l1 l2.
 Proof.
   (* The context gains [A], [B] and [l1]:
      [|- forall (l2 : List B), length l1 = length l2
-         -> unzip (zip l1 l2) = Pair_introduction l1 l2] *)
+         -> unzip (zip l1 l2) = Product_introduction l1 l2] *)
   intros A B l1.
   (* [l1] is either [Nil] or [Cons a l1']: one goal per ctor, and the
      second has [a], [l1'] and
      [IH : forall (l2 : List B), length l1' = length l2
-           -> unzip (zip l1' l2) = Pair_introduction l1' l2]
+           -> unzip (zip l1' l2) = Product_introduction l1' l2]
      in its context. *)
   induction l1 as [| a l1' IH] using List_induction.
   - (* The context gains [l2] and [e : length Nil = length l2]:
-       [|- unzip (zip Nil l2) = Pair_introduction Nil l2] *)
+       [|- unzip (zip Nil l2) = Product_introduction Nil l2] *)
     intros l2 e.
     (* [l2] is either [Nil] or [Cons b l2']: one goal per ctor. *)
     destruct l2 as [| b l2'].
-    + (* [|- Pair_introduction (map Pair.first (zip Nil Nil))
-                               (map Pair.second (zip Nil Nil))
-           = Pair_introduction Nil Nil] *)
+    + (* [|- Product_introduction (map Product.first (zip Nil Nil))
+                               (map Product.second (zip Nil Nil))
+           = Product_introduction Nil Nil] *)
       unfold unzip in |- *.
       (* [zip] and both [map]s compute on [Nil]:
-         [|- Pair_introduction Nil Nil = Pair_introduction Nil Nil] *)
+         [|- Product_introduction Nil Nil = Product_introduction Nil Nil] *)
       simpl in |- *.
       (* Both sides are the same term. *)
       reflexivity.
@@ -2267,7 +2267,7 @@ Proof.
       (* [f : Falsum], which is what [contradiction] looks for. *)
       contradiction.
   - (* The context gains [l2] and [e : length (Cons a l1') = length l2]:
-       [|- unzip (zip (Cons a l1') l2) = Pair_introduction (Cons a l1') l2] *)
+       [|- unzip (zip (Cons a l1') l2) = Product_introduction (Cons a l1') l2] *)
     intros l2 e.
     (* [l2] is either [Nil] or [Cons b l2']: one goal per ctor. *)
     destruct l2 as [| b l2'].
@@ -2290,39 +2290,39 @@ Proof.
       pose proof (NatWithZero.add_right_cancellation
                     (length l1') (length l2') (Positive One) e) as e'.
       (* [IH] on [l2'] and [e']:
-         [IH' : unzip (zip l1' l2') = Pair_introduction l1' l2'] *)
+         [IH' : unzip (zip l1' l2') = Product_introduction l1' l2'] *)
       pose proof (IH l2' e') as IH'.
-      (* [IH' : Pair_introduction (map Pair.first (zip l1' l2'))
-                                  (map Pair.second (zip l1' l2'))
-                = Pair_introduction l1' l2'] *)
+      (* [IH' : Product_introduction (map Product.first (zip l1' l2'))
+                                  (map Product.second (zip l1' l2'))
+                = Product_introduction l1' l2'] *)
       unfold unzip in IH'.
-      (* [Pair.introduction_injectivity] splits the pair:
-         [e'' : map Pair.first (zip l1' l2') = l1'
-                /\ map Pair.second (zip l1' l2') = l2'] *)
-      pose proof (Pair.introduction_injectivity (List A) (List B)
-                    (map Pair.first (zip l1' l2'))
-                    (map Pair.second (zip l1' l2'))
+      (* [Product.introduction_injectivity] splits the pair:
+         [e'' : map Product.first (zip l1' l2') = l1'
+                /\ map Product.second (zip l1' l2') = l2'] *)
+      pose proof (Product.introduction_injectivity (List A) (List B)
+                    (map Product.first (zip l1' l2'))
+                    (map Product.second (zip l1' l2'))
                     l1' l2' IH') as e''.
       (* The conjunction opens into [e1] and [e2], one per component. *)
       destruct e'' as [e1 e2].
-      (* [|- Pair_introduction
-               (map Pair.first (zip (Cons a l1') (Cons b l2')))
-               (map Pair.second (zip (Cons a l1') (Cons b l2')))
-           = Pair_introduction (Cons a l1') (Cons b l2')] *)
+      (* [|- Product_introduction
+               (map Product.first (zip (Cons a l1') (Cons b l2')))
+               (map Product.second (zip (Cons a l1') (Cons b l2')))
+           = Product_introduction (Cons a l1') (Cons b l2')] *)
       unfold unzip in |- *.
       (* [zip] steps once and each [map] steps once:
-         [|- Pair_introduction (Cons a (map Pair.first (zip l1' l2')))
-                               (Cons b (map Pair.second (zip l1' l2')))
-             = Pair_introduction (Cons a l1') (Cons b l2')] *)
+         [|- Product_introduction (Cons a (map Product.first (zip l1' l2')))
+                               (Cons b (map Product.second (zip l1' l2')))
+             = Product_introduction (Cons a l1') (Cons b l2')] *)
       simpl in |- *.
       (* [e1] replaces the first [map]:
-         [|- Pair_introduction (Cons a l1')
-                               (Cons b (map Pair.second (zip l1' l2')))
-             = Pair_introduction (Cons a l1') (Cons b l2')] *)
+         [|- Product_introduction (Cons a l1')
+                               (Cons b (map Product.second (zip l1' l2')))
+             = Product_introduction (Cons a l1') (Cons b l2')] *)
       rewrite e1 in |- *.
       (* [e2] replaces the second:
-         [|- Pair_introduction (Cons a l1') (Cons b l2')
-             = Pair_introduction (Cons a l1') (Cons b l2')] *)
+         [|- Product_introduction (Cons a l1') (Cons b l2')
+             = Product_introduction (Cons a l1') (Cons b l2')] *)
       rewrite e2 in |- *.
       (* Both sides are the same term. *)
       reflexivity.
@@ -2334,13 +2334,13 @@ Qed.
 Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
   : List A * List A :=
   match l with
-  | Nil       => Pair_introduction Nil Nil
+  | Nil       => Product_introduction Nil Nil
   | Cons a l' =>
       match partition p l' with
-      | Pair_introduction yes no =>
+      | Product_introduction yes no =>
           match p a with
-          | true  => Pair_introduction (Cons a yes) no
-          | false => Pair_introduction yes (Cons a no)
+          | true  => Product_introduction (Cons a yes) no
+          | false => Product_introduction yes (Cons a no)
           end
       end
   end.
@@ -2350,23 +2350,23 @@ Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
 Theorem partition_specification
   : forall (A : Type) (p : A -> Bool) (l : List A),
       partition p l
-      = Pair_introduction (filter p l)
+      = Product_introduction (filter p l)
                           (filter (fun (a : A) => Bool.negate (p a)) l).
 Proof.
   (* The context gains [A], [p] and [l]:
      [|- partition p l
-         = Pair_introduction (filter p l)
+         = Product_introduction (filter p l)
                              (filter (fun a => Bool.negate (p a)) l)] *)
   intros A p l.
   (* [l] is either [Nil] or [Cons a l']: one goal per ctor, and the second
      has [a], [l'] and
      [IH : partition p l'
-           = Pair_introduction (filter p l')
+           = Product_introduction (filter p l')
                                (filter (fun a => Bool.negate (p a)) l')]
      in its context. *)
   induction l as [| a l' IH] using List_induction.
   - (* [partition] and both [filter]s compute on [Nil]:
-       [|- Pair_introduction Nil Nil = Pair_introduction Nil Nil] *)
+       [|- Product_introduction Nil Nil = Product_introduction Nil Nil] *)
     simpl in |- *.
     (* Both sides are the same term. *)
     reflexivity.
@@ -2374,15 +2374,15 @@ Proof.
        the right side a pair of two [match]es on [p a] and on
        [Bool.negate (p a)]. *)
     simpl in |- *.
-    (* [IH] replaces [partition p l'] by a [Pair_introduction], on which the
+    (* [IH] replaces [partition p l'] by a [Product_introduction], on which the
        outer [match] reduces:
        [|- match p a with
-           | true  => Pair_introduction (Cons a (filter p l'))
+           | true  => Product_introduction (Cons a (filter p l'))
                         (filter (fun a => Bool.negate (p a)) l')
-           | false => Pair_introduction (filter p l')
+           | false => Product_introduction (filter p l')
                         (Cons a (filter (fun a => Bool.negate (p a)) l'))
            end
-           = Pair_introduction
+           = Product_introduction
                (match p a with
                 | true  => Cons a (filter p l')
                 | false => filter p l'
@@ -2398,17 +2398,17 @@ Proof.
        [match] on [Bool.negate true] (or [false]) is left. *)
     destruct (p a) as [|] eqn:pa.
     + (* [Bool.negate true] computes to [false] and its [match] reduces:
-         [|- Pair_introduction (Cons a (filter p l'))
+         [|- Product_introduction (Cons a (filter p l'))
                (filter (fun a => Bool.negate (p a)) l')
-             = Pair_introduction (Cons a (filter p l'))
+             = Product_introduction (Cons a (filter p l'))
                  (filter (fun a => Bool.negate (p a)) l')] *)
       simpl in |- *.
       (* Both sides are the same term. *)
       reflexivity.
     + (* [Bool.negate false] computes to [true] and its [match] reduces:
-         [|- Pair_introduction (filter p l')
+         [|- Product_introduction (filter p l')
                (Cons a (filter (fun a => Bool.negate (p a)) l'))
-             = Pair_introduction (filter p l')
+             = Product_introduction (filter p l')
                  (Cons a (filter (fun a => Bool.negate (p a)) l'))] *)
       simpl in |- *.
       (* Both sides are the same term. *)
@@ -2568,7 +2568,7 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
 
 (* [forall {A : Type}, NatWithZero -> List A -> List A * List A] *)
 Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) =>
-  Pair_introduction (take n l) (drop n l).
+  Product_introduction (take n l) (drop n l).
 
 (* The two parts put back together give the list. *)
 Theorem take_drop_decomposition

@@ -5,7 +5,7 @@
    [Algebra.Semigroup], [Algebra.Monoid], [Algebra.Commutative],
    [Algebra.Cancellative] and the [Relation] order classes are what the
    instances at the bottom fill; [Data.Comparison] is what [compare] answers
-   in, [Data.Bool] what [equal] answers in, [Data.Pair] what [division]
+   in, [Data.Bool] what [equal] answers in, [Data.Product] what [division]
    answers in, and [Data.Option] what [Nat.subtract] answers in. *)
 From jwa Require Import Algebra.AbelianMonoid.
 From jwa Require Import Algebra.Cancellative.
@@ -18,7 +18,7 @@ From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
-From jwa Require Import Data.Pair.
+From jwa Require Import Data.Product.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.
@@ -2122,19 +2122,19 @@ Qed.
    down: each step adds one to the remainder, and the quotient goes up when
    the remainder reaches the divisor. The divisor is a [Nat], so it is never
    zero. The result is the pair of quotient and remainder. *)
-Fixpoint division (p : Nat) (d : Nat) : Pair NatWithZero NatWithZero :=
+Fixpoint division (p : Nat) (d : Nat) : Product NatWithZero NatWithZero :=
   match p with
   | One =>
       match d with
-      | One         => Pair_introduction (Positive One) Zero
-      | Successor _ => Pair_introduction Zero (Positive One)
+      | One         => Product_introduction (Positive One) Zero
+      | Successor _ => Product_introduction Zero (Positive One)
       end
   | Successor p' =>
       match division p' d with
-      | Pair_introduction q r =>
+      | Product_introduction q r =>
           match equal (add r (Positive One)) (Positive d) with
-          | true  => Pair_introduction (add q (Positive One)) Zero
-          | false => Pair_introduction q (add r (Positive One))
+          | true  => Product_introduction (add q (Positive One)) Zero
+          | false => Product_introduction q (add r (Positive One))
           end
       end
   end.
@@ -2143,14 +2143,14 @@ Fixpoint division (p : Nat) (d : Nat) : Pair NatWithZero NatWithZero :=
 Definition divide := fun (n : NatWithZero) (d : Nat) =>
   match n with
   | Zero       => Zero
-  | Positive p => Pair.first (division p d)
+  | Positive p => Product.first (division p d)
   end.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
 Definition modulo := fun (n : NatWithZero) (d : Nat) =>
   match n with
   | Zero       => Zero
-  | Positive p => Pair.second (division p d)
+  | Positive p => Product.second (division p d)
   end.
 
 (* The invariant of the walk: the dividend is quotient times divisor plus
@@ -2160,9 +2160,9 @@ Definition modulo := fun (n : NatWithZero) (d : Nat) =>
 Lemma division_invariant
   : forall (p : Nat) (d : Nat),
       Positive p
-      = add (mul (Pair.first (division p d)) (Positive d))
-            (Pair.second (division p d))
-      /\ LessThan (Pair.second (division p d)) (Positive d).
+      = add (mul (Product.first (division p d)) (Positive d))
+            (Product.second (division p d))
+      /\ LessThan (Product.second (division p d)) (Positive d).
 Proof.
   (* The context gains [p] and [d]. *)
   intros p d.

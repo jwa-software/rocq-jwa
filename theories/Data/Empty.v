@@ -2,8 +2,9 @@
 
 From jwa Require Import Core.All.
 
-(* The type with no element, the unit of [Sum]. No ctor, so the definition
- * ends at the [:=]; [Empty] is to types what [Falsum] is to propositions.
+(* The type with no element, the unit of [Coproduct]. No ctor, so the
+ * definition ends at the [:=]; [Empty] is to types what [Falsum] is to
+ * propositions.
  *)
 Inductive Empty : Type := .
 

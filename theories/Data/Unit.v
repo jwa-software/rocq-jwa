@@ -2,8 +2,8 @@
 
 From jwa Require Import Core.All.
 
-(* The type with exactly one element, the unit of [Pair]: [Unit] is to types
- * what [Verum] is to propositions.
+(* The type with exactly one element, the unit of [Product]: [Unit] is to
+ * types what [Verum] is to propositions.
  *)
 Inductive Unit : Type :=
   | Unit_introduction : Unit.

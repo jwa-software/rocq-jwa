@@ -14,41 +14,41 @@ Definition data_all_delivers_none
   := fun (A : Type) =>
        Identity.reflexivity None.
 
-Definition data_all_delivers_pair
+Definition data_all_delivers_product
   : Bool * Bool
-  := (true , false)%pair.
+  := (true , false)%product.
 
 Definition data_all_delivers_first
-  : forall (A : Type) (a : A) (b : A), Pair.first (Pair_introduction a b) = a
+  : forall (A : Type) (a : A) (b : A), Product.first (Product_introduction a b) = a
   := fun (A : Type) (a : A) (b : A) => Identity.reflexivity a.
 
 Definition data_all_delivers_projections
   : Bool * Bool
-  := (pi_2 (true , false) , pi_1 (true , false))%pair.
+  := (pi_2 (true , false) , pi_1 (true , false))%product.
 
-Definition data_all_delivers_pair_functor
+Definition data_all_delivers_product_functor
   : Bool * Bool
-  := Functor.map (fun (b : Bool) => b) (Pair_introduction true false).
+  := Functor.map (fun (b : Bool) => b) (Product_introduction true false).
 
-Definition data_all_delivers_pair_monoid
+Definition data_all_delivers_product_monoid
   : forall (p : Bool * Bool),
-      Pair.product Bool.and Bool.or (Pair_introduction true false) p = p
-      /\ Pair.product Bool.and Bool.or p (Pair_introduction true false) = p
+      Product.product Bool.and Bool.or (Product_introduction true false) p = p
+      /\ Product.product Bool.and Bool.or p (Product_introduction true false) = p
   := Monoid.identity.
 
-Definition data_all_delivers_sum
+Definition data_all_delivers_coproduct
   : Bool + Bool
-  := Sum_left true.
+  := Coproduct.left true.
 
 Definition data_all_delivers_copair
   : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B),
-      Sum.copair f g (Sum_right b) = g b
+      Coproduct.copair f g (Coproduct.right b) = g b
   := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
        Identity.reflexivity (g b).
 
-Definition data_all_delivers_sum_functor
+Definition data_all_delivers_coproduct_functor
   : Bool + Bool
-  := Functor.map (fun (b : Bool) => b) (Sum_right true).
+  := Functor.map (fun (b : Bool) => b) (Coproduct.right true).
 
 Definition data_all_delivers_unit
   : forall (u : Unit), u = Unit_introduction
@@ -118,8 +118,8 @@ Definition data_all_delivers_mul_monoid
 
 Definition data_all_delivers_commutative
   : forall (p1 : Nat * Bool) (p2 : Nat * Bool),
-      Pair.product Nat.mul Bool.xor p1 p2
-      = Pair.product Nat.mul Bool.xor p2 p1
+      Product.product Nat.mul Bool.xor p1 p2
+      = Product.product Nat.mul Bool.xor p2 p1
   := Commutative.commutativity.
 
 Definition data_all_delivers_functor
@@ -214,8 +214,8 @@ Definition data_all_delivers_nat_max_monoid
 
 Definition data_all_delivers_division
   : NatWithZero * NatWithZero
-  := Pair_introduction (NatWithZero.divide (NatWithZero.Positive One) One)
-                       (NatWithZero.modulo (NatWithZero.Positive One) One).
+  := Product_introduction (NatWithZero.divide (NatWithZero.Positive One) One)
+                          (NatWithZero.modulo (NatWithZero.Positive One) One).
 
 Definition data_all_delivers_nth
   : Option Bool
@@ -288,8 +288,8 @@ Definition data_all_delivers_range
 
 Definition data_all_delivers_extrema
   : NatWithZero * Option NatWithZero
-  := Pair_introduction (List.maximum_of (Cons NatWithZero.Zero Nil))
-                       (List.minimum_of (Cons NatWithZero.Zero Nil)).
+  := Product_introduction (List.maximum_of (Cons NatWithZero.Zero Nil))
+                          (List.minimum_of (Cons NatWithZero.Zero Nil)).
 
 Definition data_all_delivers_gauss
   : NatWithZero.mul (NatWithZero.Positive (Successor One))

@@ -13,10 +13,10 @@ From jwa Require Export Relation.All.
 From jwa Require Export Data.Bool.
 From jwa Require Export Data.Collection.All.
 From jwa Require Export Data.Comparison.
+From jwa Require Export Data.Coproduct.
 From jwa Require Export Data.Empty.
 From jwa Require Export Data.Functor.
 From jwa Require Export Data.Number.All.
 From jwa Require Export Data.Option.
-From jwa Require Export Data.Pair.
-From jwa Require Export Data.Sum.
+From jwa Require Export Data.Product.
 From jwa Require Export Data.Unit.
