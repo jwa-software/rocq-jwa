@@ -3230,6 +3230,570 @@ Proof.
     reflexivity.
 Qed.
 
+(* [Cons] and [Nil] are distinct ctors, as a statement. *)
+Theorem cons_nil_distinctness
+  : forall (A : Type) (a : A) (l : List A), ~ (Cons a l = Nil).
+Proof.
+  (* The context gains [A], [a], [l] and, once unfolded, [e], which equates
+   * two distinct ctors.
+   *)
+  intros A a l.
+  unfold Unjunction in |- *.
+  intro e.
+  discriminate.
+Qed.
+
+(* [range n] is [Zero] up to but excluding [n], in that order: a positive
+ * count recurses on its [Nat], each step putting the new last element
+ * behind the ones before it.
+ *)
+(* [Nat -> List NatWithZero] *)
+Fixpoint range_positive (p : Nat) : List NatWithZero :=
+  match p with
+  | One          => Cons Zero Nil
+  | Successor p' => append (range_positive p') (Cons (Positive p') Nil)
+  end.
+
+(* [NatWithZero -> List NatWithZero] *)
+Definition range := fun (n : NatWithZero) =>
+  match n with
+  | Zero       => Nil
+  | Positive p => range_positive p
+  end.
+
+Lemma length_range_positive
+  : forall (p : Nat), length (range_positive p) = Positive p.
+Proof.
+  (* [p] is either [One] or [Successor p']: one goal per ctor, and the
+   * second has [IH : length (range_positive p') = Positive p'] in its
+   * context.
+   *)
+  intros p.
+  induction p as [| p' IH] using Nat_induction.
+  - (* One element: [|- Positive One = Positive One] after computing *)
+    simpl in |- *.
+    reflexivity.
+  - (* One step of [range_positive]; the length of the concatenation is the
+     * sum of the lengths, [IH] replaces the first, the second computes to
+     * [Positive One], and the sum computes up to the inner sum turned
+     * round.
+     *)
+    simpl in |- *.
+    rewrite (length_additivity_over_append
+               (range_positive p') (Cons (Positive p') Nil)) in |- *.
+    rewrite IH in |- *.
+    simpl in |- *.
+    rewrite (Nat.add_commutativity p' One) in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
+Theorem length_range : forall (n : NatWithZero), length (range n) = n.
+Proof.
+  (* The context gains [n]; one goal per ctor. *)
+  intros n.
+  destruct n as [| p].
+  - simpl in |- *.
+    reflexivity.
+  - (* [range (Positive p)] computes to [range_positive p]. *)
+    simpl in |- *.
+    exact (length_range_positive p).
+Qed.
+
+(* The members of [range n] are exactly the numbers below [n]. Each step
+ * adds one element at the end, and strictly below one more than
+ * [Positive p'] is at most [Positive p']: the old members by [IH], the new
+ * one by equality.
+ *)
+
+Lemma range_positive_containment_forward
+  : forall (p : Nat) (i : NatWithZero),
+      Contains i (range_positive p) -> NatWithZero.LessThan i (Positive p).
+Proof.
+  (* The context gains [p]; one goal per ctor, the second with [IH] for
+   * every [i].
+   *)
+  intros p.
+  induction p as [| p' IH] using Nat_induction.
+  - (* [Contains i (Cons Zero Nil)] computes to [i = Zero \/ Falsum]: [i] is
+     * [Zero], which is below [Positive One] with [One] as the witness.
+     *)
+    intros i h.
+    simpl in h.
+    destruct h as [e | f].
+    + rewrite e in |- *.
+      unfold NatWithZero.LessThan in |- *.
+      apply (Exists_introduction One).
+      simpl in |- *.
+      reflexivity.
+    + contradiction.
+  - (* Membership in the concatenation is membership in either part. The
+     * bound [Positive (Successor p')] is [add (Positive One) (Positive p')]
+     * by computation, turned round, so that the successor law reduces the
+     * goal to [i] at most [Positive p'].
+     *)
+    intros i h.
+    simpl in h.
+    pose proof (Bijunction_elimination_forward
+                  (Contains i (append (range_positive p') (Cons (Positive p') Nil)))
+                  (Contains i (range_positive p') \/ Contains i (Cons (Positive p') Nil))
+                  (contains_distributivity_over_append
+                     NatWithZero i (range_positive p') (Cons (Positive p') Nil))
+                  h) as h'.
+    change (Positive (Successor p'))
+      with (NatWithZero.add (Positive One) (Positive p')) in |- *.
+    rewrite (NatWithZero.add_commutativity (Positive One) (Positive p')) in |- *.
+    apply (Bijunction_elimination_backward
+             (NatWithZero.LessThan i (NatWithZero.add (Positive p') (Positive One)))
+             (NatWithZero.LessOrEqual i (Positive p'))
+             (NatWithZero.less_than_successor_specification i (Positive p'))).
+    unfold NatWithZero.LessOrEqual in |- *.
+    destruct h' as [h1 | h2].
+    + (* In the first part: below [Positive p'] by [IH]. *)
+      exact (Disjunction_right (IH i h1)).
+    + (* In the second part, which computes to [i = Positive p' \/ Falsum]. *)
+      simpl in h2.
+      destruct h2 as [e | f].
+      * exact (Disjunction_left e).
+      * contradiction.
+Qed.
+
+Lemma range_positive_containment_backward
+  : forall (p : Nat) (i : NatWithZero),
+      NatWithZero.LessThan i (Positive p) -> Contains i (range_positive p).
+Proof.
+  (* The context gains [p]; one goal per ctor, the second with [IH] for
+   * every [i].
+   *)
+  intros p.
+  induction p as [| p' IH] using Nat_induction.
+  - (* Below [Positive One] is [Zero] alone: a positive [i] would put a
+     * [Successor] against [One] in the witness equation.
+     *)
+    intros i h.
+    unfold NatWithZero.LessThan in h.
+    destruct h as [k e].
+    destruct i as [| q].
+    + simpl in |- *.
+      exact (Disjunction_left (Equijunction_reflexivity Zero)).
+    + (* [e] computes to [Positive (Nat.add q k) = Positive One]; the sum is
+       * a [Successor] whichever ctor [q] is.
+       *)
+      simpl in e.
+      pose proof (NatWithZero.positive_injectivity (Nat.add q k) One e) as e'.
+      destruct q as [| q'].
+      * simpl in e'.
+        discriminate.
+      * simpl in e'.
+        discriminate.
+  - (* The bound is [add (Positive One) (Positive p')] by computation,
+     * turned round, so that the successor law reads [h] as [i] at most
+     * [Positive p']: equality puts [i] in the second part, a strict step
+     * in the first by [IH].
+     *)
+    intros i h.
+    change (Positive (Successor p'))
+      with (NatWithZero.add (Positive One) (Positive p')) in h.
+    rewrite (NatWithZero.add_commutativity (Positive One) (Positive p')) in h.
+    pose proof (Bijunction_elimination_forward
+                  (NatWithZero.LessThan i (NatWithZero.add (Positive p') (Positive One)))
+                  (NatWithZero.LessOrEqual i (Positive p'))
+                  (NatWithZero.less_than_successor_specification i (Positive p')) h)
+      as h'.
+    simpl in |- *.
+    apply (Bijunction_elimination_backward
+             (Contains i (append (range_positive p') (Cons (Positive p') Nil)))
+             (Contains i (range_positive p') \/ Contains i (Cons (Positive p') Nil))
+             (contains_distributivity_over_append
+                NatWithZero i (range_positive p') (Cons (Positive p') Nil))).
+    unfold NatWithZero.LessOrEqual in h'.
+    destruct h' as [e | lt].
+    + apply Disjunction_right.
+      simpl in |- *.
+      exact (Disjunction_left e).
+    + exact (Disjunction_left (IH i lt)).
+Qed.
+
+Theorem range_containment_specification
+  : forall (n : NatWithZero) (i : NatWithZero),
+      Contains i (range n) <-> NatWithZero.LessThan i n.
+Proof.
+  (* The context gains [n] and [i]; one goal per ctor of [n]. *)
+  intros n i.
+  destruct n as [| p].
+  - (* [range Zero] is [Nil], which contains nothing, and nothing is below
+     * [Zero]: [|- Falsum <-> NatWithZero.LessThan i Zero] after computing
+     *)
+    simpl in |- *.
+    split.
+    + intro f.
+      contradiction.
+    + intro h.
+      unfold NatWithZero.LessThan in h.
+      destruct h as [k e].
+      pose proof (NatWithZero.add_positive_refutes_zero i k) as r.
+      unfold Unjunction in r.
+      pose proof (r e) as f.
+      contradiction.
+  - (* [range (Positive p)] computes to [range_positive p]. *)
+    simpl in |- *.
+    split.
+    + exact (range_positive_containment_forward  p i).
+    + exact (range_positive_containment_backward p i).
+Qed.
+
+(* The largest member of a list, [Zero] for [Nil]: [fold_right] over the
+ * [max] monoid.
+ *)
+(* [List NatWithZero -> NatWithZero] *)
+Definition maximum_of := fun (l : List NatWithZero) => fold_right NatWithZero.max Zero l.
+
+(* Every member is at most the maximum: the head by the left injection,
+ * the rest through the right injection and transitivity.
+ *)
+Theorem maximum_of_upper_bound
+  : forall (l : List NatWithZero),
+      All (fun (a : NatWithZero) => NatWithZero.LessOrEqual a (maximum_of l)) l.
+Proof.
+  (* The context gains [l]; [maximum_of] opens into its fold. *)
+  intros l.
+  unfold maximum_of in |- *.
+  induction l as [| a l' IH] using List_induction.
+  - simpl in |- *.
+    exact I.
+  - (* One step of the fold and of [All]:
+     * [|- NatWithZero.LessOrEqual a (NatWithZero.max a M)
+     *     /\ All (fun x => NatWithZero.LessOrEqual x (NatWithZero.max a M)) l']
+     * with [M] the fold of [l'].
+     *)
+    simpl in |- *.
+    split.
+    + exact (NatWithZero.max_left_injection a (fold_right NatWithZero.max Zero l')).
+    + exact (all_monotonicity NatWithZero
+               (fun (x : NatWithZero) =>
+                  NatWithZero.LessOrEqual x (fold_right NatWithZero.max Zero l'))
+               (fun (x : NatWithZero) =>
+                  NatWithZero.LessOrEqual x
+                    (NatWithZero.max a (fold_right NatWithZero.max Zero l')))
+               l'
+               (fun (x : NatWithZero)
+                    (h : NatWithZero.LessOrEqual x (fold_right NatWithZero.max Zero l')) =>
+                  NatWithZero.less_or_equal_transitivity
+                    x (fold_right NatWithZero.max Zero l')
+                    (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
+                    h
+                    (NatWithZero.max_right_injection
+                       a (fold_right NatWithZero.max Zero l')))
+               IH).
+Qed.
+
+(* A non-empty list contains its maximum: the head when the maximum of the
+ * tail is at most it, and otherwise that maximum, a member of the tail by
+ * [IH].
+ *)
+Theorem maximum_of_containment
+  : forall (l : List NatWithZero), ~ (l = Nil) -> Contains (maximum_of l) l.
+Proof.
+  (* The context gains [l]; [maximum_of] opens into its fold. *)
+  intros l.
+  unfold maximum_of in |- *.
+  induction l as [| a l' IH] using List_induction.
+  - (* [Nil] is [Nil]: the premise refutes itself. *)
+    intro h.
+    unfold Unjunction in h.
+    pose proof (h (Equijunction_reflexivity Nil)) as f.
+    contradiction.
+  - (* One goal per ctor of the tail. *)
+    intro h.
+    destruct l' as [| b l''].
+    + (* One element: the fold is [max a Zero], which is [a]. *)
+      simpl in |- *.
+      rewrite (NatWithZero.max_right_identity a) in |- *.
+      exact (Disjunction_left (Equijunction_reflexivity a)).
+    + (* One step of the fold and of [Contains], written out so that the
+       * fold of the tail stays as [IH] and [c] state it:
+       * [|- max a M = a \/ Contains (max a M) (Cons b l'')] with [M] the
+       * fold of [Cons b l'']; one goal per side of totality between [M]
+       * and [a].
+       *)
+      pose proof (IH (cons_nil_distinctness NatWithZero b l'')) as c.
+      change (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a
+              \/ Contains (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')))
+                          (Cons b l'')) in |- *.
+      pose proof (NatWithZero.less_or_equal_totality
+                    (fold_right NatWithZero.max Zero (Cons b l'')) a) as t.
+      destruct t as [le | ge].
+      * (* [M] is at most [a]: the maximum is [a], the head. *)
+        apply Disjunction_left.
+        exact (Bijunction_elimination_backward
+                 (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a)
+                 (NatWithZero.LessOrEqual (fold_right NatWithZero.max Zero (Cons b l'')) a)
+                 (NatWithZero.max_specification
+                    a (fold_right NatWithZero.max Zero (Cons b l''))) le).
+      * (* [a] is at most [M]: the maximum is [M], turned round by
+         * commutativity, which [c] places in the tail.
+         *)
+        apply Disjunction_right.
+        rewrite (NatWithZero.max_commutativity
+                   a (fold_right NatWithZero.max Zero (Cons b l''))) in |- *.
+        rewrite (Bijunction_elimination_backward
+                   (NatWithZero.max (fold_right NatWithZero.max Zero (Cons b l'')) a
+                    = fold_right NatWithZero.max Zero (Cons b l''))
+                   (NatWithZero.LessOrEqual a (fold_right NatWithZero.max Zero (Cons b l'')))
+                   (NatWithZero.max_specification
+                      (fold_right NatWithZero.max Zero (Cons b l'')) a) ge) in |- *.
+        exact c.
+Qed.
+
+(* The smallest member, [None] for [Nil]: the head alone, or the [min] of
+ * the head and the smallest of the tail. No identity is available for
+ * [min], so the empty case is an [Option].
+ *)
+(* [List NatWithZero -> Option NatWithZero] *)
+Fixpoint minimum_of (l : List NatWithZero) : Option NatWithZero :=
+  match l with
+  | Nil       => None
+  | Cons a l' =>
+      match minimum_of l' with
+      | None   => Some a
+      | Some m => Some (NatWithZero.min a m)
+      end
+  end.
+
+Lemma minimum_of_none_specification
+  : forall (l : List NatWithZero), minimum_of l = None <-> l = Nil.
+Proof.
+  (* The context gains [l]. *)
+  intros l.
+  split.
+  - (* A [Cons] answers [Some] whichever way its tail answers. *)
+    intro e.
+    destruct l as [| a l'].
+    + reflexivity.
+    + simpl in e.
+      destruct (minimum_of l') as [| m].
+      * discriminate.
+      * discriminate.
+  - (* [e : l = Nil] replaces [l], and [minimum_of Nil] computes. *)
+    intro e.
+    rewrite e in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
+(* The minimum is at most every member: [IH] bounds the tail by its own
+ * minimum, and [min] is at most both its arguments.
+ *)
+Theorem minimum_of_lower_bound
+  : forall (l : List NatWithZero) (m : NatWithZero),
+      minimum_of l = Some m
+      -> All (fun (a : NatWithZero) => NatWithZero.LessOrEqual m a) l.
+Proof.
+  (* The context gains [l]; one goal per ctor, the second with [IH] for
+   * every [m].
+   *)
+  intros l.
+  induction l as [| a l' IH] using List_induction.
+  - (* [minimum_of Nil] computes to [None]: [e] equates two distinct ctors. *)
+    intros m e.
+    simpl in e.
+    discriminate.
+  - (* [e] opens on the answer for [l']; one goal per ctor of it. *)
+    intros m e.
+    simpl in e.
+    destruct (minimum_of l') as [| m'] eqn:r.
+    + (* [l'] is [Nil] by the specification, and [e] computes to
+       * [Some a = Some m]: [m] is [a], at most itself and nothing else.
+       *)
+      simpl in e.
+      pose proof (Bijunction_elimination_forward
+                    (minimum_of l' = None) (l' = Nil)
+                    (minimum_of_none_specification l') r) as en.
+      pose proof (Option.some_injectivity NatWithZero a m e) as e'.
+      rewrite en in |- *.
+      rewrite e' in |- *.
+      simpl in |- *.
+      exact (Conjunction_introduction (NatWithZero.less_or_equal_reflexivity m) I).
+    + (* [e] computes to [Some (min a m') = Some m]; [m] turned round
+       * replaces it: [min a m'] is at most [a] by the left projection, and
+       * at most the members of [l'] through the right projection and
+       * [IH] at [m'], whose premise the case analysis has turned into
+       * [Some m' = Some m'].
+       *)
+      simpl in e.
+      pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
+      pose proof (Equijunction_symmetry e') as e''.
+      rewrite e'' in |- *.
+      simpl in |- *.
+      split.
+      * exact (NatWithZero.min_left_projection a m').
+      * exact (all_monotonicity NatWithZero
+                 (fun (x : NatWithZero) => NatWithZero.LessOrEqual m' x)
+                 (fun (x : NatWithZero) => NatWithZero.LessOrEqual (NatWithZero.min a m') x)
+                 l'
+                 (fun (x : NatWithZero) (h : NatWithZero.LessOrEqual m' x) =>
+                    NatWithZero.less_or_equal_transitivity
+                      (NatWithZero.min a m') m' x
+                      (NatWithZero.min_right_projection a m') h)
+                 (IH m' (Equijunction_reflexivity (Some m')))).
+Qed.
+
+(* A list contains its minimum: the head when the tail is empty or its
+ * minimum is not below the head, and otherwise that minimum, a member of
+ * the tail by [IH].
+ *)
+Theorem minimum_of_containment
+  : forall (l : List NatWithZero) (m : NatWithZero),
+      minimum_of l = Some m -> Contains m l.
+Proof.
+  (* The context gains [l]; one goal per ctor, the second with [IH] for
+   * every [m].
+   *)
+  intros l.
+  induction l as [| a l' IH] using List_induction.
+  - intros m e.
+    simpl in e.
+    discriminate.
+  - (* [e] opens on the answer for [l']; one goal per ctor of it. *)
+    intros m e.
+    simpl in e.
+    destruct (minimum_of l') as [| m'] eqn:r.
+    + (* [e] computes to [Some a = Some m]: [m] is the head. *)
+      simpl in e.
+      pose proof (Option.some_injectivity NatWithZero a m e) as e'.
+      simpl in |- *.
+      exact (Disjunction_left (Equijunction_symmetry e')).
+    + (* [e] computes to [Some (min a m') = Some m]; whichever of [a] and
+       * [m'] is below, [min] is it: the head, or a member of [l'] by [IH]
+       * at [m'], whose premise the case analysis has turned into
+       * [Some m' = Some m'].
+       *)
+      simpl in e.
+      pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
+      pose proof (Equijunction_symmetry e') as e''.
+      rewrite e'' in |- *.
+      simpl in |- *.
+      pose proof (NatWithZero.less_or_equal_totality a m') as t.
+      destruct t as [le | ge].
+      * apply Disjunction_left.
+        exact (Bijunction_elimination_backward
+                 (NatWithZero.min a m' = a) (NatWithZero.LessOrEqual a m')
+                 (NatWithZero.min_specification a m') le).
+      * apply Disjunction_right.
+        rewrite (NatWithZero.min_commutativity a m') in |- *.
+        rewrite (Bijunction_elimination_backward
+                   (NatWithZero.min m' a = m') (NatWithZero.LessOrEqual m' a)
+                   (NatWithZero.min_specification m' a) ge) in |- *.
+        exact (IH m' (Equijunction_reflexivity (Some m'))).
+Qed.
+
+(* The closed form of the sum of [Zero] up to [p]: twice it is [p] times
+ * one more. Each step adds the new last element at the end of the range,
+ * distributivity splits the doubled sum, and the two products join into
+ * the next one. The sum of the one added element is written out by
+ * [change], since [simpl] would also open [range_positive] one level too
+ * far for [IH].
+ *)
+Theorem sum_range_closed_form
+  : forall (p : Nat),
+      NatWithZero.mul (Positive (Successor One)) (sum (range (Positive (Successor p))))
+      = NatWithZero.mul (Positive p) (Positive (Successor p)).
+Proof.
+  (* [p] is either [One] or [Successor p']: one goal per ctor, and the
+   * second has [IH] for [p'] in its context.
+   *)
+  intros p.
+  induction p as [| p' IH] using Nat_induction.
+  - (* [range (Positive (Successor One))] is [Zero] then [Positive One],
+     * whose sum is [Positive One]; both sides compute to
+     * [Positive (Successor One)].
+     *)
+    unfold sum in |- *.
+    simpl in |- *.
+    reflexivity.
+  - (* The range gains [Positive (Successor p')] at the end; the sum is
+     * additive over the concatenation, and the sum of the one element is
+     * itself.
+     *)
+    change (range (Positive (Successor (Successor p'))))
+      with (append (range (Positive (Successor p'))) (Cons (Positive (Successor p')) Nil))
+      in |- *.
+    rewrite (sum_additivity_over_append
+               (range (Positive (Successor p'))) (Cons (Positive (Successor p')) Nil))
+      in |- *.
+    change (sum (Cons (Positive (Successor p')) Nil)) with (Positive (Successor p')) in |- *.
+    (* Distributivity splits the doubled sum, and [IH] replaces its first
+     * half; distributivity read right to left joins the two products.
+     *)
+    rewrite (NatWithZero.mul_left_distributivity_over_add
+               (Positive (Successor One))
+               (sum (range (Positive (Successor p')))) (Positive (Successor p'))) in |- *.
+    rewrite IH in |- *.
+    pose proof (Equijunction_symmetry
+                  (NatWithZero.mul_right_distributivity_over_add
+                     (Positive (Successor p')) (Positive p') (Positive (Successor One))))
+      as d.
+    rewrite d in |- *.
+    (* The joined factor computes to [Positive (Nat.add p' (Successor One))],
+     * which turned round computes to [Positive (Successor (Successor p'))];
+     * commutativity on the right makes both sides the same term.
+     *)
+    change (NatWithZero.add (Positive p') (Positive (Successor One)))
+      with (Positive (Nat.add p' (Successor One))) in |- *.
+    rewrite (Nat.add_commutativity p' (Successor One)) in |- *.
+    change (Nat.add (Successor One) p') with (Successor (Successor p')) in |- *.
+    rewrite (NatWithZero.mul_commutativity
+               (Positive (Successor p')) (Positive (Successor (Successor p')))) in |- *.
+    reflexivity.
+Qed.
+
+(* [count] answers [Zero] exactly when [p] answers [false] on every
+ * member.
+ *)
+Theorem count_all_specification
+  : forall (A : Type) (p : A -> Bool) (l : List A),
+      count p l = Zero <-> All (fun (a : A) => p a = false) l.
+Proof.
+  (* The context gains [A], [p] and [l]. *)
+  intros A p l.
+  induction l as [| a l' IH] using List_induction.
+  - (* Both sides compute: [|- Zero = Zero <-> Verum] *)
+    simpl in |- *.
+    split.
+    + intro e.
+      exact I.
+    + intro v.
+      reflexivity.
+  - (* Both sides open on [p a]: one goal per answer. *)
+    simpl in |- *.
+    destruct (p a) as [|].
+    + (* A [true] answer counts one, which no [Zero] is, and refutes
+       * [true = false]: both halves close by contradiction.
+       *)
+      simpl in |- *.
+      split.
+      * intro e.
+        pose proof (NatWithZero.add_positive_refutes_zero (count p l') One) as r.
+        unfold Unjunction in r.
+        pose proof (r e) as f.
+        contradiction.
+      * intro c.
+        destruct c as [e f].
+        discriminate.
+    + (* A [false] answer counts nothing and holds: [IH] on the rest. *)
+      simpl in |- *.
+      split.
+      * intro e.
+        exact (Conjunction_introduction
+                 (Equijunction_reflexivity false)
+                 (Bijunction_elimination_forward
+                    (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH e)).
+      * intro c.
+        destruct c as [e all'].
+        exact (Bijunction_elimination_backward
+                 (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH all').
+Qed.
+
 End List.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
