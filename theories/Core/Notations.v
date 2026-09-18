@@ -20,11 +20,12 @@ Open Scope jwa_type_scope.
 Declare Scope jwa_list_scope.
 Delimit Scope jwa_list_scope with list.
 
-(* A third scope for the pair notations, delimited but not opened like the
-   list one. [A * B] is not in it: a type former belongs in
-   [jwa_type_scope] beside [->]. *)
-Declare Scope jwa_pair_scope.
-Delimit Scope jwa_pair_scope with pair.
+(* A third scope for the product notations, delimited but not opened like
+ * the list one. [A * B] is not in it: a type former belongs in
+ * [jwa_type_scope] beside [->].
+ *)
+Declare Scope jwa_product_scope.
+Delimit Scope jwa_product_scope with product.
 
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%nat],
