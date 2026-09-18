@@ -254,3 +254,53 @@ Definition data_all_delivers_integer_embedding : Integer
 
 Definition data_all_delivers_integer_equal : Bool
   := Integer.equal (Negative One) (Integer.negate (Integer.Positive One)).
+
+Definition data_all_delivers_range : List NatWithZero := List.range (Positive One).
+
+Definition data_all_delivers_extrema : NatWithZero * Option NatWithZero
+  := Pair_introduction (List.maximum_of (Cons Zero Nil)) (List.minimum_of (Cons Zero Nil)).
+
+(* The closed form at [p := One], as a check that the theorem is offered. *)
+Definition data_all_delivers_gauss
+  : NatWithZero.mul (Positive (Successor One))
+      (List.sum (List.range (Positive (Successor One))))
+    = NatWithZero.mul (Positive One) (Positive (Successor One))
+  := List.sum_range_closed_form One.
+
+Definition data_all_delivers_divides : Prop := NatWithZero.Divides (Positive One) Zero.
+
+(* The divisibility instance is found by resolution, through the partial
+ * order's antisymmetry field.
+ *)
+Definition data_all_delivers_divides_partial_order
+  : forall (m : NatWithZero) (n : NatWithZero),
+      NatWithZero.Divides m n -> NatWithZero.Divides n m -> m = n
+  := Antisymmetric.antisymmetry.
+
+Definition data_all_delivers_parity : Prop
+  := NatWithZero.Even Zero /\ Integer.Odd (Negative One).
+
+(* The semiring, group, ring and the Boolean ring instances are found by
+ * resolution, one per operation.
+ *)
+Definition data_all_delivers_semiring
+  : forall (n : NatWithZero), NatWithZero.mul Zero n = Zero
+  := Semiring.left_absorption.
+
+Definition data_all_delivers_group
+  : forall (x : Integer), Integer.add (Integer.negate x) x = Integer.Zero
+  := Group.left_inverse.
+
+Definition data_all_delivers_ring
+  : forall (x : Integer) (y : Integer) (z : Integer),
+      Integer.mul x (Integer.add y z) = Integer.add (Integer.mul x y) (Integer.mul x z)
+  := Ring.left_distributivity.
+
+Definition data_all_delivers_boolean_ring
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      Bool.and b1 (Bool.xor b2 b3) = Bool.xor (Bool.and b1 b2) (Bool.and b1 b3)
+  := Ring.left_distributivity.
+
+Definition data_all_delivers_mul_cancellative
+  : forall (k : Nat) (m : Nat) (n : Nat), Nat.mul k m = Nat.mul k n -> m = n
+  := Cancellative.left_cancellation.
