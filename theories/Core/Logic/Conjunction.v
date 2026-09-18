@@ -133,4 +133,9 @@ Proof.
       exact b2.
 Qed.
 
+(* [Conjunction.distributivity_over_disjunction] is stated in
+ * [Core.Logic.Disjunction], the lowest file that knows both connectives,
+ * in a second module of this name.
+ *)
+
 End Conjunction.
