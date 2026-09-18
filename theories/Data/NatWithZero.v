@@ -164,7 +164,7 @@ Proof.
   (* The context gains [m] and [n]: [|- ~ (add m (Positive n) = Zero)] *)
   intros m n.
   (* [|- add m (Positive n) = Zero -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
   destruct m as [| m'].
   - (* [add Zero] is the identity: [|- Positive n = Zero -> Falsum] *)
@@ -218,7 +218,7 @@ Proof.
         rewrite (Nat.add_commutativity n' k') in e''.
         (* [h : Nat.add k' n' = n' -> Falsum], once unfolded *)
         pose proof (Nat.add_identity_absence k' n') as h.
-        unfold Unjunction in h.
+        unfold Negation in h.
         (* [f : Falsum] *)
         pose proof (h e'') as f.
         (* [f : Falsum], which is what [contradiction] looks for. *)
@@ -237,7 +237,7 @@ Proof.
         rewrite (Nat.add_commutativity n' m') in e'.
         (* [h : Nat.add m' n' = n' -> Falsum], once unfolded *)
         pose proof (Nat.add_identity_absence m' n') as h.
-        unfold Unjunction in h.
+        unfold Negation in h.
         (* [f : Falsum] *)
         pose proof (h e') as f.
         (* [f : Falsum], which is what [contradiction] looks for. *)
@@ -738,7 +738,7 @@ Proof.
   (* The context gains [n]: [|- ~ (LessThan n n)] *)
   intros n.
   (* [|- LessThan n n -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [h]; it opens into [k] and [e : add n (Positive k) = n]. *)
   intro h.
   unfold LessThan in h.
@@ -758,7 +758,7 @@ Proof.
     rewrite (Nat.add_commutativity n' k) in e'.
     (* [i : Nat.add k n' = n' -> Falsum], once unfolded *)
     pose proof (Nat.add_identity_absence k n') as i.
-    unfold Unjunction in i.
+    unfold Negation in i.
     (* [f : Falsum] *)
     pose proof (i e') as f.
     (* [f : Falsum], which is what [contradiction] looks for. *)
@@ -807,13 +807,13 @@ Proof.
      [|- ~ (LessThan n m)] *)
   intros m n h1.
   (* [|- LessThan n m -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [h2 : LessThan n m]: [|- Falsum] *)
   intro h2.
   (* The two compose into [h : LessThan m m], against irreflexivity. *)
   pose proof (less_than_transitivity m n m h1 h2) as h.
   pose proof (less_than_irreflexivity m) as i.
-  unfold Unjunction in i.
+  unfold Negation in i.
   pose proof (i h) as f.
   (* [f : Falsum], which is what [contradiction] looks for. *)
   contradiction.
@@ -1054,7 +1054,7 @@ Proof.
       exact (Equijunction.symmetry e2).
     + (* Two strict steps in opposite directions contradict asymmetry. *)
       pose proof (less_than_asymmetry m n lt1) as h.
-      unfold Unjunction in h.
+      unfold Negation in h.
       pose proof (h lt2) as f.
       (* [f : Falsum], which is what [contradiction] looks for. *)
       contradiction.
@@ -1210,7 +1210,7 @@ Proof.
       * (* [LessThan Zero Zero] contradicts irreflexivity. *)
         intro h.
         pose proof (less_than_irreflexivity Zero) as i.
-        unfold Unjunction in i.
+        unfold Negation in i.
         pose proof (i h) as f.
         contradiction.
     + split.
@@ -1359,7 +1359,7 @@ Proof.
   (* The context gains [m], [n] and [e : equal m n = false]: [|- ~ (m = n)] *)
   intros m n e.
   (* [|- m = n -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [h : m = n]: [|- Falsum] *)
   intro h.
   (* [equal_specification] turns [h] into [equal m n = true], which
@@ -1427,12 +1427,12 @@ Proof.
            irreflexivity. *)
         rewrite e in gt.
         pose proof (less_than_irreflexivity n) as i.
-        unfold Unjunction in i.
+        unfold Negation in i.
         pose proof (i gt) as f.
         contradiction.
       * (* [lt] and [gt] contradict asymmetry. *)
         pose proof (less_than_asymmetry m n lt) as a.
-        unfold Unjunction in a.
+        unfold Negation in a.
         pose proof (a gt) as f.
         contradiction.
 Qed.
@@ -1536,12 +1536,12 @@ Proof.
       * (* [e : m = n] makes [gt : LessThan n n], against irreflexivity. *)
         rewrite e in gt.
         pose proof (less_than_irreflexivity n) as i.
-        unfold Unjunction in i.
+        unfold Negation in i.
         pose proof (i gt) as f.
         contradiction.
       * (* [lt] and [gt] run opposite ways, against asymmetry. *)
         pose proof (less_than_asymmetry m n lt) as a.
-        unfold Unjunction in a.
+        unfold Negation in a.
         pose proof (a gt) as f.
         contradiction.
 Qed.
@@ -1582,11 +1582,11 @@ Proof.
       destruct h as [e | gt].
       * rewrite e in lt.
         pose proof (less_than_irreflexivity m) as i.
-        unfold Unjunction in i.
+        unfold Negation in i.
         pose proof (i lt) as f.
         contradiction.
       * pose proof (less_than_asymmetry m n lt) as a.
-        unfold Unjunction in a.
+        unfold Negation in a.
         pose proof (a gt) as f.
         contradiction.
     + reflexivity.
@@ -2280,7 +2280,7 @@ Proof.
         destruct k as [| k'].
         { (* [k = One] makes [ek] the equality [E] refutes. *)
           pose proof (equal_refutation (add r (Positive One)) (Positive d) E) as ne.
-          unfold Unjunction in ne.
+          unfold Negation in ne.
           pose proof (ne ek) as f.
           contradiction. }
         { (* [k'] is the new witness: associativity opens the left side and

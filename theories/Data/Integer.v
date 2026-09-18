@@ -1328,7 +1328,7 @@ Theorem less_than_irreflexivity : forall (n : Integer), ~ (LessThan n n).
 Proof.
   (* The context gains [n]: [|- ~ (LessThan n n)] *)
   intros n.
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [h]; it opens into [k] and [e : add n (Positive k) = n]. *)
   intro h.
   unfold LessThan in h.
@@ -1371,11 +1371,11 @@ Proof.
   (* The context gains [m], [n], [h1] and, once unfolded, [h2]; the two
      compose to [LessThan m m], which irreflexivity refutes. *)
   intros m n h1.
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   intro h2.
   pose proof (less_than_transitivity m n m h1 h2) as h.
   pose proof (less_than_irreflexivity m) as i.
-  unfold Unjunction in i.
+  unfold Negation in i.
   pose proof (i h) as f.
   contradiction.
 Qed.
@@ -1747,7 +1747,7 @@ Proof.
     + exact (Equijunction.symmetry e2).
     + (* Two strict steps in opposite directions contradict asymmetry. *)
       pose proof (less_than_asymmetry m n lt1) as h.
-      unfold Unjunction in h.
+      unfold Negation in h.
       pose proof (h lt2) as f.
       contradiction.
 Qed.
@@ -1804,7 +1804,7 @@ Theorem equal_refutation
 Proof.
   (* The context gains [m], [n] and [e : equal m n = false]: [|- ~ (m = n)] *)
   intros m n e.
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   intro h.
   (* [equal_specification] turns [h] into [equal m n = true], which replaces
      the left side of [e]: [e : true = false] *)

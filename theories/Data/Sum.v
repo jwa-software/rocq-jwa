@@ -104,7 +104,7 @@ Proof.
   (* The context gains [A], [B], [a] and [b]: [|- ~ (Sum_left a = Sum_right b)] *)
   intros A B a b.
   (* [|- Sum_left a = Sum_right b -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [e : Sum_left a = Sum_right b]: [|- Falsum] *)
   intro e.
   (* [e] equates two distinct ctors, which closes any goal. *)

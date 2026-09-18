@@ -2,12 +2,12 @@
 
 (* [Core.All] would be circular from inside [Core]; [Core.Notations] reserves
    the level that the notation below needs, [Core.Ltac] carries the tactic
-   language, [Core.Logic.Subjunction] carries [->], [Core.Logic.Unjunction]
+   language, [Core.Logic.Subjunction] carries [->], [Core.Logic.Negation]
    carries [~], [Core.Logic.Bijunction] carries [<->]. *)
 From jwa Require Import Core.Notations.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Logic.Subjunction.
-From jwa Require Import Core.Logic.Unjunction.
+From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Logic.Bijunction.
 
 (* Abjunction is material nonimplication: [A] holds and [B] does not, the
@@ -33,7 +33,7 @@ Proof.
   destruct h as [a not_b].
   (* [not_b] goes from [~ B] to [B -> Falsum]; the goal from [~ (A -> B)]
      to [(A -> B) -> Falsum]. *)
-  unfold Unjunction in not_b |- *.
+  unfold Negation in not_b |- *.
   (* The context gains [ab : A -> B]: [|- Falsum] *)
   intro ab.
   (* [not_b] turns a proof of [B] into a proof of [Falsum]: [|- B] *)
@@ -52,13 +52,13 @@ Proof.
   (* The context gains [ab : A -> B]: [|- ~ (A -/> B)] *)
   intro ab.
   (* [|- A -/> B -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [h : A -/> B]: [|- Falsum] *)
   intro h.
   (* [h] splits into [a : A] and [not_b : ~ B]. *)
   destruct h as [a not_b].
   (* [not_b] goes from [~ B] to [B -> Falsum]. *)
-  unfold Unjunction in not_b.
+  unfold Negation in not_b.
   (* [not_b] turns a proof of [B] into a proof of [Falsum]: [|- B] *)
   apply not_b.
   (* [ab] turns a proof of [A] into a proof of [B]: [|- A] *)
@@ -71,13 +71,13 @@ Qed.
    proof of [A] into a refutation of [~ B]. The two halves are lemmas, the
    [<->] the theorem. *)
 
-Lemma Unjunction_over_Abjunction_forward
+Lemma Negation_over_Abjunction_forward
   : forall (A : Prop) (B : Prop), ~ (A -/> B) -> A -> ~ ~ B.
 Proof.
   (* The context gains [A] and [B]: [|- ~ (A -/> B) -> A -> ~ ~ B] *)
   intros A B.
   (* [|- (A -/> B -> Falsum) -> A -> (B -> Falsum) -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [h : A -/> B -> Falsum]:
      [|- A -> (B -> Falsum) -> Falsum] *)
   intro h.
@@ -97,13 +97,13 @@ Proof.
     exact not_b.
 Qed.
 
-Lemma Unjunction_over_Abjunction_backward
+Lemma Negation_over_Abjunction_backward
   : forall (A : Prop) (B : Prop), (A -> ~ ~ B) -> ~ (A -/> B).
 Proof.
   (* The context gains [A] and [B]: [|- (A -> ~ ~ B) -> ~ (A -/> B)] *)
   intros A B.
   (* [|- (A -> (B -> Falsum) -> Falsum) -> A -/> B -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The context gains [f : A -> (B -> Falsum) -> Falsum]:
      [|- A -/> B -> Falsum] *)
   intro f.
@@ -120,7 +120,7 @@ Proof.
     exact not_b.
 Qed.
 
-Theorem Unjunction_over_Abjunction
+Theorem Negation_over_Abjunction
   : forall (A : Prop) (B : Prop), ~ (A -/> B) <-> (A -> ~ ~ B).
 Proof.
   (* The context gains [A] and [B]: [|- ~ (A -/> B) <-> (A -> ~ ~ B)] *)
@@ -129,12 +129,12 @@ Proof.
      goals: [|- ~ (A -/> B) -> A -> ~ ~ B] and
      [|- (A -> ~ ~ B) -> ~ (A -/> B)]. *)
   split.
-  - (* [Unjunction_over_Abjunction_forward A B] is a proof of the goal as it
+  - (* [Negation_over_Abjunction_forward A B] is a proof of the goal as it
        stands. *)
-    exact (Unjunction_over_Abjunction_forward A B).
-  - (* [Unjunction_over_Abjunction_backward A B] is a proof of the goal as
+    exact (Negation_over_Abjunction_forward A B).
+  - (* [Negation_over_Abjunction_backward A B] is a proof of the goal as
        it stands. *)
-    exact (Unjunction_over_Abjunction_backward A B).
+    exact (Negation_over_Abjunction_backward A B).
 Qed.
 
 (* [<->] is respected by [-/>]: the held side and the refuted side each
@@ -171,7 +171,7 @@ Proof.
       exact a1.
     + (* [not_b1] goes from [~ B1] to [B1 -> Falsum]; the goal from [~ B2]
          to [B2 -> Falsum]. *)
-      unfold Unjunction in not_b1 |- *.
+      unfold Negation in not_b1 |- *.
       (* The context gains [b2 : B2]: [|- Falsum] *)
       intro b2.
       (* [not_b1] turns a proof of [B1] into a proof of [Falsum]: [|- B1] *)
@@ -192,7 +192,7 @@ Proof.
       exact a2.
     + (* [not_b2] goes from [~ B2] to [B2 -> Falsum]; the goal from [~ B1]
          to [B1 -> Falsum]. *)
-      unfold Unjunction in not_b2 |- *.
+      unfold Negation in not_b2 |- *.
       (* The context gains [b1 : B1]: [|- Falsum] *)
       intro b1.
       (* [not_b2] turns a proof of [B2] into a proof of [Falsum]: [|- B2] *)

@@ -520,7 +520,7 @@ Proof.
   (* The context gains [A] and [a]: [|- ~ Contains a Nil] *)
   intros A a.
   (* [|- Contains a Nil -> Falsum] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* [Contains a Nil] computes: [|- Falsum -> Falsum] *)
   simpl in |- *.
   (* The context gains [f : Falsum]: [|- Falsum] *)
@@ -2261,7 +2261,7 @@ Proof.
       (* [h : ~ (NatWithZero.add (length l2') (Positive One) = Zero)] *)
       pose proof (NatWithZero.add_positive_refutes_zero (length l2') One) as h.
       (* [h : NatWithZero.add (length l2') (Positive One) = Zero -> Falsum] *)
-      unfold Unjunction in h.
+      unfold Negation in h.
       (* [f : Falsum] *)
       pose proof (h e') as f.
       (* [f : Falsum], which is what [contradiction] looks for. *)
@@ -2277,7 +2277,7 @@ Proof.
       (* [h : ~ (NatWithZero.add (length l1') (Positive One) = Zero)] *)
       pose proof (NatWithZero.add_positive_refutes_zero (length l1') One) as h.
       (* [h : NatWithZero.add (length l1') (Positive One) = Zero -> Falsum] *)
-      unfold Unjunction in h.
+      unfold Negation in h.
       (* [f : Falsum] *)
       pose proof (h e) as f.
       (* [f : Falsum], which is what [contradiction] looks for. *)
@@ -2496,7 +2496,7 @@ Proof.
     unfold NatWithZero.LessThan in h.
     destruct h as [k e].
     pose proof (NatWithZero.add_positive_refutes_zero i k) as r.
-    unfold Unjunction in r.
+    unfold Negation in r.
     pose proof (r e) as f.
     contradiction.
   - (* One goal per shape of the index. *)
@@ -3238,7 +3238,7 @@ Proof.
    * two distinct ctors.
    *)
   intros A a l.
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   intro e.
   discriminate.
 Qed.
@@ -3432,7 +3432,7 @@ Proof.
       unfold NatWithZero.LessThan in h.
       destruct h as [k e].
       pose proof (NatWithZero.add_positive_refutes_zero i k) as r.
-      unfold Unjunction in r.
+      unfold Negation in r.
       pose proof (r e) as f.
       contradiction.
   - (* [range (Positive p)] computes to [range_positive p]. *)
@@ -3500,7 +3500,7 @@ Proof.
   induction l as [| a l' IH] using List_induction.
   - (* [Nil] is [Nil]: the premise refutes itself. *)
     intro h.
-    unfold Unjunction in h.
+    unfold Negation in h.
     pose proof (h (Equijunction.reflexivity Nil)) as f.
     contradiction.
   - (* One goal per ctor of the tail. *)
@@ -3774,7 +3774,7 @@ Proof.
       split.
       * intro e.
         pose proof (NatWithZero.add_positive_refutes_zero (count p l') One) as r.
-        unfold Unjunction in r.
+        unfold Negation in r.
         pose proof (r e) as f.
         contradiction.
       * intro c.

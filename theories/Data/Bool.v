@@ -20,7 +20,7 @@ Inductive Bool : Type :=
 Theorem Bool_distinctness : ~ (true = false).
 Proof.
   (* The goal goes from [~ (true = false)] to [true = false -> Falsum]. *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* The goal goes from [true = false -> Falsum] to [Falsum], and the context
      gains [e : true = false]. *)
   intro e.
@@ -266,14 +266,14 @@ Proof.
       destruct h as [f _ | _ f]. exact f. exact f.
 Qed.
 
-Theorem assert_unjunction
+Theorem assert_negation
   : forall (b : Bool), Assert (negate b) <-> ~ Assert b.
 Proof.
   (* The context gains [b]: [|- Assert (negate b) <-> ~ Assert b] *)
   intros b.
   (* [~] is a definition and has to come off before the arrow underneath is
      visible: [|- Assert (negate b) <-> (Assert b -> Falsum)] *)
-  unfold Unjunction in |- *.
+  unfold Negation in |- *.
   (* Two cases, one per ctor. *)
   destruct b as [|]; simpl in |- *.
   - (* [|- Falsum <-> (Verum -> Falsum)] *)
