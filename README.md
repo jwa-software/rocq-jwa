@@ -37,14 +37,13 @@ A layer may group related modules in a subdirectory. `theories/Core/dune` carrie
 
 | Layer | Purpose | Depends on |
 |:---|:---|:---|
-| `jwa.Core` | Base definitions, notations and the minimal lemmas everything else shares | -- |
+| `jwa.Core` | Base definitions, notations, the instance hint database and the minimal lemmas everything else shares | -- |
 | `jwa.Tactics` | Ltac and Ltac2 tactics | Core |
-| `jwa.Structures` | Type classes and interfaces: equality, orders, monoids, functors, monads, decidability | Core |
-| `jwa.Relation` | Orders, well-founded and equivalence relations | Core, Structures |
-| `jwa.Data` | Concrete data structures: booleans, naturals, options, lists, vectors, maps | Core, Tactics, Structures, Relation |
+| `jwa.Algebra` | Algebraic structures, from semigroups to rings, and their theory | Core |
+| `jwa.Relation` | Orders, well-founded and equivalence relations | Core |
+| `jwa.Data` | Concrete data structures: booleans, naturals, options, lists, vectors, maps, and the functor class they instantiate | Core, Tactics, Algebra, Relation |
 | `jwa.Assumption` | Axioms: classical principles, extensionality, decidability | Core |
-| `jwa.Algebra` | Algebraic structures and their theory | Core, Tactics, Structures, Relation, Data |
-| `jwa.Programming` | Monad instances, effects, extraction-oriented code | Core, Tactics, Structures, Relation, Data |
+| `jwa.Programming` | Monad instances, effects, extraction-oriented code | Core, Tactics, Algebra, Relation, Data |
 | `jwa.All` | `From jwa Require Import All` brings in every layer except Assumption | every layer but Assumption |
 
 `Assumption` is the only layer that may introduce axioms, and no other layer depends on it; its name is the one `Print Assumptions` uses for them. Import it explicitly with `From jwa Require Import Assumption.All` when a development needs them; everything else stays axiom-free under `Print Assumptions`.
