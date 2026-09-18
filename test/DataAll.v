@@ -195,3 +195,62 @@ Definition data_all_delivers_nat_max_monoid
 Definition data_all_delivers_division : NatWithZero * NatWithZero
   := Pair_introduction (NatWithZero.divide (Positive One) One)
                        (NatWithZero.modulo (Positive One) One).
+
+Definition data_all_delivers_nth : Option Bool := List.nth (Cons true Nil) Zero.
+
+Definition data_all_delivers_split_at : List Bool * List Bool
+  := List.split_at (Positive One) (Cons true (Cons false Nil)).
+
+Definition data_all_delivers_replicate : List Bool := List.replicate (Positive One) true.
+
+Definition data_all_delivers_list_sum : NatWithZero
+  := NatWithZero.add (List.sum (Cons (Positive One) Nil)) (List.product Nil).
+
+Definition data_all_delivers_count : NatWithZero
+  := List.count (fun (b : Bool) => b) (Cons true Nil).
+
+(* The sorting theorem instantiated on [NatWithZero] through [at_most],
+   whose two laws discharge the premises. *)
+Definition data_all_delivers_sorting
+  : forall (l : List NatWithZero),
+      List.Sorted NatWithZero.at_most (List.insertion_sort NatWithZero.at_most l)
+  := List.insertion_sort_sortedness NatWithZero NatWithZero.at_most
+       NatWithZero.at_most_totality NatWithZero.at_most_transitivity.
+
+(* [Integer] is exported before [NatWithZero], so the bare [Zero] and
+   [Positive] above are the latter's; the integer ctors are reached
+   qualified, except [Negative], which is only theirs. *)
+Definition data_all_delivers_integer : Integer
+  := Integer.add (Negative One) (Integer.Positive One).
+
+(* [+], [*], [<] and [>=] in the integer scope, reached through its
+   delimiter. *)
+Definition data_all_delivers_integer_operations : Integer
+  := (Integer.Zero + Negative One * Integer.Positive One)%integer.
+
+Definition data_all_delivers_integer_order : Prop
+  := (Negative One < Integer.Zero)%integer /\ (Integer.Positive One >= Integer.Zero)%integer.
+
+(* The integer instances are found by resolution, one per operation. *)
+Definition data_all_delivers_integer_monoid
+  : forall (x : Integer), Integer.add Integer.Zero x = x
+  := Monoid.left_identity.
+
+Definition data_all_delivers_integer_mul_monoid
+  : forall (x : Integer), Integer.mul (Integer.Positive One) x = x
+  := Monoid.left_identity.
+
+Definition data_all_delivers_integer_cancellative
+  : forall (k : Integer) (m : Integer) (n : Integer),
+      Integer.add k m = Integer.add k n -> m = n
+  := Cancellative.left_cancellation.
+
+Definition data_all_delivers_integer_total_order
+  : forall (m : Integer) (n : Integer), Integer.LessOrEqual m n \/ Integer.LessOrEqual n m
+  := Total.totality.
+
+Definition data_all_delivers_integer_embedding : Integer
+  := Integer.from_nat_with_zero (Positive One).
+
+Definition data_all_delivers_integer_equal : Bool
+  := Integer.equal (Negative One) (Integer.negate (Integer.Positive One)).
