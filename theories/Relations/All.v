@@ -8,6 +8,12 @@
 From jwa Require Export Core.All.
 
 From jwa Require Export Relations.Reflexive.
+From jwa Require Export Relations.Irreflexive.
 From jwa Require Export Relations.Symmetric.
+From jwa Require Export Relations.Antisymmetric.
 From jwa Require Export Relations.Transitive.
+From jwa Require Export Relations.Total.
 From jwa Require Export Relations.Equivalence.
+From jwa Require Export Relations.StrictOrder.
+From jwa Require Export Relations.PartialOrder.
+From jwa Require Export Relations.TotalOrder.

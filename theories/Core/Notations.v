@@ -26,6 +26,17 @@ Delimit Scope jwa_list_scope with list.
 Declare Scope jwa_pair_scope.
 Delimit Scope jwa_pair_scope with pair.
 
+(* One scope per numeral type, delimited but not opened, so that [+] and [*]
+   name that type's operations only under its delimiter: [(m + n)%nat],
+   [(m + n)%nat_with_zero]. Two types cannot share a scope, since one
+   spelling would then have two meanings. *)
+Declare Scope jwa_nat_scope.
+Delimit Scope jwa_nat_scope with nat.
+Declare Scope jwa_nat_with_zero_scope.
+Delimit Scope jwa_nat_with_zero_scope with nat_with_zero.
+Declare Scope jwa_integer_scope.
+Delimit Scope jwa_integer_scope with integer.
+
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [exists] beyond them, so a formula reads without parentheses; [_\/_] sits
    between [/\] and [\/] as [^^] sits between [&&] and [||]. The quotes make
@@ -33,6 +44,14 @@ Delimit Scope jwa_pair_scope with pair.
 Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
+  (at level 70, no associativity).
+Reserved Notation "x < y"
+  (at level 70, no associativity).
+Reserved Notation "x <= y"
+  (at level 70, no associativity).
+Reserved Notation "x > y"
+  (at level 70, no associativity).
+Reserved Notation "x >= y"
   (at level 70, no associativity).
 Reserved Notation "x /\ y"
   (at level 80, right associativity).

@@ -1,11 +1,16 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* [Core.All] carries [->], [~] and [=]: with [-noinit] a file has only what
-   it requires. [Structures.Semigroup] and [Structures.Monoid] are the classes
-   the instances at the bottom fill. *)
+   it requires. [Structures.Semigroup], [Structures.Monoid] and
+   [Structures.Commutative] are the classes the instances at the bottom
+   fill. *)
 From jwa Require Import Core.All.
 From jwa Require Import Structures.Semigroup.
 From jwa Require Import Structures.Monoid.
+From jwa Require Import Structures.Commutative.
+From jwa Require Import Structures.AbelianGroup.
+From jwa Require Import Structures.Group.
+From jwa Require Import Structures.Ring.
 
 (* [true] first: [if] takes the first constructor as its [then] branch. *)
 Inductive Bool : Type :=
@@ -71,37 +76,14 @@ Theorem and_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
       and (and b1 b2) b3 = and b1 (and b2 b3).
 Proof.
-  (* The context gains [b1], [b2] and [b3]:
-     [|- and (and b1 b2) b3 = and b1 (and b2 b3)] *)
   intros b1 b2 b3.
-  (* Eight cases, one per assignment of the three ctors; both sides reduce to
-     the same ctor in every one. *)
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
-Qed.
-
-Lemma and_true_left : forall (b : Bool), and true b = b.
-Proof.
-  (* The context gains [b]. [and] matches its first argument, and [true]
-     returns the second untouched: [|- b = b] *)
-  intros b.
-  (* Both sides are the same term. *)
-  reflexivity.
-Qed.
-
-Lemma and_true_right : forall (b : Bool), and b true = b.
-Proof.
-  (* The context gains [b]: [|- and b true = b] *)
-  intros b.
-  (* Nothing reduces until [b] is a ctor, since [and] matches it first. *)
-  destruct b as [|]; reflexivity.
 Qed.
 
 Theorem and_commutativity
   : forall (b1 : Bool) (b2 : Bool), and b1 b2 = and b2 b1.
 Proof.
-  (* The context gains [b1] and [b2]: [|- and b1 b2 = and b2 b1] *)
   intros b1 b2.
-  (* Four cases; both sides reduce to the same ctor in every one. *)
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
@@ -109,35 +91,13 @@ Theorem or_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
       or (or b1 b2) b3 = or b1 (or b2 b3).
 Proof.
-  (* The context gains [b1], [b2] and [b3]:
-     [|- or (or b1 b2) b3 = or b1 (or b2 b3)] *)
   intros b1 b2 b3.
-  (* Eight cases; both sides reduce to the same ctor in every one. *)
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
-Qed.
-
-Lemma or_false_left : forall (b : Bool), or false b = b.
-Proof.
-  (* The context gains [b]. [or] matches its first argument, and [false]
-     returns the second untouched: [|- b = b] *)
-  intros b.
-  (* Both sides are the same term. *)
-  reflexivity.
-Qed.
-
-Lemma or_false_right : forall (b : Bool), or b false = b.
-Proof.
-  (* The context gains [b]: [|- or b false = b] *)
-  intros b.
-  (* Nothing reduces until [b] is a ctor, since [or] matches it first. *)
-  destruct b as [|]; reflexivity.
 Qed.
 
 Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool), or b1 b2 = or b2 b1.
 Proof.
-  (* The context gains [b1] and [b2]: [|- or b1 b2 = or b2 b1] *)
   intros b1 b2.
-  (* Four cases; both sides reduce to the same ctor in every one. *)
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
@@ -145,38 +105,14 @@ Theorem xor_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
       xor (xor b1 b2) b3 = xor b1 (xor b2 b3).
 Proof.
-  (* The context gains [b1], [b2] and [b3]:
-     [|- xor (xor b1 b2) b3 = xor b1 (xor b2 b3)] *)
   intros b1 b2 b3.
-  (* Eight cases; [xor] and [negate] both reduce on ctors, so both sides
-     reduce to the same ctor in every one. *)
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
-Qed.
-
-Lemma xor_false_left : forall (b : Bool), xor false b = b.
-Proof.
-  (* The context gains [b]. [xor] matches its first argument, and [false]
-     returns the second untouched: [|- b = b] *)
-  intros b.
-  (* Both sides are the same term. *)
-  reflexivity.
-Qed.
-
-Lemma xor_false_right : forall (b : Bool), xor b false = b.
-Proof.
-  (* The context gains [b]: [|- xor b false = b] *)
-  intros b.
-  (* Nothing reduces until [b] is a ctor, since [xor] matches it first; the
-     [true] case goes through [negate false]. *)
-  destruct b as [|]; reflexivity.
 Qed.
 
 Theorem xor_commutativity
   : forall (b1 : Bool) (b2 : Bool), xor b1 b2 = xor b2 b1.
 Proof.
-  (* The context gains [b1] and [b2]: [|- xor b1 b2 = xor b2 b1] *)
   intros b1 b2.
-  (* Four cases; both sides reduce to the same ctor in every one. *)
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
@@ -185,11 +121,28 @@ Qed.
    [Group] class. *)
 Theorem xor_self_inverse : forall (b : Bool), xor b b = false.
 Proof.
-  (* The context gains [b]: [|- xor b b = false] *)
   intros b.
-  (* Two cases: [xor true true] is [negate true], [xor false false] is
-     [false]. *)
   destruct b as [|]; reflexivity.
+Qed.
+
+(* [and] distributes over [xor] on both sides: the law that makes
+ * [(Bool, xor, and)] a ring, a truth table as the laws above.
+ *)
+
+Theorem and_left_distributivity_over_xor
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3).
+Proof.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+Qed.
+
+Theorem and_right_distributivity_over_xor
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1).
+Proof.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
 (* The bridge from a computed answer to a statement. [Assert true] is [Verum]
@@ -364,24 +317,80 @@ End Bool.
 (* The levels are reserved in [Core.Notations]; only the meanings belong
    here. Declared at file level, they reach a client through
    [Require Export]. *)
-Notation "b1 && b2" := (Bool.and b1 b2) : jwa_type_scope.
-Notation "b1 ^^ b2" := (Bool.xor b1 b2) : jwa_type_scope.
-Notation "b1 || b2" := (Bool.or  b1 b2) : jwa_type_scope.
+Notation "b1 && b2" := (Bool.and b1 b2)
+  : jwa_type_scope.
+Notation "b1 ^^ b2" := (Bool.xor b1 b2)
+  : jwa_type_scope.
+Notation "b1 || b2" := (Bool.or  b1 b2)
+  : jwa_type_scope.
 
-Instance Bool_and_monoid : Monoid.T Bool Bool.and true :=
+(* Each identity law on the left computes, so it is reflexivity stated on
+   the reduced term; each on the right is commutativity at the identity,
+   whose right side computes the same way. *)
+Instance Bool_and_monoid
+  : Monoid.T Bool Bool.and true :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Bool.and_associativity |}
-   ; Monoid.identity_left  := Bool.and_true_left
-   ; Monoid.identity_right := Bool.and_true_right |}.
+      {| Semigroup.associativity := Bool.and_associativity |}
+   ; Monoid.left_identity  :=
+      fun (b : Bool) => Equijunction_reflexivity (Bool.and true b)
+   ; Monoid.right_identity :=
+      fun (b : Bool) => Bool.and_commutativity b true
+  |}.
 
-Instance Bool_or_monoid : Monoid.T Bool Bool.or false :=
+Instance Bool_or_monoid
+  : Monoid.T Bool Bool.or false :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Bool.or_associativity |}
-   ; Monoid.identity_left  := Bool.or_false_left
-   ; Monoid.identity_right := Bool.or_false_right |}.
+      {| Semigroup.associativity := Bool.or_associativity |}
+   ; Monoid.left_identity  :=
+      fun (b : Bool) => Equijunction_reflexivity (Bool.or false b)
+   ; Monoid.right_identity :=
+      fun (b : Bool) => Bool.or_commutativity b false
+  |}.
 
-Instance Bool_xor_monoid : Monoid.T Bool Bool.xor false :=
+Instance Bool_xor_monoid
+  : Monoid.T Bool Bool.xor false :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Bool.xor_associativity |}
-   ; Monoid.identity_left  := Bool.xor_false_left
-   ; Monoid.identity_right := Bool.xor_false_right |}.
+      {| Semigroup.associativity := Bool.xor_associativity |}
+  ; Monoid.left_identity :=
+      fun (b : Bool) => Equijunction_reflexivity (Bool.xor false b)
+  ; Monoid.right_identity :=
+      fun (b : Bool) => Bool.xor_commutativity b false
+  |}.
+
+Instance Bool_and_commutative
+  : Commutative.T Bool Bool.and := {|
+      Commutative.commutativity := Bool.and_commutativity
+  |}.
+
+Instance Bool_or_commutative
+  : Commutative.T Bool Bool.or := {|
+      Commutative.commutativity := Bool.or_commutativity
+  |}.
+
+Instance Bool_xor_commutative
+  : Commutative.T Bool Bool.xor := {|
+      Commutative.commutativity := Bool.xor_commutativity
+  |}.
+
+(* Every element is its own inverse under [xor], so [(Bool, xor, false)] is
+ * a group, and a commutative one; with [and] as the product it is a ring,
+ * the Boolean ring. [inverse] is the identity function, so the two inverse
+ * laws are [xor_self_inverse] as it stands.
+ *)
+Instance Bool_xor_group
+  : Group.T Bool Bool.xor false (fun (b : Bool) => b) :=
+  {| Group.monoid        := Bool_xor_monoid
+   ; Group.left_inverse  := Bool.xor_self_inverse
+   ; Group.right_inverse := Bool.xor_self_inverse |}.
+
+Instance Bool_xor_abelian_group
+  : AbelianGroup.T Bool Bool.xor false (fun (b : Bool) => b) :=
+  {| AbelianGroup.group       := Bool_xor_group
+   ; AbelianGroup.commutative := Bool_xor_commutative |}.
+
+Instance Bool_ring
+  : Ring.T Bool Bool.xor false (fun (b : Bool) => b) Bool.and true :=
+  {| Ring.add_group            := Bool_xor_abelian_group
+   ; Ring.mul_monoid           := Bool_and_monoid
+   ; Ring.left_distributivity  := Bool.and_left_distributivity_over_xor
+   ; Ring.right_distributivity := Bool.and_right_distributivity_over_xor |}.
