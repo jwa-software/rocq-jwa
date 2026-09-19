@@ -208,9 +208,14 @@ Definition data_all_delivers_total_order
   : forall (m : Nat) (n : Nat), Nat.LessOrEqual m n \/ Nat.LessOrEqual n m
   := Total.totality.
 
-Definition data_all_delivers_strict_order
+Definition data_all_delivers_strict_partial_order
   : forall (n : NatWithZero), ~ NatWithZero.LessThan n n
   := Irreflexive.irreflexivity.
+
+Definition data_all_delivers_strict_total_order
+  : forall (m : Integer) (n : Integer),
+      Integer.LessThan m n \/ m = n \/ Integer.LessThan n m
+  := Trichotomous.trichotomy.
 
 Definition data_all_delivers_max_monoid
   : forall (n : NatWithZero),

@@ -10,7 +10,8 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
 From jwa Require Import Relation.Irreflexive.
-From jwa Require Import Relation.Order.StrictOrder.
+From jwa Require Import Relation.Order.StrictPartialOrder.
+From jwa Require Import Relation.Order.StrictTotalOrder.
 From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Transitive.
 
@@ -671,10 +672,10 @@ Qed.
  *)
 #[global] Instance comparable
   : Comparable compare LessThan :=
-  {| Comparable.strict_order :=
-       {| StrictOrder.irreflexivity :=
+  {| Comparable.strict_partial_order :=
+       {| StrictPartialOrder.irreflexivity :=
             {| Irreflexive.irreflexivity := lt_irreflexivity |}
-        ; StrictOrder.transitivity :=
+        ; StrictPartialOrder.transitivity :=
             {| Transitive.transitivity   := lt_transitivity |} |}
    ; Comparable.specification := comparison_specification
    ; Comparable.antisymmetry  := comparison_antisymmetry |}.
@@ -840,9 +841,7 @@ Instance Nat_add_semigroup
 
 Instance Nat_add_cancellative
   : Cancellative Nat.add :=
-  {| Cancellative.cancellation :=
-       fun (x : Nat) (y : Nat) (z : Nat) =>
-           (Nat.addition_cancellation x y z) |}.
+  {| Cancellative.cancellation := Nat.addition_cancellation |}.
 
 Instance Nat_mul_cancellative
   : Cancellative Nat.mul :=
@@ -862,11 +861,15 @@ Instance Nat_mul_commutative
   : Commutative Nat.mul :=
   {| Commutative.commutativity := Nat.multiplication_commutativity |}.
 
-Instance Nat_less_than_strict_order
-  : StrictOrder Nat.LessThan :=
-  Comparable.strict_order.
+Instance Nat_lt_strict_partial_order
+  : StrictPartialOrder Nat.LessThan :=
+  Comparable.strict_partial_order.
 
-Instance Nat_less_or_eq_total_order
+Instance Nat_lt_strict_total_order
+  : StrictTotalOrder Nat.LessThan :=
+  Comparable.strict_total_order.
+
+Instance Nat_le_total_order
   : TotalOrder Nat.LessOrEqual :=
   Comparable.total_order.
 

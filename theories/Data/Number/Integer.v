@@ -14,7 +14,8 @@ From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Relation.Irreflexive.
-From jwa Require Import Relation.Order.StrictOrder.
+From jwa Require Import Relation.Order.StrictPartialOrder.
+From jwa Require Import Relation.Order.StrictTotalOrder.
 From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Transitive.
 
@@ -1698,10 +1699,10 @@ Qed.
  *)
 #[global] Instance comparable
   : Comparable compare LessThan :=
-  {| Comparable.strict_order :=
-       {| StrictOrder.irreflexivity :=
+  {| Comparable.strict_partial_order :=
+       {| StrictPartialOrder.irreflexivity :=
             {| Irreflexive.irreflexivity := lt_irreflexivity |}
-        ; StrictOrder.transitivity :=
+        ; StrictPartialOrder.transitivity :=
             {| Transitive.transitivity   := lt_transitivity |} |}
    ; Comparable.specification := comparison_specification
    ; Comparable.antisymmetry  := comparison_antisymmetry |}.
@@ -2083,8 +2084,11 @@ Instance Integer_mul_monoid : Monoid Integer.mul (Positive One) :=
 Instance Integer_mul_commutative : Commutative Integer.mul :=
   {| Commutative.commutativity := Integer.multiplication_commutativity |}.
 
-Instance Integer_less_than_strict_order : StrictOrder Integer.LessThan :=
-  Comparable.strict_order.
+Instance Integer_less_than_strict_partial_order : StrictPartialOrder Integer.LessThan :=
+  Comparable.strict_partial_order.
+
+Instance Integer_less_than_strict_total_order : StrictTotalOrder Integer.LessThan :=
+  Comparable.strict_total_order.
 
 Instance Integer_less_or_equal_total_order : TotalOrder Integer.LessOrEqual :=
   Comparable.total_order.

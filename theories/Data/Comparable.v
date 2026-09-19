@@ -7,18 +7,20 @@ From jwa Require Import Data.Comparison.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.
-From jwa Require Import Relation.Order.StrictOrder.
+From jwa Require Import Relation.Order.StrictPartialOrder.
+From jwa Require Import Relation.Order.StrictTotalOrder.
 From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
+From jwa Require Import Relation.Trichotomous.
 
 (* A three-way [compare] that decides the strict order [lt]: [Lt] is [lt m n],
  * [Eq] is [m = n], and [Gt], by [antisymmetry], is [lt n m].
  *)
 Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Prop) : Prop :=
-  { strict_order
-    :: StrictOrder lt
+  { strict_partial_order
+    :: StrictPartialOrder lt
   ; specification
     : forall (m : A) (n : A),
       (compare m n = Lt <-> lt m n) /\ (compare m n = Eq <-> m = n)
@@ -152,6 +154,26 @@ Proof.
   contradiction.
 Qed.
 
+(* A [Definition], like [total_order]: each number type states its own
+ * [StrictTotalOrder] instance with this as the body, so a client of that
+ * type alone finds it.
+ *)
+(* [forall {A : Type}
+ *         {compare : A -> A -> Comparison}
+ *         {lt : A -> A -> Prop}
+ *         {C : Comparable compare lt},
+ *    StrictTotalOrder lt]
+ *)
+Definition strict_total_order
+  := fun {A : Type}
+         {compare : A -> A -> Comparison}
+         {lt : A -> A -> Prop}
+         {C : Comparable compare lt} =>
+       {| StrictTotalOrder.strict_partial_order :=
+            @Comparable.strict_partial_order A compare lt C
+        ; StrictTotalOrder.trichotomy :=
+            {| Trichotomous.trichotomy := @trichotomy A compare lt C |} |}.
+
 Theorem eq_specification
   : forall {A : Type}
            {compare : A -> A -> Comparison}
@@ -225,13 +247,10 @@ Proof.
   - exact e1.
   - destruct h2 as [e2 | lt2].
     + exact (Identity.symmetry e2).
-    + (* [compare m n] would answer both [Lt] and [Gt]. *)
-      destruct (Comparable.specification m n) as [s _].
-      pose proof (Biimplication.backward_elimination (compare m n = Lt) (lt m n) s lt1)
-        as c.
-      rewrite (Biimplication.backward_elimination
-                 (compare m n = Gt) (lt n m) (gt_specification m n) lt2) in c.
-      discriminate.
+    + pose proof (lt_asymmetry m n lt1) as a.
+      unfold Negation in a.
+      pose proof (a lt2) as f.
+      contradiction.
 Qed.
 
 Theorem le_transitivity

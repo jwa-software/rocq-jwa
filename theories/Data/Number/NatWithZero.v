@@ -24,7 +24,8 @@ From jwa Require Import Data.Product.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.
-From jwa Require Import Relation.Order.StrictOrder.
+From jwa Require Import Relation.Order.StrictPartialOrder.
+From jwa Require Import Relation.Order.StrictTotalOrder.
 From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
@@ -1217,10 +1218,10 @@ Qed.
  *)
 #[global] Instance comparable
   : Comparable compare LessThan :=
-  {| Comparable.strict_order :=
-       {| StrictOrder.irreflexivity :=
+  {| Comparable.strict_partial_order :=
+       {| StrictPartialOrder.irreflexivity :=
             {| Irreflexive.irreflexivity := lt_irreflexivity |}
-        ; StrictOrder.transitivity :=
+        ; StrictPartialOrder.transitivity :=
             {| Transitive.transitivity   := lt_transitivity |} |}
    ; Comparable.specification := comparison_specification
    ; Comparable.antisymmetry  := comparison_antisymmetry |}.
@@ -2079,9 +2080,13 @@ Instance NatWithZero_mul_commutative
   |}.
 
 (* The two orders as instances of the [Relation] classes, as for [Nat]. *)
-Instance NatWithZero_less_than_strict_order
-  : StrictOrder NatWithZero.LessThan :=
-  Comparable.strict_order.
+Instance NatWithZero_less_than_strict_partial_order
+  : StrictPartialOrder NatWithZero.LessThan :=
+  Comparable.strict_partial_order.
+
+Instance NatWithZero_less_than_strict_total_order
+  : StrictTotalOrder NatWithZero.LessThan :=
+  Comparable.strict_total_order.
 
 Instance NatWithZero_less_or_eq_total_order
   : TotalOrder NatWithZero.LessOrEqual :=
