@@ -84,7 +84,7 @@ Proof.
   intros A B a b.
   unfold Negation in |- *.
   intro e.
-  discriminate.
+  discriminate e.
 Qed.
 
 (* [forall {A : Type} {B : Type}, Coproduct A B -> Coproduct B A] *)

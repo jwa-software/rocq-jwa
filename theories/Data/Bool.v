@@ -201,13 +201,13 @@ Proof.
           split; intro h.
   + split; exact I.
   + exact I.
-  + contradiction.
+  + contradiction h.
   + destruct h as [_ h].
     exact h.
-  + contradiction.
+  + contradiction h.
   + destruct h as [h _].
     exact h.
-  + contradiction.
+  + contradiction h.
   + destruct h as [h _].
     exact h.
 Qed.
@@ -226,7 +226,7 @@ Proof.
   + exact I.
   + exact (Disjunction.right I).
   + exact I.
-  + contradiction.
+  + contradiction h.
   + destruct h as [h1 | h2].
     * exact h1.
     * exact h2.
@@ -240,7 +240,7 @@ Proof.
   destruct b1 as [|];
       destruct b2 as [|]; simpl in |- *;
           split; intro h.
-  + contradiction.
+  + contradiction h.
   + destruct h as [t nt | nt t].
     * exact (nt t).
     * exact (nt t).
@@ -248,7 +248,7 @@ Proof.
   + exact I.
   + exact (Sejunction.right (fun (f : Falsum) => f) I).
   + exact I.
-  + contradiction.
+  + contradiction h.
   + destruct h as [f _ | _ f].
     * exact f.
     * exact f.
@@ -260,7 +260,7 @@ Proof.
   intros b.
   unfold Negation in |- *.
   destruct b as [|]; simpl in |- *; split; intro h.
-  + contradiction.
+  + contradiction h.
   + exact (h I).
   + intro k.
     destruct k.
@@ -273,7 +273,7 @@ Proof.
   destruct b as [|]; simpl in |- *; split; intro h.
   + reflexivity.
   + exact I.
-  + contradiction.
+  + contradiction h.
   + discriminate h.
 Qed.
 
