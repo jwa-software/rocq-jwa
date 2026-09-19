@@ -195,6 +195,15 @@ Definition data_all_delivers_equal
   : Bool
   := NatWithZero.equal NatWithZero.Zero NatWithZero.Zero.
 
+Definition data_all_delivers_comparable
+  : forall (m : Nat) (n : Nat), Nat.LessThan m n \/ m = n \/ Nat.LessThan n m
+  := Comparable.trichotomy.
+
+Definition data_all_delivers_comparable_min
+  : forall (m : NatWithZero) (n : NatWithZero),
+      NatWithZero.min m n = NatWithZero.min n m
+  := Comparable.min_commutativity.
+
 Definition data_all_delivers_total_order
   : forall (m : Nat) (n : Nat), Nat.LessOrEqual m n \/ Nat.LessOrEqual n m
   := Total.totality.
@@ -241,7 +250,7 @@ Definition data_all_delivers_sorting
   : forall (l : List NatWithZero),
       List.Sorted NatWithZero.at_most (List.insertion_sort NatWithZero.at_most l)
   := List.insertion_sort_sortedness NatWithZero NatWithZero.at_most
-       NatWithZero.at_most_totality NatWithZero.at_most_transitivity.
+       Comparable.at_most_totality Comparable.at_most_transitivity.
 
 Definition data_all_delivers_integer
   : Integer

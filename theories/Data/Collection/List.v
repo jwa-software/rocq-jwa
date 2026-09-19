@@ -3,7 +3,8 @@
 (* [Core.All] carries [->] and [=]; [Algebra.Semigroup],
    [Algebra.Monoid] and [Data.Functor] are the classes the
    instances at the bottom fill; [Data.Number.NatWithZero] is what [length] counts
-   in, [Data.Number.Nat] carries the [One] inside [Positive One], [Data.Bool] is
+   in, [Data.Comparable] holds the laws of its [min] and [max] and of its
+   order, [Data.Number.Nat] carries the [One] inside [Positive One], [Data.Bool] is
    what a [filter] predicate answers in, [Data.Option] is what [head] and
    [tail] answer in, and [Data.Product] is what [pop], [zip] and [partition]
    answer in. *)
@@ -11,6 +12,7 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
@@ -2652,7 +2654,7 @@ Proof.
                       (NatWithZero.add (length l') (Positive One)) = Positive One)
                    (NatWithZero.LessOrEqual (Positive One)
                       (NatWithZero.add (length l') (Positive One)))
-                   (NatWithZero.min_specification (Positive One)
+                   (Comparable.min_specification (Positive One)
                       (NatWithZero.add (length l') (Positive One)))
                    (NatWithZero.addition_right_inflation (length l') (Positive One))) in |- *.
         reflexivity.
@@ -3477,7 +3479,7 @@ Proof.
      *)
     simpl in |- *.
     split.
-    + exact (NatWithZero.max_left_injection a (fold_right NatWithZero.max Zero l')).
+    + exact (Comparable.max_left_injection a (fold_right NatWithZero.max Zero l')).
     + exact (all_monotonicity NatWithZero
                (fun (x : NatWithZero) =>
                   NatWithZero.LessOrEqual x (fold_right NatWithZero.max Zero l'))
@@ -3487,11 +3489,11 @@ Proof.
                l'
                (fun (x : NatWithZero)
                     (h : NatWithZero.LessOrEqual x (fold_right NatWithZero.max Zero l')) =>
-                  NatWithZero.le_transitivity
+                  Comparable.le_transitivity
                     x (fold_right NatWithZero.max Zero l')
                     (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
                     h
-                    (NatWithZero.max_right_injection
+                    (Comparable.max_right_injection
                        a (fold_right NatWithZero.max Zero l')))
                IH).
 Qed.
@@ -3529,7 +3531,7 @@ Proof.
       change (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a
               \/ Contains (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')))
                           (Cons b l'')) in |- *.
-      pose proof (NatWithZero.le_totality
+      pose proof (Comparable.le_totality
                     (fold_right NatWithZero.max Zero (Cons b l'')) a) as t.
       destruct t as [le | ge].
       * (* [M] is at most [a]: the maximum is [a], the head. *)
@@ -3537,19 +3539,19 @@ Proof.
         exact (Biimplication.backward_elimination
                  (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a)
                  (NatWithZero.LessOrEqual (fold_right NatWithZero.max Zero (Cons b l'')) a)
-                 (NatWithZero.max_specification
+                 (Comparable.max_specification
                     a (fold_right NatWithZero.max Zero (Cons b l''))) le).
       * (* [a] is at most [M]: the maximum is [M], turned round by
          * commutativity, which [c] places in the tail.
          *)
         apply Disjunction.right.
-        rewrite (NatWithZero.max_commutativity
+        rewrite (Comparable.max_commutativity
                    a (fold_right NatWithZero.max Zero (Cons b l''))) in |- *.
         rewrite (Biimplication.backward_elimination
                    (NatWithZero.max (fold_right NatWithZero.max Zero (Cons b l'')) a
                     = fold_right NatWithZero.max Zero (Cons b l''))
                    (NatWithZero.LessOrEqual a (fold_right NatWithZero.max Zero (Cons b l'')))
-                   (NatWithZero.max_specification
+                   (Comparable.max_specification
                       (fold_right NatWithZero.max Zero (Cons b l'')) a) ge) in |- *.
         exact c.
 Qed.
@@ -3622,7 +3624,7 @@ Proof.
       rewrite en in |- *.
       rewrite e' in |- *.
       simpl in |- *.
-      exact (Conjunction_introduction (NatWithZero.le_reflexivity m) I).
+      exact (Conjunction_introduction (Comparable.le_reflexivity m) I).
     + (* [e] computes to [Some (min a m') = Some m]; [m] turned round
        * replaces it: [min a m'] is at most [a] by the left projection, and
        * at most the members of [l'] through the right projection and
@@ -3635,15 +3637,15 @@ Proof.
       rewrite e'' in |- *.
       simpl in |- *.
       split.
-      * exact (NatWithZero.min_left_projection a m').
+      * exact (Comparable.min_left_projection a m').
       * exact (all_monotonicity NatWithZero
                  (fun (x : NatWithZero) => NatWithZero.LessOrEqual m' x)
                  (fun (x : NatWithZero) => NatWithZero.LessOrEqual (NatWithZero.min a m') x)
                  l'
                  (fun (x : NatWithZero) (h : NatWithZero.LessOrEqual m' x) =>
-                    NatWithZero.le_transitivity
+                    Comparable.le_transitivity
                       (NatWithZero.min a m') m' x
-                      (NatWithZero.min_right_projection a m') h)
+                      (Comparable.min_right_projection a m') h)
                  (IH m' (Identity.reflexivity (Some m')))).
 Qed.
 
@@ -3682,17 +3684,17 @@ Proof.
       pose proof (Identity.symmetry e') as e''.
       rewrite e'' in |- *.
       simpl in |- *.
-      pose proof (NatWithZero.le_totality a m') as t.
+      pose proof (Comparable.le_totality a m') as t.
       destruct t as [le | ge].
       * apply Disjunction.left.
         exact (Biimplication.backward_elimination
                  (NatWithZero.min a m' = a) (NatWithZero.LessOrEqual a m')
-                 (NatWithZero.min_specification a m') le).
+                 (Comparable.min_specification a m') le).
       * apply Disjunction.right.
-        rewrite (NatWithZero.min_commutativity a m') in |- *.
+        rewrite (Comparable.min_commutativity a m') in |- *.
         rewrite (Biimplication.backward_elimination
                    (NatWithZero.min m' a = m') (NatWithZero.LessOrEqual m' a)
-                   (NatWithZero.min_specification m' a) ge) in |- *.
+                   (Comparable.min_specification m' a) ge) in |- *.
         exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 

@@ -9,16 +9,13 @@ From jwa Require Import Algebra.Ring.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
-From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
-From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Order.StrictOrder.
 From jwa Require Import Relation.Order.TotalOrder.
-From jwa Require Import Relation.Reflexive.
-From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
 
 Inductive Integer : Type :=
@@ -1413,21 +1410,6 @@ Proof.
   exact e2.
 Qed.
 
-Theorem lt_asymmetry
-  : forall (m : Integer) (n : Integer), LessThan m n -> ~ (LessThan n m).
-Proof.
-  (* The context gains [m], [n], [h1] and, once unfolded, [h2]; the two
-     compose to [LessThan m m], which irreflexivity refutes. *)
-  intros m n h1.
-  unfold Negation in |- *.
-  intro h2.
-  pose proof (lt_transitivity m n m h1 h2) as h.
-  pose proof (lt_irreflexivity m) as i.
-  unfold Negation in i.
-  pose proof (i h) as f.
-  contradiction.
-Qed.
-
 (* Three-way comparison: every negative is below [Zero], which is below
    every positive; two negatives fall to [Nat.compare] with the arguments
    swapped, two positives to [Nat.compare] as they stand. *)
@@ -1498,13 +1480,13 @@ Proof.
       exact (Nat.comparison_antisymmetry p q).
 Qed.
 
-(* [compare] answers each of its three ways exactly when the order says so.
-   [LessThan] and [add] are opened so that the witness equation computes
+(* [compare] answers [Lt] and [Eq] exactly when the order says so; [Gt]
+   follows by [Comparable.gt_specification]. [LessThan] and [add] are opened so that the witness equation computes
    under each ctor pair: [add (Negative p) (Positive k)] to
    [difference k p], [add Zero (Positive k)] to [Positive k], and
    [add (Positive p) (Positive k)] to [Positive (Nat.add p k)]. *)
 
-Theorem comparison_lt_specification
+Lemma comparison_lt_specification
   : forall (m : Integer) (n : Integer), compare m n = Lt <-> LessThan m n.
 Proof.
   (* The context gains [m] and [n]; one goal per ctor pair, each split into
@@ -1623,7 +1605,7 @@ Proof.
         exact e'.
 Qed.
 
-Theorem comparison_eq_specification
+Lemma comparison_eq_specification
   : forall (m : Integer) (n : Integer), compare m n = Eq <-> m = n.
 Proof.
   (* The context gains [m] and [n]; one goal per ctor pair, each split into
@@ -1701,165 +1683,33 @@ Proof.
         exact (Nat.comparison_reflexivity q).
 Qed.
 
-Theorem comparison_gt_specification
-  : forall (m : Integer) (n : Integer), compare m n = Gt <-> LessThan n m.
+Theorem comparison_specification
+  : forall (m : Integer) (n : Integer),
+      (compare m n = Lt <-> LessThan m n) /\ (compare m n = Eq <-> m = n).
 Proof.
-  (* The context gains [m] and [n]. *)
   intros m n.
   split.
-  - (* The context gains [e]; [comparison_antisymmetry] turns it into
-       [e : Comparison.transpose (compare n m) = Gt], and only [Lt] has
-       [Gt] as its transpose. *)
-    intro e.
-    rewrite (comparison_antisymmetry m n) in e.
-    destruct (compare n m) as [| |] eqn:c.
-    + exact (Biimplication.forward_elimination
-               (compare n m = Lt) (LessThan n m) (comparison_lt_specification n m) c).
-    + simpl in e.
-      discriminate.
-    + simpl in e.
-      discriminate.
-  - (* The context gains [h : LessThan n m]; [compare n m] is [Lt] by the
-       first specification, and its transpose computes to [Gt]. *)
-    intro h.
-    rewrite (comparison_antisymmetry m n) in |- *.
-    rewrite (Biimplication.backward_elimination
-               (compare n m = Lt) (LessThan n m) (comparison_lt_specification n m) h)
-      in |- *.
-    simpl in |- *.
-    reflexivity.
+  - exact (comparison_lt_specification m n).
+  - exact (comparison_eq_specification m n).
 Qed.
 
-(* Any two integers stand in exactly one of three relations, read off
-   [compare] through its three specifications. *)
-Theorem lt_trichotomy
-  : forall (m : Integer) (n : Integer), LessThan m n \/ m = n \/ LessThan n m.
-Proof.
-  (* The context gains [m] and [n]; one goal per answer of [compare m n]. *)
-  intros m n.
-  destruct (compare m n) as [| |] eqn:c.
-  - exact (Disjunction.l
-             (Biimplication.forward_elimination
-                (compare m n = Lt) (LessThan m n) (comparison_lt_specification m n) c)).
-  - exact (Disjunction.r
-             (Disjunction.l
-                (Biimplication.forward_elimination
-                   (compare m n = Eq) (m = n) (comparison_eq_specification m n) c))).
-  - exact (Disjunction.r
-             (Disjunction.r
-                (Biimplication.forward_elimination
-                   (compare m n = Gt) (LessThan n m) (comparison_gt_specification m n) c))).
-Qed.
+(* [#[global]]: an instance declared inside a module is otherwise dropped at
+ * its [End], and every client needs this one.
+ *)
+#[global] Instance comparable
+  : Comparable compare LessThan :=
+  {| Comparable.strict_order :=
+       {| StrictOrder.irreflexivity :=
+            {| Irreflexive.irreflexivity := lt_irreflexivity |}
+        ; StrictOrder.transitivity :=
+            {| Transitive.transitivity   := lt_transitivity |} |}
+   ; Comparable.specification := comparison_specification
+   ; Comparable.antisymmetry  := comparison_antisymmetry |}.
 
-Theorem le_reflexivity : forall (n : Integer), LessOrEqual n n.
-Proof.
-  (* The context gains [n]: [|- n = n \/ LessThan n n], and the left side
-     holds. *)
-  intros n.
-  unfold LessOrEqual in |- *.
-  exact (Disjunction.l (Identity.reflexivity n)).
-Qed.
+(* The generic operation at [compare]; its laws are [Comparable]'s. *)
 
-Theorem le_transitivity
-  : forall (l : Integer) (m : Integer) (n : Integer),
-      LessOrEqual l m -> LessOrEqual m n -> LessOrEqual l n.
-Proof.
-  (* The context gains [l], [m], [n], [h1] and [h2]; each side is an equality
-     or a strict step. *)
-  intros l m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
-  unfold LessOrEqual in |- *.
-  destruct h1 as [e1 | lt1].
-  - (* [e1 : l = m] replaces [l], and [h2] is the goal. *)
-    rewrite e1 in |- *.
-    exact h2.
-  - destruct h2 as [e2 | lt2].
-    + (* [e2 : m = n] replaces [m] in [lt1]. *)
-      rewrite e2 in lt1.
-      exact (Disjunction.r lt1).
-    + (* Two strict steps compose. *)
-      exact (Disjunction.r (lt_transitivity l m n lt1 lt2)).
-Qed.
-
-Theorem le_antisymmetry
-  : forall (m : Integer) (n : Integer), LessOrEqual m n -> LessOrEqual n m -> m = n.
-Proof.
-  (* The context gains [m], [n], [h1] and [h2]: [|- m = n] *)
-  intros m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
-  destruct h1 as [e1 | lt1].
-  - exact e1.
-  - destruct h2 as [e2 | lt2].
-    + exact (Identity.symmetry e2).
-    + (* Two strict steps in opposite directions contradict asymmetry. *)
-      pose proof (lt_asymmetry m n lt1) as h.
-      unfold Negation in h.
-      pose proof (h lt2) as f.
-      contradiction.
-Qed.
-
-Theorem le_totality
-  : forall (m : Integer) (n : Integer), LessOrEqual m n \/ LessOrEqual n m.
-Proof.
-  (* The context gains [m] and [n]; trichotomy gives the three cases, each
-     landing on one side. *)
-  intros m n.
-  pose proof (lt_trichotomy m n) as t.
-  unfold LessOrEqual in |- *.
-  destruct t as [lt | rest].
-  - exact (Disjunction.l (Disjunction.r lt)).
-  - destruct rest as [eq | gt].
-    + exact (Disjunction.l (Disjunction.l eq)).
-    + exact (Disjunction.r (Disjunction.r gt)).
-Qed.
-
-(* Decidable equality, read off [compare]. *)
 (* [Integer -> Integer -> Bool] *)
-Definition equal := fun (m : Integer) (n : Integer) =>
-  match compare m n with
-  | Lt => false
-  | Eq => true
-  | Gt => false
-  end.
-
-Theorem equal_specification
-  : forall (m : Integer) (n : Integer), equal m n = true <-> m = n.
-Proof.
-  (* The context gains [m] and [n]. *)
-  intros m n.
-  split.
-  - (* The context gains [e : equal m n = true], a [match] on [compare m n];
-       one goal per answer. *)
-    intro e.
-    unfold equal in e.
-    destruct (compare m n) as [| |] eqn:c.
-    + discriminate.
-    + exact (Biimplication.forward_elimination
-               (compare m n = Eq) (m = n) (comparison_eq_specification m n) c).
-    + discriminate.
-  - (* The context gains [e : m = n]; [compare m n] is [Eq]: [|- true = true] *)
-    intro e.
-    unfold equal in |- *.
-    rewrite (Biimplication.backward_elimination
-               (compare m n = Eq) (m = n) (comparison_eq_specification m n) e) in |- *.
-    reflexivity.
-Qed.
-
-Theorem equal_refutation
-  : forall (m : Integer) (n : Integer), equal m n = false -> ~ (m = n).
-Proof.
-  (* The context gains [m], [n] and [e : equal m n = false]: [|- ~ (m = n)] *)
-  intros m n e.
-  unfold Negation in |- *.
-  intro h.
-  (* [equal_specification] turns [h] into [equal m n = true], which replaces
-     the left side of [e]: [e : true = false] *)
-  rewrite (Biimplication.backward_elimination
-             (equal m n = true) (m = n) (equal_specification m n) h) in e.
-  discriminate.
-Qed.
+Abbreviation equal := (Comparable.equal compare).
 
 (* Adding the same integer on the left keeps a strict step, with the same
    witness once the sum is regrouped. *)
@@ -2234,21 +2084,10 @@ Instance Integer_mul_commutative : Commutative Integer.mul :=
   {| Commutative.commutativity := Integer.multiplication_commutativity |}.
 
 Instance Integer_less_than_strict_order : StrictOrder Integer.LessThan :=
-  {| StrictOrder.irreflexivity :=
-       {| Irreflexive.irreflexivity := Integer.lt_irreflexivity |}
-   ; StrictOrder.transitivity :=
-       {| Transitive.transitivity := Integer.lt_transitivity |} |}.
+  Comparable.strict_order.
 
 Instance Integer_less_or_equal_total_order : TotalOrder Integer.LessOrEqual :=
-  {| TotalOrder.partial_order :=
-       {| PartialOrder.reflexivity :=
-            {| Reflexive.reflexivity := Integer.le_reflexivity |}
-        ; PartialOrder.antisymmetry :=
-            {| Antisymmetric.antisymmetry := Integer.le_antisymmetry |}
-        ; PartialOrder.transitivity :=
-            {| Transitive.transitivity := Integer.le_transitivity |} |}
-   ; TotalOrder.totality :=
-       {| Total.totality := Integer.le_totality |} |}.
+  Comparable.total_order.
 
 (* Addition is an abelian group, negation the inverse; with [mul] it is a
  * ring. Each instance only hands over the laws and instances above.

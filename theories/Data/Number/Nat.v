@@ -6,15 +6,12 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
-From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
-From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Order.StrictOrder.
 From jwa Require Import Relation.Order.TotalOrder.
-From jwa Require Import Relation.Reflexive.
-From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
 
 (* Zero is not a [Nat]; [One] is the smallest.
@@ -378,26 +375,6 @@ Proof.
   exact e2.
 Qed.
 
-Theorem lt_asymmetry
-  : forall (m : Nat) (n : Nat), LessThan m n -> ~ (LessThan n m).
-Proof.
-  intros m n h1.
-  unfold LessThan in h1.
-  destruct h1 as [k1 e1].
-  unfold Negation in |- *.
-  intro h2.
-  unfold LessThan in h2.
-  destruct h2 as [k2 e2].
-  pose proof (Identity.symmetry e1) as e1'.
-  rewrite e1' in e2.
-  rewrite (addition_associativity m k1 k2)       in e2.
-  rewrite (addition_commutativity m (add k1 k2)) in e2.
-  pose proof (addition_identity_absence (add k1 k2) m) as i.
-  unfold Negation in i.
-  pose proof (i e2) as f.
-  contradiction.
-Qed.
-
 Lemma lt_suc : forall (n : Nat), LessThan n (Successor n).
 Proof.
   intros n.
@@ -408,7 +385,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem addition_left_inflation : forall (m : Nat) (k : Nat), LessThan m (add m k).
+Theorem addition_left_extensivity : forall (m : Nat) (k : Nat), LessThan m (add m k).
 Proof.
   intros m k.
   unfold LessThan in |- *.
@@ -479,7 +456,7 @@ Qed.
 (* Trichotomy, "cut in three": whichever two numbers [m] and [n] are taken,
    exactly one of `[m] is below [n]`, `[m] is [n]`, `[n] is below [m]` is the case.
    This theorem is the "at least one" half;
-   "at most one" is [lt_irreflexivity] and [lt_asymmetry]. *)
+   "at most one" is [lt_irreflexivity] and [Comparable.lt_asymmetry]. *)
 Theorem lt_trichotomy
   : forall (m : Nat) (n : Nat), (LessThan m n) \/ (m = n) \/ (LessThan n m).
 Proof.
@@ -578,59 +555,6 @@ Proof.
       discriminate.
 Qed.
 
-Theorem le_reflexivity : forall (n : Nat), LessOrEqual n n.
-Proof.
-  intros n.
-  unfold LessOrEqual in |- *.
-  exact (Disjunction.l (Identity.reflexivity n)).
-Qed.
-
-Theorem le_transitivity
-  : forall (l : Nat) (m : Nat) (n : Nat),
-      LessOrEqual l m -> LessOrEqual m n -> LessOrEqual l n.
-Proof.
-  intros l m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
-  unfold LessOrEqual in |- *.
-  destruct h1 as [e1 | lt1].
-  - rewrite e1 in |- *.
-    exact h2.
-  - destruct h2 as [e2 | lt2].
-    + rewrite e2 in lt1.
-      exact (Disjunction.r lt1).
-    + exact (Disjunction.r (lt_transitivity l m n lt1 lt2)).
-Qed.
-
-Theorem le_antisymmetry
-  : forall (m : Nat) (n : Nat), LessOrEqual m n -> LessOrEqual n m -> m = n.
-Proof.
-  intros m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
-  destruct h1 as [e1 | lt1].
-  - exact e1.
-  - destruct h2 as [e2 | lt2].
-    + exact (Identity.symmetry e2).
-    + pose proof (lt_asymmetry m n lt1) as h.
-      unfold Negation in h.
-      pose proof (h lt2) as f.
-      contradiction.
-Qed.
-
-Theorem le_totality
-  : forall (m : Nat) (n : Nat), (LessOrEqual m n) \/ (LessOrEqual n m).
-Proof.
-  intros m n.
-  pose proof (lt_trichotomy m n) as t.
-  unfold LessOrEqual in |- *.
-  destruct t as [lt | rest].
-  - exact (Disjunction.l (Disjunction.r lt)).
-  - destruct rest as [eq | gt].
-    + exact (Disjunction.l  (Disjunction.l  eq)).
-    + exact (Disjunction.r (Disjunction.r gt)).
-Qed.
-
 Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   match m, n with
   | One, One                   => Eq
@@ -690,15 +614,6 @@ Proof.
     exact (IH n' (successor_strict_monotonicity_inversion m' n' h)).
 Qed.
 
-Theorem comparison_lt_specification
-  : forall (m : Nat) (n : Nat), compare m n = Lt <-> LessThan m n.
-Proof.
-  intros m n.
-  split.
-  - exact (comparison_lt_specification_forward  m n).
-  - exact (comparison_lt_specification_backward m n).
-Qed.
-
 Lemma comparison_eq_specification_forward
   : forall (m : Nat) (n : Nat), compare m n = Eq -> m = n.
 Proof.
@@ -723,13 +638,18 @@ Proof.
   exact (comparison_reflexivity n).
 Qed.
 
-Theorem comparison_eq_specification
-  : forall (m : Nat) (n : Nat), compare m n = Eq <-> m = n.
+Theorem comparison_specification
+  : forall (m : Nat) (n : Nat),
+      (compare m n = Lt <-> LessThan m n) /\ (compare m n = Eq <-> m = n).
 Proof.
   intros m n.
   split.
-  - exact (comparison_eq_specification_forward  m n).
-  - exact (comparison_eq_specification_backward m n).
+  - split.
+    + exact (comparison_lt_specification_forward  m n).
+    + exact (comparison_lt_specification_backward m n).
+  - split.
+    + exact (comparison_eq_specification_forward  m n).
+    + exact (comparison_eq_specification_backward m n).
 Qed.
 
 Theorem comparison_antisymmetry
@@ -746,336 +666,34 @@ Proof.
   + exact (IH n').
 Qed.
 
-Lemma comparison_gt_specification_forward
-  : forall (m : Nat) (n : Nat), compare m n = Gt -> LessThan n m.
-Proof.
-  intros m n e.
-  rewrite (comparison_antisymmetry m n) in e.
-  destruct (compare n m) as [| |] eqn:c; simpl in e.
-  - exact (comparison_lt_specification_forward n m c).
-  - discriminate.
-  - discriminate.
-Qed.
+(* [#[global]]: an instance declared inside a module is otherwise dropped at
+ * its [End], and the laws below and every client need this one.
+ *)
+#[global] Instance comparable
+  : Comparable compare LessThan :=
+  {| Comparable.strict_order :=
+       {| StrictOrder.irreflexivity :=
+            {| Irreflexive.irreflexivity := lt_irreflexivity |}
+        ; StrictOrder.transitivity :=
+            {| Transitive.transitivity   := lt_transitivity |} |}
+   ; Comparable.specification := comparison_specification
+   ; Comparable.antisymmetry  := comparison_antisymmetry |}.
 
-Lemma comparison_gt_specification_backward
-  : forall (m : Nat) (n : Nat), LessThan n m -> compare m n = Gt.
-Proof.
-  intros m n h.
-  rewrite (comparison_antisymmetry m n) in |- *.
-  rewrite (comparison_lt_specification_backward n m h) in |- *.
-  simpl in |- *.
-  reflexivity.
-Qed.
-
-Theorem comparison_gt_specification
-  : forall (m : Nat) (n : Nat), compare m n = Gt <-> LessThan n m.
-Proof.
-  intros m n.
-  split.
-  - exact (comparison_gt_specification_forward  m n).
-  - exact (comparison_gt_specification_backward m n).
-Qed.
+(* The generic operations at [compare]; their laws are [Comparable]'s. *)
 
 (* [Nat -> Nat -> Bool] *)
-Definition equal := fun (m : Nat) (n : Nat) =>
-  match compare m n with
-  | Lt => false
-  | Eq => true
-  | Gt => false
-  end.
-
-Lemma eq_specification_forward
-  : forall (m : Nat) (n : Nat), equal m n = true -> m = n.
-Proof.
-  intros m n e.
-  unfold equal in e.
-  destruct (compare m n) as [| |] eqn:c.
-  - discriminate.
-  - exact (comparison_eq_specification_forward m n c).
-  - discriminate.
-Qed.
-
-Lemma eq_specification_backward
-  : forall (m : Nat) (n : Nat), m = n -> equal m n = true.
-Proof.
-  intros m n e.
-  unfold equal in |- *.
-  rewrite (comparison_eq_specification_backward m n e) in |- *.
-  reflexivity.
-Qed.
-
-Theorem eq_specification
-  : forall (m : Nat) (n : Nat), equal m n = true <-> m = n.
-Proof.
-  intros m n.
-  split.
-  - exact (eq_specification_forward  m n).
-  - exact (eq_specification_backward m n).
-Qed.
+Abbreviation equal := (Comparable.equal compare).
 
 (* [Nat -> Nat -> Nat] *)
-Definition min := fun (m : Nat) (n : Nat) =>
-  match compare m n with
-  | Lt => m
-  | Eq => m
-  | Gt => n
-  end.
+Abbreviation min := (Comparable.min compare).
 
 (* [Nat -> Nat -> Nat] *)
-Definition max := fun (m : Nat) (n : Nat) =>
-  match compare m n with
-  | Lt => n
-  | Eq => m
-  | Gt => m
-  end.
-
-Theorem min_specification
-  : forall (m : Nat) (n : Nat), min m n = m <-> LessOrEqual m n.
-Proof.
-  intros m n.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
-  split.
-  - intro e.
-    destruct (compare m n) as [| |] eqn:c.
-    +
-      apply Disjunction.r.
-      exact (Biimplication.forward_elimination
-               (compare m n = Lt) (LessThan m n)
-               (comparison_lt_specification m n) c).
-    +
-      apply Disjunction.l.
-      exact (Biimplication.forward_elimination
-               (compare m n = Eq) (m = n) (comparison_eq_specification m n) c).
-    +
-      apply Disjunction.l.
-      exact (Identity.symmetry e).
-  - intro h.
-    destruct (compare m n) as [| |] eqn:c.
-    + reflexivity.
-    + reflexivity.
-    + pose proof (Biimplication.forward_elimination
-                    (compare m n = Gt) (LessThan n m)
-                    (comparison_gt_specification m n) c) as gt.
-      destruct h as [e | lt].
-      *
-        rewrite e in gt.
-        pose proof (lt_irreflexivity n) as i.
-        unfold Negation in i.
-        pose proof (i gt) as f.
-        contradiction.
-      *
-        pose proof (lt_asymmetry m n lt) as a.
-        unfold Negation in a.
-        pose proof (a gt) as f.
-        contradiction.
-Qed.
-
-Theorem max_specification
-  : forall (m : Nat) (n : Nat), max m n = m <-> LessOrEqual n m.
-Proof.
-  intros m n.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  split.
-  - intro e.
-    destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction.l.
-      exact e.
-    + apply Disjunction.l.
-      exact (Identity.symmetry
-               (Biimplication.forward_elimination
-                  (compare m n = Eq) (m = n) (comparison_eq_specification m n) c)).
-    + apply Disjunction.r.
-      exact (Biimplication.forward_elimination
-               (compare m n = Gt) (LessThan n m)
-               (comparison_gt_specification m n) c).
-  - intro h.
-    destruct (compare m n) as [| |] eqn:c.
-    + pose proof (Biimplication.forward_elimination
-                    (compare m n = Lt) (LessThan m n)
-                    (comparison_lt_specification m n) c) as lt.
-      destruct h as [e | gt].
-      * rewrite e in lt.
-        pose proof (lt_irreflexivity m) as i.
-        unfold Negation in i.
-        pose proof (i lt) as f.
-        contradiction.
-      * pose proof (lt_asymmetry m n lt) as a.
-        unfold Negation in a.
-        pose proof (a gt) as f.
-        contradiction.
-    + reflexivity.
-    + reflexivity.
-Qed.
-
-Lemma min_left_projection : forall (l : Nat) (r : Nat), LessOrEqual (min l r) l.
-Proof.
-  intros l r.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.l (Identity.reflexivity l)).
-  - exact (Disjunction.l (Identity.reflexivity l)).
-  - apply Disjunction.r.
-    exact (Biimplication.forward_elimination
-             (compare l r = Gt) (LessThan r l)
-             (comparison_gt_specification l r) c).
-Qed.
-
-Lemma min_right_projection : forall (l : Nat) (r : Nat), LessOrEqual (min l r) r.
-Proof.
-  intros l r.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction.r.
-    exact (Biimplication.forward_elimination
-             (compare l r = Lt) (LessThan l r)
-             (comparison_lt_specification l r) c).
-  - apply Disjunction.l.
-    exact (Biimplication.forward_elimination
-             (compare l r = Eq) (l = r) (comparison_eq_specification l r) c).
-  - exact (Disjunction.l (Identity.reflexivity r)).
-Qed.
-
-Lemma min_universality
-  : forall (k : Nat) (m : Nat) (n : Nat),
-      LessOrEqual k m -> LessOrEqual k n -> LessOrEqual k (min m n).
-Proof.
-  intros k m n h1 h2.
-  unfold min in |- *.
-  destruct (compare m n) as [| |] eqn:c.
-  - exact h1.
-  - exact h1.
-  - exact h2.
-Qed.
-
-Lemma max_left_injection : forall (l : Nat) (r : Nat), LessOrEqual l (max l r).
-Proof.
-  intros l r.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction.r.
-    exact (Biimplication.forward_elimination
-             (compare l r = Lt) (LessThan l r)
-             (comparison_lt_specification l r) c).
-  - exact (Disjunction.l (Identity.reflexivity l)).
-  - exact (Disjunction.l (Identity.reflexivity l)).
-Qed.
-
-Lemma max_right_injection : forall (l : Nat) (r : Nat), LessOrEqual r (max l r).
-Proof.
-  intros l r.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.l (Identity.reflexivity r)).
-  - apply Disjunction.l.
-    exact (Identity.symmetry
-             (Biimplication.forward_elimination
-                (compare l r = Eq) (l = r) (comparison_eq_specification l r) c)).
-  - apply Disjunction.r.
-    exact (Biimplication.forward_elimination
-             (compare l r = Gt) (LessThan r l)
-             (comparison_gt_specification l r) c).
-Qed.
-
-Lemma max_universality
-  : forall (k : Nat) (m : Nat) (n : Nat),
-      LessOrEqual m k -> LessOrEqual n k -> LessOrEqual (max m n) k.
-Proof.
-  intros k m n h1 h2.
-  unfold max in |- *.
-  destruct (compare m n) as [| |] eqn:c.
-  - exact h2.
-  - exact h1.
-  - exact h1.
-Qed.
-
-Theorem min_commutativity : forall (m : Nat) (n : Nat), min m n = min n m.
-Proof.
-  intros m n.
-  apply (le_antisymmetry (min m n) (min n m)).
-  - exact (min_universality (min m n) n m
-            (min_right_projection m n) (min_left_projection m n)).
-  - exact (min_universality (min n m) m n
-            (min_right_projection n m) (min_left_projection n m)).
-Qed.
-
-Theorem max_commutativity : forall (m : Nat) (n : Nat), max m n = max n m.
-Proof.
-  intros m n.
-  apply (le_antisymmetry (max m n) (max n m)).
-  - exact (max_universality (max n m) m n
-            (max_right_injection n m) (max_left_injection n m)).
-  - exact (max_universality (max m n) n m
-            (max_right_injection m n) (max_left_injection m n)).
-Qed.
-
-Theorem min_associativity
-  : forall (l : Nat) (m : Nat) (n : Nat), min (min l m) n = min l (min m n).
-Proof.
-  intros l m n.
-  apply (le_antisymmetry (min (min l m) n) (min l (min m n))).
-  - apply (min_universality (min (min l m) n) l (min m n)).
-    + exact (le_transitivity (min (min l m) n) (min l m) l
-              (min_left_projection (min l m) n) (min_left_projection l m)).
-    + apply (min_universality (min (min l m) n) m n).
-      * exact (le_transitivity (min (min l m) n) (min l m) m
-                (min_left_projection (min l m) n) (min_right_projection l m)).
-      * exact (min_right_projection (min l m) n).
-  - apply (min_universality (min l (min m n)) (min l m) n).
-    + apply (min_universality (min l (min m n)) l m).
-      * exact (min_left_projection l (min m n)).
-      * exact (le_transitivity (min l (min m n)) (min m n) m
-                (min_right_projection l (min m n)) (min_left_projection m n)).
-    + exact (le_transitivity (min l (min m n)) (min m n) n
-              (min_right_projection l (min m n)) (min_right_projection m n)).
-Qed.
-
-Theorem max_associativity
-  : forall (l : Nat) (m : Nat) (n : Nat), max (max l m) n = max l (max m n).
-Proof.
-  intros l m n.
-  apply (le_antisymmetry (max (max l m) n) (max l (max m n))).
-  - apply (max_universality (max l (max m n)) (max l m) n).
-    + apply (max_universality (max l (max m n)) l m).
-      * exact (max_left_injection l (max m n)).
-      * exact (le_transitivity m (max m n) (max l (max m n))
-                (max_left_injection m n) (max_right_injection l (max m n))).
-    + exact (le_transitivity n (max m n) (max l (max m n))
-              (max_right_injection m n) (max_right_injection l (max m n))).
-  - apply (max_universality (max (max l m) n) l (max m n)).
-    + exact (le_transitivity l (max l m) (max (max l m) n)
-              (max_left_injection l m) (max_left_injection (max l m) n)).
-    + apply (max_universality (max (max l m) n) m n).
-      * exact (le_transitivity m (max l m) (max (max l m) n)
-                (max_right_injection l m) (max_left_injection (max l m) n)).
-      * exact (max_right_injection (max l m) n).
-Qed.
-
-Theorem min_idempotence : forall (n : Nat), min n n = n.
-Proof.
-  intros n.
-  unfold min in |- *.
-  rewrite (comparison_reflexivity n) in |- *.
-  reflexivity.
-Qed.
-
-Theorem max_idempotence : forall (n : Nat), max n n = n.
-Proof.
-  intros n.
-  unfold max in |- *.
-  rewrite (comparison_reflexivity n) in |- *.
-  reflexivity.
-Qed.
+Abbreviation max := (Comparable.max compare).
 
 Lemma max_r_identity : forall (n : Nat), max n One = n.
 Proof.
   intros n.
-  unfold max in |- *.
+  unfold Comparable.max in |- *.
   destruct (compare n One) as [| |] eqn:c.
   - pose proof (comparison_lt_specification_forward n One c) as lt.
     unfold LessThan in lt.
@@ -1088,7 +706,7 @@ Qed.
 Lemma max_l_identity : forall (n : Nat), max One n = n.
 Proof.
   intros n.
-  rewrite (max_commutativity One n) in |- *.
+  rewrite (Comparable.max_commutativity One n) in |- *.
   exact (max_r_identity n).
 Qed.
 
@@ -1216,10 +834,12 @@ Notation "m > n" := (Nat.LessThan n m) (only parsing)
 Notation "m >= n" := (Nat.LessOrEqual n m) (only parsing)
   : jwa_nat_scope.
 
-Instance Nat_add_semigroup : Semigroup Nat.add :=
+Instance Nat_add_semigroup
+  : Semigroup Nat.add :=
   {| Semigroup.associativity := Nat.addition_associativity |}.
 
-Instance Nat_add_cancellative : Cancellative Nat.add :=
+Instance Nat_add_cancellative
+  : Cancellative Nat.add :=
   {| Cancellative.cancellation :=
        fun (x : Nat) (y : Nat) (z : Nat) =>
            (Nat.addition_cancellation x y z) |}.
@@ -1228,44 +848,42 @@ Instance Nat_mul_cancellative
   : Cancellative Nat.mul :=
   {| Cancellative.cancellation := Nat.multiplication_cancellation |}.
 
-Instance Nat_mul_monoid : Monoid Nat.mul One :=
+Instance Nat_mul_monoid
+  : Monoid Nat.mul One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Nat.multiplication_associativity |}
    ; Monoid.identity := Nat.multiplication_identity |}.
 
-Instance Nat_add_commutative : Commutative Nat.add :=
+Instance Nat_add_commutative
+  : Commutative Nat.add :=
   {| Commutative.commutativity := Nat.addition_commutativity |}.
 
-Instance Nat_mul_commutative : Commutative Nat.mul :=
+Instance Nat_mul_commutative
+  : Commutative Nat.mul :=
   {| Commutative.commutativity := Nat.multiplication_commutativity |}.
 
-Instance Nat_less_than_strict_order : StrictOrder Nat.LessThan :=
-  {| StrictOrder.irreflexivity :=
-       {| Irreflexive.irreflexivity := Nat.lt_irreflexivity |}
-   ; StrictOrder.transitivity :=
-       {| Transitive.transitivity   := Nat.lt_transitivity |} |}.
+Instance Nat_less_than_strict_order
+  : StrictOrder Nat.LessThan :=
+  Comparable.strict_order.
 
-Instance Nat_less_or_eq_total_order : TotalOrder Nat.LessOrEqual :=
-  {| TotalOrder.partial_order :=
-       {| PartialOrder.reflexivity :=
-            {| Reflexive.reflexivity      := Nat.le_reflexivity |}
-        ; PartialOrder.antisymmetry :=
-            {| Antisymmetric.antisymmetry := Nat.le_antisymmetry |}
-        ; PartialOrder.transitivity :=
-            {| Transitive.transitivity    := Nat.le_transitivity |} |}
-   ; TotalOrder.totality :=
-       {| Total.totality := Nat.le_totality |} |}.
+Instance Nat_less_or_eq_total_order
+  : TotalOrder Nat.LessOrEqual :=
+  Comparable.total_order.
 
-Instance Nat_min_semigroup : Semigroup Nat.min :=
-  {| Semigroup.associativity := Nat.min_associativity |}.
+Instance Nat_min_semigroup
+  : Semigroup Nat.min :=
+  {| Semigroup.associativity := Comparable.min_associativity |}.
 
-Instance Nat_max_monoid : Monoid Nat.max One :=
+Instance Nat_max_monoid
+  : Monoid Nat.max One :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Nat.max_associativity |}
+       {| Semigroup.associativity := Comparable.max_associativity |}
    ; Monoid.identity := Nat.max_identity |}.
 
-Instance Nat_min_commutative : Commutative Nat.min :=
-  {| Commutative.commutativity := Nat.min_commutativity |}.
+Instance Nat_min_commutative
+  : Commutative Nat.min :=
+  {| Commutative.commutativity := Comparable.min_commutativity |}.
 
-Instance Nat_max_commutative : Commutative Nat.max :=
-  {| Commutative.commutativity := Nat.max_commutativity |}.
+Instance Nat_max_commutative
+  : Commutative Nat.max :=
+  {| Commutative.commutativity := Comparable.max_commutativity |}.
