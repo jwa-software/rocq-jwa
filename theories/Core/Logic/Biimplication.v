@@ -115,6 +115,14 @@ Qed.
 
 End Biimplication.
 
+(* [->elim h p] and [<-elim h q] run [h : P <-> Q] forward and backward, as
+ * [Biimplication.forward_elimination] and [backward_elimination]. Not to be
+ * confused with [->E] and [<-E] in [Core.Logic.Implication], which are
+ * modus ponens.
+ *)
+Notation "->elim" := Biimplication.forward_elimination (only parsing).
+Notation "<-elim" := Biimplication.backward_elimination (only parsing).
+
 (* The congruence of [->] belongs to [Implication], but its statement needs
  * [<->], so it can be stated only here. A second module of that name
  * carries it, and a client reads [Implication.congruence].

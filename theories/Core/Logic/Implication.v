@@ -14,6 +14,27 @@ Notation "A -> B" := (forall (_ : A), B)
  *)
 Module Implication.
 
+(* Modus ponens, the elimination rule of [->]. Rocq writes the step as
+ * plain application, [f a]; these name it.
+ *)
+Theorem modus_ponens : forall {A : Prop} {B : Prop}, (A -> B) -> A -> B.
+Proof.
+  intros A B.
+  intro f.
+  intro a.
+  apply f.
+  exact a.
+Qed.
+
+Theorem modus_ponens_flipped : forall {A : Prop} {B : Prop}, A -> (A -> B) -> B.
+Proof.
+  intros A B.
+  intro a.
+  intro f.
+  apply f.
+  exact a.
+Qed.
+
 Theorem reflexivity : forall {A : Prop}, A -> A.
 Proof.
   intro A.
@@ -76,3 +97,11 @@ Qed.
  *)
 
 End Implication.
+
+(* [->E f a] is modus ponens, [<-E a f] the same with the premises the
+ * other way round; plain [f a] remains the usual spelling. Not to be
+ * confused with [->elim] and [<-elim] in [Core.Logic.Biimplication], the
+ * forward and backward elimination of [<->].
+ *)
+Notation "->E" := Implication.modus_ponens (only parsing).
+Notation "<-E" := Implication.modus_ponens_flipped (only parsing).
