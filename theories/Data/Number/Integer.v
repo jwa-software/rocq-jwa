@@ -13,11 +13,6 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
-From jwa Require Import Relation.Irreflexive.
-From jwa Require Import Relation.Order.StrictPartialOrder.
-From jwa Require Import Relation.Order.StrictTotalOrder.
-From jwa Require Import Relation.Order.TotalOrder.
-From jwa Require Import Relation.Transitive.
 
 Inductive Integer : Type :=
   | Negative : Nat -> Integer
@@ -128,11 +123,11 @@ Proof.
     + reflexivity.
     + (* [e] computes to [Zero = Positive q], two distinct ctors. *)
       simpl in e.
-      discriminate.
+      discriminate e.
   - destruct n as [| q].
     + (* [e] computes to [Positive p = Zero], two distinct ctors. *)
       simpl in e.
-      discriminate.
+      discriminate e.
     + (* [e] computes to [Positive p = Positive q]; injectivity strips the
          ctors: [e' : p = q] *)
       simpl in e.
@@ -1384,7 +1379,7 @@ Proof.
   pose proof (Identity.transitivity e (Identity.symmetry (addition_right_identity n)))
     as e'.
   pose proof (addition_left_cancellation n (Positive k) Zero e') as f.
-  discriminate.
+  discriminate f.
 Qed.
 
 Theorem lt_transitivity
@@ -1468,12 +1463,13 @@ Proof.
 Qed.
 
 (* [compare] answers [Lt] and [Eq] exactly when the order says so; [Gt]
-   follows by [Comparable.gt_specification]. [LessThan] and [add] are opened so that the witness equation computes
-   under each ctor pair: [add (Negative p) (Positive k)] to
-   [difference k p], [add Zero (Positive k)] to [Positive k], and
-   [add (Positive p) (Positive k)] to [Positive (Nat.add p k)]. *)
+   follows by [Comparable.gt_specification]. [LessThan] and [add]
+   are opened so that the witness equation computes under each ctor pair:
+   [add (Negative p) (Positive k)] to [difference k p], [add Zero (Positive k)]
+   to [Positive k], and [add (Positive p) (Positive k)] to
+   [Positive (Nat.add p k)]. *)
 
-Lemma comparison_lt_specification
+Lemma lt_specification
   : forall (m : Integer) (n : Integer), compare m n = Lt <-> LessThan m n.
 Proof.
   (* The context gains [m] and [n]; one goal per ctor pair, each split into
@@ -1489,22 +1485,20 @@ Proof.
       * (* [c] says [q] is below [p]: [e : Nat.add q k = p]; the same witness
            serves, [difference k p] being [Negative q] by its specification. *)
         intro c.
-        pose proof (Nat.comparison_lt_specification_forward q p c) as lt.
+        pose proof (Nat.lt_specification_forward q p c) as lt.
         unfold Nat.LessThan in lt.
         destruct lt as [k e].
         apply (Exists_introduction k).
         rewrite (Nat.addition_commutativity q k) in e.
         exact (Biimplication.backward_elimination
-                 (difference k p = Negative q) (Nat.add k q = p)
                  (difference_negative_specification k p q) e).
       * (* [h] opens into [k] and [e : difference k p = Negative q], which
            the specification reads as [Nat.add k q = p]: [q] is below [p]. *)
         intro h.
         destruct h as [k e].
         pose proof (Biimplication.forward_elimination
-                      (difference k p = Negative q) (Nat.add k q = p)
                       (difference_negative_specification k p q) e) as e'.
-        apply (Nat.comparison_lt_specification_backward q p).
+        apply (Nat.lt_specification_backward q p).
         unfold Nat.LessThan in |- *.
         apply (Exists_introduction k).
         rewrite (Nat.addition_commutativity q k) in |- *.
@@ -1533,18 +1527,18 @@ Proof.
       simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro h.
         destruct h as [k e].
-        discriminate.
+        discriminate e.
     + (* [|- Eq = Lt <-> exists (k : Nat), Positive k = Zero] *)
       simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro h.
         destruct h as [k e].
-        discriminate.
+        discriminate e.
     + (* [|- Lt = Lt <-> exists (k : Nat), Positive k = Positive q]: the witness
          is [q]. *)
       simpl in |- *.
@@ -1559,25 +1553,25 @@ Proof.
       simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro h.
         destruct h as [k e].
-        discriminate.
+        discriminate e.
     + (* [|- Gt = Lt <-> exists (k : Nat), Positive (Nat.add p k) = Zero] *)
       simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro h.
         destruct h as [k e].
-        discriminate.
+        discriminate e.
     + (* [|- Nat.compare p q = Lt
            <-> exists (k : Nat), Positive (Nat.add p k) = Positive q]:
          [Nat]'s specification with the same witness under [Positive]. *)
       simpl in |- *.
       split.
       * intro c.
-        pose proof (Nat.comparison_lt_specification_forward p q c) as lt.
+        pose proof (Nat.lt_specification_forward p q c) as lt.
         unfold Nat.LessThan in lt.
         destruct lt as [k e].
         apply (Exists_introduction k).
@@ -1586,13 +1580,13 @@ Proof.
       * intro h.
         destruct h as [k e].
         pose proof (positive_injectivity (Nat.add p k) q e) as e'.
-        apply (Nat.comparison_lt_specification_backward p q).
+        apply (Nat.lt_specification_backward p q).
         unfold Nat.LessThan in |- *.
         apply (Exists_introduction k).
         exact e'.
 Qed.
 
-Lemma comparison_eq_specification
+Lemma eq_specification
   : forall (m : Integer) (n : Integer), compare m n = Eq <-> m = n.
 Proof.
   (* The context gains [m] and [n]; one goal per ctor pair, each split into
@@ -1605,7 +1599,7 @@ Proof.
       simpl in |- *.
       split.
       * intro c.
-        pose proof (Nat.comparison_eq_specification_forward q p c) as e.
+        pose proof (Nat.eq_specification_forward q p c) as e.
         rewrite e in |- *.
         reflexivity.
       * intro e.
@@ -1615,22 +1609,22 @@ Proof.
     + simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro e.
-        discriminate.
+        discriminate e.
     + simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro e.
-        discriminate.
+        discriminate e.
   - destruct n as [q | | q].
     + simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro e.
-        discriminate.
+        discriminate e.
     + (* [|- Eq = Eq <-> Zero = Zero] *)
       simpl in |- *.
       split.
@@ -1641,27 +1635,27 @@ Proof.
     + simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro e.
-        discriminate.
+        discriminate e.
   - destruct n as [q | | q].
     + simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro e.
-        discriminate.
+        discriminate e.
     + simpl in |- *.
       split.
       * intro c.
-        discriminate.
+        discriminate c.
       * intro e.
-        discriminate.
+        discriminate e.
     + (* [|- Nat.compare p q = Eq <-> Positive p = Positive q] *)
       simpl in |- *.
       split.
       * intro c.
-        pose proof (Nat.comparison_eq_specification_forward p q c) as e.
+        pose proof (Nat.eq_specification_forward p q c) as e.
         rewrite e in |- *.
         reflexivity.
       * intro e.
@@ -1676,27 +1670,14 @@ Theorem comparison_specification
 Proof.
   intros m n.
   split.
-  - exact (comparison_lt_specification m n).
-  - exact (comparison_eq_specification m n).
+  - exact (lt_specification m n).
+  - exact (eq_specification m n).
 Qed.
-
-(* [#[global]]: an instance declared inside a module is otherwise dropped at
- * its [End], and every client needs this one.
- *)
-#[global] Instance comparable
-  : Comparable compare LessThan :=
-  {| Comparable.strict_partial_order :=
-       {| StrictPartialOrder.irreflexivity :=
-            {| Irreflexive.irreflexivity := lt_irreflexivity |}
-        ; StrictPartialOrder.transitivity :=
-            {| Transitive.transitivity   := lt_transitivity |} |}
-   ; Comparable.specification := comparison_specification
-   ; Comparable.antisymmetry  := comparison_antisymmetry |}.
 
 (* The generic operation at [compare]; its laws are [Comparable]'s. *)
 
 (* [Integer -> Integer -> Bool] *)
-Abbreviation equal := (Comparable.equal compare).
+Abbreviation eq := (Comparable.eq compare).
 
 (* Adding the same integer on the left keeps a strict step, with the same
    witness once the sum is regrouped. *)
@@ -2047,6 +2028,12 @@ Notation "m > n" := (Integer.LessThan n m) (only parsing)
 Notation "m >= n" := (Integer.LessOrEqual n m) (only parsing)
   : jwa_integer_scope.
 
+Instance Integer_comparable
+  : Comparable Integer.compare Integer.LessThan :=
+  {| Comparable.transitivity  := Integer.lt_transitivity
+   ; Comparable.specification := Integer.comparison_specification
+   ; Comparable.antisymmetry  := Integer.comparison_antisymmetry |}.
+
 (* Addition is a commutative monoid with cancellation, [Zero] the identity;
    the laws were already proved above, so each instance only hands them
    over. *)
@@ -2069,15 +2056,6 @@ Instance Integer_mul_monoid : Monoid Integer.mul (Positive One) :=
 
 Instance Integer_mul_commutative : Commutative Integer.mul :=
   {| Commutative.commutativity := Integer.multiplication_commutativity |}.
-
-Instance Integer_less_than_strict_partial_order : StrictPartialOrder Integer.LessThan :=
-  Comparable.strict_partial_order.
-
-Instance Integer_less_than_strict_total_order : StrictTotalOrder Integer.LessThan :=
-  Comparable.strict_total_order.
-
-Instance Integer_less_or_equal_total_order : TotalOrder Integer.LessOrEqual :=
-  Comparable.total_order.
 
 (* Addition is an abelian group, negation the inverse; with [mul] it is a
  * ring. Each instance only hands over the laws and instances above.

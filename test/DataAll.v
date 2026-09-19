@@ -110,7 +110,7 @@ Definition data_all_delivers_power
 
 Definition data_all_delivers_subtract
   : Option Nat
-  := Nat.subtract (Successor One) One.
+  := Nat.sub (Successor One) One.
 
 Definition data_all_delivers_mul_monoid
   : forall (n : Nat), Nat.mul One n = n /\ Nat.mul n One = n
@@ -191,9 +191,17 @@ Definition data_all_delivers_compare
   : Comparison
   := Nat.compare One (Successor One).
 
-Definition data_all_delivers_equal
+Definition data_all_delivers_eq
   : Bool
-  := NatWithZero.equal NatWithZero.Zero NatWithZero.Zero.
+  := NatWithZero.eq NatWithZero.Zero NatWithZero.Zero.
+
+Definition data_all_delivers_comparable_specifications
+  : forall (m : Nat) (n : Nat),
+      (Nat.compare m n = Lt <-> Nat.LessThan m n)
+    /\ (Nat.compare m n = Gt <-> Nat.LessThan n m)
+  := fun (m : Nat) (n : Nat) =>
+       Conjunction_introduction
+         (Comparable.lt_specification m n) (Comparable.gt_specification m n).
 
 Definition data_all_delivers_comparable
   : forall (m : Nat) (n : Nat), Nat.LessThan m n \/ m = n \/ Nat.LessThan n m
@@ -253,9 +261,20 @@ Definition data_all_delivers_count
 
 Definition data_all_delivers_sorting
   : forall (l : List NatWithZero),
-      List.Sorted NatWithZero.at_most (List.insertion_sort NatWithZero.at_most l)
-  := List.insertion_sort_sortedness NatWithZero NatWithZero.at_most
-       Comparable.at_most_totality Comparable.at_most_transitivity.
+      List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
+  := List.insertion_sort_sortedness NatWithZero NatWithZero.le
+       (fun (m : NatWithZero) (n : NatWithZero) =>
+          Biimplication.backward_elimination
+            (Disjunction.congruence
+               (Comparable.le_reflection m n) (Comparable.le_reflection n m))
+            (Comparable.le_totality m n))
+       (fun (a : NatWithZero) (b : NatWithZero) (c : NatWithZero)
+            (h1 : NatWithZero.le a b = true) (h2 : NatWithZero.le b c = true) =>
+          Biimplication.backward_elimination
+            (Comparable.le_reflection a c)
+            (Comparable.le_transitivity a b c
+               (Biimplication.forward_elimination (Comparable.le_reflection a b) h1)
+               (Biimplication.forward_elimination (Comparable.le_reflection b c) h2))).
 
 Definition data_all_delivers_integer
   : Integer
@@ -292,9 +311,9 @@ Definition data_all_delivers_integer_embedding
   : Integer
   := Integer.from_nat_with_zero (NatWithZero.Positive One).
 
-Definition data_all_delivers_integer_equal
+Definition data_all_delivers_integer_eq
   : Bool
-  := Integer.equal (Negative One) (Integer.negate (Integer.Positive One)).
+  := Integer.eq (Negative One) (Integer.negate (Integer.Positive One)).
 
 Definition data_all_delivers_range
   : List NatWithZero

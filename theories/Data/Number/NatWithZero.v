@@ -6,8 +6,8 @@
    [Algebra.Cancellative] and the [Relation] order classes are what the
    instances at the bottom fill; [Data.Comparison] is what [compare] answers
    in, [Data.Comparable] the laws every [compare] shares, [Data.Bool] what
-   [equal] answers in, [Data.Product] what [division]
-   answers in, and [Data.Option] what [Nat.subtract] answers in. *)
+   [eq] answers in, [Data.Product] what [division]
+   answers in, and [Data.Option] what [sub] and [Nat.sub] answer in. *)
 From jwa Require Import Algebra.AbelianMonoid.
 From jwa Require Import Algebra.Cancellative.
 From jwa Require Import Algebra.Commutative.
@@ -22,11 +22,7 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Relation.Antisymmetric.
-From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.
-From jwa Require Import Relation.Order.StrictPartialOrder.
-From jwa Require Import Relation.Order.StrictTotalOrder.
-From jwa Require Import Relation.Order.TotalOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 
@@ -187,14 +183,14 @@ Proof.
     (* The context gains [e : Positive n = Zero]: [|- Falsum] *)
     intro e.
     (* [e] equates two distinct ctors, which closes any goal. *)
-    discriminate.
+    discriminate e.
   - (* Both summands positive, so [add] computes to [Positive]:
        [|- Positive (Nat.add m' n) = Zero -> Falsum] *)
     simpl in |- *.
     (* The context gains [e : Positive (Nat.add m' n) = Zero]: [|- Falsum] *)
     intro e.
     (* [e] equates two distinct ctors, which closes any goal. *)
-    discriminate.
+    discriminate e.
 Qed.
 
 Theorem add_l_cancellation
@@ -237,7 +233,7 @@ Proof.
         (* [f : Falsum] *)
         pose proof (h e'') as f.
         (* [f : Falsum], which is what [contradiction] looks for. *)
-        contradiction.
+        contradiction f.
     + (* [k] is either [Zero] or [Positive k']: one goal per ctor. *)
       destruct k as [| k'].
       * (* Both [add]s compute:
@@ -256,7 +252,7 @@ Proof.
         (* [f : Falsum] *)
         pose proof (h e') as f.
         (* [f : Falsum], which is what [contradiction] looks for. *)
-        contradiction.
+        contradiction f.
       * (* Both [add]s compute:
            [|- Positive (Nat.add n' m') = Positive (Nat.add n' k')
                -> Positive m' = Positive k'] *)
@@ -805,7 +801,7 @@ Proof.
   - (* [add Zero] computes: [e : Positive k = Zero] *)
     simpl in e.
     (* [e] equates two distinct ctors, which closes any goal. *)
-    discriminate.
+    discriminate e.
   - (* [add] computes under [Positive]:
        [e : Positive (Nat.add n' k) = Positive n'] *)
     simpl in e.
@@ -819,7 +815,7 @@ Proof.
     (* [f : Falsum] *)
     pose proof (i e') as f.
     (* [f : Falsum], which is what [contradiction] looks for. *)
-    contradiction.
+    contradiction f.
 Qed.
 
 Theorem lt_transitivity
@@ -1094,10 +1090,10 @@ Proof.
 Qed.
 
 (* [compare] answers [Lt] and [Eq] exactly when the order says so, and [Gt]
-   follows by [Comparable.gt_specification]; the [Positive] pair falls to
-   [Nat]'s specification through [less_than_positive_embedding]. *)
+   follows by [Comparable.gt_specification]; the [Positive] pair
+   falls to [Nat]'s specification through [less_than_positive_embedding]. *)
 
-Lemma comparison_lt_specification
+Lemma lt_specification
   : forall (m : NatWithZero) (n : NatWithZero), compare m n = Lt <-> LessThan m n.
 Proof.
   (* The context gains [m] and [n]. *)
@@ -1109,13 +1105,13 @@ Proof.
       * (* [|- Eq = Lt -> LessThan Zero Zero] after computing *)
         simpl in |- *.
         intro e.
-        discriminate.
+        discriminate e.
       * (* [LessThan Zero Zero] contradicts irreflexivity. *)
         intro h.
         pose proof (lt_irreflexivity Zero) as i.
         unfold Negation in i.
         pose proof (i h) as f.
-        contradiction.
+        contradiction f.
     + split.
       * (* [Zero] is below, with [n'] as the witness. *)
         intro e.
@@ -1132,35 +1128,32 @@ Proof.
       * (* [|- Gt = Lt -> ...] after computing *)
         simpl in |- *.
         intro e.
-        discriminate.
+        discriminate e.
       * (* Nothing is below [Zero]: the witness equation computes to a
            [Positive] against [Zero]. *)
         intro h.
         unfold LessThan in h.
         destruct h as [k e].
         simpl in e.
-        discriminate.
+        discriminate e.
     + split.
       * (* [compare] computes to [Nat.compare m' n']. *)
         simpl in |- *.
         intro e.
         exact (Biimplication.backward_elimination
-                 (LessThan (Positive m') (Positive n')) (Nat.LessThan m' n')
                  (less_than_positive_embedding m' n')
-                 (Nat.comparison_lt_specification_forward m' n' e)).
+                 (Nat.lt_specification_forward m' n' e)).
       * intro h.
         simpl in |- *.
-        exact (Nat.comparison_lt_specification_backward
+        exact (Nat.lt_specification_backward
                 m'
                 n'
                 (Biimplication.forward_elimination
-                  (LessThan (Positive m') (Positive n'))
-                  (Nat.LessThan m' n')
                   (less_than_positive_embedding m' n')
                   h)).
 Qed.
 
-Lemma comparison_eq_specification
+Lemma eq_specification
   : forall (m : NatWithZero) (n : NatWithZero), compare m n = Eq <-> m = n.
 Proof.
   (* The context gains [m] and [n]. *)
@@ -1174,14 +1167,14 @@ Proof.
       * reflexivity.
       * (* [e : Lt = Eq] after computing *)
         simpl in e.
-        discriminate.
+        discriminate e.
     + destruct n as [| n'].
       * (* [e : Gt = Eq] after computing *)
         simpl in e.
-        discriminate.
+        discriminate e.
       * (* [e : Nat.compare m' n' = Eq], so [m' = n'] replaces [m']. *)
         simpl in e.
-        rewrite (Nat.comparison_eq_specification_forward m' n' e) in |- *.
+        rewrite (Nat.eq_specification_forward m' n' e) in |- *.
         reflexivity.
   - (* The context gains [e : m = n], which replaces [m]; one goal per
        ctor. *)
@@ -1203,30 +1196,26 @@ Theorem comparison_specification
 Proof.
   intros m n.
   split.
-  - exact (comparison_lt_specification m n).
-  - exact (comparison_eq_specification m n).
+  - exact (lt_specification m n).
+  - exact (eq_specification m n).
 Qed.
 
-(* [#[global]]: an instance declared inside a module is otherwise dropped at
- * its [End], and the laws below and every client need this one.
+(* Declared inside the module because the proofs below use it; it is made
+ * visible to other files after [End NatWithZero].
  *)
-#[global] Instance comparable
+Instance comparable
   : Comparable compare LessThan :=
-  {| Comparable.strict_partial_order :=
-       {| StrictPartialOrder.irreflexivity :=
-            {| Irreflexive.irreflexivity := lt_irreflexivity |}
-        ; StrictPartialOrder.transitivity :=
-            {| Transitive.transitivity   := lt_transitivity |} |}
+  {| Comparable.transitivity  := lt_transitivity
    ; Comparable.specification := comparison_specification
    ; Comparable.antisymmetry  := comparison_antisymmetry |}.
 
 (* The generic operations at [compare]; their laws are [Comparable]'s. *)
 
 (* [NatWithZero -> NatWithZero -> Bool] *)
-Abbreviation equal := (Comparable.equal compare).
+Abbreviation eq := (Comparable.eq compare).
 
 (* [NatWithZero -> NatWithZero -> Bool] *)
-Abbreviation at_most := (Comparable.at_most compare).
+Abbreviation le := (Comparable.le compare).
 
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Abbreviation min := (Comparable.min compare).
@@ -1297,11 +1286,9 @@ Proof.
   destruct t as [h | h].
   - (* [h : LessOrEqual m n]: both [min]s pick the left candidate:
        [|- add k m = add k m] *)
-    rewrite (Biimplication.backward_elimination
-               (min m n = m) (LessOrEqual m n) (Comparable.min_specification m n) h)
+    rewrite (Biimplication.backward_elimination (Comparable.min_specification m n) h)
       in |- *.
     rewrite (Biimplication.backward_elimination
-               (min (add k m) (add k n) = add k m) (LessOrEqual (add k m) (add k n))
                (Comparable.min_specification (add k m) (add k n))
                (addition_monotonicity k m n h))
       in |- *.
@@ -1310,11 +1297,9 @@ Proof.
        they pick the right candidate: [|- add k n = add k n] *)
     rewrite (Comparable.min_commutativity m n) in |- *.
     rewrite (Comparable.min_commutativity (add k m) (add k n)) in |- *.
-    rewrite (Biimplication.backward_elimination
-               (min n m = n) (LessOrEqual n m) (Comparable.min_specification n m) h)
+    rewrite (Biimplication.backward_elimination (Comparable.min_specification n m) h)
       in |- *.
     rewrite (Biimplication.backward_elimination
-               (min (add k n) (add k m) = add k n) (LessOrEqual (add k n) (add k m))
                (Comparable.min_specification (add k n) (add k m))
                (addition_monotonicity k n m h))
       in |- *.
@@ -1322,18 +1307,18 @@ Proof.
 Qed.
 
 (* Truncated subtraction. A [Zero] on either side is settled without
-   recursion; two positives fall to [Nat.subtract], whose [None] is the
+   recursion; two positives fall to [Nat.sub], whose [None] is the
    truncation. *)
 
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition subtract := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) =>
   match m with
   | Zero       => Zero
   | Positive p =>
       match n with
       | Zero       => Positive p
       | Positive q =>
-          match Nat.subtract p q with
+          match Nat.sub p q with
           | None   => Zero
           | Some k => Positive k
           end
@@ -1342,8 +1327,8 @@ Definition subtract := fun (m : NatWithZero) (n : NatWithZero) =>
 
 (* Taking away what was added gives the rest back: subtraction inverts
    addition. *)
-Theorem subtract_inversion_of_add
-  : forall (m : NatWithZero) (n : NatWithZero), subtract (add m n) n = m.
+Theorem saturating_subtraction_inversion_of_addition
+  : forall (m : NatWithZero) (n : NatWithZero), saturating_sub (add m n) n = m.
 Proof.
   (* The context gains [m] and [n]; one goal per ctor pair. *)
   intros m n.
@@ -1352,51 +1337,51 @@ Proof.
     + (* Everything computes: [|- Zero = Zero] *)
       simpl in |- *.
       reflexivity.
-    + (* [add _ Zero] and [subtract _ Zero] compute:
+    + (* [add _ Zero] and [saturating_sub _ Zero] compute:
          [|- Positive m' = Positive m'] *)
       simpl in |- *.
       reflexivity.
   - destruct m as [| m'].
-    + (* [|- match Nat.subtract n' n' with ... end = Zero] after computing *)
+    + (* [|- match Nat.sub n' n' with ... end = Zero] after computing *)
       simpl in |- *.
       (* Truncation on the diagonal answers [None], whose branch computes:
          [|- Zero = Zero] *)
-      rewrite (Nat.subtract_truncation n' n' (Comparable.le_reflexivity n')) in |- *.
+      rewrite (Nat.sub_truncation n' n' (Comparable.le_reflexivity n')) in |- *.
       simpl in |- *.
       reflexivity.
-    + (* [|- match Nat.subtract (Nat.add m' n') n' with ... end = Positive m']
+    + (* [|- match Nat.sub (Nat.add m' n') n' with ... end = Positive m']
          after computing *)
       simpl in |- *.
       (* The inversion answers [Some m'], whose branch computes:
          [|- Positive m' = Positive m'] *)
-      rewrite (Nat.subtract_inversion_of_add m' n') in |- *.
+      rewrite (Nat.subtraction_inversion_of_addition m' n') in |- *.
       simpl in |- *.
       reflexivity.
 Qed.
 
 (* Below or equal, the difference is [Zero]. *)
-Theorem subtract_truncation
-  : forall (m : NatWithZero) (n : NatWithZero), LessOrEqual m n -> subtract m n = Zero.
+Theorem saturating_sub_truncation
+  : forall (m : NatWithZero) (n : NatWithZero), LessOrEqual m n -> saturating_sub m n = Zero.
 Proof.
   (* The context gains [m], [n] and [h], an equality or a strict step. *)
   intros m n h.
   unfold LessOrEqual in h.
   destruct h as [e | lt].
-  - (* [e : m = n] replaces [m]: [|- subtract n n = Zero], one goal per
+  - (* [e : m = n] replaces [m]: [|- saturating_sub n n = Zero], one goal per
        ctor of [n]. *)
     rewrite e in |- *.
     destruct n as [| n'].
     + simpl in |- *.
       reflexivity.
-    + (* [|- match Nat.subtract n' n' with ... end = Zero] after computing *)
+    + (* [|- match Nat.sub n' n' with ... end = Zero] after computing *)
       simpl in |- *.
       (* Truncation on the diagonal answers [None], whose branch computes:
          [|- Zero = Zero] *)
-      rewrite (Nat.subtract_truncation n' n' (Comparable.le_reflexivity n')) in |- *.
+      rewrite (Nat.sub_truncation n' n' (Comparable.le_reflexivity n')) in |- *.
       simpl in |- *.
       reflexivity.
   - (* [lt] opens into [k] and [e : add m (Positive k) = n]; turned round it
-       replaces [n]: [|- subtract m (add m (Positive k)) = Zero] *)
+       replaces [n]: [|- saturating_sub m (add m (Positive k)) = Zero] *)
     unfold LessThan in lt.
     destruct lt as [k e].
     pose proof (Identity.symmetry e) as e'.
@@ -1405,12 +1390,12 @@ Proof.
     destruct m as [| m'].
     + simpl in |- *.
       reflexivity.
-    + (* [|- match Nat.subtract m' (Nat.add m' k) with ... end = Zero] after
+    + (* [|- match Nat.sub m' (Nat.add m' k) with ... end = Zero] after
          computing *)
       simpl in |- *.
       (* [m'] is below the sum, so truncation answers [None], whose branch
          computes: [|- Zero = Zero] *)
-      rewrite (Nat.subtract_truncation m' (Nat.add m' k)
+      rewrite (Nat.sub_truncation m' (Nat.add m' k)
                  (Disjunction.r (Nat.addition_left_extensivity m' k))) in |- *.
       simpl in |- *.
       reflexivity.
@@ -1418,25 +1403,25 @@ Qed.
 
 (* Above or equal, the difference put back gives the number: subtraction
    inverts addition where it is not truncated. *)
-Theorem subtract_specification
+Theorem saturating_subtraction_specification
   : forall (m : NatWithZero) (n : NatWithZero),
-      LessOrEqual n m -> add n (subtract m n) = m.
+      LessOrEqual n m -> add n (saturating_sub m n) = m.
 Proof.
   (* The context gains [m], [n] and [h], an equality or a strict step. *)
   intros m n h.
   unfold LessOrEqual in h.
   destruct h as [e | lt].
-  - (* [e : n = m] replaces [n]; [subtract m m] is [Zero] by truncation,
+  - (* [e : n = m] replaces [n]; [saturating_sub m m] is [Zero] by truncation,
        and [add m Zero] computes once [m] is a ctor. *)
     rewrite e in |- *.
-    rewrite (subtract_truncation m m (Comparable.le_reflexivity m)) in |- *.
+    rewrite (saturating_sub_truncation m m (Comparable.le_reflexivity m)) in |- *.
     destruct m as [| m'].
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
       reflexivity.
   - (* [lt] opens into [k] and [e : add n (Positive k) = m]; turned round it
-       replaces [m]: [|- add n (subtract (add n (Positive k)) n) = add n (Positive k)] *)
+       replaces [m]: [|- add n (saturating_sub (add n (Positive k)) n) = add n (Positive k)] *)
     unfold LessThan in lt.
     destruct lt as [k e].
     pose proof (Identity.symmetry e) as e'.
@@ -1444,16 +1429,16 @@ Proof.
     (* Commutativity puts the sum into the inversion's shape, and the
        inversion strips it: [|- add n (Positive k) = add (Positive k) n] *)
     rewrite (addition_commutativity n (Positive k)) in |- *.
-    rewrite (subtract_inversion_of_add (Positive k) n) in |- *.
+    rewrite (saturating_subtraction_inversion_of_addition (Positive k) n) in |- *.
     (* Commutativity once more: both sides are the same term. *)
     rewrite (addition_commutativity n (Positive k)) in |- *.
     reflexivity.
 Qed.
 
 (* [Zero] is a right identity of subtraction: nothing is taken away. *)
-Theorem subtract_right_identity : forall (n : NatWithZero), subtract n Zero = n.
+Theorem saturating_sub_r_identity : forall (n : NatWithZero), saturating_sub n Zero = n.
 Proof.
-  (* The context gains [n]; [subtract] computes once [n] is a ctor. *)
+  (* The context gains [n]; [saturating_sub] computes once [n] is a ctor. *)
   intros n.
   destruct n as [| n'].
   - simpl in |- *.
@@ -1463,9 +1448,9 @@ Proof.
 Qed.
 
 (* Shifting both numbers by the same amount leaves the difference alone. *)
-Theorem subtract_translation_invariance
+Theorem saturating_sub_translation_invariance
   : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
-      subtract (add k m) (add k n) = subtract m n.
+      saturating_sub (add k m) (add k n) = saturating_sub m n.
 Proof.
   (* The context gains [k], [m] and [n]. *)
   intros k m n.
@@ -1478,41 +1463,112 @@ Proof.
     destruct m as [| m'].
     + destruct n as [| n'].
       * (* Both sums compute to [Positive k'] and the subtraction opens on
-           [Nat.subtract k' k']:
-           [|- match Nat.subtract k' k' with ... end = Zero] *)
+           [Nat.sub k' k']:
+           [|- match Nat.sub k' k' with ... end = Zero] *)
         simpl in |- *.
         (* Truncation on the diagonal answers [None], whose branch computes:
            [|- Zero = Zero] *)
-        rewrite (Nat.subtract_truncation k' k' (Comparable.le_reflexivity k'))
+        rewrite (Nat.sub_truncation k' k' (Comparable.le_reflexivity k'))
           in |- *.
         simpl in |- *.
         reflexivity.
-      * (* [|- match Nat.subtract k' (Nat.add k' n') with ... end = Zero] after
+      * (* [|- match Nat.sub k' (Nat.add k' n') with ... end = Zero] after
            computing *)
         simpl in |- *.
         (* [k'] is below the sum, so truncation answers [None], whose branch
            computes: [|- Zero = Zero] *)
-        rewrite (Nat.subtract_truncation k' (Nat.add k' n')
+        rewrite (Nat.sub_truncation k' (Nat.add k' n')
                    (Disjunction.r (Nat.addition_left_extensivity k' n'))) in |- *.
         simpl in |- *.
         reflexivity.
     + destruct n as [| n'].
-      * (* [|- match Nat.subtract (Nat.add k' m') k' with ... end = Positive m']
+      * (* [|- match Nat.sub (Nat.add k' m') k' with ... end = Positive m']
            after computing *)
         simpl in |- *.
         (* Commutativity puts the sum into the inversion's shape; the
            inversion answers [Some m'], whose branch computes:
            [|- Positive m' = Positive m'] *)
         rewrite (Nat.addition_commutativity k' m') in |- *.
-        rewrite (Nat.subtract_inversion_of_add m' k') in |- *.
+        rewrite (Nat.subtraction_inversion_of_addition m' k') in |- *.
         simpl in |- *.
         reflexivity.
-      * (* [|- match Nat.subtract (Nat.add k' m') (Nat.add k' n') with ... end
-              = match Nat.subtract m' n' with ... end] after computing *)
+      * (* [|- match Nat.sub (Nat.add k' m') (Nat.add k' n') with ... end
+              = match Nat.sub m' n' with ... end] after computing *)
         simpl in |- *.
         (* The shift cancels on [Nat]: both sides are the same term. *)
-        rewrite (Nat.subtract_translation_invariance k' m' n') in |- *.
+        rewrite (Nat.sub_translation_invariance k' m' n') in |- *.
         reflexivity.
+Qed.
+
+(* Subtraction that fails instead of truncating, as [Nat.sub] does: [None]
+ * exactly when [n] exceeds [m], otherwise the difference [saturating_sub]
+ * computes.
+ *)
+(* [NatWithZero -> NatWithZero -> Option NatWithZero] *)
+Definition sub := fun (m : NatWithZero) (n : NatWithZero) =>
+  match le n m with
+  | true  => Some (saturating_sub m n)
+  | false => None
+  end.
+
+Theorem sub_truncation
+  : forall (m : NatWithZero) (n : NatWithZero), LessThan m n -> sub m n = None.
+Proof.
+  intros m n h.
+  unfold sub in |- *.
+  destruct (le n m) as [|] eqn:c.
+  - (* [c] says [n] is at most [m], which [h] rules out either way. *)
+    pose proof (Biimplication.forward_elimination (Comparable.le_reflection n m) c)
+      as order.
+    unfold Comparable.LessOrEqual in order.
+    destruct order as [e | lt].
+    + rewrite e in h.
+      pose proof (lt_irreflexivity m) as i.
+      unfold Negation in i.
+      pose proof (i h) as f.
+      contradiction f.
+    + pose proof (Comparable.lt_asymmetry m n h) as a.
+      unfold Negation in a.
+      pose proof (a lt) as f.
+      contradiction f.
+  - reflexivity.
+Qed.
+
+Theorem subtraction_inversion_of_addition
+  : forall (m : NatWithZero) (n : NatWithZero), sub (add m n) n = Some m.
+Proof.
+  intros m n.
+  unfold sub in |- *.
+  rewrite (saturating_subtraction_inversion_of_addition m n) in |- *.
+  rewrite (Biimplication.backward_elimination
+             (Comparable.le_reflection n (add m n))
+             (addition_right_inflation m n))
+    in |- *.
+  simpl in |- *.
+  reflexivity.
+Qed.
+
+Theorem subtraction_specification
+  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero),
+      sub m n = Some k <-> add n k = m.
+Proof.
+  intros m n k.
+  split.
+  - intro e.
+    unfold sub in e.
+    destruct (le n m) as [|] eqn:c.
+    + (* [e] gives [k] as the truncated difference, and [c] says no
+         truncation happened. *)
+      pose proof (Option.some_injectivity NatWithZero (saturating_sub m n) k e) as e'.
+      pose proof (Biimplication.forward_elimination (Comparable.le_reflection n m) c)
+        as order.
+      rewrite <- e' in |- *.
+      exact (saturating_subtraction_specification m n order).
+    + discriminate e.
+  - intro e.
+    rewrite <- e in |- *.
+    rewrite (addition_commutativity n k) in |- *.
+    exact (subtraction_inversion_of_addition k n).
 Qed.
 
 (* Euclidean division of a positive by a positive, by walking the dividend
@@ -1529,7 +1585,7 @@ Fixpoint division (p : Nat) (d : Nat) : Product NatWithZero NatWithZero :=
   | Successor p' =>
       match division p' d with
       | Product_introduction q r =>
-          match equal (add r (Positive One)) (Positive d) with
+          match eq (add r (Positive One)) (Positive d) with
           | true  => Product_introduction (add q (Positive One)) Zero
           | false => Product_introduction q (add r (Positive One))
           end
@@ -1553,7 +1609,7 @@ Definition modulo := fun (n : NatWithZero) (d : Nat) =>
 (* The invariant of the walk: the dividend is quotient times divisor plus
    remainder, and the remainder stays below the divisor. Induction on the
    dividend; the step opens the pair of the previous step and follows the
-   [equal] test both ways. *)
+   [eq] test both ways. *)
 Lemma division_invariant
   : forall (p : Nat) (d : Nat),
       Positive p
@@ -1599,8 +1655,8 @@ Proof.
     destruct (division p' d) as [q r] eqn:D.
     simpl in e.
     simpl in lt.
-    (* The [equal] test is [true] or [false], with [E] recording it. *)
-    destruct (equal (add r (Positive One)) (Positive d)) as [|] eqn:E.
+    (* The [eq] test is [true] or [false], with [E] recording it. *)
+    destruct (eq (add r (Positive One)) (Positive d)) as [|] eqn:E.
     + (* The new pair is [(add q (Positive One), Zero)]:
          [|- Positive (Successor p')
              = add (mul (add q (Positive One)) (Positive d)) Zero
@@ -1610,9 +1666,7 @@ Proof.
       * (* [E] says the remainder plus one reached the divisor:
            [full : add r (Positive One) = Positive d] *)
         pose proof (Biimplication.forward_elimination
-                      (equal (add r (Positive One)) (Positive d) = true)
-                      (add r (Positive One) = Positive d)
-                      (Comparable.eq_specification (add r (Positive One)) (Positive d))
+                      (Comparable.eq_reflection (add r (Positive One)) (Positive d))
                       E) as full.
         (* The right distributivity law, the identity of [mul] and the
            identity of [add] bring the right side to
@@ -1676,11 +1730,12 @@ Proof.
         unfold LessThan in lt.
         destruct lt as [k ek].
         destruct k as [| k'].
-        { (* [k = One] makes [ek] the equality [E] refutes. *)
-          pose proof (Comparable.eq_refutation (add r (Positive One)) (Positive d) E) as ne.
-          unfold Negation in ne.
-          pose proof (ne ek) as f.
-          contradiction. }
+        { (* [k = One] makes [ek] an equality, so [eq] answers [true] on it,
+             against [E]: [E : true = false] *)
+          rewrite (Biimplication.backward_elimination
+                     (Comparable.eq_reflection (add r (Positive One)) (Positive d)) ek)
+            in E.
+          discriminate E. }
         { (* [k'] is the new witness: associativity opens the left side and
              the inner sum computes to [Positive (Successor k')], which is
              [ek]. *)
@@ -1782,10 +1837,10 @@ Proof.
     rewrite e1' in e2.
     destruct k as [| k'].
     + simpl in e2.
-      discriminate.
+      discriminate e2.
     + destruct j as [| j'].
       * simpl in e2.
-        discriminate.
+        discriminate e2.
       * (* [e2] computes to
          * [Positive (Nat.mul (Nat.mul p k') j') = Positive p]; injectivity
          * and associativity give [e3], and [Nat.mul One p] is [p] by
@@ -2033,6 +2088,12 @@ Notation "m > n" := (NatWithZero.LessThan n m) (only parsing)
 Notation "m >= n" := (NatWithZero.LessOrEqual n m) (only parsing)
   : jwa_nat_with_zero_scope.
 
+(* Declared inside [Module NatWithZero], whose proofs use it; an instance
+ * declared there is dropped at the module's [End], so it is announced again
+ * here.
+ *)
+Existing Instance NatWithZero.comparable.
+
 (* [Zero] is exactly what [Nat] lacks, so this one reaches monoid. The
    [semigroup] field is filled inline rather than by a second instance:
    [Monoid.semigroup] is declared with [::], so resolution already finds a
@@ -2072,19 +2133,6 @@ Instance NatWithZero_mul_commutative
   : Commutative NatWithZero.mul := {|
     Commutative.commutativity := NatWithZero.multiplication_commutativity
   |}.
-
-(* The two orders as instances of the [Relation] classes, as for [Nat]. *)
-Instance NatWithZero_less_than_strict_partial_order
-  : StrictPartialOrder NatWithZero.LessThan :=
-  Comparable.strict_partial_order.
-
-Instance NatWithZero_less_than_strict_total_order
-  : StrictTotalOrder NatWithZero.LessThan :=
-  Comparable.strict_total_order.
-
-Instance NatWithZero_less_or_eq_total_order
-  : TotalOrder NatWithZero.LessOrEqual :=
-  Comparable.total_order.
 
 (* [min] has no identity, since [Zero] absorbs it; [max] has [Zero].
    Both commute. *)

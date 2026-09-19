@@ -9,11 +9,6 @@ From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
-From jwa Require Import Relation.Irreflexive.
-From jwa Require Import Relation.Order.StrictPartialOrder.
-From jwa Require Import Relation.Order.StrictTotalOrder.
-From jwa Require Import Relation.Order.TotalOrder.
-From jwa Require Import Relation.Transitive.
 
 (* Zero is not a [Nat]; [One] is the smallest.
  * [Data.Number.NatWithZero] is the type that has it.
@@ -96,7 +91,7 @@ Proof.
     intro e.
     rewrite (addition_commutativity k One) in e.
     simpl in e.
-    discriminate.
+    discriminate e.
   -
     unfold Negation in |- *.
     intro e.
@@ -356,7 +351,7 @@ Proof.
   pose proof (addition_identity_absence k n) as i.
   unfold Negation in i.
   pose proof (i e) as f.
-  contradiction.
+  contradiction f.
 Qed.
 
 Theorem lt_transitivity
@@ -394,10 +389,11 @@ Proof.
   reflexivity.
 Qed.
 
-(* "Strict" says which order is preserved, not which direction: a strictly
-   monotone function carries [<] to [<] (equality excluded), a monotone one
-   carries [<=] to [<=]. Both go the same way; the reversed relation [>] is
-   [<] read from the other side and needs no law of its own. *)
+(* "Strict" names the order preserved, not a direction: a strictly monotone
+ * function carries [<] to [<] (equality excluded), a monotone one [<=] to
+ * [<=]. The reversed [>] is [<] read from the other side and needs no law
+ * of its own.
+ *)
 Theorem successor_strict_monotonicity
   : forall (m : Nat) (n : Nat),
       LessThan m n -> LessThan (Successor m) (Successor n).
@@ -454,10 +450,11 @@ Proof.
   reflexivity.
 Qed.
 
-(* Trichotomy, "cut in three": whichever two numbers [m] and [n] are taken,
-   exactly one of `[m] is below [n]`, `[m] is [n]`, `[n] is below [m]` is the case.
-   This theorem is the "at least one" half;
-   "at most one" is [lt_irreflexivity] and [Comparable.lt_asymmetry]. *)
+(* Trichotomy, "cut in three": for any [m] and [n], exactly one of
+ * [LessThan m n], [m = n], [LessThan n m] holds. This theorem is the "at
+ * least one" half; "at most one" is [lt_irreflexivity] with
+ * [Comparable.lt_asymmetry].
+ *)
 Theorem lt_trichotomy
   : forall (m : Nat) (n : Nat), (LessThan m n) \/ (m = n) \/ (LessThan n m).
 Proof.
@@ -508,7 +505,7 @@ Proof.
     pose proof (lt_irreflexivity (mul m k)) as i.
     unfold Negation in i.
     pose proof (i lt') as f.
-    contradiction.
+    contradiction f.
   - destruct rest as [eq | gt].
     + exact eq.
     + pose proof (multiplication_strict_monotonicity m k n gt) as gt'.
@@ -516,7 +513,7 @@ Proof.
       pose proof (lt_irreflexivity (mul m k)) as i.
       unfold Negation in i.
       pose proof (i gt') as f.
-      contradiction.
+      contradiction f.
 Qed.
 
 Theorem mul_r_cancellation
@@ -551,9 +548,9 @@ Proof.
   -
     destruct j as [| j'].
     + simpl in e.
-      discriminate.
+      discriminate e.
     + simpl in e.
-      discriminate.
+      discriminate e.
 Qed.
 
 Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
@@ -564,7 +561,7 @@ Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   | Successor m', Successor n' => compare m' n'
   end.
 
-Lemma comparison_lt_specification_forward
+Lemma lt_specification_forward
   : forall (m : Nat) (n : Nat), compare m n = Lt -> LessThan m n.
 Proof.
   intros m.
@@ -573,16 +570,16 @@ Proof.
   destruct n as [| n'];
     simpl in |- *;
     intro e.
-  + discriminate.
+  + discriminate e.
   + unfold LessThan in |- *.
     apply (Exists_introduction n').
     simpl in |- *.
     reflexivity.
-  + discriminate.
+  + discriminate e.
   + exact (successor_strict_monotonicity m' n' (IH n' e)).
 Qed.
 
-Lemma comparison_lt_specification_backward
+Lemma lt_specification_backward
   : forall (m : Nat) (n : Nat), LessThan m n -> compare m n = Lt.
 Proof.
   intros m.
@@ -595,19 +592,19 @@ Proof.
     pose proof (lt_irreflexivity One) as i.
     unfold Negation in i.
     pose proof (i h) as f.
-    contradiction.
+    contradiction f.
   +
     reflexivity.
   +
     unfold LessThan in h.
     destruct h as [k e].
     simpl in e.
-    discriminate.
+    discriminate e.
   +
     exact (IH n' (successor_strict_monotonicity_inversion m' n' h)).
 Qed.
 
-Lemma comparison_eq_specification_forward
+Lemma eq_specification_forward
   : forall (m : Nat) (n : Nat), compare m n = Eq -> m = n.
 Proof.
   intros m.
@@ -617,13 +614,13 @@ Proof.
     intro e;
     simpl in |- *.
   + reflexivity.
-  + discriminate.
-  + discriminate.
+  + discriminate e.
+  + discriminate e.
   + rewrite (IH n' e) in |- *.
     reflexivity.
 Qed.
 
-Lemma comparison_eq_specification_backward
+Lemma eq_specification_backward
   : forall (m : Nat) (n : Nat), m = n -> compare m n = Eq.
 Proof.
   intros m n e.
@@ -641,11 +638,11 @@ Proof.
   intros m n.
   split.
   - split.
-    + exact (comparison_lt_specification_forward  m n).
-    + exact (comparison_lt_specification_backward m n).
+    + exact (lt_specification_forward  m n).
+    + exact (lt_specification_backward m n).
   - split.
-    + exact (comparison_eq_specification_forward  m n).
-    + exact (comparison_eq_specification_backward m n).
+    + exact (eq_specification_forward  m n).
+    + exact (eq_specification_backward m n).
 Qed.
 
 Theorem comparison_antisymmetry
@@ -662,23 +659,10 @@ Proof.
   + exact (IH n').
 Qed.
 
-(* [#[global]]: an instance declared inside a module is otherwise dropped at
- * its [End], and the laws below and every client need this one.
- *)
-#[global] Instance comparable
-  : Comparable compare LessThan :=
-  {| Comparable.strict_partial_order :=
-       {| StrictPartialOrder.irreflexivity :=
-            {| Irreflexive.irreflexivity := lt_irreflexivity |}
-        ; StrictPartialOrder.transitivity :=
-            {| Transitive.transitivity   := lt_transitivity |} |}
-   ; Comparable.specification := comparison_specification
-   ; Comparable.antisymmetry  := comparison_antisymmetry |}.
-
 (* The generic operations at [compare]; their laws are [Comparable]'s. *)
 
 (* [Nat -> Nat -> Bool] *)
-Abbreviation equal := (Comparable.equal compare).
+Abbreviation eq := (Comparable.eq compare).
 
 (* [Nat -> Nat -> Nat] *)
 Abbreviation min := (Comparable.min compare).
@@ -691,10 +675,10 @@ Proof.
   intros n.
   unfold Comparable.max in |- *.
   destruct (compare n One) as [| |] eqn:c.
-  - pose proof (comparison_lt_specification_forward n One c) as lt.
+  - pose proof (lt_specification_forward n One c) as lt.
     unfold LessThan in lt.
     destruct lt as [k e].
-    destruct n as [| n']; simpl in e; discriminate.
+    destruct n as [| n']; simpl in e; discriminate e.
   - reflexivity.
   - reflexivity.
 Qed.
@@ -702,8 +686,12 @@ Qed.
 Lemma max_l_identity : forall (n : Nat), max One n = n.
 Proof.
   intros n.
-  rewrite (Comparable.max_commutativity One n) in |- *.
-  exact (max_r_identity n).
+  unfold Comparable.max in |- *.
+  destruct n as [| n'].
+  - simpl in |- *.
+    reflexivity.
+  - simpl in |- *.
+    reflexivity.
 Qed.
 
 Theorem max_identity
@@ -716,18 +704,18 @@ Proof.
 Qed.
 
 (* [Nat -> Nat -> Option Nat] *)
-Fixpoint subtract (m : Nat) (n : Nat) : Option Nat :=
+Fixpoint sub (m : Nat) (n : Nat) : Option Nat :=
   match m with
   | One => None
   | Successor m' =>
       match n with
       | One          => Some m'
-      | Successor n' => subtract m' n'
+      | Successor n' => sub m' n'
       end
   end.
 
-Theorem subtract_truncation
-  : forall (m : Nat) (n : Nat), LessOrEqual m n -> subtract m n = None.
+Theorem sub_truncation
+  : forall (m : Nat) (n : Nat), LessOrEqual m n -> sub m n = None.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -747,8 +735,8 @@ Proof.
     + exact IH.
 Qed.
 
-Theorem subtract_inversion_of_add
-  : forall (m : Nat) (n : Nat), subtract (add m n) n = Some m.
+Theorem subtraction_inversion_of_addition
+  : forall (m : Nat) (n : Nat), sub (add m n) n = Some m.
 Proof.
   intros m n.
   induction n as [| n' IH] using Nat_induction.
@@ -761,8 +749,8 @@ Proof.
     exact IH.
 Qed.
 
-Theorem subtract_translation_invariance
-  : forall (k : Nat) (m : Nat) (n : Nat), subtract (add k m) (add k n) = subtract m n.
+Theorem sub_translation_invariance
+  : forall (k : Nat) (m : Nat) (n : Nat), sub (add k m) (add k n) = sub m n.
 Proof.
   intros k m n.
   induction k as [| k' IH] using Nat_induction; simpl in |- *.
@@ -770,15 +758,15 @@ Proof.
   - exact IH.
 Qed.
 
-Lemma subtract_specification_forward
-  : forall (m : Nat) (n : Nat) (k : Nat), subtract m n = Some k -> add n k = m.
+Lemma sub_specification_forward
+  : forall (m : Nat) (n : Nat) (k : Nat), sub m n = Some k -> add n k = m.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction.
   -
     intros n k e.
     simpl in e.
-    discriminate.
+    discriminate e.
   - intros n k.
     destruct n as [| n']; simpl in |- *; intro e.
     +
@@ -790,30 +778,70 @@ Proof.
       reflexivity.
 Qed.
 
-Lemma subtract_specification_backward
-  : forall (m : Nat) (n : Nat) (k : Nat), add n k = m -> subtract m n = Some k.
+Lemma sub_specification_backward
+  : forall (m : Nat) (n : Nat) (k : Nat), add n k = m -> sub m n = Some k.
 Proof.
   intros m n k e.
   pose proof (Identity.symmetry e) as e'.
   rewrite e' in |- *.
   rewrite (addition_commutativity n k) in |- *.
-  exact (subtract_inversion_of_add k n).
+  exact (subtraction_inversion_of_addition k n).
 Qed.
 
-Theorem subtract_specification
-  : forall (m : Nat) (n : Nat) (k : Nat), subtract m n = Some k <-> add n k = m.
+Theorem subtraction_specification
+  : forall (m : Nat) (n : Nat) (k : Nat), sub m n = Some k <-> add n k = m.
 Proof.
   intros m n k.
   split.
-  - exact (subtract_specification_forward  m n k).
-  - exact (subtract_specification_backward m n k).
+  - exact (sub_specification_forward  m n k).
+  - exact (sub_specification_backward m n k).
+Qed.
+
+(* [Nat -> Nat -> Nat] *)
+Definition saturating_sub := fun (m : Nat) (n : Nat) =>
+  match sub m n with
+  | Some k => k
+  | None   => One
+  end.
+
+Theorem saturating_sub_truncation
+  : forall (m : Nat) (n : Nat), LessOrEqual m n -> saturating_sub m n = One.
+Proof.
+  intros m n h.
+  unfold saturating_sub in |- *.
+  rewrite (sub_truncation m n h) in |- *.
+  simpl in |- *.
+  reflexivity.
+Qed.
+
+Theorem saturating_subtraction_inversion_of_addition
+  : forall (m : Nat) (n : Nat), saturating_sub (add m n) n = m.
+Proof.
+  intros m n.
+  unfold saturating_sub in |- *.
+  rewrite (subtraction_inversion_of_addition m n) in |- *.
+  simpl in |- *.
+  reflexivity.
+Qed.
+
+Theorem saturating_subtraction_specification
+  : forall (m : Nat) (n : Nat), LessThan n m -> add n (saturating_sub m n) = m.
+Proof.
+  intros m n h.
+  unfold LessThan in h.
+  destruct h as [k e].
+  unfold saturating_sub in |- *.
+  rewrite (sub_specification_backward m n k e) in |- *.
+  simpl in |- *.
+  exact e.
 Qed.
 
 End Nat.
 
 (* The scope is declared in [Core.Notations] and never opened: a client
-   writes [(m + n)%nat]. [only parsing] keeps the operations printed by
-   name. *)
+ * writes [(m + n)%nat]. [only parsing] keeps the operations printed by
+ * name.
+ *)
 Notation "m + n" := (Nat.add m n) (only parsing)
   : jwa_nat_scope.
 Notation "m * n" := (Nat.mul m n) (only parsing)
@@ -824,11 +852,18 @@ Notation "m <= n" := (Nat.LessOrEqual m n) (only parsing)
   : jwa_nat_scope.
 
 (* The reversed spellings name no new relation: [m > n] is [n < m] with the
-   arguments the other way round, so no law is stated for them. *)
+ * arguments the other way round, so no law is stated for them.
+ *)
 Notation "m > n" := (Nat.LessThan n m) (only parsing)
   : jwa_nat_scope.
 Notation "m >= n" := (Nat.LessOrEqual n m) (only parsing)
   : jwa_nat_scope.
+
+Instance Nat_comparable
+  : Comparable Nat.compare Nat.LessThan :=
+  {| Comparable.transitivity  := Nat.lt_transitivity
+   ; Comparable.specification := Nat.comparison_specification
+   ; Comparable.antisymmetry  := Nat.comparison_antisymmetry |}.
 
 Instance Nat_add_semigroup
   : Semigroup Nat.add :=
@@ -855,18 +890,6 @@ Instance Nat_add_commutative
 Instance Nat_mul_commutative
   : Commutative Nat.mul :=
   {| Commutative.commutativity := Nat.multiplication_commutativity |}.
-
-Instance Nat_lt_strict_partial_order
-  : StrictPartialOrder Nat.LessThan :=
-  Comparable.strict_partial_order.
-
-Instance Nat_lt_strict_total_order
-  : StrictTotalOrder Nat.LessThan :=
-  Comparable.strict_total_order.
-
-Instance Nat_le_total_order
-  : TotalOrder Nat.LessOrEqual :=
-  Comparable.total_order.
 
 Instance Nat_min_semigroup
   : Semigroup Nat.min :=

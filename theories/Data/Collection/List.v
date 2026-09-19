@@ -609,7 +609,7 @@ Proof.
        [h2 : Contains a l2]. *)
     destruct h as [f | h2].
     + (* [f : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
+      contradiction f.
     + (* [h2] is a proof of the goal as it stands. *)
       exact h2.
   - (* [|- Contains a (Cons b l1') \/ Contains a l2
@@ -763,7 +763,7 @@ Proof.
       * (* [e] is the left side. *)
         exact (Disjunction.left e).
       * (* [f : Falsum], which is what [contradiction] looks for. *)
-        contradiction.
+        contradiction f.
 Qed.
 
 Lemma reverse_containment_preservation_backward
@@ -961,7 +961,7 @@ Proof.
     (* The context gains [f : Falsum]: [|- Falsum /\ p a = true] *)
     intro f.
     (* [f : Falsum], which is what [contradiction] looks for. *)
-    contradiction.
+    contradiction f.
   - (* [|- Contains a (filter p (Cons b l'))
          -> Contains a (Cons b l') /\ p a = true] *)
     (* The [filter] step leaves a [match p b] under [Contains], and the
@@ -1044,7 +1044,7 @@ Proof.
     (* Only the left half of [h] is needed: [f : Falsum]. *)
     destruct h as [f _].
     (* [f : Falsum], which is what [contradiction] looks for. *)
-    contradiction.
+    contradiction f.
   - (* [|- Contains a (Cons b l') /\ p a = true
          -> Contains a (filter p (Cons b l'))] *)
     (* The [Contains] on the left computes and the [filter] step leaves a
@@ -1319,7 +1319,7 @@ Proof.
        [h2 : Any P l2]. *)
     destruct h as [f | h2].
     + (* [f : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
+      contradiction f.
     + (* [h2] is a proof of the goal as it stands. *)
       exact h2.
   - (* [|- Any P (Cons b l1') \/ Any P l2 -> Any P (append (Cons b l1') l2)] *)
@@ -1396,7 +1396,7 @@ Proof.
     (* The context gains [v : Verum], [a] and [f : Falsum]: [|- P a] *)
     intros v a f.
     (* [f : Falsum], which is what [contradiction] looks for. *)
-    contradiction.
+    contradiction f.
   - (* [|- All P (Cons b l')
          -> forall (a : A), Contains a (Cons b l') -> P a] *)
     (* Both [All] and [Contains] on a [Cons] compute:
@@ -1506,7 +1506,7 @@ Proof.
     (* The context gains [f : Falsum]: the goal is the [exists]. *)
     intro f.
     (* [f : Falsum], which is what [contradiction] looks for. *)
-    contradiction.
+    contradiction f.
   - (* [|- Any P (Cons b l')
          -> exists (a : A), Contains a (Cons b l') /\ P a] *)
     (* Both [Any] and [Contains] on a [Cons] compute:
@@ -1568,7 +1568,7 @@ Proof.
     (* Only the left half of [ha] is needed: [f : Falsum]. *)
     destruct ha as [f _].
     (* [f : Falsum], which is what [contradiction] looks for. *)
-    contradiction.
+    contradiction f.
   - (* [|- (exists (a : A), Contains a (Cons b l') /\ P a)
          -> Any P (Cons b l')] *)
     (* Both [Contains] and [Any] on a [Cons] compute:
@@ -1737,7 +1737,7 @@ Proof.
     (* The context gains [e : None = Some a]: the goal is the [exists]. *)
     intro e.
     (* [e] claims [None = Some a], and the two are different ctors. *)
-    discriminate.
+    discriminate e.
   - (* [|- head (Cons b rest) = Some a
          -> exists (l' : List A), Cons b rest = Cons a l'] *)
     (* [head (Cons b rest)] computes: [|- Some b = Some a -> ...] *)
@@ -1806,7 +1806,7 @@ Proof.
     (* The context gains [e : None = Some l']: the goal is the [exists]. *)
     intro e.
     (* [e] claims [None = Some l'], and the two are different ctors. *)
-    discriminate.
+    discriminate e.
   - (* [|- tail (Cons b rest) = Some l'
          -> exists (a : A), Cons b rest = Cons a l'] *)
     (* [tail (Cons b rest)] computes: [|- Some rest = Some l' -> ...] *)
@@ -1967,7 +1967,7 @@ Proof.
     (* The context gains [h : None = Some l']: the goal is the [exists]. *)
     intro h.
     (* [h] claims [None = Some l'], and the two are different ctors. *)
-    discriminate.
+    discriminate h.
   - (* [tail (Cons b r)] and then [Option.map] compute:
        [|- Some (reverse r) = Some l' -> ...] *)
     simpl in |- *.
@@ -2068,7 +2068,7 @@ Proof.
        [|- Nil = Cons a l'] *)
     intro e.
     (* [e] equates two distinct ctors, which closes any goal. *)
-    discriminate.
+    discriminate e.
   - (* [pop (Cons b rest)] computes:
        [|- Some (Product_introduction b rest) = Some (Product_introduction a l')
            -> Cons b rest = Cons a l'] *)
@@ -2276,7 +2276,7 @@ Proof.
       (* [f : Falsum] *)
       pose proof (h e') as f.
       (* [f : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
+      contradiction f.
   - (* The context gains [l2] and [e : length (Cons a l1') = length l2]:
        [|- unzip (zip (Cons a l1') l2) = Product_introduction (Cons a l1') l2] *)
     intros l2 e.
@@ -2292,7 +2292,7 @@ Proof.
       (* [f : Falsum] *)
       pose proof (h e) as f.
       (* [f : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
+      contradiction f.
     + (* Both [length]s step:
          [e : NatWithZero.add (length l1') (Positive One)
               = NatWithZero.add (length l2') (Positive One)] *)
@@ -2458,7 +2458,7 @@ Proof.
     intros i h.
     destruct h as [a e].
     simpl in e.
-    discriminate.
+    discriminate e.
   - (* One goal per shape of the index. *)
     intros i h.
     destruct i as [| i'].
@@ -2509,7 +2509,7 @@ Proof.
     pose proof (NatWithZero.addition_positive_refutes_zero i k) as r.
     unfold Negation in r.
     pose proof (r e) as f.
-    contradiction.
+    contradiction f.
   - (* One goal per shape of the index. *)
     intros i h.
     destruct i as [| i'].
@@ -2650,10 +2650,6 @@ Proof.
                    (NatWithZero.add (length l') (Positive One))] *)
         simpl in |- *.
         rewrite (Biimplication.backward_elimination
-                   (NatWithZero.min (Positive One)
-                      (NatWithZero.add (length l') (Positive One)) = Positive One)
-                   (NatWithZero.LessOrEqual (Positive One)
-                      (NatWithZero.add (length l') (Positive One)))
                    (Comparable.min_specification (Positive One)
                       (NatWithZero.add (length l') (Positive One)))
                    (NatWithZero.addition_right_inflation (length l') (Positive One))) in |- *.
@@ -2689,12 +2685,12 @@ Qed.
    from both, which truncated subtraction ignores. *)
 Theorem length_drop
   : forall (A : Type) (l : List A) (n : NatWithZero),
-      length (drop n l) = NatWithZero.subtract (length l) n.
+      length (drop n l) = NatWithZero.saturating_sub (length l) n.
 Proof.
   (* The context gains [A] and [l]. *)
   intros A l.
   induction l as [| a l' IH] using List_induction.
-  - (* [drop n Nil] and [length Nil] compute, and [subtract Zero n] computes
+  - (* [drop n Nil] and [length Nil] compute, and [saturating_sub Zero n] computes
        to [Zero]: [|- Zero = Zero] *)
     intros n.
     simpl in |- *.
@@ -2705,21 +2701,22 @@ Proof.
     + (* [drop Zero] is the list, and [Zero] is a right identity of
          subtraction. *)
       simpl in |- *.
-      rewrite (NatWithZero.subtract_right_identity
+      rewrite (NatWithZero.saturating_sub_r_identity
                  (NatWithZero.add (length l') (Positive One))) in |- *.
       reflexivity.
     + destruct n' as [| n''].
       * (* [drop (Positive One)] is the tail, and taking the step away from
            the length plus the step gives the length back:
            [|- length l'
-               = NatWithZero.subtract (NatWithZero.add (length l') (Positive One))
+               = NatWithZero.saturating_sub (NatWithZero.add (length l') (Positive One))
                    (Positive One)] *)
         simpl in |- *.
-        rewrite (NatWithZero.subtract_inversion_of_add (length l') (Positive One)) in |- *.
+        rewrite (NatWithZero.saturating_subtraction_inversion_of_addition
+                   (length l') (Positive One)) in |- *.
         reflexivity.
       * (* One step of [drop] and one of [length]:
            [|- length (drop (Positive n'') l')
-               = NatWithZero.subtract (NatWithZero.add (length l') (Positive One))
+               = NatWithZero.saturating_sub (NatWithZero.add (length l') (Positive One))
                    (Positive (Successor n''))] *)
         simpl in |- *.
         rewrite (IH (Positive n'')) in |- *.
@@ -2728,7 +2725,7 @@ Proof.
         rewrite (NatWithZero.addition_commutativity (length l') (Positive One)) in |- *.
         change (Positive (Successor n''))
           with (NatWithZero.add (Positive One) (Positive n'')) in |- *.
-        rewrite (NatWithZero.subtract_translation_invariance
+        rewrite (NatWithZero.saturating_sub_translation_invariance
                    (Positive One) (length l') (Positive n'')) in |- *.
         reflexivity.
 Qed.
@@ -3044,7 +3041,7 @@ Proof.
       destruct t as [ab | ba].
       * (* [ab] and [c] equate [false] with [true]. *)
         rewrite c in ab.
-        discriminate.
+        discriminate ab.
       * exact (Conjunction_introduction
                  (insert_all_preservation A le (fun (x : A) => le b x = true) a l' ba below)
                  (IH sorted')).
@@ -3251,7 +3248,7 @@ Proof.
   intros A a l.
   unfold Negation in |- *.
   intro e.
-  discriminate.
+  discriminate e.
 Qed.
 
 (* [range n] is [Zero] up to but excluding [n], in that order: a positive
@@ -3337,7 +3334,7 @@ Proof.
       apply (Exists_introduction One).
       simpl in |- *.
       reflexivity.
-    + contradiction.
+    + contradiction f.
   - (* Membership in the concatenation is membership in either part. The
      * bound [Positive (Successor p')] is [add (Positive One) (Positive p')]
      * by computation, turned round, so that the successor law reduces the
@@ -3346,8 +3343,6 @@ Proof.
     intros i h.
     simpl in h.
     pose proof (Biimplication.forward_elimination
-                  (Contains i (append (range_positive p') (Cons (Positive p') Nil)))
-                  (Contains i (range_positive p') \/ Contains i (Cons (Positive p') Nil))
                   (contains_distributivity_over_append
                      NatWithZero i (range_positive p') (Cons (Positive p') Nil))
                   h) as h'.
@@ -3355,8 +3350,6 @@ Proof.
       with (NatWithZero.add (Positive One) (Positive p')) in |- *.
     rewrite (NatWithZero.addition_commutativity (Positive One) (Positive p')) in |- *.
     apply (Biimplication.backward_elimination
-             (NatWithZero.LessThan i (NatWithZero.add (Positive p') (Positive One)))
-             (NatWithZero.LessOrEqual i (Positive p'))
              (NatWithZero.less_than_successor_specification i (Positive p'))).
     unfold NatWithZero.LessOrEqual in |- *.
     destruct h' as [h1 | h2].
@@ -3366,7 +3359,7 @@ Proof.
       simpl in h2.
       destruct h2 as [e | f].
       * exact (Disjunction.left e).
-      * contradiction.
+      * contradiction f.
 Qed.
 
 Lemma range_positive_containment_backward
@@ -3394,9 +3387,9 @@ Proof.
       pose proof (NatWithZero.positive_injectivity (Nat.add q k) One e) as e'.
       destruct q as [| q'].
       * simpl in e'.
-        discriminate.
+        discriminate e'.
       * simpl in e'.
-        discriminate.
+        discriminate e'.
   - (* The bound is [add (Positive One) (Positive p')] by computation,
      * turned round, so that the successor law reads [h] as [i] at most
      * [Positive p']: equality puts [i] in the second part, a strict step
@@ -3407,14 +3400,10 @@ Proof.
       with (NatWithZero.add (Positive One) (Positive p')) in h.
     rewrite (NatWithZero.addition_commutativity (Positive One) (Positive p')) in h.
     pose proof (Biimplication.forward_elimination
-                  (NatWithZero.LessThan i (NatWithZero.add (Positive p') (Positive One)))
-                  (NatWithZero.LessOrEqual i (Positive p'))
                   (NatWithZero.less_than_successor_specification i (Positive p')) h)
       as h'.
     simpl in |- *.
     apply (Biimplication.backward_elimination
-             (Contains i (append (range_positive p') (Cons (Positive p') Nil)))
-             (Contains i (range_positive p') \/ Contains i (Cons (Positive p') Nil))
              (contains_distributivity_over_append
                 NatWithZero i (range_positive p') (Cons (Positive p') Nil))).
     unfold NatWithZero.LessOrEqual in h'.
@@ -3438,14 +3427,14 @@ Proof.
     simpl in |- *.
     split.
     + intro f.
-      contradiction.
+      contradiction f.
     + intro h.
       unfold NatWithZero.LessThan in h.
       destruct h as [k e].
       pose proof (NatWithZero.addition_positive_refutes_zero i k) as r.
       unfold Negation in r.
       pose proof (r e) as f.
-      contradiction.
+      contradiction f.
   - (* [range (Positive p)] computes to [range_positive p]. *)
     simpl in |- *.
     split.
@@ -3479,7 +3468,7 @@ Proof.
      *)
     simpl in |- *.
     split.
-    + exact (Comparable.max_left_injection a (fold_right NatWithZero.max Zero l')).
+    + exact (Comparable.max_l_injection a (fold_right NatWithZero.max Zero l')).
     + exact (all_monotonicity NatWithZero
                (fun (x : NatWithZero) =>
                   NatWithZero.LessOrEqual x (fold_right NatWithZero.max Zero l'))
@@ -3493,7 +3482,7 @@ Proof.
                     x (fold_right NatWithZero.max Zero l')
                     (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
                     h
-                    (Comparable.max_right_injection
+                    (Comparable.max_r_injection
                        a (fold_right NatWithZero.max Zero l')))
                IH).
 Qed.
@@ -3513,7 +3502,7 @@ Proof.
     intro h.
     unfold Negation in h.
     pose proof (h (Identity.reflexivity Nil)) as f.
-    contradiction.
+    contradiction f.
   - (* One goal per ctor of the tail. *)
     intro h.
     destruct l' as [| b l''].
@@ -3537,8 +3526,6 @@ Proof.
       * (* [M] is at most [a]: the maximum is [a], the head. *)
         apply Disjunction.left.
         exact (Biimplication.backward_elimination
-                 (NatWithZero.max a (fold_right NatWithZero.max Zero (Cons b l'')) = a)
-                 (NatWithZero.LessOrEqual (fold_right NatWithZero.max Zero (Cons b l'')) a)
                  (Comparable.max_specification
                     a (fold_right NatWithZero.max Zero (Cons b l''))) le).
       * (* [a] is at most [M]: the maximum is [M], turned round by
@@ -3548,9 +3535,6 @@ Proof.
         rewrite (Comparable.max_commutativity
                    a (fold_right NatWithZero.max Zero (Cons b l''))) in |- *.
         rewrite (Biimplication.backward_elimination
-                   (NatWithZero.max (fold_right NatWithZero.max Zero (Cons b l'')) a
-                    = fold_right NatWithZero.max Zero (Cons b l''))
-                   (NatWithZero.LessOrEqual a (fold_right NatWithZero.max Zero (Cons b l'')))
                    (Comparable.max_specification
                       (fold_right NatWithZero.max Zero (Cons b l'')) a) ge) in |- *.
         exact c.
@@ -3583,8 +3567,8 @@ Proof.
     + reflexivity.
     + simpl in e.
       destruct (minimum_of l') as [| m].
-      * discriminate.
-      * discriminate.
+      * discriminate e.
+      * discriminate e.
   - (* [e : l = Nil] replaces [l], and [minimum_of Nil] computes. *)
     intro e.
     rewrite e in |- *.
@@ -3608,7 +3592,7 @@ Proof.
   - (* [minimum_of Nil] computes to [None]: [e] equates two distinct ctors. *)
     intros m e.
     simpl in e.
-    discriminate.
+    discriminate e.
   - (* [e] opens on the answer for [l']; one goal per ctor of it. *)
     intros m e.
     simpl in e.
@@ -3618,7 +3602,6 @@ Proof.
        *)
       simpl in e.
       pose proof (Biimplication.forward_elimination
-                    (minimum_of l' = None) (l' = Nil)
                     (minimum_of_none_specification l') r) as en.
       pose proof (Option.some_injectivity NatWithZero a m e) as e'.
       rewrite en in |- *.
@@ -3637,7 +3620,7 @@ Proof.
       rewrite e'' in |- *.
       simpl in |- *.
       split.
-      * exact (Comparable.min_left_projection a m').
+      * exact (Comparable.min_l_projection a m').
       * exact (all_monotonicity NatWithZero
                  (fun (x : NatWithZero) => NatWithZero.LessOrEqual m' x)
                  (fun (x : NatWithZero) => NatWithZero.LessOrEqual (NatWithZero.min a m') x)
@@ -3645,7 +3628,7 @@ Proof.
                  (fun (x : NatWithZero) (h : NatWithZero.LessOrEqual m' x) =>
                     Comparable.le_transitivity
                       (NatWithZero.min a m') m' x
-                      (Comparable.min_right_projection a m') h)
+                      (Comparable.min_r_projection a m') h)
                  (IH m' (Identity.reflexivity (Some m')))).
 Qed.
 
@@ -3664,7 +3647,7 @@ Proof.
   induction l as [| a l' IH] using List_induction.
   - intros m e.
     simpl in e.
-    discriminate.
+    discriminate e.
   - (* [e] opens on the answer for [l']; one goal per ctor of it. *)
     intros m e.
     simpl in e.
@@ -3688,12 +3671,10 @@ Proof.
       destruct t as [le | ge].
       * apply Disjunction.left.
         exact (Biimplication.backward_elimination
-                 (NatWithZero.min a m' = a) (NatWithZero.LessOrEqual a m')
                  (Comparable.min_specification a m') le).
       * apply Disjunction.right.
         rewrite (Comparable.min_commutativity a m') in |- *.
         rewrite (Biimplication.backward_elimination
-                   (NatWithZero.min m' a = m') (NatWithZero.LessOrEqual m' a)
                    (Comparable.min_specification m' a) ge) in |- *.
         exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
@@ -3787,22 +3768,20 @@ Proof.
         pose proof (NatWithZero.addition_positive_refutes_zero (count p l') One) as r.
         unfold Negation in r.
         pose proof (r e) as f.
-        contradiction.
+        contradiction f.
       * intro c.
         destruct c as [e f].
-        discriminate.
+        discriminate e.
     + (* A [false] answer counts nothing and holds: [IH] on the rest. *)
       simpl in |- *.
       split.
       * intro e.
         exact (Conjunction_introduction
                  (Identity.reflexivity false)
-                 (Biimplication.forward_elimination
-                    (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH e)).
+                 (Biimplication.forward_elimination IH e)).
       * intro c.
         destruct c as [e all'].
-        exact (Biimplication.backward_elimination
-                 (count p l' = Zero) (All (fun (a : A) => p a = false) l') IH all').
+        exact (Biimplication.backward_elimination IH all').
 Qed.
 
 End List.
