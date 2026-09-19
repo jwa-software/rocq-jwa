@@ -31,6 +31,8 @@ Module Disjunction.
  *)
 Abbreviation left  := Disjunction_introduction_left.
 Abbreviation right := Disjunction_introduction_right.
+Abbreviation l     := Disjunction_introduction_left  (only parsing).
+Abbreviation r     := Disjunction_introduction_right (only parsing).
 
 Theorem commutativity
   : forall (A : Prop) (B : Prop), A \/ B -> B \/ A.
