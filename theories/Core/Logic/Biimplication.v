@@ -4,12 +4,12 @@ From jwa Require Import Core.Logic.Implication.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
-Inductive Biimplication (A : Prop) (B : Prop) : Prop :=
-  | Biimplication_introduction : (A -> B) -> (B -> A) -> Biimplication A B.
+Inductive Biimplication (P : Prop) (Q : Prop) : Prop :=
+  | Biimplication_introduction : (P -> Q) -> (Q -> P) -> Biimplication P Q.
 
-Arguments Biimplication_introduction {A} {B} forward backward.
+Arguments Biimplication_introduction {P} {Q} forward backward.
 
-Notation "A <-> B" := (Biimplication A B)
+Notation "P <-> Q" := (Biimplication P Q)
   : jwa_type_scope.
 
 (* A module may carry the type's name; its laws read
@@ -17,95 +17,95 @@ Notation "A <-> B" := (Biimplication A B)
  *)
 Module Biimplication.
 
-Theorem reflexivity : forall (A : Prop), A <-> A.
+Theorem reflexivity : forall (P : Prop), P <-> P.
 Proof.
-  intro A.
-  split; intro a; exact a.
+  intro P.
+  split; intro p; exact p.
 Qed.
 
 Theorem symmetry
-  : forall (A : Prop) (B : Prop), (A <-> B) -> (B <-> A).
+  : forall (P : Prop) (Q : Prop), (P <-> Q) -> (Q <-> P).
 Proof.
-  intros A B.
+  intros P Q.
   intro h.
-  destruct h as [ab ba].
+  destruct h as [pq qp].
   split.
-  - exact ba.
-  - exact ab.
+  - exact qp.
+  - exact pq.
 Qed.
 
 Theorem transitivity
-  : forall (A : Prop) (B : Prop) (C : Prop),
-      (A <-> B) -> (B <-> C) -> (A <-> C).
+  : forall (P : Prop) (Q : Prop) (R : Prop),
+      (P <-> Q) -> (Q <-> R) -> (P <-> R).
 Proof.
-  intros A B C.
-  intro hab.
-  intro hbc.
-  destruct hab as [ab ba].
-  destruct hbc as [bc cb].
+  intros P Q C.
+  intro hpq.
+  intro hqr.
+  destruct hpq as [pq qp].
+  destruct hqr as [qr rq].
   split.
-  - intro a.
-    apply bc.
-    apply ab.
-    exact a.
-  - intro c.
-    apply ba.
-    apply cb.
-    exact c.
+  - intro p.
+    apply qr.
+    apply pq.
+    exact p.
+  - intro r.
+    apply qp.
+    apply rq.
+    exact r.
 Qed.
 
-Theorem elimination_forward
-  : forall (A : Prop) (B : Prop), (A <-> B) -> A -> B.
+Theorem forward_elimination
+  : forall (P : Prop) (Q : Prop), (P <-> Q) -> P -> Q.
 Proof.
-  intros A B.
+  intros P Q.
   intro e.
-  destruct e as [ab ba].
-  exact ab.
+  destruct e as [pq qp].
+  exact pq.
 Qed.
 
-Theorem elimination_backward
-  : forall (A : Prop) (B : Prop), (A <-> B) -> B -> A.
+Theorem backward_elimination
+  : forall (P : Prop) (Q : Prop), (P <-> Q) -> Q -> P.
 Proof.
-  intros A B.
+  intros P Q.
   intro e.
-  destruct e as [ab ba].
-  exact ba.
+  destruct e as [pq qp].
+  exact qp.
 Qed.
 
 Theorem congruence
-  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
-      (A1 <-> A2) -> (B1 <-> B2) -> ((A1 <-> B1) <-> (A2 <-> B2)).
+  : forall (P1 : Prop) (P2 : Prop) (Q1 : Prop) (Q2 : Prop),
+      (P1 <-> P2) -> (Q1 <-> Q2) -> ((P1 <-> Q1) <-> (P2 <-> Q2)).
 Proof.
-  intros A1 A2 B1 B2.
+  intros P1 P2 Q1 Q2.
   intro a.
   intro b.
-  destruct a as [a12 a21].
-  destruct b as [b12 b21].
-  split; intro e; destruct e as [ab ba]; split.
+  destruct a as [p12 p21].
+  destruct b as [q12 q21].
+  split; intro e; destruct e as [pq qp]; split.
   +
-    intro a2.
-    apply b12.
-    apply ab.
-    apply a21.
-    exact a2.
+    intro p2.
+    apply q12.
+    apply pq.
+    apply p21.
+    exact p2.
   +
-    intro b2.
-    apply a12.
-    apply ba.
-    apply b21.
-    exact b2.
+    intro q2.
+    apply p12.
+    apply qp.
+    apply q21.
+    exact q2.
   +
-    intro a1.
-    apply b21.
-    apply ab.
-    apply a12.
-    exact a1.
+    intro p1.
+    apply q21.
+    apply pq.
+    apply p12.
+    exact p1.
   +
-    intro b1.
-    apply a21.
-    apply ba.
-    apply b12.
-    exact b1.
+    intro q1.
+    apply p21.
+    apply qp.
+    apply q12.
+    exact q1.
 Qed.
 
 (* [Biimplication.sejunction_incompatibility] is stated in
@@ -122,25 +122,25 @@ End Biimplication.
 Module Implication.
 
 Theorem congruence
-  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
-      (A1 <-> A2) -> (B1 <-> B2) -> ((A1 -> B1) <-> (A2 -> B2)).
+  : forall (P1 : Prop) (P2 : Prop) (Q1 : Prop) (Q2 : Prop),
+      (P1 <-> P2) -> (Q1 <-> Q2) -> ((P1 -> Q1) <-> (P2 -> Q2)).
 Proof.
-  intros A1 A2 B1 B2.
+  intros P1 P2 Q1 Q2.
   intro a.
   intro b.
-  destruct a as [a12 a21].
-  destruct b as [b12 b21].
+  destruct a as [p12 p21].
+  destruct b as [q12 q21].
   split; intro f.
-  - intro a2.
-    apply b12.
+  - intro p2.
+    apply q12.
     apply f.
-    apply a21.
-    exact a2.
-  - intro a1.
-    apply b21.
+    apply p21.
+    exact p2.
+  - intro p1.
+    apply q21.
     apply f.
-    apply a12.
-    exact a1.
+    apply p12.
+    exact p1.
 Qed.
 
 End Implication.
