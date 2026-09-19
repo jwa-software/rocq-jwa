@@ -42,8 +42,8 @@ Module Coproduct.
  *)
 Abbreviation left  := Coproduct_introduction_left.
 Abbreviation right := Coproduct_introduction_right.
-Abbreviation l     := Coproduct_introduction_left  (only parsing).
-Abbreviation r     := Coproduct_introduction_right (only parsing).
+Abbreviation L     := Coproduct_introduction_left  (only parsing).
+Abbreviation R     := Coproduct_introduction_right (only parsing).
 
 (* [forall {A : Type} {B : Type} {C : Type}, (A -> C) -> (B -> C) -> Coproduct A B -> C] *)
 Definition copair := fun {A : Type} {B : Type} {C : Type}
