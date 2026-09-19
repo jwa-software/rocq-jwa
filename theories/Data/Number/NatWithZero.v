@@ -1,13 +1,5 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->], [=], [~], [/\], [\/] and [exists]; [Data.Number.Nat] is
-   the type [Positive] wraps and the source of every law under [Positive];
-   [Algebra.Semigroup], [Algebra.Monoid], [Algebra.Commutative],
-   [Algebra.Cancellative] and the [Relation] order classes are what the
-   instances at the bottom fill; [Data.Comparison] is what [compare] answers
-   in, [Data.Comparable] the laws every [compare] shares, [Data.Bool] what
-   [eq] answers in, [Data.Product] what [division]
-   answers in, and [Data.Option] what [sub] and [Nat.sub] answer in. *)
 From jwa Require Import Algebra.AbelianMonoid.
 From jwa Require Import Algebra.Cancellative.
 From jwa Require Import Algebra.Commutative.
@@ -52,88 +44,37 @@ Theorem addition_associativity
   : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
     add (add l m) n = add l (add m n).
 Proof.
-  (* The context gains [l], [m] and [n]:
-     [|- add (add l m) n = add l (add m n)] *)
   intros l m n.
-  (* [l] is either [Zero] or [Positive l']: one goal per ctor. *)
   destruct l as [| l'].
-  - (* [|- add (add Zero m) n = add Zero (add m n)] *)
-    (* [add Zero] is the identity on both sides: [|- add m n = add m n] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
-  - (* [|- add (add (Positive l') m) n = add (Positive l') (add m n)] *)
-    (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-    destruct m as [| m'].
-    + (* [|- add (add (Positive l') Zero) n = add (Positive l') (add Zero n)] *)
-      (* [add _ Zero] and [add Zero _] both drop out, and [simpl] unfolds what
-         is left into the same [match] on [n] on each side. *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct m as [| m'].
+    + simpl in |- *.
       reflexivity.
-    + (* [|- add (add (Positive l') (Positive m')) n
-             = add (Positive l') (add (Positive m') n)] *)
-      (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-      destruct n as [| n'].
-      * (* [|- add (add (Positive l') (Positive m')) Zero
-               = add (Positive l') (add (Positive m') Zero)] *)
-        (* [add _ Zero] drops out on both sides:
-           [|- Positive (Nat.add l' m') = Positive (Nat.add l' m')] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct n as [| n'].
+      * simpl in |- *.
         reflexivity.
-      * (* [|- add (add (Positive l') (Positive m')) (Positive n')
-               = add (Positive l') (add (Positive m') (Positive n'))] *)
-        (* Every case is [Positive]:
-           [|- Positive (Nat.add (Nat.add l' m') n')
-               = Positive (Nat.add l' (Nat.add m' n'))] *)
-        simpl in |- *.
-        (* This is the whole proof: the [Nat] law carries the [NatWithZero]
-           one. [|- Positive (Nat.add l' (Nat.add m' n'))
-                   = Positive (Nat.add l' (Nat.add m' n'))] *)
+      * simpl in |- *.
         rewrite Nat.addition_associativity in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
 Theorem addition_commutativity
   : forall (m : NatWithZero) (n : NatWithZero), add m n = add n m.
 Proof.
-  (* The context gains [m] and [n]: [|- add m n = add n m] *)
   intros m n.
-  (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
   destruct m as [| m'].
-  - (* [add Zero n] computes; [add n Zero] cannot until [n] is a ctor:
-       [|- n = add n Zero] *)
-    simpl in |- *.
-    (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
+  - simpl in |- *.
     destruct n as [| n'].
-    + (* Both matches reduce: [|- Zero = Zero] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+    + simpl in |- *.
       reflexivity.
-    + (* The inner match on [Zero] returns the first argument:
-         [|- Positive n' = Positive n'] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+    + simpl in |- *.
       reflexivity.
-  - (* [|- add (Positive m') n = add n (Positive m')] *)
-    (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-    destruct n as [| n'].
-    + (* Both sides compute to the first argument:
-         [|- Positive m' = Positive m'] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct n as [| n'].
+    + simpl in |- *.
       reflexivity.
-    + (* [|- add (Positive m') (Positive n')
-             = add (Positive n') (Positive m')] *)
-      (* Both sides reduce to [Nat.add] under [Positive]:
-         [|- Positive (Nat.add m' n') = Positive (Nat.add n' m')] *)
-      simpl in |- *.
-      (* This is the whole proof: the [Nat] law carries the [NatWithZero] one.
-         [|- Positive (Nat.add n' m') = Positive (Nat.add n' m')] *)
+    + simpl in |- *.
       rewrite Nat.addition_commutativity in |- *.
-      (* Both sides are the same term. *)
       reflexivity.
 Qed.
 
@@ -152,44 +93,25 @@ Qed.
 Theorem positive_injectivity
   : forall (m : Nat) (n : Nat), Positive m = Positive n -> m = n.
 Proof.
-  (* The context gains [m], [n] and [e : Positive m = Positive n]:
-     [|- m = n] *)
   intros m n e.
-  (* The context gains
-     [e' : (fun x => match x with | Zero => m | Positive y => y end)
-             (Positive m)
-         = (fun x => match x with | Zero => m | Positive y => y end)
-             (Positive n)]. *)
   pose proof (Identity.congruence
                 (fun (x : NatWithZero) => match x with | Zero => m | Positive y => y end)
                 e) as e'.
-  (* Both applications compute: [e' : m = n] *)
   simpl in e'.
-  (* [e'] is a proof of the goal as it stands. *)
   exact e'.
 Qed.
 
 Lemma addition_positive_refutes_zero
   : forall (m : NatWithZero) (n : Nat), ~ (add m (Positive n) = Zero).
 Proof.
-  (* The context gains [m] and [n]: [|- ~ (add m (Positive n) = Zero)] *)
   intros m n.
-  (* [|- add m (Positive n) = Zero -> Falsum] *)
   unfold Negation in |- *.
-  (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
   destruct m as [| m'].
-  - (* [add Zero] is the identity: [|- Positive n = Zero -> Falsum] *)
-    simpl in |- *.
-    (* The context gains [e : Positive n = Zero]: [|- Falsum] *)
+  - simpl in |- *.
     intro e.
-    (* [e] equates two distinct ctors, which closes any goal. *)
     discriminate e.
-  - (* Both summands positive, so [add] computes to [Positive]:
-       [|- Positive (Nat.add m' n) = Zero -> Falsum] *)
-    simpl in |- *.
-    (* The context gains [e : Positive (Nat.add m' n) = Zero]: [|- Falsum] *)
+  - simpl in |- *.
     intro e.
-    (* [e] equates two distinct ctors, which closes any goal. *)
     discriminate e.
 Qed.
 
@@ -197,95 +119,52 @@ Theorem add_l_cancellation
   : forall (n : NatWithZero) (m : NatWithZero) (k : NatWithZero),
       add n m = add n k -> m = k.
 Proof.
-  (* The context gains [n], [m] and [k]: [|- add n m = add n k -> m = k] *)
   intros n m k.
-  (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
   destruct n as [| n'].
-  - (* Both [add Zero]s compute: [|- m = k -> m = k] *)
-    simpl in |- *.
-    (* The context gains [e : m = k]: [|- m = k] *)
+  - simpl in |- *.
     intro e.
-    (* [e] is a proof of the goal as it stands. *)
     exact e.
-  - (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-    destruct m as [| m'].
-    + (* [k] is either [Zero] or [Positive k']: one goal per ctor. *)
-      destruct k as [| k'].
-      * (* The context gains [e]: [|- Zero = Zero] *)
-        intro e.
-        (* Both sides are the same term. *)
+  - destruct m as [| m'].
+    + destruct k as [| k'].
+      * intro e.
         reflexivity.
-      * (* Both [add]s compute:
-           [|- Positive n' = Positive (Nat.add n' k') -> Zero = Positive k'] *)
-        simpl in |- *.
-        (* The context gains [e : Positive n' = Positive (Nat.add n' k')]:
-           [|- Zero = Positive k'] *)
+      * simpl in |- *.
         intro e.
-        (* [positive_injectivity] strips the [Positive]s:
-           [e' : n' = Nat.add n' k'] *)
         pose proof (positive_injectivity n' (Nat.add n' k') e) as e'.
-        (* Turned round, then commutativity: [e'' : Nat.add k' n' = n'] *)
         pose proof (Identity.symmetry e') as e''.
         rewrite (Nat.addition_commutativity n' k') in e''.
-        (* [h : Nat.add k' n' = n' -> Falsum], once unfolded *)
         pose proof (Nat.addition_identity_absence k' n') as h.
         unfold Negation in h.
-        (* [f : Falsum] *)
         pose proof (h e'') as f.
-        (* [f : Falsum], which is what [contradiction] looks for. *)
         contradiction f.
-    + (* [k] is either [Zero] or [Positive k']: one goal per ctor. *)
-      destruct k as [| k'].
-      * (* Both [add]s compute:
-           [|- Positive (Nat.add n' m') = Positive n' -> Positive m' = Zero] *)
-        simpl in |- *.
-        (* The context gains [e : Positive (Nat.add n' m') = Positive n']:
-           [|- Positive m' = Zero] *)
+    + destruct k as [| k'].
+      * simpl in |- *.
         intro e.
-        (* [positive_injectivity] strips the [Positive]s, commutativity
-           turns the sum round: [e' : Nat.add m' n' = n'] *)
         pose proof (positive_injectivity (Nat.add n' m') n' e) as e'.
         rewrite (Nat.addition_commutativity n' m') in e'.
-        (* [h : Nat.add m' n' = n' -> Falsum], once unfolded *)
         pose proof (Nat.addition_identity_absence m' n') as h.
         unfold Negation in h.
-        (* [f : Falsum] *)
         pose proof (h e') as f.
-        (* [f : Falsum], which is what [contradiction] looks for. *)
         contradiction f.
-      * (* Both [add]s compute:
-           [|- Positive (Nat.add n' m') = Positive (Nat.add n' k')
-               -> Positive m' = Positive k'] *)
-        simpl in |- *.
-        (* The context gains
-           [e : Positive (Nat.add n' m') = Positive (Nat.add n' k')]:
-           [|- Positive m' = Positive k'] *)
+      * simpl in |- *.
         intro e.
-        (* [positive_injectivity] strips the [Positive]s:
-           [e' : Nat.add n' m' = Nat.add n' k'] *)
         pose proof (positive_injectivity (Nat.add n' m') (Nat.add n' k') e)
           as e'.
-        (* [Nat.add_l_cancellation] strips the [n']s: [e'' : m' = k'] *)
         pose proof (Nat.add_l_cancellation n' m' k' e') as e''.
-        (* [e''] replaces [m']: [|- Positive k' = Positive k'] *)
         rewrite e'' in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
 (* The right summand cancels too, by commuting both sums into the left
-   form. *)
+ * form.
+ *)
 Theorem add_r_cancellation
   : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero),
       add m n = add k n -> m = k.
 Proof.
-  (* The context gains [m], [k], [n] and [e : add m n = add k n]:
-     [|- m = k] *)
   intros m k n e.
-  (* [addition_commutativity] turns each side round: [e : add n m = add n k] *)
   rewrite (addition_commutativity m n) in e.
   rewrite (addition_commutativity k n) in e.
-  (* [add_l_cancellation n m k e] is a proof of the goal as it stands. *)
   exact (add_l_cancellation n m k e).
 Qed.
 
@@ -334,45 +213,28 @@ Definition mul := fun (m : NatWithZero) (n : NatWithZero) =>
   end.
 
 (* [Positive One] is the identity on both sides; [Zero] absorbs, which is
-   case analysis and [simpl] wherever it is needed. *)
+ * case analysis and [simpl] wherever it is needed.
+ *)
 
 Lemma mul_l_identity : forall (n : NatWithZero), mul (Positive One) n = n.
 Proof.
-  (* The context gains [n]: [|- mul (Positive One) n = n] *)
   intros n.
-  (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
   destruct n as [| n'].
-  - (* Both matches reduce: [|- Zero = Zero] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
-  - (* Both matches reduce and [Nat.mul One n'] computes:
-       [|- Positive n' = Positive n'] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
 Qed.
 
 Lemma mul_r_identity : forall (m : NatWithZero), mul m (Positive One) = m.
 Proof.
-  (* The context gains [m]: [|- mul m (Positive One) = m] *)
   intros m.
-  (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
   destruct m as [| m'].
-  - (* The outer match reduces: [|- Zero = Zero] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
-  - (* Both matches reduce; [Nat.mul m' One] does not, since [Nat.mul]
-       recurses on its first argument:
-       [|- Positive (Nat.mul m' One) = Positive m'] *)
-    simpl in |- *.
-    (* Commutativity turns the product round:
-       [|- Positive (Nat.mul One m') = Positive m'] *)
+  - simpl in |- *.
     rewrite (Nat.multiplication_commutativity m' One) in |- *.
-    (* [Nat.mul One m'] computes: [|- Positive m' = Positive m'] *)
     simpl in |- *.
-    (* Both sides are the same term. *)
     reflexivity.
 Qed.
 
@@ -388,36 +250,19 @@ Qed.
 Theorem multiplication_commutativity
   : forall (m : NatWithZero) (n : NatWithZero), mul m n = mul n m.
 Proof.
-  (* The context gains [m] and [n]: [|- mul m n = mul n m] *)
   intros m n.
-  (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
   destruct m as [| m'].
-  - (* [mul Zero n] computes; [mul n Zero] cannot until [n] is a ctor:
-       [|- Zero = mul n Zero] *)
-    simpl in |- *.
-    (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
+  - simpl in |- *.
     destruct n as [| n'].
-    + (* Both matches reduce: [|- Zero = Zero] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+    + simpl in |- *.
       reflexivity.
-    + (* The inner match on [Zero] answers [Zero]: [|- Zero = Zero] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+    + simpl in |- *.
       reflexivity.
-  - (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-    destruct n as [| n'].
-    + (* Both sides reduce to [Zero]: [|- Zero = Zero] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct n as [| n'].
+    + simpl in |- *.
       reflexivity.
-    + (* Both sides reduce to [Nat.mul] under [Positive]:
-         [|- Positive (Nat.mul m' n') = Positive (Nat.mul n' m')] *)
-      simpl in |- *.
-      (* The [Nat] law carries the [NatWithZero] one:
-         [|- Positive (Nat.mul n' m') = Positive (Nat.mul n' m')] *)
+    + simpl in |- *.
       rewrite (Nat.multiplication_commutativity m' n') in |- *.
-      (* Both sides are the same term. *)
       reflexivity.
 Qed.
 
@@ -437,36 +282,18 @@ Theorem multiplication_associativity
   : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
       mul (mul l m) n = mul l (mul m n).
 Proof.
-  (* The context gains [l], [m] and [n]:
-     [|- mul (mul l m) n = mul l (mul m n)] *)
   intros l m n.
-  (* [l] is either [Zero] or [Positive l']: one goal per ctor. *)
   destruct l as [| l'].
-  - (* [mul Zero] absorbs on both sides: [|- Zero = Zero] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
-  - (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-    destruct m as [| m'].
-    + (* [mul _ Zero] and [mul Zero _] both absorb: [|- Zero = Zero] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct m as [| m'].
+    + simpl in |- *.
       reflexivity.
-    + (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-      destruct n as [| n'].
-      * (* [mul _ Zero] absorbs on both sides: [|- Zero = Zero] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct n as [| n'].
+      * simpl in |- *.
         reflexivity.
-      * (* Every case is [Positive]:
-           [|- Positive (Nat.mul (Nat.mul l' m') n')
-               = Positive (Nat.mul l' (Nat.mul m' n'))] *)
-        simpl in |- *.
-        (* The [Nat] law carries the [NatWithZero] one:
-           [|- Positive (Nat.mul l' (Nat.mul m' n'))
-               = Positive (Nat.mul l' (Nat.mul m' n'))] *)
+      * simpl in |- *.
         rewrite (Nat.multiplication_associativity l' m' n') in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
@@ -474,40 +301,18 @@ Theorem mul_l_distributivity_over_addition
   : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
       mul l (add m n) = add (mul l m) (mul l n).
 Proof.
-  (* The context gains [l], [m] and [n]:
-     [|- mul l (add m n) = add (mul l m) (mul l n)] *)
   intros l m n.
-  (* [l] is either [Zero] or [Positive l']: one goal per ctor. *)
   destruct l as [| l'].
-  - (* [mul Zero] absorbs everywhere and [add Zero Zero] computes:
-       [|- Zero = Zero] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
-  - (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-    destruct m as [| m'].
-    + (* [add Zero n] is [n] and [mul _ Zero] drops out of the sum, and
-         [simpl] unfolds what is left into the same [match] on [n] on each
-         side. *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct m as [| m'].
+    + simpl in |- *.
       reflexivity.
-    + (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-      destruct n as [| n'].
-      * (* [add _ Zero] drops out on both sides:
-           [|- Positive (Nat.mul l' m') = Positive (Nat.mul l' m')] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct n as [| n'].
+      * simpl in |- *.
         reflexivity.
-      * (* Every case is [Positive]:
-           [|- Positive (Nat.mul l' (Nat.add m' n'))
-               = Positive (Nat.add (Nat.mul l' m') (Nat.mul l' n'))] *)
-        simpl in |- *.
-        (* The [Nat] law carries the [NatWithZero] one:
-           [|- Positive (Nat.add (Nat.mul l' m') (Nat.mul l' n'))
-               = Positive (Nat.add (Nat.mul l' m') (Nat.mul l' n'))] *)
+      * simpl in |- *.
         rewrite (Nat.mul_l_distributivity_over_addition l' m' n') in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
@@ -515,18 +320,11 @@ Theorem mul_r_distributivity_over_addition
   : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
       mul (add m n) l = add (mul m l) (mul n l).
 Proof.
-  (* The context gains [l], [m] and [n]:
-     [|- mul (add m n) l = add (mul m l) (mul n l)] *)
   intros l m n.
-  (* [|- mul l (add m n) = add (mul m l) (mul n l)] *)
   rewrite (multiplication_commutativity (add m n) l) in |- *.
-  (* [|- add (mul l m) (mul l n) = add (mul m l) (mul n l)] *)
   rewrite (mul_l_distributivity_over_addition l m n) in |- *.
-  (* [|- add (mul m l) (mul l n) = add (mul m l) (mul n l)] *)
   rewrite (multiplication_commutativity l m) in |- *.
-  (* [|- add (mul m l) (mul n l) = add (mul m l) (mul n l)] *)
   rewrite (multiplication_commutativity l n) in |- *.
-  (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
@@ -547,20 +345,10 @@ Theorem multiplication_distributivity_over_addition
       mul (add a b) (add c d)
       = add (add (mul a c) (mul a d)) (add (mul b c) (mul b d)).
 Proof.
-  (* The context gains [a], [b], [c] and [d]:
-     [|- mul (add a b) (add c d)
-         = add (add (mul a c) (mul a d)) (add (mul b c) (mul b d))] *)
   intros a b c d.
-  (* The right law splits the left sum:
-     [|- add (mul a (add c d)) (mul b (add c d))
-         = add (add (mul a c) (mul a d)) (add (mul b c) (mul b d))] *)
   rewrite (mul_r_distributivity_over_addition (add c d) a b) in |- *.
-  (* The left law splits each half:
-     [|- add (add (mul a c) (mul a d)) (add (mul b c) (mul b d))
-         = add (add (mul a c) (mul a d)) (add (mul b c) (mul b d))] *)
   rewrite (mul_l_distributivity_over_addition a c d) in |- *.
   rewrite (mul_l_distributivity_over_addition b c d) in |- *.
-  (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
@@ -583,70 +371,37 @@ Proof.
 Qed.
 
 (* The three exponent laws take the exponents apart by ctor; a [Zero]
-   exponent is settled by [power_identity] and the identity of [mul], and
-   the all-[Positive] case is the [Nat] law under [Positive]. *)
+ * exponent is settled by [power_identity] and the identity of [mul], and
+ * the all-[Positive] case is the [Nat] law under [Positive].
+ *)
 
 Theorem product_of_powers
   : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero),
       mul (power m a) (power m b) = power m (add a b).
 Proof.
-  (* The context gains [m], [a] and [b]:
-     [|- mul (power m a) (power m b) = power m (add a b)] *)
   intros m a b.
-  (* [a] is either [Zero] or [Positive a']: one goal per ctor. *)
   destruct a as [| a'].
-  - (* [b] is either [Zero] or [Positive b']: one goal per ctor. *)
-    destruct b as [| b'].
-    + (* Everything computes, [Nat.mul One One] included:
-         [|- Positive One = Positive One] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct b as [| b'].
+    + simpl in |- *.
       reflexivity.
-    + (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-      destruct m as [| m'].
-      * (* [Zero] to a positive power is [Zero], and [mul _ Zero] absorbs:
-           [|- Zero = Zero] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct m as [| m'].
+      * simpl in |- *.
         reflexivity.
-      * (* Everything computes, [Nat.mul One _] included:
-           [|- Positive (Nat.power m' b') = Positive (Nat.power m' b')] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+      * simpl in |- *.
         reflexivity.
-  - (* [b] is either [Zero] or [Positive b']: one goal per ctor. *)
-    destruct b as [| b'].
-    + (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-      destruct m as [| m'].
-      * (* [Zero] to a positive power is [Zero], and [mul Zero _] absorbs:
-           [|- Zero = Zero] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+  - destruct b as [| b'].
+    + destruct m as [| m'].
+      * simpl in |- *.
         reflexivity.
-      * (* Everything computes but [Nat.mul _ One], which is stuck on its
-           first argument:
-           [|- Positive (Nat.mul (Nat.power m' a') One)
-               = Positive (Nat.power m' a')] *)
-        simpl in |- *.
-        (* Commutativity turns the product round, and [Nat.mul One _]
-           computes: [|- Positive (Nat.power m' a') = Positive (Nat.power m' a')] *)
+      * simpl in |- *.
         rewrite (Nat.multiplication_commutativity (Nat.power m' a') One) in |- *.
         simpl in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
-    + (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-      destruct m as [| m'].
-      * (* [Zero] to a positive power is [Zero] on both sides: [|- Zero = Zero] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct m as [| m'].
+      * simpl in |- *.
         reflexivity.
-      * (* Every case is [Positive]:
-           [|- Positive (Nat.mul (Nat.power m' a') (Nat.power m' b'))
-               = Positive (Nat.power m' (Nat.add a' b'))] *)
-        simpl in |- *.
-        (* The [Nat] law carries the [NatWithZero] one. *)
+      * simpl in |- *.
         rewrite (Nat.product_of_powers m' a' b') in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
@@ -654,48 +409,22 @@ Theorem power_of_a_power
   : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero),
       power (power m a) b = power m (mul a b).
 Proof.
-  (* The context gains [m], [a] and [b]:
-     [|- power (power m a) b = power m (mul a b)] *)
   intros m a b.
-  (* [a] is either [Zero] or [Positive a']: one goal per ctor. *)
   destruct a as [| a'].
-  - (* [b] is either [Zero] or [Positive b']: one goal per ctor. *)
-    destruct b as [| b'].
-    + (* [mul Zero Zero] and every [power _ Zero] compute:
-         [|- Positive One = Positive One] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct b as [| b'].
+    + simpl in |- *.
       reflexivity.
-    + (* [power m Zero] is [Positive One], [power (Positive One) (Positive b')]
-         computes to [Positive (Nat.power One b')], and [mul Zero _] absorbs
-         in the exponent on the right:
-         [|- Positive (Nat.power One b') = Positive One] *)
-      simpl in |- *.
-      (* [Nat.power_annihilation] finishes it: [|- Positive One = Positive One] *)
+    + simpl in |- *.
       rewrite (Nat.power_annihilation b') in |- *.
-      (* Both sides are the same term. *)
       reflexivity.
-  - (* [b] is either [Zero] or [Positive b']: one goal per ctor. *)
-    destruct b as [| b'].
-    + (* [mul _ Zero] absorbs and both [power _ Zero]s compute:
-         [|- Positive One = Positive One] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct b as [| b'].
+    + simpl in |- *.
       reflexivity.
-    + (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-      destruct m as [| m'].
-      * (* [Zero] to a positive power is [Zero], twice on the left:
-           [|- Zero = Zero] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct m as [| m'].
+      * simpl in |- *.
         reflexivity.
-      * (* Every case is [Positive]:
-           [|- Positive (Nat.power (Nat.power m' a') b')
-               = Positive (Nat.power m' (Nat.mul a' b'))] *)
-        simpl in |- *.
-        (* The [Nat] law carries the [NatWithZero] one. *)
+      * simpl in |- *.
         rewrite (Nat.power_of_a_power m' a' b') in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
@@ -703,42 +432,24 @@ Theorem power_distributivity_over_multiplication
   : forall (m : NatWithZero) (n : NatWithZero) (a : NatWithZero),
       power (mul m n) a = mul (power m a) (power n a).
 Proof.
-  (* The context gains [m], [n] and [a]:
-     [|- power (mul m n) a = mul (power m a) (power n a)] *)
   intros m n a.
-  (* [a] is either [Zero] or [Positive a']: one goal per ctor. *)
   destruct a as [| a'].
-  - (* All three [power _ Zero]s answer [Positive One] and
-       [Nat.mul One One] computes: [|- Positive One = Positive One] *)
-    simpl in |- *.
-    (* Both sides are the same term. *)
+  - simpl in |- *.
     reflexivity.
-  - (* [m] is either [Zero] or [Positive m']: one goal per ctor. *)
-    destruct m as [| m'].
-    + (* [mul Zero n] is [Zero], and [Zero] to a positive power is [Zero]
-         on both sides: [|- Zero = Zero] *)
-      simpl in |- *.
-      (* Both sides are the same term. *)
+  - destruct m as [| m'].
+    + simpl in |- *.
       reflexivity.
-    + (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-      destruct n as [| n'].
-      * (* [mul _ Zero] is [Zero] on the left, [mul _ Zero] on the right:
-           [|- Zero = Zero] *)
-        simpl in |- *.
-        (* Both sides are the same term. *)
+    + destruct n as [| n'].
+      * simpl in |- *.
         reflexivity.
-      * (* Every case is [Positive]:
-           [|- Positive (Nat.power (Nat.mul m' n') a')
-               = Positive (Nat.mul (Nat.power m' a') (Nat.power n' a'))] *)
-        simpl in |- *.
-        (* The [Nat] law carries the [NatWithZero] one. *)
+      * simpl in |- *.
         rewrite (Nat.power_distributivity_over_multiplication m' n' a') in |- *.
-        (* Both sides are the same term. *)
         reflexivity.
 Qed.
 
 (* The strict order, as on [Nat]: [m] is below [n] when a positive amount
-   reaches [n] from [m]. [LessOrEqual] adds equality on top. *)
+ * reaches [n] from [m]. [LessOrEqual] adds equality on top.
+ *)
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) =>
   exists (k : Nat), add m (Positive k) = n.
@@ -752,69 +463,41 @@ Lemma less_than_positive_embedding
   : forall (m : Nat) (n : Nat),
       LessThan (Positive m) (Positive n) <-> Nat.LessThan m n.
 Proof.
-  (* The context gains [m] and [n]:
-     [|- LessThan (Positive m) (Positive n) <-> Nat.LessThan m n] *)
   intros m n.
-  (* [Biimplication] has one ctor with two fields, so the goal splits into two
-     goals, the forward and the backward half. *)
   split.
-  - (* The context gains [h]; it opens into [k] and
-       [e : add (Positive m) (Positive k) = Positive n]. *)
-    intro h.
+  - intro h.
     unfold LessThan in h.
     destruct h as [k e].
-    (* [add] computes under [Positive]: [e : Positive (Nat.add m k) = Positive n] *)
     simpl in e.
-    (* [positive_injectivity] strips the [Positive]s: [e' : Nat.add m k = n] *)
     pose proof (positive_injectivity (Nat.add m k) n e) as e'.
-    (* The same witness serves. *)
     unfold Nat.LessThan in |- *.
     exact (Exists_introduction k e').
-  - (* The context gains [h]; it opens into [k] and [e : Nat.add m k = n]. *)
-    intro h.
+  - intro h.
     unfold Nat.LessThan in h.
     destruct h as [k e].
-    (* The same witness serves:
-       [|- add (Positive m) (Positive k) = Positive n] *)
     unfold LessThan in |- *.
     apply (Exists_introduction k).
-    (* [add] computes under [Positive]: [|- Positive (Nat.add m k) = Positive n] *)
     simpl in |- *.
-    (* [e] replaces [Nat.add m k]: [|- Positive n = Positive n] *)
     rewrite e in |- *.
-    (* Both sides are the same term. *)
     reflexivity.
 Qed.
 
 Theorem lt_irreflexivity : forall (n : NatWithZero), ~ (LessThan n n).
 Proof.
-  (* The context gains [n]: [|- ~ (LessThan n n)] *)
   intros n.
-  (* [|- LessThan n n -> Falsum] *)
   unfold Negation in |- *.
-  (* The context gains [h]; it opens into [k] and [e : add n (Positive k) = n]. *)
   intro h.
   unfold LessThan in h.
   destruct h as [k e].
-  (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
   destruct n as [| n'].
-  - (* [add Zero] computes: [e : Positive k = Zero] *)
-    simpl in e.
-    (* [e] equates two distinct ctors, which closes any goal. *)
+  - simpl in e.
     discriminate e.
-  - (* [add] computes under [Positive]:
-       [e : Positive (Nat.add n' k) = Positive n'] *)
-    simpl in e.
-    (* [positive_injectivity] strips the [Positive]s, commutativity turns
-       the sum round: [e' : Nat.add k n' = n'] *)
+  - simpl in e.
     pose proof (positive_injectivity (Nat.add n' k) n' e) as e'.
     rewrite (Nat.addition_commutativity n' k) in e'.
-    (* [i : Nat.add k n' = n' -> Falsum], once unfolded *)
     pose proof (Nat.addition_identity_absence k n') as i.
     unfold Negation in i.
-    (* [f : Falsum] *)
     pose proof (i e') as f.
-    (* [f : Falsum], which is what [contradiction] looks for. *)
     contradiction f.
 Qed.
 
@@ -822,34 +505,19 @@ Theorem lt_transitivity
   : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
       LessThan l m -> LessThan m n -> LessThan l n.
 Proof.
-  (* The context gains [l], [m], [n], [h1] and [h2]: [|- LessThan l n] *)
   intros l m n h1 h2.
-  (* Each hypothesis opens into a witness and an equation:
-     [e1 : add l (Positive k1) = m], [e2 : add m (Positive k2) = n]. *)
   unfold LessThan in h1.
   unfold LessThan in h2.
   destruct h1 as [k1 e1].
   destruct h2 as [k2 e2].
-  (* The witness is the sum of the two:
-     [|- add l (Positive (Nat.add k1 k2)) = n] *)
   unfold LessThan in |- *.
   apply (Exists_introduction (Nat.add k1 k2)).
-  (* [e2] turned round replaces [n], then [e1] turned round replaces [m]:
-     [|- add l (Positive (Nat.add k1 k2))
-         = add (add l (Positive k1)) (Positive k2)] *)
   pose proof (Identity.symmetry e2) as e2'.
   rewrite e2' in |- *.
   pose proof (Identity.symmetry e1) as e1'.
   rewrite e1' in |- *.
-  (* Associativity opens the right side:
-     [|- add l (Positive (Nat.add k1 k2))
-         = add l (add (Positive k1) (Positive k2))] *)
   rewrite (addition_associativity l (Positive k1) (Positive k2)) in |- *.
-  (* The inner [add] computes under [Positive], the outer one is stuck on
-     [l] and stays:
-     [|- add l (Positive (Nat.add k1 k2)) = add l (Positive (Nat.add k1 k2))] *)
   simpl in |- *.
-  (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
@@ -857,59 +525,39 @@ Theorem addition_strict_monotonicity
   : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
       LessThan m n -> LessThan (add k m) (add k n).
 Proof.
-  (* The context gains [k], [m], [n] and [h]; [h] opens into [d] and
-     [e : add m (Positive d) = n]. *)
   intros k m n h.
   unfold LessThan in h.
   destruct h as [d e].
-  (* The same witness serves: [|- add (add k m) (Positive d) = add k n] *)
   unfold LessThan in |- *.
   apply (Exists_introduction d).
-  (* Associativity opens the left side: [|- add k (add m (Positive d)) = add k n] *)
   rewrite (addition_associativity k m (Positive d)) in |- *.
-  (* [e] replaces [add m (Positive d)]: [|- add k n = add k n] *)
   rewrite e in |- *.
-  (* Both sides are the same term. *)
   reflexivity.
 Qed.
 
 (* Scaling by a positive number keeps a strict step strict; by [Zero] it
-   would not, so the factor is a [Nat]. *)
+ * would not, so the factor is a [Nat].
+ *)
 Theorem multiplication_strict_monotonicity
   : forall (k : Nat) (m : NatWithZero) (n : NatWithZero),
       LessThan m n -> LessThan (mul (Positive k) m) (mul (Positive k) n).
 Proof.
-  (* The context gains [k], [m], [n] and [h]; [h] opens into [d] and
-     [e : add m (Positive d) = n]. *)
   intros k m n h.
   unfold LessThan in h.
   destruct h as [d e].
-  (* The witness is [d] scaled by [k]:
-     [|- add (mul (Positive k) m) (Positive (Nat.mul k d)) = mul (Positive k) n] *)
   unfold LessThan in |- *.
   apply (Exists_introduction (Nat.mul k d)).
-  (* [m] is either [Zero] or [Positive m']: one goal per ctor, and in each
-     [e] computes and, turned round, replaces [n]. *)
   destruct m as [| m'].
-  - (* [e : Positive d = n] *)
-    simpl in e.
+  - simpl in e.
     pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
-    (* Everything computes: [|- Positive (Nat.mul k d) = Positive (Nat.mul k d)] *)
     simpl in |- *.
-    (* Both sides are the same term. *)
     reflexivity.
-  - (* [e : Positive (Nat.add m' d) = n] *)
-    simpl in e.
+  - simpl in e.
     pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
-    (* Everything computes under [Positive]:
-       [|- Positive (Nat.add (Nat.mul k m') (Nat.mul k d))
-           = Positive (Nat.mul k (Nat.add m' d))] *)
     simpl in |- *.
-    (* [Nat]'s left distributivity opens the right side. *)
     rewrite (Nat.mul_l_distributivity_over_addition k m' d) in |- *.
-    (* Both sides are the same term. *)
     reflexivity.
 Qed.
 
@@ -923,8 +571,7 @@ Proof.
   intros k m n h.
   unfold LessOrEqual in h.
   destruct h as [e | lt].
-  - (* [e : m = n] replaces [m]. *)
-    rewrite e in |- *.
+  - rewrite e in |- *.
     unfold LessOrEqual in |- *.
     exact (Disjunction.l (Identity.reflexivity (add k n))).
   - unfold LessOrEqual in |- *.
@@ -955,36 +602,30 @@ Qed.
 Theorem addition_right_inflation
   : forall (m : NatWithZero) (n : NatWithZero), LessOrEqual n (add m n).
 Proof.
-  (* The context gains [m] and [n]: [|- LessOrEqual n (add m n)] *)
   intros m n.
   unfold LessOrEqual in |- *.
   destruct m as [| m'].
-  - (* [add Zero n] computes: [|- n = n \/ LessThan n n] *)
-    simpl in |- *.
+  - simpl in |- *.
     exact (Disjunction.l (Identity.reflexivity n)).
   - apply Disjunction.r.
-    (* [|- exists (k : Nat), add n (Positive k) = add (Positive m') n] *)
     unfold LessThan in |- *.
     apply (Exists_introduction m').
     exact (addition_commutativity n (Positive m')).
 Qed.
 
 (* A sum with a positive summand is positive: [Zero] is below it, the sum's
-   own magnitude being the witness. *)
+ * own magnitude being the witness.
+ *)
 Theorem addition_positive_positivity
   : forall (n : NatWithZero) (k : Nat), LessThan Zero (add n (Positive k)).
 Proof.
-  (* The context gains [n] and [k]: [|- LessThan Zero (add n (Positive k))] *)
   intros n k.
   unfold LessThan in |- *.
   destruct n as [| n'].
-  - (* Both sums compute: [|- exists (j : Nat), Positive j = Positive k] *)
-    simpl in |- *.
+  - simpl in |- *.
     apply (Exists_introduction k).
     reflexivity.
-  - (* Both sums compute:
-       [|- exists (j : Nat), Positive j = Positive (Nat.add n' k)] *)
-    simpl in |- *.
+  - simpl in |- *.
     apply (Exists_introduction (Nat.add n' k)).
     reflexivity.
 Qed.
@@ -997,25 +638,16 @@ Theorem less_than_successor_specification
   : forall (m : NatWithZero) (n : NatWithZero),
       LessThan m (add n (Positive One)) <-> LessOrEqual m n.
 Proof.
-  (* The context gains [m] and [n]. *)
   intros m n.
   split.
-  - (* [h] opens into [k] and [e : add m (Positive k) = add n (Positive One)];
-     * one goal per ctor of [k].
-     *)
-    intro h.
+  - intro h.
     unfold LessThan in h.
     destruct h as [k e].
     unfold LessOrEqual in |- *.
     destruct k as [| k'].
-    + (* The shared step cancels on the right: [m = n]. *)
-      apply Disjunction.l.
+    + apply Disjunction.l.
       exact (add_r_cancellation m n (Positive One) e).
-    + (* [Positive (Successor k')] is [add (Positive One) (Positive k')] by
-       * computation; turned round and regrouped, [e] puts the step last on
-       * both sides, where it cancels: [|- add m (Positive k') = n]
-       *)
-      apply Disjunction.r.
+    + apply Disjunction.r.
       unfold LessThan in |- *.
       apply (Exists_introduction k').
       change (Positive (Successor k')) with (add (Positive One) (Positive k')) in e.
@@ -1024,10 +656,7 @@ Proof.
         as a.
       rewrite a in e.
       exact (add_r_cancellation (add m (Positive k')) n (Positive One) e).
-  - (* [h] is an equality or a strict step; the witness is [One] or one more
-     * than the step's.
-     *)
-    intro h.
+  - intro h.
     unfold LessOrEqual in h.
     unfold LessThan in |- *.
     destruct h as [e | lt].
@@ -1037,10 +666,6 @@ Proof.
     + unfold LessThan in lt.
       destruct lt as [k e].
       apply (Exists_introduction (Successor k)).
-      (* [Positive (Successor k)] is [add (Positive One) (Positive k)] by
-       * computation; turned round and regrouped, the inner sum is [e]:
-       * [|- add (add m (Positive k)) (Positive One) = add n (Positive One)]
-       *)
       change (Positive (Successor k)) with (add (Positive One) (Positive k)) in |- *.
       rewrite (addition_commutativity (Positive One) (Positive k)) in |- *.
       pose proof (Identity.symmetry (addition_associativity m (Positive k) (Positive One)))
@@ -1051,7 +676,8 @@ Proof.
 Qed.
 
 (* Three-way comparison: [Zero] is below every [Positive], and two
-   [Positive]s fall to [Nat.compare]. *)
+ * [Positive]s fall to [Nat.compare].
+ *)
 (* [NatWithZero -> NatWithZero -> Comparison] *)
 Definition compare := fun (m : NatWithZero) (n : NatWithZero) =>
   match m with
@@ -1072,10 +698,7 @@ Theorem comparison_antisymmetry
   : forall (m : NatWithZero) (n : NatWithZero),
       compare m n = Comparison.transpose (compare n m).
 Proof.
-  (* The context gains [m] and [n]. *)
   intros m n.
-  (* One goal per ctor pair; the three with a [Zero] compute, the last is
-     [Nat]'s law. *)
   destruct m as [| m'].
   - destruct n as [| n'].
     + simpl in |- *.
@@ -2134,8 +1757,6 @@ Instance NatWithZero_mul_commutative
     Commutative.commutativity := NatWithZero.multiplication_commutativity
   |}.
 
-(* [min] has no identity, since [Zero] absorbs it; [max] has [Zero].
-   Both commute. *)
 Instance NatWithZero_min_semigroup
   : Semigroup NatWithZero.min :=
   {| Semigroup.associativity := Comparable.min_associativity |}.
@@ -2154,10 +1775,6 @@ Instance NatWithZero_max_commutative
   : Commutative NatWithZero.max :=
   {| Commutative.commutativity := Comparable.max_commutativity |}.
 
-(* With [add] and [mul] together, [NatWithZero] is a semiring: the two
- * monoids above, distributivity, and [Zero] absorbing under [mul], which
- * computes on the left and is commutativity on the right.
- *)
 Instance NatWithZero_semiring
   : Semiring NatWithZero.add Zero NatWithZero.mul (Positive One) :=
   {| Semiring.abelian_monoid := NatWithZero_add_abelian_monoid
@@ -2165,7 +1782,6 @@ Instance NatWithZero_semiring
    ; Semiring.distributivity := NatWithZero.mul_distributivity_over_addition
    ; Semiring.annihilation   := NatWithZero.multiplication_annihilation |}.
 
-(* Divisibility as an instance of the partial order class. *)
 Instance NatWithZero_divides_partial_order
   : PartialOrder NatWithZero.Divides :=
   {| PartialOrder.reflexivity :=
