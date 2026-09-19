@@ -28,28 +28,34 @@ Inductive NatWithZero : Type :=
 (* A module may carry the type's name; its members read [NatWithZero.add]. *)
 Module NatWithZero.
 
+(* Short spellings for this module only: [Local] keeps them out of every
+ * file that imports this one. [+ p] is a prefix, apart from the infix [+].
+ *)
+Local Notation "0" := Zero (only parsing).
+Local Notation "+ p" := (Positive p) (at level 35, right associativity, only parsing).
+
 (* No recursion here: [Zero] is the identity on both sides and the remaining
  * case is [Nat.add] under [Positive].
  *)
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Definition add := fun (m : NatWithZero) (n : NatWithZero) =>
   match m with
-  | Zero       => n
-  | Positive p =>
+  | 0   => n
+  | + p =>
       match n with
-      | Zero       => Positive p
-      | Positive q => Positive (Nat.add p q)
+      | 0   => + p
+      | + q => + (Nat.add p q)
       end
   end.
 
 (* [NatWithZero -> NatWithZero] *)
 Definition inc := fun (n : NatWithZero) =>
   match n with
-  | Zero       => Positive One
-  | Positive p => Positive (Nat.inc p)
+  | 0   => + One
+  | + p => + (Nat.inc p)
   end.
 
-Lemma inc_specification : forall (n : NatWithZero), inc n = add (Positive One) n.
+Lemma inc_specification : forall (n : NatWithZero), inc n = add (+ One) n.
 Proof.
   intros n.
   destruct n as [| p]; simpl in |- *; reflexivity.
@@ -94,30 +100,30 @@ Proof.
 Qed.
 
 Theorem addition_identity
-  : forall (n : NatWithZero), (add Zero n = n) /\ (add n Zero = n).
+  : forall (n : NatWithZero), (add 0 n = n) /\ (add n 0 = n).
 Proof.
   intros n.
   split.
   - simpl in |- *.
     reflexivity.
-  - rewrite (addition_commutativity n Zero) in |- *.
+  - rewrite (addition_commutativity n 0) in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
 
 Theorem positive_injectivity
-  : forall (m : Nat) (n : Nat), Positive m = Positive n -> m = n.
+  : forall (m : Nat) (n : Nat), + m = + n -> m = n.
 Proof.
   intros m n e.
   pose proof (Identity.congruence
-                (fun (x : NatWithZero) => match x with | Zero => m | Positive y => y end)
+                (fun (x : NatWithZero) => match x with | 0 => m | + y => y end)
                 e) as e'.
   simpl in e'.
   exact e'.
 Qed.
 
 Lemma addition_positive_refutes_zero
-  : forall (m : NatWithZero) (n : Nat), ~ (add m (Positive n) = Zero).
+  : forall (m : NatWithZero) (n : Nat), ~ (add m (+ n) = 0).
 Proof.
   intros m n.
   unfold Negation in |- *.
@@ -215,15 +221,15 @@ Qed.
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Definition mul := fun (m : NatWithZero) (n : NatWithZero) =>
   match m with
-  | Zero       => Zero
-  | Positive p =>
+  | 0   => 0
+  | + p =>
       match n with
-      | Zero       => Zero
-      | Positive q => Positive (Nat.mul p q)
+      | 0   => 0
+      | + q => + (Nat.mul p q)
       end
   end.
 
-Lemma mul_l_identity : forall (n : NatWithZero), mul (Positive One) n = n.
+Lemma mul_l_identity : forall (n : NatWithZero), mul (+ One) n = n.
 Proof.
   intros n.
   destruct n as [| n'].
@@ -233,7 +239,7 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma mul_r_identity : forall (m : NatWithZero), mul m (Positive One) = m.
+Lemma mul_r_identity : forall (m : NatWithZero), mul m (+ One) = m.
 Proof.
   intros m.
   destruct m as [| m'].
@@ -246,7 +252,7 @@ Proof.
 Qed.
 
 Theorem multiplication_identity
-  : forall (n : NatWithZero), (mul (Positive One) n = n) /\ (mul n (Positive One) = n).
+  : forall (n : NatWithZero), (mul (+ One) n = n) /\ (mul n (+ One) = n).
 Proof.
   intros n.
   split.
@@ -274,13 +280,13 @@ Proof.
 Qed.
 
 Theorem multiplication_annihilation
-  : forall (n : NatWithZero), (mul Zero n = Zero) /\ (mul n Zero = Zero).
+  : forall (n : NatWithZero), (mul 0 n = 0) /\ (mul n 0 = 0).
 Proof.
   intros n.
   split.
   - simpl in |- *.
     reflexivity.
-  - rewrite (multiplication_commutativity n Zero) in |- *.
+  - rewrite (multiplication_commutativity n 0) in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
@@ -349,15 +355,15 @@ Qed.
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Definition power := fun (m : NatWithZero) (n : NatWithZero) =>
   match n with
-  | Zero       => Positive One
-  | Positive q =>
+  | 0   => + One
+  | + q =>
       match m with
-      | Zero       => Zero
-      | Positive p => Positive (Nat.power p q)
+      | 0   => 0
+      | + p => + (Nat.power p q)
       end
   end.
 
-Lemma power_identity : forall (m : NatWithZero), power m Zero = Positive One.
+Lemma power_identity : forall (m : NatWithZero), power m 0 = + One.
 Proof.
   intros m.
   simpl in |- *.
@@ -438,7 +444,7 @@ Qed.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) =>
-  exists (k : Nat), add m (Positive k) = n.
+  exists (k : Nat), add m (+ k) = n.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) =>
@@ -446,7 +452,7 @@ Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) =>
 
 Lemma lt_positive_embedding
   : forall (m : Nat) (n : Nat),
-      LessThan (Positive m) (Positive n) <-> Nat.LessThan m n.
+      LessThan (+ m) (+ n) <-> Nat.LessThan m n.
 Proof.
   intros m n.
   split.
@@ -501,7 +507,7 @@ Proof.
   rewrite e2' in |- *.
   pose proof (Identity.symmetry e1) as e1'.
   rewrite e1' in |- *.
-  rewrite (addition_associativity l (Positive k1) (Positive k2)) in |- *.
+  rewrite (addition_associativity l (+ k1) (+ k2)) in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -515,14 +521,14 @@ Proof.
   destruct h as [d e].
   unfold LessThan in |- *.
   apply (Exists_introduction d).
-  rewrite (addition_associativity k m (Positive d)) in |- *.
+  rewrite (addition_associativity k m (+ d)) in |- *.
   rewrite e in |- *.
   reflexivity.
 Qed.
 
 Theorem multiplication_strict_monotonicity
   : forall (k : Nat) (m : NatWithZero) (n : NatWithZero),
-      LessThan m n -> LessThan (mul (Positive k) m) (mul (Positive k) n).
+      LessThan m n -> LessThan (mul (+ k) m) (mul (+ k) n).
 Proof.
   intros k m n h.
   unfold LessThan in h.
@@ -565,10 +571,10 @@ Proof.
   intros k m n h.
   unfold LessThan in h.
   destruct h as [d e].
-  rewrite (addition_associativity k m (Positive d)) in e.
+  rewrite (addition_associativity k m (+ d)) in e.
   unfold LessThan in |- *.
   apply (Exists_introduction d).
-  exact (add_l_cancellation k (add m (Positive d)) n e).
+  exact (add_l_cancellation k (add m (+ d)) n e).
 Qed.
 
 Theorem addition_right_extensivity
@@ -582,11 +588,11 @@ Proof.
   - apply Disjunction.R.
     unfold LessThan in |- *.
     apply (Exists_introduction m').
-    exact (addition_commutativity n (Positive m')).
+    exact (addition_commutativity n (+ m')).
 Qed.
 
 Theorem addition_right_positivity
-  : forall (n : NatWithZero) (k : Nat), LessThan Zero (add n (Positive k)).
+  : forall (n : NatWithZero) (k : Nat), LessThan 0 (add n (+ k)).
 Proof.
   intros n k.
   unfold LessThan in |- *.
@@ -601,7 +607,7 @@ Qed.
 
 Theorem lt_add_one_specification
   : forall (m : NatWithZero) (n : NatWithZero),
-      LessThan m (add n (Positive One)) <-> LessOrEqual m n.
+      LessThan m (add n (+ One)) <-> LessOrEqual m n.
 Proof.
   intros m n.
   split.
@@ -611,16 +617,16 @@ Proof.
     unfold LessOrEqual in |- *.
     destruct k as [| k'].
     + apply Disjunction.L.
-      exact (add_r_cancellation m n (Positive One) e).
+      exact (add_r_cancellation m n (+ One) e).
     + apply Disjunction.R.
       unfold LessThan in |- *.
       apply (Exists_introduction k').
-      change (Positive (Successor k')) with (add (Positive One) (Positive k')) in e.
-      rewrite (addition_commutativity (Positive One) (Positive k')) in e.
-      pose proof (Identity.symmetry (addition_associativity m (Positive k') (Positive One)))
+      change (+ (Successor k')) with (add (+ One) (+ k')) in e.
+      rewrite (addition_commutativity (+ One) (+ k')) in e.
+      pose proof (Identity.symmetry (addition_associativity m (+ k') (+ One)))
         as a.
       rewrite a in e.
-      exact (add_r_cancellation (add m (Positive k')) n (Positive One) e).
+      exact (add_r_cancellation (add m (+ k')) n (+ One) e).
   - intro h.
     unfold LessOrEqual in h.
     unfold LessThan in |- *.
@@ -631,9 +637,9 @@ Proof.
     + unfold LessThan in lt.
       destruct lt as [k e].
       apply (Exists_introduction (Successor k)).
-      change (Positive (Successor k)) with (add (Positive One) (Positive k)) in |- *.
-      rewrite (addition_commutativity (Positive One) (Positive k)) in |- *.
-      pose proof (Identity.symmetry (addition_associativity m (Positive k) (Positive One))) as a.
+      change (+ (Successor k)) with (add (+ One) (+ k)) in |- *.
+      rewrite (addition_commutativity (+ One) (+ k)) in |- *.
+      pose proof (Identity.symmetry (addition_associativity m (+ k) (+ One))) as a.
       rewrite a in |- *.
       rewrite e in |- *.
       reflexivity.
@@ -642,15 +648,15 @@ Qed.
 (* [NatWithZero -> NatWithZero -> Comparison] *)
 Definition compare := fun (m : NatWithZero) (n : NatWithZero) =>
   match m with
-  | Zero =>
+  | 0 =>
       match n with
-      | Zero       => Eq
-      | Positive _ => Lt
+      | 0   => Eq
+      | + _ => Lt
       end
-  | Positive p =>
+  | + p =>
       match n with
-      | Zero       => Gt
-      | Positive q => Nat.compare p q
+      | 0   => Gt
+      | + q => Nat.compare p q
       end
   end.
 
@@ -680,7 +686,7 @@ Proof.
       intro e.
       discriminate e.
     * intro h.
-      pose proof (lt_irreflexivity Zero) as i.
+      pose proof (lt_irreflexivity 0) as i.
       unfold Negation in i.
       pose proof (i h) as f.
       contradiction f.
@@ -769,7 +775,7 @@ Abbreviation min := (Comparable.min compare).
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Abbreviation max := (Comparable.max compare).
 
-Lemma max_l_identity : forall (n : NatWithZero), max Zero n = n.
+Lemma max_l_identity : forall (n : NatWithZero), max 0 n = n.
 Proof.
   intros n.
   unfold Comparable.max in |- *.
@@ -780,15 +786,15 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma max_r_identity : forall (n : NatWithZero), max n Zero = n.
+Lemma max_r_identity : forall (n : NatWithZero), max n 0 = n.
 Proof.
   intros n.
-  rewrite (Comparable.max_commutativity n Zero) in |- *.
+  rewrite (Comparable.max_commutativity n 0) in |- *.
   exact (max_l_identity n).
 Qed.
 
 Theorem max_identity
-  : forall (n : NatWithZero), (max Zero n = n) /\ (max n Zero = n).
+  : forall (n : NatWithZero), (max 0 n = n) /\ (max n 0 = n).
 Proof.
   intros n.
   split.
@@ -796,22 +802,22 @@ Proof.
   - exact (max_r_identity n).
 Qed.
 
-Lemma min_left_annihilation : forall (n : NatWithZero), min Zero n = Zero.
+Lemma min_left_annihilation : forall (n : NatWithZero), min 0 n = 0.
 Proof.
   intros n.
   unfold Comparable.min in |- *.
   destruct n as [| n']; simpl in |- *; reflexivity.
 Qed.
 
-Lemma min_right_annihilation : forall (n : NatWithZero), min n Zero = Zero.
+Lemma min_right_annihilation : forall (n : NatWithZero), min n 0 = 0.
 Proof.
   intros n.
-  rewrite (Comparable.min_commutativity n Zero) in |- *.
+  rewrite (Comparable.min_commutativity n 0) in |- *.
   exact (min_left_annihilation n).
 Qed.
 
 Theorem min_annihilation
-  : forall (n : NatWithZero), (min Zero n = Zero) /\ (min n Zero = Zero).
+  : forall (n : NatWithZero), (min 0 n = 0) /\ (min n 0 = 0).
 Proof.
   intros n.
   split.
@@ -849,14 +855,14 @@ Qed.
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) =>
   match m with
-  | Zero       => Zero
-  | Positive p =>
+  | 0   => 0
+  | + p =>
       match n with
-      | Zero       => Positive p
-      | Positive q =>
+      | 0   => + p
+      | + q =>
           match Nat.sub p q with
-          | None   => Zero
-          | Some k => Positive k
+          | None   => 0
+          | Some k => + k
           end
       end
   end.
@@ -881,7 +887,7 @@ Proof.
 Qed.
 
 Theorem saturating_sub_truncation
-  : forall (m : NatWithZero) (n : NatWithZero), LessOrEqual m n -> saturating_sub m n = Zero.
+  : forall (m : NatWithZero) (n : NatWithZero), LessOrEqual m n -> saturating_sub m n = 0.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -923,13 +929,13 @@ Proof.
     destruct lt as [k e].
     pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
-    rewrite (addition_commutativity n (Positive k)) in |- *.
-    rewrite (saturating_subtraction_inversion_of_addition (Positive k) n) in |- *.
-    rewrite (addition_commutativity n (Positive k)) in |- *.
+    rewrite (addition_commutativity n (+ k)) in |- *.
+    rewrite (saturating_subtraction_inversion_of_addition (+ k) n) in |- *.
+    rewrite (addition_commutativity n (+ k)) in |- *.
     reflexivity.
 Qed.
 
-Theorem saturating_sub_r_identity : forall (n : NatWithZero), saturating_sub n Zero = n.
+Theorem saturating_sub_r_identity : forall (n : NatWithZero), saturating_sub n 0 = n.
 Proof.
   intros n.
   destruct n as [| n']; simpl in |- *; reflexivity.
@@ -1034,14 +1040,14 @@ Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWith
   match dividend with
   | One =>
       match divisor with
-      | One         => Product_introduction (Positive One) Zero
-      | Successor _ => Product_introduction Zero (Positive One)
+      | One         => Product_introduction (+ One) 0
+      | Successor _ => Product_introduction 0 (+ One)
       end
   | Successor dividend' =>
       match division dividend' divisor with
       | Product_introduction quotient remainder =>
-          match eq (inc remainder) (Positive divisor) with
-          | true  => Product_introduction (inc quotient) Zero
+          match eq (inc remainder) (+ divisor) with
+          | true  => Product_introduction (inc quotient) 0
           | false => Product_introduction quotient       (inc remainder)
           end
       end
@@ -1052,22 +1058,22 @@ Local Open Scope jwa_product_scope.
 (* [NatWithZero -> Nat -> NatWithZero] *)
 Definition divide := fun (n : NatWithZero) (divisor : Nat) =>
   match n with
-  | Zero              => Zero
-  | Positive dividend => pi_1 (division dividend divisor)
+  | 0          => 0
+  | + dividend => pi_1 (division dividend divisor)
   end.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
 Definition modulo := fun (n : NatWithZero) (divisor : Nat) =>
   match n with
-  | Zero              => Zero
-  | Positive dividend => pi_2 (division dividend divisor)
+  | 0          => 0
+  | + dividend => pi_2 (division dividend divisor)
   end.
 
 Lemma division_invariant
   : forall (p : Nat) (d : Nat),
-      (add (mul (pi_1 (division p d)) (Positive d)) (pi_2 (division p d))
-      = Positive p)
-      /\ LessThan (pi_2 (division p d)) (Positive d).
+      (add (mul (pi_1 (division p d)) (+ d)) (pi_2 (division p d))
+      = + p)
+      /\ LessThan (pi_2 (division p d)) (+ d).
 Proof.
   intros p d.
   induction p as [| p' IH] using Nat_induction.
@@ -1087,24 +1093,24 @@ Proof.
     destruct (division p' d) as [q r] eqn:D.
     simpl in e.
     simpl in lt.
-    destruct (eq (inc r) (Positive d)) as [|] eqn:E; split; simpl in |- *.
+    destruct (eq (inc r) (+ d)) as [|] eqn:E; split; simpl in |- *.
     * pose proof (Biimplication.forward_elimination
-                    (Comparable.eq_reflection (inc r) (Positive d))
+                    (Comparable.eq_reflection (inc r) (+ d))
                     E) as full.
       rewrite (inc_specification r) in full.
       rewrite (inc_specification q) in |- *.
-      rewrite (mul_r_distributivity_over_addition (Positive d) (Positive One) q) in |- *.
-      rewrite (mul_l_identity (Positive d)) in |- *.
-      rewrite (addition_commutativity (Positive d) (mul q (Positive d))) in |- *.
+      rewrite (mul_r_distributivity_over_addition (+ d) (+ One) q) in |- *.
+      rewrite (mul_l_identity (+ d)) in |- *.
+      rewrite (addition_commutativity (+ d) (mul q (+ d))) in |- *.
       rewrite (addition_commutativity
-                 (add (mul q (Positive d)) (Positive d))
-                 Zero) in |- *.
+                 (add (mul q (+ d)) (+ d))
+                 0) in |- *.
       simpl in |- *.
       pose proof (Identity.symmetry full) as full'.
       rewrite full' in |- *.
       rewrite full' in e.
       rewrite (add_l_commutativity
-                 (mul q (add (Positive One) r)) (Positive One) r) in |- *.
+                 (mul q (add (+ One) r)) (+ One) r) in |- *.
       rewrite e in |- *.
       simpl in |- *.
       reflexivity.
@@ -1113,24 +1119,24 @@ Proof.
       simpl in |- *.
       reflexivity.
     * rewrite (inc_specification r) in |- *.
-      rewrite (add_l_commutativity (mul q (Positive d)) (Positive One) r) in |- *.
+      rewrite (add_l_commutativity (mul q (+ d)) (+ One) r) in |- *.
       rewrite e in |- *.
       simpl in |- *.
       reflexivity.
     * unfold LessThan in lt.
       destruct lt as [k ek].
       rewrite (inc_specification r) in E.
-      rewrite (addition_commutativity (Positive One) r) in E.
+      rewrite (addition_commutativity (+ One) r) in E.
       rewrite (inc_specification r) in |- *.
-      rewrite (addition_commutativity (Positive One) r) in |- *.
+      rewrite (addition_commutativity (+ One) r) in |- *.
       destruct k as [| k'].
       { rewrite (Biimplication.backward_elimination
-                   (Comparable.eq_reflection (add r (Positive One)) (Positive d))
+                   (Comparable.eq_reflection (add r (+ One)) (+ d))
                    ek) in E.
         discriminate E. }
       { unfold LessThan in |- *.
         apply (Exists_introduction k').
-        rewrite (addition_associativity r (Positive One) (Positive k')) in |- *.
+        rewrite (addition_associativity r (+ One) (+ k')) in |- *.
         simpl in |- *.
         exact ek. }
 Qed.
@@ -1140,8 +1146,8 @@ Qed.
  *)
 Theorem division_specification
   : forall (n : NatWithZero) (d : Nat),
-      (add (mul (divide n d) (Positive d)) (modulo n d) = n)
-      /\ LessThan (modulo n d) (Positive d).
+      (add (mul (divide n d) (+ d)) (modulo n d) = n)
+      /\ LessThan (modulo n d) (+ d).
 Proof.
   intros n d.
   destruct n as [| p].
@@ -1169,7 +1175,7 @@ Theorem divides_reflexivity : forall (n : NatWithZero), Divides n n.
 Proof.
   intros n.
   unfold Divides in |- *.
-  apply (Exists_introduction (Positive One)).
+  apply (Exists_introduction (+ One)).
   exact (mul_r_identity n).
 Qed.
 
@@ -1219,7 +1225,7 @@ Proof.
         pose proof (Nat.multiplication_identity_factorization k' j' e5) as f.
         destruct f as [ek ej].
         rewrite ek in e1.
-        rewrite (mul_r_identity (Positive p)) in e1.
+        rewrite (mul_r_identity (+ p)) in e1.
         exact e1.
 Qed.
 
@@ -1255,7 +1261,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem divides_bottom : forall (n : NatWithZero), Divides (Positive One) n.
+Theorem divides_bottom : forall (n : NatWithZero), Divides (+ One) n.
 Proof.
   intros n.
   unfold Divides in |- *.
@@ -1263,22 +1269,22 @@ Proof.
   exact (mul_l_identity n).
 Qed.
 
-Theorem divides_top : forall (n : NatWithZero), Divides n Zero.
+Theorem divides_top : forall (n : NatWithZero), Divides n 0.
 Proof.
   intros n.
   unfold Divides in |- *.
-  apply (Exists_introduction Zero).
-  rewrite (multiplication_commutativity n Zero) in |- *.
+  apply (Exists_introduction 0).
+  rewrite (multiplication_commutativity n 0) in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
 
 (* [NatWithZero -> Prop] *)
-Definition Even := fun (n : NatWithZero) => Divides (Positive (Successor One)) n.
+Definition Even := fun (n : NatWithZero) => Divides (+ (Successor One)) n.
 
 (* [NatWithZero -> Prop] *)
 Definition Odd := fun (n : NatWithZero) =>
-  exists (k : NatWithZero), add (mul (Positive (Successor One)) k) (Positive One) = n.
+  exists (k : NatWithZero), add (mul (+ (Successor One)) k) (+ One) = n.
 
 Theorem even_or_odd : forall (n : NatWithZero), Even n \/ Odd n.
 Proof.
@@ -1287,13 +1293,13 @@ Proof.
   - apply Disjunction.L.
     unfold Even in |- *.
     unfold Divides in |- *.
-    apply (Exists_introduction Zero).
+    apply (Exists_introduction 0).
     simpl in |- *.
     reflexivity.
   - induction p as [| p' IH] using Nat_induction.
     + apply Disjunction.R.
       unfold Odd in |- *.
-      apply (Exists_introduction Zero).
+      apply (Exists_introduction 0).
       simpl in |- *.
       reflexivity.
     + destruct IH as [even | odd].
@@ -1313,15 +1319,15 @@ Proof.
         destruct odd as [k e].
         unfold Even in |- *.
         unfold Divides in |- *.
-        apply (Exists_introduction (add k (Positive One))).
+        apply (Exists_introduction (add k (+ One))).
         rewrite (mul_l_distributivity_over_addition
-                   (Positive (Successor One)) k (Positive One)) in |- *.
-        change (mul (Positive (Successor One)) (Positive One))
-          with (add (Positive One) (Positive One)) in |- *.
+                   (+ (Successor One)) k (+ One)) in |- *.
+        change (mul (+ (Successor One)) (+ One))
+          with (add (+ One) (+ One)) in |- *.
         pose proof (Identity.symmetry
                       (addition_associativity
-                         (mul (Positive (Successor One)) k)
-                         (Positive One) (Positive One))) as a.
+                         (mul (+ (Successor One)) k)
+                         (+ One) (+ One))) as a.
         rewrite a in |- *.
         rewrite e in |- *.
         simpl in |- *.
@@ -1337,7 +1343,7 @@ Proof.
   unfold Even in h1.
   unfold Even in h2.
   unfold Even in |- *.
-  exact (divides_addition_closure (Positive (Successor One)) m n h1 h2).
+  exact (divides_addition_closure (+ (Successor One)) m n h1 h2).
 Qed.
 
 Theorem odd_add_odd
@@ -1350,19 +1356,19 @@ Proof.
   destruct h2 as [k2 e2].
   unfold Even in |- *.
   unfold Divides in |- *.
-  apply (Exists_introduction (add (add k1 k2) (Positive One))).
+  apply (Exists_introduction (add (add k1 k2) (+ One))).
   pose proof (Identity.symmetry e1) as e1'.
   pose proof (Identity.symmetry e2) as e2'.
   rewrite e1' in |- *.
   rewrite e2' in |- *.
   rewrite (mul_l_distributivity_over_addition
-             (Positive (Successor One)) (add k1 k2) (Positive One)) in |- *.
-  rewrite (mul_l_distributivity_over_addition (Positive (Successor One)) k1 k2) in |- *.
-  change (mul (Positive (Successor One)) (Positive One))
-    with (add (Positive One) (Positive One)) in |- *.
+             (+ (Successor One)) (add k1 k2) (+ One)) in |- *.
+  rewrite (mul_l_distributivity_over_addition (+ (Successor One)) k1 k2) in |- *.
+  change (mul (+ (Successor One)) (+ One))
+    with (add (+ One) (+ One)) in |- *.
   rewrite (addition_interchange
-             (mul (Positive (Successor One)) k1) (Positive One)
-             (mul (Positive (Successor One)) k2) (Positive One)) in |- *.
+             (mul (+ (Successor One)) k1) (+ One)
+             (mul (+ (Successor One)) k2) (+ One)) in |- *.
   reflexivity.
 Qed.
 
@@ -1398,15 +1404,11 @@ Instance NatWithZero_add_monoid
   ; Monoid.identity := NatWithZero.addition_identity
   |}.
 
-(* Both cancellation laws were already proved above, so the instance only
- * hands them over.
- *)
 Instance NatWithZero_add_cancellative
   : Cancellative NatWithZero.add := {|
     Cancellative.cancellation := NatWithZero.addition_cancellation
   |}.
 
-(* [Positive One] leaves its argument alone under [mul]. *)
 Instance NatWithZero_mul_monoid
   : Monoid NatWithZero.mul (Positive One) := {|
     Monoid.semigroup := {|
