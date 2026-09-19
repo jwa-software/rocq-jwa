@@ -40,12 +40,14 @@ Module Nat.
 Local Notation "1" := One (only parsing).
 Local Abbreviation S := Successor (only parsing).
 
+(* [Nat -> Nat -> Nat] *)
 Fixpoint add (m : Nat) (n : Nat) : Nat :=
   match m with
   | 1    => S n
   | S m' => S (add m' n)
   end.
 
+(* [Nat -> Nat -> Nat] *)
 Fixpoint mul (m : Nat) (n : Nat) : Nat :=
   match m with
   | 1    => n
@@ -65,6 +67,8 @@ Local Open Scope jwa_nat_scope.
 
 (* [Nat -> Nat] *)
 Definition inc := fun (n : Nat) => S n.
+
+(* Addition *)
 
 Theorem addition_associativity
   : forall (l : Nat) (m : Nat) (n : Nat), (l + m) + n = l + (m + n).
@@ -182,6 +186,8 @@ Proof.
   reflexivity.
 Qed.
 
+(* Multiplication *)
+
 Theorem multiplication_commutativity : forall (m : Nat) (n : Nat), m * n = n * m.
 Proof.
   intros m n.
@@ -288,6 +294,25 @@ Proof.
   reflexivity.
 Qed.
 
+Theorem multiplication_identity_factorization
+  : forall (k : Nat) (j : Nat), k * j = 1 -> k = 1 /\ j = 1.
+Proof.
+  intros k j e.
+  destruct k as [| k']; simpl in e.
+  -
+    rewrite e in |- *.
+    exact (Conjunction_introduction
+             (Identity.reflexivity 1) (Identity.reflexivity 1)).
+  -
+    destruct j as [| j'].
+    + simpl in e.
+      discriminate e.
+    + simpl in e.
+      discriminate e.
+Qed.
+
+(* Power *)
+
 (* [Nat -> Nat -> Nat] *)
 Fixpoint power (m : Nat) (n : Nat) : Nat :=
   match n with
@@ -353,6 +378,8 @@ Proof.
     reflexivity.
 Qed.
 
+(* Order *)
+
 (* [Nat -> Nat -> Prop] *)
 Definition LessThan := fun (m : Nat) (n : Nat) => exists (k : Nat), m + k = n.
 
@@ -372,7 +399,7 @@ Notation "m > n" := (LessThan n m) (only parsing)
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
   : jwa_nat_scope.
 
-Theorem lt_irreflexivity : forall (n : Nat), ~ (LessThan n n).
+Theorem lt_irreflexivity : forall (n : Nat), ~ (n < n).
 Proof.
   intros n.
   unfold Negation in |- *.
@@ -388,7 +415,7 @@ Qed.
 
 Theorem lt_transitivity
   : forall (l : Nat) (m : Nat) (n : Nat),
-      LessThan l m -> LessThan m n -> LessThan l n.
+      l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
   unfold LessThan in h1.
@@ -403,7 +430,7 @@ Proof.
   exact e2.
 Qed.
 
-Lemma lt_suc : forall (n : Nat), LessThan n (S n).
+Lemma lt_suc : forall (n : Nat), n < S n.
 Proof.
   intros n.
   unfold LessThan in |- *.
@@ -413,7 +440,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem addition_left_extensivity : forall (m : Nat) (k : Nat), LessThan m (m + k).
+Theorem addition_left_extensivity : forall (m : Nat) (k : Nat), m < m + k.
 Proof.
   intros m k.
   unfold LessThan in |- *.
@@ -428,7 +455,7 @@ Qed.
  *)
 Theorem successor_strict_monotonicity
   : forall (m : Nat) (n : Nat),
-      LessThan m n -> LessThan (S m) (S n).
+      m < n -> S m < S n.
 Proof.
   intros m n h.
   unfold LessThan in h.
@@ -442,7 +469,7 @@ Qed.
 
 Lemma successor_strict_monotonicity_inversion
   : forall (m : Nat) (n : Nat),
-      LessThan (S m) (S n) -> LessThan m n.
+      S m < S n -> m < n.
 Proof.
   intros m n h.
   unfold LessThan in h.
@@ -455,7 +482,7 @@ Qed.
 
 Theorem addition_strict_monotonicity
   : forall (k : Nat) (m : Nat) (n : Nat),
-      LessThan m n -> LessThan (k + m) (k + n).
+      m < n -> k + m < k + n.
 Proof.
   intros k m n h.
   unfold LessThan in h.
@@ -469,7 +496,7 @@ Qed.
 
 Theorem multiplication_strict_monotonicity
   : forall (k : Nat) (m : Nat) (n : Nat),
-      LessThan m n -> LessThan (k * m) (k * n).
+      m < n -> k * m < k * n.
 Proof.
   intros k m n h.
   unfold LessThan in h.
@@ -483,12 +510,12 @@ Proof.
 Qed.
 
 (* Trichotomy, "cut in three": for any [m] and [n], exactly one of
- * [LessThan m n], [m = n], [LessThan n m] holds. This theorem is the "at
+ * [m < n], [m = n], [n < m] holds. This theorem is the "at
  * least one" half; "at most one" is [lt_irreflexivity] with
  * [Comparable.lt_asymmetry].
  *)
 Theorem lt_trichotomy
-  : forall (m : Nat) (n : Nat), (LessThan m n) \/ (m = n) \/ (LessThan n m).
+  : forall (m : Nat) (n : Nat), (m < n) \/ (m = n) \/ (n < m).
 Proof.
   intro m.
   induction m as [| m' IH] using Nat_induction;
@@ -568,23 +595,9 @@ Proof.
   - exact (mul_r_cancellation m n k).
 Qed.
 
-Theorem multiplication_identity_factorization
-  : forall (k : Nat) (j : Nat), k * j = 1 -> k = 1 /\ j = 1.
-Proof.
-  intros k j e.
-  destruct k as [| k']; simpl in e.
-  -
-    rewrite e in |- *.
-    exact (Conjunction_introduction
-             (Identity.reflexivity 1) (Identity.reflexivity 1)).
-  -
-    destruct j as [| j'].
-    + simpl in e.
-      discriminate e.
-    + simpl in e.
-      discriminate e.
-Qed.
+(* Comparison *)
 
+(* [Nat -> Nat -> Comparison] *)
 Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   match m, n with
   | 1, 1       => Eq
@@ -594,7 +607,7 @@ Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   end.
 
 Lemma lt_specification_forward
-  : forall (m : Nat) (n : Nat), compare m n = Lt -> LessThan m n.
+  : forall (m : Nat) (n : Nat), compare m n = Lt -> m < n.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction;
@@ -612,7 +625,7 @@ Proof.
 Qed.
 
 Lemma lt_specification_backward
-  : forall (m : Nat) (n : Nat), LessThan m n -> compare m n = Lt.
+  : forall (m : Nat) (n : Nat), m < n -> compare m n = Lt.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction;
@@ -665,7 +678,7 @@ Qed.
 
 Theorem comparison_specification
   : forall (m : Nat) (n : Nat),
-      (compare m n = Lt <-> LessThan m n) /\ (compare m n = Eq <-> m = n).
+      (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
 Proof.
   intros m n.
   split.
@@ -733,6 +746,8 @@ Proof.
   - exact (max_r_identity n).
 Qed.
 
+(* Subtraction *)
+
 (* [Nat -> Nat -> Option Nat] *)
 Fixpoint sub (m : Nat) (n : Nat) : Option Nat :=
   match m with
@@ -745,7 +760,7 @@ Fixpoint sub (m : Nat) (n : Nat) : Option Nat :=
   end.
 
 Theorem sub_truncation
-  : forall (m : Nat) (n : Nat), LessOrEqual m n -> sub m n = None.
+  : forall (m : Nat) (n : Nat), m <= n -> sub m n = None.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -835,7 +850,7 @@ Definition saturating_sub := fun (m : Nat) (n : Nat) =>
   end.
 
 Theorem saturating_sub_truncation
-  : forall (m : Nat) (n : Nat), LessOrEqual m n -> saturating_sub m n = 1.
+  : forall (m : Nat) (n : Nat), m <= n -> saturating_sub m n = 1.
 Proof.
   intros m n h.
   unfold saturating_sub in |- *.
@@ -855,7 +870,7 @@ Proof.
 Qed.
 
 Theorem saturating_subtraction_specification
-  : forall (m : Nat) (n : Nat), LessThan n m -> n + saturating_sub m n = m.
+  : forall (m : Nat) (n : Nat), n < m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
   unfold LessThan in h.
@@ -868,8 +883,10 @@ Qed.
 
 End Nat.
 
-(* Only the notations leave the module: a client gets [(m + n)%nat] while
- * the operations stay [Nat.add] and friends.
+(* Makes the notations declared in [Module Nat] usable in every file that
+ * imports this one, as [(m + n)%nat] or under an opened [jwa_nat_scope].
+ * Only the notations are exported: [add] and the laws still need the
+ * [Nat.] prefix, and the local aliases [1] and [S] stay inside the module.
  *)
 Export (notations) Nat.
 
