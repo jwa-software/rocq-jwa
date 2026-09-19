@@ -1354,14 +1354,14 @@ Proof.
   intros n.
   destruct n as [p | | p].
   - induction p as [| p' IH] using Nat_induction.
-    + apply Disjunction.r.
+    + apply Disjunction.R.
       unfold Odd in |- *.
       apply (Exists_introduction (Negative One)).
       unfold add in |- *.
       simpl in |- *.
       reflexivity.
     + destruct IH as [ev | od].
-      * apply Disjunction.r.
+      * apply Disjunction.R.
         unfold Even in ev.
         unfold Divides in ev.
         destruct ev as [k e].
@@ -1380,7 +1380,7 @@ Proof.
         rewrite (Nat.addition_commutativity p' One) in |- *.
         simpl in |- *.
         reflexivity.
-      * apply Disjunction.l.
+      * apply Disjunction.L.
         unfold Odd in od.
         destruct od as [k e].
         unfold Even in |- *.
@@ -1400,21 +1400,21 @@ Proof.
         rewrite (Nat.addition_commutativity p' One) in |- *.
         simpl in |- *.
         reflexivity.
-  - apply Disjunction.l.
+  - apply Disjunction.L.
     unfold Even in |- *.
     unfold Divides in |- *.
     apply (Exists_introduction Zero).
     simpl in |- *.
     reflexivity.
   - induction p as [| p' IH] using Nat_induction.
-    + apply Disjunction.r.
+    + apply Disjunction.R.
       unfold Odd in |- *.
       apply (Exists_introduction Zero).
       unfold add in |- *.
       simpl in |- *.
       reflexivity.
     + destruct IH as [ev | od].
-      * apply Disjunction.r.
+      * apply Disjunction.R.
         unfold Even in ev.
         unfold Divides in ev.
         destruct ev as [k e].
@@ -1426,7 +1426,7 @@ Proof.
         rewrite (Nat.addition_commutativity p' One) in |- *.
         simpl in |- *.
         reflexivity.
-      * apply Disjunction.l.
+      * apply Disjunction.L.
         unfold Odd in od.
         destruct od as [k e].
         unfold Even in |- *.

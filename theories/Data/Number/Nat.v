@@ -523,16 +523,16 @@ Proof.
   destruct n as [| n'].
   +
     pose proof (Identity.reflexivity 1) as id.
-    exact (Disjunction.r (Disjunction.l id)).
+    exact (Disjunction.R (Disjunction.L id)).
   +
-    apply Disjunction.l.
+    apply Disjunction.L.
     unfold LessThan in |- *.
     apply (Exists_introduction n').
     simpl in |- *.
     reflexivity.
   +
-    apply Disjunction.r.
-    apply Disjunction.r.
+    apply Disjunction.R.
+    apply Disjunction.R.
     unfold LessThan in |- *.
     apply (Exists_introduction m').
     simpl in |- *.
@@ -541,15 +541,15 @@ Proof.
     pose proof (IH n') as t.
     destruct t as [lt | rest].
     *
-      apply Disjunction.l.
+      apply Disjunction.L.
       exact (successor_strict_monotonicity m' n' lt).
     * destruct rest as [eq | gt].
-      { apply Disjunction.r.
-        apply Disjunction.l.
+      { apply Disjunction.R.
+        apply Disjunction.L.
         rewrite eq in |- *.
         reflexivity. }
-      { apply Disjunction.r.
-        apply Disjunction.r.
+      { apply Disjunction.R.
+        apply Disjunction.R.
         exact (successor_strict_monotonicity n' m' gt). }
 Qed.
 

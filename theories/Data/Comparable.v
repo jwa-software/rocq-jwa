@@ -148,14 +148,14 @@ Proof.
   intros A compare lt C m n.
   destruct (compare m n) as [| |] eqn:c.
   - destruct (Comparable.specification m n) as [s _].
-    exact (Disjunction.l
+    exact (Disjunction.L
              (Biimplication.forward_elimination s c)).
   - destruct (Comparable.specification m n) as [_ s].
-    exact (Disjunction.r
-            (Disjunction.l
+    exact (Disjunction.R
+            (Disjunction.L
               (Biimplication.forward_elimination s c))).
-  - exact (Disjunction.r
-            (Disjunction.r
+  - exact (Disjunction.R
+            (Disjunction.R
               (Biimplication.forward_elimination (gt_specification m n) c))).
 Qed.
 
@@ -226,7 +226,7 @@ Theorem le_reflexivity
 Proof.
   intros A compare lt C n.
   unfold LessOrEqual in |- *.
-  exact (Disjunction.l (Identity.reflexivity n)).
+  exact (Disjunction.L (Identity.reflexivity n)).
 Qed.
 
 Theorem le_antisymmetry
@@ -267,8 +267,8 @@ Proof.
     exact h2.
   - destruct h2 as [e2 | lt2].
     + rewrite e2 in lt1.
-      exact (Disjunction.r lt1).
-    + exact (Disjunction.r (Comparable.transitivity l m n lt1 lt2)).
+      exact (Disjunction.R lt1).
+    + exact (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
 Qed.
 
 Theorem le_totality
@@ -283,10 +283,10 @@ Proof.
   pose proof (trichotomy m n) as t.
   unfold LessOrEqual in |- *.
   destruct t as [lt1 | rest].
-  - exact (Disjunction.l (Disjunction.r lt1)).
+  - exact (Disjunction.L (Disjunction.R lt1)).
   - destruct rest as [e | gt].
-    + exact (Disjunction.l (Disjunction.l e)).
-    + exact (Disjunction.r (Disjunction.r gt)).
+    + exact (Disjunction.L (Disjunction.L e)).
+    + exact (Disjunction.R (Disjunction.R gt)).
 Qed.
 
 Theorem le_reflection
@@ -303,14 +303,14 @@ Proof.
   destruct (compare m n) as [| |] eqn:c.
   - split.
     + intro e.
-      apply Disjunction.r.
+      apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
       exact (Biimplication.forward_elimination s c).
     + intro h.
       reflexivity.
   - split.
     + intro e.
-      apply Disjunction.l.
+      apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
       exact (Biimplication.forward_elimination s c).
     + intro h.
@@ -342,13 +342,13 @@ Proof.
   split.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction.r.
+    + apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
       exact (Biimplication.forward_elimination s c).
-    + apply Disjunction.l.
+    + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
       exact (Biimplication.forward_elimination s c).
-    + apply Disjunction.l.
+    + apply Disjunction.L.
       exact (Identity.symmetry e).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
@@ -375,13 +375,13 @@ Proof.
   split.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction.l.
+    + apply Disjunction.L.
       exact e.
-    + apply Disjunction.l.
+    + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
       exact (Identity.symmetry
                (Biimplication.forward_elimination s c)).
-    + apply Disjunction.r.
+    + apply Disjunction.R.
       exact (Biimplication.forward_elimination
                (gt_specification m n) c).
   - intro h.
@@ -406,9 +406,9 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.l (Identity.reflexivity l)).
-  - exact (Disjunction.l (Identity.reflexivity l)).
-  - apply Disjunction.r.
+  - exact (Disjunction.L (Identity.reflexivity l)).
+  - exact (Disjunction.L (Identity.reflexivity l)).
+  - apply Disjunction.R.
     exact (Biimplication.forward_elimination (gt_specification l r) c).
 Qed.
 
@@ -424,13 +424,13 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction.r.
+  - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
     exact (Biimplication.forward_elimination s c).
-  - apply Disjunction.l.
+  - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
     exact (Biimplication.forward_elimination s c).
-  - exact (Disjunction.l (Identity.reflexivity r)).
+  - exact (Disjunction.L (Identity.reflexivity r)).
 Qed.
 
 Theorem min_universality
@@ -461,11 +461,11 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction.r.
+  - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
     exact (Biimplication.forward_elimination s c).
-  - exact (Disjunction.l (Identity.reflexivity l)).
-  - exact (Disjunction.l (Identity.reflexivity l)).
+  - exact (Disjunction.L (Identity.reflexivity l)).
+  - exact (Disjunction.L (Identity.reflexivity l)).
 Qed.
 
 Lemma max_r_injection
@@ -480,11 +480,11 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.l (Identity.reflexivity r)).
-  - apply Disjunction.l.
+  - exact (Disjunction.L (Identity.reflexivity r)).
+  - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
     exact (Identity.symmetry (Biimplication.forward_elimination s c)).
-  - apply Disjunction.r.
+  - apply Disjunction.R.
     exact (Biimplication.forward_elimination (gt_specification l r) c).
 Qed.
 

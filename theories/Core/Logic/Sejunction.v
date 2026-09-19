@@ -35,8 +35,8 @@ Module Sejunction.
  *)
 Abbreviation left  := Sejunction_introduction_left.
 Abbreviation right := Sejunction_introduction_right.
-Abbreviation l     := Sejunction_introduction_left  (only parsing).
-Abbreviation r     := Sejunction_introduction_right (only parsing).
+Abbreviation L     := Sejunction_introduction_left  (only parsing).
+Abbreviation R     := Sejunction_introduction_right (only parsing).
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop}, A _\/_ B -> B _\/_ A.

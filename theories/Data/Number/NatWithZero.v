@@ -552,9 +552,9 @@ Proof.
   destruct h as [e | lt].
   - rewrite e in |- *.
     unfold LessOrEqual in |- *.
-    exact (Disjunction.l (Identity.reflexivity (add k n))).
+    exact (Disjunction.L (Identity.reflexivity (add k n))).
   - unfold LessOrEqual in |- *.
-    apply Disjunction.r.
+    apply Disjunction.R.
     exact (addition_strict_monotonicity k m n lt).
 Qed.
 
@@ -578,8 +578,8 @@ Proof.
   unfold LessOrEqual in |- *.
   destruct m as [| m'].
   - simpl in |- *.
-    exact (Disjunction.l (Identity.reflexivity n)).
-  - apply Disjunction.r.
+    exact (Disjunction.L (Identity.reflexivity n)).
+  - apply Disjunction.R.
     unfold LessThan in |- *.
     apply (Exists_introduction m').
     exact (addition_commutativity n (Positive m')).
@@ -610,9 +610,9 @@ Proof.
     destruct h as [k e].
     unfold LessOrEqual in |- *.
     destruct k as [| k'].
-    + apply Disjunction.l.
+    + apply Disjunction.L.
       exact (add_r_cancellation m n (Positive One) e).
-    + apply Disjunction.r.
+    + apply Disjunction.R.
       unfold LessThan in |- *.
       apply (Exists_introduction k').
       change (Positive (Successor k')) with (add (Positive One) (Positive k')) in e.
@@ -904,7 +904,7 @@ Proof.
     + simpl in |- *.
       rewrite (Nat.sub_truncation
                 m' (Nat.add m' k)
-                (Disjunction.r (Nat.addition_left_extensivity m' k))) in |- *.
+                (Disjunction.R (Nat.addition_left_extensivity m' k))) in |- *.
       simpl in |- *.
       reflexivity.
 Qed.
@@ -950,7 +950,7 @@ Proof.
       reflexivity.
     + simpl in |- *.
       rewrite (Nat.sub_truncation k' (Nat.add k' n')
-                 (Disjunction.r (Nat.addition_left_extensivity k' n'))) in |- *.
+                 (Disjunction.R (Nat.addition_left_extensivity k' n'))) in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in |- *.
@@ -1284,20 +1284,20 @@ Theorem even_or_odd : forall (n : NatWithZero), Even n \/ Odd n.
 Proof.
   intros n.
   destruct n as [| p].
-  - apply Disjunction.l.
+  - apply Disjunction.L.
     unfold Even in |- *.
     unfold Divides in |- *.
     apply (Exists_introduction Zero).
     simpl in |- *.
     reflexivity.
   - induction p as [| p' IH] using Nat_induction.
-    + apply Disjunction.r.
+    + apply Disjunction.R.
       unfold Odd in |- *.
       apply (Exists_introduction Zero).
       simpl in |- *.
       reflexivity.
     + destruct IH as [even | odd].
-      * apply Disjunction.r.
+      * apply Disjunction.R.
         unfold Even in even.
         unfold Divides in even.
         destruct even as [k e].
@@ -1308,7 +1308,7 @@ Proof.
         rewrite (Nat.addition_commutativity p' One) in |- *.
         simpl in |- *.
         reflexivity.
-      * apply Disjunction.l.
+      * apply Disjunction.L.
         unfold Odd in odd.
         destruct odd as [k e].
         unfold Even in |- *.
