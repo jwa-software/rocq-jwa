@@ -1071,20 +1071,6 @@ Definition compare := fun (m : NatWithZero) (n : NatWithZero) =>
       end
   end.
 
-Lemma comparison_reflexivity : forall (n : NatWithZero), compare n n = Eq.
-Proof.
-  (* The context gains [n]: [|- compare n n = Eq] *)
-  intros n.
-  (* [n] is either [Zero] or [Positive n']: one goal per ctor. *)
-  destruct n as [| n'].
-  - (* [compare Zero Zero] computes: [|- Eq = Eq] *)
-    simpl in |- *.
-    reflexivity.
-  - (* [compare] computes to [Nat.compare n' n']. *)
-    simpl in |- *.
-    exact (Nat.comparison_reflexivity n').
-Qed.
-
 (* Swapping the arguments swaps the answer. *)
 Theorem comparison_antisymmetry
   : forall (m : NatWithZero) (n : NatWithZero),
@@ -1197,10 +1183,18 @@ Proof.
         simpl in e.
         rewrite (Nat.comparison_eq_specification_forward m' n' e) in |- *.
         reflexivity.
-  - (* The context gains [e : m = n], which replaces [m]. *)
+  - (* The context gains [e : m = n], which replaces [m]; one goal per
+       ctor. *)
     intro e.
     rewrite e in |- *.
-    exact (comparison_reflexivity n).
+    destruct n as [| n'].
+    + (* [compare Zero Zero] computes: [|- Eq = Eq] *)
+      simpl in |- *.
+      reflexivity.
+    + (* [compare] computes to [Nat.compare n' n'], which [Nat]'s instance
+         settles. *)
+      simpl in |- *.
+      exact (Comparable.reflexivity n').
 Qed.
 
 Theorem comparison_specification

@@ -1437,20 +1437,6 @@ Definition compare := fun (m : Integer) (n : Integer) =>
       end
   end.
 
-Lemma comparison_reflexivity : forall (n : Integer), compare n n = Eq.
-Proof.
-  (* The context gains [n]; one goal per ctor, the magnitudes falling to
-     [Nat]'s law. *)
-  intros n.
-  destruct n as [p | | p].
-  - simpl in |- *.
-    exact (Nat.comparison_reflexivity p).
-  - simpl in |- *.
-    reflexivity.
-  - simpl in |- *.
-    exact (Nat.comparison_reflexivity p).
-Qed.
-
 Theorem comparison_antisymmetry
   : forall (m : Integer) (n : Integer), compare m n = Comparison.transpose (compare n m).
 Proof.
@@ -1625,7 +1611,7 @@ Proof.
       * intro e.
         pose proof (negative_injectivity p q e) as e'.
         rewrite e' in |- *.
-        exact (Nat.comparison_reflexivity q).
+        exact (Comparable.reflexivity q).
     + simpl in |- *.
       split.
       * intro c.
@@ -1681,7 +1667,7 @@ Proof.
       * intro e.
         pose proof (positive_injectivity p q e) as e'.
         rewrite e' in |- *.
-        exact (Nat.comparison_reflexivity q).
+        exact (Comparable.reflexivity q).
 Qed.
 
 Theorem comparison_specification

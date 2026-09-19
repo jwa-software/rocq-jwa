@@ -564,14 +564,6 @@ Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   | Successor m', Successor n' => compare m' n'
   end.
 
-Lemma comparison_reflexivity : forall (n : Nat), compare n n = Eq.
-Proof.
-  intros n.
-  induction n as [| n' IH] using Nat_induction; simpl in |- *.
-  - reflexivity.
-  - exact IH.
-Qed.
-
 Lemma comparison_lt_specification_forward
   : forall (m : Nat) (n : Nat), compare m n = Lt -> LessThan m n.
 Proof.
@@ -636,7 +628,10 @@ Lemma comparison_eq_specification_backward
 Proof.
   intros m n e.
   rewrite e in |- *.
-  exact (comparison_reflexivity n).
+  clear e.
+  induction n as [| n' IH] using Nat_induction; simpl in |- *.
+  - reflexivity.
+  - exact IH.
 Qed.
 
 Theorem comparison_specification
