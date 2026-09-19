@@ -38,10 +38,6 @@ Module Comparable.
 Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) =>
   m = n \/ lt m n.
 
-(* Two answers of [compare] read as [Bool] tests: [eq] is [Eq], [le] is [Lt]
- * or [Eq].
- *)
-
 (* [forall {A : Type}, (A -> A -> Comparison) -> A -> A -> Bool] *)
 Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
   match compare m n with
@@ -88,8 +84,6 @@ Proof.
           s
           (Identity.reflexivity n)).
 Qed.
-
-(* The class's [specification] field, one answer of [compare] at a time. *)
 
 Theorem lt_specification
   : forall {A : Type}
@@ -176,7 +170,6 @@ Proof.
   intros A compare lt C n.
   unfold Negation in |- *.
   intro h.
-  (* [h] makes [compare n n] answer [Lt], but it answers [Eq]. *)
   pose proof (Biimplication.backward_elimination (lt_specification n n) h) as c.
   rewrite (Comparable.reflexivity n) in c.
   discriminate c.
@@ -193,7 +186,6 @@ Proof.
   intros A compare lt C m n h1.
   unfold Negation in |- *.
   intro h2.
-  (* The two compose into [lt m m], against irreflexivity. *)
   pose proof (Comparable.transitivity m n m h1 h2) as h.
   pose proof (lt_irreflexivity m) as i.
   unfold Negation in i.
@@ -329,7 +321,7 @@ Proof.
     + intro h.
       destruct h as [e | lt1].
       * destruct (Comparable.specification m n) as [_ s].
-        rewrite (Biimplication.backward_elimination s e) in c.
+        rewrite (Biimplication.backward_elimination s e)   in c.
         discriminate c.
       * destruct (Comparable.specification m n) as [s _].
         rewrite (Biimplication.backward_elimination s lt1) in c.
@@ -396,9 +388,7 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + destruct h as [e | gt].
       * exact e.
-      * (* [gt] says [compare m n] is [Gt], against [c]. *)
-        rewrite (Biimplication.backward_elimination
-                   (gt_specification m n) gt) in c.
+      * rewrite (Biimplication.backward_elimination (gt_specification m n) gt) in c.
         discriminate c.
     + reflexivity.
     + reflexivity.
@@ -419,8 +409,7 @@ Proof.
   - exact (Disjunction.l (Identity.reflexivity l)).
   - exact (Disjunction.l (Identity.reflexivity l)).
   - apply Disjunction.r.
-    exact (Biimplication.forward_elimination
-             (gt_specification l r) c).
+    exact (Biimplication.forward_elimination (gt_specification l r) c).
 Qed.
 
 Lemma min_r_projection
@@ -494,11 +483,9 @@ Proof.
   - exact (Disjunction.l (Identity.reflexivity r)).
   - apply Disjunction.l.
     destruct (Comparable.specification l r) as [_ s].
-    exact (Identity.symmetry
-             (Biimplication.forward_elimination s c)).
+    exact (Identity.symmetry (Biimplication.forward_elimination s c)).
   - apply Disjunction.r.
-    exact (Biimplication.forward_elimination
-             (gt_specification l r) c).
+    exact (Biimplication.forward_elimination (gt_specification l r) c).
 Qed.
 
 Theorem max_universality
@@ -528,9 +515,11 @@ Theorem min_commutativity
 Proof.
   intros A c lt C m n.
   apply (le_antisymmetry (min c m n) (min c n m)).
-  - exact (min_universality (min c m n) n m
+  - exact (min_universality
+            (min c m n) n m
             (min_r_projection m n) (min_l_projection m n)).
-  - exact (min_universality (min c n m) m n
+  - exact (min_universality
+            (min c n m) m n
             (min_r_projection n m) (min_l_projection n m)).
 Qed.
 
@@ -544,9 +533,11 @@ Theorem max_commutativity
 Proof.
   intros A c lt C m n.
   apply (le_antisymmetry (max c m n) (max c n m)).
-  - exact (max_universality (max c n m) m n
+  - exact (max_universality
+            (max c n m) m n
             (max_r_injection n m) (max_l_injection n m)).
-  - exact (max_universality (max c m n) n m
+  - exact (max_universality
+            (max c m n) n m
             (max_r_injection m n) (max_l_injection m n)).
 Qed.
 
@@ -559,21 +550,50 @@ Theorem min_associativity
     min compare (min compare l m) n = min compare l (min compare m n).
 Proof.
   intros A c lt C l m n.
-  apply (le_antisymmetry (min c (min c l m) n) (min c l (min c m n))).
-  - apply (min_universality (min c (min c l m) n) l (min c m n)).
-    + exact (le_transitivity (min c (min c l m) n) (min c l m) l
-              (min_l_projection (min c l m) n) (min_l_projection l m)).
-    + apply (min_universality (min c (min c l m) n) m n).
-      * exact (le_transitivity (min c (min c l m) n) (min c l m) m
-                (min_l_projection (min c l m) n) (min_r_projection l m)).
-      * exact (min_r_projection (min c l m) n).
-  - apply (min_universality (min c l (min c m n)) (min c l m) n).
-    + apply (min_universality (min c l (min c m n)) l m).
-      * exact (min_l_projection l (min c m n)).
-      * exact (le_transitivity (min c l (min c m n)) (min c m n) m
-                (min_r_projection l (min c m n)) (min_l_projection m n)).
-    + exact (le_transitivity (min c l (min c m n)) (min c m n) n
-              (min_r_projection l (min c m n)) (min_r_projection m n)).
+  apply (le_antisymmetry
+          (min c (min c l m) n)
+          (min c l (min c m n))).
+  - apply (min_universality
+            (min c (min c l m) n)
+            l
+            (min c m n)).
+    + exact (le_transitivity
+              (min c (min c l m) n)
+              (min c l m)
+              l
+              (min_l_projection (min c l m) n)
+              (min_l_projection l m)).
+    + apply (min_universality
+              (min c (min c l m) n) m n).
+      * exact (le_transitivity
+                (min c (min c l m) n)
+                (min c l m)
+                m
+                (min_l_projection (min c l m) n)
+                (min_r_projection l m)).
+      * exact (min_r_projection
+                (min c l m) n).
+  - apply (min_universality
+              (min c l (min c m n))
+              (min c l m)
+              n).
+    + apply (min_universality
+              (min c l (min c m n)) l m).
+      * exact (min_l_projection
+                l
+                (min c m n)).
+      * exact (le_transitivity
+                (min c l (min c m n))
+                (min c m n)
+                m
+                (min_r_projection l (min c m n))
+                (min_l_projection m n)).
+    + exact (le_transitivity
+              (min c l (min c m n))
+              (min c m n)
+              n
+              (min_r_projection l (min c m n))
+              (min_r_projection m n)).
 Qed.
 
 Theorem max_associativity
@@ -585,21 +605,49 @@ Theorem max_associativity
     max compare (max compare l m) n = max compare l (max compare m n).
 Proof.
   intros A c lt C l m n.
-  apply (le_antisymmetry (max c (max c l m) n) (max c l (max c m n))).
-  - apply (max_universality (max c l (max c m n)) (max c l m) n).
-    + apply (max_universality (max c l (max c m n)) l m).
-      * exact (max_l_injection l (max c m n)).
-      * exact (le_transitivity m (max c m n) (max c l (max c m n))
-                (max_l_injection m n) (max_r_injection l (max c m n))).
-    + exact (le_transitivity n (max c m n) (max c l (max c m n))
-              (max_r_injection m n) (max_r_injection l (max c m n))).
-  - apply (max_universality (max c (max c l m) n) l (max c m n)).
-    + exact (le_transitivity l (max c l m) (max c (max c l m) n)
-              (max_l_injection l m) (max_l_injection (max c l m) n)).
-    + apply (max_universality (max c (max c l m) n) m n).
-      * exact (le_transitivity m (max c l m) (max c (max c l m) n)
-                (max_r_injection l m) (max_l_injection (max c l m) n)).
-      * exact (max_r_injection (max c l m) n).
+  apply (le_antisymmetry
+          (max c (max c l m) n)
+          (max c l (max c m n))).
+  - apply (max_universality
+            (max c l (max c m n))
+            (max c l m)
+            n).
+    + apply (max_universality
+              (max c l (max c m n)) l m).
+      * exact (max_l_injection
+                l (max c m n)).
+      * exact (le_transitivity
+                m
+                (max c m n)
+                (max c l (max c m n))
+                (max_l_injection m n)
+                (max_r_injection l (max c m n))).
+    + exact (le_transitivity
+              n
+              (max c m n)
+              (max c l (max c m n))
+              (max_r_injection m n)
+              (max_r_injection l (max c m n))).
+  - apply (max_universality
+            (max c (max c l m) n)
+            l (max c m n)).
+    + exact (le_transitivity
+              l
+              (max c l m)
+              (max c (max c l m) n)
+              (max_l_injection l m)
+              (max_l_injection (max c l m)
+              n)).
+    + apply (max_universality
+              (max c (max c l m) n) m n).
+      * exact (le_transitivity
+                m
+                (max c l m)
+                (max c (max c l m) n)
+                (max_r_injection l m)
+                (max_l_injection (max c l m) n)).
+      * exact (max_r_injection
+                (max c l m) n).
 Qed.
 
 Theorem min_idempotence
@@ -632,13 +680,6 @@ Qed.
 
 End Comparable.
 
-(* The three order instances every [Comparable compare lt] gives. They sit
- * outside [Module Comparable] because an instance declared inside a module
- * is dropped at its [End]; here, importing this file is enough to find
- * them. The section states their four parameters once, and [#[export]]
- * keeps each instance after [End Orders], where a section would otherwise
- * drop it.
- *)
 Section Orders.
 
 Context
@@ -651,13 +692,13 @@ Context
   : StrictPartialOrder lt :=
   {| StrictPartialOrder.irreflexivity :=
        {| Irreflexive.irreflexivity := Comparable.lt_irreflexivity |}
-   ; StrictPartialOrder.transitivity :=
+   ; StrictPartialOrder.transitivity  :=
        {| Transitive.transitivity   := Comparable.transitivity |} |}.
 
 #[export] Instance strict_total_order
   : StrictTotalOrder lt :=
   {| StrictTotalOrder.strict_partial_order := strict_partial_order
-   ; StrictTotalOrder.trichotomy :=
+   ; StrictTotalOrder.trichotomy           :=
        {| Trichotomous.trichotomy := Comparable.trichotomy |} |}.
 
 #[export] Instance total_order
