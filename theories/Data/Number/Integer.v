@@ -1092,12 +1092,10 @@ Proof.
       destruct lt as [k e].
       apply (Exists_introduction k).
       rewrite (Nat.addition_commutativity n' k) in e.
-      exact (Biimplication.backward_elimination
-               (nat_difference_negative_specification k m' n') e).
+      exact (<-elim (nat_difference_negative_specification k m' n') e).
     * intro h.
       destruct h as [k e].
-      pose proof (Biimplication.forward_elimination
-                    (nat_difference_negative_specification k m' n') e) as e'.
+      pose proof (->elim (nat_difference_negative_specification k m' n') e) as e'.
       apply (Nat.lt_specification_backward n' m').
       unfold Nat.LessThan in |- *.
       apply (Exists_introduction k).

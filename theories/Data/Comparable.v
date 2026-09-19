@@ -80,9 +80,7 @@ Theorem reflexivity
 Proof.
   intros A compare lt C n.
   destruct (Comparable.specification n n) as [_ s].
-  exact (Biimplication.backward_elimination
-          s
-          (Identity.reflexivity n)).
+  exact (<-elim s (Identity.reflexivity n)).
 Qed.
 
 Theorem lt_specification
@@ -125,14 +123,14 @@ Proof.
   - intro e.
     destruct (compare n m) as [| |] eqn:c.
     + destruct (Comparable.specification n m) as [s _].
-      exact (Biimplication.forward_elimination s c).
+      exact (->elim s c).
     + simpl in e.
       discriminate e.
     + simpl in e.
       discriminate e.
   - intro h.
     destruct (Comparable.specification n m) as [s _].
-    rewrite (Biimplication.backward_elimination s h) in |- *.
+    rewrite (<-elim s h) in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
@@ -149,14 +147,14 @@ Proof.
   destruct (compare m n) as [| |] eqn:c.
   - destruct (Comparable.specification m n) as [s _].
     exact (Disjunction.L
-             (Biimplication.forward_elimination s c)).
+             (->elim s c)).
   - destruct (Comparable.specification m n) as [_ s].
     exact (Disjunction.R
             (Disjunction.L
-              (Biimplication.forward_elimination s c))).
+              (->elim s c))).
   - exact (Disjunction.R
             (Disjunction.R
-              (Biimplication.forward_elimination (gt_specification m n) c))).
+              (->elim (gt_specification m n) c))).
 Qed.
 
 Theorem lt_irreflexivity
@@ -170,7 +168,7 @@ Proof.
   intros A compare lt C n.
   unfold Negation in |- *.
   intro h.
-  pose proof (Biimplication.backward_elimination (lt_specification n n) h) as c.
+  pose proof (<-elim (lt_specification n n) h) as c.
   rewrite (Comparable.reflexivity n) in c.
   discriminate c.
 Qed.
@@ -208,11 +206,11 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + discriminate e.
     + destruct (Comparable.specification m n) as [_ s].
-      exact (Biimplication.forward_elimination s c).
+      exact (->elim s c).
     + discriminate e.
   - intro h.
     destruct (Comparable.specification m n) as [_ s].
-    rewrite (Biimplication.backward_elimination s h) in |- *.
+    rewrite (<-elim s h) in |- *.
     reflexivity.
 Qed.
 
@@ -305,14 +303,14 @@ Proof.
     + intro e.
       apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
-      exact (Biimplication.forward_elimination s c).
+      exact (->elim s c).
     + intro h.
       reflexivity.
   - split.
     + intro e.
       apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
-      exact (Biimplication.forward_elimination s c).
+      exact (->elim s c).
     + intro h.
       reflexivity.
   - split.
@@ -321,10 +319,10 @@ Proof.
     + intro h.
       destruct h as [e | lt1].
       * destruct (Comparable.specification m n) as [_ s].
-        rewrite (Biimplication.backward_elimination s e)   in c.
+        rewrite (<-elim s e)   in c.
         discriminate c.
       * destruct (Comparable.specification m n) as [s _].
-        rewrite (Biimplication.backward_elimination s lt1) in c.
+        rewrite (<-elim s lt1) in c.
         discriminate c.
 Qed.
 
@@ -344,10 +342,10 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
-      exact (Biimplication.forward_elimination s c).
+      exact (->elim s c).
     + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
-      exact (Biimplication.forward_elimination s c).
+      exact (->elim s c).
     + apply Disjunction.L.
       exact (Identity.symmetry e).
   - intro h.
@@ -357,7 +355,7 @@ Proof.
     + destruct h as [e | lt1].
       * exact (Identity.symmetry e).
       * destruct (Comparable.specification m n) as [s _].
-        rewrite (Biimplication.backward_elimination s lt1) in c.
+        rewrite (<-elim s lt1) in c.
         discriminate c.
 Qed.
 
@@ -380,15 +378,14 @@ Proof.
     + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
       exact (Identity.symmetry
-               (Biimplication.forward_elimination s c)).
+               (->elim s c)).
     + apply Disjunction.R.
-      exact (Biimplication.forward_elimination
-               (gt_specification m n) c).
+      exact (->elim (gt_specification m n) c).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
     + destruct h as [e | gt].
       * exact e.
-      * rewrite (Biimplication.backward_elimination (gt_specification m n) gt) in c.
+      * rewrite (<-elim (gt_specification m n) gt) in c.
         discriminate c.
     + reflexivity.
     + reflexivity.
@@ -409,7 +406,7 @@ Proof.
   - exact (Disjunction.L (Identity.reflexivity l)).
   - exact (Disjunction.L (Identity.reflexivity l)).
   - apply Disjunction.R.
-    exact (Biimplication.forward_elimination (gt_specification l r) c).
+    exact (->elim (gt_specification l r) c).
 Qed.
 
 Lemma min_r_projection
@@ -426,10 +423,10 @@ Proof.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
-    exact (Biimplication.forward_elimination s c).
+    exact (->elim s c).
   - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
-    exact (Biimplication.forward_elimination s c).
+    exact (->elim s c).
   - exact (Disjunction.L (Identity.reflexivity r)).
 Qed.
 
@@ -463,7 +460,7 @@ Proof.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
-    exact (Biimplication.forward_elimination s c).
+    exact (->elim s c).
   - exact (Disjunction.L (Identity.reflexivity l)).
   - exact (Disjunction.L (Identity.reflexivity l)).
 Qed.
@@ -483,9 +480,9 @@ Proof.
   - exact (Disjunction.L (Identity.reflexivity r)).
   - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
-    exact (Identity.symmetry (Biimplication.forward_elimination s c)).
+    exact (Identity.symmetry (->elim s c)).
   - apply Disjunction.R.
-    exact (Biimplication.forward_elimination (gt_specification l r) c).
+    exact (->elim (gt_specification l r) c).
 Qed.
 
 Theorem max_universality

@@ -736,16 +736,13 @@ Proof.
   - split.
     * simpl in |- *.
       intro e.
-      exact (Biimplication.backward_elimination
-               (lt_positive_embedding m' n')
-               (Nat.lt_specification_forward m' n' e)).
+      exact (<-elim (lt_positive_embedding m' n') (Nat.lt_specification_forward m' n' e)).
     * intro h.
       simpl in |- *.
       exact (Nat.lt_specification_backward
               m'
               n'
-              (Biimplication.forward_elimination
-                (lt_positive_embedding m' n') h)).
+              (->elim (lt_positive_embedding m' n') h)).
 Qed.
 
 Lemma eq_specification
@@ -857,10 +854,8 @@ Proof.
   intros k m n.
   pose proof (Comparable.le_totality m n) as t.
   destruct t as [h | h].
-  - rewrite (Biimplication.backward_elimination
-              (Comparable.min_specification m n)
-              h) in |- *.
-    rewrite (Biimplication.backward_elimination
+  - rewrite (<-elim (Comparable.min_specification m n) h) in |- *.
+    rewrite (<-elim
                (Comparable.min_specification (k + m) (k + n))
                (addition_monotonicity k m n h)) in |- *.
     reflexivity.
@@ -868,10 +863,8 @@ Proof.
     rewrite (Comparable.min_commutativity
               (k + m)
               (k + n)) in |- *.
-    rewrite (Biimplication.backward_elimination
-              (Comparable.min_specification n m)
-              h) in |- *.
-    rewrite (Biimplication.backward_elimination
+    rewrite (<-elim (Comparable.min_specification n m) h) in |- *.
+    rewrite (<-elim
                (Comparable.min_specification (k + n) (k + m))
                (addition_monotonicity k n m h)) in |- *.
     reflexivity.
@@ -1009,7 +1002,7 @@ Proof.
   intros m n h.
   unfold sub in |- *.
   destruct (le n m) as [|] eqn:c.
-  - pose proof (Biimplication.forward_elimination (Comparable.le_reflection n m) c)
+  - pose proof (->elim (Comparable.le_reflection n m) c)
       as order.
     unfold Comparable.LessOrEqual in order.
     destruct order as [e | lt].
@@ -1031,9 +1024,7 @@ Proof.
   intros m n.
   unfold sub in |- *.
   rewrite (saturating_subtraction_inversion_of_addition m n) in |- *.
-  rewrite (Biimplication.backward_elimination
-            (Comparable.le_reflection n (m + n))
-            (addition_right_extensivity m n)) in |- *.
+  rewrite (<-elim (Comparable.le_reflection n (m + n)) (addition_right_extensivity m n)) in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -1048,7 +1039,7 @@ Proof.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
     + pose proof (Option.some_injectivity NatWithZero (saturating_sub m n) k e) as e'.
-      pose proof (Biimplication.forward_elimination (Comparable.le_reflection n m) c) as order.
+      pose proof (->elim (Comparable.le_reflection n m) c) as order.
       rewrite <- e' in |- *.
       exact (saturating_subtraction_specification m n order).
     + discriminate e.
@@ -1123,9 +1114,7 @@ Proof.
     simpl in e.
     simpl in lt.
     destruct (eq (inc r) (+ d)) as [|] eqn:E; split; simpl in |- *.
-    * pose proof (Biimplication.forward_elimination
-                    (Comparable.eq_reflection (inc r) (+ d))
-                    E) as full.
+    * pose proof (->elim (Comparable.eq_reflection (inc r) (+ d)) E) as full.
       rewrite (inc_specification r) in full.
       rewrite (inc_specification q) in |- *.
       rewrite (mul_r_distributivity_over_addition (+ d) (+ One) q) in |- *.
@@ -1159,9 +1148,7 @@ Proof.
       rewrite (inc_specification r) in |- *.
       rewrite (addition_commutativity (+ One) r) in |- *.
       destruct k as [| k'].
-      { rewrite (Biimplication.backward_elimination
-                   (Comparable.eq_reflection (r + (+ One)) (+ d))
-                   ek) in E.
+      { rewrite (<-elim (Comparable.eq_reflection (r + (+ One)) (+ d)) ek) in E.
         discriminate E. }
       { unfold LessThan in |- *.
         apply (Exists_introduction k').

@@ -1095,10 +1095,10 @@ Proof.
   - exact (initial_specification_backward A l l').
 Qed.
 
-(* [forall {A : Type}, List A -> Option (A * List A)]
- * [head] and [tail] in one answer: [None] on the empty list, else the
+(* [head] and [tail] in one answer: [None] on the empty list, else the
  * first element paired with the rest.
  *)
+(* [forall {A : Type}, List A -> Option (A * List A)] *)
 Definition pop := fun {A : Type} (l : List A) =>
   match l return Option (A * List A) with
   | Nil       => None
@@ -1180,10 +1180,10 @@ Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
   | Cons _ _, Nil          => Nil
   end.
 
-(* [forall {A : Type} {B : Type}, List (A * B) -> List A * List B]
- * The two projections mapped over the list, so the laws of [map] carry
+(* The two projections mapped over the list, so the laws of [map] carry
  * over.
  *)
+(* [forall {A : Type} {B : Type}, List (A * B) -> List A * List B] *)
 Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) =>
   Product_introduction (map Product.first l) (map Product.second l).
 
@@ -1472,7 +1472,7 @@ Proof.
       * simpl in |- *.
         rewrite (NatWithZero.inc_specification (length l')) in |- *.
         rewrite (NatWithZero.addition_commutativity (Positive One) (length l')) in |- *.
-        rewrite (Biimplication.backward_elimination
+        rewrite (<-elim
                    (Comparable.min_specification (Positive One)
                       (NatWithZero.add (length l') (Positive One)))
                    (NatWithZero.addition_right_extensivity (length l') (Positive One))) in |- *.
@@ -2016,15 +2016,14 @@ Proof.
     + contradiction f.
   - intros i h.
     simpl in h.
-    pose proof (Biimplication.forward_elimination
+    pose proof (->elim
                   (contains_distributivity_over_append
                      NatWithZero i (range_positive p') (Cons (Positive p') Nil))
                   h) as h'.
     change (Positive (Successor p'))
       with (NatWithZero.add (Positive One) (Positive p')) in |- *.
     rewrite (NatWithZero.addition_commutativity (Positive One) (Positive p')) in |- *.
-    apply (Biimplication.backward_elimination
-             (NatWithZero.lt_add_one_specification i (Positive p'))).
+    apply (<-elim (NatWithZero.lt_add_one_specification i (Positive p'))).
     unfold NatWithZero.LessOrEqual in |- *.
     destruct h' as [h1 | h2].
     + exact (Disjunction.right (IH i h1)).
@@ -2057,11 +2056,9 @@ Proof.
     change (Positive (Successor p'))
       with (NatWithZero.add (Positive One) (Positive p')) in h.
     rewrite (NatWithZero.addition_commutativity (Positive One) (Positive p')) in h.
-    pose proof (Biimplication.forward_elimination
-                  (NatWithZero.lt_add_one_specification i (Positive p')) h)
-      as h'.
+    pose proof (->elim (NatWithZero.lt_add_one_specification i (Positive p')) h) as h'.
     simpl in |- *.
-    apply (Biimplication.backward_elimination
+    apply (<-elim
              (contains_distributivity_over_append
                 NatWithZero i (range_positive p') (Cons (Positive p') Nil))).
     unfold NatWithZero.LessOrEqual in h'.
@@ -2161,13 +2158,13 @@ Proof.
                     (fold_right NatWithZero.max Zero (Cons b l'')) a) as t.
       destruct t as [le | ge].
       * apply Disjunction.left.
-        exact (Biimplication.backward_elimination
+        exact (<-elim
                  (Comparable.max_specification
                     a (fold_right NatWithZero.max Zero (Cons b l''))) le).
       * apply Disjunction.right.
         rewrite (Comparable.max_commutativity
                    a (fold_right NatWithZero.max Zero (Cons b l''))) in |- *.
-        rewrite (Biimplication.backward_elimination
+        rewrite (<-elim
                    (Comparable.max_specification
                       (fold_right NatWithZero.max Zero (Cons b l'')) a) ge) in |- *.
         exact c.
@@ -2223,8 +2220,7 @@ Proof.
     simpl in e.
     destruct (minimum_of l') as [| m'] eqn:r.
     + simpl in e.
-      pose proof (Biimplication.forward_elimination
-                    (minimum_of_none_specification l') r) as en.
+      pose proof (->elim (minimum_of_none_specification l') r) as en.
       pose proof (Option.some_injectivity NatWithZero a m e) as e'.
       rewrite en in |- *.
       rewrite e' in |- *.
@@ -2276,12 +2272,10 @@ Proof.
       pose proof (Comparable.le_totality a m') as t.
       destruct t as [le | ge].
       * apply Disjunction.left.
-        exact (Biimplication.backward_elimination
-                 (Comparable.min_specification a m') le).
+        exact (<-elim (Comparable.min_specification a m') le).
       * apply Disjunction.right.
         rewrite (Comparable.min_commutativity a m') in |- *.
-        rewrite (Biimplication.backward_elimination
-                   (Comparable.min_specification m' a) ge) in |- *.
+        rewrite (<-elim (Comparable.min_specification m' a) ge) in |- *.
         exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
@@ -2361,10 +2355,10 @@ Proof.
       * intro e.
         exact (Conjunction_introduction
                  (Identity.reflexivity false)
-                 (Biimplication.forward_elimination IH e)).
+                 (->elim IH e)).
       * intro c.
         destruct c as [e all'].
-        exact (Biimplication.backward_elimination IH all').
+        exact (<-elim IH all').
 Qed.
 
 End List.
