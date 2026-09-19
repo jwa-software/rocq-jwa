@@ -659,8 +659,6 @@ Proof.
   + exact (IH n').
 Qed.
 
-(* The generic operations at [compare]; their laws are [Comparable]'s. *)
-
 (* [Nat -> Nat -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
 
