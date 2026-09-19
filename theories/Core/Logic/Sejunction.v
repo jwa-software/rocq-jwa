@@ -39,7 +39,7 @@ Abbreviation l     := Sejunction_introduction_left  (only parsing).
 Abbreviation r     := Sejunction_introduction_right (only parsing).
 
 Theorem commutativity
-  : forall (A : Prop) (B : Prop), A _\/_ B -> B _\/_ A.
+  : forall {A : Prop} {B : Prop}, A _\/_ B -> B _\/_ A.
 Proof.
   intros A B.
   intro h.
@@ -122,7 +122,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+  : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop},
       (A1 <-> A2) -> (B1 <-> B2) -> (A1 _\/_ B1 <-> A2 _\/_ B2).
 Proof.
   intros A1 A2 B1 B2.
@@ -169,7 +169,7 @@ Qed.
 
 (* A sejunction is a disjunction that has forgotten which side fails. *)
 Theorem disjunction_weakening
-  : forall (A : Prop) (B : Prop), A _\/_ B -> A \/ B.
+  : forall {A : Prop} {B : Prop}, A _\/_ B -> A \/ B.
 Proof.
   intros A B.
   intro h.
@@ -184,7 +184,7 @@ Qed.
  *)
 
 Theorem conjunction_incompatibility
-  : forall (A : Prop) (B : Prop), A _\/_ B -> ~ (A /\ B).
+  : forall {A : Prop} {B : Prop}, A _\/_ B -> ~ (A /\ B).
 Proof.
   intros A B.
   intro h.
@@ -197,7 +197,7 @@ Proof.
 Qed.
 
 Theorem biimplication_incompatibility
-  : forall (A : Prop) (B : Prop), A _\/_ B -> ~ (A <-> B).
+  : forall {A : Prop} {B : Prop}, A _\/_ B -> ~ (A <-> B).
 Proof.
   intros A B.
   intro h.
@@ -225,7 +225,7 @@ End Sejunction.
 Module Biimplication.
 
 Theorem sejunction_incompatibility
-  : forall (A : Prop) (B : Prop), (A <-> B) -> ~ (A _\/_ B).
+  : forall {A : Prop} {B : Prop}, (A <-> B) -> ~ (A _\/_ B).
 Proof.
   intros A B.
   intro e.

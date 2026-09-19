@@ -14,7 +14,7 @@ Notation "A -> B" := (forall (_ : A), B)
  *)
 Module Implication.
 
-Theorem reflexivity : forall (A : Prop), A -> A.
+Theorem reflexivity : forall {A : Prop}, A -> A.
 Proof.
   intro A.
   intro a.
@@ -22,7 +22,7 @@ Proof.
 Qed.
 
 Theorem transitivity
-  : forall (A : Prop) (B : Prop) (C : Prop), (A -> B) -> (B -> C) -> (A -> C).
+  : forall {A : Prop} {B : Prop} {C : Prop}, (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C.
   intro ab.
@@ -37,7 +37,7 @@ Qed.
  * about [->]: weakening, contraction and exchange.
  *)
 
-Theorem weakening : forall (A : Prop) (B : Prop), A -> B -> A.
+Theorem weakening : forall {A : Prop} {B : Prop}, A -> B -> A.
 Proof.
   intros A B.
   intro a.
@@ -46,7 +46,7 @@ Proof.
 Qed.
 
 Theorem contraction
-  : forall (A : Prop) (B : Prop), (A -> A -> B) -> A -> B.
+  : forall {A : Prop} {B : Prop}, (A -> A -> B) -> A -> B.
 Proof.
   intros A B.
   intro f.
@@ -58,7 +58,7 @@ Qed.
 
 (* Its own converse: applying it twice restores the order. *)
 Theorem exchange
-  : forall (A : Prop) (B : Prop) (C : Prop), (A -> B -> C) -> B -> A -> C.
+  : forall {A : Prop} {B : Prop} {C : Prop}, (A -> B -> C) -> B -> A -> C.
 Proof.
   intros A B C.
   intro f.

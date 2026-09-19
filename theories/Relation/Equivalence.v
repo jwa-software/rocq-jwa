@@ -21,9 +21,9 @@ Instance Biimplication_equivalence
   {| Equivalence.reflexivity :=
        {| Reflexive.reflexivity := Biimplication.reflexivity |}
    ; Equivalence.symmetry :=
-       {| Symmetric.symmetry := Biimplication.symmetry |}
+       {| Symmetric.symmetry := @Biimplication.symmetry |}
    ; Equivalence.transitivity :=
-       {| Transitive.transitivity := Biimplication.transitivity |} |}.
+       {| Transitive.transitivity := @Biimplication.transitivity |} |}.
 
 Instance Identity_equivalence
   : forall (A : Type), Equivalence (@Identity A) :=

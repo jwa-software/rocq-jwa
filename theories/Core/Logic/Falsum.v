@@ -23,7 +23,7 @@ Theorem elimination : forall (A : Prop), Falsum -> A.
 Proof.
   intro A.
   intro f.
-  contradiction.
+  contradiction f.
 Qed.
 
 End Falsum.

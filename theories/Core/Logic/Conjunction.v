@@ -19,7 +19,7 @@ Notation "A /\ B" := (Conjunction A B)
 Module Conjunction.
 
 Theorem commutativity
-  : forall (A : Prop) (B : Prop), A /\ B -> B /\ A.
+  : forall {A : Prop} {B : Prop}, A /\ B -> B /\ A.
 Proof.
   intros A B.
   intro h.
@@ -102,7 +102,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall (A1 : Prop) (A2 : Prop) (B1 : Prop) (B2 : Prop),
+  : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop},
       (A1 <-> A2) -> (B1 <-> B2) -> (A1 /\ B1 <-> A2 /\ B2).
 Proof.
   intros A1 A2 B1 B2.

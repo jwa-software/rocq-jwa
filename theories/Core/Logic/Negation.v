@@ -50,7 +50,7 @@ Qed.
  * converse is not constructive.
  *)
 Theorem de_morgan_conjunction
-  : forall (A : Prop) (B : Prop), ~ A \/ ~ B -> ~ (A /\ B).
+  : forall {A : Prop} {B : Prop}, ~ A \/ ~ B -> ~ (A /\ B).
 Proof.
   intros A B.
   unfold Negation in |- *.
@@ -62,7 +62,7 @@ Proof.
   - exact (not_b b).
 Qed.
 
-Theorem double_introduction : forall (A : Prop), A -> ~ ~ A.
+Theorem double_introduction : forall {A : Prop}, A -> ~ ~ A.
 Proof.
   intro A.
   intro a.
@@ -71,7 +71,7 @@ Proof.
   exact (not_a a).
 Qed.
 
-Theorem triple_reduction : forall (A : Prop), ~ ~ ~ A -> ~ A.
+Theorem triple_reduction : forall {A : Prop}, ~ ~ ~ A -> ~ A.
 Proof.
   intro A.
   unfold Negation in |- *.
@@ -83,7 +83,7 @@ Proof.
 Qed.
 
 Theorem contraposition
-  : forall (A : Prop) (B : Prop), (A -> B) -> ~ B -> ~ A.
+  : forall {A : Prop} {B : Prop}, (A -> B) -> ~ B -> ~ A.
 Proof.
   intros A B.
 
@@ -106,7 +106,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall (A1 : Prop) (A2 : Prop), (A1 <-> A2) -> (~ A1 <-> ~ A2).
+  : forall {A1 : Prop} {A2 : Prop}, (A1 <-> A2) -> (~ A1 <-> ~ A2).
 Proof.
   intros A1 A2.
   intro ea.
