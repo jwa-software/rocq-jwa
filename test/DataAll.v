@@ -87,13 +87,13 @@ Definition data_all_delivers_monoid
 
 Definition data_all_delivers_cancellative
   : forall (x : Nat) (y : Nat) (z : Nat),
-      (Nat.add x y = Nat.add x z -> y = z) /\ (Nat.add x z = Nat.add y z -> x = y)
+      (Nat.add x y = Nat.add x z -> y = z) /\ (Nat.add x y = Nat.add z y -> x = z)
   := Cancellative.cancellation.
 
 Definition data_all_delivers_cancellative_with_zero
   : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero),
       (NatWithZero.add x y = NatWithZero.add x z -> y = z)
-      /\ (NatWithZero.add x z = NatWithZero.add y z -> x = y)
+      /\ (NatWithZero.add x y = NatWithZero.add z y -> x = z)
   := Cancellative.cancellation.
 
 Definition data_all_delivers_nat_operations
@@ -267,7 +267,7 @@ Definition data_all_delivers_integer_mul_monoid
 Definition data_all_delivers_integer_cancellative
   : forall (x : Integer) (y : Integer) (z : Integer),
       (Integer.add x y = Integer.add x z -> y = z)
-      /\ (Integer.add x z = Integer.add y z -> x = y)
+      /\ (Integer.add x y = Integer.add z y -> x = z)
   := Cancellative.cancellation.
 
 Definition data_all_delivers_integer_total_order
@@ -336,5 +336,5 @@ Definition data_all_delivers_boolean_ring
 
 Definition data_all_delivers_mul_cancellative
   : forall (x : Nat) (y : Nat) (z : Nat),
-      (Nat.mul x y = Nat.mul x z -> y = z) /\ (Nat.mul x z = Nat.mul y z -> x = y)
+      (Nat.mul x y = Nat.mul x z -> y = z) /\ (Nat.mul x y = Nat.mul z y -> x = z)
   := Cancellative.cancellation.

@@ -72,6 +72,18 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
+Theorem and_identity
+  : forall (b : Bool), (and true b = b) /\ (and b true = b).
+Proof.
+  intros b.
+  split.
+  - simpl in |- *.
+    reflexivity.
+  - rewrite (and_commutativity b true) in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
 Theorem or_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
       or (or b1 b2) b3 = or b1 (or b2 b3).
@@ -84,6 +96,18 @@ Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool), or b1 b2 = or b2 b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+Qed.
+
+Theorem or_identity
+  : forall (b : Bool), (or false b = b) /\ (or b false = b).
+Proof.
+  intros b.
+  split.
+  - simpl in |- *.
+    reflexivity.
+  - rewrite (or_commutativity b false) in |- *.
+    simpl in |- *.
+    reflexivity.
 Qed.
 
 Theorem xor_associativity
@@ -101,10 +125,31 @@ Proof.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
+Theorem xor_identity
+  : forall (b : Bool), (xor false b = b) /\ (xor b false = b).
+Proof.
+  intros b.
+  split.
+  - simpl in |- *.
+    reflexivity.
+  - rewrite (xor_commutativity b false) in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
 Theorem xor_irreflexivity : forall (b : Bool), xor b b = false.
 Proof.
   intros b.
   destruct b as [|]; reflexivity.
+Qed.
+
+Theorem xor_inverse
+  : forall (b : Bool), (xor b b = false) /\ (xor b b = false).
+Proof.
+  intros b.
+  split.
+  - exact (xor_irreflexivity b).
+  - exact (xor_irreflexivity b).
 Qed.
 
 Theorem and_left_distributivity_over_xor
@@ -121,6 +166,17 @@ Theorem and_right_distributivity_over_xor
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+Qed.
+
+Theorem and_distributivity_over_xor
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+      (and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3))
+    /\ (and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1)).
+Proof.
+  intros b1 b2 b3.
+  split.
+  - exact (and_left_distributivity_over_xor b1 b2 b3).
+  - exact (and_right_distributivity_over_xor b1 b2 b3).
 Qed.
 
 (* The bridge from a computed answer to a statement. [Assert true] is
@@ -238,31 +294,19 @@ Instance Bool_and_monoid
   : Monoid Bool.and true :=
   {| Monoid.semigroup      :=
        {| Semigroup.associativity := Bool.and_associativity |}
-   ; Monoid.identity :=
-       fun (b : Bool) =>
-         Conjunction_introduction
-           (Identity.reflexivity (Bool.and true b))
-           (Bool.and_commutativity b true) |}.
+   ; Monoid.identity       := Bool.and_identity |}.
 
 Instance Bool_or_monoid
   : Monoid Bool.or false :=
   {| Monoid.semigroup      :=
        {| Semigroup.associativity := Bool.or_associativity |}
-   ; Monoid.identity :=
-       fun (b : Bool) =>
-         Conjunction_introduction
-           (Identity.reflexivity (Bool.or false b))
-           (Bool.or_commutativity b false) |}.
+   ; Monoid.identity       := Bool.or_identity |}.
 
 Instance Bool_xor_monoid
   : Monoid Bool.xor false :=
   {| Monoid.semigroup      :=
        {| Semigroup.associativity := Bool.xor_associativity |}
-   ; Monoid.identity :=
-       fun (b : Bool) =>
-         Conjunction_introduction
-           (Identity.reflexivity (Bool.xor false b))
-           (Bool.xor_commutativity b false) |}.
+   ; Monoid.identity       := Bool.xor_identity |}.
 
 Instance Bool_and_commutative
   : Commutative Bool.and :=
@@ -279,9 +323,7 @@ Instance Bool_xor_commutative
 Instance Bool_xor_group
   : Group Bool.xor false (fun (b : Bool) => b) :=
   {| Group.monoid  := Bool_xor_monoid
-   ; Group.inverse :=
-       fun (b : Bool) =>
-         Conjunction_introduction (Bool.xor_irreflexivity b) (Bool.xor_irreflexivity b) |}.
+   ; Group.inverse := Bool.xor_inverse |}.
 
 Instance Bool_xor_abelian_group
   : AbelianGroup Bool.xor false (fun (b : Bool) => b) :=
@@ -292,8 +334,4 @@ Instance Bool_ring
   : Ring Bool.xor false (fun (b : Bool) => b) Bool.and true :=
   {| Ring.abelian_group  := Bool_xor_abelian_group
    ; Ring.monoid         := Bool_and_monoid
-   ; Ring.distributivity :=
-       fun (b1 : Bool) (b2 : Bool) (b3 : Bool) =>
-         Conjunction_introduction
-           (Bool.and_left_distributivity_over_xor b1 b2 b3)
-           (Bool.and_right_distributivity_over_xor b1 b2 b3) |}.
+   ; Ring.distributivity := Bool.and_distributivity_over_xor |}.
