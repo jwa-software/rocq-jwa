@@ -40,6 +40,9 @@ Fixpoint add (m : Nat) (n : Nat) : Nat :=
   | Successor m' => Successor (add m' n)
   end.
 
+(* [Nat -> Nat] *)
+Definition inc := fun (n : Nat) => Successor n.
+
 Theorem addition_associativity
   : forall (l : Nat) (m : Nat) (n : Nat), add (add l m) n = add l (add m n).
 Proof.
@@ -747,7 +750,7 @@ Proof.
     exact IH.
 Qed.
 
-Theorem sub_translation_invariance
+Theorem sub_cancellation
   : forall (k : Nat) (m : Nat) (n : Nat), sub (add k m) (add k n) = sub m n.
 Proof.
   intros k m n.
