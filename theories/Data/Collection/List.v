@@ -57,6 +57,7 @@ Module List.
 (* Recursion is on the first list: [append Nil l2] is [l2], and each [Cons]
  * of [l1] is put back in front of the result.
  *)
+(* [forall {A : Type}, List A -> List A -> List A] *)
 Fixpoint append {A : Type} (l1 : List A) (l2 : List A) : List A :=
   match l1 with
   | Nil        => l2
@@ -113,6 +114,7 @@ Qed.
  * leaves [inc (length l')] folded instead of opening a [match] on a term
  * it cannot reduce.
  *)
+(* [forall {A : Type}, List A -> NatWithZero] *)
 Fixpoint length {A : Type} (l : List A) : NatWithZero :=
   match l with
   | Nil       => Zero
@@ -138,6 +140,7 @@ Proof.
 Qed.
 
 (* [map] applies [f] to every element and keeps the shape. *)
+(* [forall {A : Type} {B : Type}, (A -> B) -> List A -> List B] *)
 Fixpoint map {A : Type} {B : Type} (f : A -> B) (l : List A) : List B :=
   match l with
   | Nil       => Nil
@@ -194,6 +197,7 @@ Qed.
  * and the simplest shape for the proofs below; an accumulator version can
  * come with a proof that it agrees.
  *)
+(* [forall {A : Type}, List A -> List A] *)
 Fixpoint reverse {A : Type} (l : List A) : List A :=
   match l with
   | Nil       => Nil
@@ -235,6 +239,7 @@ Qed.
 (* [fold_right f z] replaces every [Cons] by [f] and the final [Nil] by [z],
  * working from the right: [Cons a (Cons b Nil)] becomes [f a (f b z)].
  *)
+(* [forall {A : Type} {B : Type}, (A -> B -> B) -> B -> List A -> B] *)
 Fixpoint fold_right {A : Type} {B : Type} (f : A -> B -> B) (z : B)
                     (l : List A) : B :=
   match l with
@@ -314,6 +319,7 @@ Qed.
  * to [Falsum] and [Contains a (Cons b l)] to [a = b \/ Contains a l], so
  * [simpl] exposes the cases and every proof below is a case analysis.
  *)
+(* [forall {A : Type}, A -> List A -> Prop] *)
 Fixpoint Contains {A : Type} (a : A) (l : List A) : Prop :=
   match l with
   | Nil       => Falsum
@@ -468,6 +474,7 @@ Proof.
 Qed.
 
 (* [filter p] keeps the elements [p] answers [true] on, in their order. *)
+(* [forall {A : Type}, (A -> Bool) -> List A -> List A] *)
 Fixpoint filter {A : Type} (p : A -> Bool) (l : List A) : List A :=
   match l with
   | Nil       => Nil
@@ -602,12 +609,14 @@ Qed.
  * the neutral proposition, [Cons] a conjunction or a disjunction.
  *)
 
+(* [forall {A : Type}, (A -> Prop) -> List A -> Prop] *)
 Fixpoint All {A : Type} (P : A -> Prop) (l : List A) : Prop :=
   match l with
   | Nil       => Verum
   | Cons a l' => P a /\ All P l'
   end.
 
+(* [forall {A : Type}, (A -> Prop) -> List A -> Prop] *)
 Fixpoint Any {A : Type} (P : A -> Prop) (l : List A) : Prop :=
   match l with
   | Nil       => Falsum
@@ -1161,6 +1170,7 @@ Proof.
     reflexivity.
 Qed.
 
+(* [forall {A : Type} {B : Type}, List A -> List B -> List (A * B)] *)
 Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
   : List (A * B) :=
   match l1, l2 with
@@ -1254,6 +1264,7 @@ Qed.
  * one pass; the recursive result is opened by a [match] so both halves
  * are extended in place.
  *)
+(* [forall {A : Type}, (A -> Bool) -> List A -> List A * List A] *)
 Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
   : List A * List A :=
   match l with
@@ -1294,6 +1305,7 @@ Qed.
  * [None] past the end. Recursion is on the list; the index is peeled by
  * one alongside, [Positive One] being the last step before [Zero].
  *)
+(* [forall {A : Type}, List A -> NatWithZero -> Option A] *)
 Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
   match l with
   | Nil       => None
@@ -1388,6 +1400,7 @@ Qed.
  * [drop n l] is what is left. Both recurse on the list, peeling the count
  * alongside as [nth] does.
  *)
+(* [forall {A : Type}, NatWithZero -> List A -> List A] *)
 Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
   match l with
   | Nil       => Nil
@@ -1399,6 +1412,7 @@ Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
       end
   end.
 
+(* [forall {A : Type}, NatWithZero -> List A -> List A] *)
 Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
   match l with
   | Nil       => Nil
@@ -1513,6 +1527,7 @@ Qed.
  * a positive count recurses on its [Nat], one element per step, since a
  * [NatWithZero] has no step of its own to recurse on.
  *)
+(* [forall {A : Type}, Nat -> A -> List A] *)
 Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
   match k with
   | One          => Cons a Nil
@@ -1631,6 +1646,7 @@ Proof.
 Qed.
 
 (* [count p l] is how many elements [p] answers [true] on. *)
+(* [forall {A : Type}, (A -> Bool) -> List A -> NatWithZero] *)
 Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
   match l with
   | Nil       => Zero
@@ -1681,6 +1697,7 @@ Qed.
  * its first argument may come first. [insert] walks past every element
  * that may precede [a] and puts [a] in front of the first that may not.
  *)
+(* [forall {A : Type}, (A -> A -> Bool) -> A -> List A -> List A] *)
 Fixpoint insert {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) : List A :=
   match l with
   | Nil       => Cons a Nil
@@ -1691,6 +1708,7 @@ Fixpoint insert {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) : List A :
       end
   end.
 
+(* [forall {A : Type}, (A -> A -> Bool) -> List A -> List A] *)
 Fixpoint insertion_sort {A : Type} (le : A -> A -> Bool) (l : List A) : List A :=
   match l with
   | Nil       => Nil
@@ -1701,6 +1719,7 @@ Fixpoint insertion_sort {A : Type} (le : A -> A -> Bool) (l : List A) : List A :
  * [All] rather than on neighbours, so that [insert] is checked one element
  * at a time.
  *)
+(* [forall {A : Type}, (A -> A -> Bool) -> List A -> Prop] *)
 Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
   match l with
   | Nil       => Verum
