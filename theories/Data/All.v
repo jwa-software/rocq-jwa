@@ -12,6 +12,7 @@ From jwa Require Export Relation.All.
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
 From jwa Require Export Data.Bool.
 From jwa Require Export Data.Collection.All.
+From jwa Require Export Data.Comparable.
 From jwa Require Export Data.Comparison.
 From jwa Require Export Data.Coproduct.
 From jwa Require Export Data.Empty.
