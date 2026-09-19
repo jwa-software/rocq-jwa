@@ -108,7 +108,7 @@ Definition data_all_delivers_power
   : Nat
   := Nat.power (Successor One) One.
 
-Definition data_all_delivers_subtract
+Definition data_all_delivers_sub
   : Option Nat
   := Nat.sub (Successor One) One.
 
