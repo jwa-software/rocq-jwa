@@ -9,6 +9,7 @@ From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
+From jwa Require Import Tactics.ModusPonens.
 
 (* Zero is not a [Nat]; [One] is the smallest.
  * [Data.Number.NatWithZero] is the type that has it.
@@ -270,7 +271,7 @@ Proof.
     rewrite (addition.commutativity n' k)
             in e'.
     unfold Negation in IH.
-    exact (IH e').
+    modus ponens IH e'.
 Qed.
 
 End identity. (* addition.identity *)
@@ -290,7 +291,7 @@ Proof.
     intro e.
     pose proof (successor.injectivity e)
             as e'.
-    exact (IH e').
+    modus ponens IH e'.
 Qed.
 
 (* addition.left.commutativity *)
@@ -391,7 +392,7 @@ Proof.
   pose proof (addition.identity.absence k n)
           as i.
   unfold Negation in i.
-  pose proof (i e) as f.
+  modus ponens i e as f.
   contradiction f.
 Qed.
 
@@ -580,7 +581,7 @@ Proof.
     pose proof (order.strict.irreflexivity (m * k))
             as i.
     unfold Negation in i.
-    pose proof (i lt') as f.
+    modus ponens i lt' as f.
     contradiction f.
   - destruct rest as [eq | gt].
     + exact eq.
@@ -591,7 +592,7 @@ Proof.
       pose proof (order.strict.irreflexivity (m * k))
               as i.
       unfold Negation in i.
-      pose proof (i gt') as f.
+      modus ponens i gt' as f.
       contradiction f.
 Qed.
 
@@ -869,7 +870,7 @@ Proof.
   +
     pose proof (order.strict.irreflexivity 1) as i.
     unfold Negation in i.
-    pose proof (i h) as f.
+    modus ponens i h as f.
     contradiction f.
   +
     reflexivity.

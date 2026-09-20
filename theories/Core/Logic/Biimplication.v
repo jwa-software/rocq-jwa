@@ -126,8 +126,7 @@ Qed.
 End Biimplication. (* Biimplication *)
 
 (* [->elim h p] and [<-elim h q] run [h : P <-> Q] forward and backward, as
- * [Biimplication.forward.elimination] and [backward.elimination]. Not to be
- * confused with [->E] in [Core.Logic.Implication], which is modus ponens.
+ * [Biimplication.forward.elimination] and [backward.elimination].
  *)
 Notation "->elim" := Biimplication.forward.elimination (only parsing).
 Notation "<-elim" := Biimplication.backward.elimination (only parsing).
