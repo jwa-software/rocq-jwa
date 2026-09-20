@@ -1318,7 +1318,7 @@ Proof.
   - intro e.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
-    + pose proof (Option.some.injectivity (saturating_sub m n) k e) as e'.
+    + pose proof (Option.some.injectivity e) as e'.
       pose proof (->elim (Comparable.order.reflection n m) c) as order.
       rewrite <- e' in |- *.
       exact (subtraction.saturating.specification m n order).

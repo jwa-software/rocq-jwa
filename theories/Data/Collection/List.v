@@ -1499,7 +1499,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity b a e) as e'.
+    pose proof (Option.some.injectivity e) as e'.
     apply (Exists_introduction rest).
     rewrite e' in |- *.
     reflexivity.
@@ -1553,7 +1553,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity rest l' e) as e'.
+    pose proof (Option.some.injectivity e) as e'.
     apply (Exists_introduction b).
     rewrite e' in |- *.
     reflexivity.
@@ -1662,7 +1662,7 @@ Proof.
     discriminate h.
   - simpl in |- *.
     intro h.
-    pose proof (Option.some.injectivity (reverse r) l' h) as e'.
+    pose proof (Option.some.injectivity h) as e'.
     apply (Exists_introduction b).
     pose proof (Identity.congruence reverse er) as er'.
     rewrite reversal.involution in er'.
@@ -1722,8 +1722,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity
-                  (Product_introduction b rest) (Product_introduction a l') e) as e'.
+    pose proof (Option.some.injectivity e) as e'.
     pose proof (Product.introduction.injectivity b rest a l' e') as e''.
     destruct e'' as [eb erest].
     rewrite eb in |- *.
@@ -2878,13 +2877,13 @@ Proof.
     destruct (minimum_of l') as [| m'] eqn:r.
     + simpl in e.
       pose proof (->elim (minimum.absence.specification l') r) as en.
-      pose proof (Option.some.injectivity a m e) as e'.
+      pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
       rewrite e' in |- *.
       simpl in |- *.
       exact (Conjunction_introduction (Comparable.order.reflexivity m) I).
     + simpl in e.
-      pose proof (Option.some.injectivity (NatWithZero.min a m') m e) as e'.
+      pose proof (Option.some.injectivity e) as e'.
       symmetry in e'.
       rewrite e' in |- *.
       simpl in |- *.
@@ -2915,11 +2914,11 @@ Proof.
     simpl in e.
     destruct (minimum_of l') as [| m'] eqn:r.
     + simpl in e.
-      pose proof (Option.some.injectivity a m e) as e'.
+      pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
       exact (Disjunction.L (Identity.symmetry e')).
     + simpl in e.
-      pose proof (Option.some.injectivity (NatWithZero.min a m') m e) as e'.
+      pose proof (Option.some.injectivity e) as e'.
       symmetry in e'.
       rewrite e' in |- *.
       simpl in |- *.
