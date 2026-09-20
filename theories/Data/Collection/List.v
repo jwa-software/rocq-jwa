@@ -52,7 +52,7 @@ Definition List_induction
       forall (l : List A) . P l
   := fun (A : Type) (P : List A -> Prop)
          (base : P Nil)
-         (step : forall (a : A) (l : List A) . P l -> P (Cons a l)) =>
+         (step : forall (a : A) (l : List A) . P l -> P (Cons a l)) .
        fix go (l : List A) : P l :=
          match l with
          | Nil       => base
@@ -197,7 +197,7 @@ Fixpoint map {A : Type} {B : Type} (f : A -> B) (l : List A) : List B :=
   end.
 
 Theorem map_identity
-  : forall {A : Type} (l : List A) . map (fun a => a) l = l.
+  : forall {A : Type} (l : List A) . map (fun a . a) l = l.
 Proof.
   intros A l.
   induction l as [| a l' IH] using List_induction.
@@ -210,8 +210,8 @@ Qed.
 
 Theorem map_composition
   : forall {A : Type} {B : Type} {C : Type} (f : A -> B) (g : B -> C)
-      (l : List A),
-    map g (map f l) = map (fun a => g (f a)) l.
+      (l : List A) .
+    map g (map f l) = map (fun a . g (f a)) l.
 Proof.
   intros A B C f g l.
   induction l as [| a l' IH] using List_induction.
@@ -292,7 +292,7 @@ Fixpoint fold_right {A : Type} {B : Type} (f : A -> B -> B) (z : B)
 
 Theorem fold_right_composition_over_append
   : forall {A : Type} {B : Type} (f : A -> B -> B) (z : B)
-      (l1 : List A) (l2 : List A),
+      (l1 : List A) (l2 : List A) .
     fold_right f z (l1 ++ l2) = fold_right f (fold_right f z l2) l1.
 Proof.
   intros A B f z l1 l2.
@@ -320,7 +320,7 @@ Qed.
 Theorem length_catamorphism
   : forall {A : Type} (l : List A) .
       (|| l ||)
-      = fold_right (fun (_ : A) (n : NatWithZero) => ++ n)
+      = fold_right (fun (_ : A) (n : NatWithZero) . (++ n))
                    Zero
                    l.
 Proof.
@@ -336,7 +336,7 @@ Qed.
 Theorem map_catamorphism
   : forall {A : Type} {B : Type} (f : A -> B) (l : List A) .
       map f l
-      = fold_right (fun (a : A) (mapped : List B) => f a :: mapped)
+      = fold_right (fun (a : A) (mapped : List B) . f a :: mapped)
                    []
                    l.
 Proof.
@@ -550,7 +550,7 @@ Qed.
 Theorem filter_catamorphism
   : forall {A : Type} (p : A -> Bool) (l : List A) .
       filter p l
-      = fold_right (fun (a : A) (kept : List A) =>
+      = fold_right (fun (a : A) (kept : List A) .
                       match p a with
                       | true  => a :: kept
                       | false => kept
@@ -896,7 +896,7 @@ Qed.
 Theorem contains_catamorphism
   : forall {A : Type} (a : A) (l : List A) .
       (l contains_member a)
-      = fold_right (fun (b : A) (rest : Prop) => a = b \/ rest) Falsum l.
+      = fold_right (fun (b : A) (rest : Prop) . a = b \/ rest) Falsum l.
 Proof.
   intros A a l.
   induction l as [| b l' IH] using List_induction.
@@ -909,7 +909,7 @@ Qed.
 
 Theorem all_catamorphism
   : forall {A : Type} (P : A -> Prop) (l : List A) .
-      All P l = fold_right (fun (a : A) (rest : Prop) => P a /\ rest) Verum l.
+      All P l = fold_right (fun (a : A) (rest : Prop) . P a /\ rest) Verum l.
 Proof.
   intros A P l.
   induction l as [| a l' IH] using List_induction.
@@ -922,7 +922,7 @@ Qed.
 
 Theorem any_catamorphism
   : forall {A : Type} (P : A -> Prop) (l : List A) .
-      Any P l = fold_right (fun (a : A) (rest : Prop) => P a \/ rest) Falsum l.
+      Any P l = fold_right (fun (a : A) (rest : Prop) . P a \/ rest) Falsum l.
 Proof.
   intros A P l.
   induction l as [| a l' IH] using List_induction.
@@ -936,14 +936,14 @@ Qed.
 (* Head and tail *)
 
 (* [forall {A : Type} . List A -> Option A] *)
-Definition head := fun {A : Type} (l : List A) =>
+Definition head := fun {A : Type} (l : List A) .
   match l with
   | []     => None
   | a :: _ => Some a
   end.
 
 (* [forall {A : Type} . List A -> Option (List A)] *)
-Definition tail := fun {A : Type} (l : List A) =>
+Definition tail := fun {A : Type} (l : List A) .
   match l with
   | []      => None
   | _ :: l' => Some l'
@@ -1028,10 +1028,10 @@ Proof.
 Qed.
 
 (* [forall {A : Type} . List A -> Option A] *)
-Definition last := fun {A : Type} (l : List A) => head (reverse l).
+Definition last := fun {A : Type} (l : List A) . head (reverse l).
 
 (* [forall {A : Type} . List A -> Option (List A)] *)
-Definition initial := fun {A : Type} (l : List A) => Option.map reverse (tail (reverse l)).
+Definition initial := fun {A : Type} (l : List A) . Option.map reverse (tail (reverse l)).
 
 Lemma last_specification_forward
   : forall {A : Type} (a : A) (l : List A) .
@@ -1122,7 +1122,7 @@ Qed.
  * first element paired with the rest.
  *)
 (* [forall {A : Type} . List A -> Option (A * List A)] *)
-Definition pop := fun {A : Type} (l : List A) =>
+Definition pop := fun {A : Type} (l : List A) .
   match l return Option (A * List A) with
   | []      => None
   | a :: l' => Some (Product_introduction a l')
@@ -1209,7 +1209,7 @@ Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
  * over.
  *)
 (* [forall {A : Type} {B : Type} . List (A * B) -> List A * List B] *)
-Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) =>
+Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) .
   Product_introduction (map Product.first l) (map Product.second l).
 
 (* Zipping the two halves of an [unzip] rebuilds the list. The other order,
@@ -1345,7 +1345,7 @@ Theorem partition_specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
       partition p l
       = Product_introduction (filter p l)
-                          (filter (fun (a : A) => ! p a) l).
+                          (filter (fun (a : A) . ! p a) l).
 Proof.
   intros A p l.
   induction l as [| a l' IH] using List_induction.
@@ -1488,7 +1488,7 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
   end.
 
 (* [forall {A : Type} . NatWithZero -> List A -> List A * List A] *)
-Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) =>
+Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) .
   Product_introduction (take n l) (drop n l).
 
 (* The two parts put back together give the list. *)
@@ -1600,7 +1600,7 @@ Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
   end.
 
 (* [forall {A : Type} . NatWithZero -> A -> List A] *)
-Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) =>
+Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) .
   match n with
   | Zero       => []
   | Positive k => replicate_positive k a
@@ -1633,10 +1633,10 @@ Qed.
 (* Sum and product *)
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition sum := fun (l : List NatWithZero) => fold_right NatWithZero.add Zero l.
+Definition sum := fun (l : List NatWithZero) . fold_right NatWithZero.add Zero l.
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition product := fun (l : List NatWithZero) =>
+Definition product := fun (l : List NatWithZero) .
   fold_right NatWithZero.mul (Positive One) l.
 
 Theorem sum_additivity_over_append
@@ -1710,7 +1710,7 @@ Qed.
  *)
 Theorem count_all_specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
-      count p l = Zero <-> All (fun (a : A) => p a = false) l.
+      count p l = Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
   induction l as [| a l' IH] using List_induction.
@@ -1777,7 +1777,7 @@ Fixpoint insertion_sort {A : Type} (le : A -> A -> Bool) (l : List A) : List A :
 Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
   match l with
   | []      => Verum
-  | a :: l' => All (fun (b : A) => le a b = true) l' /\ Sorted le l'
+  | a :: l' => All (fun (b : A) . le a b = true) l' /\ Sorted le l'
   end.
 
 Lemma insert_all_preservation
@@ -1817,8 +1817,8 @@ Proof.
     destruct (le a b) as [|] eqn:c.
     + simpl in |- *.
       pose proof (all_monotonicity
-                    (fun (x : A) => le b x = true) (fun (x : A) => le a x = true) l'
-                    (fun (x : A) (h : le b x = true) => transitive a b x c h) below)
+                    (fun (x : A) . le b x = true) (fun (x : A) . le a x = true) l'
+                    (fun (x : A) (h : le b x = true) . transitive a b x c h) below)
         as below_a.
       exact (Conjunction_introduction
                (Conjunction_introduction c below_a)
@@ -1829,7 +1829,7 @@ Proof.
       * rewrite c in ab.
         discriminate ab.
       * exact (Conjunction_introduction
-                 (insert_all_preservation le (fun (x : A) => le b x = true) a l' ba below)
+                 (insert_all_preservation le (fun (x : A) . le b x = true) a l' ba below)
                  (IH sorted')).
 Qed.
 
@@ -1992,7 +1992,7 @@ Fixpoint range_positive (p : Nat) : List NatWithZero :=
   end.
 
 (* [NatWithZero -> List NatWithZero] *)
-Definition range := fun (n : NatWithZero) =>
+Definition range := fun (n : NatWithZero) .
   match n with
   | Zero       => []
   | Positive p => range_positive p
@@ -2153,11 +2153,11 @@ Qed.
 (* Extrema *)
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition maximum_of := fun (l : List NatWithZero) => fold_right NatWithZero.max Zero l.
+Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max Zero l.
 
 Theorem maximum_of_upper_bound
   : forall (l : List NatWithZero) .
-      All (fun (a : NatWithZero) => a <= maximum_of l) l.
+      All (fun (a : NatWithZero) . a <= maximum_of l) l.
 Proof.
   intros l.
   unfold maximum_of in |- *.
@@ -2168,13 +2168,13 @@ Proof.
     split.
     + exact (Comparable.max_l_injection a (fold_right NatWithZero.max Zero l')).
     + exact (all_monotonicity
-               (fun (x : NatWithZero) =>
+               (fun (x : NatWithZero) .
                   x <= fold_right NatWithZero.max Zero l')
-               (fun (x : NatWithZero) =>
+               (fun (x : NatWithZero) .
                   x <= NatWithZero.max a (fold_right NatWithZero.max Zero l'))
                l'
                (fun (x : NatWithZero)
-                    (h : x <= fold_right NatWithZero.max Zero l') =>
+                    (h : x <= fold_right NatWithZero.max Zero l') .
                   Comparable.le_transitivity
                     x (fold_right NatWithZero.max Zero l')
                     (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
@@ -2252,7 +2252,7 @@ Qed.
 Theorem minimum_of_lower_bound
   : forall (l : List NatWithZero) (m : NatWithZero) .
       minimum_of l = Some m
-      -> All (fun (a : NatWithZero) => m <= a) l.
+      -> All (fun (a : NatWithZero) . m <= a) l.
 Proof.
   intros l.
   induction l as [| a l' IH] using List_induction.
@@ -2277,10 +2277,10 @@ Proof.
       split.
       * exact (Comparable.min_l_projection a m').
       * exact (all_monotonicity
-                 (fun (x : NatWithZero) => m' <= x)
-                 (fun (x : NatWithZero) => NatWithZero.min a m' <= x)
+                 (fun (x : NatWithZero) . m' <= x)
+                 (fun (x : NatWithZero) . NatWithZero.min a m' <= x)
                  l'
-                 (fun (x : NatWithZero) (h : m' <= x) =>
+                 (fun (x : NatWithZero) (h : m' <= x) .
                     Comparable.le_transitivity
                       (NatWithZero.min a m') m' x
                       (Comparable.min_r_projection a m') h)
@@ -2330,14 +2330,14 @@ Export (notations) List.
 
 Instance List_append_monoid
   : forall {A : Type} . Monoid (@List.append A) Nil :=
-  fun (A : Type) =>
-    {| Monoid.semigroup :=
-         {| Semigroup.associativity := @List.append_associativity A |}
-     ; Monoid.identity := @List.append_identity A |}.
+  fun (A : Type) .
+    ({| Monoid.semigroup :=
+          {| Semigroup.associativity := @List.append_associativity A |}
+      ; Monoid.identity := @List.append_identity A |}).
 
 Instance List_functor
   : Functor List :=
-  {| Functor.map             := fun (A : Type) (B : Type) => List.map
+  {| Functor.map             := fun (A : Type) (B : Type) . List.map
    ; Functor.map_identity    := @List.map_identity
    ; Functor.map_composition := @List.map_composition |}.
 

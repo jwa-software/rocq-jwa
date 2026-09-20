@@ -5,13 +5,13 @@ From jwa Require Import Data.All.
 Definition data_all_delivers_some
   : forall (A : Type) (B : Type) (f : A -> B) (a : A) .
       ~ (true = false) -> Option.map f (Some a) = Some (f a)
-  := fun (A : Type) (B : Type) (f : A -> B) (a : A) (_ : ~ (true = false)) =>
+  := fun (A : Type) (B : Type) (f : A -> B) (a : A) (_ : ~ (true = false)) .
        Identity.reflexivity (Some (f a)).
 
 Definition data_all_delivers_none
   : forall (A : Type) .
-      Option.map (fun (a : A) => a) None = None
-  := fun (A : Type) =>
+      Option.map (fun (a : A) . a) None = None
+  := fun (A : Type) .
        Identity.reflexivity None.
 
 Definition data_all_delivers_product
@@ -20,7 +20,7 @@ Definition data_all_delivers_product
 
 Definition data_all_delivers_first
   : forall (A : Type) (a : A) (b : A) . Product.first (Product_introduction a b) = a
-  := fun (A : Type) (a : A) (b : A) => Identity.reflexivity a.
+  := fun (A : Type) (a : A) (b : A) . Identity.reflexivity a.
 
 Definition data_all_delivers_projections
   : Bool * Bool
@@ -28,7 +28,7 @@ Definition data_all_delivers_projections
 
 Definition data_all_delivers_product_functor
   : Bool * Bool
-  := Functor.map (fun (b : Bool) => b) (Product_introduction true false).
+  := Functor.map (fun (b : Bool) . b) (Product_introduction true false).
 
 Definition data_all_delivers_product_monoid
   : forall (p : Bool * Bool) .
@@ -43,12 +43,12 @@ Definition data_all_delivers_coproduct
 Definition data_all_delivers_copair
   : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) .
       Coproduct.copair f g (Coproduct.right b) = g b
-  := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
+  := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) .
        Identity.reflexivity (g b).
 
 Definition data_all_delivers_coproduct_functor
   : Bool + Bool
-  := Functor.map (fun (b : Bool) => b) (Coproduct.right true).
+  := Functor.map (fun (b : Bool) . b) (Coproduct.right true).
 
 Definition data_all_delivers_unit
   : forall (u : Unit) . u = Unit_introduction
@@ -77,7 +77,7 @@ Definition data_all_delivers_add
 Definition data_all_delivers_instances
   : forall (x : Nat) (y : Nat) (z : Nat) (w : NatWithZero) .
       Nat.add (Nat.add x y) z = Nat.add x (Nat.add y z)
-  := fun (x : Nat) (y : Nat) (z : Nat) (_ : NatWithZero) =>
+  := fun (x : Nat) (y : Nat) (z : Nat) (_ : NatWithZero) .
        Semigroup.associativity x y z.
 
 Definition data_all_delivers_monoid
@@ -124,7 +124,7 @@ Definition data_all_delivers_commutative
 
 Definition data_all_delivers_functor
   : Option Bool
-  := Functor.map (fun (b : Bool) => b) (Some true).
+  := Functor.map (fun (b : Bool) . b) (Some true).
 
 Definition data_all_delivers_bool_operations
   : Bool
@@ -145,7 +145,7 @@ Definition data_all_delivers_list
 
 Definition data_all_delivers_list_monoid
   : forall (A : Type) (l : List A) . (Nil ++ l)%list = l /\ (l ++ Nil)%list = l
-  := fun (A : Type) => Monoid.identity.
+  := fun (A : Type) . Monoid.identity.
 
 Definition data_all_delivers_empty_list
   : List Bool
@@ -157,7 +157,7 @@ Definition data_all_delivers_cons
 
 Definition data_all_delivers_list_functor
   : List Bool
-  := Functor.map (fun (b : Bool) => b) (Cons true Nil).
+  := Functor.map (fun (b : Bool) . b) (Cons true Nil).
 
 Definition data_all_delivers_contains
   : Prop
@@ -199,7 +199,7 @@ Definition data_all_delivers_comparable_specifications
   : forall (m : Nat) (n : Nat) .
       (Nat.compare m n = Lt <-> Nat.LessThan m n)
     /\ (Nat.compare m n = Gt <-> Nat.LessThan n m)
-  := fun (m : Nat) (n : Nat) =>
+  := fun (m : Nat) (n : Nat) .
        Conjunction_introduction
          (Comparable.lt_specification m n) (Comparable.gt_specification m n).
 
@@ -257,19 +257,19 @@ Definition data_all_delivers_list_sum
 
 Definition data_all_delivers_count
   : NatWithZero
-  := List.count (fun (b : Bool) => b) (Cons true Nil).
+  := List.count (fun (b : Bool) . b) (Cons true Nil).
 
 Definition data_all_delivers_sorting
   : forall (l : List NatWithZero) .
       List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
   := List.insertion_sort_sortedness NatWithZero.le
-       (fun (m : NatWithZero) (n : NatWithZero) =>
+       (fun (m : NatWithZero) (n : NatWithZero) .
           <-elim
             (Disjunction.congruence
                (Comparable.le_reflection m n) (Comparable.le_reflection n m))
             (Comparable.le_totality m n))
        (fun (a : NatWithZero) (b : NatWithZero) (c : NatWithZero)
-            (h1 : NatWithZero.le a b = true) (h2 : NatWithZero.le b c = true) =>
+            (h1 : NatWithZero.le a b = true) (h2 : NatWithZero.le b c = true) .
           <-elim
             (Comparable.le_reflection a c)
             (Comparable.le_transitivity a b c

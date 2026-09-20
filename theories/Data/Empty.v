@@ -15,7 +15,7 @@ Inductive Empty : Type := .
 (* [forall (P : Empty -> Prop) (e : Empty) . P e] *)
 Definition Empty_induction
   : forall (P : Empty -> Prop) (e : Empty) . P e
-  := fun (P : Empty -> Prop) (e : Empty) =>
+  := fun (P : Empty -> Prop) (e : Empty) .
        match e with | end.
 
 (* A module may carry the type's name; its members read [Empty.elimination]. *)
@@ -23,7 +23,7 @@ Module Empty.
 
 (* From nothing, anything: the [Type]-level counterpart of [Falsum.elimination]. *)
 (* [forall (A : Type) . Empty -> A] *)
-Definition elimination := fun (A : Type) (e : Empty) =>
+Definition elimination := fun (A : Type) (e : Empty) .
   match e return A with | end.
 
 End Empty.

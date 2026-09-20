@@ -12,25 +12,25 @@ Definition relation_all_delivers
          (_ : Reflexive R) (_ : Irreflexive R) (_ : Symmetric R)
          (_ : Antisymmetric R) (_ : Transitive R) (_ : Total R) (_ : Trichotomous R)
          (_ : Equivalence R) (_ : StrictPartialOrder R) (_ : StrictTotalOrder R)
-         (_ : PartialOrder R) (_ : TotalOrder R) (_ : ~ Falsum) => I.
+         (_ : PartialOrder R) (_ : TotalOrder R) (_ : ~ Falsum) . I.
 
 Definition relation_all_delivers_order_projections
   : forall (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A) .
       R x x
-  := fun (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A) =>
+  := fun (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A) .
        Reflexive.reflexivity x.
 
 Definition relation_all_delivers_projections
   : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) .
       R x x
-  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) =>
+  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) .
        Reflexive.reflexivity x.
 
 Definition relation_all_delivers_identity_instance
   : forall (A : Type) (x : A) (y : A) . x = y -> y = x
-  := fun (A : Type) (x : A) (y : A) => Symmetric.symmetry x y.
+  := fun (A : Type) (x : A) (y : A) . Symmetric.symmetry x y.
 
 Definition relation_all_delivers_biimplication_instance
   : forall (P : Prop) (Q : Prop) (S : Prop) .
       (P <-> Q) -> (Q <-> S) -> (P <-> S)
-  := fun (P : Prop) (Q : Prop) (S : Prop) => Transitive.transitivity P Q S.
+  := fun (P : Prop) (Q : Prop) (S : Prop) . Transitive.transitivity P Q S.

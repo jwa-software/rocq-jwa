@@ -21,7 +21,7 @@ Definition Comparison_induction
          (lt : P Lt)
          (eq : P Eq)
          (gt : P Gt)
-         (c : Comparison) =>
+         (c : Comparison) .
        match c with
        | Lt => lt
        | Eq => eq
@@ -34,7 +34,7 @@ Definition Comparison_induction
 Module Comparison.
 
 (* [Comparison -> Comparison] *)
-Definition transpose := fun (c : Comparison) =>
+Definition transpose := fun (c : Comparison) .
   match c with
   | Lt => Gt
   | Eq => Eq

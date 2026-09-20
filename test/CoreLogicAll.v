@@ -10,4 +10,4 @@ Definition core_logic_all_delivers
          (_ : A /\ B) (_ : B \/ A) (_ : A _\/_ B)
          (_ : ~ A) (_ : A <-> B) (_ : A -/> B)
          (_ : exists t . Q t)
-         (_ : Falsum) => I.
+         (_ : Falsum) . I.

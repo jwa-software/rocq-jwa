@@ -8,7 +8,7 @@ Definition core_all_delivers
   := fun (A : Prop) (B : Prop)
          (_ : A /\ B) (_ : B \/ A)
          (_ : A <-> B)
-         (_ : ~ Falsum) => I.
+         (_ : ~ Falsum) . I.
 
 Theorem core_all_delivers_proof_mode
   : forall (A : Type) (x : A) . x = x.

@@ -35,7 +35,7 @@ Local Notation "0" := Zero (only parsing).
 Local Notation "+ p" := (Positive p) (at level 35, right associativity, only parsing).
 
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition add := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition add := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
   | 0   => n
   | + p =>
@@ -46,7 +46,7 @@ Definition add := fun (m : NatWithZero) (n : NatWithZero) =>
   end.
 
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition mul := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition mul := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
   | 0   => 0
   | + p =>
@@ -68,7 +68,7 @@ Notation "m * n" := (mul m n) (only parsing)
 Local Open Scope jwa_nat_with_zero_scope.
 
 (* [NatWithZero -> NatWithZero] *)
-Definition inc := fun (n : NatWithZero) =>
+Definition inc := fun (n : NatWithZero) .
   match n with
   | 0   => + One
   | + p => + (Nat.inc p)
@@ -137,7 +137,7 @@ Theorem positive_injectivity
 Proof.
   intros m n e.
   pose proof (Identity.congruence
-                (fun (x : NatWithZero) => match x with | 0 => m | + y => y end)
+                (fun (x : NatWithZero) . match x with | 0 => m | + y => y end)
                 e) as e'.
   simpl in e'.
   exact e'.
@@ -364,7 +364,7 @@ Qed.
 (* Power *)
 
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition power := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition power := fun (m : NatWithZero) (n : NatWithZero) .
   match n with
   | 0   => + One
   | + q =>
@@ -456,11 +456,11 @@ Qed.
 (* Order *)
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
-Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) .
   exists (k : Nat) . m + (+ k) = n.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
-Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) .
   m = n \/ LessThan m n.
 
 Notation "m < n" := (LessThan m n) (only parsing)
@@ -674,7 +674,7 @@ Qed.
 (* Comparison *)
 
 (* [NatWithZero -> NatWithZero -> Comparison] *)
-Definition compare := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition compare := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
   | 0 =>
       match n with
@@ -876,7 +876,7 @@ Qed.
 (* Subtraction *)
 
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
   | 0   => 0
   | + p =>
@@ -993,7 +993,7 @@ Proof.
 Qed.
 
 (* [NatWithZero -> NatWithZero -> Option NatWithZero] *)
-Definition sub := fun (m : NatWithZero) (n : NatWithZero) =>
+Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
   match le n m with
   | true  => Some (saturating_sub m n)
   | false => None
@@ -1080,14 +1080,14 @@ Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWith
 Local Open Scope jwa_product_scope.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
-Definition divide := fun (n : NatWithZero) (divisor : Nat) =>
+Definition divide := fun (n : NatWithZero) (divisor : Nat) .
   match n with
   | 0          => 0
   | + dividend => pi_1 (division dividend divisor)
   end.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
-Definition modulo := fun (n : NatWithZero) (divisor : Nat) =>
+Definition modulo := fun (n : NatWithZero) (divisor : Nat) .
   match n with
   | 0          => 0
   | + dividend => pi_2 (division dividend divisor)
@@ -1186,7 +1186,7 @@ Qed.
  * antisymmetric since [One] is the only unit.
  *)
 (* [NatWithZero -> NatWithZero -> Prop] *)
-Definition Divides := fun (d : NatWithZero) (n : NatWithZero) =>
+Definition Divides := fun (d : NatWithZero) (n : NatWithZero) .
   exists (k : NatWithZero) . d * k = n.
 
 Theorem divides_reflexivity : forall (n : NatWithZero) . Divides n n.
@@ -1300,10 +1300,10 @@ Qed.
 (* Parity *)
 
 (* [NatWithZero -> Prop] *)
-Definition Even := fun (n : NatWithZero) => Divides (+ (Successor One)) n.
+Definition Even := fun (n : NatWithZero) . Divides (+ (Successor One)) n.
 
 (* [NatWithZero -> Prop] *)
-Definition Odd := fun (n : NatWithZero) =>
+Definition Odd := fun (n : NatWithZero) .
   exists (k : NatWithZero) . ((+ (Successor One)) * k) + (+ One) = n.
 
 Theorem even_or_odd : forall (n : NatWithZero) . Even n \/ Odd n.

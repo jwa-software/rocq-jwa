@@ -24,7 +24,7 @@ Proof.
 Qed.
 
 (* [Bool -> Bool] *)
-Definition negate := fun (b : Bool) =>
+Definition negate := fun (b : Bool) .
   match b with
   | true  => false
   | false => true
@@ -39,7 +39,7 @@ Notation "! b" := (negate b) (only parsing)
   : jwa_bool_scope.
 
 (* [Bool -> Bool -> Bool] *)
-Definition and := fun (b1 : Bool) (b2 : Bool) =>
+Definition and := fun (b1 : Bool) (b2 : Bool) .
   match b1 with
   | true  => b2
   | false => false
@@ -49,7 +49,7 @@ Notation "b1 && b2" := (and b1 b2) (only parsing)
   : jwa_bool_scope.
 
 (* [Bool -> Bool -> Bool] *)
-Definition or := fun (b1 : Bool) (b2 : Bool) =>
+Definition or := fun (b1 : Bool) (b2 : Bool) .
   match b1 with
   | true  => true
   | false => b2
@@ -59,7 +59,7 @@ Notation "b1 || b2" := (or b1 b2) (only parsing)
   : jwa_bool_scope.
 
 (* [Bool -> Bool -> Bool] *)
-Definition xor := fun (b1 : Bool) (b2 : Bool) =>
+Definition xor := fun (b1 : Bool) (b2 : Bool) .
   match b1 with
   | true  => negate b2
   | false => b2
@@ -204,7 +204,7 @@ Qed.
  * directions.
  *)
 (* [Bool -> Prop] *)
-Definition Assert := fun (b : Bool) =>
+Definition Assert := fun (b : Bool) .
   match b with
   | true  => Verum
   | false => Falsum
@@ -263,9 +263,9 @@ Proof.
   + destruct h as [t nt | nt t].
     * exact (nt t).
     * exact (nt t).
-  + exact (Sejunction.left  I (fun (f : Falsum) => f)).
+  + exact (Sejunction.left  I (fun (f : Falsum) . f)).
   + exact I.
-  + exact (Sejunction.right (fun (f : Falsum) => f) I).
+  + exact (Sejunction.right (fun (f : Falsum) . f) I).
   + exact I.
   + contradiction h.
   + destruct h as [f _ | _ f].
@@ -336,17 +336,17 @@ Instance Bool_xor_commutative
   {| Commutative.commutativity := Bool.xor_commutativity |}.
 
 Instance Bool_xor_group
-  : Group Bool.xor false (fun (b : Bool) => b) :=
+  : Group Bool.xor false (fun (b : Bool) . b) :=
   {| Group.monoid  := Bool_xor_monoid
    ; Group.inverse := Bool.xor_inverse |}.
 
 Instance Bool_xor_abelian_group
-  : AbelianGroup Bool.xor false (fun (b : Bool) => b) :=
+  : AbelianGroup Bool.xor false (fun (b : Bool) . b) :=
   {| AbelianGroup.group       := Bool_xor_group
    ; AbelianGroup.commutative := Bool_xor_commutative |}.
 
 Instance Bool_ring
-  : Ring Bool.xor false (fun (b : Bool) => b) Bool.and true :=
+  : Ring Bool.xor false (fun (b : Bool) . b) Bool.and true :=
   {| Ring.abelian_group  := Bool_xor_abelian_group
    ; Ring.monoid         := Bool_and_monoid
    ; Ring.distributivity := Bool.and_distributivity_over_xor |}.

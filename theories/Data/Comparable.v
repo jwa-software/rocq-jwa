@@ -35,11 +35,11 @@ Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Pro
 Module Comparable.
 
 (* [forall {A : Type} . (A -> A -> Prop) -> A -> A -> Prop] *)
-Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) =>
+Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) .
   m = n \/ lt m n.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> Bool] *)
-Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
+Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
   | Lt => false
   | Eq => true
@@ -47,7 +47,7 @@ Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A)
   end.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> Bool] *)
-Definition le := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
+Definition le := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
   | Lt => true
   | Eq => true
@@ -55,7 +55,7 @@ Definition le := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A)
   end.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> A] *)
-Definition min := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
+Definition min := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
   | Lt => m
   | Eq => m
@@ -63,7 +63,7 @@ Definition min := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A
   end.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> A] *)
-Definition max := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
+Definition max := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
   | Lt => n
   | Eq => m
@@ -75,7 +75,7 @@ Theorem reflexivity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (n : A),
+      (n : A) .
     compare n n = Eq.
 Proof.
   intros A compare lt C n.
@@ -88,7 +88,7 @@ Theorem lt_specification
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     compare m n = Lt <-> lt m n.
 Proof.
   intros A compare lt C m n.
@@ -101,7 +101,7 @@ Theorem eq_specification
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     compare m n = Eq <-> m = n.
 Proof.
   intros A compare lt C m n.
@@ -114,7 +114,7 @@ Theorem gt_specification
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     compare m n = Gt <-> lt n m.
 Proof.
   intros A compare lt C m n.
@@ -140,7 +140,7 @@ Theorem trichotomy
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     lt m n \/ m = n \/ lt n m.
 Proof.
   intros A compare lt C m n.
@@ -162,7 +162,7 @@ Theorem lt_irreflexivity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (n : A),
+      (n : A) .
     ~ (lt n n).
 Proof.
   intros A compare lt C n.
@@ -178,7 +178,7 @@ Theorem lt_asymmetry
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     lt m n -> ~ (lt n m).
 Proof.
   intros A compare lt C m n h1.
@@ -196,7 +196,7 @@ Theorem eq_reflection
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     eq compare m n = true <-> m = n.
 Proof.
   intros A compare lt C m n.
@@ -219,7 +219,7 @@ Theorem le_reflexivity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (n : A),
+      (n : A) .
     LessOrEqual lt n n.
 Proof.
   intros A compare lt C n.
@@ -232,7 +232,7 @@ Theorem le_antisymmetry
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     LessOrEqual lt m n -> LessOrEqual lt n m -> m = n.
 Proof.
   intros A compare lt C m n h1 h2.
@@ -253,7 +253,7 @@ Theorem le_transitivity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (m : A) (n : A),
+      (l : A) (m : A) (n : A) .
     LessOrEqual lt l m -> LessOrEqual lt m n -> LessOrEqual lt l n.
 Proof.
   intros A compare lt C l m n h1 h2.
@@ -274,7 +274,7 @@ Theorem le_totality
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     LessOrEqual lt m n \/ LessOrEqual lt n m.
 Proof.
   intros A c lt C m n.
@@ -292,7 +292,7 @@ Theorem le_reflection
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     le compare m n = true <-> LessOrEqual lt m n.
 Proof.
   intros A compare lt C m n.
@@ -331,7 +331,7 @@ Theorem min_specification
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     min compare m n = m <-> LessOrEqual lt m n.
 Proof.
   intros A compare lt C m n.
@@ -364,7 +364,7 @@ Theorem max_specification
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     max compare m n = m <-> LessOrEqual lt n m.
 Proof.
   intros A compare lt C m n.
@@ -396,7 +396,7 @@ Lemma min_l_projection
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (r : A),
+      (l : A) (r : A) .
     LessOrEqual lt (min compare l r) l.
 Proof.
   intros A compare lt C l r.
@@ -414,7 +414,7 @@ Lemma min_r_projection
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (r : A),
+      (l : A) (r : A) .
     LessOrEqual lt (min compare l r) r.
 Proof.
   intros A compare lt C l r.
@@ -435,7 +435,7 @@ Theorem min_universality
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (k : A) (m : A) (n : A),
+      (k : A) (m : A) (n : A) .
     LessOrEqual lt k m -> LessOrEqual lt k n -> LessOrEqual lt k (min compare m n).
 Proof.
   intros A c lt C k m n h1 h2.
@@ -451,7 +451,7 @@ Lemma max_l_injection
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (r : A),
+      (l : A) (r : A) .
     LessOrEqual lt l (max compare l r).
 Proof.
   intros A compare lt C l r.
@@ -470,7 +470,7 @@ Lemma max_r_injection
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (r : A),
+      (l : A) (r : A) .
     LessOrEqual lt r (max compare l r).
 Proof.
   intros A compare lt C l r.
@@ -491,7 +491,7 @@ Theorem max_universality
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
       (k : A)
-      (m : A) (n : A),
+      (m : A) (n : A) .
     LessOrEqual lt m k -> LessOrEqual lt n k -> LessOrEqual lt (max compare m n) k.
 Proof.
   intros A c lt C k m n h1 h2.
@@ -507,7 +507,7 @@ Theorem min_commutativity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     min compare m n = min compare n m.
 Proof.
   intros A c lt C m n.
@@ -525,7 +525,7 @@ Theorem max_commutativity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (m : A) (n : A),
+      (m : A) (n : A) .
     max compare m n = max compare n m.
 Proof.
   intros A c lt C m n.
@@ -543,7 +543,7 @@ Theorem min_associativity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (m : A) (n : A),
+      (l : A) (m : A) (n : A) .
     min compare (min compare l m) n = min compare l (min compare m n).
 Proof.
   intros A c lt C l m n.
@@ -598,7 +598,7 @@ Theorem max_associativity
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (l : A) (m : A) (n : A),
+      (l : A) (m : A) (n : A) .
     max compare (max compare l m) n = max compare l (max compare m n).
 Proof.
   intros A c lt C l m n.
@@ -652,7 +652,7 @@ Theorem min_idempotence
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (n : A),
+      (n : A) .
     min compare n n = n.
 Proof.
   intros A c lt C n.
@@ -666,7 +666,7 @@ Theorem max_idempotence
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
-      (n : A),
+      (n : A) .
     max compare n n = n.
 Proof.
   intros A c lt C n.

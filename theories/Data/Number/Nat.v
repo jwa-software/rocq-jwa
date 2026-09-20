@@ -24,7 +24,7 @@ Definition Nat_induction
       forall (n : Nat) . P n
   := fun (P : Nat -> Prop)
          (base : P One)
-         (step : forall (n : Nat) . P n -> P (Successor n)) =>
+         (step : forall (n : Nat) . P n -> P (Successor n)) .
        fix go (n : Nat) : P n :=
          match n with
          | One          => base
@@ -66,7 +66,7 @@ Notation "m * n" := (mul m n) (only parsing)
 Local Open Scope jwa_nat_scope.
 
 (* [Nat -> Nat] *)
-Definition inc := fun (n : Nat) => S n.
+Definition inc := fun (n : Nat) . S n.
 
 Notation "++ n" := (inc n) (only parsing)
   : jwa_nat_scope.
@@ -109,7 +109,7 @@ Lemma suc_injectivity
   : forall (m : Nat) (n : Nat) . S m = S n -> m = n.
 Proof.
   intros m n e.
-  pose (f := (fun (x : Nat) => match x with | 1 => m | S y => y end)).
+  pose (f := (fun (x : Nat) . match x with | 1 => m | S y => y end)).
   pose proof (Identity.congruence f e) as e'.
   simpl in e'.
   exact e'.
@@ -384,10 +384,10 @@ Qed.
 (* Order *)
 
 (* [Nat -> Nat -> Prop] *)
-Definition LessThan := fun (m : Nat) (n : Nat) => exists (k : Nat) . m + k = n.
+Definition LessThan := fun (m : Nat) (n : Nat) . exists (k : Nat) . m + k = n.
 
 (* [Nat -> Nat -> Prop] *)
-Definition LessOrEqual := fun (m : Nat) (n : Nat) => m = n \/ LessThan m n.
+Definition LessOrEqual := fun (m : Nat) (n : Nat) . m = n \/ LessThan m n.
 
 Notation "m < n" := (LessThan m n) (only parsing)
   : jwa_nat_scope.
@@ -846,7 +846,7 @@ Proof.
 Qed.
 
 (* [Nat -> Nat -> Nat] *)
-Definition saturating_sub := fun (m : Nat) (n : Nat) =>
+Definition saturating_sub := fun (m : Nat) (n : Nat) .
   match sub m n with
   | Some k => k
   | None   => 1

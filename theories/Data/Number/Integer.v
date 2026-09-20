@@ -32,7 +32,7 @@ Definition Integer_induction
          (negative : forall (p : Nat) . P (Negative p))
          (zero : P Zero)
          (positive : forall (p : Nat) . P (Positive p))
-         (x : Integer) =>
+         (x : Integer) .
        match x with
        | Negative p => negative p
        | Zero       => zero
@@ -55,7 +55,7 @@ Lemma negative_injectivity
 Proof.
   intros p q e.
   pose proof (Identity.congruence
-                (fun (x : Integer) =>
+                (fun (x : Integer) .
                    match x with | - r => r | 0 => p | + _ => p end)
                 e) as e'.
   simpl in e'.
@@ -67,7 +67,7 @@ Lemma positive_injectivity
 Proof.
   intros p q e.
   pose proof (Identity.congruence
-                (fun (x : Integer) =>
+                (fun (x : Integer) .
                    match x with | - _ => p | 0 => p | + r => r end)
                 e) as e'.
   simpl in e'.
@@ -85,7 +85,7 @@ Proof.
 Qed.
 
 (* [Integer -> Integer] *)
-Definition negate := fun (x : Integer) =>
+Definition negate := fun (x : Integer) .
   match x with
   | - p => + p
   | 0   => 0
@@ -99,7 +99,7 @@ Proof.
 Qed.
 
 (* [Integer -> NatWithZero] *)
-Definition abs := fun (x : Integer) =>
+Definition abs := fun (x : Integer) .
   match x with
   | - p => NatWithZero.Positive p
   | 0   => NatWithZero.Zero
@@ -115,10 +115,10 @@ Notation "(| x |)" := (abs x) (only parsing)
   : jwa_integer_scope.
 
 (* [Nat -> Integer] *)
-Definition from_nat := fun (n : Nat) => + n.
+Definition from_nat := fun (n : Nat) . (+ n).
 
 (* [NatWithZero -> Integer] *)
-Definition from_nat_with_zero := fun (n : NatWithZero) =>
+Definition from_nat_with_zero := fun (n : NatWithZero) .
   match n return Integer with
   | NatWithZero.Zero       => 0
   | NatWithZero.Positive p => + p
@@ -142,7 +142,7 @@ Proof.
 Qed.
 
 (* [Integer -> NatWithZero] *)
-Definition ramp := fun (x : Integer) =>
+Definition ramp := fun (x : Integer) .
   match x with
   | - _ => NatWithZero.Zero
   | 0   => NatWithZero.Zero
@@ -357,7 +357,7 @@ Proof.
 Qed.
 
 (* [NatWithZero -> NatWithZero -> Integer] *)
-Definition nat_with_zero_difference := fun (a : NatWithZero) (b : NatWithZero) =>
+Definition nat_with_zero_difference := fun (a : NatWithZero) (b : NatWithZero) .
   match a, b with
   | NatWithZero.Zero, NatWithZero.Zero             => 0
   | NatWithZero.Zero, NatWithZero.Positive q       => - q
@@ -490,7 +490,7 @@ Qed.
 (* Addition *)
 
 (* [Integer -> Integer -> Integer] *)
-Definition add := fun (m : Integer) (n : Integer) =>
+Definition add := fun (m : Integer) (n : Integer) .
   nat_with_zero_difference (NatWithZero.add (ramp m) (ramp n))
                            (NatWithZero.add (ramp (negate m)) (ramp (negate n))).
 
@@ -704,7 +704,7 @@ Qed.
 (* Subtraction *)
 
 (* [Integer -> Integer -> Integer] *)
-Definition sub := fun (m : Integer) (n : Integer) => m + negate n.
+Definition sub := fun (m : Integer) (n : Integer) . m + negate n.
 
 Theorem subtraction_inversion_of_addition
   : forall (m : Integer) (n : Integer) . sub (m + n) n = m.
@@ -719,7 +719,7 @@ Qed.
 (* Multiplication *)
 
 (* [Integer -> Integer -> Integer] *)
-Definition mul := fun (m : Integer) (n : Integer) =>
+Definition mul := fun (m : Integer) (n : Integer) .
   match m with
   | - p =>
       match n with
@@ -1025,11 +1025,11 @@ Qed.
 (* Order *)
 
 (* [Integer -> Integer -> Prop] *)
-Definition LessThan := fun (m : Integer) (n : Integer) =>
+Definition LessThan := fun (m : Integer) (n : Integer) .
   exists (k : Nat) . m + (+ k) = n.
 
 (* [Integer -> Integer -> Prop] *)
-Definition LessOrEqual := fun (m : Integer) (n : Integer) => m = n \/ LessThan m n.
+Definition LessOrEqual := fun (m : Integer) (n : Integer) . m = n \/ LessThan m n.
 
 Notation "m < n" := (LessThan m n) (only parsing)
   : jwa_integer_scope.
@@ -1109,7 +1109,7 @@ Qed.
 (* Comparison *)
 
 (* [Integer -> Integer -> Comparison] *)
-Definition compare := fun (m : Integer) (n : Integer) =>
+Definition compare := fun (m : Integer) (n : Integer) .
   match m with
   | - p =>
       match n with
@@ -1332,7 +1332,7 @@ Abbreviation eq := (Comparable.eq compare).
 (* Divisibility *)
 
 (* [Integer -> Integer -> Prop] *)
-Definition Divides := fun (d : Integer) (n : Integer) => exists (k : Integer) . d * k = n.
+Definition Divides := fun (d : Integer) (n : Integer) . exists (k : Integer) . d * k = n.
 
 Theorem divides_reflexivity : forall (n : Integer) . Divides n n.
 Proof.
@@ -1393,10 +1393,10 @@ Qed.
 (* Parity *)
 
 (* [Integer -> Prop] *)
-Definition Even := fun (n : Integer) => Divides (+ (Successor One)) n.
+Definition Even := fun (n : Integer) . Divides (+ (Successor One)) n.
 
 (* [Integer -> Prop] *)
-Definition Odd := fun (n : Integer) =>
+Definition Odd := fun (n : Integer) .
   exists (k : Integer) . ((+ (Successor One)) * k) + (+ One) = n.
 
 Theorem even_or_odd : forall (n : Integer) . Even n \/ Odd n.
@@ -1436,7 +1436,7 @@ Proof.
         unfold Even in |- *.
         unfold Divides in |- *.
         apply (Exists_introduction k).
-        pose proof (Identity.congruence (fun (x : Integer) => x + (- One)) e)
+        pose proof (Identity.congruence (fun (x : Integer) . x + (- One)) e)
           as e'.
         change ((((+ (Successor One)) * k) + (+ One)) + (- One)
                 = (- p') + (- One)) in e'.

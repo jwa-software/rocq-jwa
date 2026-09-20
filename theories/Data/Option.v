@@ -14,14 +14,14 @@ Arguments Some {A} a.
 Module Option.
 
 (* [forall {A : Type} {B : Type} . (A -> B) -> Option A -> Option B] *)
-Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) =>
+Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) .
   match o return Option B with
   | None   => None
   | Some a => Some (f a)
   end.
 
 Theorem map_identity
-  : forall (A : Type) (o : Option A) . map (fun (a : A) => a) o = o.
+  : forall (A : Type) (o : Option A) . map (fun (a : A) . a) o = o.
 Proof.
   intros A o.
   destruct o as [| a]; unfold map in |- *; simpl in |- *; reflexivity.
@@ -29,7 +29,7 @@ Qed.
 
 Theorem map_composition
   : forall (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C) (o : Option A) .
-      map g (map f o) = map (fun (a : A) => g (f a)) o.
+      map g (map f o) = map (fun (a : A) . g (f a)) o.
 Proof.
   intros A B C f g o.
   destruct o as [| a]; simpl in |- *; reflexivity.
@@ -39,7 +39,7 @@ Theorem some_injectivity
   : forall (A : Type) (a : A) (b : A) . Some a = Some b -> a = b.
 Proof.
   intros A a b e.
-  pose (f := fun (o : Option A) => match o with | Some x => x | None => a end).
+  pose (f := fun (o : Option A) . match o with | Some x => x | None => a end).
   pose proof (Identity.congruence f e) as e'.
   simpl in e'.
   exact e'.
@@ -49,6 +49,6 @@ End Option.
 
 Instance Option_functor
   : Functor Option :=
-  {| Functor.map             := fun (A : Type) (B : Type) => Option.map
+  {| Functor.map             := fun (A : Type) (B : Type) . Option.map
    ; Functor.map_identity    := Option.map_identity
    ; Functor.map_composition := Option.map_composition |}.

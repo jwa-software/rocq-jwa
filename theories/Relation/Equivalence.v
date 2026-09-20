@@ -27,10 +27,10 @@ Instance Biimplication_equivalence
 
 Instance Identity_equivalence
   : forall (A : Type) . Equivalence (@Identity A) :=
-  fun (A : Type) =>
-    {| Equivalence.reflexivity :=
-         {| Reflexive.reflexivity := @Identity.reflexivity A |}
-     ; Equivalence.symmetry :=
-         {| Symmetric.symmetry := @Identity.symmetry A |}
-     ; Equivalence.transitivity :=
-         {| Transitive.transitivity := @Identity.transitivity A |} |}.
+  fun (A : Type) .
+    ({| Equivalence.reflexivity :=
+          {| Reflexive.reflexivity := @Identity.reflexivity A |}
+      ; Equivalence.symmetry :=
+          {| Symmetric.symmetry := @Identity.symmetry A |}
+      ; Equivalence.transitivity :=
+          {| Transitive.transitivity := @Identity.transitivity A |} |}).

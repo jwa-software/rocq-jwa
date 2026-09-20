@@ -11,7 +11,7 @@ Inductive Unit : Type :=
 (* [forall (P : Unit -> Prop) . P Unit_introduction -> forall (u : Unit) . P u] *)
 Definition Unit_induction
   : forall (P : Unit -> Prop) . P Unit_introduction -> forall (u : Unit) . P u
-  := fun (P : Unit -> Prop) (base : P Unit_introduction) (u : Unit) =>
+  := fun (P : Unit -> Prop) (base : P Unit_introduction) (u : Unit) .
        match u with
        | Unit_introduction => base
        end.
