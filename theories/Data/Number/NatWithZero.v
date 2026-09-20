@@ -357,7 +357,7 @@ Proof.
     + simpl in |- *.
       intro e.
       pose proof (positive.injectivity e) as e'.
-      pose proof (Nat.addition.left.cancellation n' m' k' e') as e''.
+      pose proof (Nat.addition.left.cancellation e') as e''.
       rewrite e'' in |- *.
       reflexivity.
 Qed.
@@ -967,11 +967,10 @@ Proof.
     * simpl in |- *.
       intro e.
       exact (<-elim (positive.order.embedding m' n')
-                    (Nat.comparison.strict.forward.specification m' n' e)).
+                    (Nat.comparison.strict.forward.specification e)).
     * intro h.
       simpl in |- *.
       exact (Nat.comparison.strict.backward.specification
-              m' n'
               (->elim (positive.order.embedding m' n') h)).
 Qed.
 
@@ -993,7 +992,7 @@ Proof.
     + simpl in e.
       discriminate e.
     + simpl in e.
-      rewrite (Nat.comparison.equality.forward.specification m' n' e) in |- *.
+      rewrite (Nat.comparison.equality.forward.specification e) in |- *.
       reflexivity.
   - intro e.
     rewrite e in |- *.
@@ -1158,7 +1157,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (Nat.subtraction.truncation n' n' (Comparable.order.reflexivity n')) in |- *.
+    rewrite (Nat.subtraction.truncation (Comparable.order.reflexivity n')) in |- *.
     simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1183,7 +1182,7 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.subtraction.truncation n' n' (Comparable.order.reflexivity n')) in |- *.
+      rewrite (Nat.subtraction.truncation (Comparable.order.reflexivity n')) in |- *.
       simpl in |- *.
       reflexivity.
   - unfold LessThan in lt.
@@ -1195,7 +1194,6 @@ Proof.
       reflexivity.
     + simpl in |- *.
       rewrite (Nat.subtraction.truncation
-                m' (Nat.add m' k)
                 (Disjunction.R (Nat.addition.order.extensivity m' k))) in |- *.
       simpl in |- *.
       reflexivity.
@@ -1243,12 +1241,12 @@ Proof.
   - simpl in |- *. reflexivity.
   - destruct m as [| m']; destruct n as [| n'].
     + simpl in |- *.
-      rewrite (Nat.subtraction.truncation k' k'
+      rewrite (Nat.subtraction.truncation
                 (Comparable.order.reflexivity k')) in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.subtraction.truncation k' (Nat.add k' n')
+      rewrite (Nat.subtraction.truncation
                  (Disjunction.R (Nat.addition.order.extensivity k' n'))) in |- *.
       simpl in |- *.
       reflexivity.
@@ -1479,9 +1477,9 @@ Proof.
         simpl in c.
         pose proof (Identity.transitivity e3 c)
                 as e4.
-        pose proof (Nat.multiplication.left.cancellation p (Nat.mul k' j') One e4)
+        pose proof (Nat.multiplication.left.cancellation e4)
                 as e5.
-        pose proof (Nat.multiplication.identity.factorization k' j' e5)
+        pose proof (Nat.multiplication.identity.factorization e5)
                 as f.
         destruct f as [ek ej].
         rewrite ek in e1.

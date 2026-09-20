@@ -142,7 +142,7 @@ Module successor. (* successor *)
 
 (* successor.injectivity *)
 Lemma injectivity
-  : forall (m : Nat) (n : Nat) . S m = S n -> m = n.
+  : forall {m : Nat} {n : Nat} . S m = S n -> m = n.
 Proof.
   intros m n e.
   pose (f := (fun (x : Nat) . match x with | 1 => m | S y => y end)).
@@ -160,7 +160,7 @@ Module order. (* successor.order *)
  *)
 (* successor.order.monotonicity *)
 Theorem monotonicity
-  : forall (m : Nat) (n : Nat) .
+  : forall {m : Nat} {n : Nat} .
       m < n -> S m < S n.
 Proof.
   intros m n h.
@@ -177,13 +177,13 @@ Module monotonicity. (* successor.order.monotonicity *)
 
 (* successor.order.monotonicity.inversion *)
 Lemma inversion
-  : forall (m : Nat) (n : Nat) . S m < S n -> m < n.
+  : forall {m : Nat} {n : Nat} . S m < S n -> m < n.
 Proof.
   intros m n h.
   unfold LessThan in h.
   destruct h as [k e].
   simpl in e.
-  pose proof (successor.injectivity (m + k) n e)
+  pose proof (successor.injectivity e)
           as e'.
   unfold LessThan in |- *.
   exact (Exists_introduction k e').
@@ -265,7 +265,7 @@ Proof.
     rewrite (addition.commutativity k (S n'))
             in e.
     simpl in e.
-    pose proof (successor.injectivity (n' + k) n' e)
+    pose proof (successor.injectivity e)
             as e'.
     rewrite (addition.commutativity n' k)
             in e'.
@@ -279,16 +279,16 @@ Module left. (* addition.left *)
 
 (* addition.left.cancellation *)
 Theorem cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat) . m + n = m + k -> n = k.
+  : forall {m : Nat} {n : Nat} {k : Nat} . m + n = m + k -> n = k.
 Proof.
   intros m n k.
   induction m as [| m' IH] using Nat_induction.
   - simpl in |- *.
     intro e.
-    exact (successor.injectivity n k e).
+    exact (successor.injectivity e).
   - simpl in |- *.
     intro e.
-    pose proof (successor.injectivity (m' + n) (m' + k) e)
+    pose proof (successor.injectivity e)
             as e'.
     exact (IH e').
 Qed.
@@ -310,12 +310,12 @@ Module right. (* addition.right *)
 
 (* addition.right.cancellation *)
 Theorem cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat) . m + n = k + n -> m = k.
+  : forall {m : Nat} {n : Nat} {k : Nat} . m + n = k + n -> m = k.
 Proof.
   intros m n k e.
   rewrite (addition.commutativity k n) in e.
   rewrite (addition.commutativity m n) in e.
-  exact (addition.left.cancellation n m k e).
+  exact (addition.left.cancellation e).
 Qed.
 
 (* addition.right.commutativity *)
@@ -338,8 +338,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (addition.left.cancellation  m n k).
-  - exact (addition.right.cancellation m n k).
+  - exact (@addition.left.cancellation  m n k).
+  - exact (@addition.right.cancellation m n k).
 Qed.
 
 Module order. (* addition.order *)
@@ -397,7 +397,7 @@ Qed.
 
 (* order.strict.transitivity *)
 Theorem transitivity
-  : forall (l : Nat) (m : Nat) (n : Nat) .
+  : forall {l : Nat} {m : Nat} {n : Nat} .
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
@@ -449,7 +449,7 @@ Proof.
     destruct t as [lt | rest].
     +
       apply Disjunction.L.
-      exact (successor.order.monotonicity m' n' lt).
+      exact (successor.order.monotonicity lt).
     +
       destruct rest as [eq | gt].
       *
@@ -460,7 +460,7 @@ Proof.
       *
         apply Disjunction.R.
         apply Disjunction.R.
-        exact (successor.order.monotonicity n' m' gt).
+        exact (successor.order.monotonicity gt).
 Qed.
 
 End strict. (* order.strict *)
@@ -568,7 +568,7 @@ End order. (* multiplication.left.order *)
 
 (* multiplication.left.cancellation *)
 Theorem cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat) . m * n = m * k -> n = k.
+  : forall {m : Nat} {n : Nat} {k : Nat} . m * n = m * k -> n = k.
 Proof.
   intros m n k e.
   pose proof (order.strict.trichotomy n k) as t.
@@ -622,12 +622,12 @@ End distributivity. (* multiplication.right.distributivity *)
 
 (* multiplication.right.cancellation *)
 Theorem cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat) . m * n = k * n -> m = k.
+  : forall {m : Nat} {n : Nat} {k : Nat} . m * n = k * n -> m = k.
 Proof.
   intros m n k e.
   rewrite (multiplication.commutativity m n) in e.
   rewrite (multiplication.commutativity k n) in e.
-  exact (multiplication.left.cancellation n m k e).
+  exact (multiplication.left.cancellation e).
 Qed.
 
 (* multiplication.right.commutativity *)
@@ -679,7 +679,7 @@ Module identity. (* multiplication.identity *)
 
 (* multiplication.identity.factorization *)
 Theorem factorization
-  : forall (k : Nat) (j : Nat) . k * j = 1 -> k = 1 /\ j = 1.
+  : forall {k : Nat} {j : Nat} . k * j = 1 -> k = 1 /\ j = 1.
 Proof.
   intros k j e.
   destruct k as [| k']; simpl in e.
@@ -725,8 +725,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (multiplication.left.cancellation  m n k).
-  - exact (multiplication.right.cancellation m n k).
+  - exact (@multiplication.left.cancellation  m n k).
+  - exact (@multiplication.right.cancellation m n k).
 Qed.
 
 End multiplication. (* multiplication *)
@@ -829,7 +829,7 @@ Module forward. (* comparison.strict.forward *)
 
 (* comparison.strict.forward.specification *)
 Lemma specification
-  : forall (m : Nat) (n : Nat) . compare m n = Lt -> m < n.
+  : forall {m : Nat} {n : Nat} . compare m n = Lt -> m < n.
 Proof.
   intros m.
   induction m as [| m' IH]
@@ -848,7 +848,7 @@ Proof.
   -
     discriminate e.
   -
-    exact (successor.order.monotonicity m' n' (IH n' e)).
+    exact (successor.order.monotonicity (IH n' e)).
 Qed.
 
 End forward. (* comparison.strict.forward *)
@@ -857,7 +857,7 @@ Module backward. (* comparison.strict.backward *)
 
 (* comparison.strict.backward.specification *)
 Lemma specification
-  : forall (m : Nat) (n : Nat) . m < n -> compare m n = Lt.
+  : forall {m : Nat} {n : Nat} . m < n -> compare m n = Lt.
 Proof.
   intros m.
   induction m as [| m' IH]
@@ -879,7 +879,7 @@ Proof.
     simpl in e.
     discriminate e.
   +
-    exact (IH n' (successor.order.monotonicity.inversion m' n' h)).
+    exact (IH n' (successor.order.monotonicity.inversion h)).
 Qed.
 
 End backward. (* comparison.strict.backward *)
@@ -892,7 +892,7 @@ Module forward. (* comparison.equality.forward *)
 
 (* comparison.equality.forward.specification *)
 Lemma specification
-  : forall (m : Nat) (n : Nat) . compare m n = Eq -> m = n.
+  : forall {m : Nat} {n : Nat} . compare m n = Eq -> m = n.
 Proof.
   intros m.
   induction m as [| m' IH]
@@ -914,7 +914,7 @@ Module backward. (* comparison.equality.backward *)
 
 (* comparison.equality.backward.specification *)
 Lemma specification
-  : forall (m : Nat) (n : Nat) . m = n -> compare m n = Eq.
+  : forall {m : Nat} {n : Nat} . m = n -> compare m n = Eq.
 Proof.
   intros m n e.
   rewrite e in |- *.
@@ -935,10 +935,10 @@ Theorem specification
 Proof.
   intros m n.
   split; split.
-  - exact (comparison.strict.forward.specification    m n).
-  - exact (comparison.strict.backward.specification   m n).
-  - exact (comparison.equality.forward.specification  m n).
-  - exact (comparison.equality.backward.specification m n).
+  - exact (@comparison.strict.forward.specification    m n).
+  - exact (@comparison.strict.backward.specification   m n).
+  - exact (@comparison.equality.forward.specification  m n).
+  - exact (@comparison.equality.backward.specification m n).
 Qed.
 
 (* comparison.antisymmetry *)
@@ -967,7 +967,7 @@ Proof.
   intros n.
   unfold Comparable.max in |- *.
   destruct (compare n 1) as [| |] eqn:c.
-  - pose proof (comparison.strict.forward.specification n 1 c)
+  - pose proof (comparison.strict.forward.specification c)
             as lt.
     unfold LessThan in lt.
     destruct lt as [k e].
@@ -1010,7 +1010,7 @@ Module subtraction. (* subtraction *)
 
 (* subtraction.truncation *)
 Theorem truncation
-  : forall (m : Nat) (n : Nat) . m <= n -> sub m n = None.
+  : forall {m : Nat} {n : Nat} . m <= n -> sub m n = None.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -1073,7 +1073,7 @@ Module forward. (* subtraction.forward *)
 
 (* subtraction.forward.specification *)
 Lemma specification
-  : forall (m : Nat) (n : Nat) (k : Nat) . sub m n = Some k -> n + k = m.
+  : forall {m : Nat} {n : Nat} {k : Nat} . sub m n = Some k -> n + k = m.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction.
@@ -1101,7 +1101,7 @@ Module backward. (* subtraction.backward *)
 
 (* subtraction.backward.specification *)
 Lemma specification
-  : forall (m : Nat) (n : Nat) (k : Nat) . n + k = m -> sub m n = Some k.
+  : forall {m : Nat} {n : Nat} {k : Nat} . n + k = m -> sub m n = Some k.
 Proof.
   intros m n k e.
   symmetry in e.
@@ -1118,19 +1118,19 @@ Theorem specification
 Proof.
   intros m n k.
   split.
-  - exact (subtraction.forward.specification  m n k).
-  - exact (subtraction.backward.specification m n k).
+  - exact (@subtraction.forward.specification  m n k).
+  - exact (@subtraction.backward.specification m n k).
 Qed.
 
 Module saturating. (* subtraction.saturating *)
 
 (* subtraction.saturating.truncation *)
 Theorem truncation
-  : forall (m : Nat) (n : Nat) . m <= n -> saturating_sub m n = 1.
+  : forall {m : Nat} {n : Nat} . m <= n -> saturating_sub m n = 1.
 Proof.
   intros m n h.
   unfold saturating_sub in |- *.
-  rewrite (subtraction.truncation m n h) in |- *.
+  rewrite (subtraction.truncation h) in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -1156,13 +1156,13 @@ End inversion. (* subtraction.saturating.inversion *)
 
 (* subtraction.saturating.specification *)
 Theorem specification
-  : forall (m : Nat) (n : Nat) . n < m -> n + saturating_sub m n = m.
+  : forall {m : Nat} {n : Nat} . n < m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
   unfold LessThan in h.
   destruct h as [k e].
   unfold saturating_sub in |- *.
-  rewrite (subtraction.backward.specification m n k e) in |- *.
+  rewrite (subtraction.backward.specification e) in |- *.
   simpl in |- *.
   exact e.
 Qed.
@@ -1182,7 +1182,7 @@ Export (notations) Nat.
 
 Instance Nat_comparable
   : Comparable Nat.compare Nat.LessThan :=
-  {| Comparable.transitivity  := Nat.order.strict.transitivity
+  {| Comparable.transitivity  := @Nat.order.strict.transitivity
    ; Comparable.specification := Nat.comparison.specification
    ; Comparable.antisymmetry  := Nat.comparison.antisymmetry |}.
 

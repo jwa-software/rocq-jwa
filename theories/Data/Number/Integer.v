@@ -360,7 +360,7 @@ Proof.
     rewrite (Nat.addition.commutativity p k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
     rewrite (Nat.addition.left.commutativity r p k) in h.
-    pose proof (Nat.addition.left.cancellation p s (Nat.add r k) h) as e''.
+    pose proof (Nat.addition.left.cancellation h) as e''.
     rewrite e'' in |- *.
     rewrite (Nat.addition.commutativity r k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k r) in |- *.
@@ -369,7 +369,7 @@ Proof.
     + rewrite eq in h |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       rewrite (Nat.addition.commutativity r q) in h.
-      pose proof (Nat.addition.left.cancellation q s r h) as e.
+      pose proof (Nat.addition.left.cancellation h) as e.
       rewrite e in |- *.
       rewrite (difference.nat.reflexivity r) in |- *.
       reflexivity.
@@ -381,7 +381,7 @@ Proof.
       rewrite (difference.nat.left.inversion.of.addition k q) in |- *.
       rewrite (Nat.addition.associativity q k s) in h.
       rewrite (Nat.addition.commutativity r q) in h.
-      pose proof (Nat.addition.left.cancellation q (Nat.add k s) r h) as e''.
+      pose proof (Nat.addition.left.cancellation h) as e''.
       symmetry in e''.
       rewrite e'' in |- *.
       rewrite (difference.nat.left.inversion.of.addition k s) in |- *.
@@ -1479,7 +1479,7 @@ Proof.
   unfold add in |- *.
   destruct m as [m' | | m']; destruct n as [n' | | n']; split; simpl in |- *.
   - intro c.
-    pose proof (Nat.comparison.strict.forward.specification n' m' c) as lt.
+    pose proof (Nat.comparison.strict.forward.specification c) as lt.
     unfold Nat.LessThan in lt.
     destruct lt as [k e].
     apply (Exists_introduction k).
@@ -1488,7 +1488,7 @@ Proof.
   - intro h.
     destruct h as [k e].
     pose proof (->elim (difference.nat.negative.specification k m' n') e) as e'.
-    apply (Nat.comparison.strict.backward.specification n' m').
+    apply (@Nat.comparison.strict.backward.specification n' m').
     unfold Nat.LessThan in |- *.
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in |- *.
@@ -1529,7 +1529,7 @@ Proof.
     destruct h as [k e].
     discriminate e.
   - intro c.
-    pose proof (Nat.comparison.strict.forward.specification m' n' c) as lt.
+    pose proof (Nat.comparison.strict.forward.specification c) as lt.
     unfold Nat.LessThan in lt.
     destruct lt as [k e].
     apply (Exists_introduction k).
@@ -1538,7 +1538,7 @@ Proof.
   - intro h.
     destruct h as [k e].
     pose proof (magnitude.positive.injectivity e) as e'.
-    apply (Nat.comparison.strict.backward.specification m' n').
+    apply (@Nat.comparison.strict.backward.specification m' n').
     unfold Nat.LessThan in |- *.
     apply (Exists_introduction k).
     exact e'.
@@ -1555,7 +1555,7 @@ Proof.
   intros m n.
   destruct m as [m' | | m']; destruct n as [n' | | n']; split; simpl in |- *.
   - intro c.
-    pose proof (Nat.comparison.equality.forward.specification n' m' c) as e.
+    pose proof (Nat.comparison.equality.forward.specification c) as e.
     rewrite e in |- *.
     reflexivity.
   - intro e.
@@ -1591,7 +1591,7 @@ Proof.
   - intro e.
     discriminate e.
   - intro c.
-    pose proof (Nat.comparison.equality.forward.specification m' n' c) as e.
+    pose proof (Nat.comparison.equality.forward.specification c) as e.
     rewrite e in |- *.
     reflexivity.
   - intro e.
