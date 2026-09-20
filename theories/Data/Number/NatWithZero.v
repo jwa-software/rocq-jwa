@@ -462,7 +462,7 @@ Theorem interchange
 Proof.
   intros a b c d.
   rewrite (addition.associativity a b (c + d)) in |- *.
-  rewrite (addition.left.commutativity b c d) in |- *.
+  rewrite (addition.left.commutativity b c d)  in |- *.
   rewrite (addition.associativity a c (b + d)) in |- *.
   reflexivity.
 Qed.
@@ -533,19 +533,16 @@ Theorem commutativity
   : forall (m : NatWithZero) (n : NatWithZero) . m * n = n * m.
 Proof.
   intros m n.
-  destruct m as [| m'].
+  destruct m as [| m']; destruct n as [| n'].
   - simpl in |- *.
-    destruct n as [| n'].
-    + simpl in |- *.
-      reflexivity.
-    + simpl in |- *.
-      reflexivity.
-  - destruct n as [| n'].
-    + simpl in |- *.
-      reflexivity.
-    + simpl in |- *.
-      rewrite (Nat.multiplication.commutativity m' n') in |- *.
-      reflexivity.
+    reflexivity.
+  - simpl in |- *.
+    reflexivity.
+  - simpl in |- *.
+    reflexivity.
+  - simpl in |- *.
+    rewrite (Nat.multiplication.commutativity m' n') in |- *.
+    reflexivity.
 Qed.
 
 (* multiplication.associativity *)
