@@ -8,3 +8,4 @@
  * only through [Import].
  *)
 From jwa Require Export Tactics.Modus.
+From jwa Require Export Tactics.Syllogism.
