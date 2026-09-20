@@ -16,7 +16,7 @@ Notation "A /\ B" := (Conjunction A B)
 (* A module may carry the type's name; its laws read
  * [Conjunction.commutativity].
  *)
-Module Conjunction.
+Module Conjunction. (* Conjunction *)
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A /\ B -> B /\ A.
@@ -133,9 +133,9 @@ Proof.
       exact b2.
 Qed.
 
-(* [Conjunction.distributivity_over_disjunction] is stated in
+(* [Conjunction.distributivity.over.disjunction] is stated in
  * [Core.Logic.Disjunction], the lowest file that knows both connectives,
  * in a second module of this name.
  *)
 
-End Conjunction.
+End Conjunction. (* Conjunction *)

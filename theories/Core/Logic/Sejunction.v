@@ -27,7 +27,7 @@ Notation "A _\/_ B" := (Sejunction A B)
 (* A module may carry the type's name; its laws read
  * [Sejunction.commutativity].
  *)
-Module Sejunction.
+Module Sejunction. (* Sejunction *)
 
 (* The two ctors under the names a proof writes: [Sejunction.left a nb] and
  * [Sejunction.right na b]. An abbreviation is the ctor itself, so it also
@@ -53,10 +53,15 @@ Proof.
   - exact (Sejunction.left   b na).
 Qed.
 
+Module decomposition. (* decomposition *)
+
+Module into. (* decomposition.into *)
+
 (* A sejunction is one of the two abjunctions: the left side without the
  * right, or the right side without the left.
  *)
-Theorem abjunction_decomposition
+(* decomposition.into.abjunction *)
+Theorem abjunction
   : forall (A : Prop) (B : Prop) . A _\/_ B <-> (A -/> B) \/ (B -/> A).
 Proof.
   intros A B.
@@ -78,6 +83,10 @@ Proof.
     + destruct ba as [b na].
       exact (Sejunction.right na b).
 Qed.
+
+End into. (* decomposition.into *)
+
+End decomposition. (* decomposition *)
 
 (* The textbook definition of exclusive disjunction, as a theorem: one of
  * the two holds, and not both.
@@ -167,8 +176,13 @@ Proof.
         exact b2.
 Qed.
 
+Module weakening. (* weakening *)
+
+Module to. (* weakening.to *)
+
 (* A sejunction is a disjunction that has forgotten which side fails. *)
-Theorem disjunction_weakening
+(* weakening.to.disjunction *)
+Theorem disjunction
   : forall {A : Prop} {B : Prop} . A _\/_ B -> A \/ B.
 Proof.
   intros A B.
@@ -178,12 +192,21 @@ Proof.
   - exact (Disjunction.right b).
 Qed.
 
+End to. (* weakening.to *)
+
+End weakening. (* weakening *)
+
 (* Two propositions are incompatible when they cannot both hold. A
  * sejunction is incompatible with the conjunction of its sides and with
  * their biimplication.
  *)
 
-Theorem conjunction_incompatibility
+Module exclusion. (* exclusion *)
+
+Module of. (* exclusion.of *)
+
+(* exclusion.of.conjunction *)
+Theorem conjunction
   : forall {A : Prop} {B : Prop} . A _\/_ B -> ~ (A /\ B).
 Proof.
   intros A B.
@@ -196,7 +219,8 @@ Proof.
   - exact (na a).
 Qed.
 
-Theorem biimplication_incompatibility
+(* exclusion.of.biimplication *)
+Theorem biimplication
   : forall {A : Prop} {B : Prop} . A _\/_ B -> ~ (A <-> B).
 Proof.
   intros A B.
@@ -215,16 +239,25 @@ Proof.
     exact b.
 Qed.
 
-End Sejunction.
+End of. (* exclusion.of *)
+
+End exclusion. (* exclusion *)
+
+End Sejunction. (* Sejunction *)
 
 (* The same incompatibility read from the biimplication's side belongs to
  * [Biimplication], but it can be stated only here, where [_\/_] is known. A
  * second module of that name carries it, and a client reads
- * [Biimplication.sejunction_incompatibility].
+ * [Biimplication.exclusion.of.sejunction].
  *)
-Module Biimplication.
+Module Biimplication. (* Biimplication *)
 
-Theorem sejunction_incompatibility
+Module exclusion. (* exclusion *)
+
+Module of. (* exclusion.of *)
+
+(* exclusion.of.sejunction *)
+Theorem sejunction
   : forall {A : Prop} {B : Prop} . (A <-> B) -> ~ (A _\/_ B).
 Proof.
   intros A B.
@@ -243,4 +276,8 @@ Proof.
     exact b.
 Qed.
 
-End Biimplication.
+End of. (* exclusion.of *)
+
+End exclusion. (* exclusion *)
+
+End Biimplication. (* Biimplication *)

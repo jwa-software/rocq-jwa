@@ -18,12 +18,15 @@ Notation "~ A" := (Negation A)
 (* A module may carry the definition's name; its laws read
  * [Negation.contraposition].
  *)
-Module Negation.
+Module Negation. (* Negation *)
+
+Module de_morgan. (* de_morgan *)
 
 (* De Morgan: the negation of a disjunction is the conjunction of the
  * negations, in both directions.
  *)
-Theorem de_morgan_disjunction
+(* de_morgan.disjunction *)
+Theorem disjunction
   : forall (A : Prop) (B : Prop) . ~ (A \/ B) <-> ~ A /\ ~ B.
 Proof.
   intros A B.
@@ -49,7 +52,8 @@ Qed.
  * [~ (A /\ B)] alone there is no telling which of [A] and [B] fails, so the
  * converse is not constructive.
  *)
-Theorem de_morgan_conjunction
+(* de_morgan.conjunction *)
+Theorem conjunction
   : forall {A : Prop} {B : Prop} . ~ A \/ ~ B -> ~ (A /\ B).
 Proof.
   intros A B.
@@ -62,7 +66,12 @@ Proof.
   - exact (not_b b).
 Qed.
 
-Theorem double_introduction : forall {A : Prop} . A -> ~ ~ A.
+End de_morgan. (* de_morgan *)
+
+Module double. (* double *)
+
+(* double.introduction *)
+Theorem introduction : forall {A : Prop} . A -> ~ ~ A.
 Proof.
   intro A.
   intro a.
@@ -71,7 +80,12 @@ Proof.
   exact (not_a a).
 Qed.
 
-Theorem triple_reduction : forall {A : Prop} . ~ ~ ~ A -> ~ A.
+End double. (* double *)
+
+Module triple. (* triple *)
+
+(* triple.reduction *)
+Theorem reduction : forall {A : Prop} . ~ ~ ~ A -> ~ A.
 Proof.
   intro A.
   unfold Negation in |- *.
@@ -81,6 +95,8 @@ Proof.
   intro not_a.
   exact (not_a a).
 Qed.
+
+End triple. (* triple *)
 
 Theorem contraposition
   : forall {A : Prop} {B : Prop} . (A -> B) -> ~ B -> ~ A.
@@ -147,4 +163,4 @@ Proof.
     exact a1.
 Qed.
 
-End Negation.
+End Negation. (* Negation *)

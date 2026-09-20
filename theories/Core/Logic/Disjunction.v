@@ -23,7 +23,7 @@ Notation "A \/ B" := (Disjunction A B)
 (* A module may carry the type's name; its laws read
  * [Disjunction.commutativity].
  *)
-Module Disjunction.
+Module Disjunction. (* Disjunction *)
 
 (* The two ctors under the names a proof writes: [Disjunction.left a] and
  * [Disjunction.right b]. An abbreviation is the ctor itself, so it also
@@ -67,7 +67,12 @@ Proof.
       * exact (Disjunction.right c).
 Qed.
 
-Theorem distributivity_over_conjunction
+Module distributivity. (* distributivity *)
+
+Module over. (* distributivity.over *)
+
+(* distributivity.over.conjunction *)
+Theorem conjunction
   : forall (A : Prop) (B : Prop) (C : Prop) . A \/ (B /\ C) <-> (A \/ B) /\ (A \/ C).
 Proof.
   intros A B C.
@@ -92,6 +97,10 @@ Proof.
         { exact b. }
         { exact c. }
 Qed.
+
+End over. (* distributivity.over *)
+
+End distributivity. (* distributivity *)
 
 (* The universal property of [\/] as a coproduct: a proof of [C] from
  * [A \/ B] is a pair of proofs of [C], one from [A] and one from [B]. It is
@@ -152,17 +161,22 @@ Proof.
       exact b2.
 Qed.
 
-End Disjunction.
+End Disjunction. (* Disjunction *)
 
 (* The law of [/\] over [\/] belongs to [Conjunction], but it can be stated
  * only here, the lowest file that knows both connectives. A module cannot
  * be reopened across files; a second module of the same name continues
- * it, and a client reads [Conjunction.distributivity_over_disjunction]
+ * it, and a client reads [Conjunction.distributivity.over.disjunction]
  * under one prefix with the laws of [Core.Logic.Conjunction].
  *)
-Module Conjunction.
+Module Conjunction. (* Conjunction *)
 
-Theorem distributivity_over_disjunction
+Module distributivity. (* distributivity *)
+
+Module over. (* distributivity.over *)
+
+(* distributivity.over.disjunction *)
+Theorem disjunction
   : forall (A : Prop) (B : Prop) (C : Prop) . A /\ (B \/ C) <-> (A /\ B) \/ (A /\ C).
 Proof.
   intros A B C.
@@ -192,4 +206,8 @@ Proof.
       * exact (Disjunction.right c).
 Qed.
 
-End Conjunction.
+End over. (* distributivity.over *)
+
+End distributivity. (* distributivity *)
+
+End Conjunction. (* Conjunction *)

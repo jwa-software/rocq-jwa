@@ -15,7 +15,7 @@ Notation "P <-> Q" := (Biimplication P Q)
 (* A module may carry the type's name; its laws read
  * [Biimplication.symmetry].
  *)
-Module Biimplication.
+Module Biimplication. (* Biimplication *)
 
 Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
@@ -54,7 +54,10 @@ Proof.
     exact r.
 Qed.
 
-Theorem forward_elimination
+Module forward. (* forward *)
+
+(* forward.elimination *)
+Theorem elimination
   : forall {P : Prop} {Q : Prop} . (P <-> Q) -> P -> Q.
 Proof.
   intros P Q.
@@ -63,7 +66,12 @@ Proof.
   exact pq.
 Qed.
 
-Theorem backward_elimination
+End forward. (* forward *)
+
+Module backward. (* backward *)
+
+(* backward.elimination *)
+Theorem elimination
   : forall {P : Prop} {Q : Prop} . (P <-> Q) -> Q -> P.
 Proof.
   intros P Q.
@@ -71,6 +79,8 @@ Proof.
   destruct e as [pq qp].
   exact qp.
 Qed.
+
+End backward. (* backward *)
 
 Theorem congruence
   : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop} .
@@ -108,20 +118,19 @@ Proof.
     exact q1.
 Qed.
 
-(* [Biimplication.sejunction_incompatibility] is stated in
+(* [Biimplication.exclusion.of.sejunction] is stated in
  * [Core.Logic.Sejunction], the lowest file that knows both connectives, in
  * a second module of this name.
  *)
 
-End Biimplication.
+End Biimplication. (* Biimplication *)
 
 (* [->elim h p] and [<-elim h q] run [h : P <-> Q] forward and backward, as
- * [Biimplication.forward_elimination] and [backward_elimination]. Not to be
- * confused with [->E] and [<-E] in [Core.Logic.Implication], which are
- * modus ponens.
+ * [Biimplication.forward.elimination] and [backward.elimination]. Not to be
+ * confused with [->E] in [Core.Logic.Implication], which is modus ponens.
  *)
-Notation "->elim" := Biimplication.forward_elimination (only parsing).
-Notation "<-elim" := Biimplication.backward_elimination (only parsing).
+Notation "->elim" := Biimplication.forward.elimination (only parsing).
+Notation "<-elim" := Biimplication.backward.elimination (only parsing).
 
 (* [<->symm h] turns a biimplication round and [<->trans a b] chains two.
  * Neither may follow an [@], which takes a qualified name and not a
@@ -135,7 +144,7 @@ Notation "<->trans" := Biimplication.transitivity (only parsing).
  * [<->], so it can be stated only here. A second module of that name
  * carries it, and a client reads [Implication.congruence].
  *)
-Module Implication.
+Module Implication. (* Implication *)
 
 Theorem congruence
   : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop} .
@@ -159,4 +168,4 @@ Proof.
     exact p1.
 Qed.
 
-End Implication.
+End Implication. (* Implication *)

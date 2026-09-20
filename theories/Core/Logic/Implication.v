@@ -12,12 +12,15 @@ Notation "A -> B" := (forall (_ : A) . B)
 (* No type is declared for [->], so the module carries the connective's
  * name by itself; its laws read [Implication.transitivity].
  *)
-Module Implication.
+Module Implication. (* Implication *)
+
+Module modus. (* modus *)
 
 (* Modus ponens, the elimination rule of [->]. Rocq writes the step as
- * plain application, [f a]; these name it.
+ * plain application, [f a]; this names it.
  *)
-Theorem modus_ponens : forall {A : Prop} {B : Prop} . (A -> B) -> A -> B.
+(* modus.ponens *)
+Theorem ponens : forall {A : Prop} {B : Prop} . (A -> B) -> A -> B.
 Proof.
   intros A B.
   intro f.
@@ -26,14 +29,7 @@ Proof.
   exact a.
 Qed.
 
-Theorem modus_ponens_flipped : forall {A : Prop} {B : Prop} . A -> (A -> B) -> B.
-Proof.
-  intros A B.
-  intro a.
-  intro f.
-  apply f.
-  exact a.
-Qed.
+End modus. (* modus *)
 
 Theorem reflexivity : forall {A : Prop} . A -> A.
 Proof.
@@ -93,15 +89,15 @@ Qed.
 (* Two laws of [->] are stated higher up, each in a second module of this
  * name in the lowest file that knows both connectives:
  * [Implication.congruence] in [Core.Logic.Biimplication] and
- * [Implication.abjunction_incompatibility] in [Core.Logic.Abjunction].
+ * [Implication.exclusion.of.abjunction] in [Core.Logic.Abjunction].
  *)
 
-End Implication.
+End Implication. (* Implication *)
 
-(* [->E f a] is modus ponens, [<-E a f] the same with the premises the
- * other way round; plain [f a] remains the usual spelling. Not to be
- * confused with [->elim] and [<-elim] in [Core.Logic.Biimplication], the
- * forward and backward elimination of [<->].
+(* [->E f a] is modus ponens; plain [f a] remains the usual spelling, and
+ * natural deduction writes the rule the same way, as the elimination of
+ * [->]. Not to be confused with [->elim] and [<-elim] in
+ * [Core.Logic.Biimplication], the forward and backward elimination of
+ * [<->].
  *)
-Notation "->E" := Implication.modus_ponens (only parsing).
-Notation "<-E" := Implication.modus_ponens_flipped (only parsing).
+Notation "->E" := Implication.modus.ponens (only parsing).

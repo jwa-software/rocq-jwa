@@ -20,12 +20,17 @@ Notation "A -/> B" := (Abjunction A B)
 (* A module may carry the type's name; its laws read
  * [Abjunction.congruence].
  *)
-Module Abjunction.
+Module Abjunction. (* Abjunction *)
+
+Module exclusion. (* exclusion *)
+
+Module of. (* exclusion.of *)
 
 (* Two propositions are incompatible when they cannot both hold: an
  * abjunction and the implication between the same two sides.
  *)
-Theorem implication_incompatibility
+(* exclusion.of.implication *)
+Theorem implication
   : forall {A : Prop} {B : Prop} . A -/> B -> ~ (A -> B).
 Proof.
   intros A B.
@@ -38,7 +43,14 @@ Proof.
   exact a.
 Qed.
 
-Theorem negation_specification
+End of. (* exclusion.of *)
+
+End exclusion. (* exclusion *)
+
+Module negation. (* negation *)
+
+(* negation.specification *)
+Theorem specification
   : forall (A : Prop) (B : Prop) . ~ (A -/> B) <-> (A -> ~ ~ B).
 Proof.
   intros A B.
@@ -59,6 +71,8 @@ Proof.
     + exact a.
     + exact nb.
 Qed.
+
+End negation. (* negation *)
 
 Theorem congruence
   : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop} .
@@ -90,16 +104,21 @@ Proof.
       exact b1.
 Qed.
 
-End Abjunction.
+End Abjunction. (* Abjunction *)
 
 (* The same incompatibility read from the implication's side belongs to
  * [Implication], but it can be stated only here, where [-/>] is known. A
  * second module of that name carries it, and a client reads
- * [Implication.abjunction_incompatibility].
+ * [Implication.exclusion.of.abjunction].
  *)
-Module Implication.
+Module Implication. (* Implication *)
 
-Theorem abjunction_incompatibility
+Module exclusion. (* exclusion *)
+
+Module of. (* exclusion.of *)
+
+(* exclusion.of.abjunction *)
+Theorem abjunction
   : forall {A : Prop} {B : Prop} . (A -> B) -> ~ (A -/> B).
 Proof.
   intros A B.
@@ -113,4 +132,8 @@ Proof.
   exact a.
 Qed.
 
-End Implication.
+End of. (* exclusion.of *)
+
+End exclusion. (* exclusion *)
+
+End Implication. (* Implication *)
