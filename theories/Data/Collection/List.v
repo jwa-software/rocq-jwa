@@ -11,7 +11,7 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
-From jwa Require Import Tactics.ModusPonens.
+From jwa Require Import Tactics.Modus.
 
 (* A list is empty, or one element in front of a list. [A] is a parameter:
  * every element has the one type.

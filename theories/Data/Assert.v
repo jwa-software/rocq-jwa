@@ -2,7 +2,7 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
-From jwa Require Import Tactics.ModusPonens.
+From jwa Require Import Tactics.Modus.
 
 (* The bridge from a computed answer to a statement. [Assert true] is
  * [Verum] and [Assert false] is [Falsum] by reduction, so case analysis on

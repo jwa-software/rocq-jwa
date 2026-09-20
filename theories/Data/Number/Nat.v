@@ -9,7 +9,7 @@ From jwa Require Import Data.Bool.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
-From jwa Require Import Tactics.ModusPonens.
+From jwa Require Import Tactics.Modus.
 
 (* Zero is not a [Nat]; [One] is the smallest.
  * [Data.Number.NatWithZero] is the type that has it.

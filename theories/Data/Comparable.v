@@ -10,7 +10,7 @@ From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Order.StrictPartialOrder.
 From jwa Require Import Relation.Order.StrictTotalOrder.
 From jwa Require Import Relation.Order.TotalOrder.
-From jwa Require Import Tactics.ModusPonens.
+From jwa Require Import Tactics.Modus.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.

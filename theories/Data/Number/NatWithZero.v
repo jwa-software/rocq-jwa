@@ -17,7 +17,7 @@ From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
-From jwa Require Import Tactics.ModusPonens.
+From jwa Require Import Tactics.Modus.
 
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
  * plus the [Zero] cases.
