@@ -17,7 +17,7 @@ From jwa Require Import Data.Number.NatWithZero.
 Class Sized (F : Type -> Type) : Type :=
   { cardinality : forall {A : Type} . F A -> NatWithZero }.
 
-Module Sized.
+Module Sized. (* Sized *)
 
 (* [Bool]'s scope is opened for the [!] of [is_not_empty]. *)
 Local Open Scope jwa_bool_scope.
@@ -32,7 +32,10 @@ Definition is_empty := fun {F : Type -> Type} {S : Sized F} {A : Type} (x : F A)
 (* [forall {F : Type -> Type} {S : Sized F} {A : Type} . F A -> Bool] *)
 Definition is_not_empty := fun {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) . ! is_empty x.
 
-Theorem is_empty_reflection
+Module emptiness. (* emptiness *)
+
+(* emptiness.reflection *)
+Theorem reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type}
       (x : F A) .
       Assert (is_empty x) <-> cardinality x = Zero.
@@ -50,15 +53,22 @@ Proof.
     discriminate e.
 Qed.
 
-Theorem is_not_empty_reflection
+End emptiness. (* emptiness *)
+
+Module inhabitation. (* inhabitation *)
+
+(* inhabitation.reflection *)
+Theorem reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) .
       Assert (is_not_empty x) <-> ~ (cardinality x = Zero).
 Proof.
   intros F S A x.
   unfold is_not_empty in |- *.
   pose proof (Assert.negation (is_empty x)) as n.
-  pose proof (Negation.congruence (is_empty_reflection x)) as c.
+  pose proof (Negation.congruence (emptiness.reflection x)) as c.
   exact (<->trans n c).
 Qed.
 
-End Sized.
+End inhabitation. (* inhabitation *)
+
+End Sized. (* Sized *)
