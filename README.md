@@ -33,18 +33,17 @@ The opam file is generated: after regenerating it, commit the rewritten file lik
 
 Layers live under `theories/`, one directory and one `dune` stanza per layer. Each layer has an umbrella module `All` that re-exports the whole layer.
 
-A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/Conjunction.v` is the module `jwa.Core.Logic.Conjunction`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`.
+A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/Conjunction.v` is the module `jwa.Core.Logic.Conjunction`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`. `theories/Relation/Order/` groups the order classes the same way, under `From jwa Require Import Relation.Order.All`, and `theories/Data/` has two such groups: `Collection/` for `List` and `Number/` for `Nat`, `NatWithZero` and `Integer`.
 
 | Layer | Purpose | Depends on |
 |:---|:---|:---|
-| `jwa.Core` | Base definitions, notations and the minimal lemmas everything else shares | -- |
+| `jwa.Core` | Base definitions, notations, the instance hint database and the minimal lemmas everything else shares | -- |
 | `jwa.Tactics` | Ltac and Ltac2 tactics | Core |
-| `jwa.Structures` | Type classes and interfaces: equality, orders, monoids, functors, monads, decidability | Core |
-| `jwa.Relations` | Orders, well-founded and equivalence relations | Core, Structures |
-| `jwa.Data` | Concrete data structures: booleans, naturals, options, lists, vectors, maps | Core, Tactics, Structures, Relations |
+| `jwa.Algebra` | Algebraic structures, from semigroups to rings, and their theory | Core |
+| `jwa.Relation` | Orders, well-founded and equivalence relations | Core |
+| `jwa.Data` | Concrete data structures: booleans, naturals, options, lists, vectors, maps, and the functor class they instantiate | Core, Tactics, Algebra, Relation |
 | `jwa.Assumption` | Axioms: classical principles, extensionality, decidability | Core |
-| `jwa.Algebra` | Algebraic structures and their theory | Core, Tactics, Structures, Relations, Data |
-| `jwa.Programming` | Monad instances, effects, extraction-oriented code | Core, Tactics, Structures, Relations, Data |
+| `jwa.Programming` | Monad instances, effects, extraction-oriented code | Core, Tactics, Algebra, Relation, Data |
 | `jwa.All` | `From jwa Require Import All` brings in every layer except Assumption | every layer but Assumption |
 
 `Assumption` is the only layer that may introduce axioms, and no other layer depends on it; its name is the one `Print Assumptions` uses for them. Import it explicitly with `From jwa Require Import Assumption.All` when a development needs them; everything else stays axiom-free under `Print Assumptions`.

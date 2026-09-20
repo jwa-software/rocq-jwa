@@ -1,6 +1,0 @@
-; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
-
-(rocq.theory
- (name jwa.Structures)
- (package rocq-jwa)
- (theories jwa.Core))

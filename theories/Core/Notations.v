@@ -14,17 +14,27 @@ Bind Scope jwa_type_scope with Sortclass.
 Open Scope jwa_type_scope.
 
 (* A second scope for the list notations, delimited but not opened: [[]] is
-   the empty list and [++] is [List.append] only where a file opens the
+   the empty list and [++] is [List.concat] only where a file opens the
    scope or writes [(...)%list], so the same spellings stay free for other
    containers in scopes of their own. *)
 Declare Scope jwa_list_scope.
 Delimit Scope jwa_list_scope with list.
 
-(* A third scope for the pair notations, delimited but not opened like the
-   list one. [A * B] is not in it: a type former belongs in
-   [jwa_type_scope] beside [->]. *)
-Declare Scope jwa_pair_scope.
-Delimit Scope jwa_pair_scope with pair.
+(* A third scope for the product notations, delimited but not opened like
+ * the list one. [A * B] is not in it: a type former belongs in
+ * [jwa_type_scope] beside [->].
+ *)
+Declare Scope jwa_product_scope.
+Delimit Scope jwa_product_scope with product.
+
+(* A fourth scope, for the [Bool] operations, delimited but not opened like
+ * the two above. The spellings are contested: [&&] and [||] are what a
+ * closed notation elsewhere would take away, and [!] is the boolean
+ * negation beside the logical [~], which stays in [jwa_type_scope] because
+ * a proposition is what the tree is mostly about.
+ *)
+Declare Scope jwa_bool_scope.
+Delimit Scope jwa_bool_scope with bool.
 
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%nat],
@@ -39,8 +49,9 @@ Delimit Scope jwa_integer_scope with integer.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [exists] beyond them, so a formula reads without parentheses; [_\/_] sits
-   between [/\] and [\/] as [^^] sits between [&&] and [||]. The quotes make
-   [contains_member] a keyword rather than a variable. *)
+   between [/\] and [\/] as [^^] sits between [&&] and [||], and [!] is to
+   that boolean row what [~] is to this one, below all of it. The quotes
+   make [contains_member] a keyword rather than a variable. *)
 Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
@@ -65,6 +76,8 @@ Reserved Notation "x <-> y"
   (at level 95, no associativity).
 Reserved Notation "~ x"
   (at level 75, right associativity).
+Reserved Notation "! b"
+  (at level 35, right associativity).
 Reserved Notation "x && y"
   (at level 40, left associativity).
 Reserved Notation "x * y"
@@ -77,6 +90,8 @@ Reserved Notation "x + y"
   (at level 50, left associativity).
 Reserved Notation "x ++ y"
   (at level 60, right associativity).
+Reserved Notation "++ n"
+  (at level 35, right associativity).
 Reserved Notation "a :: l"
   (at level 60, right associativity).
 Reserved Notation "l 'contains_member' a"
@@ -90,5 +105,22 @@ Reserved Notation "a 'does_not_belong_to' l"
 
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
-Reserved Notation "'exists' x .. y , p"
+Reserved Notation "'exists' x .. y '.' p"
+  (at level 200, x binder, y binder, right associativity).
+
+(* The lambda as it is written on paper, [fun x . body], beside the
+ * kernel's [fun x => body], which keeps working. It is declared here and
+ * not beside a definition of its own, since the term it denotes is the
+ * kernel's and belongs to no file of this tree. The [.] is what ends a
+ * sentence for the lexer, but inside this rule the parser reads it as the
+ * separator. It prints as well, so a goal shows what the source says.
+ *)
+Notation "'fun' x .. y '.' body" := (fun x => .. (fun y => body) ..)
+  (at level 200, x binder, y binder, right associativity).
+
+(* The quantifier written the same way, [forall x . p] beside the kernel's
+ * [forall x, p]. [exists] gets its dotted spelling in [Core.Logic.Exists],
+ * where its meaning is.
+ *)
+Notation "'forall' x .. y '.' p" := (forall x, .. (forall y, p) ..)
   (at level 200, x binder, y binder, right associativity).

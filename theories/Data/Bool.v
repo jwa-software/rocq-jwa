@@ -1,396 +1,320 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* [Core.All] carries [->], [~] and [=]: with [-noinit] a file has only what
-   it requires. [Structures.Semigroup], [Structures.Monoid] and
-   [Structures.Commutative] are the classes the instances at the bottom
-   fill. *)
+From jwa Require Import Algebra.AbelianGroup.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Group.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Ring.
+From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Structures.Semigroup.
-From jwa Require Import Structures.Monoid.
-From jwa Require Import Structures.Commutative.
-From jwa Require Import Structures.AbelianGroup.
-From jwa Require Import Structures.Group.
-From jwa Require Import Structures.Ring.
 
 (* [true] first: [if] takes the first constructor as its [then] branch. *)
 Inductive Bool : Type :=
   | true  : Bool
   | false : Bool.
 
-Theorem Bool_distinctness : ~ (true = false).
-Proof.
-  (* The goal goes from [~ (true = false)] to [true = false -> Falsum]. *)
-  unfold Unjunction in |- *.
-  (* The goal goes from [true = false -> Falsum] to [Falsum], and the context
-     gains [e : true = false]. *)
-  intro e.
-  (* [e] claims [true = false], but the only way to build an equality is
-     [Equijunction_reflexivity], whose two sides are the same term, and
-     [true] and [false] are different ctors. No such proof exists, and from
-     that impossibility [discriminate] proves the goal [Falsum]. *)
-  discriminate e.
-Qed.
-
 (* A module may carry the type's name; its members read [Bool.and]. *)
-Module Bool.
+Module Bool. (* Bool *)
 
 (* [Bool -> Bool] *)
-Definition negate := fun (b : Bool) =>
+Definition negate := fun (b : Bool) .
   match b with
   | true  => false
   | false => true
   end.
 
+(* The scope is declared in [Core.Notations] and opened only inside this
+ * module; after [End Bool] a client writes [(b1 && b2)%bool] or opens the
+ * scope. The levels are reserved there too, [!] below every infix.
+ * [only parsing] keeps goals printing the operations by name.
+ *)
+Notation "! b" := (negate b) (only parsing)
+  : jwa_bool_scope.
+
 (* [Bool -> Bool -> Bool] *)
-Definition and := fun (b1 : Bool) (b2 : Bool) =>
+Definition and := fun (b1 : Bool) (b2 : Bool) .
   match b1 with
   | true  => b2
   | false => false
   end.
 
+Notation "b1 && b2" := (and b1 b2) (only parsing)
+  : jwa_bool_scope.
+
 (* [Bool -> Bool -> Bool] *)
-Definition or := fun (b1 : Bool) (b2 : Bool) =>
+Definition or := fun (b1 : Bool) (b2 : Bool) .
   match b1 with
   | true  => true
   | false => b2
   end.
 
-(* Exclusive or: [true] when exactly one side is. [true] flips the other
-   side, [false] leaves it alone. *)
+Notation "b1 || b2" := (or b1 b2) (only parsing)
+  : jwa_bool_scope.
+
 (* [Bool -> Bool -> Bool] *)
-Definition xor := fun (b1 : Bool) (b2 : Bool) =>
+Definition xor := fun (b1 : Bool) (b2 : Bool) .
   match b1 with
   | true  => negate b2
   | false => b2
   end.
 
-Theorem negate_involution : forall (b : Bool), negate (negate b) = b.
-Proof.
-  (* The context gains [b]: [|- negate (negate b) = b] *)
-  intros b.
-  (* Two cases, one per ctor; both sides reduce to that same ctor in each. *)
-  destruct b as [|]; reflexivity.
-Qed.
+Notation "b1 ^^ b2" := (xor b1 b2) (only parsing)
+  : jwa_bool_scope.
 
-Theorem and_associativity
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
-      and (and b1 b2) b3 = and b1 (and b2 b3).
-Proof.
-  intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
-Qed.
+Local Open Scope jwa_bool_scope.
 
-Theorem and_commutativity
-  : forall (b1 : Bool) (b2 : Bool), and b1 b2 = and b2 b1.
-Proof.
-  intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
-Qed.
-
-Theorem or_associativity
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
-      or (or b1 b2) b3 = or b1 (or b2 b3).
-Proof.
-  intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
-Qed.
-
-Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool), or b1 b2 = or b2 b1.
-Proof.
-  intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
-Qed.
-
-Theorem xor_associativity
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
-      xor (xor b1 b2) b3 = xor b1 (xor b2 b3).
-Proof.
-  intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
-Qed.
-
-Theorem xor_commutativity
-  : forall (b1 : Bool) (b2 : Bool), xor b1 b2 = xor b2 b1.
-Proof.
-  intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
-Qed.
-
-(* Every element is its own inverse under [xor], which is what makes
-   [(Bool, xor, false)] more than a monoid; the group structure waits for a
-   [Group] class. *)
-Theorem xor_self_inverse : forall (b : Bool), xor b b = false.
-Proof.
-  intros b.
-  destruct b as [|]; reflexivity.
-Qed.
-
-(* [and] distributes over [xor] on both sides: the law that makes
- * [(Bool, xor, and)] a ring, a truth table as the laws above.
+(* A law of the type itself rather than of any operation, so it belongs to
+ * no topic below.
  *)
+Theorem distinctness : ~ (true = false).
+Proof.
+  unfold Negation in |- *.
+  intro e.
+  discriminate e.
+Qed.
 
-Theorem and_left_distributivity_over_xor
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
-      and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3).
+Module negation. (* negation *)
+
+(* negation.involution *)
+Theorem involution : forall (b : Bool) . ! ! b = b.
+Proof.
+  intros b.
+  destruct b as [|]; simpl in |- *; reflexivity.
+Qed.
+
+End negation. (* negation *)
+
+Module conjunction. (* conjunction *)
+
+(* conjunction.associativity *)
+Theorem associativity
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
+      (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-Theorem and_right_distributivity_over_xor
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
-      and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1).
+(* conjunction.commutativity *)
+Theorem commutativity
+  : forall (b1 : Bool) (b2 : Bool) . b1 && b2 = b2 && b1.
+Proof.
+  intros b1 b2.
+  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+Qed.
+
+(* conjunction.identity *)
+Theorem identity
+  : forall (b : Bool) . (true && b = b) /\ (b && true = b).
+Proof.
+  intros b.
+  split.
+  - simpl in |- *.
+    reflexivity.
+  - rewrite (conjunction.commutativity b true) in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
+Module left. (* conjunction.left *)
+
+Module distributivity. (* conjunction.left.distributivity *)
+
+Module over. (* conjunction.left.distributivity.over *)
+
+(* conjunction.left.distributivity.over.sejunction *)
+Theorem sejunction
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
+      b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-(* The bridge from a computed answer to a statement. [Assert true] is [Verum]
-   and [Assert false] is [Falsum] by reduction, so case analysis on a [Bool]
-   turns each law below into a concrete implication in both directions. *)
-(* [Bool -> Prop] *)
-Definition Assert := fun (b : Bool) =>
-  match b with
-  | true  => Verum
-  | false => Falsum
-  end.
+End over. (* conjunction.left.distributivity.over *)
 
-Theorem assert_conjunction
-  : forall (b1 : Bool) (b2 : Bool),
-      Assert (and b1 b2) <-> Assert b1 /\ Assert b2.
+End distributivity. (* conjunction.left.distributivity *)
+
+End left. (* conjunction.left *)
+
+Module right. (* conjunction.right *)
+
+Module distributivity. (* conjunction.right.distributivity *)
+
+Module over. (* conjunction.right.distributivity.over *)
+
+(* conjunction.right.distributivity.over.sejunction *)
+Theorem sejunction
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
+      (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
-  (* The context gains [b1] and [b2]:
-     [|- Assert (and b1 b2) <-> Assert b1 /\ Assert b2] *)
-  intros b1 b2.
-  (* Four cases, each a concrete implication both ways. *)
-  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
-  - (* [|- Verum <-> Verum /\ Verum] *)
-    split; intro h.
-    + (* [|- Verum /\ Verum], and [I] proves each side. *)
-      split; exact I.
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Falsum <-> Verum /\ Falsum] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* [|- Falsum], and the right half of [h] is one; the left half is
-         dropped. *)
-      destruct h as [_ h]. exact h.
-  - (* [|- Falsum <-> Falsum /\ Verum] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* [|- Falsum], and the left half of [h] is one; the right half is
-         dropped. *)
-      destruct h as [h _]. exact h.
-  - (* [|- Falsum <-> Falsum /\ Falsum] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* [|- Falsum], and either half of [h] is one; the left is taken. *)
-      destruct h as [h _]. exact h.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-Theorem assert_disjunction
-  : forall (b1 : Bool) (b2 : Bool),
-      Assert (or b1 b2) <-> Assert b1 \/ Assert b2.
+End over. (* conjunction.right.distributivity.over *)
+
+End distributivity. (* conjunction.right.distributivity *)
+
+End right. (* conjunction.right *)
+
+Module distributivity. (* conjunction.distributivity *)
+
+Module over. (* conjunction.distributivity.over *)
+
+(* conjunction.distributivity.over.sejunction *)
+Theorem sejunction
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
+      (b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3))
+    /\ ((b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1)).
 Proof.
-  (* The context gains [b1] and [b2]:
-     [|- Assert (or b1 b2) <-> Assert b1 \/ Assert b2] *)
-  intros b1 b2.
-  (* Four cases; only the last has [or] reduce to [false]. *)
-  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
-  - (* [|- Verum <-> Verum \/ Verum] *)
-    split; intro h.
-    + (* Either side will do, so [exact (Disjunction_right I)] would close it
-         as well; the left one is taken. *)
-      exact (Disjunction_left I).
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Verum <-> Verum \/ Falsum] *)
-    split; intro h.
-    + (* Only the left side holds. *)
-      exact (Disjunction_left I).
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Verum <-> Falsum \/ Verum] *)
-    split; intro h.
-    + (* Only the right side holds. *)
-      exact (Disjunction_right I).
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Falsum <-> Falsum \/ Falsum] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* Either ctor of [h] carries a [Falsum]. *)
-      destruct h as [h1 | h2]. exact h1. exact h2.
+  intros b1 b2 b3.
+  split.
+  - exact (conjunction.left.distributivity.over.sejunction  b1 b2 b3).
+  - exact (conjunction.right.distributivity.over.sejunction b1 b2 b3).
 Qed.
 
-Theorem assert_sejunction
-  : forall (b1 : Bool) (b2 : Bool),
-      Assert (xor b1 b2) <-> Assert b1 _\/_ Assert b2.
+End over. (* conjunction.distributivity.over *)
+
+End distributivity. (* conjunction.distributivity *)
+
+End conjunction. (* conjunction *)
+
+Module disjunction. (* disjunction *)
+
+(* disjunction.associativity *)
+Theorem associativity
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
+      (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
-  (* The context gains [b1] and [b2]:
-     [|- Assert (xor b1 b2) <-> Assert b1 _\/_ Assert b2] *)
-  intros b1 b2.
-  (* Four cases; [xor] reduces to [false] in the first and the last. *)
-  destruct b1 as [|]; destruct b2 as [|]; simpl in |- *.
-  - (* [|- Falsum <-> Verum _\/_ Verum] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* Either ctor of [h] carries a [Verum] and a [~ Verum], which is
-         [Verum -> Falsum]; applying the one to the other gives the goal. *)
-      destruct h as [t nt | nt t]. exact (nt t). exact (nt t).
-  - (* [|- Verum <-> Verum _\/_ Falsum] *)
-    split; intro h.
-    + (* [Sejunction_left] asks for a [Verum] and a [~ Falsum], which is
-         [Falsum -> Falsum]; [I] is the first and the identity the second. *)
-      exact (Sejunction_left I (fun (f : Falsum) => f)).
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Verum <-> Falsum _\/_ Verum] *)
-    split; intro h.
-    + (* [Sejunction_right] asks for the same two in the other order. *)
-      exact (Sejunction_right (fun (f : Falsum) => f) I).
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Falsum <-> Falsum _\/_ Falsum] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* Either ctor of [h] carries a [Falsum]; the [~ Falsum] beside it is
-         dropped. *)
-      destruct h as [f _ | _ f]. exact f. exact f.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-Theorem assert_unjunction
-  : forall (b : Bool), Assert (negate b) <-> ~ Assert b.
+(* disjunction.commutativity *)
+Theorem commutativity : forall (b1 : Bool) (b2 : Bool) . b1 || b2 = b2 || b1.
 Proof.
-  (* The context gains [b]: [|- Assert (negate b) <-> ~ Assert b] *)
+  intros b1 b2.
+  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+Qed.
+
+(* disjunction.identity *)
+Theorem identity
+  : forall (b : Bool) . (false || b = b) /\ (b || false = b).
+Proof.
   intros b.
-  (* [~] is a definition and has to come off before the arrow underneath is
-     visible: [|- Assert (negate b) <-> (Assert b -> Falsum)] *)
-  unfold Unjunction in |- *.
-  (* Two cases, one per ctor. *)
-  destruct b as [|]; simpl in |- *.
-  - (* [|- Falsum <-> (Verum -> Falsum)] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* [h] turns a [Verum] into a [Falsum], and [I] is a [Verum]. *)
-      exact (h I).
-  - (* [|- Verum <-> (Falsum -> Falsum)] *)
-    split; intro h.
-    + (* The hypothesis introduced next is a [Falsum]. *)
-      intro k. destruct k.
-    + (* [|- Verum] *)
-      exact I.
+  split.
+  - simpl in |- *.
+    reflexivity.
+  - rewrite (disjunction.commutativity b false) in |- *.
+    simpl in |- *.
+    reflexivity.
 Qed.
 
-(* The other reading of [Assert], and what makes it usable with [rewrite] and
-   [discriminate]. *)
-Theorem assert_equijunction : forall (b : Bool), Assert b <-> b = true.
+End disjunction. (* disjunction *)
+
+Module sejunction. (* sejunction *)
+
+(* sejunction.associativity *)
+Theorem associativity
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
+      (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
-  (* The context gains [b]: [|- Assert b <-> b = true] *)
-  intros b.
-  (* Two cases, one per ctor. *)
-  destruct b as [|]; simpl in |- *.
-  - (* [|- Verum <-> true = true] *)
-    split; intro h.
-    + (* Both sides are the same term. *)
-      reflexivity.
-    + (* [|- Verum] *)
-      exact I.
-  - (* [|- Falsum <-> false = true] *)
-    split; intro h.
-    + (* [h : Falsum], which is what [contradiction] looks for. *)
-      contradiction.
-    + (* [h] claims [false = true], and the two are different ctors. *)
-      discriminate h.
+  intros b1 b2 b3.
+  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-End Bool.
+(* sejunction.commutativity *)
+Theorem commutativity
+  : forall (b1 : Bool) (b2 : Bool) . b1 ^^ b2 = b2 ^^ b1.
+Proof.
+  intros b1 b2.
+  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+Qed.
 
-(* The levels are reserved in [Core.Notations]; only the meanings belong
-   here. Declared at file level, they reach a client through
-   [Require Export]. *)
-Notation "b1 && b2" := (Bool.and b1 b2)
-  : jwa_type_scope.
-Notation "b1 ^^ b2" := (Bool.xor b1 b2)
-  : jwa_type_scope.
-Notation "b1 || b2" := (Bool.or  b1 b2)
-  : jwa_type_scope.
+(* sejunction.identity *)
+Theorem identity
+  : forall (b : Bool) . (false ^^ b = b) /\ (b ^^ false = b).
+Proof.
+  intros b.
+  split.
+  - simpl in |- *.
+    reflexivity.
+  - rewrite (sejunction.commutativity b false) in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
 
-(* Each identity law on the left computes, so it is reflexivity stated on
-   the reduced term; each on the right is commutativity at the identity,
-   whose right side computes the same way. *)
+(* sejunction.irreflexivity *)
+Theorem irreflexivity : forall (b : Bool) . b ^^ b = false.
+Proof.
+  intros b.
+  destruct b as [|]; reflexivity.
+Qed.
+
+(* sejunction.inverse *)
+Theorem inverse
+  : forall (b : Bool) . (b ^^ b = false) /\ (b ^^ b = false).
+Proof.
+  intros b.
+  split.
+  - exact (sejunction.irreflexivity b).
+  - exact (sejunction.irreflexivity b).
+Qed.
+
+End sejunction. (* sejunction *)
+
+End Bool. (* Bool *)
+
+(* Makes the notations declared in [Module Bool] usable in every file that
+ * imports this one, as [(b1 && b2)%bool] or under an opened
+ * [jwa_bool_scope]. Only the notations are exported: [and] and the laws
+ * still need the [Bool.] prefix.
+ *)
+Export (notations) Bool.
+
 Instance Bool_and_monoid
-  : Monoid.T Bool Bool.and true :=
-  {| Monoid.semigroup :=
-      {| Semigroup.associativity := Bool.and_associativity |}
-   ; Monoid.left_identity  :=
-      fun (b : Bool) => Equijunction_reflexivity (Bool.and true b)
-   ; Monoid.right_identity :=
-      fun (b : Bool) => Bool.and_commutativity b true
-  |}.
+  : Monoid Bool.and true :=
+  {| Monoid.semigroup      :=
+       {| Semigroup.associativity := Bool.conjunction.associativity |}
+   ; Monoid.identity       := Bool.conjunction.identity |}.
 
 Instance Bool_or_monoid
-  : Monoid.T Bool Bool.or false :=
-  {| Monoid.semigroup :=
-      {| Semigroup.associativity := Bool.or_associativity |}
-   ; Monoid.left_identity  :=
-      fun (b : Bool) => Equijunction_reflexivity (Bool.or false b)
-   ; Monoid.right_identity :=
-      fun (b : Bool) => Bool.or_commutativity b false
-  |}.
+  : Monoid Bool.or false :=
+  {| Monoid.semigroup      :=
+       {| Semigroup.associativity := Bool.disjunction.associativity |}
+   ; Monoid.identity       := Bool.disjunction.identity |}.
 
 Instance Bool_xor_monoid
-  : Monoid.T Bool Bool.xor false :=
-  {| Monoid.semigroup :=
-      {| Semigroup.associativity := Bool.xor_associativity |}
-  ; Monoid.left_identity :=
-      fun (b : Bool) => Equijunction_reflexivity (Bool.xor false b)
-  ; Monoid.right_identity :=
-      fun (b : Bool) => Bool.xor_commutativity b false
-  |}.
+  : Monoid Bool.xor false :=
+  {| Monoid.semigroup      :=
+       {| Semigroup.associativity := Bool.sejunction.associativity |}
+   ; Monoid.identity       := Bool.sejunction.identity |}.
 
 Instance Bool_and_commutative
-  : Commutative.T Bool Bool.and := {|
-      Commutative.commutativity := Bool.and_commutativity
-  |}.
+  : Commutative Bool.and :=
+  {| Commutative.commutativity := Bool.conjunction.commutativity |}.
 
 Instance Bool_or_commutative
-  : Commutative.T Bool Bool.or := {|
-      Commutative.commutativity := Bool.or_commutativity
-  |}.
+  : Commutative Bool.or :=
+  {| Commutative.commutativity := Bool.disjunction.commutativity |}.
 
 Instance Bool_xor_commutative
-  : Commutative.T Bool Bool.xor := {|
-      Commutative.commutativity := Bool.xor_commutativity
-  |}.
+  : Commutative Bool.xor :=
+  {| Commutative.commutativity := Bool.sejunction.commutativity |}.
 
-(* Every element is its own inverse under [xor], so [(Bool, xor, false)] is
- * a group, and a commutative one; with [and] as the product it is a ring,
- * the Boolean ring. [inverse] is the identity function, so the two inverse
- * laws are [xor_self_inverse] as it stands.
- *)
 Instance Bool_xor_group
-  : Group.T Bool Bool.xor false (fun (b : Bool) => b) :=
-  {| Group.monoid        := Bool_xor_monoid
-   ; Group.left_inverse  := Bool.xor_self_inverse
-   ; Group.right_inverse := Bool.xor_self_inverse |}.
+  : Group Bool.xor false (fun (b : Bool) . b) :=
+  {| Group.monoid  := Bool_xor_monoid
+   ; Group.inverse := Bool.sejunction.inverse |}.
 
 Instance Bool_xor_abelian_group
-  : AbelianGroup.T Bool Bool.xor false (fun (b : Bool) => b) :=
+  : AbelianGroup Bool.xor false (fun (b : Bool) . b) :=
   {| AbelianGroup.group       := Bool_xor_group
    ; AbelianGroup.commutative := Bool_xor_commutative |}.
 
 Instance Bool_ring
-  : Ring.T Bool Bool.xor false (fun (b : Bool) => b) Bool.and true :=
-  {| Ring.add_group            := Bool_xor_abelian_group
-   ; Ring.mul_monoid           := Bool_and_monoid
-   ; Ring.left_distributivity  := Bool.and_left_distributivity_over_xor
-   ; Ring.right_distributivity := Bool.and_right_distributivity_over_xor |}.
+  : Ring Bool.xor false (fun (b : Bool) . b) Bool.and true :=
+  {| Ring.abelian_group  := Bool_xor_abelian_group
+   ; Ring.monoid         := Bool_and_monoid
+   ; Ring.distributivity := Bool.conjunction.distributivity.over.sejunction |}.

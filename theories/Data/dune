@@ -1,9 +1,14 @@
 ; Copyright (c) 2026 Junzhe Wang, licensed under the MIT License.
 
+; A subdirectory becomes a segment of the module path: Number/Integer.v
+; is the module jwa.Data.Number.Integer.
+
 ; The full dependency closure is listed, not only the direct dependencies,
 ; so the position of this layer in the stack can be read off this file.
+
+(include_subdirs qualified)
 
 (rocq.theory
  (name jwa.Data)
  (package rocq-jwa)
- (theories jwa.Core jwa.Tactics jwa.Structures jwa.Relations))
+ (theories jwa.Core jwa.Tactics jwa.Algebra jwa.Relation))

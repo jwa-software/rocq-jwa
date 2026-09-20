@@ -10,8 +10,7 @@
  (theories
   jwa.Core
   jwa.Tactics
-  jwa.Structures
-  jwa.Relations
-  jwa.Data
   jwa.Algebra
+  jwa.Relation
+  jwa.Data
   jwa.Programming))

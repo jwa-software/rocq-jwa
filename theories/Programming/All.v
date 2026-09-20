@@ -1,4 +1,5 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 (* Umbrella for [jwa.Programming]: re-exports every module of the layer, so a
-   client imports the whole layer with [From jwa Require Import Programming.All]. *)
+ * client imports the whole layer with [From jwa Require Import Programming.All].
+ *)
