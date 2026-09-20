@@ -68,11 +68,16 @@ Qed.
 
 End de_morgan. (* de_morgan *)
 
+(* [left] and [right] say which side of the connective the second premise
+ * speaks of, the first premise being the whole connective either way.
+ *)
 Module elimination. (* elimination *)
 
-Module of. (* elimination.of *)
+Module left. (* elimination.left *)
 
-(* elimination.of.disjunction *)
+Module of. (* elimination.left.of *)
+
+(* elimination.left.of.disjunction *)
 Theorem disjunction
   : forall {A : Prop} {B : Prop} . A \/ B -> ~ A -> B.
 Proof.
@@ -92,15 +97,46 @@ Proof.
   - exact b.
 Qed.
 
-End of. (* elimination.of *)
+End of. (* elimination.left.of *)
+
+End left. (* elimination.left *)
+
+Module right. (* elimination.right *)
+
+Module of. (* elimination.right.of *)
+
+(* elimination.right.of.disjunction *)
+Theorem disjunction
+  : forall {A : Prop} {B : Prop} . A \/ B -> ~ B -> A.
+Proof.
+  intro A.
+  intro B.
+  intro h.
+
+  (* [|- (B -> Falsum) -> A] *)
+  unfold Negation in |- *.
+
+  intro not_b.
+
+  destruct h as [a | b].
+  - exact a.
+  - pose proof (not_b b) as f.
+    contradiction f.
+Qed.
+
+End of. (* elimination.right.of *)
+
+End right. (* elimination.right *)
 
 End elimination. (* elimination *)
 
 Module exclusion. (* exclusion *)
 
-Module of. (* exclusion.of *)
+Module left. (* exclusion.left *)
 
-(* exclusion.of.conjunction *)
+Module of. (* exclusion.left.of *)
+
+(* exclusion.left.of.conjunction *)
 Theorem conjunction
   : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> A -> ~ B.
 Proof.
@@ -120,7 +156,37 @@ Proof.
   exact (Conjunction_introduction a b).
 Qed.
 
-End of. (* exclusion.of *)
+End of. (* exclusion.left.of *)
+
+End left. (* exclusion.left *)
+
+Module right. (* exclusion.right *)
+
+Module of. (* exclusion.right.of *)
+
+(* exclusion.right.of.conjunction *)
+Theorem conjunction
+  : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> B -> ~ A.
+Proof.
+  intro A.
+  intro B.
+
+  (* [|- (A /\ B -> Falsum) -> B -> A -> Falsum] *)
+  unfold Negation in |- *.
+
+  intro h.
+  intro b.
+  intro a.
+
+  (* [|- A /\ B] *)
+  apply h.
+
+  exact (Conjunction_introduction a b).
+Qed.
+
+End of. (* exclusion.right.of *)
+
+End right. (* exclusion.right *)
 
 End exclusion. (* exclusion *)
 
