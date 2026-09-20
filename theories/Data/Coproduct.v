@@ -103,7 +103,7 @@ Module left. (* left *)
 
 (* left.injectivity *)
 Theorem injectivity
-  : forall {A : Type} {B : Type} (a1 : A) (a2 : A) .
+  : forall {A : Type} {B : Type} {a1 : A} {a2 : A} .
       (@Coproduct.left A B a1 = @Coproduct.left A B a2) -> (a1 = a2).
 Proof.
   intros A B a1 a2 e.
@@ -120,7 +120,7 @@ Module right. (* right *)
 
 (* right.injectivity *)
 Theorem injectivity
-  : forall {A : Type} {B : Type} (b1 : B) (b2 : B) .
+  : forall {A : Type} {B : Type} {b1 : B} {b2 : B} .
       @Coproduct.right A B b1 = @Coproduct.right A B b2 -> b1 = b2.
 Proof.
   intros A B b1 b2 e.
