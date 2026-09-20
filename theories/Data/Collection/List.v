@@ -4,6 +4,7 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Bool.
+From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
@@ -73,6 +74,12 @@ Local Open Scope jwa_list_scope.
  * a type is expected, as in [List A * List A].
  *)
 Local Open Scope jwa_nat_with_zero_scope.
+
+(* [Bool]'s scope is opened for the [!] of [partition]. The [||] it also
+ * carries is the infix [Bool.or] and does not disturb [(|| l ||)], whose
+ * delimiters are tokens of their own.
+ *)
+Local Open Scope jwa_bool_scope.
 
 Theorem cons_nil_distinctness
   : forall {A : Type} (a : A) (l : List A) . ~ (a :: l = []).
@@ -1338,7 +1345,7 @@ Theorem partition_specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
       partition p l
       = Product_introduction (filter p l)
-                          (filter (fun (a : A) => Bool.negate (p a)) l).
+                          (filter (fun (a : A) => ! p a) l).
 Proof.
   intros A p l.
   induction l as [| a l' IH] using List_induction.
@@ -2333,3 +2340,7 @@ Instance List_functor
   {| Functor.map             := fun (A : Type) (B : Type) => List.map
    ; Functor.map_identity    := @List.map_identity
    ; Functor.map_composition := @List.map_composition |}.
+
+Instance List_sized
+  : Sized List :=
+  {| Sized.cardinality := @List.length |}.
