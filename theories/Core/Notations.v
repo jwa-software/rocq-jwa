@@ -93,8 +93,6 @@ Reserved Notation "a 'does_not_belong_to' l"
 
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
-Reserved Notation "'exists' x .. y , p"
-  (at level 200, x binder, y binder, right associativity).
 Reserved Notation "'exists' x .. y '.' p"
   (at level 200, x binder, y binder, right associativity).
 

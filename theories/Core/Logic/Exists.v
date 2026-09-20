@@ -13,12 +13,8 @@ Arguments Exists {A} P.
 Arguments Exists_introduction {A} {P} x _.
 
 (* The [..] is what lets one [exists] carry several binders, nesting into
- * one [Exists] each. The dotted spelling matches [fun x . body] and
- * [forall x . p]; the comma stays until the rest of the tree is written
- * with the dot.
+ * one [Exists] each. The dot matches [fun x . body] and [forall x . p].
  *)
-Notation "'exists' x .. y , p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
-  : jwa_type_scope.
 Notation "'exists' x .. y '.' p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
   : jwa_type_scope.
 
