@@ -1881,7 +1881,7 @@ Proof.
       rewrite (NatWithZero.addition.commutativity (Positive One) (|| l2' ||)) in e'.
       pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) One) as h.
       unfold Negation in h.
-      modus ponens h e' as f.
+      modus ponens h, e' as f.
       contradiction f.
   - intros l2 e.
     destruct l2 as [| b l2'].
@@ -1890,7 +1890,7 @@ Proof.
       rewrite (NatWithZero.addition.commutativity (Positive One) (|| l1' ||)) in e.
       pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) One) as h.
       unfold Negation in h.
-      modus ponens h e as f.
+      modus ponens h, e as f.
       contradiction f.
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
@@ -1991,7 +1991,7 @@ Proof.
     destruct h as [k e].
     pose proof (NatWithZero.addition.right.identity.absence i k) as r.
     unfold Negation in r.
-    modus ponens r e as f.
+    modus ponens r, e as f.
     contradiction f.
   - intros i h.
     destruct i as [| i'].
@@ -2282,7 +2282,7 @@ Proof.
         rewrite (NatWithZero.addition.commutativity (Positive One) (count p l')) in e.
         pose proof (NatWithZero.addition.right.identity.absence (count p l') One) as r.
         unfold Negation in r.
-        modus ponens r e as f.
+        modus ponens r, e as f.
         contradiction f.
       * intro c.
         destruct c as [e f].
@@ -2392,7 +2392,7 @@ Proof.
       intro h.
       destruct h as [e | h'].
       * exact (Disjunction.R (Disjunction.L e)).
-      * modus ponens IH h' as h''.
+      * modus ponens IH, h' as h''.
         destruct h'' as [e | h'''].
         { exact (Disjunction.L e). }
         { exact (Disjunction.R (Disjunction.R h''')). }
@@ -2699,7 +2699,7 @@ Proof.
       destruct h as [k e].
       pose proof (NatWithZero.addition.right.identity.absence i k) as r.
       unfold Negation in r.
-      modus ponens r e as f.
+      modus ponens r, e as f.
       contradiction f.
   - simpl in |- *.
     split.

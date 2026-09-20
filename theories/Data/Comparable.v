@@ -219,7 +219,7 @@ Proof.
   pose proof (Comparable.transitivity m n m h1 h2) as h.
   pose proof (order.strict.irreflexivity m) as i.
   unfold Negation in i.
-  modus ponens i h as f.
+  modus ponens i, h as f.
   contradiction f.
 Qed.
 
@@ -281,7 +281,7 @@ Proof.
     + exact (Identity.symmetry e2).
     + pose proof (order.strict.asymmetry m n lt1) as a.
       unfold Negation in a.
-      modus ponens a lt2 as f.
+      modus ponens a, lt2 as f.
       contradiction f.
 Qed.
 
