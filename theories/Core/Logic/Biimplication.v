@@ -123,6 +123,14 @@ End Biimplication.
 Notation "->elim" := Biimplication.forward_elimination (only parsing).
 Notation "<-elim" := Biimplication.backward_elimination (only parsing).
 
+(* [<->symm h] turns a biimplication round and [<->trans a b] chains two.
+ * Neither may follow an [@], which takes a qualified name and not a
+ * notation, so a use that has to make [P] and [Q] explicit -- the instance
+ * fields in [Relation.Equivalence] -- writes the theorem out instead.
+ *)
+Notation "<->symm"  := Biimplication.symmetry    (only parsing).
+Notation "<->trans" := Biimplication.transitivity (only parsing).
+
 (* The congruence of [->] belongs to [Implication], but its statement needs
  * [<->], so it can be stated only here. A second module of that name
  * carries it, and a client reads [Implication.congruence].

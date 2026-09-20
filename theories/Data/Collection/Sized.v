@@ -57,7 +57,7 @@ Proof.
   unfold is_not_empty in |- *.
   pose proof (Bool.assert_negation (is_empty x)) as n.
   pose proof (Negation.congruence (is_empty_reflection x)) as c.
-  exact (Biimplication.transitivity n c).
+  exact (<->trans n c).
 Qed.
 
 End Sized.
