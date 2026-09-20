@@ -511,7 +511,7 @@ Theorem reverse_containment_preservation
 Proof.
   intros A a l.
   split.
-  - exact (reverse_containment_preservation_forward a l).
+  - exact (reverse_containment_preservation_forward  a l).
   - exact (reverse_containment_preservation_backward a l).
 Qed.
 
@@ -550,10 +550,10 @@ Qed.
 Theorem filter_catamorphism
   : forall {A : Type} (p : A -> Bool) (l : List A) .
       filter p l
-      = fold_right (fun (a : A) (kept : List A) .
+      = fold_right (fun (a : A) (rest : List A) .
                       match p a with
-                      | true  => a :: kept
-                      | false => kept
+                      | true  => a :: rest
+                      | false => rest
                       end)
                     []
                     l.
@@ -1068,7 +1068,7 @@ Theorem last_specification
 Proof.
   intros A a l.
   split.
-  - exact (last_specification_forward a l).
+  - exact (last_specification_forward  a l).
   - exact (last_specification_backward a l).
 Qed.
 
@@ -1114,7 +1114,7 @@ Theorem initial_specification
 Proof.
   intros A l l'.
   split.
-  - exact (initial_specification_forward l l').
+  - exact (initial_specification_forward  l l').
   - exact (initial_specification_backward l l').
 Qed.
 
@@ -2010,7 +2010,7 @@ Proof.
                (range_positive p') (Positive p' :: [])) in |- *.
     rewrite IH in |- *.
     simpl in |- *.
-    rewrite (Nat.addition_commutativity p' One) in |- *.
+    rewrite (Nat.addition.commutativity p' One) in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
@@ -2143,7 +2143,7 @@ Proof.
     rewrite d in |- *.
     change (Positive p' + Positive (Successor One))
       with (Positive (Nat.add p' (Successor One))) in |- *.
-    rewrite (Nat.addition_commutativity p' (Successor One)) in |- *.
+    rewrite (Nat.addition.commutativity p' (Successor One)) in |- *.
     change (Nat.add (Successor One) p') with (Successor (Successor p')) in |- *.
     rewrite (NatWithZero.multiplication_commutativity
                (Positive (Successor p')) (Positive (Successor (Successor p')))) in |- *.

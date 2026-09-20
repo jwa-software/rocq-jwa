@@ -100,7 +100,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite Nat.addition_associativity in |- *.
+        rewrite Nat.addition.associativity in |- *.
         reflexivity.
 Qed.
 
@@ -116,7 +116,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite Nat.addition_commutativity in |- *.
+    rewrite Nat.addition.commutativity in |- *.
     reflexivity.
 Qed.
 
@@ -173,23 +173,23 @@ Proof.
       intro e.
       pose proof (positive_injectivity n' (Nat.add n' k') e) as e'.
       pose proof (Identity.symmetry e') as e''.
-      rewrite (Nat.addition_commutativity n' k') in e''.
-      pose proof (Nat.addition_identity_absence k' n') as h.
+      rewrite (Nat.addition.commutativity n' k') in e''.
+      pose proof (Nat.addition.identity.absence k' n') as h.
       unfold Negation in h.
       pose proof (h e'') as f.
       contradiction f.
     + simpl in |- *.
       intro e.
       pose proof (positive_injectivity (Nat.add n' m') n' e) as e'.
-      rewrite (Nat.addition_commutativity n' m') in e'.
-      pose proof (Nat.addition_identity_absence m' n') as h.
+      rewrite (Nat.addition.commutativity n' m') in e'.
+      pose proof (Nat.addition.identity.absence m' n') as h.
       unfold Negation in h.
       pose proof (h e') as f.
       contradiction f.
     + simpl in |- *.
       intro e.
       pose proof (positive_injectivity (Nat.add n' m') (Nat.add n' k') e) as e'.
-      pose proof (Nat.add_l_cancellation n' m' k' e') as e''.
+      pose proof (Nat.addition.left.cancellation n' m' k' e') as e''.
       rewrite e'' in |- *.
       reflexivity.
 Qed.
@@ -255,7 +255,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (Nat.multiplication_commutativity m' One) in |- *.
+    rewrite (Nat.multiplication.commutativity m' One) in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
@@ -284,7 +284,7 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.multiplication_commutativity m' n') in |- *.
+      rewrite (Nat.multiplication.commutativity m' n') in |- *.
       reflexivity.
 Qed.
 
@@ -315,7 +315,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (Nat.multiplication_associativity l' m' n') in |- *.
+        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
         reflexivity.
 Qed.
 
@@ -334,7 +334,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (Nat.mul_l_distributivity_over_addition l' m' n') in |- *.
+        rewrite (Nat.multiplication.left.distributivity.over.addition l' m' n') in |- *.
         reflexivity.
 Qed.
 
@@ -400,14 +400,14 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (Nat.multiplication_commutativity (Nat.power m' a') One) in |- *.
+        rewrite (Nat.multiplication.commutativity (Nat.power m' a') One) in |- *.
         simpl in |- *.
         reflexivity.
     + destruct m as [| m'].
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (Nat.product_of_powers m' a' b') in |- *.
+        rewrite (Nat.power.exponent.addition m' a' b') in |- *.
         reflexivity.
 Qed.
 
@@ -421,7 +421,7 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.power_annihilation b') in |- *.
+      rewrite (Nat.power.annihilation b') in |- *.
       reflexivity.
   - destruct b as [| b'].
     + simpl in |- *.
@@ -430,7 +430,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (Nat.power_of_a_power m' a' b') in |- *.
+        rewrite (Nat.power.exponent.multiplication m' a' b') in |- *.
         reflexivity.
 Qed.
 
@@ -449,7 +449,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (Nat.power_distributivity_over_multiplication m' n' a') in |- *.
+        rewrite (Nat.power.distributivity.over.multiplication m' n' a') in |- *.
         reflexivity.
 Qed.
 
@@ -511,8 +511,8 @@ Proof.
     discriminate e.
   - simpl in e.
     pose proof (positive_injectivity (Nat.add n' k) n' e) as e'.
-    rewrite (Nat.addition_commutativity n' k) in e'.
-    pose proof (Nat.addition_identity_absence k n') as i.
+    rewrite (Nat.addition.commutativity n' k) in e'.
+    pose proof (Nat.addition.identity.absence k n') as i.
     unfold Negation in i.
     pose proof (i e') as f.
     contradiction f.
@@ -571,7 +571,7 @@ Proof.
     symmetry in e.
     rewrite e in |- *.
     simpl in |- *.
-    rewrite (Nat.mul_l_distributivity_over_addition k m' d) in |- *.
+    rewrite (Nat.multiplication.left.distributivity.over.addition k m' d) in |- *.
     reflexivity.
 Qed.
 
@@ -701,7 +701,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (Nat.comparison_antisymmetry m' n').
+    exact (Nat.comparison.antisymmetry m' n').
 Qed.
 
 Lemma lt_specification
@@ -739,10 +739,11 @@ Proof.
   - split.
     * simpl in |- *.
       intro e.
-      exact (<-elim (lt_positive_embedding m' n') (Nat.lt_specification_forward m' n' e)).
+      exact (<-elim (lt_positive_embedding m' n')
+                    (Nat.comparison.strict.forward.specification m' n' e)).
     * intro h.
       simpl in |- *.
-      exact (Nat.lt_specification_backward
+      exact (Nat.comparison.strict.backward.specification
               m'
               n'
               (->elim (lt_positive_embedding m' n') h)).
@@ -761,7 +762,7 @@ Proof.
     + simpl in e.
       discriminate e.
     + simpl in e.
-      rewrite (Nat.eq_specification_forward m' n' e) in |- *.
+      rewrite (Nat.comparison.equality.forward.specification m' n' e) in |- *.
       reflexivity.
   - intro e.
     rewrite e in |- *.
@@ -900,11 +901,11 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (Nat.sub_truncation n' n' (Comparable.le_reflexivity n')) in |- *.
+    rewrite (Nat.subtraction.truncation n' n' (Comparable.le_reflexivity n')) in |- *.
     simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (Nat.subtraction_inversion_of_addition m' n') in |- *.
+    rewrite (Nat.subtraction.inversion.of.addition m' n') in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
@@ -920,7 +921,7 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.sub_truncation n' n' (Comparable.le_reflexivity n')) in |- *.
+      rewrite (Nat.subtraction.truncation n' n' (Comparable.le_reflexivity n')) in |- *.
       simpl in |- *.
       reflexivity.
   - unfold LessThan in lt.
@@ -931,9 +932,9 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.sub_truncation
+      rewrite (Nat.subtraction.truncation
                 m' (Nat.add m' k)
-                (Disjunction.R (Nat.addition_left_extensivity m' k))) in |- *.
+                (Disjunction.R (Nat.addition.order.extensivity m' k))) in |- *.
       simpl in |- *.
       reflexivity.
 Qed.
@@ -973,22 +974,22 @@ Proof.
   - simpl in |- *. reflexivity.
   - destruct m as [| m']; destruct n as [| n'].
     + simpl in |- *.
-      rewrite (Nat.sub_truncation k' k'
+      rewrite (Nat.subtraction.truncation k' k'
                 (Comparable.le_reflexivity k')) in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.sub_truncation k' (Nat.add k' n')
-                 (Disjunction.R (Nat.addition_left_extensivity k' n'))) in |- *.
+      rewrite (Nat.subtraction.truncation k' (Nat.add k' n')
+                 (Disjunction.R (Nat.addition.order.extensivity k' n'))) in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.addition_commutativity k' m') in |- *.
-      rewrite (Nat.subtraction_inversion_of_addition m' k') in |- *.
+      rewrite (Nat.addition.commutativity k' m') in |- *.
+      rewrite (Nat.subtraction.inversion.of.addition m' k') in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.sub_cancellation k' m' n') in |- *.
+      rewrite (Nat.subtraction.cancellation k' m' n') in |- *.
       reflexivity.
 Qed.
 
@@ -1235,12 +1236,12 @@ Proof.
         discriminate e2.
       * simpl in e2.
         pose proof (positive_injectivity (Nat.mul (Nat.mul p k') j') p e2) as e3.
-        rewrite (Nat.multiplication_associativity p k' j') in e3.
-        pose proof (Nat.multiplication_commutativity One p) as c.
+        rewrite (Nat.multiplication.associativity p k' j') in e3.
+        pose proof (Nat.multiplication.commutativity One p) as c.
         simpl in c.
         pose proof (Identity.transitivity e3 c) as e4.
-        pose proof (Nat.mul_l_cancellation p (Nat.mul k' j') One e4) as e5.
-        pose proof (Nat.multiplication_identity_factorization k' j' e5) as f.
+        pose proof (Nat.multiplication.left.cancellation p (Nat.mul k' j') One e4) as e5.
+        pose proof (Nat.multiplication.identity.factorization k' j' e5) as f.
         destruct f as [ek ej].
         rewrite ek in e1.
         rewrite (mul_r_identity (+ p)) in e1.
@@ -1331,7 +1332,7 @@ Proof.
         apply (Exists_introduction k).
         rewrite e in |- *.
         simpl in |- *.
-        rewrite (Nat.addition_commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' One) in |- *.
         simpl in |- *.
         reflexivity.
       * apply Disjunction.L.
@@ -1351,7 +1352,7 @@ Proof.
         rewrite a in |- *.
         rewrite e in |- *.
         simpl in |- *.
-        rewrite (Nat.addition_commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' One) in |- *.
         simpl in |- *.
         reflexivity.
 Qed.
