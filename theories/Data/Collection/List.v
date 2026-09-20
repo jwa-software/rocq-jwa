@@ -151,9 +151,18 @@ Fixpoint length {A : Type} (l : List A) : NatWithZero :=
   | _ :: l' => ++ length l'
   end.
 
+(* The bars of the norm, in parentheses: a bare [|| l ||] would take the
+ * [||] of [Bool.or] away and [[| l |]] would break every [as [| ... ]],
+ * both of them everywhere and not only where this scope is open. The
+ * parentheses belong to the notation, so an argument needs none of its
+ * own.
+ *)
+Notation "(|| l ||)" := (length l) (only parsing)
+  : jwa_list_scope.
+
 Theorem length_additivity_over_append
   : forall {A : Type} (l1 : List A) (l2 : List A),
-      length (l1 ++ l2) = length l1 + length l2.
+      (|| l1 ++ l2 ||) = (|| l1 ||) + (|| l2 ||).
 Proof.
   intros A l1 l2.
   induction l1 as [| a l1' IH] using List_induction.
@@ -161,11 +170,11 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    rewrite (NatWithZero.inc_specification (length l1' + length l2))
+    rewrite (NatWithZero.inc_specification ((|| l1' ||) + (|| l2 ||)))
       in |- *.
-    rewrite (NatWithZero.inc_specification (length l1'))
+    rewrite (NatWithZero.inc_specification (|| l1' ||))
       in |- *.
-    rewrite (NatWithZero.addition_associativity (Positive One) (length l1') (length l2))
+    rewrite (NatWithZero.addition_associativity (Positive One) (|| l1' ||) (|| l2 ||))
       in |- *.
     reflexivity.
 Qed.
@@ -303,7 +312,7 @@ Qed.
 
 Theorem length_catamorphism
   : forall {A : Type} (l : List A),
-      length l
+      (|| l ||)
       = fold_right (fun (_ : A) (n : NatWithZero) => ++ n)
                    Zero
                    l.
@@ -1224,7 +1233,7 @@ Qed.
  *)
 Theorem unzip_zip_identity
   : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B),
-      length l1 = length l2 -> unzip (zip l1 l2) = Product_introduction l1 l2.
+      (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = Product_introduction l1 l2.
 Proof.
   intros A B l1.
   induction l1 as [| a l1' IH] using List_induction.
@@ -1235,26 +1244,26 @@ Proof.
       reflexivity.
     + simpl in e.
       pose proof (Identity.symmetry e) as e'.
-      rewrite (NatWithZero.inc_specification (length l2')) in e'.
-      rewrite (NatWithZero.addition_commutativity (Positive One) (length l2')) in e'.
-      pose proof (NatWithZero.addition_positive_refutes_zero (length l2') One) as h.
+      rewrite (NatWithZero.inc_specification (|| l2' ||)) in e'.
+      rewrite (NatWithZero.addition_commutativity (Positive One) (|| l2' ||)) in e'.
+      pose proof (NatWithZero.addition_positive_refutes_zero (|| l2' ||) One) as h.
       unfold Negation in h.
       pose proof (h e') as f.
       contradiction f.
   - intros l2 e.
     destruct l2 as [| b l2'].
     + simpl in e.
-      rewrite (NatWithZero.inc_specification (length l1')) in e.
-      rewrite (NatWithZero.addition_commutativity (Positive One) (length l1')) in e.
-      pose proof (NatWithZero.addition_positive_refutes_zero (length l1') One) as h.
+      rewrite (NatWithZero.inc_specification (|| l1' ||)) in e.
+      rewrite (NatWithZero.addition_commutativity (Positive One) (|| l1' ||)) in e.
+      pose proof (NatWithZero.addition_positive_refutes_zero (|| l1' ||) One) as h.
       unfold Negation in h.
       pose proof (h e) as f.
       contradiction f.
     + simpl in e.
-      rewrite (NatWithZero.inc_specification (length l1')) in e.
-      rewrite (NatWithZero.inc_specification (length l2')) in e.
+      rewrite (NatWithZero.inc_specification (|| l1' ||)) in e.
+      rewrite (NatWithZero.inc_specification (|| l2' ||)) in e.
       pose proof (NatWithZero.add_l_cancellation
-                    (Positive One) (length l1') (length l2') e) as e'.
+                    (Positive One) (|| l1' ||) (|| l2' ||) e) as e'.
       pose proof (IH l2' e') as IH'.
       unfold unzip in IH'.
       pose proof (Product.introduction_injectivity (List A) (List B)
@@ -1274,7 +1283,7 @@ Qed.
  *)
 Theorem length_zip
   : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B),
-      length (zip l1 l2) = NatWithZero.min (length l1) (length l2).
+      (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
   induction l1 as [| a l1' IH] using List_induction.
@@ -1283,21 +1292,21 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (NatWithZero.min_left_annihilation (++ length l2')) in |- *.
+      rewrite (NatWithZero.min_left_annihilation (++ (|| l2' ||))) in |- *.
       reflexivity.
   - intros l2.
     destruct l2 as [| b l2'].
     + simpl in |- *.
-      rewrite (NatWithZero.min_right_annihilation (++ length l1')) in |- *.
+      rewrite (NatWithZero.min_right_annihilation (++ (|| l1' ||))) in |- *.
       reflexivity.
     + simpl in |- *.
       rewrite (IH l2') in |- *.
       rewrite (NatWithZero.inc_specification
-                 (NatWithZero.min (length l1') (length l2'))) in |- *.
+                 (NatWithZero.min (|| l1' ||) (|| l2' ||))) in |- *.
       rewrite (NatWithZero.addition_left_distributivity_over_min
-                 (Positive One) (length l1') (length l2')) in |- *.
-      rewrite (NatWithZero.inc_specification (length l1')) in |- *.
-      rewrite (NatWithZero.inc_specification (length l2')) in |- *.
+                 (Positive One) (|| l1' ||) (|| l2' ||)) in |- *.
+      rewrite (NatWithZero.inc_specification (|| l1' ||)) in |- *.
+      rewrite (NatWithZero.inc_specification (|| l2' ||)) in |- *.
       reflexivity.
 Qed.
 
@@ -1369,7 +1378,7 @@ Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
 
 Lemma nth_specification_forward
   : forall {A : Type} (l : List A) (i : NatWithZero),
-      (exists (a : A), nth l i = Some a) -> i < length l.
+      (exists (a : A), nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
   induction l as [| b l' IH] using List_induction.
@@ -1380,26 +1389,26 @@ Proof.
   - intros i h.
     destruct i as [| i'].
     + simpl in |- *.
-      rewrite (NatWithZero.inc_specification (length l')) in |- *.
-      rewrite (NatWithZero.addition_commutativity (Positive One) (length l')) in |- *.
-      exact (NatWithZero.addition_right_positivity (length l') One).
+      rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
+      rewrite (NatWithZero.addition_commutativity (Positive One) (|| l' ||)) in |- *.
+      exact (NatWithZero.addition_right_positivity (|| l' ||) One).
     + destruct i' as [| i''].
       * simpl in h.
         pose proof (IH Zero h) as lt.
         simpl in |- *.
-        rewrite (NatWithZero.inc_specification (length l')) in |- *.
-        exact (NatWithZero.addition_strict_monotonicity (Positive One) Zero (length l') lt).
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
+        exact (NatWithZero.addition_strict_monotonicity (Positive One) Zero (|| l' ||) lt).
       * simpl in h.
         pose proof (IH (Positive i'') h) as lt.
         simpl in |- *.
-        rewrite (NatWithZero.inc_specification (length l')) in |- *.
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
         exact (NatWithZero.addition_strict_monotonicity
-                 (Positive One) (Positive i'') (length l') lt).
+                 (Positive One) (Positive i'') (|| l' ||) lt).
 Qed.
 
 Lemma nth_specification_backward
   : forall {A : Type} (l : List A) (i : NatWithZero),
-      i < length l -> exists (a : A), nth l i = Some a.
+      i < (|| l ||) -> exists (a : A), nth l i = Some a.
 Proof.
   intros A l.
   induction l as [| b l' IH] using List_induction.
@@ -1418,22 +1427,22 @@ Proof.
       reflexivity.
     + destruct i' as [| i''].
       * simpl in h.
-        rewrite (NatWithZero.inc_specification (length l')) in h.
-        pose proof (NatWithZero.addition_strict_cancellation (Positive One) Zero (length l') h)
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in h.
+        pose proof (NatWithZero.addition_strict_cancellation (Positive One) Zero (|| l' ||) h)
           as lt.
         simpl in |- *.
         exact (IH Zero lt).
       * simpl in h.
-        rewrite (NatWithZero.inc_specification (length l')) in h.
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in h.
         pose proof (NatWithZero.addition_strict_cancellation
-                      (Positive One) (Positive i'') (length l') h) as lt.
+                      (Positive One) (Positive i'') (|| l' ||) h) as lt.
         simpl in |- *.
         exact (IH (Positive i'') lt).
 Qed.
 
 Theorem nth_specification
   : forall {A : Type} (l : List A) (i : NatWithZero),
-      (exists (a : A), nth l i = Some a) <-> i < length l.
+      (exists (a : A), nth l i = Some a) <-> i < (|| l ||).
 Proof.
   intros A l i.
   split.
@@ -1502,7 +1511,7 @@ Qed.
  *)
 Theorem length_take
   : forall {A : Type} (l : List A) (n : NatWithZero),
-      length (take n l) = NatWithZero.min n (length l).
+      (|| take n l ||) = NatWithZero.min n (|| l ||).
 Proof.
   intros A l.
   induction l as [| a l' IH] using List_induction.
@@ -1513,26 +1522,26 @@ Proof.
   - intros n.
     destruct n as [| n'].
     + simpl in |- *.
-      rewrite (NatWithZero.min_left_annihilation (++ length l')) in |- *.
+      rewrite (NatWithZero.min_left_annihilation (++ (|| l' ||))) in |- *.
       reflexivity.
     + destruct n' as [| n''].
       * simpl in |- *.
-        rewrite (NatWithZero.inc_specification (length l')) in |- *.
-        rewrite (NatWithZero.addition_commutativity (Positive One) (length l')) in |- *.
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition_commutativity (Positive One) (|| l' ||)) in |- *.
         rewrite (<-elim
                    (Comparable.min_specification (Positive One)
-                      (length l' + Positive One))
-                   (NatWithZero.addition_right_extensivity (length l') (Positive One))) in |- *.
+                      ((|| l' ||) + Positive One))
+                   (NatWithZero.addition_right_extensivity (|| l' ||) (Positive One))) in |- *.
         reflexivity.
       * simpl in |- *.
         rewrite (IH (Positive n'')) in |- *.
         rewrite (NatWithZero.inc_specification
-                   (NatWithZero.min (Positive n'') (length l'))) in |- *.
+                   (NatWithZero.min (Positive n'') (|| l' ||))) in |- *.
         rewrite (NatWithZero.addition_left_distributivity_over_min
-                   (Positive One) (Positive n'') (length l')) in |- *.
+                   (Positive One) (Positive n'') (|| l' ||)) in |- *.
         change (Positive One + Positive n'')
           with (Positive (Successor n'')) in |- *.
-        rewrite (NatWithZero.inc_specification (length l')) in |- *.
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
         reflexivity.
 Qed.
 
@@ -1541,7 +1550,7 @@ Qed.
  *)
 Theorem length_drop
   : forall {A : Type} (l : List A) (n : NatWithZero),
-      length (drop n l) = NatWithZero.saturating_sub (length l) n.
+      (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
   induction l as [| a l' IH] using List_induction.
@@ -1551,22 +1560,22 @@ Proof.
   - intros n.
     destruct n as [| n'].
     + simpl in |- *.
-      rewrite (NatWithZero.saturating_sub_r_identity (++ length l')) in |- *.
+      rewrite (NatWithZero.saturating_sub_r_identity (++ (|| l' ||))) in |- *.
       reflexivity.
     + destruct n' as [| n''].
       * simpl in |- *.
-        rewrite (NatWithZero.inc_specification (length l')) in |- *.
-        rewrite (NatWithZero.addition_commutativity (Positive One) (length l')) in |- *.
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition_commutativity (Positive One) (|| l' ||)) in |- *.
         rewrite (NatWithZero.saturating_subtraction_inversion_of_addition
-                   (length l') (Positive One)) in |- *.
+                   (|| l' ||) (Positive One)) in |- *.
         reflexivity.
       * simpl in |- *.
         rewrite (IH (Positive n'')) in |- *.
-        rewrite (NatWithZero.inc_specification (length l')) in |- *.
+        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
         change (Positive (Successor n''))
           with (Positive One + Positive n'') in |- *.
         rewrite (NatWithZero.saturating_sub_cancellation
-                   (Positive One) (length l') (Positive n'')) in |- *.
+                   (Positive One) (|| l' ||) (Positive n'')) in |- *.
         reflexivity.
 Qed.
 
@@ -1591,7 +1600,7 @@ Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) =>
   end.
 
 Lemma length_replicate_positive
-  : forall {A : Type} (k : Nat) (a : A), length (replicate_positive k a) = Positive k.
+  : forall {A : Type} (k : Nat) (a : A), (|| replicate_positive k a ||) = Positive k.
 Proof.
   intros A k a.
   induction k as [| k' IH] using Nat_induction.
@@ -1604,7 +1613,7 @@ Proof.
 Qed.
 
 Theorem length_replicate
-  : forall {A : Type} (n : NatWithZero) (a : A), length (replicate n a) = n.
+  : forall {A : Type} (n : NatWithZero) (a : A), (|| replicate n a ||) = n.
 Proof.
   intros A n a.
   destruct n as [| k].
@@ -1675,7 +1684,7 @@ Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
   end.
 
 Theorem count_specification
-  : forall {A : Type} (p : A -> Bool) (l : List A), count p l = length (filter p l).
+  : forall {A : Type} (p : A -> Bool) (l : List A), count p l = (|| filter p l ||).
 Proof.
   intros A p l.
   induction l as [| a l' IH] using List_induction.
@@ -1937,7 +1946,7 @@ Qed.
 
 Lemma insert_length
   : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A),
-      length (insert le a l) = ++ length l.
+      (|| insert le a l ||) = ++ (|| l ||).
 Proof.
   intros A le a l.
   induction l as [| b l' IH] using List_induction.
@@ -1954,7 +1963,7 @@ Qed.
 
 Theorem insertion_sort_length_preservation
   : forall {A : Type} (le : A -> A -> Bool) (l : List A),
-      length (insertion_sort le l) = length l.
+      (|| insertion_sort le l ||) = (|| l ||).
 Proof.
   intros A le l.
   induction l as [| a l' IH] using List_induction.
@@ -1983,7 +1992,7 @@ Definition range := fun (n : NatWithZero) =>
   end.
 
 Lemma length_range_positive
-  : forall (p : Nat), length (range_positive p) = Positive p.
+  : forall (p : Nat), (|| range_positive p ||) = Positive p.
 Proof.
   intros p.
   induction p as [| p' IH] using Nat_induction.
@@ -1999,7 +2008,7 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem length_range : forall (n : NatWithZero), length (range n) = n.
+Theorem length_range : forall (n : NatWithZero), (|| range n ||) = n.
 Proof.
   intros n.
   destruct n as [| p].

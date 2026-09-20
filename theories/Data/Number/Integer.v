@@ -106,6 +106,14 @@ Definition abs := fun (x : Integer) =>
   | + p => NatWithZero.Positive p
   end.
 
+(* The bars of the magnitude, in parentheses: a bare [| x |] would be read
+ * as the opening of a [match] arm, and [|| x ||] would take the [||] of
+ * [Bool.or] away, both of them everywhere and not only where this scope is
+ * open.
+ *)
+Notation "(| x |)" := (abs x) (only parsing)
+  : jwa_integer_scope.
+
 (* [Nat -> Integer] *)
 Definition from_nat := fun (n : Nat) => + n.
 
