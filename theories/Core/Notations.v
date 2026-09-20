@@ -14,7 +14,7 @@ Bind Scope jwa_type_scope with Sortclass.
 Open Scope jwa_type_scope.
 
 (* A second scope for the list notations, delimited but not opened: [[]] is
-   the empty list and [++] is [List.append] only where a file opens the
+   the empty list and [++] is [List.concat] only where a file opens the
    scope or writes [(...)%list], so the same spellings stay free for other
    containers in scopes of their own. *)
 Declare Scope jwa_list_scope.

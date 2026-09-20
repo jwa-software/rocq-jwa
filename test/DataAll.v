@@ -263,7 +263,7 @@ Definition data_all_delivers_count
 Definition data_all_delivers_sorting
   : forall (l : List NatWithZero) .
       List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
-  := List.insertion_sort_sortedness NatWithZero.le
+  := List.sorting.sortedness NatWithZero.le
        (fun (m : NatWithZero) (n : NatWithZero) .
           <-elim
             (Disjunction.congruence
@@ -329,7 +329,7 @@ Definition data_all_delivers_gauss
   : NatWithZero.mul (NatWithZero.Positive (Successor One))
       (List.sum (List.range (NatWithZero.Positive (Successor One))))
     = NatWithZero.mul (NatWithZero.Positive One) (NatWithZero.Positive (Successor One))
-  := List.sum_range_closed_form One.
+  := List.range.sum.closed_form One.
 
 Definition data_all_delivers_divides
   : Prop
