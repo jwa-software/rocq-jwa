@@ -263,7 +263,7 @@ Definition data_all_delivers_count
 Definition data_all_delivers_sorting
   : forall (l : List NatWithZero) .
       List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
-  := List.sorting.sortedness NatWithZero.le
+  := List.sorting.sortedness
        (fun (m : NatWithZero) (n : NatWithZero) .
           <-elim
             (Disjunction.congruence

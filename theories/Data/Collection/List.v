@@ -704,7 +704,7 @@ Module over. (* membership.forward.distributivity.over *)
 
 (* membership.forward.distributivity.over.concatenation *)
 Lemma concatenation
-  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A) .
+  : forall {A : Type} {a : A} {l1 : List A} {l2 : List A} .
       l1 ++ l2 contains_member a -> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
@@ -735,7 +735,7 @@ Module over. (* membership.backward.distributivity.over *)
 
 (* membership.backward.distributivity.over.concatenation *)
 Lemma concatenation
-  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A) .
+  : forall {A : Type} {a : A} {l1 : List A} {l2 : List A} .
       l1 contains_member a \/ l2 contains_member a -> l1 ++ l2 contains_member a.
 Proof.
   intros A a l1 l2.
@@ -775,8 +775,8 @@ Theorem concatenation
 Proof.
   intros A a l1 l2.
   split.
-  - exact (membership.forward.distributivity.over.concatenation  a l1 l2).
-  - exact (membership.backward.distributivity.over.concatenation a l1 l2).
+  - exact (@membership.forward.distributivity.over.concatenation  A a l1 l2).
+  - exact (@membership.backward.distributivity.over.concatenation A a l1 l2).
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -851,7 +851,7 @@ Module of. (* reversal.forward.preservation.of *)
 
 (* reversal.forward.preservation.of.membership *)
 Lemma membership
-  : forall {A : Type} (a : A) (l : List A) .
+  : forall {A : Type} {a : A} {l : List A} .
       reverse l contains_member a -> l contains_member a.
 Proof.
   intros A a l.
@@ -861,8 +861,7 @@ Proof.
     exact f.
   - simpl in |- *.
     intro h.
-    destruct (membership.forward.distributivity.over.concatenation
-                a (reverse l') (b :: []) h) as [h1 | h2].
+    destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
     + apply Disjunction.R.
       apply IH.
       exact h1.
@@ -886,7 +885,7 @@ Module of. (* reversal.backward.preservation.of *)
 
 (* reversal.backward.preservation.of.membership *)
 Lemma membership
-  : forall {A : Type} (a : A) (l : List A) .
+  : forall {A : Type} {a : A} {l : List A} .
       l contains_member a -> reverse l contains_member a.
 Proof.
   intros A a l.
@@ -923,8 +922,8 @@ Theorem membership
 Proof.
   intros A a l.
   split.
-  - exact (reversal.forward.preservation.of.membership  a l).
-  - exact (reversal.backward.preservation.of.membership a l).
+  - exact (@reversal.forward.preservation.of.membership  A a l).
+  - exact (@reversal.backward.preservation.of.membership A a l).
 Qed.
 
 End of. (* reversal.preservation.of *)
@@ -966,8 +965,7 @@ Proof.
   rewrite (appending.specification l a) in |- *.
   split.
   - intro h.
-    destruct (membership.forward.distributivity.over.concatenation
-                b l (a :: []) h) as [h1 | h2].
+    destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
     + exact (Disjunction.R h1).
     + simpl in h2.
       destruct h2 as [e | f].
@@ -1052,7 +1050,7 @@ Module forward. (* filtering.forward *)
 
 (* filtering.forward.specification *)
 Lemma specification
-  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A) .
+  : forall {A : Type} {p : A -> Bool} {a : A} {l : List A} .
       filter p l contains_member a -> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
@@ -1087,7 +1085,7 @@ Module backward. (* filtering.backward *)
 
 (* filtering.backward.specification *)
 Lemma specification
-  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A) .
+  : forall {A : Type} {p : A -> Bool} {a : A} {l : List A} .
       l contains_member a /\ p a = true -> filter p l contains_member a.
 Proof.
   intros A p a l.
@@ -1127,8 +1125,8 @@ Theorem specification
 Proof.
   intros A p a l.
   split.
-  - exact (filtering.forward.specification  p a l).
-  - exact (filtering.backward.specification p a l).
+  - exact (@filtering.forward.specification  A p a l).
+  - exact (@filtering.backward.specification A p a l).
 Qed.
 
 End filtering. (* filtering *)
@@ -1146,7 +1144,7 @@ Module over. (* quantification.all.forward.distributivity.over *)
 (* [All] over a concatenation is [All] over each half. *)
 (* quantification.all.forward.distributivity.over.concatenation *)
 Lemma concatenation
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
+  : forall {A : Type} {P : A -> Prop} {l1 : List A} {l2 : List A} .
       All P (l1 ++ l2) -> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
@@ -1173,7 +1171,7 @@ End distributivity. (* quantification.all.forward.distributivity *)
 
 (* quantification.all.forward.specification *)
 Lemma specification
-  : forall {A : Type} (P : A -> Prop) (l : List A) .
+  : forall {A : Type} {P : A -> Prop} {l : List A} .
       All P l -> forall (a : A) . l contains_member a -> P a.
 Proof.
   intros A P l.
@@ -1202,7 +1200,7 @@ Module over. (* quantification.all.backward.distributivity.over *)
 
 (* quantification.all.backward.distributivity.over.concatenation *)
 Lemma concatenation
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
+  : forall {A : Type} {P : A -> Prop} {l1 : List A} {l2 : List A} .
       All P l1 /\ All P l2 -> All P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
@@ -1229,7 +1227,7 @@ End distributivity. (* quantification.all.backward.distributivity *)
 
 (* quantification.all.backward.specification *)
 Lemma specification
-  : forall {A : Type} (P : A -> Prop) (l : List A) .
+  : forall {A : Type} {P : A -> Prop} {l : List A} .
       (forall (a : A) . l contains_member a -> P a) -> All P l.
 Proof.
   intros A P l.
@@ -1261,8 +1259,8 @@ Theorem concatenation
 Proof.
   intros A P l1 l2.
   split.
-  - exact (quantification.all.forward.distributivity.over.concatenation  P l1 l2).
-  - exact (quantification.all.backward.distributivity.over.concatenation P l1 l2).
+  - exact (@quantification.all.forward.distributivity.over.concatenation  A P l1 l2).
+  - exact (@quantification.all.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
 
 End over. (* quantification.all.distributivity.over *)
@@ -1276,13 +1274,13 @@ Theorem specification
 Proof.
   intros A P l.
   split.
-  - exact (quantification.all.forward.specification  P l).
-  - exact (quantification.all.backward.specification P l).
+  - exact (@quantification.all.forward.specification  A P l).
+  - exact (@quantification.all.backward.specification A P l).
 Qed.
 
 (* quantification.all.monotonicity *)
 Lemma monotonicity
-  : forall {A : Type} (P : A -> Prop) (Q : A -> Prop) (l : List A) .
+  : forall {A : Type} {P : A -> Prop} {Q : A -> Prop} {l : List A} .
       (forall (a : A) . P a -> Q a) -> All P l -> All Q l.
 Proof.
   intros A P Q l h.
@@ -1323,7 +1321,7 @@ Module over. (* quantification.any.forward.distributivity.over *)
 (* [Any] over a concatenation is [Any] over either half. *)
 (* quantification.any.forward.distributivity.over.concatenation *)
 Lemma concatenation
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
+  : forall {A : Type} {P : A -> Prop} {l1 : List A} {l2 : List A} .
       Any P (l1 ++ l2) -> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
@@ -1346,7 +1344,7 @@ End distributivity. (* quantification.any.forward.distributivity *)
 
 (* quantification.any.forward.specification *)
 Lemma specification
-  : forall {A : Type} (P : A -> Prop) (l : List A) .
+  : forall {A : Type} {P : A -> Prop} {l : List A} .
       Any P l -> exists (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
@@ -1379,7 +1377,7 @@ Module over. (* quantification.any.backward.distributivity.over *)
 
 (* quantification.any.backward.distributivity.over.concatenation *)
 Lemma concatenation
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
+  : forall {A : Type} {P : A -> Prop} {l1 : List A} {l2 : List A} .
       Any P l1 \/ Any P l2 -> Any P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
@@ -1408,7 +1406,7 @@ End distributivity. (* quantification.any.backward.distributivity *)
 
 (* quantification.any.backward.specification *)
 Lemma specification
-  : forall {A : Type} (P : A -> Prop) (l : List A) .
+  : forall {A : Type} {P : A -> Prop} {l : List A} .
       (exists (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
@@ -1446,8 +1444,8 @@ Theorem concatenation
 Proof.
   intros A P l1 l2.
   split.
-  - exact (quantification.any.forward.distributivity.over.concatenation  P l1 l2).
-  - exact (quantification.any.backward.distributivity.over.concatenation P l1 l2).
+  - exact (@quantification.any.forward.distributivity.over.concatenation  A P l1 l2).
+  - exact (@quantification.any.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
 
 End over. (* quantification.any.distributivity.over *)
@@ -1461,8 +1459,8 @@ Theorem specification
 Proof.
   intros A P l.
   split.
-  - exact (quantification.any.forward.specification  P l).
-  - exact (quantification.any.backward.specification P l).
+  - exact (@quantification.any.forward.specification  A P l).
+  - exact (@quantification.any.backward.specification A P l).
 Qed.
 
 (* quantification.any.catamorphism *)
@@ -1489,7 +1487,7 @@ Module forward. (* head.forward *)
 
 (* head.forward.specification *)
 Lemma specification
-  : forall {A : Type} (a : A) (l : List A) .
+  : forall {A : Type} {a : A} {l : List A} .
       head l = Some a -> exists (l' : List A) . l = a :: l'.
 Proof.
   intros A a l.
@@ -1511,7 +1509,7 @@ Module backward. (* head.backward *)
 
 (* head.backward.specification *)
 Lemma specification
-  : forall {A : Type} (a : A) (l : List A) .
+  : forall {A : Type} {a : A} {l : List A} .
       (exists (l' : List A) . l = a :: l') -> head l = Some a.
 Proof.
   intros A a l.
@@ -1531,8 +1529,8 @@ Theorem specification
 Proof.
   intros A a l.
   split.
-  - exact (head.forward.specification  a l).
-  - exact (head.backward.specification a l).
+  - exact (@head.forward.specification  A a l).
+  - exact (@head.backward.specification A a l).
 Qed.
 
 End head. (* head *)
@@ -1543,7 +1541,7 @@ Module forward. (* tail.forward *)
 
 (* tail.forward.specification *)
 Lemma specification
-  : forall {A : Type} (l : List A) (l' : List A) .
+  : forall {A : Type} {l : List A} {l' : List A} .
       tail l = Some l' -> exists (a : A) . l = a :: l'.
 Proof.
   intros A l l'.
@@ -1565,7 +1563,7 @@ Module backward. (* tail.backward *)
 
 (* tail.backward.specification *)
 Lemma specification
-  : forall {A : Type} (l : List A) (l' : List A) .
+  : forall {A : Type} {l : List A} {l' : List A} .
       (exists (a : A) . l = a :: l') -> tail l = Some l'.
 Proof.
   intros A l l'.
@@ -1585,8 +1583,8 @@ Theorem specification
 Proof.
   intros A l l'.
   split.
-  - exact (tail.forward.specification  l l').
-  - exact (tail.backward.specification l l').
+  - exact (@tail.forward.specification  A l l').
+  - exact (@tail.backward.specification A l l').
 Qed.
 
 End tail. (* tail *)
@@ -1597,13 +1595,13 @@ Module forward. (* last.forward *)
 
 (* last.forward.specification *)
 Lemma specification
-  : forall {A : Type} (a : A) (l : List A) .
+  : forall {A : Type} {a : A} {l : List A} .
       last l = Some a -> exists (l' : List A) . l = append l' a.
 Proof.
   intros A a l.
   unfold last in |- *.
   intro h.
-  destruct (head.forward.specification a (reverse l) h) as [r e].
+  destruct (head.forward.specification h) as [r e].
   apply (Exists_introduction (reverse r)).
   pose proof (Identity.congruence reverse e) as e'.
   rewrite reversal.involution in e'.
@@ -1617,7 +1615,7 @@ Module backward. (* last.backward *)
 
 (* last.backward.specification *)
 Lemma specification
-  : forall {A : Type} (a : A) (l : List A) .
+  : forall {A : Type} {a : A} {l : List A} .
       (exists (l' : List A) . l = append l' a) -> last l = Some a.
 Proof.
   intros A a l.
@@ -1639,8 +1637,8 @@ Theorem specification
 Proof.
   intros A a l.
   split.
-  - exact (last.forward.specification  a l).
-  - exact (last.backward.specification a l).
+  - exact (@last.forward.specification  A a l).
+  - exact (@last.backward.specification A a l).
 Qed.
 
 End last. (* last *)
@@ -1651,7 +1649,7 @@ Module forward. (* initial.forward *)
 
 (* initial.forward.specification *)
 Lemma specification
-  : forall {A : Type} (l : List A) (l' : List A) .
+  : forall {A : Type} {l : List A} {l' : List A} .
       initial l = Some l' -> exists (a : A) . l = append l' a.
 Proof.
   intros A l l'.
@@ -1677,7 +1675,7 @@ Module backward. (* initial.backward *)
 
 (* initial.backward.specification *)
 Lemma specification
-  : forall {A : Type} (l : List A) (l' : List A) .
+  : forall {A : Type} {l : List A} {l' : List A} .
       (exists (a : A) . l = append l' a) -> initial l = Some l'.
 Proof.
   intros A l l'.
@@ -1700,8 +1698,8 @@ Theorem specification
 Proof.
   intros A l l'.
   split.
-  - exact (initial.forward.specification  l l').
-  - exact (initial.backward.specification l l').
+  - exact (@initial.forward.specification  A l l').
+  - exact (@initial.backward.specification A l l').
 Qed.
 
 End initial. (* initial *)
@@ -1712,7 +1710,7 @@ Module forward. (* popping.forward *)
 
 (* popping.forward.specification *)
 Lemma specification
-  : forall {A : Type} (a : A) (l' : List A) (l : List A) .
+  : forall {A : Type} {a : A} {l' : List A} {l : List A} .
       pop l = Some (Product_introduction a l') -> l = a :: l'.
 Proof.
   intros A a l' l.
@@ -1735,7 +1733,7 @@ Module backward. (* popping.backward *)
 
 (* popping.backward.specification *)
 Lemma specification
-  : forall {A : Type} (a : A) (l' : List A) (l : List A) .
+  : forall {A : Type} {a : A} {l' : List A} {l : List A} .
       l = a :: l' -> pop l = Some (Product_introduction a l').
 Proof.
   intros A a l' l e.
@@ -1754,8 +1752,8 @@ Theorem specification
 Proof.
   intros A a l' l.
   split.
-  - exact (popping.forward.specification  a l' l).
-  - exact (popping.backward.specification a l' l).
+  - exact (@popping.forward.specification  A a l' l).
+  - exact (@popping.backward.specification A a l' l).
 Qed.
 
 (* Projecting a [pop] gives back [head] and [tail]. *)
@@ -1866,7 +1864,7 @@ Module of. (* unzipping.inversion.of *)
  *)
 (* unzipping.inversion.of.zipping *)
 Theorem zipping
-  : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B) .
+  : forall {A : Type} {B : Type} {l1 : List A} {l2 : List B} .
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = Product_introduction l1 l2.
 Proof.
   intros A B l1.
@@ -1946,7 +1944,7 @@ Module forward. (* indexing.forward *)
 
 (* indexing.forward.specification *)
 Lemma specification
-  : forall {A : Type} (l : List A) (i : NatWithZero) .
+  : forall {A : Type} {l : List A} {i : NatWithZero} .
       (exists (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
@@ -1981,7 +1979,7 @@ Module backward. (* indexing.backward *)
 
 (* indexing.backward.specification *)
 Lemma specification
-  : forall {A : Type} (l : List A) (i : NatWithZero) .
+  : forall {A : Type} {l : List A} {i : NatWithZero} .
       i < (|| l ||) -> exists (a : A) . nth l i = Some a.
 Proof.
   intros A l.
@@ -2023,8 +2021,8 @@ Theorem specification
 Proof.
   intros A l i.
   split.
-  - exact (indexing.forward.specification  l i).
-  - exact (indexing.backward.specification l i).
+  - exact (@indexing.forward.specification  A l i).
+  - exact (@indexing.backward.specification A l i).
 Qed.
 
 End indexing. (* indexing *)
@@ -2337,7 +2335,7 @@ End preservation. (* sorting.insertion.preservation *)
 
 (* sorting.insertion.sortedness *)
 Lemma sortedness
-  : forall {A : Type} (le : A -> A -> Bool) .
+  : forall {A : Type} {le : A -> A -> Bool} .
       (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
       (forall (a : A) (b : A) (c : A) .
          le a b = true -> le b c = true -> le a c = true) ->
@@ -2354,7 +2352,6 @@ Proof.
     destruct (le a b) as [|] eqn:c.
     + simpl in |- *.
       pose proof (quantification.all.monotonicity
-                    (fun (x : A) . le b x = true) (fun (x : A) . le a x = true) l'
                     (fun (x : A) (h : le b x = true) . transitive a b x c h) below)
         as below_a.
       exact (Conjunction_introduction
@@ -2377,7 +2374,7 @@ Module forward. (* sorting.insertion.forward *)
 
 (* sorting.insertion.forward.membership *)
 Lemma membership
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A) .
+  : forall {A : Type} {le : A -> A -> Bool} {a : A} {b : A} {l : List A} .
       insert le a l contains_member b -> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
@@ -2437,7 +2434,7 @@ Theorem membership
 Proof.
   intros A le a b l.
   split.
-  - exact (sorting.insertion.forward.membership  le a b l).
+  - exact (@sorting.insertion.forward.membership  A le a b l).
   - exact (sorting.insertion.backward.membership le a b l).
 Qed.
 
@@ -2463,7 +2460,7 @@ End insertion. (* sorting.insertion *)
 
 (* sorting.sortedness *)
 Theorem sortedness
-  : forall {A : Type} (le : A -> A -> Bool) .
+  : forall {A : Type} {le : A -> A -> Bool} .
       (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
       (forall (a : A) (b : A) (c : A) .
          le a b = true -> le b c = true -> le a c = true) ->
@@ -2475,7 +2472,7 @@ Proof.
     exact I.
   - simpl in |- *.
     exact (sorting.insertion.sortedness
-             le total transitive a (insertion_sort le l') IH).
+             total transitive a (insertion_sort le l') IH).
 Qed.
 
 Module forward. (* sorting.forward *)
@@ -2486,7 +2483,7 @@ Module of. (* sorting.forward.preservation.of *)
 
 (* sorting.forward.preservation.of.membership *)
 Lemma membership
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
+  : forall {A : Type} {le : A -> A -> Bool} {a : A} {l : List A} .
       insertion_sort le l contains_member a -> l contains_member a.
 Proof.
   intros A le a l.
@@ -2496,8 +2493,7 @@ Proof.
     exact h.
   - simpl in |- *.
     intro h.
-    pose proof (sorting.insertion.forward.membership
-                  le b a (insertion_sort le l') h) as h'.
+    pose proof (sorting.insertion.forward.membership h) as h'.
     destruct h' as [e | h''].
     + exact (Disjunction.L e).
     + exact (Disjunction.R (IH h'')).
@@ -2550,7 +2546,7 @@ Theorem membership
 Proof.
   intros A le a l.
   split.
-  - exact (sorting.forward.preservation.of.membership  le a l).
+  - exact (@sorting.forward.preservation.of.membership  A le a l).
   - exact (sorting.backward.preservation.of.membership le a l).
 Qed.
 
@@ -2598,7 +2594,7 @@ Module forward. (* range.positive.forward *)
 
 (* range.positive.forward.membership *)
 Lemma membership
-  : forall (p : Nat) (i : NatWithZero) .
+  : forall {p : Nat} {i : NatWithZero} .
       range_positive p contains_member i -> i < Positive p.
 Proof.
   intros p.
@@ -2637,7 +2633,7 @@ Module backward. (* range.positive.backward *)
 
 (* range.positive.backward.membership *)
 Lemma membership
-  : forall (p : Nat) (i : NatWithZero) .
+  : forall {p : Nat} {i : NatWithZero} .
       i < Positive p -> range_positive p contains_member i.
 Proof.
   intros p.
@@ -2706,8 +2702,8 @@ Proof.
       contradiction f.
   - simpl in |- *.
     split.
-    + exact (range.positive.forward.membership  p i).
-    + exact (range.positive.backward.membership p i).
+    + exact (@range.positive.forward.membership  p i).
+    + exact (@range.positive.backward.membership p i).
 Qed.
 
 End membership. (* range.membership *)
@@ -2776,11 +2772,6 @@ Proof.
     split.
     + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max Zero l')).
     + exact (quantification.all.monotonicity
-               (fun (x : NatWithZero) .
-                  x <= fold_right NatWithZero.max Zero l')
-               (fun (x : NatWithZero) .
-                  x <= NatWithZero.max a (fold_right NatWithZero.max Zero l'))
-               l'
                (fun (x : NatWithZero)
                     (h : x <= fold_right NatWithZero.max Zero l') .
                   Comparable.order.transitivity
@@ -2794,7 +2785,7 @@ Qed.
 
 (* maximum.membership *)
 Theorem membership
-  : forall (l : List NatWithZero) . ~ (l = []) -> l contains_member maximum_of l.
+  : forall {l : List NatWithZero} . ~ (l = []) -> l contains_member maximum_of l.
 Proof.
   intros l.
   unfold maximum_of in |- *.
@@ -2858,7 +2849,7 @@ End absence. (* minimum.absence *)
 
 (* minimum.bound *)
 Theorem bound
-  : forall (l : List NatWithZero) (m : NatWithZero) .
+  : forall {l : List NatWithZero} {m : NatWithZero} .
       minimum_of l = Some m
       -> All (fun (a : NatWithZero) . m <= a) l.
 Proof.
@@ -2885,9 +2876,6 @@ Proof.
       split.
       * exact (Comparable.minimum.left.projection a m').
       * exact (quantification.all.monotonicity
-                 (fun (x : NatWithZero) . m' <= x)
-                 (fun (x : NatWithZero) . NatWithZero.min a m' <= x)
-                 l'
                  (fun (x : NatWithZero) (h : m' <= x) .
                     Comparable.order.transitivity
                       (NatWithZero.min a m') m' x
@@ -2897,7 +2885,7 @@ Qed.
 
 (* minimum.membership *)
 Theorem membership
-  : forall (l : List NatWithZero) (m : NatWithZero) .
+  : forall {l : List NatWithZero} {m : NatWithZero} .
       minimum_of l = Some m -> l contains_member m.
 Proof.
   intros l.
