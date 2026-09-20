@@ -1896,8 +1896,7 @@ Proof.
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e.
-      pose proof (NatWithZero.addition.left.cancellation
-                    (Positive One) (|| l1' ||) (|| l2' ||) e) as e'.
+      pose proof (NatWithZero.addition.left.cancellation e) as e'.
       pose proof (IH l2' e') as IH'.
       unfold unzip in IH'.
       pose proof (Product.introduction.injectivity IH') as e''.
@@ -2650,7 +2649,7 @@ Proof.
     + simpl in |- *.
       exact (Disjunction.L (Identity.reflexivity Zero)).
     + simpl in e.
-      pose proof (NatWithZero.positive.injectivity (Nat.add q k) One e) as e'.
+      pose proof (NatWithZero.positive.injectivity e) as e'.
       destruct q as [| q']; simpl in e'; discriminate e'.
   - intros i h.
     change (Positive (Successor p'))

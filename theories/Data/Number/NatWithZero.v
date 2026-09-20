@@ -219,7 +219,7 @@ Module positive. (* positive *)
 
 (* positive.injectivity *)
 Theorem injectivity
-  : forall (m : Nat) (n : Nat) . (+ m) = + n -> m = n.
+  : forall {m : Nat} {n : Nat} . (+ m) = + n -> m = n.
 Proof.
   intros m n e.
   pose proof (Identity.congruence
@@ -242,7 +242,7 @@ Proof.
     unfold LessThan in h.
     destruct h as [k e].
     simpl in e.
-    pose proof (positive.injectivity (Nat.add m k) n e) as e'.
+    pose proof (positive.injectivity e) as e'.
     unfold Nat.LessThan in |- *.
     exact (Exists_introduction k e').
   - intro h.
@@ -326,7 +326,7 @@ Module left. (* addition.left *)
 
 (* addition.left.cancellation *)
 Theorem cancellation
-  : forall (n : NatWithZero) (m : NatWithZero) (k : NatWithZero) .
+  : forall {n : NatWithZero} {m : NatWithZero} {k : NatWithZero} .
       n + m = n + k -> m = k.
 Proof.
   intros n m k.
@@ -339,7 +339,7 @@ Proof.
       reflexivity.
     + simpl in |- *.
       intro e.
-      pose proof (positive.injectivity n' (Nat.add n' k') e) as e'.
+      pose proof (positive.injectivity e) as e'.
       symmetry in e'.
       rewrite (Nat.addition.commutativity n' k') in e'.
       pose proof (Nat.addition.identity.absence k' n') as h.
@@ -348,7 +348,7 @@ Proof.
       contradiction f.
     + simpl in |- *.
       intro e.
-      pose proof (positive.injectivity (Nat.add n' m') n' e) as e'.
+      pose proof (positive.injectivity e) as e'.
       rewrite (Nat.addition.commutativity n' m') in e'.
       pose proof (Nat.addition.identity.absence m' n') as h.
       unfold Negation in h.
@@ -356,7 +356,7 @@ Proof.
       contradiction f.
     + simpl in |- *.
       intro e.
-      pose proof (positive.injectivity (Nat.add n' m') (Nat.add n' k') e) as e'.
+      pose proof (positive.injectivity e) as e'.
       pose proof (Nat.addition.left.cancellation n' m' k' e') as e''.
       rewrite e'' in |- *.
       reflexivity.
@@ -380,13 +380,13 @@ Module right. (* addition.right *)
 
 (* addition.right.cancellation *)
 Theorem cancellation
-  : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero) .
+  : forall {m : NatWithZero} {k : NatWithZero} {n : NatWithZero} .
       m + n = k + n -> m = k.
 Proof.
   intros m k n e.
   rewrite (addition.commutativity m n) in e.
   rewrite (addition.commutativity k n) in e.
-  exact (addition.left.cancellation n m k e).
+  exact (addition.left.cancellation e).
 Qed.
 
 Module identity. (* addition.right.identity *)
@@ -451,8 +451,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (addition.left.cancellation m n k).
-  - exact (addition.right.cancellation m k n).
+  - exact (@addition.left.cancellation m n k).
+  - exact (@addition.right.cancellation m k n).
 Qed.
 
 (* addition.interchange *)
@@ -501,7 +501,7 @@ Proof.
   rewrite (addition.associativity k m (+ d)) in e.
   unfold LessThan in |- *.
   apply (Exists_introduction d).
-  exact (addition.left.cancellation k (m + (+ d)) n e).
+  exact (addition.left.cancellation e).
 Qed.
 
 End strict. (* addition.order.strict *)
@@ -828,7 +828,7 @@ Proof.
   simpl in e.
   destruct n as [| n'].
   - discriminate e.
-  - pose proof (positive.injectivity (Nat.add n' k) n' e) as e'.
+  - pose proof (positive.injectivity e) as e'.
     rewrite (Nat.addition.commutativity n' k) in e'.
     pose proof (Nat.addition.identity.absence k n') as i.
     unfold Negation in i.
@@ -838,7 +838,7 @@ Qed.
 
 (* order.strict.transitivity *)
 Theorem transitivity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall {l : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
@@ -873,7 +873,7 @@ Proof.
     destruct h as [k e].
     destruct k as [| k'].
     + apply Disjunction.L.
-      exact (addition.right.cancellation m n (+ One) e).
+      exact (addition.right.cancellation e).
     + apply Disjunction.R.
       unfold LessThan in |- *.
       apply (Exists_introduction k').
@@ -884,7 +884,7 @@ Proof.
               in e.
       rewrite <- (addition.associativity m (+ k') (+ One))
               in e.
-      exact (addition.right.cancellation (m + (+ k')) n (+ One) e).
+      exact (addition.right.cancellation e).
   - intro h.
     unfold LessOrEqual in h.
     unfold LessThan    in |- *.
@@ -1028,7 +1028,7 @@ End comparison. (* comparison *)
  *)
 Instance comparable
   : Comparable compare LessThan :=
-  {| Comparable.transitivity  := order.strict.transitivity
+  {| Comparable.transitivity  := @order.strict.transitivity
    ; Comparable.specification := comparison.specification
    ; Comparable.antisymmetry  := comparison.antisymmetry |}.
 
@@ -1173,7 +1173,7 @@ End inversion. (* subtraction.saturating.inversion *)
 
 (* subtraction.saturating.truncation *)
 Theorem truncation
-  : forall (m : NatWithZero) (n : NatWithZero) . m <= n -> saturating_sub m n = 0.
+  : forall {m : NatWithZero} {n : NatWithZero} . m <= n -> saturating_sub m n = 0.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -1203,14 +1203,14 @@ Qed.
 
 (* subtraction.saturating.specification *)
 Theorem specification
-  : forall (m : NatWithZero) (n : NatWithZero) .
+  : forall {m : NatWithZero} {n : NatWithZero} .
       n <= m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
   destruct h as [e | lt].
   - rewrite e in |- *.
-    rewrite (subtraction.saturating.truncation m m (Comparable.order.reflexivity m)) in |- *.
+    rewrite (subtraction.saturating.truncation (Comparable.order.reflexivity m)) in |- *.
     destruct m as [| m']; simpl in |- *; reflexivity.
   - unfold LessThan in lt.
     destruct lt as [k e].
@@ -1266,7 +1266,7 @@ End saturating. (* subtraction.saturating *)
 
 (* subtraction.truncation *)
 Theorem truncation
-  : forall (m : NatWithZero) (n : NatWithZero) . m < n -> sub m n = None.
+  : forall {m : NatWithZero} {n : NatWithZero} . m < n -> sub m n = None.
 Proof.
   intros m n h.
   unfold sub in |- *.
@@ -1321,7 +1321,7 @@ Proof.
     + pose proof (Option.some.injectivity e) as e'.
       pose proof (->elim (Comparable.order.reflection n m) c) as order.
       rewrite <- e' in |- *.
-      exact (subtraction.saturating.specification m n order).
+      exact (subtraction.saturating.specification order).
     + discriminate e.
   - intro e.
     rewrite <- e in |- *.
@@ -1439,7 +1439,7 @@ Qed.
 
 (* divisibility.transitivity *)
 Theorem transitivity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall {l : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
       Divides l m -> Divides m n -> Divides l n.
 Proof.
   intros l m n h1 h2.
@@ -1455,7 +1455,7 @@ Qed.
 
 (* divisibility.antisymmetry *)
 Theorem antisymmetry
-  : forall (m : NatWithZero) (n : NatWithZero) . Divides m n -> Divides n m -> m = n.
+  : forall {m : NatWithZero} {n : NatWithZero} . Divides m n -> Divides n m -> m = n.
 Proof.
   intros m n h1 h2.
   unfold Divides in h1, h2.
@@ -1473,7 +1473,7 @@ Proof.
       * simpl in e2.
         discriminate e2.
       * simpl in e2.
-        pose proof (positive.injectivity (Nat.mul (Nat.mul p k') j') p e2) as e3.
+        pose proof (positive.injectivity e2) as e3.
         rewrite (Nat.multiplication.associativity p k' j') in e3.
         pose proof (Nat.multiplication.commutativity One p) as c.
         simpl in c.
@@ -1513,7 +1513,7 @@ Module addition. (* divisibility.addition *)
 
 (* divisibility.addition.closure *)
 Theorem closure
-  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall {d : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
       Divides d m -> Divides d n -> Divides d (m + n).
 Proof.
   intros d m n h1 h2.
@@ -1607,11 +1607,11 @@ Module addition. (* parity.even.addition *)
 
 (* parity.even.addition.closure *)
 Theorem closure
-  : forall (m : NatWithZero) (n : NatWithZero) . Even m -> Even n -> Even (m + n).
+  : forall {m : NatWithZero} {n : NatWithZero} . Even m -> Even n -> Even (m + n).
 Proof.
   intros m n h1 h2.
   unfold Even in h1, h2 |- *.
-  exact (divisibility.addition.closure (+ (Successor One)) m n h1 h2).
+  exact (divisibility.addition.closure h1 h2).
 Qed.
 
 End addition. (* parity.even.addition *)
@@ -1627,7 +1627,7 @@ Module addition. (* parity.odd.addition *)
  *)
 (* parity.odd.addition.evenness *)
 Theorem evenness
-  : forall (m : NatWithZero) (n : NatWithZero) . Odd m -> Odd n -> Even (m + n).
+  : forall {m : NatWithZero} {n : NatWithZero} . Odd m -> Odd n -> Even (m + n).
 Proof.
   intros m n h1 h2.
   unfold Odd in h1, h2.
@@ -1735,6 +1735,6 @@ Instance NatWithZero_divides_partial_order
   {| PartialOrder.reflexivity :=
        {| Reflexive.reflexivity := NatWithZero.divisibility.reflexivity |}
    ; PartialOrder.antisymmetry :=
-       {| Antisymmetric.antisymmetry := NatWithZero.divisibility.antisymmetry |}
+       {| Antisymmetric.antisymmetry := @NatWithZero.divisibility.antisymmetry |}
    ; PartialOrder.transitivity :=
-       {| Transitive.transitivity := NatWithZero.divisibility.transitivity |} |}.
+       {| Transitive.transitivity := @NatWithZero.divisibility.transitivity |} |}.

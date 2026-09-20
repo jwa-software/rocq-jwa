@@ -464,7 +464,7 @@ Proof.
     pose proof (difference.nat.specification p q) as s.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive.injectivity q (Nat.add k p) s) as e'.
+    pose proof (NatWithZero.positive.injectivity s) as e'.
     rewrite (Nat.addition.commutativity p k) in |- *.
     exact (Identity.symmetry e').
   - intro e.
@@ -488,7 +488,7 @@ Proof.
     pose proof (difference.nat.specification p q) as s.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive.injectivity q p s) as e'.
+    pose proof (NatWithZero.positive.injectivity s) as e'.
     exact (Identity.symmetry e').
   - intro e.
     rewrite e in |- *.
@@ -509,7 +509,7 @@ Proof.
     pose proof (difference.nat.specification p q) as s.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive.injectivity (Nat.add k q) p s) as e'.
+    pose proof (NatWithZero.positive.injectivity s) as e'.
     rewrite (Nat.addition.commutativity q k) in |- *.
     exact e'.
   - intro e.
@@ -681,13 +681,13 @@ Proof.
     reflexivity.
   - destruct c as [| r]; destruct d as [| s].
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity p q h) as e.
+      pose proof (NatWithZero.positive.injectivity h) as e.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity (Nat.add p s) q h) as e.
+      pose proof (NatWithZero.positive.injectivity h) as e.
       symmetry in e.
       rewrite e in |- *.
       simpl in |- *.
@@ -695,13 +695,13 @@ Proof.
       rewrite (difference.nat.right.inversion.of.addition s p) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity p (Nat.add r q) h) as e.
+      pose proof (NatWithZero.positive.injectivity h) as e.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (difference.nat.left.inversion.of.addition r q) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity (Nat.add p s) (Nat.add r q) h) as e.
+      pose proof (NatWithZero.positive.injectivity h) as e.
       simpl in |- *.
       exact (difference.nat.well_definedness p q r s e).
 Qed.
