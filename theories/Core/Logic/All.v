@@ -16,6 +16,7 @@ From jwa Require Export Core.Logic.Falsum.
 From jwa Require Export Core.Logic.Implication.
 From jwa Require Export Core.Logic.Negation.
 From jwa Require Export Core.Logic.Sejunction.
+From jwa Require Export Core.Logic.Syllogism.
 From jwa Require Export Core.Logic.Verum.
 
 (* Each connective only [Import]s [Core.Notations], so the open scope reaches

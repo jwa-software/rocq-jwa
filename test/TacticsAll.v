@@ -77,6 +77,27 @@ Proof.
   exact hac.
 Qed.
 
+Theorem tactics_all_delivers_barbara
+  : forall (A : Type) (S : A -> Prop) (M : A -> Prop) (P : A -> Prop) .
+      (forall (x : A) . M x -> P x) ->
+      (forall (x : A) . S x -> M x) ->
+      (forall (x : A) . S x -> P x).
+Proof.
+  intros A S M P mp sm.
+  barbara mp, sm.
+Qed.
+
+Theorem tactics_all_delivers_barbara_as
+  : forall (A : Type) (S : A -> Prop) (M : A -> Prop) (P : A -> Prop) .
+      (forall (x : A) . M x -> P x) ->
+      (forall (x : A) . S x -> M x) ->
+      (forall (x : A) . S x -> P x).
+Proof.
+  intros A S M P mp sm.
+  barbara mp, sm as sp.
+  exact sp.
+Qed.
+
 Theorem tactics_all_delivers_modus_tollens
   : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
 Proof.
