@@ -78,6 +78,8 @@ Reserved Notation "x + y"
   (at level 50, left associativity).
 Reserved Notation "x ++ y"
   (at level 60, right associativity).
+Reserved Notation "++ n"
+  (at level 35, right associativity).
 Reserved Notation "a :: l"
   (at level 60, right associativity).
 Reserved Notation "l 'contains_member' a"

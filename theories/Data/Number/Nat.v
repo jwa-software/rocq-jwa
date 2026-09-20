@@ -68,6 +68,9 @@ Local Open Scope jwa_nat_scope.
 (* [Nat -> Nat] *)
 Definition inc := fun (n : Nat) => S n.
 
+Notation "++ n" := (inc n) (only parsing)
+  : jwa_nat_scope.
+
 (* Addition *)
 
 Theorem addition_associativity

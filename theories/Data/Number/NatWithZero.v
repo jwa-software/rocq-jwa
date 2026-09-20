@@ -74,9 +74,12 @@ Definition inc := fun (n : NatWithZero) =>
   | + p => + (Nat.inc p)
   end.
 
+Notation "++ n" := (inc n) (only parsing)
+  : jwa_nat_with_zero_scope.
+
 (* Addition *)
 
-Lemma inc_specification : forall (n : NatWithZero), inc n = (+ One) + n.
+Lemma inc_specification : forall (n : NatWithZero), ++ n = (+ One) + n.
 Proof.
   intros n.
   destruct n as [| p]; simpl in |- *; reflexivity.
@@ -1067,9 +1070,9 @@ Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWith
   | Successor dividend' =>
       match division dividend' divisor with
       | Product_introduction quotient remainder =>
-          match eq (inc remainder) (+ divisor) with
-          | true  => Product_introduction (inc quotient) 0
-          | false => Product_introduction quotient       (inc remainder)
+          match eq (++ remainder) (+ divisor) with
+          | true  => Product_introduction (++ quotient) 0
+          | false => Product_introduction quotient      (++ remainder)
           end
       end
   end.
@@ -1113,8 +1116,8 @@ Proof.
     destruct (division p' d) as [q r] eqn:D.
     simpl in e.
     simpl in lt.
-    destruct (eq (inc r) (+ d)) as [|] eqn:E; split; simpl in |- *.
-    * pose proof (->elim (Comparable.eq_reflection (inc r) (+ d)) E) as full.
+    destruct (eq (++ r) (+ d)) as [|] eqn:E; split; simpl in |- *.
+    * pose proof (->elim (Comparable.eq_reflection (++ r) (+ d)) E) as full.
       rewrite (inc_specification r) in full.
       rewrite (inc_specification q) in |- *.
       rewrite (mul_r_distributivity_over_addition (+ d) (+ One) q) in |- *.
