@@ -311,7 +311,7 @@ Proof.
     pose proof (nat_difference_specification p q) as s.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive_injectivity q (Nat.add k p) s) as e'.
+    pose proof (NatWithZero.positive.injectivity q (Nat.add k p) s) as e'.
     rewrite (Nat.addition.commutativity p k) in |- *.
     exact (Identity.symmetry e').
   - intro e.
@@ -330,7 +330,7 @@ Proof.
     pose proof (nat_difference_specification p q) as s.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive_injectivity q p s) as e'.
+    pose proof (NatWithZero.positive.injectivity q p s) as e'.
     exact (Identity.symmetry e').
   - intro e.
     rewrite e in |- *.
@@ -346,7 +346,7 @@ Proof.
     pose proof (nat_difference_specification p q) as s.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive_injectivity (Nat.add k q) p s) as e'.
+    pose proof (NatWithZero.positive.injectivity (Nat.add k q) p s) as e'.
     rewrite (Nat.addition.commutativity q k) in |- *.
     exact e'.
   - intro e.
@@ -425,7 +425,7 @@ Proof.
   intros a b c d h.
   destruct a as [| p]; destruct b as [| q].
   - simpl in h.
-    rewrite (NatWithZero.addition_commutativity c NatWithZero.Zero) in h.
+    rewrite (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     simpl in h.
     rewrite h in |- *.
     rewrite (nat_with_zero_difference_reflexivity c) in |- *.
@@ -433,11 +433,11 @@ Proof.
     reflexivity.
   - simpl in h.
     rewrite h in |- *.
-    rewrite (NatWithZero.addition_commutativity c (NatWithZero.Positive q)) in |- *.
+    rewrite (NatWithZero.addition.commutativity c (NatWithZero.Positive q)) in |- *.
     rewrite (nat_with_zero_difference_r_inversion_of_addition q c) in |- *.
     simpl in |- *.
     reflexivity.
-  - rewrite (NatWithZero.addition_commutativity c NatWithZero.Zero) in h.
+  - rewrite (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     change (NatWithZero.add NatWithZero.Zero c) with c in h.
     pose proof (Identity.symmetry h) as h'.
     rewrite h' in |- *.
@@ -446,13 +446,13 @@ Proof.
     reflexivity.
   - destruct c as [| r]; destruct d as [| s].
     + simpl in h.
-      pose proof (NatWithZero.positive_injectivity p q h) as e.
+      pose proof (NatWithZero.positive.injectivity p q h) as e.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (nat_difference_reflexivity q) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive_injectivity (Nat.add p s) q h) as e.
+      pose proof (NatWithZero.positive.injectivity (Nat.add p s) q h) as e.
       pose proof (Identity.symmetry e) as e'.
       rewrite e' in |- *.
       simpl in |- *.
@@ -460,13 +460,13 @@ Proof.
       rewrite (nat_difference_r_inversion_of_addition s p) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive_injectivity p (Nat.add r q) h) as e.
+      pose proof (NatWithZero.positive.injectivity p (Nat.add r q) h) as e.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (nat_difference_l_inversion_of_addition r q) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive_injectivity (Nat.add p s) (Nat.add r q) h) as e.
+      pose proof (NatWithZero.positive.injectivity (Nat.add p s) (Nat.add r q) h) as e.
       simpl in |- *.
       exact (nat_difference_well_definedness p q r s e).
 Qed.
@@ -516,15 +516,15 @@ Proof.
            (NatWithZero.add (ramp (negate (nat_with_zero_difference a b)))
                             (ramp (negate (nat_with_zero_difference c d))))
            (NatWithZero.add a c) (NatWithZero.add b d)).
-  rewrite (NatWithZero.addition_interchange
+  rewrite (NatWithZero.addition.interchange
              (ramp (nat_with_zero_difference a b)) (ramp (nat_with_zero_difference c d))
              b d) in |- *.
   rewrite (nat_with_zero_difference_specification a b) in |- *.
   rewrite (nat_with_zero_difference_specification c d) in |- *.
-  rewrite (NatWithZero.addition_interchange
+  rewrite (NatWithZero.addition.interchange
              (ramp (negate (nat_with_zero_difference a b))) a
              (ramp (negate (nat_with_zero_difference c d))) c) in |- *.
-  rewrite (NatWithZero.addition_commutativity
+  rewrite (NatWithZero.addition.commutativity
              (NatWithZero.add (ramp (negate (nat_with_zero_difference a b)))
                               (ramp (negate (nat_with_zero_difference c d))))
              (NatWithZero.add a c)) in |- *.
@@ -561,11 +561,11 @@ Proof.
              (ramp l) (ramp (negate l))
              (NatWithZero.add (ramp m) (ramp n))
              (NatWithZero.add (ramp (negate m)) (ramp (negate n)))) in |- *.
-  rewrite (NatWithZero.addition_associativity
+  rewrite (NatWithZero.addition.associativity
              (ramp l)
              (ramp m)
              (ramp n)) in |- *.
-  rewrite (NatWithZero.addition_associativity
+  rewrite (NatWithZero.addition.associativity
              (ramp (negate l))
              (ramp (negate m))
              (ramp (negate n))) in |- *.
@@ -577,10 +577,10 @@ Theorem addition_commutativity
 Proof.
   intros m n.
   unfold add in |- *.
-  rewrite (NatWithZero.addition_commutativity
+  rewrite (NatWithZero.addition.commutativity
             (ramp m)
             (ramp n)) in |- *.
-  rewrite (NatWithZero.addition_commutativity
+  rewrite (NatWithZero.addition.commutativity
             (ramp (negate m))
             (ramp (negate n))) in |- *.
   reflexivity.
@@ -963,9 +963,9 @@ Proof.
   rewrite (nat_with_zero_difference_scaling k
              (NatWithZero.add (ramp m) (ramp n))
              (NatWithZero.add (ramp (negate m)) (ramp (negate n)))) in |- *.
-  rewrite (NatWithZero.mul_l_distributivity_over_addition
+  rewrite (NatWithZero.multiplication.left.distributivity.over.addition
              (NatWithZero.Positive k) (ramp m) (ramp n)) in |- *.
-  rewrite (NatWithZero.mul_l_distributivity_over_addition
+  rewrite (NatWithZero.multiplication.left.distributivity.over.addition
              (NatWithZero.Positive k) (ramp (negate m)) (ramp (negate n))) in |- *.
   rewrite (ramp_scaling k m) in |- *.
   rewrite (ramp_scaling k n) in |- *.

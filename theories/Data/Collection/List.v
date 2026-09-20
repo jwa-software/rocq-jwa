@@ -177,11 +177,11 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    rewrite (NatWithZero.inc_specification ((|| l1' ||) + (|| l2 ||)))
+    rewrite (NatWithZero.increment.specification ((|| l1' ||) + (|| l2 ||)))
       in |- *.
-    rewrite (NatWithZero.inc_specification (|| l1' ||))
+    rewrite (NatWithZero.increment.specification (|| l1' ||))
       in |- *.
-    rewrite (NatWithZero.addition_associativity (Positive One) (|| l1' ||) (|| l2 ||))
+    rewrite (NatWithZero.addition.associativity (Positive One) (|| l1' ||) (|| l2 ||))
       in |- *.
     reflexivity.
 Qed.
@@ -1235,8 +1235,8 @@ Qed.
  * [zip] stops with the shorter list, so a longer one is not recovered.
  * Induction on [l1] with [l2] kept in the motive, since [zip] and
  * [length] step on both lists at once; the two mismatched cases contradict
- * [NatWithZero.addition_positive_refutes_zero] and the matched case feeds the
- * hypothesis through [NatWithZero.add_l_cancellation].
+ * [NatWithZero.addition.right.identity.absence] and the matched case feeds the
+ * hypothesis through [NatWithZero.addition.left.cancellation].
  *)
 Theorem unzip_zip_identity
   : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B) .
@@ -1251,25 +1251,25 @@ Proof.
       reflexivity.
     + simpl in e.
       pose proof (Identity.symmetry e) as e'.
-      rewrite (NatWithZero.inc_specification (|| l2' ||)) in e'.
-      rewrite (NatWithZero.addition_commutativity (Positive One) (|| l2' ||)) in e'.
-      pose proof (NatWithZero.addition_positive_refutes_zero (|| l2' ||) One) as h.
+      rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
+      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l2' ||)) in e'.
+      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) One) as h.
       unfold Negation in h.
       pose proof (h e') as f.
       contradiction f.
   - intros l2 e.
     destruct l2 as [| b l2'].
     + simpl in e.
-      rewrite (NatWithZero.inc_specification (|| l1' ||)) in e.
-      rewrite (NatWithZero.addition_commutativity (Positive One) (|| l1' ||)) in e.
-      pose proof (NatWithZero.addition_positive_refutes_zero (|| l1' ||) One) as h.
+      rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
+      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l1' ||)) in e.
+      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) One) as h.
       unfold Negation in h.
       pose proof (h e) as f.
       contradiction f.
     + simpl in e.
-      rewrite (NatWithZero.inc_specification (|| l1' ||)) in e.
-      rewrite (NatWithZero.inc_specification (|| l2' ||)) in e.
-      pose proof (NatWithZero.add_l_cancellation
+      rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
+      rewrite (NatWithZero.increment.specification (|| l2' ||)) in e.
+      pose proof (NatWithZero.addition.left.cancellation
                     (Positive One) (|| l1' ||) (|| l2' ||) e) as e'.
       pose proof (IH l2' e') as IH'.
       unfold unzip in IH'.
@@ -1299,21 +1299,21 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (NatWithZero.min_left_annihilation (++ (|| l2' ||))) in |- *.
+      rewrite (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
       reflexivity.
   - intros l2.
     destruct l2 as [| b l2'].
     + simpl in |- *.
-      rewrite (NatWithZero.min_right_annihilation (++ (|| l1' ||))) in |- *.
+      rewrite (NatWithZero.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
       reflexivity.
     + simpl in |- *.
       rewrite (IH l2') in |- *.
-      rewrite (NatWithZero.inc_specification
+      rewrite (NatWithZero.increment.specification
                  (NatWithZero.min (|| l1' ||) (|| l2' ||))) in |- *.
-      rewrite (NatWithZero.addition_left_distributivity_over_min
+      rewrite (NatWithZero.minimum.left.distributivity.of.addition
                  (Positive One) (|| l1' ||) (|| l2' ||)) in |- *.
-      rewrite (NatWithZero.inc_specification (|| l1' ||)) in |- *.
-      rewrite (NatWithZero.inc_specification (|| l2' ||)) in |- *.
+      rewrite (NatWithZero.increment.specification (|| l1' ||)) in |- *.
+      rewrite (NatWithZero.increment.specification (|| l2' ||)) in |- *.
       reflexivity.
 Qed.
 
@@ -1396,20 +1396,20 @@ Proof.
   - intros i h.
     destruct i as [| i'].
     + simpl in |- *.
-      rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
-      rewrite (NatWithZero.addition_commutativity (Positive One) (|| l' ||)) in |- *.
-      exact (NatWithZero.addition_right_positivity (|| l' ||) One).
+      rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
+      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
+      exact (NatWithZero.addition.right.order.positivity (|| l' ||) One).
     + destruct i' as [| i''].
       * simpl in h.
         pose proof (IH Zero h) as lt.
         simpl in |- *.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition_strict_monotonicity (Positive One) Zero (|| l' ||) lt).
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        exact (NatWithZero.addition.order.strict.monotonicity (Positive One) Zero (|| l' ||) lt).
       * simpl in h.
         pose proof (IH (Positive i'') h) as lt.
         simpl in |- *.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition_strict_monotonicity
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        exact (NatWithZero.addition.order.strict.monotonicity
                  (Positive One) (Positive i'') (|| l' ||) lt).
 Qed.
 
@@ -1423,7 +1423,7 @@ Proof.
     simpl in h.
     unfold NatWithZero.LessThan in h.
     destruct h as [k e].
-    pose proof (NatWithZero.addition_positive_refutes_zero i k) as r.
+    pose proof (NatWithZero.addition.right.identity.absence i k) as r.
     unfold Negation in r.
     pose proof (r e) as f.
     contradiction f.
@@ -1434,14 +1434,14 @@ Proof.
       reflexivity.
     + destruct i' as [| i''].
       * simpl in h.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition_strict_cancellation (Positive One) Zero (|| l' ||) h)
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
+        pose proof (NatWithZero.addition.order.strict.cancellation (Positive One) Zero (|| l' ||) h)
           as lt.
         simpl in |- *.
         exact (IH Zero lt).
       * simpl in h.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition_strict_cancellation
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
+        pose proof (NatWithZero.addition.order.strict.cancellation
                       (Positive One) (Positive i'') (|| l' ||) h) as lt.
         simpl in |- *.
         exact (IH (Positive i'') lt).
@@ -1524,31 +1524,32 @@ Proof.
   induction l as [| a l' IH] using List_induction.
   - intros n.
     simpl in |- *.
-    rewrite (NatWithZero.min_right_annihilation n) in |- *.
+    rewrite (NatWithZero.minimum.right.annihilation n) in |- *.
     reflexivity.
   - intros n.
     destruct n as [| n'].
     + simpl in |- *.
-      rewrite (NatWithZero.min_left_annihilation (++ (|| l' ||))) in |- *.
+      rewrite (NatWithZero.minimum.left.annihilation (++ (|| l' ||))) in |- *.
       reflexivity.
     + destruct n' as [| n''].
       * simpl in |- *.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition_commutativity (Positive One) (|| l' ||)) in |- *.
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
         rewrite (<-elim
                    (Comparable.min_specification (Positive One)
                       ((|| l' ||) + Positive One))
-                   (NatWithZero.addition_right_extensivity (|| l' ||) (Positive One))) in |- *.
+                   (NatWithZero.addition.right.order.extensivity
+                      (|| l' ||) (Positive One))) in |- *.
         reflexivity.
       * simpl in |- *.
         rewrite (IH (Positive n'')) in |- *.
-        rewrite (NatWithZero.inc_specification
+        rewrite (NatWithZero.increment.specification
                    (NatWithZero.min (Positive n'') (|| l' ||))) in |- *.
-        rewrite (NatWithZero.addition_left_distributivity_over_min
+        rewrite (NatWithZero.minimum.left.distributivity.of.addition
                    (Positive One) (Positive n'') (|| l' ||)) in |- *.
         change (Positive One + Positive n'')
           with (Positive (Successor n'')) in |- *.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         reflexivity.
 Qed.
 
@@ -1567,21 +1568,21 @@ Proof.
   - intros n.
     destruct n as [| n'].
     + simpl in |- *.
-      rewrite (NatWithZero.saturating_sub_r_identity (++ (|| l' ||))) in |- *.
+      rewrite (NatWithZero.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
       reflexivity.
     + destruct n' as [| n''].
       * simpl in |- *.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition_commutativity (Positive One) (|| l' ||)) in |- *.
-        rewrite (NatWithZero.saturating_subtraction_inversion_of_addition
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
+        rewrite (NatWithZero.subtraction.saturating.inversion.of.addition
                    (|| l' ||) (Positive One)) in |- *.
         reflexivity.
       * simpl in |- *.
         rewrite (IH (Positive n'')) in |- *.
-        rewrite (NatWithZero.inc_specification (|| l' ||)) in |- *.
+        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         change (Positive (Successor n''))
           with (Positive One + Positive n'') in |- *.
-        rewrite (NatWithZero.saturating_sub_cancellation
+        rewrite (NatWithZero.subtraction.saturating.cancellation
                    (Positive One) (|| l' ||) (Positive n'')) in |- *.
         reflexivity.
 Qed.
@@ -1650,7 +1651,7 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    rewrite (NatWithZero.addition_associativity
+    rewrite (NatWithZero.addition.associativity
                a (fold_right NatWithZero.add Zero l1') (fold_right NatWithZero.add Zero l2))
       in |- *.
     reflexivity.
@@ -1665,12 +1666,13 @@ Proof.
   induction l1 as [| a l1' IH] using List_induction.
   - rewrite (append_left_identity l2) in |- *.
     change (fold_right NatWithZero.mul (Positive One) []) with (Positive One) in |- *.
-    rewrite (NatWithZero.mul_l_identity (fold_right NatWithZero.mul (Positive One) l2))
+    rewrite (NatWithZero.multiplication.left.identity
+               (fold_right NatWithZero.mul (Positive One) l2))
       in |- *.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    rewrite (NatWithZero.multiplication_associativity
+    rewrite (NatWithZero.multiplication.associativity
                a (fold_right NatWithZero.mul (Positive One) l1')
                (fold_right NatWithZero.mul (Positive One) l2)) in |- *.
     reflexivity.
@@ -1725,9 +1727,9 @@ Proof.
     + simpl in |- *.
       split.
       * intro e.
-        rewrite (NatWithZero.inc_specification (count p l')) in e.
-        rewrite (NatWithZero.addition_commutativity (Positive One) (count p l')) in e.
-        pose proof (NatWithZero.addition_positive_refutes_zero (count p l') One) as r.
+        rewrite (NatWithZero.increment.specification (count p l')) in e.
+        rewrite (NatWithZero.addition.commutativity (Positive One) (count p l')) in e.
+        pose proof (NatWithZero.addition.right.identity.absence (count p l') One) as r.
         unfold Negation in r.
         pose proof (r e) as f.
         contradiction f.
@@ -2048,8 +2050,8 @@ Proof.
                   h) as h'.
     change (Positive (Successor p'))
       with (Positive One + Positive p') in |- *.
-    rewrite (NatWithZero.addition_commutativity (Positive One) (Positive p')) in |- *.
-    apply (<-elim (NatWithZero.lt_add_one_specification i (Positive p'))).
+    rewrite (NatWithZero.addition.commutativity (Positive One) (Positive p')) in |- *.
+    apply (<-elim (NatWithZero.order.discreteness i (Positive p'))).
     unfold NatWithZero.LessOrEqual in |- *.
     destruct h' as [h1 | h2].
     + exact (Disjunction.R (IH i h1)).
@@ -2072,14 +2074,14 @@ Proof.
     + simpl in |- *.
       exact (Disjunction.L (Identity.reflexivity Zero)).
     + simpl in e.
-      pose proof (NatWithZero.positive_injectivity (Nat.add q k) One e) as e'.
+      pose proof (NatWithZero.positive.injectivity (Nat.add q k) One e) as e'.
       destruct q as [| q']; simpl in e'; discriminate e'.
   - intros i h.
     change (Positive (Successor p'))
       with (Positive One + Positive p')
       in h.
-    rewrite (NatWithZero.addition_commutativity (Positive One) (Positive p')) in h.
-    pose proof (->elim (NatWithZero.lt_add_one_specification i (Positive p')) h) as h'.
+    rewrite (NatWithZero.addition.commutativity (Positive One) (Positive p')) in h.
+    pose proof (->elim (NatWithZero.order.discreteness i (Positive p')) h) as h'.
     simpl in |- *.
     apply (<-elim
              (contains_distributivity_over_append
@@ -2105,7 +2107,7 @@ Proof.
     + intro h.
       unfold NatWithZero.LessThan in h.
       destruct h as [k e].
-      pose proof (NatWithZero.addition_positive_refutes_zero i k) as r.
+      pose proof (NatWithZero.addition.right.identity.absence i k) as r.
       unfold Negation in r.
       pose proof (r e) as f.
       contradiction f.
@@ -2132,12 +2134,12 @@ Proof.
                (range (Positive (Successor p'))) (Positive (Successor p') :: []))
       in |- *.
     change (sum (Positive (Successor p') :: [])) with (Positive (Successor p')) in |- *.
-    rewrite (NatWithZero.mul_l_distributivity_over_addition
+    rewrite (NatWithZero.multiplication.left.distributivity.over.addition
                (Positive (Successor One))
                (sum (range (Positive (Successor p')))) (Positive (Successor p'))) in |- *.
     rewrite IH in |- *.
     pose proof (Identity.symmetry
-                  (NatWithZero.mul_r_distributivity_over_addition
+                  (NatWithZero.multiplication.right.distributivity.over.addition
                      (Positive (Successor p')) (Positive p') (Positive (Successor One))))
       as d.
     rewrite d in |- *.
@@ -2145,7 +2147,7 @@ Proof.
       with (Positive (Nat.add p' (Successor One))) in |- *.
     rewrite (Nat.addition.commutativity p' (Successor One)) in |- *.
     change (Nat.add (Successor One) p') with (Successor (Successor p')) in |- *.
-    rewrite (NatWithZero.multiplication_commutativity
+    rewrite (NatWithZero.multiplication.commutativity
                (Positive (Successor p')) (Positive (Successor (Successor p')))) in |- *.
     reflexivity.
 Qed.
@@ -2197,7 +2199,7 @@ Proof.
   - intro h.
     destruct l' as [| b l''].
     + simpl in |- *.
-      rewrite (NatWithZero.max_r_identity a) in |- *.
+      rewrite (NatWithZero.maximum.right.identity a) in |- *.
       exact (Disjunction.L (Identity.reflexivity a)).
     + pose proof (IH (cons_nil_distinctness b l'')) as c.
       change (NatWithZero.max a (fold_right NatWithZero.max Zero (b :: l'')) = a
