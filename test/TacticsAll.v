@@ -77,6 +77,82 @@ Proof.
   exact hac.
 Qed.
 
+Theorem tactics_all_delivers_simplify_definition
+  : forall (A : Prop) . ~ A -> ~ A -> A -> Falsum.
+Proof.
+  intros A na1 na2 a.
+  simplify Negation in na1, na2.
+  exact (na1 a).
+Qed.
+
+Theorem tactics_all_delivers_simplify_definition_and_goal
+  : forall (A : Prop) . ~ A -> A -> Falsum.
+Proof.
+  intros A na a.
+  simplify Negation in na |- *.
+  exact (na a).
+Qed.
+
+Theorem tactics_all_delivers_simplify_goal
+  : forall (A : Prop) . A -> ~ ~ A.
+Proof.
+  intros A a.
+  simplify Negation in |- *.
+  intro na.
+  exact (na a).
+Qed.
+
+Theorem tactics_all_delivers_simplify_four_definitions
+  : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
+Proof.
+  intros m e.
+  simplify NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
+      NatWithZero.LessThan in e.
+  exact e.
+Qed.
+
+Theorem tactics_all_delivers_simplify_ten_definitions
+  : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
+Proof.
+  intros m e.
+  simplify NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
+      NatWithZero.LessThan, NatWithZero.LessOrEqual, NatWithZero.add,
+      NatWithZero.mul, NatWithZero.sub, NatWithZero.le, NatWithZero.min in e.
+  exact e.
+Qed.
+
+Theorem tactics_all_delivers_simplify_everywhere
+  : forall (A : Prop) . ~ A -> A -> Falsum.
+Proof.
+  intros A na a.
+  simplify Negation in *.
+  exact (na a).
+Qed.
+
+Theorem tactics_all_delivers_simplify_reduction_everywhere
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.add Nat.One m = n.
+Proof.
+  intros m n e.
+  simplify in *.
+  exact e.
+Qed.
+
+Theorem tactics_all_delivers_simplify_reduction
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.add Nat.One m = n.
+Proof.
+  intros m n e.
+  simplify in e |- *.
+  exact e.
+Qed.
+
+Theorem tactics_all_delivers_simplify_reduction_goal
+  : forall (m : Nat) . Nat.add Nat.One m = Nat.add Nat.One m.
+Proof.
+  intro m.
+  simplify in |- *.
+  reflexivity.
+Qed.
+
 Theorem tactics_all_delivers_barbara
   : forall (A : Type) (S : A -> Prop) (M : A -> Prop) (P : A -> Prop) .
       (forall (x : A) . M x -> P x) ->
