@@ -68,6 +68,128 @@ Qed.
 
 End de_morgan. (* de_morgan *)
 
+(* [left] and [right] say which side of the connective the second premise
+ * speaks of, the first premise being the whole connective either way.
+ *)
+Module elimination. (* elimination *)
+
+Module left. (* elimination.left *)
+
+Module of. (* elimination.left.of *)
+
+(* elimination.left.of.disjunction *)
+Theorem disjunction
+  : forall {A : Prop} {B : Prop} . A \/ B -> ~ A -> B.
+Proof.
+  intro A.
+  intro B.
+  intro h.
+
+  (* [|- (A -> Falsum) -> B] *)
+  unfold Negation in |- *.
+
+  (* The context gains [not_a : A -> Falsum]: [|- B] *)
+  intro not_a.
+
+  destruct h as [a | b].
+  - pose proof (not_a a) as f.
+    contradiction f.
+  - exact b.
+Qed.
+
+End of. (* elimination.left.of *)
+
+End left. (* elimination.left *)
+
+Module right. (* elimination.right *)
+
+Module of. (* elimination.right.of *)
+
+(* elimination.right.of.disjunction *)
+Theorem disjunction
+  : forall {A : Prop} {B : Prop} . A \/ B -> ~ B -> A.
+Proof.
+  intro A.
+  intro B.
+  intro h.
+
+  (* [|- (B -> Falsum) -> A] *)
+  unfold Negation in |- *.
+
+  intro not_b.
+
+  destruct h as [a | b].
+  - exact a.
+  - pose proof (not_b b) as f.
+    contradiction f.
+Qed.
+
+End of. (* elimination.right.of *)
+
+End right. (* elimination.right *)
+
+End elimination. (* elimination *)
+
+Module exclusion. (* exclusion *)
+
+Module left. (* exclusion.left *)
+
+Module of. (* exclusion.left.of *)
+
+(* exclusion.left.of.conjunction *)
+Theorem conjunction
+  : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> A -> ~ B.
+Proof.
+  intro A.
+  intro B.
+
+  (* [|- (A /\ B -> Falsum) -> A -> B -> Falsum] *)
+  unfold Negation in |- *.
+
+  intro h.
+  intro a.
+  intro b.
+
+  (* [|- A /\ B] *)
+  apply h.
+
+  exact (Conjunction_introduction a b).
+Qed.
+
+End of. (* exclusion.left.of *)
+
+End left. (* exclusion.left *)
+
+Module right. (* exclusion.right *)
+
+Module of. (* exclusion.right.of *)
+
+(* exclusion.right.of.conjunction *)
+Theorem conjunction
+  : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> B -> ~ A.
+Proof.
+  intro A.
+  intro B.
+
+  (* [|- (A /\ B -> Falsum) -> B -> A -> Falsum] *)
+  unfold Negation in |- *.
+
+  intro h.
+  intro b.
+  intro a.
+
+  (* [|- A /\ B] *)
+  apply h.
+
+  exact (Conjunction_introduction a b).
+Qed.
+
+End of. (* exclusion.right.of *)
+
+End right. (* exclusion.right *)
+
+End exclusion. (* exclusion *)
+
 Module double. (* double *)
 
 (* double.introduction *)
