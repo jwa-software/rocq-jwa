@@ -1087,7 +1087,7 @@ Proof.
         simpl in |- *;
         intro e.
     +
-      pose proof (Option.some_injectivity Nat m' k e) as e'.
+      pose proof (Option.some.injectivity m' k e) as e'.
       rewrite e' in |- *.
       reflexivity.
     +

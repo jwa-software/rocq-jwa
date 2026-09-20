@@ -1042,7 +1042,7 @@ Proof.
   - intro e.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
-    + pose proof (Option.some_injectivity NatWithZero (saturating_sub m n) k e) as e'.
+    + pose proof (Option.some.injectivity (saturating_sub m n) k e) as e'.
       pose proof (->elim (Comparable.le_reflection n m) c) as order.
       rewrite <- e' in |- *.
       exact (saturating_subtraction_specification m n order).

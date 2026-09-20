@@ -960,7 +960,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some_injectivity A b a e) as e'.
+    pose proof (Option.some.injectivity b a e) as e'.
     apply (Exists_introduction rest).
     rewrite e' in |- *.
     reflexivity.
@@ -999,7 +999,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some_injectivity (List A) rest l' e) as e'.
+    pose proof (Option.some.injectivity rest l' e) as e'.
     apply (Exists_introduction b).
     rewrite e' in |- *.
     reflexivity.
@@ -1084,7 +1084,7 @@ Proof.
     discriminate h.
   - simpl in |- *.
     intro h.
-    pose proof (Option.some_injectivity (List A) (reverse r) l' h) as e'.
+    pose proof (Option.some.injectivity (reverse r) l' h) as e'.
     apply (Exists_introduction b).
     pose proof (Identity.congruence reverse er) as er'.
     rewrite reverse_involution in er'.
@@ -1139,7 +1139,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some_injectivity (A * List A)
+    pose proof (Option.some.injectivity
                   (Product_introduction b rest) (Product_introduction a l') e) as e'.
     pose proof (Product.introduction_injectivity A (List A) b rest a l' e') as e''.
     destruct e'' as [eb erest].
@@ -2264,13 +2264,13 @@ Proof.
     destruct (minimum_of l') as [| m'] eqn:r.
     + simpl in e.
       pose proof (->elim (minimum_of_none_specification l') r) as en.
-      pose proof (Option.some_injectivity NatWithZero a m e) as e'.
+      pose proof (Option.some.injectivity a m e) as e'.
       rewrite en in |- *.
       rewrite e' in |- *.
       simpl in |- *.
       exact (Conjunction_introduction (Comparable.le_reflexivity m) I).
     + simpl in e.
-      pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
+      pose proof (Option.some.injectivity (NatWithZero.min a m') m e) as e'.
       symmetry in e'.
       rewrite e' in |- *.
       simpl in |- *.
@@ -2300,11 +2300,11 @@ Proof.
     simpl in e.
     destruct (minimum_of l') as [| m'] eqn:r.
     + simpl in e.
-      pose proof (Option.some_injectivity NatWithZero a m e) as e'.
+      pose proof (Option.some.injectivity a m e) as e'.
       simpl in |- *.
       exact (Disjunction.L (Identity.symmetry e')).
     + simpl in e.
-      pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
+      pose proof (Option.some.injectivity (NatWithZero.min a m') m e) as e'.
       symmetry in e'.
       rewrite e' in |- *.
       simpl in |- *.
