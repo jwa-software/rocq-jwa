@@ -68,6 +68,62 @@ Qed.
 
 End de_morgan. (* de_morgan *)
 
+Module elimination. (* elimination *)
+
+Module of. (* elimination.of *)
+
+(* elimination.of.disjunction *)
+Theorem disjunction
+  : forall {A : Prop} {B : Prop} . A \/ B -> ~ A -> B.
+Proof.
+  intro A.
+  intro B.
+  intro h.
+
+  (* [|- (A -> Falsum) -> B] *)
+  unfold Negation in |- *.
+
+  (* The context gains [not_a : A -> Falsum]: [|- B] *)
+  intro not_a.
+
+  destruct h as [a | b].
+  - pose proof (not_a a) as f.
+    contradiction f.
+  - exact b.
+Qed.
+
+End of. (* elimination.of *)
+
+End elimination. (* elimination *)
+
+Module exclusion. (* exclusion *)
+
+Module of. (* exclusion.of *)
+
+(* exclusion.of.conjunction *)
+Theorem conjunction
+  : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> A -> ~ B.
+Proof.
+  intro A.
+  intro B.
+
+  (* [|- (A /\ B -> Falsum) -> A -> B -> Falsum] *)
+  unfold Negation in |- *.
+
+  intro h.
+  intro a.
+  intro b.
+
+  (* [|- A /\ B] *)
+  apply h.
+
+  exact (Conjunction_introduction a b).
+Qed.
+
+End of. (* exclusion.of *)
+
+End exclusion. (* exclusion *)
+
 Module double. (* double *)
 
 (* double.introduction *)
