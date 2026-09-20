@@ -95,3 +95,13 @@ Reserved Notation "a 'does_not_belong_to' l"
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y , p"
   (at level 200, x binder, y binder, right associativity).
+
+(* The lambda as it is written on paper, [fun x . body], beside the
+ * kernel's [fun x => body], which keeps working. It is declared here and
+ * not beside a definition of its own, since the term it denotes is the
+ * kernel's and belongs to no file of this tree. The [.] is what ends a
+ * sentence for the lexer, but inside this rule the parser reads it as the
+ * separator. It prints as well, so a goal shows what the source says.
+ *)
+Notation "'fun' x .. y '.' body" := (fun x => .. (fun y => body) ..)
+  (at level 200, x binder, y binder, right associativity).

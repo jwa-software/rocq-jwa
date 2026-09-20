@@ -15,7 +15,7 @@ Arguments Exists_introduction {A} {P} x _.
 (* The [..] is what lets one [exists] carry several binders, nesting into
  * one [Exists] each.
  *)
-Notation "'exists' x .. y , p" := (Exists (fun x => .. (Exists (fun y => p)) ..))
+Notation "'exists' x .. y , p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
   : jwa_type_scope.
 
 (* A witness, then a proof of [P] at it. [false] cannot be the witness here:

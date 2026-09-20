@@ -10,7 +10,7 @@ From jwa Require Import Core.Notations.
  * nothing left to mean by "different".
  *)
 (* [forall {A : Type}, A -> A -> Prop] *)
-Definition Leibniz := fun {A : Type} (x : A) (y : A) =>
+Definition Leibniz := fun {A : Type} (x : A) (y : A) .
   forall (P : A -> Prop), P x -> P y.
 
 (* The identity type, which [=] spells: two terms of one type that are the

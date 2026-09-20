@@ -10,7 +10,7 @@ From jwa Require Import Core.Notations.
 
 (* Negation: a proof of [A] leads to [Falsum]. *)
 (* [Prop -> Prop] *)
-Definition Negation := fun (A : Prop) => A -> Falsum.
+Definition Negation := fun (A : Prop) . A -> Falsum.
 
 Notation "~ A" := (Negation A)
   : jwa_type_scope.
