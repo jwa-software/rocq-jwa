@@ -19,7 +19,7 @@ Notation "A /\ B" := (Conjunction A B)
 Module Conjunction.
 
 Theorem commutativity
-  : forall {A : Prop} {B : Prop}, A /\ B -> B /\ A.
+  : forall {A : Prop} {B : Prop} . A /\ B -> B /\ A.
 Proof.
   intros A B.
   intro h.
@@ -33,7 +33,7 @@ Proof.
 Qed.
 
 Theorem associativity
-  : forall (A : Prop) (B : Prop) (C : Prop), (A /\ B) /\ C <-> A /\ (B /\ C).
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A /\ B) /\ C <-> A /\ (B /\ C).
 Proof.
   intros A B C.
   split.
@@ -59,7 +59,7 @@ Qed.
  * proof from the second.
  *)
 Theorem currying
-  : forall (A : Prop) (B : Prop) (C : Prop), (A /\ B -> C) <-> (A -> B -> C).
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A /\ B -> C) <-> (A -> B -> C).
 Proof.
   intros A B C.
   split.
@@ -82,7 +82,7 @@ Qed.
  * is a pair of proofs from [A], one of [B] and one of [C].
  *)
 Theorem universality
-  : forall (A : Prop) (B : Prop) (C : Prop),
+  : forall (A : Prop) (B : Prop) (C : Prop) .
       (A -> B /\ C) <-> (A -> B) /\ (A -> C).
 Proof.
   intros A B C.
@@ -102,7 +102,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop},
+  : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop} .
       (A1 <-> A2) -> (B1 <-> B2) -> (A1 /\ B1 <-> A2 /\ B2).
 Proof.
   intros A1 A2 B1 B2.

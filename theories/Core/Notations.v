@@ -95,6 +95,8 @@ Reserved Notation "a 'does_not_belong_to' l"
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y , p"
   (at level 200, x binder, y binder, right associativity).
+Reserved Notation "'exists' x .. y '.' p"
+  (at level 200, x binder, y binder, right associativity).
 
 (* The lambda as it is written on paper, [fun x . body], beside the
  * kernel's [fun x => body], which keeps working. It is declared here and
@@ -104,4 +106,11 @@ Reserved Notation "'exists' x .. y , p"
  * separator. It prints as well, so a goal shows what the source says.
  *)
 Notation "'fun' x .. y '.' body" := (fun x => .. (fun y => body) ..)
+  (at level 200, x binder, y binder, right associativity).
+
+(* The quantifier written the same way, [forall x . p] beside the kernel's
+ * [forall x, p]. [exists] gets its dotted spelling in [Core.Logic.Exists],
+ * where its meaning is.
+ *)
+Notation "'forall' x .. y '.' p" := (forall x, .. (forall y, p) ..)
   (at level 200, x binder, y binder, right associativity).

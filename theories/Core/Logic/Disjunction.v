@@ -35,7 +35,7 @@ Abbreviation L     := Disjunction_introduction_left  (only parsing).
 Abbreviation R     := Disjunction_introduction_right (only parsing).
 
 Theorem commutativity
-  : forall {A : Prop} {B : Prop}, A \/ B -> B \/ A.
+  : forall {A : Prop} {B : Prop} . A \/ B -> B \/ A.
 Proof.
   intros A B.
   intro h.
@@ -49,7 +49,7 @@ Proof.
 Qed.
 
 Theorem associativity
-  : forall (A : Prop) (B : Prop) (C : Prop), (A \/ B) \/ C <-> A \/ (B \/ C).
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B) \/ C <-> A \/ (B \/ C).
 Proof.
   intros A B C.
   split.
@@ -68,7 +68,7 @@ Proof.
 Qed.
 
 Theorem distributivity_over_conjunction
-  : forall (A : Prop) (B : Prop) (C : Prop), A \/ (B /\ C) <-> (A \/ B) /\ (A \/ C).
+  : forall (A : Prop) (B : Prop) (C : Prop) . A \/ (B /\ C) <-> (A \/ B) /\ (A \/ C).
 Proof.
   intros A B C.
   split.
@@ -98,7 +98,7 @@ Qed.
  * the dual of [Conjunction.universality].
  *)
 Theorem universality
-  : forall (A : Prop) (B : Prop) (C : Prop), (A \/ B -> C) <-> (A -> C) /\ (B -> C).
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B -> C) <-> (A -> C) /\ (B -> C).
 Proof.
   intros A B C.
   split.
@@ -121,7 +121,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop},
+  : forall {A1 : Prop} {A2 : Prop} {B1 : Prop} {B2 : Prop} .
       (A1 <-> A2) -> (B1 <-> B2) -> (A1 \/ B1 <-> A2 \/ B2).
 Proof.
   intros A1 A2 B1 B2.
@@ -163,7 +163,7 @@ End Disjunction.
 Module Conjunction.
 
 Theorem distributivity_over_disjunction
-  : forall (A : Prop) (B : Prop) (C : Prop), A /\ (B \/ C) <-> (A /\ B) \/ (A /\ C).
+  : forall (A : Prop) (B : Prop) (C : Prop) . A /\ (B \/ C) <-> (A /\ B) \/ (A /\ C).
 Proof.
   intros A B C.
   split.

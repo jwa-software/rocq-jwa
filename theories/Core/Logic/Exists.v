@@ -3,19 +3,23 @@
 From jwa Require Import Core.Logic.Implication.
 From jwa Require Import Core.Notations.
 
-(* [P] is a predicate, not a binder: [exists x, p] is [Exists (fun x => p)],
+(* [P] is a predicate, not a binder: [exists x . p] is [Exists (fun x . p)],
  * so the [x] is bound by the [fun] and [Exists] never binds anything.
  *)
 Inductive Exists (A : Type) (P : A -> Prop) : Prop :=
-  | Exists_introduction : forall (x : A), P x -> Exists A P.
+  | Exists_introduction : forall (x : A) . P x -> Exists A P.
 
 Arguments Exists {A} P.
 Arguments Exists_introduction {A} {P} x _.
 
 (* The [..] is what lets one [exists] carry several binders, nesting into
- * one [Exists] each.
+ * one [Exists] each. The dotted spelling matches [fun x . body] and
+ * [forall x . p]; the comma stays until the rest of the tree is written
+ * with the dot.
  *)
 Notation "'exists' x .. y , p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
+  : jwa_type_scope.
+Notation "'exists' x .. y '.' p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
   : jwa_type_scope.
 
 (* A witness, then a proof of [P] at it. [false] cannot be the witness here:
@@ -26,5 +30,5 @@ Notation "'exists' x .. y , p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
  *                       |     proof
  *                       witness
  *
- * has type [exists (b : Bool), b = true].
+ * has type [exists (b : Bool) . b = true].
  *)

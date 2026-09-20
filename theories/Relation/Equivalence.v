@@ -26,7 +26,7 @@ Instance Biimplication_equivalence
        {| Transitive.transitivity := @Biimplication.transitivity |} |}.
 
 Instance Identity_equivalence
-  : forall (A : Type), Equivalence (@Identity A) :=
+  : forall (A : Type) . Equivalence (@Identity A) :=
   fun (A : Type) =>
     {| Equivalence.reflexivity :=
          {| Reflexive.reflexivity := @Identity.reflexivity A |}

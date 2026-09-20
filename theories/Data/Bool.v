@@ -51,14 +51,14 @@ Definition xor := fun (b1 : Bool) (b2 : Bool) =>
   | false => b2
   end.
 
-Theorem negate_involution : forall (b : Bool), negate (negate b) = b.
+Theorem negate_involution : forall (b : Bool) . negate (negate b) = b.
 Proof.
   intros b.
   destruct b as [|]; simpl in |- *; reflexivity.
 Qed.
 
 Theorem and_associativity
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       and (and b1 b2) b3 = and b1 (and b2 b3).
 Proof.
   intros b1 b2 b3.
@@ -66,14 +66,14 @@ Proof.
 Qed.
 
 Theorem and_commutativity
-  : forall (b1 : Bool) (b2 : Bool), and b1 b2 = and b2 b1.
+  : forall (b1 : Bool) (b2 : Bool) . and b1 b2 = and b2 b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
 Theorem and_identity
-  : forall (b : Bool), (and true b = b) /\ (and b true = b).
+  : forall (b : Bool) . (and true b = b) /\ (and b true = b).
 Proof.
   intros b.
   split.
@@ -85,21 +85,21 @@ Proof.
 Qed.
 
 Theorem or_associativity
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       or (or b1 b2) b3 = or b1 (or b2 b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool), or b1 b2 = or b2 b1.
+Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool) . or b1 b2 = or b2 b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
 Theorem or_identity
-  : forall (b : Bool), (or false b = b) /\ (or b false = b).
+  : forall (b : Bool) . (or false b = b) /\ (or b false = b).
 Proof.
   intros b.
   split.
@@ -111,7 +111,7 @@ Proof.
 Qed.
 
 Theorem xor_associativity
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       xor (xor b1 b2) b3 = xor b1 (xor b2 b3).
 Proof.
   intros b1 b2 b3.
@@ -119,14 +119,14 @@ Proof.
 Qed.
 
 Theorem xor_commutativity
-  : forall (b1 : Bool) (b2 : Bool), xor b1 b2 = xor b2 b1.
+  : forall (b1 : Bool) (b2 : Bool) . xor b1 b2 = xor b2 b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
 Theorem xor_identity
-  : forall (b : Bool), (xor false b = b) /\ (xor b false = b).
+  : forall (b : Bool) . (xor false b = b) /\ (xor b false = b).
 Proof.
   intros b.
   split.
@@ -137,14 +137,14 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem xor_irreflexivity : forall (b : Bool), xor b b = false.
+Theorem xor_irreflexivity : forall (b : Bool) . xor b b = false.
 Proof.
   intros b.
   destruct b as [|]; reflexivity.
 Qed.
 
 Theorem xor_inverse
-  : forall (b : Bool), (xor b b = false) /\ (xor b b = false).
+  : forall (b : Bool) . (xor b b = false) /\ (xor b b = false).
 Proof.
   intros b.
   split.
@@ -153,7 +153,7 @@ Proof.
 Qed.
 
 Theorem and_left_distributivity_over_xor
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3).
 Proof.
   intros b1 b2 b3.
@@ -161,7 +161,7 @@ Proof.
 Qed.
 
 Theorem and_right_distributivity_over_xor
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1).
 Proof.
   intros b1 b2 b3.
@@ -169,7 +169,7 @@ Proof.
 Qed.
 
 Theorem and_distributivity_over_xor
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       (and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3))
     /\ (and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1)).
 Proof.
@@ -192,7 +192,7 @@ Definition Assert := fun (b : Bool) =>
   end.
 
 Theorem assert_conjunction
-  : forall (b1 : Bool) (b2 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) .
       Assert (and b1 b2) <-> Assert b1 /\ Assert b2.
 Proof.
   intros b1 b2.
@@ -213,7 +213,7 @@ Proof.
 Qed.
 
 Theorem assert_disjunction
-  : forall (b1 : Bool) (b2 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) .
       Assert (or b1 b2) <-> Assert b1 \/ Assert b2.
 Proof.
   intros b1 b2.
@@ -233,7 +233,7 @@ Proof.
 Qed.
 
 Theorem assert_sejunction
-  : forall (b1 : Bool) (b2 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) .
       Assert (xor b1 b2) <-> Assert b1 _\/_ Assert b2.
 Proof.
   intros b1 b2.
@@ -255,7 +255,7 @@ Proof.
 Qed.
 
 Theorem assert_negation
-  : forall (b : Bool), Assert (negate b) <-> ~ Assert b.
+  : forall (b : Bool) . Assert (negate b) <-> ~ Assert b.
 Proof.
   intros b.
   unfold Negation in |- *.
@@ -267,7 +267,7 @@ Proof.
   + exact I.
 Qed.
 
-Theorem assert_specification : forall (b : Bool), Assert b <-> b = true.
+Theorem assert_specification : forall (b : Bool) . Assert b <-> b = true.
 Proof.
   intros b.
   destruct b as [|]; simpl in |- *; split; intro h.

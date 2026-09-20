@@ -9,9 +9,9 @@ From jwa Require Import Core.Notations.
  * [y], there is nothing left over that could distinguish them, so there is
  * nothing left to mean by "different".
  *)
-(* [forall {A : Type}, A -> A -> Prop] *)
+(* [forall {A : Type} . A -> A -> Prop] *)
 Definition Leibniz := fun {A : Type} (x : A) (y : A) .
-  forall (P : A -> Prop), P x -> P y.
+  forall (P : A -> Prop) . P x -> P y.
 
 (* The identity type, which [=] spells: two terms of one type that are the
  * same term. [x] is a parameter and the second argument an index, so the
@@ -29,11 +29,11 @@ Arguments Identity_introduction {A} x.
  * [y] after it -- is the order the registration needs.
  *)
 Theorem Identity_induction
-  : forall {A : Type} (x : A) (P : A -> Prop),
-      P x -> forall (y : A), Identity x y -> P y.
+  : forall {A : Type} (x : A) (P : A -> Prop) .
+      P x -> forall (y : A) . Identity x y -> P y.
 Proof.
   (* The context gains [A], [x], [P] and [p]:
-   * [|- forall (y : A), Identity x y -> P y]
+   * [|- forall (y : A) . Identity x y -> P y]
    *)
   intros A x P p.
   (* The context gains [y] and [e]: [|- P y] *)
@@ -53,14 +53,14 @@ Module Identity.
 
 (* Every term equals itself: the reflexivity law of [=]. *)
 Theorem reflexivity
-  : forall {A : Type} (x : A), Identity x x.
+  : forall {A : Type} (x : A) . Identity x x.
 Proof.
   intros A x.
   exact (Identity_introduction x).
 Qed.
 
 Theorem symmetry
-  : forall {A : Type} {x : A} {y : A}, Identity x y -> Identity y x.
+  : forall {A : Type} {x : A} {y : A} . Identity x y -> Identity y x.
 Proof.
   intros A x y e.
   destruct e.
@@ -68,7 +68,7 @@ Proof.
 Qed.
 
 Theorem transitivity
-  : forall {A : Type} {x : A} {y : A} {z : A},
+  : forall {A : Type} {x : A} {y : A} {z : A} .
       Identity x y -> Identity y z -> Identity x z.
 Proof.
   intros A x y z e1 e2.
@@ -77,7 +77,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A},
+  : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A} .
       Identity x y -> Identity (f x) (f y).
 Proof.
   intros A B f x y e.
@@ -93,8 +93,8 @@ End Identity.
  *)
 
 Definition Identity_rewrite_forward
-  : forall (A : Type) (x : A) (P : A -> Type),
-      P x -> forall (y : A), Identity x y -> P y.
+  : forall (A : Type) (x : A) (P : A -> Type) .
+      P x -> forall (y : A) . Identity x y -> P y.
 Proof.
   intros A x P p.
   intros y e.
@@ -103,7 +103,7 @@ Proof.
 Defined.
 
 Definition Identity_rewrite_backward
-  : forall (A : Type) (x : A) (y : A) (P : A -> Type),
+  : forall (A : Type) (x : A) (y : A) (P : A -> Type) .
       P y -> Identity x y -> P x.
 Proof.
   intros A x y P p.

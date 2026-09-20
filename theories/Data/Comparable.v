@@ -20,13 +20,13 @@ From jwa Require Import Relation.Trichotomous.
  *)
 Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Prop) : Prop :=
   { transitivity
-    : forall (l : A) (m : A) (n : A),
+    : forall (l : A) (m : A) (n : A) .
       lt l m -> lt m n -> lt l n
   ; specification
-    : forall (m : A) (n : A),
+    : forall (m : A) (n : A) .
       (compare m n = Lt <-> lt m n) /\ (compare m n = Eq <-> m = n)
   ; antisymmetry
-    : forall (m : A) (n : A),
+    : forall (m : A) (n : A) .
       compare m n = Comparison.transpose (compare n m) }.
 
 (* Everything below holds of any [Comparable compare lt], so each number type
@@ -34,11 +34,11 @@ Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Pro
  *)
 Module Comparable.
 
-(* [forall {A : Type}, (A -> A -> Prop) -> A -> A -> Prop] *)
+(* [forall {A : Type} . (A -> A -> Prop) -> A -> A -> Prop] *)
 Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) =>
   m = n \/ lt m n.
 
-(* [forall {A : Type}, (A -> A -> Comparison) -> A -> A -> Bool] *)
+(* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> Bool] *)
 Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
   match compare m n with
   | Lt => false
@@ -46,7 +46,7 @@ Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A)
   | Gt => false
   end.
 
-(* [forall {A : Type}, (A -> A -> Comparison) -> A -> A -> Bool] *)
+(* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> Bool] *)
 Definition le := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
   match compare m n with
   | Lt => true
@@ -54,7 +54,7 @@ Definition le := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A)
   | Gt => false
   end.
 
-(* [forall {A : Type}, (A -> A -> Comparison) -> A -> A -> A] *)
+(* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> A] *)
 Definition min := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
   match compare m n with
   | Lt => m
@@ -62,7 +62,7 @@ Definition min := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A
   | Gt => n
   end.
 
-(* [forall {A : Type}, (A -> A -> Comparison) -> A -> A -> A] *)
+(* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> A] *)
 Definition max := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) =>
   match compare m n with
   | Lt => n

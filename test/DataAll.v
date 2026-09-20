@@ -3,13 +3,13 @@
 From jwa Require Import Data.All.
 
 Definition data_all_delivers_some
-  : forall (A : Type) (B : Type) (f : A -> B) (a : A),
+  : forall (A : Type) (B : Type) (f : A -> B) (a : A) .
       ~ (true = false) -> Option.map f (Some a) = Some (f a)
   := fun (A : Type) (B : Type) (f : A -> B) (a : A) (_ : ~ (true = false)) =>
        Identity.reflexivity (Some (f a)).
 
 Definition data_all_delivers_none
-  : forall (A : Type),
+  : forall (A : Type) .
       Option.map (fun (a : A) => a) None = None
   := fun (A : Type) =>
        Identity.reflexivity None.
@@ -19,7 +19,7 @@ Definition data_all_delivers_product
   := (true , false)%product.
 
 Definition data_all_delivers_first
-  : forall (A : Type) (a : A) (b : A), Product.first (Product_introduction a b) = a
+  : forall (A : Type) (a : A) (b : A) . Product.first (Product_introduction a b) = a
   := fun (A : Type) (a : A) (b : A) => Identity.reflexivity a.
 
 Definition data_all_delivers_projections
@@ -31,7 +31,7 @@ Definition data_all_delivers_product_functor
   := Functor.map (fun (b : Bool) => b) (Product_introduction true false).
 
 Definition data_all_delivers_product_monoid
-  : forall (p : Bool * Bool),
+  : forall (p : Bool * Bool) .
       Product.direct_product Bool.and Bool.or (Product_introduction true false) p = p
       /\ Product.direct_product Bool.and Bool.or p (Product_introduction true false) = p
   := Monoid.identity.
@@ -41,7 +41,7 @@ Definition data_all_delivers_coproduct
   := Coproduct.left true.
 
 Definition data_all_delivers_copair
-  : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B),
+  : forall (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) .
       Coproduct.copair f g (Coproduct.right b) = g b
   := fun (A : Type) (B : Type) (f : A -> Bool) (g : B -> Bool) (b : B) =>
        Identity.reflexivity (g b).
@@ -51,7 +51,7 @@ Definition data_all_delivers_coproduct_functor
   := Functor.map (fun (b : Bool) => b) (Coproduct.right true).
 
 Definition data_all_delivers_unit
-  : forall (u : Unit), u = Unit_introduction
+  : forall (u : Unit) . u = Unit_introduction
   := Unit.surjectivity.
 
 Definition data_all_delivers_empty
@@ -75,23 +75,23 @@ Definition data_all_delivers_add
   := NatWithZero.add (NatWithZero.Positive (Nat.add One One)) NatWithZero.Zero.
 
 Definition data_all_delivers_instances
-  : forall (x : Nat) (y : Nat) (z : Nat) (w : NatWithZero),
+  : forall (x : Nat) (y : Nat) (z : Nat) (w : NatWithZero) .
       Nat.add (Nat.add x y) z = Nat.add x (Nat.add y z)
   := fun (x : Nat) (y : Nat) (z : Nat) (_ : NatWithZero) =>
        Semigroup.associativity x y z.
 
 Definition data_all_delivers_monoid
-  : forall (w : NatWithZero),
+  : forall (w : NatWithZero) .
       NatWithZero.add NatWithZero.Zero w = w /\ NatWithZero.add w NatWithZero.Zero = w
   := Monoid.identity.
 
 Definition data_all_delivers_cancellative
-  : forall (x : Nat) (y : Nat) (z : Nat),
+  : forall (x : Nat) (y : Nat) (z : Nat) .
       (Nat.add x y = Nat.add x z -> y = z) /\ (Nat.add x y = Nat.add z y -> x = z)
   := Cancellative.cancellation.
 
 Definition data_all_delivers_cancellative_with_zero
-  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero),
+  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero) .
       (NatWithZero.add x y = NatWithZero.add x z -> y = z)
       /\ (NatWithZero.add x y = NatWithZero.add z y -> x = z)
   := Cancellative.cancellation.
@@ -113,11 +113,11 @@ Definition data_all_delivers_sub
   := Nat.sub (Successor One) One.
 
 Definition data_all_delivers_mul_monoid
-  : forall (n : Nat), Nat.mul One n = n /\ Nat.mul n One = n
+  : forall (n : Nat) . Nat.mul One n = n /\ Nat.mul n One = n
   := Monoid.identity.
 
 Definition data_all_delivers_commutative
-  : forall (p1 : Nat * Bool) (p2 : Nat * Bool),
+  : forall (p1 : Nat * Bool) (p2 : Nat * Bool) .
       Product.direct_product Nat.mul Bool.xor p1 p2
       = Product.direct_product Nat.mul Bool.xor p2 p1
   := Commutative.commutativity.
@@ -131,11 +131,11 @@ Definition data_all_delivers_bool_operations
   := (true || false) && (Bool.negate false ^^ true).
 
 Definition data_all_delivers_bool_monoids
-  : forall (b : Bool), Bool.and true b = b /\ Bool.and b true = b
+  : forall (b : Bool) . Bool.and true b = b /\ Bool.and b true = b
   := Monoid.identity.
 
 Definition data_all_delivers_bool_bridge
-  : forall (b1 : Bool) (b2 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) .
       Bool.Assert (Bool.and b1 b2) <-> Bool.Assert b1 /\ Bool.Assert b2
   := Bool.assert_conjunction.
 
@@ -144,7 +144,7 @@ Definition data_all_delivers_list
   := (Cons true Nil ++ Cons false Nil)%list.
 
 Definition data_all_delivers_list_monoid
-  : forall (A : Type) (l : List A), (Nil ++ l)%list = l /\ (l ++ Nil)%list = l
+  : forall (A : Type) (l : List A) . (Nil ++ l)%list = l /\ (l ++ Nil)%list = l
   := fun (A : Type) => Monoid.identity.
 
 Definition data_all_delivers_empty_list
@@ -196,7 +196,7 @@ Definition data_all_delivers_eq
   := NatWithZero.eq NatWithZero.Zero NatWithZero.Zero.
 
 Definition data_all_delivers_comparable_specifications
-  : forall (m : Nat) (n : Nat),
+  : forall (m : Nat) (n : Nat) .
       (Nat.compare m n = Lt <-> Nat.LessThan m n)
     /\ (Nat.compare m n = Gt <-> Nat.LessThan n m)
   := fun (m : Nat) (n : Nat) =>
@@ -204,34 +204,34 @@ Definition data_all_delivers_comparable_specifications
          (Comparable.lt_specification m n) (Comparable.gt_specification m n).
 
 Definition data_all_delivers_comparable
-  : forall (m : Nat) (n : Nat), Nat.LessThan m n \/ m = n \/ Nat.LessThan n m
+  : forall (m : Nat) (n : Nat) . Nat.LessThan m n \/ m = n \/ Nat.LessThan n m
   := Comparable.trichotomy.
 
 Definition data_all_delivers_comparable_min
-  : forall (m : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) .
       NatWithZero.min m n = NatWithZero.min n m
   := Comparable.min_commutativity.
 
 Definition data_all_delivers_total_order
-  : forall (m : Nat) (n : Nat), Nat.LessOrEqual m n \/ Nat.LessOrEqual n m
+  : forall (m : Nat) (n : Nat) . Nat.LessOrEqual m n \/ Nat.LessOrEqual n m
   := Total.totality.
 
 Definition data_all_delivers_strict_partial_order
-  : forall (n : NatWithZero), ~ NatWithZero.LessThan n n
+  : forall (n : NatWithZero) . ~ NatWithZero.LessThan n n
   := Irreflexive.irreflexivity.
 
 Definition data_all_delivers_strict_total_order
-  : forall (m : Integer) (n : Integer),
+  : forall (m : Integer) (n : Integer) .
       Integer.LessThan m n \/ m = n \/ Integer.LessThan n m
   := Trichotomous.trichotomy.
 
 Definition data_all_delivers_max_monoid
-  : forall (n : NatWithZero),
+  : forall (n : NatWithZero) .
       NatWithZero.max NatWithZero.Zero n = n /\ NatWithZero.max n NatWithZero.Zero = n
   := Monoid.identity.
 
 Definition data_all_delivers_nat_max_monoid
-  : forall (n : Nat), Nat.max One n = n /\ Nat.max n One = n
+  : forall (n : Nat) . Nat.max One n = n /\ Nat.max n One = n
   := Monoid.identity.
 
 Definition data_all_delivers_division
@@ -260,7 +260,7 @@ Definition data_all_delivers_count
   := List.count (fun (b : Bool) => b) (Cons true Nil).
 
 Definition data_all_delivers_sorting
-  : forall (l : List NatWithZero),
+  : forall (l : List NatWithZero) .
       List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
   := List.insertion_sort_sortedness NatWithZero.le
        (fun (m : NatWithZero) (n : NatWithZero) =>
@@ -289,22 +289,22 @@ Definition data_all_delivers_integer_order
   := (Negative One < Integer.Zero)%integer /\ (Integer.Positive One >= Integer.Zero)%integer.
 
 Definition data_all_delivers_integer_monoid
-  : forall (x : Integer), Integer.add Integer.Zero x = x /\ Integer.add x Integer.Zero = x
+  : forall (x : Integer) . Integer.add Integer.Zero x = x /\ Integer.add x Integer.Zero = x
   := Monoid.identity.
 
 Definition data_all_delivers_integer_mul_monoid
-  : forall (x : Integer),
+  : forall (x : Integer) .
       Integer.mul (Integer.Positive One) x = x /\ Integer.mul x (Integer.Positive One) = x
   := Monoid.identity.
 
 Definition data_all_delivers_integer_cancellative
-  : forall (x : Integer) (y : Integer) (z : Integer),
+  : forall (x : Integer) (y : Integer) (z : Integer) .
       (Integer.add x y = Integer.add x z -> y = z)
       /\ (Integer.add x y = Integer.add z y -> x = z)
   := Cancellative.cancellation.
 
 Definition data_all_delivers_integer_total_order
-  : forall (m : Integer) (n : Integer), Integer.LessOrEqual m n \/ Integer.LessOrEqual n m
+  : forall (m : Integer) (n : Integer) . Integer.LessOrEqual m n \/ Integer.LessOrEqual n m
   := Total.totality.
 
 Definition data_all_delivers_integer_embedding
@@ -335,7 +335,7 @@ Definition data_all_delivers_divides
   := NatWithZero.Divides (NatWithZero.Positive One) NatWithZero.Zero.
 
 Definition data_all_delivers_divides_partial_order
-  : forall (m : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) .
       NatWithZero.Divides m n -> NatWithZero.Divides n m -> m = n
   := Antisymmetric.antisymmetry.
 
@@ -344,30 +344,30 @@ Definition data_all_delivers_parity
   := NatWithZero.Even NatWithZero.Zero /\ Integer.Odd (Negative One).
 
 Definition data_all_delivers_semiring
-  : forall (n : NatWithZero),
+  : forall (n : NatWithZero) .
       NatWithZero.mul NatWithZero.Zero n = NatWithZero.Zero
       /\ NatWithZero.mul n NatWithZero.Zero = NatWithZero.Zero
   := Semiring.annihilation.
 
 Definition data_all_delivers_group
-  : forall (x : Integer),
+  : forall (x : Integer) .
       Integer.add (Integer.negate x) x = Integer.Zero
       /\ Integer.add x (Integer.negate x) = Integer.Zero
   := Group.inverse.
 
 Definition data_all_delivers_ring
-  : forall (x : Integer) (y : Integer) (z : Integer),
+  : forall (x : Integer) (y : Integer) (z : Integer) .
       Integer.mul x (Integer.add y z) = Integer.add (Integer.mul x y) (Integer.mul x z)
       /\ Integer.mul (Integer.add y z) x = Integer.add (Integer.mul y x) (Integer.mul z x)
   := Ring.distributivity.
 
 Definition data_all_delivers_boolean_ring
-  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool),
+  : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
       Bool.and b1 (Bool.xor b2 b3) = Bool.xor (Bool.and b1 b2) (Bool.and b1 b3)
       /\ Bool.and (Bool.xor b2 b3) b1 = Bool.xor (Bool.and b2 b1) (Bool.and b3 b1)
   := Ring.distributivity.
 
 Definition data_all_delivers_mul_cancellative
-  : forall (x : Nat) (y : Nat) (z : Nat),
+  : forall (x : Nat) (y : Nat) (z : Nat) .
       (Nat.mul x y = Nat.mul x z -> y = z) /\ (Nat.mul x y = Nat.mul z y -> x = z)
   := Cancellative.cancellation.

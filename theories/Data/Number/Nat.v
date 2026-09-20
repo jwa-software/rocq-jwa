@@ -18,13 +18,13 @@ Inductive Nat : Type :=
   | Successor : Nat -> Nat.
 
 Definition Nat_induction
-  : forall (P : Nat -> Prop),
+  : forall (P : Nat -> Prop) .
       P One ->
-      (forall (n : Nat), P n -> P (Successor n)) ->
-      forall (n : Nat), P n
+      (forall (n : Nat) . P n -> P (Successor n)) ->
+      forall (n : Nat) . P n
   := fun (P : Nat -> Prop)
          (base : P One)
-         (step : forall (n : Nat), P n -> P (Successor n)) =>
+         (step : forall (n : Nat) . P n -> P (Successor n)) =>
        fix go (n : Nat) : P n :=
          match n with
          | One          => base
@@ -74,7 +74,7 @@ Notation "++ n" := (inc n) (only parsing)
 (* Addition *)
 
 Theorem addition_associativity
-  : forall (l : Nat) (m : Nat) (n : Nat), (l + m) + n = l + (m + n).
+  : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
   induction l as [| l' IH] using Nat_induction.
@@ -87,7 +87,7 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem addition_commutativity : forall (m : Nat) (n : Nat), m + n = n + m.
+Theorem addition_commutativity : forall (m : Nat) (n : Nat) . m + n = n + m.
 Proof.
   intros m n.
   induction m as [| m' IH] using Nat_induction; simpl in |- *.
@@ -106,7 +106,7 @@ Proof.
 Qed.
 
 Lemma suc_injectivity
-  : forall (m : Nat) (n : Nat), S m = S n -> m = n.
+  : forall (m : Nat) (n : Nat) . S m = S n -> m = n.
 Proof.
   intros m n e.
   pose (f := (fun (x : Nat) => match x with | 1 => m | S y => y end)).
@@ -115,7 +115,7 @@ Proof.
   exact e'.
 Qed.
 
-Theorem addition_identity_absence : forall (k : Nat) (n : Nat), ~ (k + n = n).
+Theorem addition_identity_absence : forall (k : Nat) (n : Nat) . ~ (k + n = n).
 Proof.
   intros k n.
   induction n as [| n' IH] using Nat_induction.
@@ -137,7 +137,7 @@ Proof.
 Qed.
 
 Theorem add_l_cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat), m + n = m + k -> n = k.
+  : forall (m : Nat) (n : Nat) (k : Nat) . m + n = m + k -> n = k.
 Proof.
   intros m n k.
   induction m as [| m' IH] using Nat_induction.
@@ -151,7 +151,7 @@ Proof.
 Qed.
 
 Theorem add_r_cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat), m + n = k + n -> m = k.
+  : forall (m : Nat) (n : Nat) (k : Nat) . m + n = k + n -> m = k.
 Proof.
   intros m n k e.
   rewrite (addition_commutativity k n) in e.
@@ -160,7 +160,7 @@ Proof.
 Qed.
 
 Theorem addition_cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat),
+  : forall (m : Nat) (n : Nat) (k : Nat) .
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
@@ -170,7 +170,7 @@ Proof.
 Qed.
 
 Lemma add_l_commutativity
-  : forall (l : Nat) (m : Nat) (n : Nat), l + (m + n) = m + (l + n).
+  : forall (l : Nat) (m : Nat) (n : Nat) . l + (m + n) = m + (l + n).
 Proof.
   intros l m n.
   rewrite (addition_commutativity l (m + n)) in |- *.
@@ -180,7 +180,7 @@ Proof.
 Qed.
 
 Lemma add_r_commutativity
-  : forall (l : Nat) (m : Nat) (n : Nat), (l + m) + n = (l + n) + m.
+  : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = (l + n) + m.
 Proof.
   intros l m n.
   rewrite (addition_associativity l m n) in |- *.
@@ -191,7 +191,7 @@ Qed.
 
 (* Multiplication *)
 
-Theorem multiplication_commutativity : forall (m : Nat) (n : Nat), m * n = n * m.
+Theorem multiplication_commutativity : forall (m : Nat) (n : Nat) . m * n = n * m.
 Proof.
   intros m n.
   induction m as [| m' IH] using Nat_induction; simpl in |- *.
@@ -213,7 +213,7 @@ Proof.
 Qed.
 
 Theorem mul_l_distributivity_over_addition
-  : forall (l : Nat) (m : Nat) (n : Nat),
+  : forall (l : Nat) (m : Nat) (n : Nat) .
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
@@ -229,7 +229,7 @@ Proof.
 Qed.
 
 Theorem mul_r_distributivity_over_addition
-  : forall (l : Nat) (m : Nat) (n : Nat),
+  : forall (l : Nat) (m : Nat) (n : Nat) .
       (m + n) * l = (m * l) + (n * l).
 Proof.
   intros l m n.
@@ -241,7 +241,7 @@ Proof.
 Qed.
 
 Theorem multiplication_distributivity_over_addition
-  : forall (a : Nat) (b : Nat) (c : Nat) (d : Nat),
+  : forall (a : Nat) (b : Nat) (c : Nat) (d : Nat) .
       (a + b) * (c + d) = ((a * c) + (a * d)) + ((b * c) + (b * d)).
 Proof.
   intros a b c d.
@@ -252,7 +252,7 @@ Proof.
 Qed.
 
 Theorem multiplication_associativity
-  : forall (l : Nat) (m : Nat) (n : Nat),
+  : forall (l : Nat) (m : Nat) (n : Nat) .
     (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
@@ -266,7 +266,7 @@ Proof.
 Qed.
 
 Theorem multiplication_identity
-  : forall (n : Nat), (1 * n = n) /\ (n * 1 = n).
+  : forall (n : Nat) . (1 * n = n) /\ (n * 1 = n).
 Proof.
   intros n.
   split.
@@ -278,7 +278,7 @@ Proof.
 Qed.
 
 Lemma mul_l_commutativity
-  : forall (l : Nat) (m : Nat) (n : Nat), l * (m * n) = m * (l * n).
+  : forall (l : Nat) (m : Nat) (n : Nat) . l * (m * n) = m * (l * n).
 Proof.
   intros l m n.
   rewrite (multiplication_commutativity l (m * n)) in |- *.
@@ -288,7 +288,7 @@ Proof.
 Qed.
 
 Lemma mul_r_commutativity
-  : forall (l : Nat) (m : Nat) (n : Nat), (l * m) * n = (l * n) * m.
+  : forall (l : Nat) (m : Nat) (n : Nat) . (l * m) * n = (l * n) * m.
 Proof.
   intros l m n.
   rewrite (multiplication_associativity l m n) in |- *.
@@ -298,7 +298,7 @@ Proof.
 Qed.
 
 Theorem multiplication_identity_factorization
-  : forall (k : Nat) (j : Nat), k * j = 1 -> k = 1 /\ j = 1.
+  : forall (k : Nat) (j : Nat) . k * j = 1 -> k = 1 /\ j = 1.
 Proof.
   intros k j e.
   destruct k as [| k']; simpl in e.
@@ -323,12 +323,12 @@ Fixpoint power (m : Nat) (n : Nat) : Nat :=
   | S n' => m * power m n'
   end.
 
-Lemma power_identity : forall (m : Nat), power m 1 = m.
+Lemma power_identity : forall (m : Nat) . power m 1 = m.
 Proof.
   intros m. simpl in |- *. reflexivity.
 Qed.
 
-Lemma power_annihilation : forall (n : Nat), power 1 n = 1.
+Lemma power_annihilation : forall (n : Nat) . power 1 n = 1.
 Proof.
   intros n.
   induction n as [| n' IH] using Nat_induction; simpl in |- *.
@@ -337,7 +337,7 @@ Proof.
 Qed.
 
 Theorem product_of_powers
-  : forall (m : Nat) (a : Nat) (b : Nat),
+  : forall (m : Nat) (a : Nat) (b : Nat) .
       power m a * power m b = power m (a + b).
 Proof.
   intros m a b.
@@ -349,7 +349,7 @@ Proof.
 Qed.
 
 Theorem power_of_a_power
-  : forall (m : Nat) (a : Nat) (b : Nat),
+  : forall (m : Nat) (a : Nat) (b : Nat) .
       power (power m a) b = power m (a * b).
 Proof.
   intros m a b.
@@ -366,7 +366,7 @@ Proof.
 Qed.
 
 Theorem power_distributivity_over_multiplication
-  : forall (m : Nat) (n : Nat) (a : Nat),
+  : forall (m : Nat) (n : Nat) (a : Nat) .
       power (m * n) a = power m a * power n a.
 Proof.
   intros m n a.
@@ -384,7 +384,7 @@ Qed.
 (* Order *)
 
 (* [Nat -> Nat -> Prop] *)
-Definition LessThan := fun (m : Nat) (n : Nat) => exists (k : Nat), m + k = n.
+Definition LessThan := fun (m : Nat) (n : Nat) => exists (k : Nat) . m + k = n.
 
 (* [Nat -> Nat -> Prop] *)
 Definition LessOrEqual := fun (m : Nat) (n : Nat) => m = n \/ LessThan m n.
@@ -402,7 +402,7 @@ Notation "m > n" := (LessThan n m) (only parsing)
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
   : jwa_nat_scope.
 
-Theorem lt_irreflexivity : forall (n : Nat), ~ (n < n).
+Theorem lt_irreflexivity : forall (n : Nat) . ~ (n < n).
 Proof.
   intros n.
   unfold Negation in |- *.
@@ -417,7 +417,7 @@ Proof.
 Qed.
 
 Theorem lt_transitivity
-  : forall (l : Nat) (m : Nat) (n : Nat),
+  : forall (l : Nat) (m : Nat) (n : Nat) .
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
@@ -433,7 +433,7 @@ Proof.
   exact e2.
 Qed.
 
-Lemma lt_suc : forall (n : Nat), n < S n.
+Lemma lt_suc : forall (n : Nat) . n < S n.
 Proof.
   intros n.
   unfold LessThan in |- *.
@@ -443,7 +443,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem addition_left_extensivity : forall (m : Nat) (k : Nat), m < m + k.
+Theorem addition_left_extensivity : forall (m : Nat) (k : Nat) . m < m + k.
 Proof.
   intros m k.
   unfold LessThan in |- *.
@@ -457,7 +457,7 @@ Qed.
  * of its own.
  *)
 Theorem successor_strict_monotonicity
-  : forall (m : Nat) (n : Nat),
+  : forall (m : Nat) (n : Nat) .
       m < n -> S m < S n.
 Proof.
   intros m n h.
@@ -471,7 +471,7 @@ Proof.
 Qed.
 
 Lemma successor_strict_monotonicity_inversion
-  : forall (m : Nat) (n : Nat),
+  : forall (m : Nat) (n : Nat) .
       S m < S n -> m < n.
 Proof.
   intros m n h.
@@ -484,7 +484,7 @@ Proof.
 Qed.
 
 Theorem addition_strict_monotonicity
-  : forall (k : Nat) (m : Nat) (n : Nat),
+  : forall (k : Nat) (m : Nat) (n : Nat) .
       m < n -> k + m < k + n.
 Proof.
   intros k m n h.
@@ -498,7 +498,7 @@ Proof.
 Qed.
 
 Theorem multiplication_strict_monotonicity
-  : forall (k : Nat) (m : Nat) (n : Nat),
+  : forall (k : Nat) (m : Nat) (n : Nat) .
       m < n -> k * m < k * n.
 Proof.
   intros k m n h.
@@ -518,7 +518,7 @@ Qed.
  * [Comparable.lt_asymmetry].
  *)
 Theorem lt_trichotomy
-  : forall (m : Nat) (n : Nat), (m < n) \/ (m = n) \/ (n < m).
+  : forall (m : Nat) (n : Nat) . (m < n) \/ (m = n) \/ (n < m).
 Proof.
   intro m.
   induction m as [| m' IH] using Nat_induction;
@@ -557,7 +557,7 @@ Proof.
 Qed.
 
 Theorem mul_l_cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat), m * n = m * k -> n = k.
+  : forall (m : Nat) (n : Nat) (k : Nat) . m * n = m * k -> n = k.
 Proof.
   intros m n k e.
   pose proof (lt_trichotomy n k) as t.
@@ -579,7 +579,7 @@ Proof.
 Qed.
 
 Theorem mul_r_cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat), m * n = k * n -> m = k.
+  : forall (m : Nat) (n : Nat) (k : Nat) . m * n = k * n -> m = k.
 Proof.
   intros m n k e.
   rewrite (multiplication_commutativity m n) in e.
@@ -588,7 +588,7 @@ Proof.
 Qed.
 
 Theorem multiplication_cancellation
-  : forall (m : Nat) (n : Nat) (k : Nat),
+  : forall (m : Nat) (n : Nat) (k : Nat) .
       (m * n = m * k -> n = k)
     /\ (m * n = k * n -> m = k).
 Proof.
@@ -610,7 +610,7 @@ Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   end.
 
 Lemma lt_specification_forward
-  : forall (m : Nat) (n : Nat), compare m n = Lt -> m < n.
+  : forall (m : Nat) (n : Nat) . compare m n = Lt -> m < n.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction;
@@ -628,7 +628,7 @@ Proof.
 Qed.
 
 Lemma lt_specification_backward
-  : forall (m : Nat) (n : Nat), m < n -> compare m n = Lt.
+  : forall (m : Nat) (n : Nat) . m < n -> compare m n = Lt.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction;
@@ -653,7 +653,7 @@ Proof.
 Qed.
 
 Lemma eq_specification_forward
-  : forall (m : Nat) (n : Nat), compare m n = Eq -> m = n.
+  : forall (m : Nat) (n : Nat) . compare m n = Eq -> m = n.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction;
@@ -669,7 +669,7 @@ Proof.
 Qed.
 
 Lemma eq_specification_backward
-  : forall (m : Nat) (n : Nat), m = n -> compare m n = Eq.
+  : forall (m : Nat) (n : Nat) . m = n -> compare m n = Eq.
 Proof.
   intros m n e.
   rewrite e in |- *.
@@ -680,7 +680,7 @@ Proof.
 Qed.
 
 Theorem comparison_specification
-  : forall (m : Nat) (n : Nat),
+  : forall (m : Nat) (n : Nat) .
       (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
 Proof.
   intros m n.
@@ -694,7 +694,7 @@ Proof.
 Qed.
 
 Theorem comparison_antisymmetry
-  : forall (m : Nat) (n : Nat), compare m n = Comparison.transpose (compare n m).
+  : forall (m : Nat) (n : Nat) . compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction;
@@ -716,7 +716,7 @@ Abbreviation min := (Comparable.min compare).
 (* [Nat -> Nat -> Nat] *)
 Abbreviation max := (Comparable.max compare).
 
-Lemma max_r_identity : forall (n : Nat), max n 1 = n.
+Lemma max_r_identity : forall (n : Nat) . max n 1 = n.
 Proof.
   intros n.
   unfold Comparable.max in |- *.
@@ -729,7 +729,7 @@ Proof.
   - reflexivity.
 Qed.
 
-Lemma max_l_identity : forall (n : Nat), max 1 n = n.
+Lemma max_l_identity : forall (n : Nat) . max 1 n = n.
 Proof.
   intros n.
   unfold Comparable.max in |- *.
@@ -741,7 +741,7 @@ Proof.
 Qed.
 
 Theorem max_identity
-  : forall (n : Nat), (max 1 n = n) /\ (max n 1 = n).
+  : forall (n : Nat) . (max 1 n = n) /\ (max n 1 = n).
 Proof.
   intros n.
   split.
@@ -763,7 +763,7 @@ Fixpoint sub (m : Nat) (n : Nat) : Option Nat :=
   end.
 
 Theorem sub_truncation
-  : forall (m : Nat) (n : Nat), m <= n -> sub m n = None.
+  : forall (m : Nat) (n : Nat) . m <= n -> sub m n = None.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -784,7 +784,7 @@ Proof.
 Qed.
 
 Theorem subtraction_inversion_of_addition
-  : forall (m : Nat) (n : Nat), sub (m + n) n = Some m.
+  : forall (m : Nat) (n : Nat) . sub (m + n) n = Some m.
 Proof.
   intros m n.
   induction n as [| n' IH] using Nat_induction.
@@ -798,7 +798,7 @@ Proof.
 Qed.
 
 Theorem sub_cancellation
-  : forall (k : Nat) (m : Nat) (n : Nat), sub (k + m) (k + n) = sub m n.
+  : forall (k : Nat) (m : Nat) (n : Nat) . sub (k + m) (k + n) = sub m n.
 Proof.
   intros k m n.
   induction k as [| k' IH] using Nat_induction; simpl in |- *.
@@ -807,7 +807,7 @@ Proof.
 Qed.
 
 Lemma sub_specification_forward
-  : forall (m : Nat) (n : Nat) (k : Nat), sub m n = Some k -> n + k = m.
+  : forall (m : Nat) (n : Nat) (k : Nat) . sub m n = Some k -> n + k = m.
 Proof.
   intros m.
   induction m as [| m' IH] using Nat_induction.
@@ -827,7 +827,7 @@ Proof.
 Qed.
 
 Lemma sub_specification_backward
-  : forall (m : Nat) (n : Nat) (k : Nat), n + k = m -> sub m n = Some k.
+  : forall (m : Nat) (n : Nat) (k : Nat) . n + k = m -> sub m n = Some k.
 Proof.
   intros m n k e.
   pose proof (Identity.symmetry e) as e'.
@@ -837,7 +837,7 @@ Proof.
 Qed.
 
 Theorem subtraction_specification
-  : forall (m : Nat) (n : Nat) (k : Nat), sub m n = Some k <-> n + k = m.
+  : forall (m : Nat) (n : Nat) (k : Nat) . sub m n = Some k <-> n + k = m.
 Proof.
   intros m n k.
   split.
@@ -853,7 +853,7 @@ Definition saturating_sub := fun (m : Nat) (n : Nat) =>
   end.
 
 Theorem saturating_sub_truncation
-  : forall (m : Nat) (n : Nat), m <= n -> saturating_sub m n = 1.
+  : forall (m : Nat) (n : Nat) . m <= n -> saturating_sub m n = 1.
 Proof.
   intros m n h.
   unfold saturating_sub in |- *.
@@ -863,7 +863,7 @@ Proof.
 Qed.
 
 Theorem saturating_subtraction_inversion_of_addition
-  : forall (m : Nat) (n : Nat), saturating_sub (m + n) n = m.
+  : forall (m : Nat) (n : Nat) . saturating_sub (m + n) n = m.
 Proof.
   intros m n.
   unfold saturating_sub in |- *.
@@ -873,7 +873,7 @@ Proof.
 Qed.
 
 Theorem saturating_subtraction_specification
-  : forall (m : Nat) (n : Nat), n < m -> n + saturating_sub m n = m.
+  : forall (m : Nat) (n : Nat) . n < m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
   unfold LessThan in h.

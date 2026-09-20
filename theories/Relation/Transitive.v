@@ -5,4 +5,4 @@ From jwa Require Import Core.Class.
 
 Class Transitive {A : Type} (R : A -> A -> Prop) : Prop :=
   { transitivity
-    : forall (x : A) (y : A) (z : A), R x y -> R y z -> R x z }.
+    : forall (x : A) (y : A) (z : A) . R x y -> R y z -> R x z }.

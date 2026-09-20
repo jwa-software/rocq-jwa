@@ -17,14 +17,14 @@ Notation "P <-> Q" := (Biimplication P Q)
  *)
 Module Biimplication.
 
-Theorem reflexivity : forall (P : Prop), P <-> P.
+Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
   intro P.
   split; intro p; exact p.
 Qed.
 
 Theorem symmetry
-  : forall {P : Prop} {Q : Prop}, (P <-> Q) -> (Q <-> P).
+  : forall {P : Prop} {Q : Prop} . (P <-> Q) -> (Q <-> P).
 Proof.
   intros P Q.
   intro h.
@@ -35,7 +35,7 @@ Proof.
 Qed.
 
 Theorem transitivity
-  : forall {P : Prop} {Q : Prop} {R : Prop},
+  : forall {P : Prop} {Q : Prop} {R : Prop} .
       (P <-> Q) -> (Q <-> R) -> (P <-> R).
 Proof.
   intros P Q C.
@@ -55,7 +55,7 @@ Proof.
 Qed.
 
 Theorem forward_elimination
-  : forall {P : Prop} {Q : Prop}, (P <-> Q) -> P -> Q.
+  : forall {P : Prop} {Q : Prop} . (P <-> Q) -> P -> Q.
 Proof.
   intros P Q.
   intro e.
@@ -64,7 +64,7 @@ Proof.
 Qed.
 
 Theorem backward_elimination
-  : forall {P : Prop} {Q : Prop}, (P <-> Q) -> Q -> P.
+  : forall {P : Prop} {Q : Prop} . (P <-> Q) -> Q -> P.
 Proof.
   intros P Q.
   intro e.
@@ -73,7 +73,7 @@ Proof.
 Qed.
 
 Theorem congruence
-  : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop},
+  : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop} .
       (P1 <-> P2) -> (Q1 <-> Q2) -> ((P1 <-> Q1) <-> (P2 <-> Q2)).
 Proof.
   intros P1 P2 Q1 Q2.
@@ -130,7 +130,7 @@ Notation "<-elim" := Biimplication.backward_elimination (only parsing).
 Module Implication.
 
 Theorem congruence
-  : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop},
+  : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop} .
       (P1 <-> P2) -> (Q1 <-> Q2) -> ((P1 -> Q1) <-> (P2 -> Q2)).
 Proof.
   intros P1 P2 Q1 Q2.

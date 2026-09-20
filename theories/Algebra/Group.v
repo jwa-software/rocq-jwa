@@ -8,4 +8,4 @@ Class Group {A : Type} (op : A -> A -> A) (identity : A) (inverse : A -> A) : Pr
   { monoid
     :: Monoid op identity
   ; inverse
-    : forall (x : A), op (inverse x) x = identity /\ op x (inverse x) = identity }.
+    : forall (x : A) . op (inverse x) x = identity /\ op x (inverse x) = identity }.

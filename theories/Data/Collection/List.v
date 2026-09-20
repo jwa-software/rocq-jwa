@@ -45,13 +45,13 @@ Notation "a :: l" := (Cons a l)
  * [l] down to [Nil] is what terminates.
  *)
 Definition List_induction
-  : forall (A : Type) (P : List A -> Prop),
+  : forall (A : Type) (P : List A -> Prop) .
       P Nil ->
-      (forall (a : A) (l : List A), P l -> P (Cons a l)) ->
-      forall (l : List A), P l
+      (forall (a : A) (l : List A) . P l -> P (Cons a l)) ->
+      forall (l : List A) . P l
   := fun (A : Type) (P : List A -> Prop)
          (base : P Nil)
-         (step : forall (a : A) (l : List A), P l -> P (Cons a l)) =>
+         (step : forall (a : A) (l : List A) . P l -> P (Cons a l)) =>
        fix go (l : List A) : P l :=
          match l with
          | Nil       => base
@@ -75,7 +75,7 @@ Local Open Scope jwa_list_scope.
 Local Open Scope jwa_nat_with_zero_scope.
 
 Theorem cons_nil_distinctness
-  : forall {A : Type} (a : A) (l : List A), ~ (a :: l = []).
+  : forall {A : Type} (a : A) (l : List A) . ~ (a :: l = []).
 Proof.
   intros A a l.
   unfold Negation in |- *.
@@ -88,7 +88,7 @@ Qed.
 (* Recursion is on the first list: [append Nil l2] is [l2], and each [Cons]
  * of [l1] is put back in front of the result.
  *)
-(* [forall {A : Type}, List A -> List A -> List A] *)
+(* [forall {A : Type} . List A -> List A -> List A] *)
 Fixpoint append {A : Type} (l1 : List A) (l2 : List A) : List A :=
   match l1 with
   | []       => l2
@@ -103,7 +103,7 @@ Notation "l1 ++ l2" := (append l1 l2)
   : jwa_list_scope.
 
 Theorem append_associativity
-  : forall {A : Type} (l1 : List A) (l2 : List A) (l3 : List A),
+  : forall {A : Type} (l1 : List A) (l2 : List A) (l3 : List A) .
       (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros A l1 l2 l3.
@@ -115,14 +115,14 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma append_left_identity : forall {A : Type} (l : List A), [] ++ l = l.
+Lemma append_left_identity : forall {A : Type} (l : List A) . [] ++ l = l.
 Proof.
   intros A l.
   simpl in |- *.
   reflexivity.
 Qed.
 
-Lemma append_right_identity : forall {A : Type} (l : List A), l ++ [] = l.
+Lemma append_right_identity : forall {A : Type} (l : List A) . l ++ [] = l.
 Proof.
   intros A l.
   induction l as [| a l' IH] using List_induction.
@@ -134,7 +134,7 @@ Proof.
 Qed.
 
 Theorem append_identity
-  : forall {A : Type} (l : List A), ([] ++ l = l) /\ (l ++ [] = l).
+  : forall {A : Type} (l : List A) . ([] ++ l = l) /\ (l ++ [] = l).
 Proof.
   intros A l.
   split.
@@ -144,7 +144,7 @@ Qed.
 
 (* Length *)
 
-(* [forall {A : Type}, List A -> NatWithZero] *)
+(* [forall {A : Type} . List A -> NatWithZero] *)
 Fixpoint length {A : Type} (l : List A) : NatWithZero :=
   match l with
   | []      => Zero
@@ -161,7 +161,7 @@ Notation "(|| l ||)" := (length l) (only parsing)
   : jwa_list_scope.
 
 Theorem length_additivity_over_append
-  : forall {A : Type} (l1 : List A) (l2 : List A),
+  : forall {A : Type} (l1 : List A) (l2 : List A) .
       (|| l1 ++ l2 ||) = (|| l1 ||) + (|| l2 ||).
 Proof.
   intros A l1 l2.
@@ -182,7 +182,7 @@ Qed.
 (* Map *)
 
 (* [map] applies [f] to every element and keeps the shape. *)
-(* [forall {A : Type} {B : Type}, (A -> B) -> List A -> List B] *)
+(* [forall {A : Type} {B : Type} . (A -> B) -> List A -> List B] *)
 Fixpoint map {A : Type} {B : Type} (f : A -> B) (l : List A) : List B :=
   match l with
   | []      => []
@@ -190,7 +190,7 @@ Fixpoint map {A : Type} {B : Type} (f : A -> B) (l : List A) : List B :=
   end.
 
 Theorem map_identity
-  : forall {A : Type} (l : List A), map (fun a => a) l = l.
+  : forall {A : Type} (l : List A) . map (fun a => a) l = l.
 Proof.
   intros A l.
   induction l as [| a l' IH] using List_induction.
@@ -216,7 +216,7 @@ Proof.
 Qed.
 
 Theorem map_distributivity_over_append
-  : forall {A : Type} {B : Type} (f : A -> B) (l1 : List A) (l2 : List A),
+  : forall {A : Type} {B : Type} (f : A -> B) (l1 : List A) (l2 : List A) .
       map f (l1 ++ l2) = map f l1 ++ map f l2.
 Proof.
   intros A B f l1 l2.
@@ -234,7 +234,7 @@ Qed.
  * and the simplest shape for the proofs below; an accumulator version can
  * come with a proof that it agrees.
  *)
-(* [forall {A : Type}, List A -> List A] *)
+(* [forall {A : Type} . List A -> List A] *)
 Fixpoint reverse {A : Type} (l : List A) : List A :=
   match l with
   | []      => []
@@ -242,7 +242,7 @@ Fixpoint reverse {A : Type} (l : List A) : List A :=
   end.
 
 Theorem reverse_antidistributivity_over_append
-  : forall {A : Type} (l1 : List A) (l2 : List A),
+  : forall {A : Type} (l1 : List A) (l2 : List A) .
       reverse (l1 ++ l2) = reverse l2 ++ reverse l1.
 Proof.
   intros A l1 l2.
@@ -257,7 +257,7 @@ Proof.
 Qed.
 
 Theorem reverse_involution
-  : forall {A : Type} (l : List A), reverse (reverse l) = l.
+  : forall {A : Type} (l : List A) . reverse (reverse l) = l.
 Proof.
   intros A l.
   induction l as [| a l' IH] using List_induction.
@@ -275,7 +275,7 @@ Qed.
 (* [fold_right f z] replaces every [Cons] by [f] and the final [Nil] by [z],
  * working from the right: [Cons a (Cons b Nil)] becomes [f a (f b z)].
  *)
-(* [forall {A : Type} {B : Type}, (A -> B -> B) -> B -> List A -> B] *)
+(* [forall {A : Type} {B : Type} . (A -> B -> B) -> B -> List A -> B] *)
 Fixpoint fold_right {A : Type} {B : Type} (f : A -> B -> B) (z : B)
                     (l : List A) : B :=
   match l with
@@ -298,7 +298,7 @@ Proof.
 Qed.
 
 Theorem append_catamorphism
-  : forall {A : Type} (l1 : List A) (l2 : List A),
+  : forall {A : Type} (l1 : List A) (l2 : List A) .
       l1 ++ l2 = fold_right Cons l2 l1.
 Proof.
   intros A l1 l2.
@@ -311,7 +311,7 @@ Proof.
 Qed.
 
 Theorem length_catamorphism
-  : forall {A : Type} (l : List A),
+  : forall {A : Type} (l : List A) .
       (|| l ||)
       = fold_right (fun (_ : A) (n : NatWithZero) => ++ n)
                    Zero
@@ -327,7 +327,7 @@ Proof.
 Qed.
 
 Theorem map_catamorphism
-  : forall {A : Type} {B : Type} (f : A -> B) (l : List A),
+  : forall {A : Type} {B : Type} (f : A -> B) (l : List A) .
       map f l
       = fold_right (fun (a : A) (mapped : List B) => f a :: mapped)
                    []
@@ -348,7 +348,7 @@ Qed.
  * to [Falsum] and [Contains a (Cons b l)] to [a = b \/ Contains a l], so
  * [simpl] exposes the cases and every proof below is a case analysis.
  *)
-(* [forall {A : Type}, A -> List A -> Prop] *)
+(* [forall {A : Type} . A -> List A -> Prop] *)
 Fixpoint Contains {A : Type} (a : A) (l : List A) : Prop :=
   match l with
   | []      => Falsum
@@ -371,7 +371,7 @@ Notation "a 'does_not_belong_to' l" := (~ (Contains a l)) (only parsing)
   : jwa_list_scope.
 
 Theorem nil_contains_nothing
-  : forall {A : Type} (a : A), [] does_not_contain_member a.
+  : forall {A : Type} (a : A) . [] does_not_contain_member a.
 Proof.
   intros A a.
   unfold Negation in |- *.
@@ -381,7 +381,7 @@ Proof.
 Qed.
 
 Lemma contains_distributivity_over_append_forward
-  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A) .
       l1 ++ l2 contains_member a -> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
@@ -399,7 +399,7 @@ Proof.
 Qed.
 
 Lemma contains_distributivity_over_append_backward
-  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A) .
       l1 contains_member a \/ l2 contains_member a -> l1 ++ l2 contains_member a.
 Proof.
   intros A a l1 l2.
@@ -423,7 +423,7 @@ Proof.
 Qed.
 
 Theorem contains_distributivity_over_append
-  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (a : A) (l1 : List A) (l2 : List A) .
       l1 ++ l2 contains_member a <-> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
@@ -436,7 +436,7 @@ Qed.
  * [map f l].
  *)
 Theorem map_containment_preservation
-  : forall {A : Type} {B : Type} (f : A -> B) (a : A) (l : List A),
+  : forall {A : Type} {B : Type} (f : A -> B) (a : A) (l : List A) .
       l contains_member a -> map f l contains_member f a.
 Proof.
   intros A B f a l.
@@ -456,7 +456,7 @@ Proof.
 Qed.
 
 Lemma reverse_containment_preservation_forward
-  : forall {A : Type} (a : A) (l : List A),
+  : forall {A : Type} (a : A) (l : List A) .
       reverse l contains_member a -> l contains_member a.
 Proof.
   intros A a l.
@@ -478,7 +478,7 @@ Proof.
 Qed.
 
 Lemma reverse_containment_preservation_backward
-  : forall {A : Type} (a : A) (l : List A),
+  : forall {A : Type} (a : A) (l : List A) .
       l contains_member a -> reverse l contains_member a.
 Proof.
   intros A a l.
@@ -499,7 +499,7 @@ Proof.
 Qed.
 
 Theorem reverse_containment_preservation
-  : forall {A : Type} (a : A) (l : List A),
+  : forall {A : Type} (a : A) (l : List A) .
       reverse l contains_member a <-> l contains_member a.
 Proof.
   intros A a l.
@@ -511,7 +511,7 @@ Qed.
 (* Filter *)
 
 (* [filter p] keeps the elements [p] answers [true] on, in their order. *)
-(* [forall {A : Type}, (A -> Bool) -> List A -> List A] *)
+(* [forall {A : Type} . (A -> Bool) -> List A -> List A] *)
 Fixpoint filter {A : Type} (p : A -> Bool) (l : List A) : List A :=
   match l with
   | []      => []
@@ -523,7 +523,7 @@ Fixpoint filter {A : Type} (p : A -> Bool) (l : List A) : List A :=
   end.
 
 Theorem filter_distributivity_over_append
-  : forall {A : Type} (p : A -> Bool) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (p : A -> Bool) (l1 : List A) (l2 : List A) .
       filter p (l1 ++ l2) = filter p l1 ++ filter p l2.
 Proof.
   intros A p l1 l2.
@@ -541,7 +541,7 @@ Qed.
 
 (* [filter] is a catamorphism too: [Cons] becomes a conditional [Cons]. *)
 Theorem filter_catamorphism
-  : forall {A : Type} (p : A -> Bool) (l : List A),
+  : forall {A : Type} (p : A -> Bool) (l : List A) .
       filter p l
       = fold_right (fun (a : A) (kept : List A) =>
                       match p a with
@@ -561,7 +561,7 @@ Proof.
 Qed.
 
 Lemma filter_specification_forward
-  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A) .
       filter p l contains_member a -> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
@@ -591,7 +591,7 @@ Proof.
 Qed.
 
 Lemma filter_specification_backward
-  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A) .
       l contains_member a /\ p a = true -> filter p l contains_member a.
 Proof.
   intros A p a l.
@@ -623,7 +623,7 @@ Proof.
 Qed.
 
 Theorem filter_specification
-  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (p : A -> Bool) (a : A) (l : List A) .
       filter p l contains_member a <-> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
@@ -639,14 +639,14 @@ Qed.
  * the neutral proposition, [Cons] a conjunction or a disjunction.
  *)
 
-(* [forall {A : Type}, (A -> Prop) -> List A -> Prop] *)
+(* [forall {A : Type} . (A -> Prop) -> List A -> Prop] *)
 Fixpoint All {A : Type} (P : A -> Prop) (l : List A) : Prop :=
   match l with
   | []      => Verum
   | a :: l' => P a /\ All P l'
   end.
 
-(* [forall {A : Type}, (A -> Prop) -> List A -> Prop] *)
+(* [forall {A : Type} . (A -> Prop) -> List A -> Prop] *)
 Fixpoint Any {A : Type} (P : A -> Prop) (l : List A) : Prop :=
   match l with
   | []      => Falsum
@@ -655,7 +655,7 @@ Fixpoint Any {A : Type} (P : A -> Prop) (l : List A) : Prop :=
 
 (* [All] over a concatenation is [All] over each half. *)
 Lemma all_distributivity_over_append_forward
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
       All P (l1 ++ l2) -> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
@@ -677,7 +677,7 @@ Proof.
 Qed.
 
 Lemma all_distributivity_over_append_backward
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
       All P l1 /\ All P l2 -> All P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
@@ -699,7 +699,7 @@ Proof.
 Qed.
 
 Theorem all_distributivity_over_append
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
       All P (l1 ++ l2) <-> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
@@ -710,7 +710,7 @@ Qed.
 
 (* [Any] over a concatenation is [Any] over either half. *)
 Lemma any_distributivity_over_append_forward
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
       Any P (l1 ++ l2) -> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
@@ -728,7 +728,7 @@ Proof.
 Qed.
 
 Lemma any_distributivity_over_append_backward
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
       Any P l1 \/ Any P l2 -> Any P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
@@ -752,7 +752,7 @@ Proof.
 Qed.
 
 Theorem any_distributivity_over_append
-  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A),
+  : forall {A : Type} (P : A -> Prop) (l1 : List A) (l2 : List A) .
       Any P (l1 ++ l2) <-> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
@@ -762,8 +762,8 @@ Proof.
 Qed.
 
 Lemma all_specification_forward
-  : forall {A : Type} (P : A -> Prop) (l : List A),
-      All P l -> forall (a : A), l contains_member a -> P a.
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
+      All P l -> forall (a : A) . l contains_member a -> P a.
 Proof.
   intros A P l.
   induction l as [| b l' IH] using List_induction.
@@ -782,8 +782,8 @@ Proof.
 Qed.
 
 Lemma all_specification_backward
-  : forall {A : Type} (P : A -> Prop) (l : List A),
-      (forall (a : A), l contains_member a -> P a) -> All P l.
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
+      (forall (a : A) . l contains_member a -> P a) -> All P l.
 Proof.
   intros A P l.
   induction l as [| b l' IH] using List_induction.
@@ -802,8 +802,8 @@ Proof.
 Qed.
 
 Theorem all_specification
-  : forall {A : Type} (P : A -> Prop) (l : List A),
-      All P l <-> (forall (a : A), l contains_member a -> P a).
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
+      All P l <-> (forall (a : A) . l contains_member a -> P a).
 Proof.
   intros A P l.
   split.
@@ -812,8 +812,8 @@ Proof.
 Qed.
 
 Lemma any_specification_forward
-  : forall {A : Type} (P : A -> Prop) (l : List A),
-      Any P l -> exists (a : A), l contains_member a /\ P a.
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
+      Any P l -> exists (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
   induction l as [| b l' IH] using List_induction.
@@ -836,8 +836,8 @@ Proof.
 Qed.
 
 Lemma any_specification_backward
-  : forall {A : Type} (P : A -> Prop) (l : List A),
-      (exists (a : A), l contains_member a /\ P a) -> Any P l.
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
+      (exists (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
   induction l as [| b l' IH] using List_induction.
@@ -862,8 +862,8 @@ Proof.
 Qed.
 
 Theorem any_specification
-  : forall {A : Type} (P : A -> Prop) (l : List A),
-      Any P l <-> (exists (a : A), l contains_member a /\ P a).
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
+      Any P l <-> (exists (a : A) . l contains_member a /\ P a).
 Proof.
   intros A P l.
   split.
@@ -872,8 +872,8 @@ Proof.
 Qed.
 
 Lemma all_monotonicity
-  : forall {A : Type} (P : A -> Prop) (Q : A -> Prop) (l : List A),
-      (forall (a : A), P a -> Q a) -> All P l -> All Q l.
+  : forall {A : Type} (P : A -> Prop) (Q : A -> Prop) (l : List A) .
+      (forall (a : A) . P a -> Q a) -> All P l -> All Q l.
 Proof.
   intros A P Q l h.
   induction l as [| b l' IH] using List_induction.
@@ -887,7 +887,7 @@ Proof.
 Qed.
 
 Theorem contains_catamorphism
-  : forall {A : Type} (a : A) (l : List A),
+  : forall {A : Type} (a : A) (l : List A) .
       (l contains_member a)
       = fold_right (fun (b : A) (rest : Prop) => a = b \/ rest) Falsum l.
 Proof.
@@ -901,7 +901,7 @@ Proof.
 Qed.
 
 Theorem all_catamorphism
-  : forall {A : Type} (P : A -> Prop) (l : List A),
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
       All P l = fold_right (fun (a : A) (rest : Prop) => P a /\ rest) Verum l.
 Proof.
   intros A P l.
@@ -914,7 +914,7 @@ Proof.
 Qed.
 
 Theorem any_catamorphism
-  : forall {A : Type} (P : A -> Prop) (l : List A),
+  : forall {A : Type} (P : A -> Prop) (l : List A) .
       Any P l = fold_right (fun (a : A) (rest : Prop) => P a \/ rest) Falsum l.
 Proof.
   intros A P l.
@@ -928,14 +928,14 @@ Qed.
 
 (* Head and tail *)
 
-(* [forall {A : Type}, List A -> Option A] *)
+(* [forall {A : Type} . List A -> Option A] *)
 Definition head := fun {A : Type} (l : List A) =>
   match l with
   | []     => None
   | a :: _ => Some a
   end.
 
-(* [forall {A : Type}, List A -> Option (List A)] *)
+(* [forall {A : Type} . List A -> Option (List A)] *)
 Definition tail := fun {A : Type} (l : List A) =>
   match l with
   | []      => None
@@ -943,8 +943,8 @@ Definition tail := fun {A : Type} (l : List A) =>
   end.
 
 Lemma head_specification_forward
-  : forall {A : Type} (a : A) (l : List A),
-      head l = Some a -> exists (l' : List A), l = a :: l'.
+  : forall {A : Type} (a : A) (l : List A) .
+      head l = Some a -> exists (l' : List A) . l = a :: l'.
 Proof.
   intros A a l.
   destruct l as [| b rest].
@@ -960,8 +960,8 @@ Proof.
 Qed.
 
 Lemma head_specification_backward
-  : forall {A : Type} (a : A) (l : List A),
-      (exists (l' : List A), l = a :: l') -> head l = Some a.
+  : forall {A : Type} (a : A) (l : List A) .
+      (exists (l' : List A) . l = a :: l') -> head l = Some a.
 Proof.
   intros A a l.
   intro h.
@@ -972,8 +972,8 @@ Proof.
 Qed.
 
 Theorem head_specification
-  : forall {A : Type} (a : A) (l : List A),
-      head l = Some a <-> (exists (l' : List A), l = a :: l').
+  : forall {A : Type} (a : A) (l : List A) .
+      head l = Some a <-> (exists (l' : List A) . l = a :: l').
 Proof.
   intros A a l.
   split.
@@ -982,8 +982,8 @@ Proof.
 Qed.
 
 Lemma tail_specification_forward
-  : forall {A : Type} (l : List A) (l' : List A),
-      tail l = Some l' -> exists (a : A), l = a :: l'.
+  : forall {A : Type} (l : List A) (l' : List A) .
+      tail l = Some l' -> exists (a : A) . l = a :: l'.
 Proof.
   intros A l l'.
   destruct l as [| b rest].
@@ -999,8 +999,8 @@ Proof.
 Qed.
 
 Lemma tail_specification_backward
-  : forall {A : Type} (l : List A) (l' : List A),
-      (exists (a : A), l = a :: l') -> tail l = Some l'.
+  : forall {A : Type} (l : List A) (l' : List A) .
+      (exists (a : A) . l = a :: l') -> tail l = Some l'.
 Proof.
   intros A l l'.
   intro h.
@@ -1011,8 +1011,8 @@ Proof.
 Qed.
 
 Theorem tail_specification
-  : forall {A : Type} (l : List A) (l' : List A),
-      tail l = Some l' <-> (exists (a : A), l = a :: l').
+  : forall {A : Type} (l : List A) (l' : List A) .
+      tail l = Some l' <-> (exists (a : A) . l = a :: l').
 Proof.
   intros A l l'.
   split.
@@ -1020,15 +1020,15 @@ Proof.
   - exact (tail_specification_backward l l').
 Qed.
 
-(* [forall {A : Type}, List A -> Option A] *)
+(* [forall {A : Type} . List A -> Option A] *)
 Definition last := fun {A : Type} (l : List A) => head (reverse l).
 
-(* [forall {A : Type}, List A -> Option (List A)] *)
+(* [forall {A : Type} . List A -> Option (List A)] *)
 Definition initial := fun {A : Type} (l : List A) => Option.map reverse (tail (reverse l)).
 
 Lemma last_specification_forward
-  : forall {A : Type} (a : A) (l : List A),
-      last l = Some a -> exists (l' : List A), l = l' ++ (a :: []).
+  : forall {A : Type} (a : A) (l : List A) .
+      last l = Some a -> exists (l' : List A) . l = l' ++ (a :: []).
 Proof.
   intros A a l.
   unfold last in |- *.
@@ -1042,8 +1042,8 @@ Proof.
 Qed.
 
 Lemma last_specification_backward
-  : forall {A : Type} (a : A) (l : List A),
-      (exists (l' : List A), l = l' ++ (a :: [])) -> last l = Some a.
+  : forall {A : Type} (a : A) (l : List A) .
+      (exists (l' : List A) . l = l' ++ (a :: [])) -> last l = Some a.
 Proof.
   intros A a l.
   intro h.
@@ -1056,8 +1056,8 @@ Proof.
 Qed.
 
 Theorem last_specification
-  : forall {A : Type} (a : A) (l : List A),
-      last l = Some a <-> (exists (l' : List A), l = l' ++ (a :: [])).
+  : forall {A : Type} (a : A) (l : List A) .
+      last l = Some a <-> (exists (l' : List A) . l = l' ++ (a :: [])).
 Proof.
   intros A a l.
   split.
@@ -1066,8 +1066,8 @@ Proof.
 Qed.
 
 Lemma initial_specification_forward
-  : forall {A : Type} (l : List A) (l' : List A),
-      initial l = Some l' -> exists (a : A), l = l' ++ (a :: []).
+  : forall {A : Type} (l : List A) (l' : List A) .
+      initial l = Some l' -> exists (a : A) . l = l' ++ (a :: []).
 Proof.
   intros A l l'.
   unfold initial in |- *.
@@ -1087,8 +1087,8 @@ Proof.
 Qed.
 
 Lemma initial_specification_backward
-  : forall {A : Type} (l : List A) (l' : List A),
-      (exists (a : A), l = l' ++ (a :: [])) -> initial l = Some l'.
+  : forall {A : Type} (l : List A) (l' : List A) .
+      (exists (a : A) . l = l' ++ (a :: [])) -> initial l = Some l'.
 Proof.
   intros A l l'.
   intro h.
@@ -1102,8 +1102,8 @@ Proof.
 Qed.
 
 Theorem initial_specification
-  : forall {A : Type} (l : List A) (l' : List A),
-      initial l = Some l' <-> (exists (a : A), l = l' ++ (a :: [])).
+  : forall {A : Type} (l : List A) (l' : List A) .
+      initial l = Some l' <-> (exists (a : A) . l = l' ++ (a :: [])).
 Proof.
   intros A l l'.
   split.
@@ -1114,7 +1114,7 @@ Qed.
 (* [head] and [tail] in one answer: [None] on the empty list, else the
  * first element paired with the rest.
  *)
-(* [forall {A : Type}, List A -> Option (A * List A)] *)
+(* [forall {A : Type} . List A -> Option (A * List A)] *)
 Definition pop := fun {A : Type} (l : List A) =>
   match l return Option (A * List A) with
   | []      => None
@@ -1122,7 +1122,7 @@ Definition pop := fun {A : Type} (l : List A) =>
   end.
 
 Lemma pop_specification_forward
-  : forall {A : Type} (a : A) (l' : List A) (l : List A),
+  : forall {A : Type} (a : A) (l' : List A) (l : List A) .
       pop l = Some (Product_introduction a l') -> l = a :: l'.
 Proof.
   intros A a l' l.
@@ -1142,7 +1142,7 @@ Proof.
 Qed.
 
 Lemma pop_specification_backward
-  : forall {A : Type} (a : A) (l' : List A) (l : List A),
+  : forall {A : Type} (a : A) (l' : List A) (l : List A) .
       l = a :: l' -> pop l = Some (Product_introduction a l').
 Proof.
   intros A a l' l e.
@@ -1153,7 +1153,7 @@ Qed.
 
 (* [pop] answers [Some (a , l')] exactly on [Cons a l']. *)
 Theorem pop_specification
-  : forall {A : Type} (a : A) (l' : List A) (l : List A),
+  : forall {A : Type} (a : A) (l' : List A) (l : List A) .
       pop l = Some (Product_introduction a l') <-> l = a :: l'.
 Proof.
   intros A a l' l.
@@ -1165,7 +1165,7 @@ Qed.
 (* Projecting a [pop] gives back [head] and [tail]. *)
 
 Theorem pop_head_projection
-  : forall {A : Type} (l : List A), Option.map Product.first (pop l) = head l.
+  : forall {A : Type} (l : List A) . Option.map Product.first (pop l) = head l.
 Proof.
   intros A l.
   destruct l as [| a l'].
@@ -1176,7 +1176,7 @@ Proof.
 Qed.
 
 Theorem pop_tail_projection
-  : forall {A : Type} (l : List A), Option.map Product.second (pop l) = tail l.
+  : forall {A : Type} (l : List A) . Option.map Product.second (pop l) = tail l.
 Proof.
   intros A l.
   destruct l as [| a l'].
@@ -1188,7 +1188,7 @@ Qed.
 
 (* Zip *)
 
-(* [forall {A : Type} {B : Type}, List A -> List B -> List (A * B)] *)
+(* [forall {A : Type} {B : Type} . List A -> List B -> List (A * B)] *)
 Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
   : List (A * B) :=
   match l1, l2 with
@@ -1201,7 +1201,7 @@ Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
 (* The two projections mapped over the list, so the laws of [map] carry
  * over.
  *)
-(* [forall {A : Type} {B : Type}, List (A * B) -> List A * List B] *)
+(* [forall {A : Type} {B : Type} . List (A * B) -> List A * List B] *)
 Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) =>
   Product_introduction (map Product.first l) (map Product.second l).
 
@@ -1209,7 +1209,7 @@ Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) =>
  * [unzip (zip l1 l2)], needs the two lists to be of one length.
  *)
 Theorem zip_unzip_identity
-  : forall {A : Type} {B : Type} (l : List (A * B)),
+  : forall {A : Type} {B : Type} (l : List (A * B)) .
       zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
 Proof.
   intros A B l.
@@ -1232,7 +1232,7 @@ Qed.
  * hypothesis through [NatWithZero.add_l_cancellation].
  *)
 Theorem unzip_zip_identity
-  : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B),
+  : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B) .
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = Product_introduction l1 l2.
 Proof.
   intros A B l1.
@@ -1282,7 +1282,7 @@ Qed.
  * two; each step adds one to both, and addition distributes over [min].
  *)
 Theorem length_zip
-  : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B),
+  : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B) .
       (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
@@ -1316,7 +1316,7 @@ Qed.
  * one pass; the recursive result is opened by a [match] so both halves
  * are extended in place.
  *)
-(* [forall {A : Type}, (A -> Bool) -> List A -> List A * List A] *)
+(* [forall {A : Type} . (A -> Bool) -> List A -> List A * List A] *)
 Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
   : List A * List A :=
   match l with
@@ -1335,7 +1335,7 @@ Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
  * negation.
  *)
 Theorem partition_specification
-  : forall {A : Type} (p : A -> Bool) (l : List A),
+  : forall {A : Type} (p : A -> Bool) (l : List A) .
       partition p l
       = Product_introduction (filter p l)
                           (filter (fun (a : A) => Bool.negate (p a)) l).
@@ -1359,7 +1359,7 @@ Qed.
  * [None] past the end. Recursion is on the list; the index is peeled by
  * one alongside, [Positive One] being the last step before [Zero].
  *)
-(* [forall {A : Type}, List A -> NatWithZero -> Option A] *)
+(* [forall {A : Type} . List A -> NatWithZero -> Option A] *)
 Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
   match l with
   | []      => None
@@ -1377,8 +1377,8 @@ Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
  *)
 
 Lemma nth_specification_forward
-  : forall {A : Type} (l : List A) (i : NatWithZero),
-      (exists (a : A), nth l i = Some a) -> i < (|| l ||).
+  : forall {A : Type} (l : List A) (i : NatWithZero) .
+      (exists (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
   induction l as [| b l' IH] using List_induction.
@@ -1407,8 +1407,8 @@ Proof.
 Qed.
 
 Lemma nth_specification_backward
-  : forall {A : Type} (l : List A) (i : NatWithZero),
-      i < (|| l ||) -> exists (a : A), nth l i = Some a.
+  : forall {A : Type} (l : List A) (i : NatWithZero) .
+      i < (|| l ||) -> exists (a : A) . nth l i = Some a.
 Proof.
   intros A l.
   induction l as [| b l' IH] using List_induction.
@@ -1441,8 +1441,8 @@ Proof.
 Qed.
 
 Theorem nth_specification
-  : forall {A : Type} (l : List A) (i : NatWithZero),
-      (exists (a : A), nth l i = Some a) <-> i < (|| l ||).
+  : forall {A : Type} (l : List A) (i : NatWithZero) .
+      (exists (a : A) . nth l i = Some a) <-> i < (|| l ||).
 Proof.
   intros A l i.
   split.
@@ -1456,7 +1456,7 @@ Qed.
  * [drop n l] is what is left. Both recurse on the list, peeling the count
  * alongside as [nth] does.
  *)
-(* [forall {A : Type}, NatWithZero -> List A -> List A] *)
+(* [forall {A : Type} . NatWithZero -> List A -> List A] *)
 Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
   match l with
   | []      => []
@@ -1468,7 +1468,7 @@ Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
       end
   end.
 
-(* [forall {A : Type}, NatWithZero -> List A -> List A] *)
+(* [forall {A : Type} . NatWithZero -> List A -> List A] *)
 Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
   match l with
   | []      => []
@@ -1480,13 +1480,13 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
       end
   end.
 
-(* [forall {A : Type}, NatWithZero -> List A -> List A * List A] *)
+(* [forall {A : Type} . NatWithZero -> List A -> List A * List A] *)
 Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) =>
   Product_introduction (take n l) (drop n l).
 
 (* The two parts put back together give the list. *)
 Theorem take_drop_decomposition
-  : forall {A : Type} (l : List A) (n : NatWithZero),
+  : forall {A : Type} (l : List A) (n : NatWithZero) .
       take n l ++ drop n l = l.
 Proof.
   intros A l.
@@ -1510,7 +1510,7 @@ Qed.
  * step adds one to both candidates, and addition distributes over [min].
  *)
 Theorem length_take
-  : forall {A : Type} (l : List A) (n : NatWithZero),
+  : forall {A : Type} (l : List A) (n : NatWithZero) .
       (|| take n l ||) = NatWithZero.min n (|| l ||).
 Proof.
   intros A l.
@@ -1549,7 +1549,7 @@ Qed.
  * from both, which truncated subtraction ignores.
  *)
 Theorem length_drop
-  : forall {A : Type} (l : List A) (n : NatWithZero),
+  : forall {A : Type} (l : List A) (n : NatWithZero) .
       (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
@@ -1585,14 +1585,14 @@ Qed.
  * a positive count recurses on its [Nat], one element per step, since a
  * [NatWithZero] has no step of its own to recurse on.
  *)
-(* [forall {A : Type}, Nat -> A -> List A] *)
+(* [forall {A : Type} . Nat -> A -> List A] *)
 Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
   match k with
   | One          => a :: []
   | Successor k' => a :: replicate_positive k' a
   end.
 
-(* [forall {A : Type}, NatWithZero -> A -> List A] *)
+(* [forall {A : Type} . NatWithZero -> A -> List A] *)
 Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) =>
   match n with
   | Zero       => []
@@ -1600,7 +1600,7 @@ Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) =>
   end.
 
 Lemma length_replicate_positive
-  : forall {A : Type} (k : Nat) (a : A), (|| replicate_positive k a ||) = Positive k.
+  : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = Positive k.
 Proof.
   intros A k a.
   induction k as [| k' IH] using Nat_induction.
@@ -1613,7 +1613,7 @@ Proof.
 Qed.
 
 Theorem length_replicate
-  : forall {A : Type} (n : NatWithZero) (a : A), (|| replicate n a ||) = n.
+  : forall {A : Type} (n : NatWithZero) (a : A) . (|| replicate n a ||) = n.
 Proof.
   intros A n a.
   destruct n as [| k].
@@ -1633,7 +1633,7 @@ Definition product := fun (l : List NatWithZero) =>
   fold_right NatWithZero.mul (Positive One) l.
 
 Theorem sum_additivity_over_append
-  : forall (l1 : List NatWithZero) (l2 : List NatWithZero),
+  : forall (l1 : List NatWithZero) (l2 : List NatWithZero) .
       sum (l1 ++ l2) = sum l1 + sum l2.
 Proof.
   intros l1 l2.
@@ -1650,7 +1650,7 @@ Proof.
 Qed.
 
 Theorem product_multiplicativity_over_append
-  : forall (l1 : List NatWithZero) (l2 : List NatWithZero),
+  : forall (l1 : List NatWithZero) (l2 : List NatWithZero) .
       product (l1 ++ l2) = product l1 * product l2.
 Proof.
   intros l1 l2.
@@ -1672,7 +1672,7 @@ Qed.
 (* Count *)
 
 (* [count p l] is how many elements [p] answers [true] on. *)
-(* [forall {A : Type}, (A -> Bool) -> List A -> NatWithZero] *)
+(* [forall {A : Type} . (A -> Bool) -> List A -> NatWithZero] *)
 Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
   match l with
   | []      => Zero
@@ -1684,7 +1684,7 @@ Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
   end.
 
 Theorem count_specification
-  : forall {A : Type} (p : A -> Bool) (l : List A), count p l = (|| filter p l ||).
+  : forall {A : Type} (p : A -> Bool) (l : List A) . count p l = (|| filter p l ||).
 Proof.
   intros A p l.
   induction l as [| a l' IH] using List_induction.
@@ -1702,7 +1702,7 @@ Qed.
  * member.
  *)
 Theorem count_all_specification
-  : forall {A : Type} (p : A -> Bool) (l : List A),
+  : forall {A : Type} (p : A -> Bool) (l : List A) .
       count p l = Zero <-> All (fun (a : A) => p a = false) l.
 Proof.
   intros A p l.
@@ -1744,7 +1744,7 @@ Qed.
  * its first argument may come first. [insert] walks past every element
  * that may precede [a] and puts [a] in front of the first that may not.
  *)
-(* [forall {A : Type}, (A -> A -> Bool) -> A -> List A -> List A] *)
+(* [forall {A : Type} . (A -> A -> Bool) -> A -> List A -> List A] *)
 Fixpoint insert {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) : List A :=
   match l with
   | []      => a :: []
@@ -1755,7 +1755,7 @@ Fixpoint insert {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) : List A :
       end
   end.
 
-(* [forall {A : Type}, (A -> A -> Bool) -> List A -> List A] *)
+(* [forall {A : Type} . (A -> A -> Bool) -> List A -> List A] *)
 Fixpoint insertion_sort {A : Type} (le : A -> A -> Bool) (l : List A) : List A :=
   match l with
   | []      => []
@@ -1766,7 +1766,7 @@ Fixpoint insertion_sort {A : Type} (le : A -> A -> Bool) (l : List A) : List A :
  * [All] rather than on neighbours, so that [insert] is checked one element
  * at a time.
  *)
-(* [forall {A : Type}, (A -> A -> Bool) -> List A -> Prop] *)
+(* [forall {A : Type} . (A -> A -> Bool) -> List A -> Prop] *)
 Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
   match l with
   | []      => Verum
@@ -1774,7 +1774,7 @@ Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
   end.
 
 Lemma insert_all_preservation
-  : forall {A : Type} (le : A -> A -> Bool) (P : A -> Prop) (a : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (P : A -> Prop) (a : A) (l : List A) .
       P a -> All P l -> All P (insert le a l).
 Proof.
   intros A le P a l pa.
@@ -1793,11 +1793,11 @@ Proof.
 Qed.
 
 Lemma insert_sortedness
-  : forall {A : Type} (le : A -> A -> Bool),
-      (forall (a : A) (b : A), le a b = true \/ le b a = true) ->
-      (forall (a : A) (b : A) (c : A),
+  : forall {A : Type} (le : A -> A -> Bool) .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
          le a b = true -> le b c = true -> le a c = true) ->
-      forall (a : A) (l : List A), Sorted le l -> Sorted le (insert le a l).
+      forall (a : A) (l : List A) . Sorted le l -> Sorted le (insert le a l).
 Proof.
   intros A le total transitive a l.
   induction l as [| b l' IH] using List_induction.
@@ -1827,11 +1827,11 @@ Proof.
 Qed.
 
 Theorem insertion_sort_sortedness
-  : forall {A : Type} (le : A -> A -> Bool),
-      (forall (a : A) (b : A), le a b = true \/ le b a = true) ->
-      (forall (a : A) (b : A) (c : A),
+  : forall {A : Type} (le : A -> A -> Bool) .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
          le a b = true -> le b c = true -> le a c = true) ->
-      forall (l : List A), Sorted le (insertion_sort le l).
+      forall (l : List A) . Sorted le (insertion_sort le l).
 Proof.
   intros A le total transitive l.
   induction l as [| a l' IH] using List_induction.
@@ -1844,7 +1844,7 @@ Qed.
 (* [insert] adds exactly its element to the members. *)
 
 Lemma insert_containment_forward
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A) .
       insert le a l contains_member b -> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
@@ -1868,7 +1868,7 @@ Proof.
 Qed.
 
 Lemma insert_containment_backward
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A) .
       b = a \/ l contains_member b -> insert le a l contains_member b.
 Proof.
   intros A le a b l.
@@ -1891,7 +1891,7 @@ Proof.
 Qed.
 
 Theorem insert_containment
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (b : A) (l : List A) .
       insert le a l contains_member b <-> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
@@ -1901,7 +1901,7 @@ Proof.
 Qed.
 
 Lemma insertion_sort_containment_preservation_forward
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
       insertion_sort le l contains_member a -> l contains_member a.
 Proof.
   intros A le a l.
@@ -1918,7 +1918,7 @@ Proof.
 Qed.
 
 Lemma insertion_sort_containment_preservation_backward
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
       l contains_member a -> insertion_sort le l contains_member a.
 Proof.
   intros A le a l.
@@ -1935,7 +1935,7 @@ Proof.
 Qed.
 
 Theorem insertion_sort_containment_preservation
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
       insertion_sort le l contains_member a <-> l contains_member a.
 Proof.
   intros A le a l.
@@ -1945,7 +1945,7 @@ Proof.
 Qed.
 
 Lemma insert_length
-  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
       (|| insert le a l ||) = ++ (|| l ||).
 Proof.
   intros A le a l.
@@ -1962,7 +1962,7 @@ Proof.
 Qed.
 
 Theorem insertion_sort_length_preservation
-  : forall {A : Type} (le : A -> A -> Bool) (l : List A),
+  : forall {A : Type} (le : A -> A -> Bool) (l : List A) .
       (|| insertion_sort le l ||) = (|| l ||).
 Proof.
   intros A le l.
@@ -1992,7 +1992,7 @@ Definition range := fun (n : NatWithZero) =>
   end.
 
 Lemma length_range_positive
-  : forall (p : Nat), (|| range_positive p ||) = Positive p.
+  : forall (p : Nat) . (|| range_positive p ||) = Positive p.
 Proof.
   intros p.
   induction p as [| p' IH] using Nat_induction.
@@ -2008,7 +2008,7 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem length_range : forall (n : NatWithZero), (|| range n ||) = n.
+Theorem length_range : forall (n : NatWithZero) . (|| range n ||) = n.
 Proof.
   intros n.
   destruct n as [| p].
@@ -2019,7 +2019,7 @@ Proof.
 Qed.
 
 Lemma range_positive_containment_forward
-  : forall (p : Nat) (i : NatWithZero),
+  : forall (p : Nat) (i : NatWithZero) .
       range_positive p contains_member i -> i < Positive p.
 Proof.
   intros p.
@@ -2053,7 +2053,7 @@ Proof.
 Qed.
 
 Lemma range_positive_containment_backward
-  : forall (p : Nat) (i : NatWithZero),
+  : forall (p : Nat) (i : NatWithZero) .
       i < Positive p -> range_positive p contains_member i.
 Proof.
   intros p.
@@ -2086,7 +2086,7 @@ Proof.
 Qed.
 
 Theorem range_containment_specification
-  : forall (n : NatWithZero) (i : NatWithZero),
+  : forall (n : NatWithZero) (i : NatWithZero) .
       range n contains_member i <-> i < n.
 Proof.
   intros n i.
@@ -2109,7 +2109,7 @@ Proof.
 Qed.
 
 Theorem sum_range_closed_form
-  : forall (p : Nat),
+  : forall (p : Nat) .
       Positive (Successor One) * sum (range (Positive (Successor p)))
       = Positive p * Positive (Successor p).
 Proof.
@@ -2149,7 +2149,7 @@ Qed.
 Definition maximum_of := fun (l : List NatWithZero) => fold_right NatWithZero.max Zero l.
 
 Theorem maximum_of_upper_bound
-  : forall (l : List NatWithZero),
+  : forall (l : List NatWithZero) .
       All (fun (a : NatWithZero) => a <= maximum_of l) l.
 Proof.
   intros l.
@@ -2178,7 +2178,7 @@ Proof.
 Qed.
 
 Theorem maximum_of_containment
-  : forall (l : List NatWithZero), ~ (l = []) -> l contains_member maximum_of l.
+  : forall (l : List NatWithZero) . ~ (l = []) -> l contains_member maximum_of l.
 Proof.
   intros l.
   unfold maximum_of in |- *.
@@ -2225,7 +2225,7 @@ Fixpoint minimum_of (l : List NatWithZero) : Option NatWithZero :=
   end.
 
 Lemma minimum_of_none_specification
-  : forall (l : List NatWithZero), minimum_of l = None <-> l = [].
+  : forall (l : List NatWithZero) . minimum_of l = None <-> l = [].
 Proof.
   intros l.
   split.
@@ -2243,7 +2243,7 @@ Proof.
 Qed.
 
 Theorem minimum_of_lower_bound
-  : forall (l : List NatWithZero) (m : NatWithZero),
+  : forall (l : List NatWithZero) (m : NatWithZero) .
       minimum_of l = Some m
       -> All (fun (a : NatWithZero) => m <= a) l.
 Proof.
@@ -2281,7 +2281,7 @@ Proof.
 Qed.
 
 Theorem minimum_of_containment
-  : forall (l : List NatWithZero) (m : NatWithZero),
+  : forall (l : List NatWithZero) (m : NatWithZero) .
       minimum_of l = Some m -> l contains_member m.
 Proof.
   intros l.
@@ -2322,7 +2322,7 @@ End List.
 Export (notations) List.
 
 Instance List_append_monoid
-  : forall {A : Type}, Monoid (@List.append A) Nil :=
+  : forall {A : Type} . Monoid (@List.append A) Nil :=
   fun (A : Type) =>
     {| Monoid.semigroup :=
          {| Semigroup.associativity := @List.append_associativity A |}

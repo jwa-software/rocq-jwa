@@ -20,13 +20,13 @@ Arguments Coproduct_introduction_right {A} {B} b.
  * coproduct holds no smaller coproduct, so one [match] is the whole content.
  *)
 Definition Coproduct_induction
-  : forall (A : Type) (B : Type) (P : Coproduct A B -> Prop),
-      (forall (a : A), P (Coproduct_introduction_left a)) ->
-      (forall (b : B), P (Coproduct_introduction_right b)) ->
-      forall (cp : Coproduct A B), P cp
+  : forall (A : Type) (B : Type) (P : Coproduct A B -> Prop) .
+      (forall (a : A) . P (Coproduct_introduction_left a)) ->
+      (forall (b : B) . P (Coproduct_introduction_right b)) ->
+      forall (cp : Coproduct A B) . P cp
   := fun (A : Type) (B : Type) (P : Coproduct A B -> Prop)
-         (left  : forall (a : A), P (Coproduct_introduction_left a))
-         (right : forall (b : B), P (Coproduct_introduction_right b))
+         (left  : forall (a : A) . P (Coproduct_introduction_left a))
+         (right : forall (b : B) . P (Coproduct_introduction_right b))
          (cp : Coproduct A B) =>
        match cp with
        | Coproduct_introduction_left  a => left  a
@@ -45,7 +45,7 @@ Abbreviation right := Coproduct_introduction_right.
 Abbreviation L     := Coproduct_introduction_left  (only parsing).
 Abbreviation R     := Coproduct_introduction_right (only parsing).
 
-(* [forall {A : Type} {B : Type} {C : Type}, (A -> C) -> (B -> C) -> Coproduct A B -> C] *)
+(* [forall {A : Type} {B : Type} {C : Type} . (A -> C) -> (B -> C) -> Coproduct A B -> C] *)
 Definition copair := fun {A : Type} {B : Type} {C : Type}
                          (f : A -> C) (g : B -> C) (cp : Coproduct A B) =>
   match cp return C with
@@ -54,7 +54,7 @@ Definition copair := fun {A : Type} {B : Type} {C : Type}
   end.
 
 Theorem left_injectivity
-  : forall (A : Type) (B : Type) (a1 : A) (a2 : A),
+  : forall (A : Type) (B : Type) (a1 : A) (a2 : A) .
       (@Coproduct.left A B a1 = @Coproduct.left A B a2) -> (a1 = a2).
 Proof.
   intros A B a1 a2 e.
@@ -66,7 +66,7 @@ Proof.
 Qed.
 
 Theorem right_injectivity
-  : forall (A : Type) (B : Type) (b1 : B) (b2 : B),
+  : forall (A : Type) (B : Type) (b1 : B) (b2 : B) .
       @Coproduct.right A B b1 = @Coproduct.right A B b2 -> b1 = b2.
 Proof.
   intros A B b1 b2 e.
@@ -78,7 +78,7 @@ Proof.
 Qed.
 
 Theorem distinctness
-  : forall (A : Type) (B : Type) (a : A) (b : B),
+  : forall (A : Type) (B : Type) (a : A) (b : B) .
       ~ (Coproduct.left a = Coproduct.right b).
 Proof.
   intros A B a b.
@@ -87,7 +87,7 @@ Proof.
   discriminate e.
 Qed.
 
-(* [forall {A : Type} {B : Type}, Coproduct A B -> Coproduct B A] *)
+(* [forall {A : Type} {B : Type} . Coproduct A B -> Coproduct B A] *)
 Definition swap := fun {A : Type} {B : Type} (cp : Coproduct A B) =>
   match cp return Coproduct B A with
   | Coproduct.left  a => Coproduct.right a
@@ -95,13 +95,13 @@ Definition swap := fun {A : Type} {B : Type} (cp : Coproduct A B) =>
   end.
 
 Theorem swap_involution
-  : forall (A : Type) (B : Type) (cp : Coproduct A B), swap (swap cp) = cp.
+  : forall (A : Type) (B : Type) (cp : Coproduct A B) . swap (swap cp) = cp.
 Proof.
   intros A B cp.
   destruct cp as [a | b]; simpl in |- *; reflexivity.
 Qed.
 
-(* [forall {A : Type} {B : Type} {C : Type}, (A -> C) -> Coproduct A B -> Coproduct C B] *)
+(* [forall {A : Type} {B : Type} {C : Type} . (A -> C) -> Coproduct A B -> Coproduct C B] *)
 Definition map_left := fun {A : Type} {B : Type} {C : Type}
                            (f : A -> C) (cp : Coproduct A B) =>
   match cp return Coproduct C B with
@@ -109,7 +109,7 @@ Definition map_left := fun {A : Type} {B : Type} {C : Type}
   | Coproduct.right b => Coproduct.right b
   end.
 
-(* [forall {A : Type} {B : Type} {C : Type}, (B -> C) -> Coproduct A B -> Coproduct A C] *)
+(* [forall {A : Type} {B : Type} {C : Type} . (B -> C) -> Coproduct A B -> Coproduct A C] *)
 Definition map_right := fun {A : Type} {B : Type} {C : Type}
                             (f : B -> C) (cp : Coproduct A B) =>
   match cp return Coproduct A C with
@@ -117,7 +117,7 @@ Definition map_right := fun {A : Type} {B : Type} {C : Type}
   | Coproduct.right b => Coproduct.right (f b)
   end.
 
-(* [forall {A : Type} {B : Type} {C : Type} {D : Type},
+(* [forall {A : Type} {B : Type} {C : Type} {D : Type} .
  *    (A -> C) -> (B -> D) -> Coproduct A B -> Coproduct C D]
  *)
 Definition bimap := fun {A : Type} {B : Type} {C : Type} {D : Type}
@@ -128,7 +128,7 @@ Definition bimap := fun {A : Type} {B : Type} {C : Type} {D : Type}
   end.
 
 Theorem map_left_identity
-  : forall (A : Type) (B : Type) (cp : Coproduct A B), map_left (fun (a : A) => a) cp = cp.
+  : forall (A : Type) (B : Type) (cp : Coproduct A B) . map_left (fun (a : A) => a) cp = cp.
 Proof.
   intros A B cp.
   destruct cp as [a | b]; simpl in |- *; reflexivity.
@@ -144,7 +144,7 @@ Proof.
 Qed.
 
 Theorem map_right_identity
-  : forall (A : Type) (B : Type) (cp : Coproduct A B), map_right (fun (b : B) => b) cp = cp.
+  : forall (A : Type) (B : Type) (cp : Coproduct A B) . map_right (fun (b : B) => b) cp = cp.
 Proof.
   intros A B cp.
   destruct cp as [a | b]; simpl in |- *; reflexivity.
@@ -169,7 +169,7 @@ Proof.
 Qed.
 
 Theorem bimap_identity
-  : forall (A : Type) (B : Type) (cp : Coproduct A B),
+  : forall (A : Type) (B : Type) (cp : Coproduct A B) .
       bimap (fun (a : A) => a) (fun (b : B) => b) cp = cp.
 Proof.
   intros A B cp.
@@ -196,7 +196,7 @@ Proof.
 Qed.
 
 Theorem copair_injections_identity
-  : forall (A : Type) (B : Type) (cp : Coproduct A B),
+  : forall (A : Type) (B : Type) (cp : Coproduct A B) .
       copair Coproduct.left Coproduct.right cp = cp.
 Proof.
   intros A B cp.
@@ -218,7 +218,7 @@ Notation "A + B" := (Coproduct A B)
   : jwa_type_scope.
 
 Instance Coproduct_functor
-  : forall (A : Type), Functor (Coproduct A) :=
+  : forall (A : Type) . Functor (Coproduct A) :=
   fun (A : Type) =>
     {| Functor.map             := @Coproduct.map_right A
      ; Functor.map_identity    := Coproduct.map_right_identity A

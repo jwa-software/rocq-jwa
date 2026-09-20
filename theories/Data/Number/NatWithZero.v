@@ -79,14 +79,14 @@ Notation "++ n" := (inc n) (only parsing)
 
 (* Addition *)
 
-Lemma inc_specification : forall (n : NatWithZero), ++ n = (+ One) + n.
+Lemma inc_specification : forall (n : NatWithZero) . (++ n) = (+ One) + n.
 Proof.
   intros n.
   destruct n as [| p]; simpl in |- *; reflexivity.
 Qed.
 
 Theorem addition_associativity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
     (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
@@ -105,7 +105,7 @@ Proof.
 Qed.
 
 Theorem addition_commutativity
-  : forall (m : NatWithZero) (n : NatWithZero), m + n = n + m.
+  : forall (m : NatWithZero) (n : NatWithZero) . m + n = n + m.
 Proof.
   intros m n.
   destruct m as [| m']; destruct n as [| n'].
@@ -121,7 +121,7 @@ Proof.
 Qed.
 
 Theorem addition_identity
-  : forall (n : NatWithZero), (0 + n = n) /\ (n + 0 = n).
+  : forall (n : NatWithZero) . (0 + n = n) /\ (n + 0 = n).
 Proof.
   intros n.
   split.
@@ -133,7 +133,7 @@ Proof.
 Qed.
 
 Theorem positive_injectivity
-  : forall (m : Nat) (n : Nat), + m = + n -> m = n.
+  : forall (m : Nat) (n : Nat) . (+ m) = + n -> m = n.
 Proof.
   intros m n e.
   pose proof (Identity.congruence
@@ -144,7 +144,7 @@ Proof.
 Qed.
 
 Lemma addition_positive_refutes_zero
-  : forall (m : NatWithZero) (n : Nat), ~ (m + (+ n) = 0).
+  : forall (m : NatWithZero) (n : Nat) . ~ (m + (+ n) = 0).
 Proof.
   intros m n.
   unfold Negation in |- *.
@@ -158,7 +158,7 @@ Proof.
 Qed.
 
 Theorem add_l_cancellation
-  : forall (n : NatWithZero) (m : NatWithZero) (k : NatWithZero),
+  : forall (n : NatWithZero) (m : NatWithZero) (k : NatWithZero) .
       n + m = n + k -> m = k.
 Proof.
   intros n m k.
@@ -195,7 +195,7 @@ Proof.
 Qed.
 
 Theorem add_r_cancellation
-  : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (k : NatWithZero) (n : NatWithZero) .
       m + n = k + n -> m = k.
 Proof.
   intros m k n e.
@@ -205,7 +205,7 @@ Proof.
 Qed.
 
 Theorem addition_cancellation
-  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero) .
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
@@ -215,7 +215,7 @@ Proof.
 Qed.
 
 Lemma add_l_commutativity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       l + (m + n) = m + (l + n).
 Proof.
   intros l m n.
@@ -226,7 +226,7 @@ Proof.
 Qed.
 
 Theorem addition_interchange
-  : forall (a : NatWithZero) (b : NatWithZero) (c : NatWithZero) (d : NatWithZero),
+  : forall (a : NatWithZero) (b : NatWithZero) (c : NatWithZero) (d : NatWithZero) .
       (a + b) + (c + d) = (a + c) + (b + d).
 Proof.
   intros a b c d.
@@ -238,7 +238,7 @@ Qed.
 
 (* Multiplication *)
 
-Lemma mul_l_identity : forall (n : NatWithZero), (+ One) * n = n.
+Lemma mul_l_identity : forall (n : NatWithZero) . (+ One) * n = n.
 Proof.
   intros n.
   destruct n as [| n'].
@@ -248,7 +248,7 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma mul_r_identity : forall (m : NatWithZero), m * (+ One) = m.
+Lemma mul_r_identity : forall (m : NatWithZero) . m * (+ One) = m.
 Proof.
   intros m.
   destruct m as [| m'].
@@ -261,7 +261,7 @@ Proof.
 Qed.
 
 Theorem multiplication_identity
-  : forall (n : NatWithZero), ((+ One) * n = n) /\ (n * (+ One) = n).
+  : forall (n : NatWithZero) . ((+ One) * n = n) /\ (n * (+ One) = n).
 Proof.
   intros n.
   split.
@@ -270,7 +270,7 @@ Proof.
 Qed.
 
 Theorem multiplication_commutativity
-  : forall (m : NatWithZero) (n : NatWithZero), m * n = n * m.
+  : forall (m : NatWithZero) (n : NatWithZero) . m * n = n * m.
 Proof.
   intros m n.
   destruct m as [| m'].
@@ -289,7 +289,7 @@ Proof.
 Qed.
 
 Theorem multiplication_annihilation
-  : forall (n : NatWithZero), (0 * n = 0) /\ (n * 0 = 0).
+  : forall (n : NatWithZero) . (0 * n = 0) /\ (n * 0 = 0).
 Proof.
   intros n.
   split.
@@ -301,7 +301,7 @@ Proof.
 Qed.
 
 Theorem multiplication_associativity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
@@ -320,7 +320,7 @@ Proof.
 Qed.
 
 Theorem mul_l_distributivity_over_addition
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
@@ -339,7 +339,7 @@ Proof.
 Qed.
 
 Theorem mul_r_distributivity_over_addition
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       (m + n) * l = (m * l) + (n * l).
 Proof.
   intros l m n.
@@ -351,7 +351,7 @@ Proof.
 Qed.
 
 Theorem multiplication_distributivity_over_addition
-  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero),
+  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero) .
       (x * (y + z) = (x * y) + (x * z))
     /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
@@ -374,7 +374,7 @@ Definition power := fun (m : NatWithZero) (n : NatWithZero) =>
       end
   end.
 
-Lemma power_identity : forall (m : NatWithZero), power m 0 = + One.
+Lemma power_identity : forall (m : NatWithZero) . power m 0 = + One.
 Proof.
   intros m.
   simpl in |- *.
@@ -382,7 +382,7 @@ Proof.
 Qed.
 
 Theorem product_of_powers
-  : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero),
+  : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero) .
       power m a * power m b = power m (a + b).
 Proof.
   intros m a b.
@@ -412,7 +412,7 @@ Proof.
 Qed.
 
 Theorem power_of_a_power
-  : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero),
+  : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero) .
       power (power m a) b = power m (a * b).
 Proof.
   intros m a b.
@@ -435,7 +435,7 @@ Proof.
 Qed.
 
 Theorem power_distributivity_over_multiplication
-  : forall (m : NatWithZero) (n : NatWithZero) (a : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) (a : NatWithZero) .
       power (m * n) a = power m a * power n a.
 Proof.
   intros m n a.
@@ -457,7 +457,7 @@ Qed.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) =>
-  exists (k : Nat), m + (+ k) = n.
+  exists (k : Nat) . m + (+ k) = n.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) =>
@@ -477,8 +477,8 @@ Notation "m >= n" := (LessOrEqual n m) (only parsing)
   : jwa_nat_with_zero_scope.
 
 Lemma lt_positive_embedding
-  : forall (m : Nat) (n : Nat),
-      + m < + n <-> Nat.LessThan m n.
+  : forall (m : Nat) (n : Nat) .
+      (+ m) < + n <-> Nat.LessThan m n.
 Proof.
   intros m n.
   split.
@@ -499,7 +499,7 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem lt_irreflexivity : forall (n : NatWithZero), ~ (n < n).
+Theorem lt_irreflexivity : forall (n : NatWithZero) . ~ (n < n).
 Proof.
   intros n.
   unfold Negation in |- *.
@@ -519,7 +519,7 @@ Proof.
 Qed.
 
 Theorem lt_transitivity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
@@ -539,7 +539,7 @@ Proof.
 Qed.
 
 Theorem addition_strict_monotonicity
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       m < n -> k + m < k + n.
 Proof.
   intros k m n h.
@@ -553,7 +553,7 @@ Proof.
 Qed.
 
 Theorem multiplication_strict_monotonicity
-  : forall (k : Nat) (m : NatWithZero) (n : NatWithZero),
+  : forall (k : Nat) (m : NatWithZero) (n : NatWithZero) .
       m < n -> (+ k) * m < (+ k) * n.
 Proof.
   intros k m n h.
@@ -576,7 +576,7 @@ Proof.
 Qed.
 
 Theorem addition_monotonicity
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       m <= n -> k + m <= k + n.
 Proof.
   intros k m n h.
@@ -591,7 +591,7 @@ Proof.
 Qed.
 
 Theorem addition_strict_cancellation
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       k + m < k + n -> m < n.
 Proof.
   intros k m n h.
@@ -604,7 +604,7 @@ Proof.
 Qed.
 
 Theorem addition_right_extensivity
-  : forall (m : NatWithZero) (n : NatWithZero), n <= m + n.
+  : forall (m : NatWithZero) (n : NatWithZero) . n <= m + n.
 Proof.
   intros m n.
   unfold LessOrEqual in |- *.
@@ -618,7 +618,7 @@ Proof.
 Qed.
 
 Theorem addition_right_positivity
-  : forall (n : NatWithZero) (k : Nat), 0 < n + (+ k).
+  : forall (n : NatWithZero) (k : Nat) . 0 < n + (+ k).
 Proof.
   intros n k.
   unfold LessThan in |- *.
@@ -632,7 +632,7 @@ Proof.
 Qed.
 
 Theorem lt_add_one_specification
-  : forall (m : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) .
       m < n + (+ One) <-> m <= n.
 Proof.
   intros m n.
@@ -689,7 +689,7 @@ Definition compare := fun (m : NatWithZero) (n : NatWithZero) =>
   end.
 
 Theorem comparison_antisymmetry
-  : forall (m : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) .
       compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m n.
@@ -705,7 +705,7 @@ Proof.
 Qed.
 
 Lemma lt_specification
-  : forall (m : NatWithZero) (n : NatWithZero), compare m n = Lt <-> m < n.
+  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Lt <-> m < n.
 Proof.
   intros m n.
   destruct m as [| m']; destruct n as [| n'].
@@ -749,7 +749,7 @@ Proof.
 Qed.
 
 Lemma eq_specification
-  : forall (m : NatWithZero) (n : NatWithZero), compare m n = Eq <-> m = n.
+  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Eq <-> m = n.
 Proof.
   intros m n.
   split.
@@ -773,7 +773,7 @@ Proof.
 Qed.
 
 Theorem comparison_specification
-  : forall (m : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) .
       (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
 Proof.
   intros m n.
@@ -800,7 +800,7 @@ Abbreviation min := (Comparable.min compare).
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Abbreviation max := (Comparable.max compare).
 
-Lemma max_l_identity : forall (n : NatWithZero), max 0 n = n.
+Lemma max_l_identity : forall (n : NatWithZero) . max 0 n = n.
 Proof.
   intros n.
   unfold Comparable.max in |- *.
@@ -811,7 +811,7 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma max_r_identity : forall (n : NatWithZero), max n 0 = n.
+Lemma max_r_identity : forall (n : NatWithZero) . max n 0 = n.
 Proof.
   intros n.
   rewrite (Comparable.max_commutativity n 0) in |- *.
@@ -819,7 +819,7 @@ Proof.
 Qed.
 
 Theorem max_identity
-  : forall (n : NatWithZero), (max 0 n = n) /\ (max n 0 = n).
+  : forall (n : NatWithZero) . (max 0 n = n) /\ (max n 0 = n).
 Proof.
   intros n.
   split.
@@ -827,14 +827,14 @@ Proof.
   - exact (max_r_identity n).
 Qed.
 
-Lemma min_left_annihilation : forall (n : NatWithZero), min 0 n = 0.
+Lemma min_left_annihilation : forall (n : NatWithZero) . min 0 n = 0.
 Proof.
   intros n.
   unfold Comparable.min in |- *.
   destruct n as [| n']; simpl in |- *; reflexivity.
 Qed.
 
-Lemma min_right_annihilation : forall (n : NatWithZero), min n 0 = 0.
+Lemma min_right_annihilation : forall (n : NatWithZero) . min n 0 = 0.
 Proof.
   intros n.
   rewrite (Comparable.min_commutativity n 0) in |- *.
@@ -842,7 +842,7 @@ Proof.
 Qed.
 
 Theorem min_annihilation
-  : forall (n : NatWithZero), (min 0 n = 0) /\ (min n 0 = 0).
+  : forall (n : NatWithZero) . (min 0 n = 0) /\ (min n 0 = 0).
 Proof.
   intros n.
   split.
@@ -851,7 +851,7 @@ Proof.
 Qed.
 
 Theorem addition_left_distributivity_over_min
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       k + min m n = min (k + m) (k + n).
 Proof.
   intros k m n.
@@ -891,7 +891,7 @@ Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) =>
   end.
 
 Theorem saturating_subtraction_inversion_of_addition
-  : forall (m : NatWithZero) (n : NatWithZero), saturating_sub (m + n) n = m.
+  : forall (m : NatWithZero) (n : NatWithZero) . saturating_sub (m + n) n = m.
 Proof.
   intros m n.
   destruct n as [| n']; destruct m as [| m'].
@@ -910,7 +910,7 @@ Proof.
 Qed.
 
 Theorem saturating_sub_truncation
-  : forall (m : NatWithZero) (n : NatWithZero), m <= n -> saturating_sub m n = 0.
+  : forall (m : NatWithZero) (n : NatWithZero) . m <= n -> saturating_sub m n = 0.
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
@@ -939,7 +939,7 @@ Proof.
 Qed.
 
 Theorem saturating_subtraction_specification
-  : forall (m : NatWithZero) (n : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) .
       n <= m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
@@ -958,14 +958,14 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem saturating_sub_r_identity : forall (n : NatWithZero), saturating_sub n 0 = n.
+Theorem saturating_sub_r_identity : forall (n : NatWithZero) . saturating_sub n 0 = n.
 Proof.
   intros n.
   destruct n as [| n']; simpl in |- *; reflexivity.
 Qed.
 
 Theorem saturating_sub_cancellation
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       saturating_sub (k + m) (k + n) = saturating_sub m n.
 Proof.
   intros k m n.
@@ -1000,7 +1000,7 @@ Definition sub := fun (m : NatWithZero) (n : NatWithZero) =>
   end.
 
 Theorem sub_truncation
-  : forall (m : NatWithZero) (n : NatWithZero), m < n -> sub m n = None.
+  : forall (m : NatWithZero) (n : NatWithZero) . m < n -> sub m n = None.
 Proof.
   intros m n h.
   unfold sub in |- *.
@@ -1022,7 +1022,7 @@ Proof.
 Qed.
 
 Theorem subtraction_inversion_of_addition
-  : forall (m : NatWithZero) (n : NatWithZero), sub (m + n) n = Some m.
+  : forall (m : NatWithZero) (n : NatWithZero) . sub (m + n) n = Some m.
 Proof.
   intros m n.
   unfold sub in |- *.
@@ -1033,7 +1033,7 @@ Proof.
 Qed.
 
 Theorem subtraction_specification
-  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero),
+  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero) .
       sub m n = Some k <-> n + k = m.
 Proof.
   intros m n k.
@@ -1094,7 +1094,7 @@ Definition modulo := fun (n : NatWithZero) (divisor : Nat) =>
   end.
 
 Lemma division_invariant
-  : forall (p : Nat) (d : Nat),
+  : forall (p : Nat) (d : Nat) .
       ((pi_1 (division p d) * (+ d)) + pi_2 (division p d) = + p)
       /\ pi_2 (division p d) < + d.
 Proof.
@@ -1161,7 +1161,7 @@ Proof.
 Qed.
 
 Theorem division_specification
-  : forall (n : NatWithZero) (d : Nat),
+  : forall (n : NatWithZero) (d : Nat) .
       ((divide n d * (+ d)) + modulo n d = n)
       /\ modulo n d < + d.
 Proof.
@@ -1187,9 +1187,9 @@ Qed.
  *)
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition Divides := fun (d : NatWithZero) (n : NatWithZero) =>
-  exists (k : NatWithZero), d * k = n.
+  exists (k : NatWithZero) . d * k = n.
 
-Theorem divides_reflexivity : forall (n : NatWithZero), Divides n n.
+Theorem divides_reflexivity : forall (n : NatWithZero) . Divides n n.
 Proof.
   intros n.
   unfold Divides in |- *.
@@ -1198,7 +1198,7 @@ Proof.
 Qed.
 
 Theorem divides_transitivity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       Divides l m -> Divides m n -> Divides l n.
 Proof.
   intros l m n h1 h2.
@@ -1215,7 +1215,7 @@ Proof.
 Qed.
 
 Theorem divides_antisymmetry
-  : forall (m : NatWithZero) (n : NatWithZero), Divides m n -> Divides n m -> m = n.
+  : forall (m : NatWithZero) (n : NatWithZero) . Divides m n -> Divides n m -> m = n.
 Proof.
   intros m n h1 h2.
   unfold Divides in h1.
@@ -1248,7 +1248,7 @@ Proof.
 Qed.
 
 Theorem divides_addition_closure
-  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       Divides d m -> Divides d n -> Divides d (m + n).
 Proof.
   intros d m n h1 h2.
@@ -1265,7 +1265,7 @@ Proof.
 Qed.
 
 Theorem divides_multiplication_closure
-  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero),
+  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
       Divides d m -> Divides d (m * n).
 Proof.
   intros d m n h.
@@ -1279,7 +1279,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem divides_bottom : forall (n : NatWithZero), Divides (+ One) n.
+Theorem divides_bottom : forall (n : NatWithZero) . Divides (+ One) n.
 Proof.
   intros n.
   unfold Divides in |- *.
@@ -1287,7 +1287,7 @@ Proof.
   exact (mul_l_identity n).
 Qed.
 
-Theorem divides_top : forall (n : NatWithZero), Divides n 0.
+Theorem divides_top : forall (n : NatWithZero) . Divides n 0.
 Proof.
   intros n.
   unfold Divides in |- *.
@@ -1304,9 +1304,9 @@ Definition Even := fun (n : NatWithZero) => Divides (+ (Successor One)) n.
 
 (* [NatWithZero -> Prop] *)
 Definition Odd := fun (n : NatWithZero) =>
-  exists (k : NatWithZero), ((+ (Successor One)) * k) + (+ One) = n.
+  exists (k : NatWithZero) . ((+ (Successor One)) * k) + (+ One) = n.
 
-Theorem even_or_odd : forall (n : NatWithZero), Even n \/ Odd n.
+Theorem even_or_odd : forall (n : NatWithZero) . Even n \/ Odd n.
 Proof.
   intros n.
   destruct n as [| p].
@@ -1357,7 +1357,7 @@ Proof.
 Qed.
 
 Theorem even_add_even
-  : forall (m : NatWithZero) (n : NatWithZero), Even m -> Even n -> Even (m + n).
+  : forall (m : NatWithZero) (n : NatWithZero) . Even m -> Even n -> Even (m + n).
 Proof.
   intros m n h1 h2.
   unfold Even in h1.
@@ -1367,7 +1367,7 @@ Proof.
 Qed.
 
 Theorem odd_add_odd
-  : forall (m : NatWithZero) (n : NatWithZero), Odd m -> Odd n -> Even (m + n).
+  : forall (m : NatWithZero) (n : NatWithZero) . Odd m -> Odd n -> Even (m + n).
 Proof.
   intros m n h1 h2.
   unfold Odd in h1.

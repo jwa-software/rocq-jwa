@@ -19,11 +19,11 @@ Arguments Product_introduction {A} {B} a b.
  * product holds no smaller product, so one [match] is the whole content.
  *)
 Definition Product_induction
-  : forall (A : Type) (B : Type) (P : Product A B -> Prop),
-      (forall (a : A) (b : B), P (Product_introduction a b)) ->
-      forall (p : Product A B), P p
+  : forall (A : Type) (B : Type) (P : Product A B -> Prop) .
+      (forall (a : A) (b : B) . P (Product_introduction a b)) ->
+      forall (p : Product A B) . P p
   := fun (A : Type) (B : Type) (P : Product A B -> Prop)
-         (step : forall (a : A) (b : B), P (Product_introduction a b))
+         (step : forall (a : A) (b : B) . P (Product_introduction a b))
          (p : Product A B) =>
        match p with
        | Product_introduction a b => step a b
@@ -32,20 +32,20 @@ Definition Product_induction
 (* A module may carry the type's name; its members read [Product.first]. *)
 Module Product.
 
-(* [forall {A : Type} {B : Type}, Product A B -> A] *)
+(* [forall {A : Type} {B : Type} . Product A B -> A] *)
 Definition first := fun {A : Type} {B : Type} (p : Product A B) =>
   match p return A with
   | Product_introduction a _ => a
   end.
 
-(* [forall {A : Type} {B : Type}, Product A B -> B] *)
+(* [forall {A : Type} {B : Type} . Product A B -> B] *)
 Definition second := fun {A : Type} {B : Type} (p : Product A B) =>
   match p return B with
   | Product_introduction _ b => b
   end.
 
 Theorem introduction_injectivity
-  : forall (A : Type) (B : Type) (a1 : A) (b1 : B) (a2 : A) (b2 : B),
+  : forall (A : Type) (B : Type) (a1 : A) (b1 : B) (a2 : A) (b2 : B) .
       (Product_introduction a1 b1 = Product_introduction a2 b2) -> (a1 = a2) /\ (b1 = b2).
 Proof.
   intros A B a1 b1 a2 b2 e.
@@ -55,7 +55,7 @@ Proof.
 Qed.
 
 Theorem introduction_surjectivity
-  : forall (A : Type) (B : Type) (p : Product A B),
+  : forall (A : Type) (B : Type) (p : Product A B) .
       p = Product_introduction (first p) (second p).
 Proof.
   intros A B p.
@@ -64,14 +64,14 @@ Proof.
   reflexivity.
 Qed.
 
-(* [forall {A : Type} {B : Type}, Product A B -> Product B A] *)
+(* [forall {A : Type} {B : Type} . Product A B -> Product B A] *)
 Definition swap := fun {A : Type} {B : Type} (p : Product A B) =>
   match p return Product B A with
   | Product_introduction a b => Product_introduction b a
   end.
 
 Theorem swap_involution
-  : forall (A : Type) (B : Type) (p : Product A B), swap (swap p) = p.
+  : forall (A : Type) (B : Type) (p : Product A B) . swap (swap p) = p.
 Proof.
   intros A B p.
   destruct p as [a b].
@@ -79,7 +79,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* [forall {A : Type} {B : Type} {C : Type},
+(* [forall {A : Type} {B : Type} {C : Type} .
  *    (A -> C) -> Product A B -> Product C B]
  *)
 Definition map_first := fun {A : Type} {B : Type} {C : Type}
@@ -88,7 +88,7 @@ Definition map_first := fun {A : Type} {B : Type} {C : Type}
   | Product_introduction a b => Product_introduction (f a) b
   end.
 
-(* [forall {A : Type} {B : Type} {C : Type},
+(* [forall {A : Type} {B : Type} {C : Type} .
  *    (B -> C) -> Product A B -> Product A C]
  *)
 Definition map_second := fun {A : Type} {B : Type} {C : Type}
@@ -97,7 +97,7 @@ Definition map_second := fun {A : Type} {B : Type} {C : Type}
   | Product_introduction a b => Product_introduction a (f b)
   end.
 
-(* [forall {A : Type} {B : Type} {C : Type} {D : Type},
+(* [forall {A : Type} {B : Type} {C : Type} {D : Type} .
  *    (A -> C) -> (B -> D) -> Product A B -> Product C D]
  *)
 Definition bimap := fun {A : Type} {B : Type} {C : Type} {D : Type}
@@ -108,7 +108,7 @@ Definition bimap := fun {A : Type} {B : Type} {C : Type} {D : Type}
   end.
 
 Theorem map_first_identity
-  : forall (A : Type) (B : Type) (p : Product A B),
+  : forall (A : Type) (B : Type) (p : Product A B) .
       map_first (fun (a : A) => a) p = p.
 Proof.
   intros A B p.
@@ -130,7 +130,7 @@ Proof.
 Qed.
 
 Theorem map_second_identity
-  : forall (A : Type) (B : Type) (p : Product A B),
+  : forall (A : Type) (B : Type) (p : Product A B) .
       map_second (fun (b : B) => b) p = p.
 Proof.
   intros A B p.
@@ -162,7 +162,7 @@ Proof.
 Qed.
 
 Theorem bimap_identity
-  : forall (A : Type) (B : Type) (p : Product A B),
+  : forall (A : Type) (B : Type) (p : Product A B) .
       bimap (fun (a : A) => a) (fun (b : B) => b) p = p.
 Proof.
   intros A B p.
@@ -195,12 +195,12 @@ Proof.
   reflexivity.
 Qed.
 
-(* [forall {A : Type} {B : Type} {C : Type}, (Product A B -> C) -> A -> B -> C] *)
+(* [forall {A : Type} {B : Type} {C : Type} . (Product A B -> C) -> A -> B -> C] *)
 Definition curry := fun {A : Type} {B : Type} {C : Type}
                         (f : Product A B -> C) (a : A) (b : B) =>
   f (Product_introduction a b).
 
-(* [forall {A : Type} {B : Type} {C : Type}, (A -> B -> C) -> Product A B -> C] *)
+(* [forall {A : Type} {B : Type} {C : Type} . (A -> B -> C) -> Product A B -> C] *)
 Definition uncurry := fun {A : Type} {B : Type} {C : Type}
                           (f : A -> B -> C) (p : Product A B) =>
   match p return C with
@@ -208,7 +208,7 @@ Definition uncurry := fun {A : Type} {B : Type} {C : Type}
   end.
 
 Theorem uncurry_curry_identity
-  : forall (A : Type) (B : Type) (C : Type) (f : Product A B -> C) (p : Product A B),
+  : forall (A : Type) (B : Type) (C : Type) (f : Product A B -> C) (p : Product A B) .
       uncurry (curry f) p = f p.
 Proof.
   intros A B C f p.
@@ -219,7 +219,7 @@ Proof.
 Qed.
 
 Theorem curry_uncurry_identity
-  : forall (A : Type) (B : Type) (C : Type) (f : A -> B -> C) (a : A) (b : B),
+  : forall (A : Type) (B : Type) (C : Type) (f : A -> B -> C) (a : A) (b : B) .
       curry (uncurry f) a b = f a b.
 Proof.
   intros A B C f a b.
@@ -228,7 +228,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* [forall {A : Type} {B : Type},
+(* [forall {A : Type} {B : Type} .
  *    (A -> A -> A) -> (B -> B -> B) -> Product A B -> Product A B -> Product A B]
  *)
 Definition direct_product := fun {A : Type} {B : Type}
@@ -244,7 +244,7 @@ Theorem direct_product_associativity
       (B : Type) (f2 : B -> B -> B),
       Semigroup f1 ->
       Semigroup f2 ->
-      forall (p1 : Product A B) (p2 : Product A B) (p3 : Product A B),
+      forall (p1 : Product A B) (p2 : Product A B) (p3 : Product A B) .
         direct_product f1 f2 (direct_product f1 f2 p1 p2) p3
       = direct_product f1 f2 p1 (direct_product f1 f2 p2 p3).
 Proof.
@@ -263,7 +263,7 @@ Lemma direct_product_left_identity
       (B : Type) (f2 : B -> B -> B) (eB : B),
       Monoid f1 eA ->
       Monoid f2 eB ->
-      forall (p : Product A B),
+      forall (p : Product A B) .
         direct_product f1 f2 (Product_introduction eA eB) p = p.
 Proof.
   intros A f1 eA B f2 eB MA MB p.
@@ -281,7 +281,7 @@ Lemma direct_product_right_identity
       (B : Type) (f2 : B -> B -> B) (eB : B),
       Monoid f1 eA ->
       Monoid f2 eB ->
-      forall (p : Product A B),
+      forall (p : Product A B) .
       direct_product f1 f2 p (Product_introduction eA eB) = p.
 Proof.
   intros A f1 eA B f2 eB MA MB p.
@@ -299,7 +299,7 @@ Theorem direct_product_identity
       (B : Type) (f2 : B -> B -> B) (eB : B),
       Monoid f1 eA ->
       Monoid f2 eB ->
-      forall (p : Product A B),
+      forall (p : Product A B) .
         (direct_product f1 f2 (Product_introduction eA eB) p = p)
       /\ (direct_product f1 f2 p (Product_introduction eA eB) = p).
 Proof.
@@ -310,10 +310,10 @@ Proof.
 Qed.
 
 Theorem direct_product_commutativity
-  : forall (A : Type) (f1 : A -> A -> A) (B : Type) (f2 : B -> B -> B),
+  : forall (A : Type) (f1 : A -> A -> A) (B : Type) (f2 : B -> B -> B) .
       Commutative f1 ->
       Commutative f2 ->
-      forall (p1 : Product A B) (p2 : Product A B),
+      forall (p1 : Product A B) (p2 : Product A B) .
         direct_product f1 f2 p1 p2 = direct_product f1 f2 p2 p1.
 Proof.
   intros A f1 B f2 CA CB p1 p2.
@@ -361,7 +361,7 @@ Notation "'pi_2'" := Product.second (only parsing)
  * what keeps it general enough for the field, as in [Data.Option].
  *)
 Instance Product_functor
-  : forall (A : Type), Functor (Product A) :=
+  : forall (A : Type) . Functor (Product A) :=
   fun (A : Type) =>
     {| Functor.map             := fun (B : Type) (C : Type) => Product.map_second
      ; Functor.map_identity    := Product.map_second_identity A

@@ -5,4 +5,4 @@ From jwa Require Import Core.Class.
 
 Class Reflexive {A : Type} (R : A -> A -> Prop) : Prop :=
   { reflexivity
-    : forall (x : A), R x x }.
+    : forall (x : A) . R x x }.

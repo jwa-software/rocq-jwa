@@ -5,4 +5,4 @@ From jwa Require Import Core.Class.
 
 Class Antisymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
   { antisymmetry
-    : forall (x : A) (y : A), R x y -> R y x -> x = y }.
+    : forall (x : A) (y : A) . R x y -> R y x -> x = y }.

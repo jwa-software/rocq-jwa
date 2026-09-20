@@ -8,5 +8,5 @@ Class Monoid {A : Type} (op : A -> A -> A) (identity : A) : Prop :=
   { semigroup
     :: Semigroup op
   ; identity
-    : forall (x : A),
+    : forall (x : A) .
       op identity x = x /\ op x identity = x }.

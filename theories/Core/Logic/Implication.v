@@ -6,7 +6,7 @@ From jwa Require Import Core.Notations.
 (* Implication is the conditional, [if A then B]. [->] is the kernel's
  * non-dependent [forall], which this line only gives a spelling.
  *)
-Notation "A -> B" := (forall (_ : A), B)
+Notation "A -> B" := (forall (_ : A) . B)
   : jwa_type_scope.
 
 (* No type is declared for [->], so the module carries the connective's
@@ -17,7 +17,7 @@ Module Implication.
 (* Modus ponens, the elimination rule of [->]. Rocq writes the step as
  * plain application, [f a]; these name it.
  *)
-Theorem modus_ponens : forall {A : Prop} {B : Prop}, (A -> B) -> A -> B.
+Theorem modus_ponens : forall {A : Prop} {B : Prop} . (A -> B) -> A -> B.
 Proof.
   intros A B.
   intro f.
@@ -26,7 +26,7 @@ Proof.
   exact a.
 Qed.
 
-Theorem modus_ponens_flipped : forall {A : Prop} {B : Prop}, A -> (A -> B) -> B.
+Theorem modus_ponens_flipped : forall {A : Prop} {B : Prop} . A -> (A -> B) -> B.
 Proof.
   intros A B.
   intro a.
@@ -35,7 +35,7 @@ Proof.
   exact a.
 Qed.
 
-Theorem reflexivity : forall {A : Prop}, A -> A.
+Theorem reflexivity : forall {A : Prop} . A -> A.
 Proof.
   intro A.
   intro a.
@@ -43,7 +43,7 @@ Proof.
 Qed.
 
 Theorem transitivity
-  : forall {A : Prop} {B : Prop} {C : Prop}, (A -> B) -> (B -> C) -> (A -> C).
+  : forall {A : Prop} {B : Prop} {C : Prop} . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C.
   intro ab.
@@ -58,7 +58,7 @@ Qed.
  * about [->]: weakening, contraction and exchange.
  *)
 
-Theorem weakening : forall {A : Prop} {B : Prop}, A -> B -> A.
+Theorem weakening : forall {A : Prop} {B : Prop} . A -> B -> A.
 Proof.
   intros A B.
   intro a.
@@ -67,7 +67,7 @@ Proof.
 Qed.
 
 Theorem contraction
-  : forall {A : Prop} {B : Prop}, (A -> A -> B) -> A -> B.
+  : forall {A : Prop} {B : Prop} . (A -> A -> B) -> A -> B.
 Proof.
   intros A B.
   intro f.
@@ -79,7 +79,7 @@ Qed.
 
 (* Its own converse: applying it twice restores the order. *)
 Theorem exchange
-  : forall {A : Prop} {B : Prop} {C : Prop}, (A -> B -> C) -> B -> A -> C.
+  : forall {A : Prop} {B : Prop} {C : Prop} . (A -> B -> C) -> B -> A -> C.
 Proof.
   intros A B C.
   intro f.

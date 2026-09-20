@@ -19,7 +19,7 @@ Module Falsum.
 (* Ex falso: a proof of [Falsum] proves anything, since there is no case to
  * handle.
  *)
-Theorem elimination : forall (A : Prop), Falsum -> A.
+Theorem elimination : forall (A : Prop) . Falsum -> A.
 Proof.
   intro A.
   intro f.

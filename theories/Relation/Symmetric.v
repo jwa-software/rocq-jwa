@@ -5,4 +5,4 @@ From jwa Require Import Core.Class.
 
 Class Symmetric {A : Type} (R : A -> A -> Prop) : Prop :=
   { symmetry
-    : forall (x : A) (y : A), R x y -> R y x }.
+    : forall (x : A) (y : A) . R x y -> R y x }.

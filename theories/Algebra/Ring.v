@@ -14,6 +14,6 @@ Class Ring {A : Type}
   ; monoid
     :: Monoid mul one
   ; distributivity
-    : forall (x : A) (y : A) (z : A),
+    : forall (x : A) (y : A) (z : A) .
       mul x (add y z) = add (mul x y) (mul x z)
     /\ mul (add y z) x = add (mul y x) (mul z x) }.

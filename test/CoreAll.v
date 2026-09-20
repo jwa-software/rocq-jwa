@@ -3,7 +3,7 @@
 From jwa Require Import Core.All.
 
 Definition core_all_delivers
-  : forall (A : Prop) (B : Prop),
+  : forall (A : Prop) (B : Prop) .
       A /\ B -> B \/ A -> (A <-> B) -> ~ Falsum -> Verum
   := fun (A : Prop) (B : Prop)
          (_ : A /\ B) (_ : B \/ A)
@@ -11,7 +11,7 @@ Definition core_all_delivers
          (_ : ~ Falsum) => I.
 
 Theorem core_all_delivers_proof_mode
-  : forall (A : Type) (x : A), x = x.
+  : forall (A : Type) (x : A) . x = x.
 Proof.
   intros A x.
   reflexivity.

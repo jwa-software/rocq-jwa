@@ -13,7 +13,7 @@ Arguments Some {A} a.
 (* A module may carry the type's name; its members read [Option.map]. *)
 Module Option.
 
-(* [forall {A : Type} {B : Type}, (A -> B) -> Option A -> Option B] *)
+(* [forall {A : Type} {B : Type} . (A -> B) -> Option A -> Option B] *)
 Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) =>
   match o return Option B with
   | None   => None
@@ -21,14 +21,14 @@ Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) =>
   end.
 
 Theorem map_identity
-  : forall (A : Type) (o : Option A), map (fun (a : A) => a) o = o.
+  : forall (A : Type) (o : Option A) . map (fun (a : A) => a) o = o.
 Proof.
   intros A o.
   destruct o as [| a]; unfold map in |- *; simpl in |- *; reflexivity.
 Qed.
 
 Theorem map_composition
-  : forall (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C) (o : Option A),
+  : forall (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C) (o : Option A) .
       map g (map f o) = map (fun (a : A) => g (f a)) o.
 Proof.
   intros A B C f g o.
@@ -36,7 +36,7 @@ Proof.
 Qed.
 
 Theorem some_injectivity
-  : forall (A : Type) (a : A) (b : A), Some a = Some b -> a = b.
+  : forall (A : Type) (a : A) (b : A) . Some a = Some b -> a = b.
 Proof.
   intros A a b e.
   pose (f := fun (o : Option A) => match o with | Some x => x | None => a end).

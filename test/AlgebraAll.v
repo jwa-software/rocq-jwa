@@ -3,7 +3,7 @@
 From jwa Require Import Algebra.All.
 
 Definition algebra_all_delivers
-  : forall (A : Type) (op : A -> A -> A) (e : A),
+  : forall (A : Type) (op : A -> A -> A) (e : A) .
       Semigroup op -> Monoid op e -> Commutative op -> AbelianMonoid op e
       -> Cancellative op -> ~ Falsum -> Verum
   := fun (A : Type) (op : A -> A -> A) (e : A)
@@ -11,7 +11,7 @@ Definition algebra_all_delivers
          (_ : Cancellative op) (_ : ~ Falsum) => I.
 
 Definition algebra_all_delivers_projections
-  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid op e) (x : A),
+  : forall (A : Type) (op : A -> A -> A) (e : A) (m : Monoid op e) (x : A) .
       op e x = x /\ op x e = x
   := fun (A : Type) (op : A -> A -> A) (e : A) (m : Monoid op e) (x : A) =>
        Monoid.identity x.

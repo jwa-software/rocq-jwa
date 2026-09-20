@@ -5,4 +5,4 @@ From jwa Require Import Core.Class.
 
 Class Irreflexive {A : Type} (R : A -> A -> Prop) : Prop :=
   { irreflexivity
-    : forall (x : A), ~ R x x }.
+    : forall (x : A) . ~ R x x }.

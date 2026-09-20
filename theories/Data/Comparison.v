@@ -10,13 +10,13 @@ Inductive Comparison : Type :=
   | Eq : Comparison
   | Gt : Comparison.
 
-(* [forall (P : Comparison -> Prop), P Lt -> P Eq -> P Gt -> forall (c : Comparison), P c] *)
+(* [forall (P : Comparison -> Prop) . P Lt -> P Eq -> P Gt -> forall (c : Comparison) . P c] *)
 Definition Comparison_induction
-  : forall (P : Comparison -> Prop),
+  : forall (P : Comparison -> Prop) .
       P Lt ->
       P Eq ->
       P Gt ->
-      forall (c : Comparison), P c
+      forall (c : Comparison) . P c
   := fun (P : Comparison -> Prop)
          (lt : P Lt)
          (eq : P Eq)
@@ -42,7 +42,7 @@ Definition transpose := fun (c : Comparison) =>
   end.
 
 Theorem transpose_involution
-  : forall (c : Comparison), transpose (transpose c) = c.
+  : forall (c : Comparison) . transpose (transpose c) = c.
 Proof.
   intros c.
   destruct c as [| |]; simpl in |- *; reflexivity.

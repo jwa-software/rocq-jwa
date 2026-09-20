@@ -8,9 +8,9 @@ From jwa Require Import Core.All.
 Inductive Unit : Type :=
   | Unit_introduction : Unit.
 
-(* [forall (P : Unit -> Prop), P Unit_introduction -> forall (u : Unit), P u] *)
+(* [forall (P : Unit -> Prop) . P Unit_introduction -> forall (u : Unit) . P u] *)
 Definition Unit_induction
-  : forall (P : Unit -> Prop), P Unit_introduction -> forall (u : Unit), P u
+  : forall (P : Unit -> Prop) . P Unit_introduction -> forall (u : Unit) . P u
   := fun (P : Unit -> Prop) (base : P Unit_introduction) (u : Unit) =>
        match u with
        | Unit_introduction => base
@@ -23,7 +23,7 @@ Module Unit.
  * the eta rule for [Unit], which an [Inductive] does not compute, so it is
  * proved.
  *)
-Theorem surjectivity : forall (u : Unit), u = Unit_introduction.
+Theorem surjectivity : forall (u : Unit) . u = Unit_introduction.
 Proof.
   intros u. destruct u. reflexivity.
 Qed.
