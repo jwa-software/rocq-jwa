@@ -1141,7 +1141,7 @@ Proof.
     intro e.
     pose proof (Option.some.injectivity
                   (Product_introduction b rest) (Product_introduction a l') e) as e'.
-    pose proof (Product.introduction_injectivity A (List A) b rest a l' e') as e''.
+    pose proof (Product.introduction.injectivity b rest a l' e') as e''.
     destruct e'' as [eb erest].
     rewrite eb in |- *.
     rewrite erest in |- *.
@@ -1227,7 +1227,7 @@ Proof.
     unfold unzip in IH.
     simpl in IH.
     rewrite IH in |- *.
-    rewrite <- (Product.introduction_surjectivity A B p) in |- *.
+    rewrite <- (Product.introduction.surjectivity p) in |- *.
     reflexivity.
 Qed.
 
@@ -1273,7 +1273,7 @@ Proof.
                     (Positive One) (|| l1' ||) (|| l2' ||) e) as e'.
       pose proof (IH l2' e') as IH'.
       unfold unzip in IH'.
-      pose proof (Product.introduction_injectivity (List A) (List B)
+      pose proof (Product.introduction.injectivity
                     (map Product.first (zip l1' l2'))
                     (map Product.second (zip l1' l2'))
                     l1' l2' IH') as e''.
