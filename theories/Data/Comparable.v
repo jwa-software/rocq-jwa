@@ -32,7 +32,7 @@ Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Pro
 (* Everything below holds of any [Comparable compare lt], so each number type
  * proves the three fields once and inherits the rest.
  *)
-Module Comparable.
+Module Comparable. (* Comparable *)
 
 (* [forall {A : Type} . (A -> A -> Prop) -> A -> A -> Prop] *)
 Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) .
@@ -70,6 +70,9 @@ Definition max := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A
   | Gt => m
   end.
 
+Module comparison. (* comparison *)
+
+(* comparison.reflexivity *)
 Theorem reflexivity
   : forall {A : Type}
       {compare : A -> A -> Comparison}
@@ -83,7 +86,10 @@ Proof.
   exact (<-elim s (Identity.reflexivity n)).
 Qed.
 
-Theorem lt_specification
+Module strict. (* comparison.strict *)
+
+(* comparison.strict.specification *)
+Theorem specification
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -96,20 +102,13 @@ Proof.
   exact s.
 Qed.
 
-Theorem eq_specification
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (m : A) (n : A) .
-    compare m n = Eq <-> m = n.
-Proof.
-  intros A compare lt C m n.
-  destruct (Comparable.specification m n) as [_ s].
-  exact s.
-Qed.
+Module transposition. (* comparison.strict.transposition *)
 
-Theorem gt_specification
+(* [Gt] is [Lt] read from the other side, which is what [antisymmetry] says;
+ * the proof is that law, then the [Lt] case.
+ *)
+(* comparison.strict.transposition.specification *)
+Theorem specification
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -135,63 +134,28 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem trichotomy
+End transposition. (* comparison.strict.transposition *)
+
+End strict. (* comparison.strict *)
+
+Module equality. (* comparison.equality *)
+
+(* comparison.equality.specification *)
+Theorem specification
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
       (m : A) (n : A) .
-    lt m n \/ m = n \/ lt n m.
+    compare m n = Eq <-> m = n.
 Proof.
   intros A compare lt C m n.
-  destruct (compare m n) as [| |] eqn:c.
-  - destruct (Comparable.specification m n) as [s _].
-    exact (Disjunction.L
-             (->elim s c)).
-  - destruct (Comparable.specification m n) as [_ s].
-    exact (Disjunction.R
-            (Disjunction.L
-              (->elim s c))).
-  - exact (Disjunction.R
-            (Disjunction.R
-              (->elim (gt_specification m n) c))).
+  destruct (Comparable.specification m n) as [_ s].
+  exact s.
 Qed.
 
-Theorem lt_irreflexivity
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (n : A) .
-    ~ (lt n n).
-Proof.
-  intros A compare lt C n.
-  unfold Negation in |- *.
-  intro h.
-  pose proof (<-elim (lt_specification n n) h) as c.
-  rewrite (Comparable.reflexivity n) in c.
-  discriminate c.
-Qed.
-
-Theorem lt_asymmetry
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (m : A) (n : A) .
-    lt m n -> ~ (lt n m).
-Proof.
-  intros A compare lt C m n h1.
-  unfold Negation in |- *.
-  intro h2.
-  pose proof (Comparable.transitivity m n m h1 h2) as h.
-  pose proof (lt_irreflexivity m) as i.
-  unfold Negation in i.
-  pose proof (i h) as f.
-  contradiction f.
-Qed.
-
-Theorem eq_reflection
+(* comparison.equality.reflection *)
+Theorem reflection
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -214,7 +178,78 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem le_reflexivity
+End equality. (* comparison.equality *)
+
+End comparison. (* comparison *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.irreflexivity *)
+Theorem irreflexivity
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (n : A) .
+    ~ (lt n n).
+Proof.
+  intros A compare lt C n.
+  unfold Negation in |- *.
+  intro h.
+  pose proof (<-elim (comparison.strict.specification n n) h) as c.
+  rewrite (comparison.reflexivity n) in c.
+  discriminate c.
+Qed.
+
+(* order.strict.asymmetry *)
+Theorem asymmetry
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (m : A) (n : A) .
+    lt m n -> ~ (lt n m).
+Proof.
+  intros A compare lt C m n h1.
+  unfold Negation in |- *.
+  intro h2.
+  pose proof (Comparable.transitivity m n m h1 h2) as h.
+  pose proof (order.strict.irreflexivity m) as i.
+  unfold Negation in i.
+  pose proof (i h) as f.
+  contradiction f.
+Qed.
+
+(* order.strict.trichotomy *)
+Theorem trichotomy
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (m : A) (n : A) .
+    lt m n \/ m = n \/ lt n m.
+Proof.
+  intros A compare lt C m n.
+  destruct (compare m n) as [| |] eqn:c.
+  - destruct (Comparable.specification m n) as [s _].
+    exact (Disjunction.L
+             (->elim s c)).
+  - destruct (Comparable.specification m n) as [_ s].
+    exact (Disjunction.R
+            (Disjunction.L
+              (->elim s c))).
+  - exact (Disjunction.R
+            (Disjunction.R
+              (->elim
+                (comparison.strict.transposition.specification m n) c))).
+Qed.
+
+End strict. (* order.strict *)
+
+(* order.reflexivity *)
+Theorem reflexivity
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -227,7 +262,8 @@ Proof.
   exact (Disjunction.L (Identity.reflexivity n)).
 Qed.
 
-Theorem le_antisymmetry
+(* order.antisymmetry *)
+Theorem antisymmetry
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -242,13 +278,14 @@ Proof.
   - exact e1.
   - destruct h2 as [e2 | lt2].
     + exact (Identity.symmetry e2).
-    + pose proof (lt_asymmetry m n lt1) as a.
+    + pose proof (order.strict.asymmetry m n lt1) as a.
       unfold Negation in a.
       pose proof (a lt2) as f.
       contradiction f.
 Qed.
 
-Theorem le_transitivity
+(* order.transitivity *)
+Theorem transitivity
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -257,9 +294,7 @@ Theorem le_transitivity
     LessOrEqual lt l m -> LessOrEqual lt m n -> LessOrEqual lt l n.
 Proof.
   intros A compare lt C l m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
-  unfold LessOrEqual in |- *.
+  unfold LessOrEqual in h1, h2 |- *.
   destruct h1 as [e1 | lt1].
   - rewrite e1 in |- *.
     exact h2.
@@ -269,7 +304,8 @@ Proof.
     + exact (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
 Qed.
 
-Theorem le_totality
+(* order.totality *)
+Theorem totality
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -278,7 +314,7 @@ Theorem le_totality
     LessOrEqual lt m n \/ LessOrEqual lt n m.
 Proof.
   intros A c lt C m n.
-  pose proof (trichotomy m n) as t.
+  pose proof (order.strict.trichotomy m n) as t.
   unfold LessOrEqual in |- *.
   destruct t as [lt1 | rest].
   - exact (Disjunction.L (Disjunction.R lt1)).
@@ -287,7 +323,8 @@ Proof.
     + exact (Disjunction.R (Disjunction.R gt)).
 Qed.
 
-Theorem le_reflection
+(* order.reflection *)
+Theorem reflection
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -326,7 +363,12 @@ Proof.
         discriminate c.
 Qed.
 
-Theorem min_specification
+End order. (* order *)
+
+Module minimum. (* minimum *)
+
+(* minimum.specification *)
+Theorem specification
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -359,39 +401,10 @@ Proof.
         discriminate c.
 Qed.
 
-Theorem max_specification
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (m : A) (n : A) .
-    max compare m n = m <-> LessOrEqual lt n m.
-Proof.
-  intros A compare lt C m n.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  split.
-  - intro e.
-    destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction.L.
-      exact e.
-    + apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
-      exact (Identity.symmetry
-               (->elim s c)).
-    + apply Disjunction.R.
-      exact (->elim (gt_specification m n) c).
-  - intro h.
-    destruct (compare m n) as [| |] eqn:c.
-    + destruct h as [e | gt].
-      * exact e.
-      * rewrite (<-elim (gt_specification m n) gt) in c.
-        discriminate c.
-    + reflexivity.
-    + reflexivity.
-Qed.
+Module left. (* minimum.left *)
 
-Lemma min_l_projection
+(* minimum.left.projection *)
+Lemma projection
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -406,10 +419,15 @@ Proof.
   - exact (Disjunction.L (Identity.reflexivity l)).
   - exact (Disjunction.L (Identity.reflexivity l)).
   - apply Disjunction.R.
-    exact (->elim (gt_specification l r) c).
+    exact (->elim (comparison.strict.transposition.specification l r) c).
 Qed.
 
-Lemma min_r_projection
+End left. (* minimum.left *)
+
+Module right. (* minimum.right *)
+
+(* minimum.right.projection *)
+Lemma projection
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -430,7 +448,10 @@ Proof.
   - exact (Disjunction.L (Identity.reflexivity r)).
 Qed.
 
-Theorem min_universality
+End right. (* minimum.right *)
+
+(* minimum.universality *)
+Theorem universality
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -446,7 +467,128 @@ Proof.
   - exact h2.
 Qed.
 
-Lemma max_l_injection
+(* minimum.commutativity *)
+Theorem commutativity
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (m : A) (n : A) .
+    min compare m n = min compare n m.
+Proof.
+  intros A c lt C m n.
+  apply (order.antisymmetry (min c m n) (min c n m)).
+  - exact (minimum.universality
+            (min c m n) n m
+            (minimum.right.projection m n) (minimum.left.projection m n)).
+  - exact (minimum.universality
+            (min c n m) m n
+            (minimum.right.projection n m) (minimum.left.projection n m)).
+Qed.
+
+(* minimum.associativity *)
+Theorem associativity
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (l : A) (m : A) (n : A) .
+    min compare (min compare l m) n = min compare l (min compare m n).
+Proof.
+  intros A c lt C l m n.
+  apply (order.antisymmetry
+          (min c (min c l m) n)
+          (min c l (min c m n))).
+  - apply (minimum.universality
+            (min c (min c l m) n) l (min c m n)).
+    + exact (order.transitivity
+              (min c (min c l m) n) (min c l m) l
+              (minimum.left.projection (min c l m) n)
+              (minimum.left.projection l m)).
+    + apply (minimum.universality
+              (min c (min c l m) n) m n).
+      * exact (order.transitivity
+                (min c (min c l m) n) (min c l m) m
+                (minimum.left.projection (min c l m) n)
+                (minimum.right.projection l m)).
+      * exact (minimum.right.projection
+                (min c l m) n).
+  - apply (minimum.universality
+              (min c l (min c m n))
+              (min c l m)
+              n).
+    + apply (minimum.universality
+              (min c l (min c m n)) l m).
+      * exact (minimum.left.projection
+                l
+                (min c m n)).
+      * exact (order.transitivity
+                (min c l (min c m n)) (min c m n) m
+                (minimum.right.projection l (min c m n))
+                (minimum.left.projection m n)).
+    + exact (order.transitivity
+              (min c l (min c m n)) (min c m n) n
+              (minimum.right.projection l (min c m n))
+              (minimum.right.projection m n)).
+Qed.
+
+(* minimum.idempotence *)
+Theorem idempotence
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (n : A) .
+    min compare n n = n.
+Proof.
+  intros A c lt C n.
+  unfold min in |- *.
+  rewrite (comparison.reflexivity n) in |- *.
+  reflexivity.
+Qed.
+
+End minimum. (* minimum *)
+
+Module maximum. (* maximum *)
+
+(* maximum.specification *)
+Theorem specification
+  : forall {A : Type}
+      {compare : A -> A -> Comparison}
+      {lt : A -> A -> Prop}
+      {C : Comparable compare lt}
+      (m : A) (n : A) .
+    max compare m n = m <-> LessOrEqual lt n m.
+Proof.
+  intros A compare lt C m n.
+  unfold max in |- *.
+  unfold LessOrEqual in |- *.
+  split.
+  - intro e.
+    destruct (compare m n) as [| |] eqn:c.
+    + apply Disjunction.L.
+      exact e.
+    + apply Disjunction.L.
+      destruct (Comparable.specification m n) as [_ s].
+      exact (Identity.symmetry
+               (->elim s c)).
+    + apply Disjunction.R.
+      exact (->elim (comparison.strict.transposition.specification m n) c).
+  - intro h.
+    destruct (compare m n) as [| |] eqn:c.
+    + destruct h as [e | gt].
+      * exact e.
+      * rewrite (<-elim
+                  (comparison.strict.transposition.specification m n) gt) in c.
+        discriminate c.
+    + reflexivity.
+    + reflexivity.
+Qed.
+
+Module left. (* maximum.left *)
+
+(* maximum.left.injection *)
+Lemma injection
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -465,7 +607,12 @@ Proof.
   - exact (Disjunction.L (Identity.reflexivity l)).
 Qed.
 
-Lemma max_r_injection
+End left. (* maximum.left *)
+
+Module right. (* maximum.right *)
+
+(* maximum.right.injection *)
+Lemma injection
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -482,10 +629,13 @@ Proof.
     destruct (Comparable.specification l r) as [_ s].
     exact (Identity.symmetry (->elim s c)).
   - apply Disjunction.R.
-    exact (->elim (gt_specification l r) c).
+    exact (->elim (comparison.strict.transposition.specification l r) c).
 Qed.
 
-Theorem max_universality
+End right. (* maximum.right *)
+
+(* maximum.universality *)
+Theorem universality
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -502,25 +652,8 @@ Proof.
   - exact h1.
 Qed.
 
-Theorem min_commutativity
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (m : A) (n : A) .
-    min compare m n = min compare n m.
-Proof.
-  intros A c lt C m n.
-  apply (le_antisymmetry (min c m n) (min c n m)).
-  - exact (min_universality
-            (min c m n) n m
-            (min_r_projection m n) (min_l_projection m n)).
-  - exact (min_universality
-            (min c n m) m n
-            (min_r_projection n m) (min_l_projection n m)).
-Qed.
-
-Theorem max_commutativity
+(* maximum.commutativity *)
+Theorem commutativity
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -529,71 +662,17 @@ Theorem max_commutativity
     max compare m n = max compare n m.
 Proof.
   intros A c lt C m n.
-  apply (le_antisymmetry (max c m n) (max c n m)).
-  - exact (max_universality
+  apply (order.antisymmetry (max c m n) (max c n m)).
+  - exact (maximum.universality
             (max c n m) m n
-            (max_r_injection n m) (max_l_injection n m)).
-  - exact (max_universality
+            (maximum.right.injection n m) (maximum.left.injection n m)).
+  - exact (maximum.universality
             (max c m n) n m
-            (max_r_injection m n) (max_l_injection m n)).
+            (maximum.right.injection m n) (maximum.left.injection m n)).
 Qed.
 
-Theorem min_associativity
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (l : A) (m : A) (n : A) .
-    min compare (min compare l m) n = min compare l (min compare m n).
-Proof.
-  intros A c lt C l m n.
-  apply (le_antisymmetry
-          (min c (min c l m) n)
-          (min c l (min c m n))).
-  - apply (min_universality
-            (min c (min c l m) n)
-            l
-            (min c m n)).
-    + exact (le_transitivity
-              (min c (min c l m) n)
-              (min c l m)
-              l
-              (min_l_projection (min c l m) n)
-              (min_l_projection l m)).
-    + apply (min_universality
-              (min c (min c l m) n) m n).
-      * exact (le_transitivity
-                (min c (min c l m) n)
-                (min c l m)
-                m
-                (min_l_projection (min c l m) n)
-                (min_r_projection l m)).
-      * exact (min_r_projection
-                (min c l m) n).
-  - apply (min_universality
-              (min c l (min c m n))
-              (min c l m)
-              n).
-    + apply (min_universality
-              (min c l (min c m n)) l m).
-      * exact (min_l_projection
-                l
-                (min c m n)).
-      * exact (le_transitivity
-                (min c l (min c m n))
-                (min c m n)
-                m
-                (min_r_projection l (min c m n))
-                (min_l_projection m n)).
-    + exact (le_transitivity
-              (min c l (min c m n))
-              (min c m n)
-              n
-              (min_r_projection l (min c m n))
-              (min_r_projection m n)).
-Qed.
-
-Theorem max_associativity
+(* maximum.associativity *)
+Theorem associativity
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -602,66 +681,45 @@ Theorem max_associativity
     max compare (max compare l m) n = max compare l (max compare m n).
 Proof.
   intros A c lt C l m n.
-  apply (le_antisymmetry
+  apply (order.antisymmetry
           (max c (max c l m) n)
           (max c l (max c m n))).
-  - apply (max_universality
+  - apply (maximum.universality
             (max c l (max c m n))
             (max c l m)
             n).
-    + apply (max_universality
+    + apply (maximum.universality
               (max c l (max c m n)) l m).
-      * exact (max_l_injection
+      * exact (maximum.left.injection
                 l (max c m n)).
-      * exact (le_transitivity
-                m
-                (max c m n)
-                (max c l (max c m n))
-                (max_l_injection m n)
-                (max_r_injection l (max c m n))).
-    + exact (le_transitivity
-              n
-              (max c m n)
-              (max c l (max c m n))
-              (max_r_injection m n)
-              (max_r_injection l (max c m n))).
-  - apply (max_universality
+      * exact (order.transitivity
+                m (max c m n) (max c l (max c m n))
+                (maximum.left.injection m n)
+                (maximum.right.injection l (max c m n))).
+    + exact (order.transitivity
+              n (max c m n) (max c l (max c m n))
+              (maximum.right.injection m n)
+              (maximum.right.injection l (max c m n))).
+  - apply (maximum.universality
             (max c (max c l m) n)
             l (max c m n)).
-    + exact (le_transitivity
-              l
-              (max c l m)
-              (max c (max c l m) n)
-              (max_l_injection l m)
-              (max_l_injection (max c l m)
+    + exact (order.transitivity
+              l (max c l m) (max c (max c l m) n)
+              (maximum.left.injection l m)
+              (maximum.left.injection (max c l m)
               n)).
-    + apply (max_universality
+    + apply (maximum.universality
               (max c (max c l m) n) m n).
-      * exact (le_transitivity
-                m
-                (max c l m)
-                (max c (max c l m) n)
-                (max_r_injection l m)
-                (max_l_injection (max c l m) n)).
-      * exact (max_r_injection
+      * exact (order.transitivity
+                m (max c l m) (max c (max c l m) n)
+                (maximum.right.injection l m)
+                (maximum.left.injection (max c l m) n)).
+      * exact (maximum.right.injection
                 (max c l m) n).
 Qed.
 
-Theorem min_idempotence
-  : forall {A : Type}
-      {compare : A -> A -> Comparison}
-      {lt : A -> A -> Prop}
-      {C : Comparable compare lt}
-      (n : A) .
-    min compare n n = n.
-Proof.
-  intros A c lt C n.
-  unfold min in |- *.
-  rewrite (Comparable.reflexivity n) in |- *.
-  reflexivity.
-Qed.
-
-Theorem max_idempotence
+(* maximum.idempotence *)
+Theorem idempotence
   : forall {A : Type}
       {compare : A -> A -> Comparison}
       {lt : A -> A -> Prop}
@@ -671,11 +729,13 @@ Theorem max_idempotence
 Proof.
   intros A c lt C n.
   unfold max in |- *.
-  rewrite (Comparable.reflexivity n) in |- *.
+  rewrite (comparison.reflexivity n) in |- *.
   reflexivity.
 Qed.
 
-End Comparable.
+End maximum. (* maximum *)
+
+End Comparable. (* Comparable *)
 
 Section Orders.
 
@@ -688,7 +748,7 @@ Context
 #[export] Instance strict_partial_order
   : StrictPartialOrder lt :=
   {| StrictPartialOrder.irreflexivity :=
-       {| Irreflexive.irreflexivity := Comparable.lt_irreflexivity |}
+       {| Irreflexive.irreflexivity := Comparable.order.strict.irreflexivity |}
    ; StrictPartialOrder.transitivity  :=
        {| Transitive.transitivity   := Comparable.transitivity |} |}.
 
@@ -696,18 +756,18 @@ Context
   : StrictTotalOrder lt :=
   {| StrictTotalOrder.strict_partial_order := strict_partial_order
    ; StrictTotalOrder.trichotomy           :=
-       {| Trichotomous.trichotomy := Comparable.trichotomy |} |}.
+       {| Trichotomous.trichotomy := Comparable.order.strict.trichotomy |} |}.
 
 #[export] Instance total_order
   : TotalOrder (Comparable.LessOrEqual lt) :=
   {| TotalOrder.partial_order :=
        {| PartialOrder.reflexivity :=
-            {| Reflexive.reflexivity      := Comparable.le_reflexivity |}
+            {| Reflexive.reflexivity      := Comparable.order.reflexivity |}
         ; PartialOrder.antisymmetry :=
-            {| Antisymmetric.antisymmetry := Comparable.le_antisymmetry |}
+            {| Antisymmetric.antisymmetry := Comparable.order.antisymmetry |}
         ; PartialOrder.transitivity :=
-            {| Transitive.transitivity    := Comparable.le_transitivity |} |}
+            {| Transitive.transitivity    := Comparable.order.transitivity |} |}
    ; TotalOrder.totality :=
-       {| Total.totality := Comparable.le_totality |} |}.
+       {| Total.totality := Comparable.order.totality |} |}.
 
 End Orders.

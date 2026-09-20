@@ -1261,7 +1261,7 @@ Proof.
     * intro e.
       pose proof (negative_injectivity m' n' e) as e'.
       rewrite e' in |- *.
-      exact (Comparable.reflexivity n').
+      exact (Comparable.comparison.reflexivity n').
   - simpl in |- *.
     split.
     * intro c.
@@ -1313,7 +1313,7 @@ Proof.
     * intro e.
       pose proof (positive_injectivity m' n' e) as e'.
       rewrite e' in |- *.
-      exact (Comparable.reflexivity n').
+      exact (Comparable.comparison.reflexivity n').
 Qed.
 
 Theorem comparison_specification

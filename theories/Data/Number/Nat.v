@@ -417,7 +417,7 @@ Qed.
 (* Trichotomy, "cut in three": for any [m] and [n], exactly one of
  * [m < n], [m = n], [n < m] holds. This theorem is the "at
  * least one" half; "at most one" is [order.strict.irreflexivity] with
- * [Comparable.lt_asymmetry].
+ * [Comparable.order.strict.asymmetry].
  *)
 (* order.strict.trichotomy *)
 Theorem trichotomy
@@ -1214,18 +1214,18 @@ Instance Nat_mul_commutative
 
 Instance Nat_min_semigroup
   : Semigroup Nat.min :=
-  {| Semigroup.associativity := Comparable.min_associativity |}.
+  {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
 Instance Nat_max_monoid
   : Monoid Nat.max One :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Comparable.max_associativity |}
+       {| Semigroup.associativity := Comparable.maximum.associativity |}
    ; Monoid.identity := Nat.comparison.maximum.identity |}.
 
 Instance Nat_min_commutative
   : Commutative Nat.min :=
-  {| Commutative.commutativity := Comparable.min_commutativity |}.
+  {| Commutative.commutativity := Comparable.minimum.commutativity |}.
 
 Instance Nat_max_commutative
   : Commutative Nat.max :=
-  {| Commutative.commutativity := Comparable.max_commutativity |}.
+  {| Commutative.commutativity := Comparable.maximum.commutativity |}.

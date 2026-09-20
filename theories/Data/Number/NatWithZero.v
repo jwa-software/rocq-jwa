@@ -1004,7 +1004,7 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      exact (Comparable.reflexivity n').
+      exact (Comparable.comparison.reflexivity n').
 Qed.
 
 End equality. (* comparison.equality *)
@@ -1055,7 +1055,7 @@ Module right. (* maximum.right *)
 Lemma identity : forall (n : NatWithZero) . max n 0 = n.
 Proof.
   intros n.
-  rewrite (Comparable.max_commutativity n 0) in |- *.
+  rewrite (Comparable.maximum.commutativity n 0) in |- *.
   exact (maximum.left.identity n).
 Qed.
 
@@ -1095,18 +1095,18 @@ Theorem addition
       k + min m n = min (k + m) (k + n).
 Proof.
   intros k m n.
-  pose proof (Comparable.le_totality m n) as t.
+  pose proof (Comparable.order.totality m n) as t.
   destruct t as [h | h].
-  - rewrite (<-elim (Comparable.min_specification m n) h) in |- *.
-    rewrite (<-elim (Comparable.min_specification (k + m) (k + n))
+  - rewrite (<-elim (Comparable.minimum.specification m n) h) in |- *.
+    rewrite (<-elim (Comparable.minimum.specification (k + m) (k + n))
                     (addition.order.monotonicity k m n h))
                     in |- *.
     reflexivity.
-  - rewrite (Comparable.min_commutativity m n)             in |- *.
-    rewrite (Comparable.min_commutativity (k + m) (k + n)) in |- *.
-    rewrite (<-elim (Comparable.min_specification n m) h)
+  - rewrite (Comparable.minimum.commutativity m n)             in |- *.
+    rewrite (Comparable.minimum.commutativity (k + m) (k + n)) in |- *.
+    rewrite (<-elim (Comparable.minimum.specification n m) h)
                     in |- *.
-    rewrite (<-elim (Comparable.min_specification (k + n) (k + m))
+    rewrite (<-elim (Comparable.minimum.specification (k + n) (k + m))
                     (addition.order.monotonicity k n m h))
                     in |- *.
     reflexivity.
@@ -1124,7 +1124,7 @@ Module right. (* minimum.right *)
 Lemma annihilation : forall (n : NatWithZero) . min n 0 = 0.
 Proof.
   intros n.
-  rewrite (Comparable.min_commutativity n 0) in |- *.
+  rewrite (Comparable.minimum.commutativity n 0) in |- *.
   exact (minimum.left.annihilation n).
 Qed.
 
@@ -1161,7 +1161,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (Nat.subtraction.truncation n' n' (Comparable.le_reflexivity n')) in |- *.
+    rewrite (Nat.subtraction.truncation n' n' (Comparable.order.reflexivity n')) in |- *.
     simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1186,7 +1186,7 @@ Proof.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
-      rewrite (Nat.subtraction.truncation n' n' (Comparable.le_reflexivity n')) in |- *.
+      rewrite (Nat.subtraction.truncation n' n' (Comparable.order.reflexivity n')) in |- *.
       simpl in |- *.
       reflexivity.
   - unfold LessThan in lt.
@@ -1213,7 +1213,7 @@ Proof.
   unfold LessOrEqual in h.
   destruct h as [e | lt].
   - rewrite e in |- *.
-    rewrite (subtraction.saturating.truncation m m (Comparable.le_reflexivity m)) in |- *.
+    rewrite (subtraction.saturating.truncation m m (Comparable.order.reflexivity m)) in |- *.
     destruct m as [| m']; simpl in |- *; reflexivity.
   - unfold LessThan in lt.
     destruct lt as [k e].
@@ -1247,7 +1247,7 @@ Proof.
   - destruct m as [| m']; destruct n as [| n'].
     + simpl in |- *.
       rewrite (Nat.subtraction.truncation k' k'
-                (Comparable.le_reflexivity k')) in |- *.
+                (Comparable.order.reflexivity k')) in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in |- *.
@@ -1274,7 +1274,7 @@ Proof.
   intros m n h.
   unfold sub in |- *.
   destruct (le n m) as [|] eqn:c.
-  - pose proof (->elim (Comparable.le_reflection n m) c)
+  - pose proof (->elim (Comparable.order.reflection n m) c)
       as order.
     unfold Comparable.LessOrEqual in order.
     destruct order as [e | lt].
@@ -1283,7 +1283,7 @@ Proof.
       unfold Negation in i.
       pose proof (i h) as f.
       contradiction f.
-    + pose proof (Comparable.lt_asymmetry m n h) as a.
+    + pose proof (Comparable.order.strict.asymmetry m n h) as a.
       unfold Negation in a.
       pose proof (a lt) as f.
       contradiction f.
@@ -1301,7 +1301,7 @@ Proof.
   intros m n.
   unfold sub in |- *.
   rewrite (subtraction.saturating.inversion.of.addition m n) in |- *.
-  rewrite (<-elim (Comparable.le_reflection n (m + n))
+  rewrite (<-elim (Comparable.order.reflection n (m + n))
                   (addition.right.order.extensivity m n)) in |- *.
   simpl in |- *.
   reflexivity.
@@ -1322,7 +1322,7 @@ Proof.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
     + pose proof (Option.some.injectivity (saturating_sub m n) k e) as e'.
-      pose proof (->elim (Comparable.le_reflection n m) c) as order.
+      pose proof (->elim (Comparable.order.reflection n m) c) as order.
       rewrite <- e' in |- *.
       exact (subtraction.saturating.specification m n order).
     + discriminate e.
@@ -1363,7 +1363,7 @@ Proof.
     simpl in e.
     simpl in lt.
     destruct (eq (++ r) (+ d)) as [|] eqn:E; split; simpl in |- *.
-    * pose proof (->elim (Comparable.eq_reflection (++ r) (+ d)) E) as full.
+    * pose proof (->elim (Comparable.comparison.equality.reflection (++ r) (+ d)) E) as full.
       rewrite (increment.specification r) in full.
       rewrite (increment.specification q) in |- *.
       rewrite (multiplication.right.distributivity.over.addition (+ d) (+ One) q)
@@ -1397,7 +1397,7 @@ Proof.
       rewrite (increment.specification r) in |- *.
       rewrite (addition.commutativity (+ One) r) in |- *.
       destruct k as [| k'].
-      { rewrite (<-elim (Comparable.eq_reflection (r + (+ One)) (+ d)) ek) in E.
+      { rewrite (<-elim (Comparable.comparison.equality.reflection (r + (+ One)) (+ d)) ek) in E.
         discriminate E. }
       { unfold LessThan in |- *.
         apply (Exists_introduction k').
@@ -1710,21 +1710,21 @@ Instance NatWithZero_mul_commutative
 
 Instance NatWithZero_min_semigroup
   : Semigroup NatWithZero.min :=
-  {| Semigroup.associativity := Comparable.min_associativity |}.
+  {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
 Instance NatWithZero_max_monoid
   : Monoid NatWithZero.max Zero :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Comparable.max_associativity |}
+       {| Semigroup.associativity := Comparable.maximum.associativity |}
    ; Monoid.identity := NatWithZero.maximum.identity |}.
 
 Instance NatWithZero_min_commutative
   : Commutative NatWithZero.min :=
-  {| Commutative.commutativity := Comparable.min_commutativity |}.
+  {| Commutative.commutativity := Comparable.minimum.commutativity |}.
 
 Instance NatWithZero_max_commutative
   : Commutative NatWithZero.max :=
-  {| Commutative.commutativity := Comparable.max_commutativity |}.
+  {| Commutative.commutativity := Comparable.maximum.commutativity |}.
 
 Instance NatWithZero_semiring
   : Semiring NatWithZero.add Zero NatWithZero.mul (Positive One) :=

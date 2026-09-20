@@ -31,7 +31,7 @@ Definition Comparison_induction
 (* A module may carry the type's name;
  * its members read [Comparison.transpose].
  *)
-Module Comparison.
+Module Comparison. (* Comparison *)
 
 (* [Comparison -> Comparison] *)
 Definition transpose := fun (c : Comparison) .
@@ -41,11 +41,16 @@ Definition transpose := fun (c : Comparison) .
   | Gt => Lt
   end.
 
-Theorem transpose_involution
+Module transposition. (* transposition *)
+
+(* transposition.involution *)
+Theorem involution
   : forall (c : Comparison) . transpose (transpose c) = c.
 Proof.
   intros c.
   destruct c as [| |]; simpl in |- *; reflexivity.
 Qed.
 
-End Comparison.
+End transposition. (* transposition *)
+
+End Comparison. (* Comparison *)

@@ -1536,7 +1536,7 @@ Proof.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
         rewrite (<-elim
-                   (Comparable.min_specification (Positive One)
+                   (Comparable.minimum.specification (Positive One)
                       ((|| l' ||) + Positive One))
                    (NatWithZero.addition.right.order.extensivity
                       (|| l' ||) (Positive One))) in |- *.
@@ -2168,7 +2168,7 @@ Proof.
     exact I.
   - simpl in |- *.
     split.
-    + exact (Comparable.max_l_injection a (fold_right NatWithZero.max Zero l')).
+    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max Zero l')).
     + exact (all_monotonicity
                (fun (x : NatWithZero) .
                   x <= fold_right NatWithZero.max Zero l')
@@ -2177,11 +2177,11 @@ Proof.
                l'
                (fun (x : NatWithZero)
                     (h : x <= fold_right NatWithZero.max Zero l') .
-                  Comparable.le_transitivity
+                  Comparable.order.transitivity
                     x (fold_right NatWithZero.max Zero l')
                     (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
                     h
-                    (Comparable.max_r_injection
+                    (Comparable.maximum.right.injection
                        a (fold_right NatWithZero.max Zero l')))
                IH).
 Qed.
@@ -2206,18 +2206,18 @@ Proof.
               \/ (b :: l'')
                  contains_member
                  NatWithZero.max a (fold_right NatWithZero.max Zero (b :: l''))) in |- *.
-      pose proof (Comparable.le_totality
+      pose proof (Comparable.order.totality
                     (fold_right NatWithZero.max Zero (b :: l'')) a) as t.
       destruct t as [le | ge].
       * apply Disjunction.L.
         exact (<-elim
-                 (Comparable.max_specification
+                 (Comparable.maximum.specification
                     a (fold_right NatWithZero.max Zero (b :: l''))) le).
       * apply Disjunction.R.
-        rewrite (Comparable.max_commutativity
+        rewrite (Comparable.maximum.commutativity
                    a (fold_right NatWithZero.max Zero (b :: l''))) in |- *.
         rewrite (<-elim
-                   (Comparable.max_specification
+                   (Comparable.maximum.specification
                       (fold_right NatWithZero.max Zero (b :: l'')) a) ge) in |- *.
         exact c.
 Qed.
@@ -2270,22 +2270,22 @@ Proof.
       rewrite en in |- *.
       rewrite e' in |- *.
       simpl in |- *.
-      exact (Conjunction_introduction (Comparable.le_reflexivity m) I).
+      exact (Conjunction_introduction (Comparable.order.reflexivity m) I).
     + simpl in e.
       pose proof (Option.some.injectivity (NatWithZero.min a m') m e) as e'.
       symmetry in e'.
       rewrite e' in |- *.
       simpl in |- *.
       split.
-      * exact (Comparable.min_l_projection a m').
+      * exact (Comparable.minimum.left.projection a m').
       * exact (all_monotonicity
                  (fun (x : NatWithZero) . m' <= x)
                  (fun (x : NatWithZero) . NatWithZero.min a m' <= x)
                  l'
                  (fun (x : NatWithZero) (h : m' <= x) .
-                    Comparable.le_transitivity
+                    Comparable.order.transitivity
                       (NatWithZero.min a m') m' x
-                      (Comparable.min_r_projection a m') h)
+                      (Comparable.minimum.right.projection a m') h)
                  (IH m' (Identity.reflexivity (Some m')))).
 Qed.
 
@@ -2310,13 +2310,13 @@ Proof.
       symmetry in e'.
       rewrite e' in |- *.
       simpl in |- *.
-      pose proof (Comparable.le_totality a m') as t.
+      pose proof (Comparable.order.totality a m') as t.
       destruct t as [le | ge].
       * apply Disjunction.L.
-        exact (<-elim (Comparable.min_specification a m') le).
+        exact (<-elim (Comparable.minimum.specification a m') le).
       * apply Disjunction.R.
-        rewrite (Comparable.min_commutativity a m') in |- *.
-        rewrite (<-elim (Comparable.min_specification m' a) ge) in |- *.
+        rewrite (Comparable.minimum.commutativity a m') in |- *.
+        rewrite (<-elim (Comparable.minimum.specification m' a) ge) in |- *.
         exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 

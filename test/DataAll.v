@@ -201,16 +201,17 @@ Definition data_all_delivers_comparable_specifications
     /\ (Nat.compare m n = Gt <-> Nat.LessThan n m)
   := fun (m : Nat) (n : Nat) .
        Conjunction_introduction
-         (Comparable.lt_specification m n) (Comparable.gt_specification m n).
+         (Comparable.comparison.strict.specification m n)
+         (Comparable.comparison.strict.transposition.specification m n).
 
 Definition data_all_delivers_comparable
   : forall (m : Nat) (n : Nat) . Nat.LessThan m n \/ m = n \/ Nat.LessThan n m
-  := Comparable.trichotomy.
+  := Comparable.order.strict.trichotomy.
 
 Definition data_all_delivers_comparable_min
   : forall (m : NatWithZero) (n : NatWithZero) .
       NatWithZero.min m n = NatWithZero.min n m
-  := Comparable.min_commutativity.
+  := Comparable.minimum.commutativity.
 
 Definition data_all_delivers_total_order
   : forall (m : Nat) (n : Nat) . Nat.LessOrEqual m n \/ Nat.LessOrEqual n m
@@ -266,15 +267,15 @@ Definition data_all_delivers_sorting
        (fun (m : NatWithZero) (n : NatWithZero) .
           <-elim
             (Disjunction.congruence
-               (Comparable.le_reflection m n) (Comparable.le_reflection n m))
-            (Comparable.le_totality m n))
+               (Comparable.order.reflection m n) (Comparable.order.reflection n m))
+            (Comparable.order.totality m n))
        (fun (a : NatWithZero) (b : NatWithZero) (c : NatWithZero)
             (h1 : NatWithZero.le a b = true) (h2 : NatWithZero.le b c = true) .
           <-elim
-            (Comparable.le_reflection a c)
-            (Comparable.le_transitivity a b c
-               (->elim (Comparable.le_reflection a b) h1)
-               (->elim (Comparable.le_reflection b c) h2))).
+            (Comparable.order.reflection a c)
+            (Comparable.order.transitivity a b c
+               (->elim (Comparable.order.reflection a b) h1)
+               (->elim (Comparable.order.reflection b c) h2))).
 
 Definition data_all_delivers_integer
   : Integer
