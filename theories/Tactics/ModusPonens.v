@@ -2,7 +2,9 @@
 
 From jwa Require Import Core.Ltac.
 
-(* Modus ponens: from [A -> B] and [A], infer [B].
+(* Modus ponens: from [A -> B] and [A], infer [B]. The rule's full name is
+ * [modus ponendo ponens], "the mode that affirms by affirming", and both
+ * spellings are accepted.
  *
  *   modus ponens <Hab> <Ha>            proves a goal [B]
  *   modus ponens <Hab> <Ha> as <p>     adds [B] to the context as <p>
@@ -17,4 +19,11 @@ Tactic Notation "modus" "ponens" uconstr(HAB) uconstr(HA) :=
   exact (HAB HA).
 
 Tactic Notation "modus" "ponens" uconstr(HAB) uconstr(HA) "as" simple_intropattern(p) :=
+  pose proof (HAB HA) as p.
+
+Tactic Notation "modus" "ponendo" "ponens" uconstr(HAB) uconstr(HA) :=
+  exact (HAB HA).
+
+Tactic Notation "modus" "ponendo" "ponens" uconstr(HAB) uconstr(HA)
+    "as" simple_intropattern(p) :=
   pose proof (HAB HA) as p.

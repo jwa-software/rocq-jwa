@@ -18,6 +18,21 @@ Proof.
   exact b.
 Qed.
 
+Theorem tactics_all_delivers_modus_ponendo_ponens
+  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  modus ponendo ponens hab ha.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponendo_ponens_as
+  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  modus ponendo ponens hab ha as h.
+  exact h.
+Qed.
+
 Theorem tactics_all_delivers_modus_ponens_implicit
   : forall (m : Nat) (n : Nat) . Nat.compare m n = Lt -> Nat.LessThan m n.
 Proof.
