@@ -17,6 +17,7 @@ From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
+From jwa Require Import Tactics.ModusPonens.
 
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
  * plus the [Zero] cases.
@@ -344,7 +345,7 @@ Proof.
       rewrite (Nat.addition.commutativity n' k') in e'.
       pose proof (Nat.addition.identity.absence k' n') as h.
       unfold Negation in h.
-      pose proof (h e') as f.
+      modus ponens h e' as f.
       contradiction f.
     + simpl in |- *.
       intro e.
@@ -352,7 +353,7 @@ Proof.
       rewrite (Nat.addition.commutativity n' m') in e'.
       pose proof (Nat.addition.identity.absence m' n') as h.
       unfold Negation in h.
-      pose proof (h e') as f.
+      modus ponens h e' as f.
       contradiction f.
     + simpl in |- *.
       intro e.
@@ -832,7 +833,7 @@ Proof.
     rewrite (Nat.addition.commutativity n' k) in e'.
     pose proof (Nat.addition.identity.absence k n') as i.
     unfold Negation in i.
-    pose proof (i e') as f.
+    modus ponens i e' as f.
     contradiction f.
 Qed.
 
@@ -943,7 +944,7 @@ Proof.
     * intro h.
       pose proof (order.strict.irreflexivity 0) as i.
       unfold Negation in i.
-      pose proof (i h) as f.
+      modus ponens i h as f.
       contradiction f.
   - split.
     * intro e.
@@ -1276,11 +1277,11 @@ Proof.
     + rewrite e in h.
       pose proof (order.strict.irreflexivity m) as i.
       unfold Negation in i.
-      pose proof (i h) as f.
+      modus ponens i h as f.
       contradiction f.
     + pose proof (Comparable.order.strict.asymmetry m n h) as a.
       unfold Negation in a.
-      pose proof (a lt) as f.
+      modus ponens a lt as f.
       contradiction f.
   - reflexivity.
 Qed.
