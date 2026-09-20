@@ -13,8 +13,14 @@ From jwa Require Import Core.Ltac.
  *   modus tollens         <H1>, <H2>    A -> B, ~ B |- ~ A
  *
  *   modus tollendo ponens <H1>, <H2>    A \/ B, ~ A |- B
+ *                                       A \/ B, ~ B |- A
  *
  *   modus ponendo tollens <H1>, <H2>    ~ (A /\ B), A |- ~ B
+ *                                       ~ (A /\ B), B |- ~ A
+ *
+ * The last two work on either side of their connective, the second premise
+ * saying which: denying one disjunct leaves the other, affirming one half of
+ * an incompatibility denies the other.
  *
  * The two premises are separated by a comma and may be given in either order:
  * each body tries the other way round when the first does not apply. In the
@@ -26,8 +32,8 @@ From jwa Require Import Core.Ltac.
  *
  * [modus ponendo tollens] accepts either spelling of incompatibility: the
  * negated conjunction, or the sejunction [A _\/_ B], which says that and also
- * that one of the two holds. The sejunction is carried into the law by
- * [Sejunction.exclusion.of.conjunction] once the first form fails to apply.
+ * that one of the two holds. The sejunction is carried into the laws by
+ * [Sejunction.exclusion.of.conjunction] once the plain forms fail to apply.
  *
  * The proofs are [uconstr]: a [constr] is elaborated alone, where a lemma's
  * implicit binders have nothing yet to fix them.
@@ -66,27 +72,45 @@ Tactic Notation "modus" "tollendo" "tollens" uconstr(H1) "," uconstr(H2)
         | pose proof (Negation.contraposition H2 H1) as p ].
 
 Tactic Notation "modus" "tollendo" "ponens" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (Negation.elimination.of.disjunction H1 H2)
-        | exact (Negation.elimination.of.disjunction H2 H1) ].
+  first [ exact (Negation.elimination.left.of.disjunction H1 H2)
+        | exact (Negation.elimination.left.of.disjunction H2 H1)
+        | exact (Negation.elimination.right.of.disjunction H1 H2)
+        | exact (Negation.elimination.right.of.disjunction H2 H1) ].
 
 Tactic Notation "modus" "tollendo" "ponens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
-  first [ pose proof (Negation.elimination.of.disjunction H1 H2) as p
-        | pose proof (Negation.elimination.of.disjunction H2 H1) as p ].
+  first [ pose proof (Negation.elimination.left.of.disjunction H1 H2) as p
+        | pose proof (Negation.elimination.left.of.disjunction H2 H1) as p
+        | pose proof (Negation.elimination.right.of.disjunction H1 H2) as p
+        | pose proof (Negation.elimination.right.of.disjunction H2 H1) as p ].
 
 Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2) :=
   first
-    [ exact (Negation.exclusion.of.conjunction H1 H2)
-    | exact (Negation.exclusion.of.conjunction H2 H1)
-    | exact (Negation.exclusion.of.conjunction (Sejunction.exclusion.of.conjunction H1) H2)
-    | exact (Negation.exclusion.of.conjunction (Sejunction.exclusion.of.conjunction H2) H1) ].
+    [ exact (Negation.exclusion.left.of.conjunction H1 H2)
+    | exact (Negation.exclusion.left.of.conjunction H2 H1)
+    | exact (Negation.exclusion.right.of.conjunction H1 H2)
+    | exact (Negation.exclusion.right.of.conjunction H2 H1)
+    | exact (Negation.exclusion.left.of.conjunction
+               (Sejunction.exclusion.of.conjunction H1) H2)
+    | exact (Negation.exclusion.left.of.conjunction
+               (Sejunction.exclusion.of.conjunction H2) H1)
+    | exact (Negation.exclusion.right.of.conjunction
+               (Sejunction.exclusion.of.conjunction H1) H2)
+    | exact (Negation.exclusion.right.of.conjunction
+               (Sejunction.exclusion.of.conjunction H2) H1) ].
 
 Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
   first
-    [ pose proof (Negation.exclusion.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.of.conjunction H2 H1) as p
-    | pose proof
-        (Negation.exclusion.of.conjunction (Sejunction.exclusion.of.conjunction H1) H2) as p
-    | pose proof
-        (Negation.exclusion.of.conjunction (Sejunction.exclusion.of.conjunction H2) H1) as p ].
+    [ pose proof (Negation.exclusion.left.of.conjunction H1 H2) as p
+    | pose proof (Negation.exclusion.left.of.conjunction H2 H1) as p
+    | pose proof (Negation.exclusion.right.of.conjunction H1 H2) as p
+    | pose proof (Negation.exclusion.right.of.conjunction H2 H1) as p
+    | pose proof (Negation.exclusion.left.of.conjunction
+                    (Sejunction.exclusion.of.conjunction H1) H2) as p
+    | pose proof (Negation.exclusion.left.of.conjunction
+                    (Sejunction.exclusion.of.conjunction H2) H1) as p
+    | pose proof (Negation.exclusion.right.of.conjunction
+                    (Sejunction.exclusion.of.conjunction H1) H2) as p
+    | pose proof (Negation.exclusion.right.of.conjunction
+                    (Sejunction.exclusion.of.conjunction H2) H1) as p ].

@@ -77,11 +77,33 @@ Proof.
   exact b.
 Qed.
 
+Theorem tactics_all_delivers_modus_tollendo_ponens_right
+  : forall (A : Prop) (B : Prop) . A \/ B -> ~ B -> A.
+Proof.
+  intros A B hor hnb.
+  modus tollendo ponens hor, hnb.
+Qed.
+
 Theorem tactics_all_delivers_modus_ponendo_tollens
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> A -> ~ B.
 Proof.
   intros A B hn ha.
   modus ponendo tollens hn, ha.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponendo_tollens_right
+  : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> B -> ~ A.
+Proof.
+  intros A B hn hb.
+  modus ponendo tollens hn, hb.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction_right
+  : forall (A : Prop) (B : Prop) . A _\/_ B -> B -> ~ A.
+Proof.
+  intros A B hs hb.
+  modus ponendo tollens hs, hb as na.
+  exact na.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction
