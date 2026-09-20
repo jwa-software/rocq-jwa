@@ -105,7 +105,7 @@ Module introduction. (* introduction *)
 
 (* introduction.injectivity *)
 Theorem injectivity
-  : forall {A : Type} {B : Type} (a1 : A) (b1 : B) (a2 : A) (b2 : B) .
+  : forall {A : Type} {B : Type} {a1 : A} {b1 : B} {a2 : A} {b2 : B} .
       (Product_introduction a1 b1 = Product_introduction a2 b2) -> (a1 = a2) /\ (b1 = b2).
 Proof.
   intros A B a1 b1 a2 b2 e.
@@ -297,7 +297,7 @@ Module direct. (* direct *)
 (* direct.associativity *)
 Theorem associativity
   : forall {A : Type} {B : Type}
-      (f1 : A -> A -> A) (f2 : B -> B -> B) .
+      {f1 : A -> A -> A} {f2 : B -> B -> B} .
       Semigroup f1 ->
       Semigroup f2 ->
       forall (p1 : Product A B) (p2 : Product A B) (p3 : Product A B) .
@@ -319,7 +319,7 @@ Module left. (* direct.left *)
 (* direct.left.identity *)
 Lemma identity
   : forall {A : Type} {B : Type}
-      (f1 : A -> A -> A) (eA : A) (f2 : B -> B -> B) (eB : B) .
+      {f1 : A -> A -> A} {eA : A} {f2 : B -> B -> B} {eB : B} .
       Monoid f1 eA ->
       Monoid f2 eB ->
       forall (p : Product A B) .
@@ -341,7 +341,7 @@ Module right. (* direct.right *)
 (* direct.right.identity *)
 Lemma identity
   : forall {A : Type} {B : Type}
-      (f1 : A -> A -> A) (eA : A) (f2 : B -> B -> B) (eB : B) .
+      {f1 : A -> A -> A} {eA : A} {f2 : B -> B -> B} {eB : B} .
       Monoid f1 eA ->
       Monoid f2 eB ->
       forall (p : Product A B) .
@@ -361,7 +361,7 @@ End right. (* direct.right *)
 (* direct.identity *)
 Theorem identity
   : forall {A : Type} {B : Type}
-      (f1 : A -> A -> A) (eA : A) (f2 : B -> B -> B) (eB : B) .
+      {f1 : A -> A -> A} {eA : A} {f2 : B -> B -> B} {eB : B} .
       Monoid f1 eA ->
       Monoid f2 eB ->
       forall (p : Product A B) .
@@ -370,13 +370,13 @@ Theorem identity
 Proof.
   intros A B f1 eA f2 eB MA MB p.
   split.
-  - exact (direct.left.identity  f1 eA f2 eB MA MB p).
-  - exact (direct.right.identity f1 eA f2 eB MA MB p).
+  - exact (direct.left.identity  MA MB p).
+  - exact (direct.right.identity MA MB p).
 Qed.
 
 (* direct.commutativity *)
 Theorem commutativity
-  : forall {A : Type} {B : Type} (f1 : A -> A -> A) (f2 : B -> B -> B) .
+  : forall {A : Type} {B : Type} {f1 : A -> A -> A} {f2 : B -> B -> B} .
       Commutative f1 ->
       Commutative f2 ->
       forall (p1 : Product A B) (p2 : Product A B) .
@@ -446,7 +446,7 @@ Instance Product_semigroup
       (SA : Semigroup opA)
       (SB : Semigroup opB) .
     ({| Semigroup.associativity :=
-         Product.direct.associativity opA opB SA SB |}).
+         Product.direct.associativity SA SB |}).
 
 Instance Product_monoid
   : forall (A : Type) (opA : A -> A -> A) (eA : A)
@@ -459,7 +459,7 @@ Instance Product_monoid
       (MA : Monoid opA eA)
       (MB : Monoid opB eB) .
     ({| Monoid.semigroup := Product_semigroup A opA B opB _ _
-      ; Monoid.identity  := Product.direct.identity opA eA opB eB MA MB |}).
+      ; Monoid.identity  := Product.direct.identity MA MB |}).
 
 Instance Product_commutative
   : forall (A : Type) (opA : A -> A -> A)
@@ -472,4 +472,4 @@ Instance Product_commutative
       (CA : Commutative opA)
       (CB : Commutative opB) .
     ({| Commutative.commutativity :=
-         Product.direct.commutativity opA opB CA CB |}).
+         Product.direct.commutativity CA CB |}).

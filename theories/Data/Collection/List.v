@@ -1723,10 +1723,9 @@ Proof.
   - simpl in |- *.
     intro e.
     pose proof (Option.some.injectivity e) as e'.
-    pose proof (Product.introduction.injectivity b rest a l' e') as e''.
+    pose proof (Product.introduction.injectivity e') as e''.
     destruct e'' as [eb erest].
-    rewrite eb in |- *.
-    rewrite erest in |- *.
+    rewrite eb, erest in |- *.
     reflexivity.
 Qed.
 
@@ -1901,10 +1900,7 @@ Proof.
                     (Positive One) (|| l1' ||) (|| l2' ||) e) as e'.
       pose proof (IH l2' e') as IH'.
       unfold unzip in IH'.
-      pose proof (Product.introduction.injectivity
-                    (map Product.first (zip l1' l2'))
-                    (map Product.second (zip l1' l2'))
-                    l1' l2' IH') as e''.
+      pose proof (Product.introduction.injectivity IH') as e''.
       destruct e'' as [e1 e2].
       unfold unzip in |- *.
       simpl in |- *.
