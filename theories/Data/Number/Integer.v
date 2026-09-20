@@ -227,15 +227,15 @@ Proof.
       reflexivity.
     + unfold Nat.LessThan in gt.
       destruct gt as [k e].
-      pose proof (Identity.symmetry e) as e'.
-      rewrite e' in h |- *.
+      symmetry in e.
+      rewrite e in h |- *.
       rewrite (Nat.addition_commutativity q k) in |- *.
       rewrite (nat_difference_l_inversion_of_addition k q) in |- *.
       rewrite (Nat.addition_associativity q k s) in h.
       rewrite (Nat.addition_commutativity r q) in h.
       pose proof (Nat.add_l_cancellation q (Nat.add k s) r h) as e''.
-      pose proof (Identity.symmetry e'') as e'''.
-      rewrite e''' in |- *.
+      symmetry in e''.
+      rewrite e'' in |- *.
       rewrite (nat_difference_l_inversion_of_addition k s) in |- *.
       reflexivity.
 Qed.
@@ -262,8 +262,8 @@ Proof.
       reflexivity.
     + unfold Nat.LessThan in gt.
       destruct gt as [k e].
-      pose proof (Identity.symmetry e) as e'.
-      rewrite e' in |- *.
+      symmetry in e.
+      rewrite e in |- *.
       rewrite (Nat.addition_commutativity q k) in |- *.
       rewrite (nat_difference_l_inversion_of_addition k q) in |- *.
       rewrite (nat_difference_r_inversion_of_addition k q) in |- *.
@@ -294,8 +294,8 @@ Proof.
       reflexivity.
     + unfold Nat.LessThan in gt.
       destruct gt as [k e].
-      pose proof (Identity.symmetry e) as e'.
-      rewrite e' in |- *.
+      symmetry in e.
+      rewrite e in |- *.
       rewrite (Nat.addition_commutativity q k) in |- *.
       rewrite (nat_difference_l_inversion_of_addition k q) in |- *.
       simpl in |- *.
@@ -315,8 +315,8 @@ Proof.
     rewrite (Nat.addition_commutativity p k) in |- *.
     exact (Identity.symmetry e').
   - intro e.
-    pose proof (Identity.symmetry e) as e'.
-    rewrite e' in |- *.
+    symmetry in e.
+    rewrite e in |- *.
     rewrite (Nat.addition_commutativity p k) in |- *.
     exact (nat_difference_r_inversion_of_addition k p).
 Qed.
@@ -350,8 +350,8 @@ Proof.
     rewrite (Nat.addition_commutativity q k) in |- *.
     exact e'.
   - intro e.
-    pose proof (Identity.symmetry e) as e'.
-    rewrite e' in |- *.
+    symmetry in e.
+    rewrite e in |- *.
     rewrite (Nat.addition_commutativity q k) in |- *.
     exact (nat_difference_l_inversion_of_addition k q).
 Qed.
@@ -909,8 +909,8 @@ Proof.
       reflexivity.
     + unfold Nat.LessThan in gt.
       destruct gt as [j e].
-      pose proof (Identity.symmetry e) as e'.
-      rewrite e' in |- *.
+      symmetry in e.
+      rewrite e in |- *.
       rewrite (Nat.addition_commutativity q j) in |- *.
       rewrite (nat_difference_l_inversion_of_addition j q) in |- *.
       simpl in |- *.
@@ -1520,10 +1520,10 @@ Proof.
   unfold Even in |- *.
   unfold Divides in |- *.
   apply (Exists_introduction ((k1 + k2) + (+ One))).
-  pose proof (Identity.symmetry e1) as e1'.
-  pose proof (Identity.symmetry e2) as e2'.
-  rewrite e1' in |- *.
-  rewrite e2' in |- *.
+  symmetry in e1.
+  symmetry in e2.
+  rewrite e1 in |- *.
+  rewrite e2 in |- *.
   rewrite (mul_l_distributivity_over_add
              (+ (Successor One)) (k1 + k2) (+ One)) in |- *.
   rewrite (mul_l_distributivity_over_add (+ (Successor One)) k1 k2) in |- *.

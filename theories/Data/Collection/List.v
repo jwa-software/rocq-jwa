@@ -2271,8 +2271,8 @@ Proof.
       exact (Conjunction_introduction (Comparable.le_reflexivity m) I).
     + simpl in e.
       pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
-      pose proof (Identity.symmetry e') as e''.
-      rewrite e'' in |- *.
+      symmetry in e'.
+      rewrite e' in |- *.
       simpl in |- *.
       split.
       * exact (Comparable.min_l_projection a m').
@@ -2305,8 +2305,8 @@ Proof.
       exact (Disjunction.L (Identity.symmetry e')).
     + simpl in e.
       pose proof (Option.some_injectivity NatWithZero (NatWithZero.min a m') m e) as e'.
-      pose proof (Identity.symmetry e') as e''.
-      rewrite e'' in |- *.
+      symmetry in e'.
+      rewrite e' in |- *.
       simpl in |- *.
       pose proof (Comparable.le_totality a m') as t.
       destruct t as [le | ge].

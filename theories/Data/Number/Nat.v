@@ -100,8 +100,8 @@ Proof.
     clear IH.
     induction n as [| n' IH2] using Nat_induction; simpl in |- *.
     + reflexivity.
-    + pose proof (Identity.symmetry IH2) as IH2'.
-      rewrite IH2' in |- *.
+    + symmetry in IH2.
+      rewrite IH2 in |- *.
       reflexivity.
 Qed.
 
@@ -206,8 +206,8 @@ Proof.
     clear IH.
     induction n as [| n' IH2] using Nat_induction; simpl in |- *.
     + reflexivity.
-    + pose proof (Identity.symmetry IH2) as IH2'.
-      rewrite IH2' in |- *.
+    + symmetry in IH2.
+      rewrite IH2 in |- *.
       rewrite (add_l_commutativity n' m' (n' * m')) in |- *.
       reflexivity.
 Qed.
@@ -830,8 +830,8 @@ Lemma sub_specification_backward
   : forall (m : Nat) (n : Nat) (k : Nat) . n + k = m -> sub m n = Some k.
 Proof.
   intros m n k e.
-  pose proof (Identity.symmetry e) as e'.
-  rewrite e' in |- *.
+  symmetry in e.
+  rewrite e in |- *.
   rewrite (addition_commutativity n k) in |- *.
   exact (subtraction_inversion_of_addition k n).
 Qed.

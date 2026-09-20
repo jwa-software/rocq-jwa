@@ -529,10 +529,10 @@ Proof.
   destruct h2 as [k2 e2].
   unfold LessThan in |- *.
   apply (Exists_introduction (Nat.add k1 k2)).
-  pose proof (Identity.symmetry e2) as e2'.
-  rewrite e2' in |- *.
-  pose proof (Identity.symmetry e1) as e1'.
-  rewrite e1' in |- *.
+  symmetry in e2.
+  rewrite e2 in |- *.
+  symmetry in e1.
+  rewrite e1 in |- *.
   rewrite (addition_associativity l (+ k1) (+ k2)) in |- *.
   simpl in |- *.
   reflexivity.
@@ -568,8 +568,8 @@ Proof.
     simpl in |- *.
     reflexivity.
   - simpl in e.
-    pose proof (Identity.symmetry e) as e'.
-    rewrite e' in |- *.
+    symmetry in e.
+    rewrite e in |- *.
     simpl in |- *.
     rewrite (Nat.mul_l_distributivity_over_addition k m' d) in |- *.
     reflexivity.
@@ -925,8 +925,8 @@ Proof.
       reflexivity.
   - unfold LessThan in lt.
     destruct lt as [k e].
-    pose proof (Identity.symmetry e) as e'.
-    rewrite e' in |- *.
+    symmetry in e.
+    rewrite e in |- *.
     destruct m as [| m'].
     + simpl in |- *.
       reflexivity.
@@ -950,8 +950,8 @@ Proof.
     destruct m as [| m']; simpl in |- *; reflexivity.
   - unfold LessThan in lt.
     destruct lt as [k e].
-    pose proof (Identity.symmetry e) as e'.
-    rewrite e' in |- *.
+    symmetry in e.
+    rewrite e in |- *.
     rewrite (addition_commutativity n (+ k)) in |- *.
     rewrite (saturating_subtraction_inversion_of_addition (+ k) n) in |- *.
     rewrite (addition_commutativity n (+ k)) in |- *.
@@ -1127,9 +1127,9 @@ Proof.
                  ((q * (+ d)) + (+ d))
                  0) in |- *.
       simpl in |- *.
-      pose proof (Identity.symmetry full) as full'.
-      rewrite full' in |- *.
-      rewrite full' in e.
+      symmetry in full.
+      rewrite full in |- *.
+      rewrite full in e.
       rewrite (add_l_commutativity
                  (q * ((+ One) + r)) (+ One) r) in |- *.
       rewrite e in |- *.
@@ -1377,10 +1377,10 @@ Proof.
   unfold Even in |- *.
   unfold Divides in |- *.
   apply (Exists_introduction ((k1 + k2) + (+ One))).
-  pose proof (Identity.symmetry e1) as e1'.
-  pose proof (Identity.symmetry e2) as e2'.
-  rewrite e1' in |- *.
-  rewrite e2' in |- *.
+  symmetry in e1.
+  symmetry in e2.
+  rewrite e1 in |- *.
+  rewrite e2 in |- *.
   rewrite (mul_l_distributivity_over_addition
              (+ (Successor One)) (k1 + k2) (+ One)) in |- *.
   rewrite (mul_l_distributivity_over_addition (+ (Successor One)) k1 k2) in |- *.
