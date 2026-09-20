@@ -30,12 +30,23 @@ Definition negate := fun (b : Bool) =>
   | false => true
   end.
 
+(* The scope is declared in [Core.Notations] and opened only inside this
+ * module; after [End Bool] a client writes [(b1 && b2)%bool] or opens the
+ * scope. The levels are reserved there too, [!] below every infix.
+ * [only parsing] keeps goals printing the operations by name.
+ *)
+Notation "! b" := (negate b) (only parsing)
+  : jwa_bool_scope.
+
 (* [Bool -> Bool -> Bool] *)
 Definition and := fun (b1 : Bool) (b2 : Bool) =>
   match b1 with
   | true  => b2
   | false => false
   end.
+
+Notation "b1 && b2" := (and b1 b2) (only parsing)
+  : jwa_bool_scope.
 
 (* [Bool -> Bool -> Bool] *)
 Definition or := fun (b1 : Bool) (b2 : Bool) =>
@@ -44,6 +55,9 @@ Definition or := fun (b1 : Bool) (b2 : Bool) =>
   | false => b2
   end.
 
+Notation "b1 || b2" := (or b1 b2) (only parsing)
+  : jwa_bool_scope.
+
 (* [Bool -> Bool -> Bool] *)
 Definition xor := fun (b1 : Bool) (b2 : Bool) =>
   match b1 with
@@ -51,7 +65,12 @@ Definition xor := fun (b1 : Bool) (b2 : Bool) =>
   | false => b2
   end.
 
-Theorem negate_involution : forall (b : Bool) . negate (negate b) = b.
+Notation "b1 ^^ b2" := (xor b1 b2) (only parsing)
+  : jwa_bool_scope.
+
+Local Open Scope jwa_bool_scope.
+
+Theorem negate_involution : forall (b : Bool) . ! ! b = b.
 Proof.
   intros b.
   destruct b as [|]; simpl in |- *; reflexivity.
@@ -59,21 +78,21 @@ Qed.
 
 Theorem and_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
-      and (and b1 b2) b3 = and b1 (and b2 b3).
+      (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
 Theorem and_commutativity
-  : forall (b1 : Bool) (b2 : Bool) . and b1 b2 = and b2 b1.
+  : forall (b1 : Bool) (b2 : Bool) . b1 && b2 = b2 && b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
 Theorem and_identity
-  : forall (b : Bool) . (and true b = b) /\ (and b true = b).
+  : forall (b : Bool) . (true && b = b) /\ (b && true = b).
 Proof.
   intros b.
   split.
@@ -86,20 +105,20 @@ Qed.
 
 Theorem or_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
-      or (or b1 b2) b3 = or b1 (or b2 b3).
+      (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
-Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool) . or b1 b2 = or b2 b1.
+Theorem or_commutativity : forall (b1 : Bool) (b2 : Bool) . b1 || b2 = b2 || b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
 Theorem or_identity
-  : forall (b : Bool) . (or false b = b) /\ (or b false = b).
+  : forall (b : Bool) . (false || b = b) /\ (b || false = b).
 Proof.
   intros b.
   split.
@@ -112,21 +131,21 @@ Qed.
 
 Theorem xor_associativity
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
-      xor (xor b1 b2) b3 = xor b1 (xor b2 b3).
+      (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
 Qed.
 
 Theorem xor_commutativity
-  : forall (b1 : Bool) (b2 : Bool) . xor b1 b2 = xor b2 b1.
+  : forall (b1 : Bool) (b2 : Bool) . b1 ^^ b2 = b2 ^^ b1.
 Proof.
   intros b1 b2.
   destruct b1 as [|]; destruct b2 as [|]; reflexivity.
 Qed.
 
 Theorem xor_identity
-  : forall (b : Bool) . (xor false b = b) /\ (xor b false = b).
+  : forall (b : Bool) . (false ^^ b = b) /\ (b ^^ false = b).
 Proof.
   intros b.
   split.
@@ -137,14 +156,14 @@ Proof.
     reflexivity.
 Qed.
 
-Theorem xor_irreflexivity : forall (b : Bool) . xor b b = false.
+Theorem xor_irreflexivity : forall (b : Bool) . b ^^ b = false.
 Proof.
   intros b.
   destruct b as [|]; reflexivity.
 Qed.
 
 Theorem xor_inverse
-  : forall (b : Bool) . (xor b b = false) /\ (xor b b = false).
+  : forall (b : Bool) . (b ^^ b = false) /\ (b ^^ b = false).
 Proof.
   intros b.
   split.
@@ -154,7 +173,7 @@ Qed.
 
 Theorem and_left_distributivity_over_xor
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
-      and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3).
+      b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
@@ -162,7 +181,7 @@ Qed.
 
 Theorem and_right_distributivity_over_xor
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
-      and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1).
+      (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
   intros b1 b2 b3.
   destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
@@ -170,8 +189,8 @@ Qed.
 
 Theorem and_distributivity_over_xor
   : forall (b1 : Bool) (b2 : Bool) (b3 : Bool) .
-      (and b1 (xor b2 b3) = xor (and b1 b2) (and b1 b3))
-    /\ (and (xor b2 b3) b1 = xor (and b2 b1) (and b3 b1)).
+      (b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3))
+    /\ ((b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1)).
 Proof.
   intros b1 b2 b3.
   split.
@@ -193,7 +212,7 @@ Definition Assert := fun (b : Bool) =>
 
 Theorem assert_conjunction
   : forall (b1 : Bool) (b2 : Bool) .
-      Assert (and b1 b2) <-> Assert b1 /\ Assert b2.
+      Assert (b1 && b2) <-> Assert b1 /\ Assert b2.
 Proof.
   intros b1 b2.
   destruct b1 as [|];
@@ -214,7 +233,7 @@ Qed.
 
 Theorem assert_disjunction
   : forall (b1 : Bool) (b2 : Bool) .
-      Assert (or b1 b2) <-> Assert b1 \/ Assert b2.
+      Assert (b1 || b2) <-> Assert b1 \/ Assert b2.
 Proof.
   intros b1 b2.
   destruct b1 as [|];
@@ -234,7 +253,7 @@ Qed.
 
 Theorem assert_sejunction
   : forall (b1 : Bool) (b2 : Bool) .
-      Assert (xor b1 b2) <-> Assert b1 _\/_ Assert b2.
+      Assert (b1 ^^ b2) <-> Assert b1 _\/_ Assert b2.
 Proof.
   intros b1 b2.
   destruct b1 as [|];
@@ -255,7 +274,7 @@ Proof.
 Qed.
 
 Theorem assert_negation
-  : forall (b : Bool) . Assert (negate b) <-> ~ Assert b.
+  : forall (b : Bool) . Assert (! b) <-> ~ Assert b.
 Proof.
   intros b.
   unfold Negation in |- *.
@@ -279,16 +298,12 @@ Qed.
 
 End Bool.
 
-(* The levels are reserved in [Core.Notations]; only the meanings belong
- * here. Declared at file level, they reach a client through
- * [Require Export].
+(* Makes the notations declared in [Module Bool] usable in every file that
+ * imports this one, as [(b1 && b2)%bool] or under an opened
+ * [jwa_bool_scope]. Only the notations are exported: [and] and the laws
+ * still need the [Bool.] prefix.
  *)
-Notation "b1 && b2" := (Bool.and b1 b2)
-  : jwa_type_scope.
-Notation "b1 ^^ b2" := (Bool.xor b1 b2)
-  : jwa_type_scope.
-Notation "b1 || b2" := (Bool.or  b1 b2)
-  : jwa_type_scope.
+Export (notations) Bool.
 
 Instance Bool_and_monoid
   : Monoid Bool.and true :=

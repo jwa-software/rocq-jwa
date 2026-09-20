@@ -27,6 +27,15 @@ Delimit Scope jwa_list_scope with list.
 Declare Scope jwa_product_scope.
 Delimit Scope jwa_product_scope with product.
 
+(* A fourth scope, for the [Bool] operations, delimited but not opened like
+ * the two above. The spellings are contested: [&&] and [||] are what a
+ * closed notation elsewhere would take away, and [!] is the boolean
+ * negation beside the logical [~], which stays in [jwa_type_scope] because
+ * a proposition is what the tree is mostly about.
+ *)
+Declare Scope jwa_bool_scope.
+Delimit Scope jwa_bool_scope with bool.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%nat],
    [(m + n)%nat_with_zero]. Two types cannot share a scope, since one
@@ -40,8 +49,9 @@ Delimit Scope jwa_integer_scope with integer.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [exists] beyond them, so a formula reads without parentheses; [_\/_] sits
-   between [/\] and [\/] as [^^] sits between [&&] and [||]. The quotes make
-   [contains_member] a keyword rather than a variable. *)
+   between [/\] and [\/] as [^^] sits between [&&] and [||], and [!] is to
+   that boolean row what [~] is to this one, below all of it. The quotes
+   make [contains_member] a keyword rather than a variable. *)
 Reserved Notation "x -> y"
   (at level 99, right associativity, y at level 200).
 Reserved Notation "x = y"
@@ -66,6 +76,8 @@ Reserved Notation "x <-> y"
   (at level 95, no associativity).
 Reserved Notation "~ x"
   (at level 75, right associativity).
+Reserved Notation "! b"
+  (at level 35, right associativity).
 Reserved Notation "x && y"
   (at level 40, left associativity).
 Reserved Notation "x * y"

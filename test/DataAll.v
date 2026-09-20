@@ -128,7 +128,7 @@ Definition data_all_delivers_functor
 
 Definition data_all_delivers_bool_operations
   : Bool
-  := (true || false) && (Bool.negate false ^^ true).
+  := ((true || false) && (! false ^^ true))%bool.
 
 Definition data_all_delivers_bool_monoids
   : forall (b : Bool) . Bool.and true b = b /\ Bool.and b true = b
