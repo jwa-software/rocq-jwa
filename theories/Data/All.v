@@ -10,6 +10,7 @@ From jwa Require Export Core.All.
 From jwa Require Export Relation.All.
 
 (* [Export] so a client writes [Option A], not [Option.Option A]. *)
+From jwa Require Export Data.Assert.
 From jwa Require Export Data.Bool.
 From jwa Require Export Data.Collection.All.
 From jwa Require Export Data.Comparable.

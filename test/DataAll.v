@@ -136,8 +136,8 @@ Definition data_all_delivers_bool_monoids
 
 Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool) .
-      Bool.Assert (Bool.and b1 b2) <-> Bool.Assert b1 /\ Bool.Assert b2
-  := Bool.assert_conjunction.
+      Assert (Bool.and b1 b2) <-> Assert b1 /\ Assert b2
+  := Assert.conjunction.
 
 Definition data_all_delivers_list
   : List Bool

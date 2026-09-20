@@ -2,6 +2,7 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
+From jwa Require Import Data.Assert.
 From jwa Require Import Data.Bool.
 From jwa Require Import Data.Number.NatWithZero.
 
@@ -34,7 +35,7 @@ Definition is_not_empty := fun {F : Type -> Type} {S : Sized F} {A : Type} (x : 
 Theorem is_empty_reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type}
       (x : F A) .
-      Bool.Assert (is_empty x) <-> cardinality x = Zero.
+      Assert (is_empty x) <-> cardinality x = Zero.
 Proof.
   intros F S A x.
   unfold is_empty in |- *.
@@ -51,11 +52,11 @@ Qed.
 
 Theorem is_not_empty_reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) .
-      Bool.Assert (is_not_empty x) <-> ~ (cardinality x = Zero).
+      Assert (is_not_empty x) <-> ~ (cardinality x = Zero).
 Proof.
   intros F S A x.
   unfold is_not_empty in |- *.
-  pose proof (Bool.assert_negation (is_empty x)) as n.
+  pose proof (Assert.negation (is_empty x)) as n.
   pose proof (Negation.congruence (is_empty_reflection x)) as c.
   exact (<->trans n c).
 Qed.
