@@ -43,7 +43,7 @@ Definition data_collection_all_delivers_non_empty_list_to_list
 Definition data_collection_all_delivers_non_empty_list_notations
   : forall (A : Type) (a : A) (x : NonEmptyList A) . NonEmptyList A
   := fun (A : Type) (a : A) (x : NonEmptyList A) .
-       ((a :: x) ++ NonEmptyList.One a)%non_empty_list.
+       ((a :: x) ++ [a])%non_empty_list.
 
 Definition data_collection_all_delivers_non_empty_list_sized
   : forall (A : Type) (x : NonEmptyList A) . NatWithZero

@@ -40,10 +40,16 @@ Abbreviation NonEmptyList := T.
 (* The level is reserved in [Core.Notations]; only the meaning belongs
  * here. [List] gives the same token its own meaning in [jwa_list_scope],
  * so a reader says which is meant by opening a scope or by writing the
- * delimiter. There is no spelling for [One]: a literal ends at the element
- * it carries, and the ctor names it.
+ * delimiter.
  *)
 Notation "a :: x" := (Cons a x)
+  : jwa_non_empty_list_scope.
+
+(* [[a]] is the list of that one element, so a literal ends where [List]'s
+ * ends with [[]]: [a :: b :: [c]] against [a :: b :: c :: []]. The
+ * brackets are a closed token and take no level, as [[]] does not.
+ *)
+Notation "[ a ]" := (One a)
   : jwa_non_empty_list_scope.
 
 (* Both scopes are open: [jwa_list_scope] for [to_list], whose result is a
