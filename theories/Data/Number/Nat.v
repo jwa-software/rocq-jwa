@@ -106,9 +106,9 @@ Fixpoint power (m : Nat) (n : Nat) : Nat :=
 (* [Nat -> Nat -> Comparison] *)
 Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   match m, n with
-  | 1, 1       => Eq
-  | 1, S _     => Lt
-  | S _, 1     => Gt
+  | 1, 1       => Comparison.Eq
+  | 1, S _     => Comparison.Lt
+  | S _, 1     => Comparison.Gt
   | S m', S n' => compare m' n'
   end.
 
@@ -830,7 +830,7 @@ Module forward. (* comparison.strict.forward *)
 
 (* comparison.strict.forward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . compare m n = Lt -> m < n.
+  : forall {m : Nat} {n : Nat} . compare m n = Comparison.Lt -> m < n.
 Proof.
   intros m.
   induction m as [| m' IH]
@@ -858,7 +858,7 @@ Module backward. (* comparison.strict.backward *)
 
 (* comparison.strict.backward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . m < n -> compare m n = Lt.
+  : forall {m : Nat} {n : Nat} . m < n -> compare m n = Comparison.Lt.
 Proof.
   intros m.
   induction m as [| m' IH]
@@ -893,7 +893,7 @@ Module forward. (* comparison.equality.forward *)
 
 (* comparison.equality.forward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . compare m n = Eq -> m = n.
+  : forall {m : Nat} {n : Nat} . compare m n = Comparison.Eq -> m = n.
 Proof.
   intros m.
   induction m as [| m' IH]
@@ -915,7 +915,7 @@ Module backward. (* comparison.equality.backward *)
 
 (* comparison.equality.backward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . m = n -> compare m n = Eq.
+  : forall {m : Nat} {n : Nat} . m = n -> compare m n = Comparison.Eq.
 Proof.
   intros m n e.
   rewrite e in |- *.
@@ -932,7 +932,7 @@ End equality. (* comparison.equality *)
 (* comparison.specification *)
 Theorem specification
   : forall (m : Nat) (n : Nat) .
-      (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
+      (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
   split; split.

@@ -41,7 +41,7 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponens_implicit
-  : forall (m : Nat) (n : Nat) . Nat.compare m n = Lt -> Nat.LessThan m n.
+  : forall (m : Nat) (n : Nat) . Nat.compare m n = Comparison.Lt -> Nat.LessThan m n.
 Proof.
   intros m n c.
   modus ponens Nat.comparison.strict.forward.specification, c.

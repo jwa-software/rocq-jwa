@@ -198,8 +198,8 @@ Definition data_all_delivers_eq
 
 Definition data_all_delivers_comparable_specifications
   : forall (m : Nat) (n : Nat) .
-      (Nat.compare m n = Lt <-> Nat.LessThan m n)
-    /\ (Nat.compare m n = Gt <-> Nat.LessThan n m)
+      (Nat.compare m n = Comparison.Lt <-> Nat.LessThan m n)
+    /\ (Nat.compare m n = Comparison.Gt <-> Nat.LessThan n m)
   := fun (m : Nat) (n : Nat) .
        Conjunction_introduction
          (Comparable.comparison.strict.specification m n)

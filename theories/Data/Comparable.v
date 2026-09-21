@@ -16,8 +16,8 @@ From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.Trichotomous.
 
-(* A three-way [compare] that decides the strict order [lt]: [Lt] is [lt m n],
- * [Eq] is [m = n], and [Gt], by [antisymmetry], is [lt n m].
+(* A three-way [compare] that decides the strict order [lt]: [Comparison.Lt] is [lt m n],
+ * [Comparison.Eq] is [m = n], and [Comparison.Gt], by [antisymmetry], is [lt n m].
  *)
 Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Prop) : Prop :=
   { transitivity
@@ -25,7 +25,7 @@ Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Pro
       lt l m -> lt m n -> lt l n
   ; specification
     : forall (m : A) (n : A) .
-      (compare m n = Lt <-> lt m n) /\ (compare m n = Eq <-> m = n)
+      (compare m n = Comparison.Lt <-> lt m n) /\ (compare m n = Comparison.Eq <-> m = n)
   ; antisymmetry
     : forall (m : A) (n : A) .
       compare m n = Comparison.transpose (compare n m) }.
@@ -42,33 +42,33 @@ Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) .
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> Bool] *)
 Definition eq := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
-  | Lt => false
-  | Eq => true
-  | Gt => false
+  | Comparison.Lt => false
+  | Comparison.Eq => true
+  | Comparison.Gt => false
   end.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> Bool] *)
 Definition le := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
-  | Lt => true
-  | Eq => true
-  | Gt => false
+  | Comparison.Lt => true
+  | Comparison.Eq => true
+  | Comparison.Gt => false
   end.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> A] *)
 Definition min := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
-  | Lt => m
-  | Eq => m
-  | Gt => n
+  | Comparison.Lt => m
+  | Comparison.Eq => m
+  | Comparison.Gt => n
   end.
 
 (* [forall {A : Type} . (A -> A -> Comparison) -> A -> A -> A] *)
 Definition max := fun {A : Type} (compare : A -> A -> Comparison) (m : A) (n : A) .
   match compare m n with
-  | Lt => n
-  | Eq => m
-  | Gt => m
+  | Comparison.Lt => n
+  | Comparison.Eq => m
+  | Comparison.Gt => m
   end.
 
 Module comparison. (* comparison *)
@@ -80,7 +80,7 @@ Theorem reflexivity
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
       (n : A) .
-    compare n n = Eq.
+    compare n n = Comparison.Eq.
 Proof.
   intros A compare lt C n.
   destruct (Comparable.specification n n) as [_ s].
@@ -96,7 +96,7 @@ Theorem specification
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
       (m : A) (n : A) .
-    compare m n = Lt <-> lt m n.
+    compare m n = Comparison.Lt <-> lt m n.
 Proof.
   intros A compare lt C m n.
   destruct (Comparable.specification m n) as [s _].
@@ -105,8 +105,8 @@ Qed.
 
 Module transposition. (* comparison.strict.transposition *)
 
-(* [Gt] is [Lt] read from the other side, which is what [antisymmetry] says;
- * the proof is that law, then the [Lt] case.
+(* [Comparison.Gt] is [Comparison.Lt] read from the other side, which is what [antisymmetry] says;
+ * the proof is that law, then the [Comparison.Lt] case.
  *)
 (* comparison.strict.transposition.specification *)
 Theorem specification
@@ -115,7 +115,7 @@ Theorem specification
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
       (m : A) (n : A) .
-    compare m n = Gt <-> lt n m.
+    compare m n = Comparison.Gt <-> lt n m.
 Proof.
   intros A compare lt C m n.
   rewrite (Comparable.antisymmetry m n) in |- *.
@@ -148,7 +148,7 @@ Theorem specification
       {lt : A -> A -> Prop}
       {C : Comparable compare lt}
       (m : A) (n : A) .
-    compare m n = Eq <-> m = n.
+    compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros A compare lt C m n.
   destruct (Comparable.specification m n) as [_ s].

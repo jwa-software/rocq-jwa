@@ -174,19 +174,19 @@ Definition compare := fun (m : Integer) (n : Integer) .
   | - p =>
       match n with
       | - q => Nat.compare q p
-      | 0   => Lt
-      | + _ => Lt
+      | 0   => Comparison.Lt
+      | + _ => Comparison.Lt
       end
   | 0 =>
       match n with
-      | - _ => Gt
-      | 0   => Eq
-      | + _ => Lt
+      | - _ => Comparison.Gt
+      | 0   => Comparison.Eq
+      | + _ => Comparison.Lt
       end
   | + p =>
       match n with
-      | - _ => Gt
-      | 0   => Gt
+      | - _ => Comparison.Gt
+      | 0   => Comparison.Gt
       | + q => Nat.compare p q
       end
   end.
@@ -1472,7 +1472,7 @@ Module strict. (* comparison.strict *)
 
 (* comparison.strict.specification *)
 Lemma specification
-  : forall (m : Integer) (n : Integer) . compare m n = Lt <-> m < n.
+  : forall (m : Integer) (n : Integer) . compare m n = Comparison.Lt <-> m < n.
 Proof.
   intros m n.
   unfold LessThan in |- *.
@@ -1550,7 +1550,7 @@ Module equality. (* comparison.equality *)
 
 (* comparison.equality.specification *)
 Lemma specification
-  : forall (m : Integer) (n : Integer) . compare m n = Eq <-> m = n.
+  : forall (m : Integer) (n : Integer) . compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros m n.
   destruct m as [m' | | m']; destruct n as [n' | | n']; split; simpl in |- *.
@@ -1605,7 +1605,7 @@ End equality. (* comparison.equality *)
 (* comparison.specification *)
 Theorem specification
   : forall (m : Integer) (n : Integer) .
-      (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
+      (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
   split.

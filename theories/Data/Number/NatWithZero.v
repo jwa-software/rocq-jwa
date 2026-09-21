@@ -116,12 +116,12 @@ Definition compare := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
   | 0 =>
       match n with
-      | 0   => Eq
-      | + _ => Lt
+      | 0   => Comparison.Eq
+      | + _ => Comparison.Lt
       end
   | + p =>
       match n with
-      | 0   => Gt
+      | 0   => Comparison.Gt
       | + q => Nat.compare p q
       end
   end.
@@ -933,7 +933,7 @@ Module strict. (* comparison.strict *)
 
 (* comparison.strict.specification *)
 Lemma specification
-  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Lt <-> m < n.
+  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Comparison.Lt <-> m < n.
 Proof.
   intros m n.
   destruct m as [| m']; destruct n as [| n'].
@@ -981,7 +981,7 @@ Module equality. (* comparison.equality *)
 
 (* comparison.equality.specification *)
 Lemma specification
-  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Eq <-> m = n.
+  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros m n.
   split.
@@ -1009,7 +1009,7 @@ End equality. (* comparison.equality *)
 (* comparison.specification *)
 Theorem specification
   : forall (m : NatWithZero) (n : NatWithZero) .
-      (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
+      (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
   split.
