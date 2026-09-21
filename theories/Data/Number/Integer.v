@@ -13,6 +13,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Relation.WellFounded.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
  * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
@@ -1866,6 +1867,16 @@ Abbreviation Integer := Integer.T.
  * [- p] stay inside the module.
  *)
 Export (notations) Integer.
+
+(* [Integer.LessThan] is not well founded -- [0], [- 1], [- 2] descends for
+ * ever -- so a recursion on an [Integer] descends on its magnitude instead,
+ * and that relation is well founded for nothing but [NatWithZero]'s being
+ * so.
+ *)
+Instance Integer_magnitude_well_founded
+  : WellFounded (Preimage Integer.abs NatWithZero.LessThan) :=
+  WellFounded.preimage Integer.abs NatWithZero.LessThan
+    NatWithZero_less_than_well_founded.
 
 Instance Integer_comparable
   : Comparable Integer.compare Integer.LessThan :=
