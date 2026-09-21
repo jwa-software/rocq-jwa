@@ -8,13 +8,23 @@ From jwa Require Import Algebra.Ring.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 
-(* [true] first: [if] takes the first constructor as its [then] branch. *)
-Inductive Bool : Type :=
-  | true  : Bool
-  | false : Bool.
-
-(* A module may carry the type's name; its members read [Bool.and]. *)
+(* A module may carry the type's name; its members read [Bool.and]. The type
+ * and its ctors are declared inside it: across files a duplicate ctor name
+ * rebinds the bare one silently and with no warning, so a name's meaning
+ * would otherwise depend on import order.
+ *)
 Module Bool. (* Bool *)
+
+(* [true] first: [if] takes the first constructor as its [then] branch. *)
+Inductive T : Type :=
+  | true  : T
+  | false : T.
+
+(* The carrier is named [T] so that the type itself reads [Bool] on both
+ * sides of the module: here through this abbreviation, outside through the
+ * one that follows [End Bool].
+ *)
+Abbreviation Bool := T.
 
 (* [Bool -> Bool] *)
 Definition negate := fun (b : Bool) .
@@ -265,6 +275,22 @@ Qed.
 End sejunction. (* sejunction *)
 
 End Bool. (* Bool *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Bool], not [Bool.T].
+ *)
+Abbreviation Bool := Bool.T.
+
+(* The two ctors get their bare spelling back, deliberately and here alone:
+ * they are this type's literals, written bare in every language, and an
+ * abbreviation is the ctor itself, so [true] still serves as a [match]
+ * pattern and still prints bare. It buys the spelling, not the safety -- a
+ * later file declaring its own [true] rebinds this one as silently as a
+ * duplicate ctor would -- so the exposure is a decision taken here rather
+ * than a consequence of where the [Inductive] happened to sit.
+ *)
+Abbreviation true  := Bool.true.
+Abbreviation false := Bool.false.
 
 (* Makes the notations declared in [Module Bool] usable in every file that
  * imports this one, as [(b1 && b2)%bool] or under an opened
