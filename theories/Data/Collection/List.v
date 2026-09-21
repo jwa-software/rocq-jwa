@@ -414,11 +414,27 @@ Fixpoint range_positive (p : Nat) : List NatWithZero :=
   end.
 
 (* [NatWithZero -> List NatWithZero] *)
-Definition range := fun (n : NatWithZero) .
+Definition range_from_zero := fun (n : NatWithZero) .
   match n with
   | NatWithZero.Zero       => []
   | NatWithZero.Positive p => range_positive p
   end.
+
+(* [range start stop] counts up from [start] and stops before [stop]: it
+ * shifts as many numbers as separate the two. The subtraction is truncated,
+ * so a [stop] at or below [start] leaves nothing to shift and the range is
+ * empty.
+ *)
+(* [NatWithZero -> NatWithZero -> List NatWithZero] *)
+Definition range := fun (start : NatWithZero) (stop : NatWithZero) .
+  map (NatWithZero.add start) (range_from_zero (NatWithZero.saturating_sub stop start)).
+
+(* [range_inclusive start stop] reaches [stop] itself, so it is [range] run
+ * one further.
+ *)
+(* [NatWithZero -> NatWithZero -> List NatWithZero] *)
+Definition range_inclusive := fun (start : NatWithZero) (stop : NatWithZero) .
+  range start (NatWithZero.inc stop).
 
 (* [le a b] answers whether [a] may precede [b]; it is the comparison
  * [insert] and [insertion_sort] take. The maximum of a list is the later of
@@ -683,9 +699,58 @@ Proof.
       exact h'.
 Qed.
 
+(* mapping.preservation.of.length *)
+Theorem length
+  : forall {A : Type} {B : Type} (f : A -> B) (l : List A) .
+      (|| map f l ||) = (|| l ||).
+Proof.
+  intros A B f l.
+  induction l as [| a l' IH] using List.induction.
+  - simpl in |- *.
+    reflexivity.
+  - simpl in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
 End of. (* mapping.preservation.of *)
 
 End preservation. (* mapping.preservation *)
+
+Module membership. (* mapping.membership *)
+
+(* An element of [map f l] is the image of an element of [l]. The forward
+ * half of [preservation.of.membership] is the other direction.
+ *)
+(* mapping.membership.specification *)
+Theorem specification
+  : forall {A : Type} {B : Type} (f : A -> B) (b : B) (l : List A) .
+      map f l contains_member b
+      <-> exists (a : A) . l contains_member a /\ b = f a.
+Proof.
+  intros A B f b l.
+  split.
+  - induction l as [| a l' IH] using List.induction.
+    + simpl in |- *.
+      intro g.
+      contradiction g.
+    + simpl in |- *.
+      intro h.
+      destruct h as [e | h'].
+      * exact (Exists_introduction
+                 a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
+      * pose proof (IH h') as w.
+        destruct w as [a' c].
+        destruct c as [m e].
+        exact (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
+  - intro w.
+    destruct w as [a c].
+    destruct c as [m e].
+    rewrite e in |- *.
+    exact (preservation.of.membership f a l m).
+Qed.
+
+End membership. (* mapping.membership *)
 
 End mapping. (* mapping *)
 
@@ -2702,8 +2767,10 @@ End backward. (* range.positive.backward *)
 
 End positive. (* range.positive *)
 
-(* range.length *)
-Theorem length : forall (n : NatWithZero) . (|| range n ||) = n.
+Module from_zero. (* range.from_zero *)
+
+(* range.from_zero.length *)
+Theorem length : forall (n : NatWithZero) . (|| range_from_zero n ||) = n.
 Proof.
   intros n.
   destruct n as [| p].
@@ -2713,12 +2780,12 @@ Proof.
     exact (range.positive.length p).
 Qed.
 
-Module membership. (* range.membership *)
+Module membership. (* range.from_zero.membership *)
 
-(* range.membership.specification *)
+(* range.from_zero.membership.specification *)
 Theorem specification
   : forall (n : NatWithZero) (i : NatWithZero) .
-      range n contains_member i <-> i < n.
+      range_from_zero n contains_member i <-> i < n.
 Proof.
   intros n i.
   destruct n as [| p].
@@ -2739,20 +2806,22 @@ Proof.
     + exact (@range.positive.backward.membership p i).
 Qed.
 
-End membership. (* range.membership *)
+End membership. (* range.from_zero.membership *)
 
-Module sum. (* range.sum *)
+Module sum. (* range.from_zero.sum *)
 
 (* A closed form is an answer written with a fixed number of operations,
  * none of them recursive: [sum (range n)] has to walk the list, while
  * [n * (n + Nat.One) / Two] does not, and the count of steps no longer grows
  * with [n]. There is no division here, so both sides are multiplied by
- * two.
+ * two. A start other than zero would make this an arithmetic series, which
+ * is a different theorem, so it is stated on [range_from_zero].
  *)
-(* range.sum.closed_form *)
+(* range.from_zero.sum.closed_form *)
 Theorem closed_form
   : forall (p : Nat) .
-      NatWithZero.Positive (Nat.Successor Nat.One) * sum (range (NatWithZero.Positive (Nat.Successor p)))
+      NatWithZero.Positive (Nat.Successor Nat.One)
+      * sum (range_from_zero (NatWithZero.Positive (Nat.Successor p)))
       = NatWithZero.Positive p * NatWithZero.Positive (Nat.Successor p).
 Proof.
   intros p.
@@ -2760,18 +2829,22 @@ Proof.
   - unfold sum in |- *.
     simpl in |- *.
     reflexivity.
-  - change (range (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
-      with (append (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p')))
+  - change (range_from_zero (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
+      with (append (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+              (NatWithZero.Positive (Nat.Successor p')))
       in |- *.
     rewrite (appending.specification
-               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite (sum.additivity.over.concatenation
-               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p') :: []))
+               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+               (NatWithZero.Positive (Nat.Successor p') :: []))
       in |- *.
     change (sum (NatWithZero.Positive (Nat.Successor p') :: [])) with (NatWithZero.Positive (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.left.distributivity.over.addition
                (NatWithZero.Positive (Nat.Successor Nat.One))
-               (sum (range (NatWithZero.Positive (Nat.Successor p')))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+               (sum (range_from_zero (NatWithZero.Positive (Nat.Successor p'))))
+               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite IH in |- *.
     rewrite <- (NatWithZero.multiplication.right.distributivity.over.addition
                   (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
@@ -2785,7 +2858,130 @@ Proof.
     reflexivity.
 Qed.
 
-End sum. (* range.sum *)
+End sum. (* range.from_zero.sum *)
+
+End from_zero. (* range.from_zero *)
+
+(* range.length *)
+Theorem length
+  : forall (start : NatWithZero) (stop : NatWithZero) .
+      (|| range start stop ||) = NatWithZero.saturating_sub stop start.
+Proof.
+  intros start stop.
+  unfold range in |- *.
+  rewrite (mapping.preservation.of.length
+             (NatWithZero.add start)
+             (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
+  exact (from_zero.length (NatWithZero.saturating_sub stop start)).
+Qed.
+
+Module membership. (* range.membership *)
+
+(* range.membership.specification *)
+Theorem specification
+  : forall (start : NatWithZero) (stop : NatWithZero) (i : NatWithZero) .
+      range start stop contains_member i <-> start <= i /\ i < stop.
+Proof.
+  intros start stop i.
+  unfold range in |- *.
+  destruct (Comparable.order.totality start stop) as [below | above].
+  - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
+    split.
+    + intro h.
+      pose proof (->elim (mapping.membership.specification
+                            (NatWithZero.add start) i
+                            (range_from_zero (NatWithZero.saturating_sub stop start))) h) as w.
+      destruct w as [j c].
+      destruct c as [m e].
+      pose proof (->elim (from_zero.membership.specification
+                            (NatWithZero.saturating_sub stop start) j) m) as lt.
+      split.
+      * rewrite e in |- *.
+        rewrite (NatWithZero.addition.commutativity start j) in |- *.
+        exact (NatWithZero.addition.right.order.extensivity j start).
+      * rewrite e in |- *.
+        rewrite <- reach in |- *.
+        exact (NatWithZero.addition.order.strict.monotonicity
+                 start j (NatWithZero.saturating_sub stop start) lt).
+    + intro c.
+      destruct c as [low high].
+      pose proof (NatWithZero.subtraction.saturating.specification low) as step.
+      apply (<-elim (mapping.membership.specification
+                       (NatWithZero.add start) i
+                       (range_from_zero (NatWithZero.saturating_sub stop start)))).
+      apply (Exists_introduction (NatWithZero.saturating_sub i start)).
+      split.
+      * apply (<-elim (from_zero.membership.specification
+                         (NatWithZero.saturating_sub stop start)
+                         (NatWithZero.saturating_sub i start))).
+        apply (NatWithZero.addition.order.strict.cancellation start).
+        rewrite step in |- *.
+        rewrite reach in |- *.
+        exact high.
+      * symmetry in step.
+        exact step.
+  - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
+    rewrite empty in |- *.
+    simpl in |- *.
+    split.
+    + intro f.
+      contradiction f.
+    + intro c.
+      destruct c as [low high].
+      pose proof (Comparable.order.transitivity stop start i above low) as reached.
+      destruct reached as [e | lt].
+      * rewrite e in high.
+        exact (NatWithZero.order.strict.irreflexivity i high).
+      * exact (Comparable.order.strict.asymmetry i stop high lt).
+Qed.
+
+End membership. (* range.membership *)
+
+Module inclusive. (* range.inclusive *)
+
+(* range.inclusive.length *)
+Theorem length
+  : forall (start : NatWithZero) (stop : NatWithZero) .
+      (|| range_inclusive start stop ||)
+      = NatWithZero.saturating_sub (NatWithZero.inc stop) start.
+Proof.
+  intros start stop.
+  unfold range_inclusive in |- *.
+  exact (range.length start (NatWithZero.inc stop)).
+Qed.
+
+Module membership. (* range.inclusive.membership *)
+
+(* range.inclusive.membership.specification *)
+Theorem specification
+  : forall (start : NatWithZero) (stop : NatWithZero) (i : NatWithZero) .
+      range_inclusive start stop contains_member i <-> start <= i /\ i <= stop.
+Proof.
+  intros start stop i.
+  unfold range_inclusive in |- *.
+  rewrite (NatWithZero.increment.specification stop) in |- *.
+  rewrite (NatWithZero.addition.commutativity
+             (NatWithZero.Positive Nat.One) stop) in |- *.
+  split.
+  - intro h.
+    pose proof (->elim (range.membership.specification
+                          start (stop + NatWithZero.Positive Nat.One) i) h) as c.
+    destruct c as [low high].
+    split.
+    + exact low.
+    + exact (->elim (NatWithZero.order.discreteness i stop) high).
+  - intro c.
+    destruct c as [low high].
+    apply (<-elim (range.membership.specification
+                     start (stop + NatWithZero.Positive Nat.One) i)).
+    split.
+    + exact low.
+    + exact (<-elim (NatWithZero.order.discreteness i stop) high).
+Qed.
+
+End membership. (* range.inclusive.membership *)
+
+End inclusive. (* range.inclusive *)
 
 End range. (* range *)
 
