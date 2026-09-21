@@ -167,6 +167,133 @@ Fixpoint map {A : Type} {B : Type} (f : A -> B) (x : NonEmptyList A)
   | Cons a x' => f a :: map f x'
   end.
 
+Module concatenation. (* concatenation *)
+
+(* concatenation.associativity *)
+Theorem associativity
+  : forall {A : Type} (x : NonEmptyList A) (y : NonEmptyList A)
+      (z : NonEmptyList A) .
+      (x ++ y) ++ z = x ++ (y ++ z).
+Proof.
+  intros A x y z.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+End concatenation. (* concatenation *)
+
+Module length. (* length *)
+
+Module additivity. (* length.additivity *)
+
+Module over. (* length.additivity.over *)
+
+(* length.additivity.over.concatenation *)
+Theorem concatenation
+  : forall {A : Type} (x : NonEmptyList A) (y : NonEmptyList A) .
+      (|| x ++ y ||) = Nat.add (|| x ||) (|| y ||).
+Proof.
+  intros A x y.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+End over. (* length.additivity.over *)
+
+End additivity. (* length.additivity *)
+
+End length. (* length *)
+
+Module membership. (* membership *)
+
+Module distributivity. (* membership.distributivity *)
+
+Module over. (* membership.distributivity.over *)
+
+(* membership.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall {A : Type} (a : A) (x : NonEmptyList A) (y : NonEmptyList A) .
+      (x ++ y) contains_member a <-> x contains_member a \/ y contains_member a.
+Proof.
+  intros A a x y.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    split.
+    + intro h.
+      exact h.
+    + intro h.
+      exact h.
+  - simplify in |- *.
+    split.
+    + intro h.
+      destruct h as [e | h'].
+      * exact (Disjunction.L (Disjunction.L e)).
+      * destruct (->elim IH h') as [m | m].
+        -- exact (Disjunction.L (Disjunction.R m)).
+        -- exact (Disjunction.R m).
+    + intro h.
+      destruct h as [c | m].
+      * destruct c as [e | m].
+        -- exact (Disjunction.L e).
+        -- exact (Disjunction.R (<-elim IH (Disjunction.L m))).
+      * exact (Disjunction.R (<-elim IH (Disjunction.R m))).
+Qed.
+
+End over. (* membership.distributivity.over *)
+
+End distributivity. (* membership.distributivity *)
+
+End membership. (* membership *)
+
+Module reversal. (* reversal *)
+
+Module antidistributivity. (* reversal.antidistributivity *)
+
+Module over. (* reversal.antidistributivity.over *)
+
+(* reversal.antidistributivity.over.concatenation *)
+Theorem concatenation
+  : forall {A : Type} (x : NonEmptyList A) (y : NonEmptyList A) .
+      reverse (x ++ y) = reverse y ++ reverse x.
+Proof.
+  intros A x y.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    exact (concatenation.associativity (reverse y) (reverse x') [a]).
+Qed.
+
+End over. (* reversal.antidistributivity.over *)
+
+End antidistributivity. (* reversal.antidistributivity *)
+
+(* reversal.involution *)
+Theorem involution
+  : forall {A : Type} (x : NonEmptyList A) . reverse (reverse x) = x.
+Proof.
+  intros A x.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
+    simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+End reversal. (* reversal *)
+
 Module mapping. (* mapping *)
 
 (* mapping.identity *)
@@ -197,7 +324,108 @@ Proof.
     reflexivity.
 Qed.
 
+Module preservation. (* mapping.preservation *)
+
+Module of. (* mapping.preservation.of *)
+
+(* mapping.preservation.of.membership *)
+Theorem membership
+  : forall {A : Type} {B : Type} (f : A -> B) (a : A) (x : NonEmptyList A) .
+      x contains_member a -> (map f x) contains_member f a.
+Proof.
+  intros A B f a x.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    intro e.
+    rewrite e in |- *.
+    reflexivity.
+  - simplify in |- *.
+    intro h.
+    destruct h as [e | h'].
+    + apply Disjunction.L.
+      rewrite e in |- *.
+      reflexivity.
+    + apply Disjunction.R.
+      exact (IH h').
+Qed.
+
+End of. (* mapping.preservation.of *)
+
+End preservation. (* mapping.preservation *)
+
 End mapping. (* mapping *)
+
+Module conversion. (* conversion *)
+
+(* [to_list] is a homomorphism, and the three laws below say so for the
+ * join, the count and membership. They are the interface to [List]: a
+ * statement about a [NonEmptyList] can be moved to the list it converts
+ * to, and a [List] law brought back along them.
+ *)
+Module distributivity. (* conversion.distributivity *)
+
+Module over. (* conversion.distributivity.over *)
+
+(* conversion.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall {A : Type} (x : NonEmptyList A) (y : NonEmptyList A) .
+      to_list (x ++ y) = List.concat (to_list x) (to_list y).
+Proof.
+  intros A x y.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+End over. (* conversion.distributivity.over *)
+
+End distributivity. (* conversion.distributivity *)
+
+(* conversion.length *)
+Theorem length
+  : forall {A : Type} (x : NonEmptyList A) .
+      List.length (to_list x) = NatWithZero.Positive (|| x ||).
+Proof.
+  intros A x.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+(* conversion.membership *)
+Theorem membership
+  : forall {A : Type} (a : A) (x : NonEmptyList A) .
+      x contains_member a <-> List.Contains a (to_list x).
+Proof.
+  intros A a x.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    split.
+    + intro e.
+      exact (Disjunction.L e).
+    + intro h.
+      destruct h as [e | f].
+      * exact e.
+      * contradiction f.
+  - simplify in |- *.
+    split.
+    + intro h.
+      destruct h as [e | m].
+      * exact (Disjunction.L e).
+      * exact (Disjunction.R (->elim IH m)).
+    + intro h.
+      destruct h as [e | m].
+      * exact (Disjunction.L e).
+      * exact (Disjunction.R (<-elim IH m)).
+Qed.
+
+End conversion. (* conversion *)
 
 End NonEmptyList. (* NonEmptyList *)
 
