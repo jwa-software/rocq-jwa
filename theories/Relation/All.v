@@ -9,6 +9,7 @@
  *)
 From jwa Require Export Core.All.
 
+From jwa Require Export Relation.Accessible.
 From jwa Require Export Relation.Antisymmetric.
 From jwa Require Export Relation.Equivalence.
 From jwa Require Export Relation.Irreflexive.

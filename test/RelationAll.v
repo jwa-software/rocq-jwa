@@ -40,6 +40,35 @@ Definition relation_all_delivers_preimage
   := fun (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) .
        WellFounded.preimage f R.
 
+Definition relation_all_delivers_extensional
+  : forall (A : Type) (P : A -> Type) (R : A -> A -> Prop)
+      (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+      Extensional step -> Verum
+  := fun (A : Type) (P : A -> Type) (R : A -> A -> Prop)
+       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
+       (_ : Extensional step) . I.
+
+Definition relation_all_delivers_accessible_recursion_independence
+  : forall (A : Type) (P : A -> Type) (R : A -> A -> Prop)
+      (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+      Extensional step ->
+      (forall (x : A) (a : Accessible R x) (b : Accessible R x) .
+         Accessible.recursion step x a = Accessible.recursion step x b)
+  := fun (A : Type) (P : A -> Type) (R : A -> A -> Prop)
+       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+       Accessible.recursion.independence.
+
+Definition relation_all_delivers_well_founded_recursion_unfolding
+  : forall (A : Type) (P : A -> Type) (R : A -> A -> Prop) (W : WellFounded R)
+      (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+      Extensional step ->
+      (forall (x : A) .
+         WellFounded.recursion step x
+         = step x (fun (y : A) (r : R y x) . WellFounded.recursion step y))
+  := fun (A : Type) (P : A -> Type) (R : A -> A -> Prop) (W : WellFounded R)
+       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+       WellFounded.recursion.unfolding.
+
 Definition relation_all_delivers_order_projections
   : forall (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A) .
       R x x

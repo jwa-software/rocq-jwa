@@ -2,49 +2,10 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
+From jwa Require Import Relation.Accessible.
+From jwa Require Import Tactics.Simplify.
 
-(* [R] points downwards throughout this file: its first argument is the
- * lower one, so [R y x] says that [y] is below [x]. [Accessible R x] holds
- * when every [y] below [x] is accessible, which under "is less than" makes
- * every number accessible, the smallest for free and the rest standing on
- * it. The proof is what a recursion descends on, since the proof for [y]
- * sits inside the proof for [x].
- *)
-Inductive Accessible {A : Type} (R : A -> A -> Prop) (x : A) : Prop :=
-  | Accessible_introduction
-    : (forall (y : A) . R y x -> Accessible R y) -> Accessible R x.
-
-(* [A], [R] and [x] are all read off the proof, so none is written. *)
-Arguments Accessible_introduction {A} {R} {x} descend.
-
-Module Accessible. (* Accessible *)
-
-(* Every recursion in this file calls it. Because what it returns is a
- * piece of the proof handed in, and Rocq accepts a recursion only when the
- * argument it recurses on is such a piece.
- *)
-(* [forall {A : Type} {R : A -> A -> Prop} {x : A} {y : A} .
- *    Accessible R x -> R y x -> Accessible R y]
- *)
-Definition descend :=
-  fun {A : Type} {R : A -> A -> Prop} {x : A} {y : A}
-    (a : Accessible R x) (r : R y x) .
-    match a with
-    | Accessible_introduction step => step y r
-    end.
-
-(* This is where the recursion happens. *)
-(* [forall {A : Type} {P : A -> Type} {R : A -> A -> Prop} .
- *    (forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) ->
- *    (forall (x : A) . Accessible R x -> P x)]
- *)
-Fixpoint recursion
-  {A : Type} {P : A -> Type} {R : A -> A -> Prop}
-  (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
-  (x : A) (a : Accessible R x) {struct a} : P x :=
-  step x (fun (y : A) (r : R y x) . recursion step y (descend a r)).
-
-End Accessible. (* Accessible *)
+(* [R] points downwards here: [R y x] says that [y] is below [x]. *)
 
 (* [R] is well founded when every point is accessible. *)
 Class WellFounded {A : Type} (R : A -> A -> Prop) : Prop :=
@@ -72,6 +33,28 @@ Definition recursion :=
   fun {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R}
     (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
     (x : A) . (Accessible.recursion step x (accessibility x)).
+
+Module recursion. (* recursion *)
+
+(* recursion.unfolding *)
+Theorem unfolding
+  : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R}
+      {step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x} .
+      Extensional step ->
+      (forall (x : A) .
+         WellFounded.recursion step x
+         = step x (fun (y : A) (r : R y x) . WellFounded.recursion step y)).
+Proof.
+  intros A P R W step extensional x.
+  simplify WellFounded.recursion in |- *.
+  rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
+  apply extensional.
+  intros y r.
+  exact (Accessible.recursion.independence extensional y
+           (Accessible.descend (accessibility x) r) (accessibility y)).
+Qed.
+
+End recursion. (* recursion *)
 
 Module preimage. (* preimage *)
 
