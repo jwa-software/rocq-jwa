@@ -2,7 +2,12 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Collection.List.
+From jwa Require Import Data.Collection.Membership.
+From jwa Require Import Data.Collection.Sized.
+From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read
  * [NonEmptyList.head]. The type and its ctors are declared inside it: a
@@ -32,8 +37,22 @@ Arguments Cons {A} a x.
  *)
 Abbreviation NonEmptyList := T.
 
-(* [List]'s scope is opened for the [::] and [[]] of [to_list]. *)
+(* The level is reserved in [Core.Notations]; only the meaning belongs
+ * here. [List] gives the same token its own meaning in [jwa_list_scope],
+ * so a reader says which is meant by opening a scope or by writing the
+ * delimiter. There is no spelling for [One]: a literal ends at the element
+ * it carries, and the ctor names it.
+ *)
+Notation "a :: x" := (Cons a x)
+  : jwa_non_empty_list_scope.
+
+(* Both scopes are open: [jwa_list_scope] for [to_list], whose result is a
+ * [List], and this type's own for everything else. The one opened later
+ * wins where a token is in both, so the [List] readings below carry their
+ * delimiter.
+ *)
 Local Open Scope jwa_list_scope.
+Local Open Scope jwa_non_empty_list_scope.
 
 (* The eliminator behind the [induction] tactic, written out. Its content
  * is the [fix]: the proof for [Cons a x] is built from the proof for [x],
@@ -77,15 +96,102 @@ Fixpoint length {A : Type} (x : NonEmptyList A) : Nat :=
   | Cons _ x' => Nat.Successor (length x')
   end.
 
+Notation "(|| x ||)" := (length x) (only parsing)
+  : jwa_non_empty_list_scope.
+
 (* The forgetful map into [List]: every operation of [List] is reachable
  * through it, and a law proved there transports along it.
  *)
 (* [forall {A : Type} . NonEmptyList A -> List A] *)
 Fixpoint to_list {A : Type} (x : NonEmptyList A) : List A :=
   match x with
-  | One  a    => a :: []
-  | Cons a x' => a :: to_list x'
+  | One  a    => (a :: [])%list
+  | Cons a x' => (a :: to_list x')%list
   end.
+
+(* Joining two non-empty lists needs no empty case: the left one runs out
+ * at an element, which is put in front of the right one.
+ *)
+(* [forall {A : Type} . NonEmptyList A -> NonEmptyList A -> NonEmptyList A] *)
+Fixpoint concat {A : Type} (x : NonEmptyList A) (y : NonEmptyList A)
+  : NonEmptyList A :=
+  match x with
+  | One  a    => a :: y
+  | Cons a x' => a :: concat x' y
+  end.
+
+Notation "x ++ y" := (concat x y)
+  : jwa_non_empty_list_scope.
+
+(* [forall {A : Type} . NonEmptyList A -> NonEmptyList A] *)
+Fixpoint reverse {A : Type} (x : NonEmptyList A) : NonEmptyList A :=
+  match x with
+  | One  a    => One a
+  | Cons a x' => reverse x' ++ One a
+  end.
+
+(* Membership, defined by recursion into [Prop]: at [One b] there is one
+ * element to be equal to, and at [Cons b x'] either that one or a member
+ * of the rest.
+ *)
+(* [forall {A : Type} . A -> NonEmptyList A -> Prop] *)
+Fixpoint Contains {A : Type} (a : A) (x : NonEmptyList A) : Prop :=
+  match x with
+  | One  b    => a = b
+  | Cons b x' => a = b \/ Contains a x'
+  end.
+
+Notation "x 'contains_member' a" := (Contains a x)
+  : jwa_non_empty_list_scope.
+
+Notation "a 'belongs_to' x" := (Contains a x) (only parsing)
+  : jwa_non_empty_list_scope.
+
+Notation "x 'does_not_contain_member' a" := (~ (Contains a x))
+  : jwa_non_empty_list_scope.
+
+Notation "a 'does_not_belong_to' x" := (~ (Contains a x)) (only parsing)
+  : jwa_non_empty_list_scope.
+
+(* [forall {A : Type} {B : Type} . (A -> B) -> NonEmptyList A -> NonEmptyList B] *)
+Fixpoint map {A : Type} {B : Type} (f : A -> B) (x : NonEmptyList A)
+  : NonEmptyList B :=
+  match x with
+  | One  a    => One (f a)
+  | Cons a x' => f a :: map f x'
+  end.
+
+Module mapping. (* mapping *)
+
+(* mapping.identity *)
+Theorem identity
+  : forall (A : Type) (x : NonEmptyList A) . map (fun (a : A) . a) x = x.
+Proof.
+  intros A x.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+(* mapping.composition *)
+Theorem composition
+  : forall (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C)
+      (x : NonEmptyList A) .
+      map g (map f x) = map (fun (a : A) . g (f a)) x.
+Proof.
+  intros A B C f g x.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
+End mapping. (* mapping *)
 
 End NonEmptyList. (* NonEmptyList *)
 
@@ -93,3 +199,30 @@ End NonEmptyList. (* NonEmptyList *)
  * [NonEmptyList A], not [NonEmptyList.T A].
  *)
 Abbreviation NonEmptyList := NonEmptyList.T.
+
+(* Makes the notations declared in [Module NonEmptyList] usable in every
+ * file that imports this one, as [(x ++ y)%non_empty_list] or under an
+ * opened [jwa_non_empty_list_scope]. Only the notations are exported:
+ * [concat], the laws and the two ctors still need the prefix.
+ *)
+Export (notations) NonEmptyList.
+
+Instance NonEmptyList_functor
+  : Functor NonEmptyList :=
+  {| Functor.map             := fun (A : Type) (B : Type) . NonEmptyList.map
+   ; Functor.map_identity    := @NonEmptyList.mapping.identity
+   ; Functor.map_composition := @NonEmptyList.mapping.composition |}.
+
+(* The count is a [Nat], which [Sized] takes as the positive case of a
+ * [NatWithZero]: the class has to admit an empty container, this type
+ * never is one.
+ *)
+Instance NonEmptyList_sized
+  : Sized NonEmptyList :=
+  {| Sized.cardinality :=
+       fun (A : Type) (x : NonEmptyList A) .
+         NatWithZero.Positive (NonEmptyList.length x) |}.
+
+Instance NonEmptyList_membership
+  : Membership NonEmptyList :=
+  {| Membership.Contains := @NonEmptyList.Contains |}.

@@ -39,3 +39,20 @@ Definition data_collection_all_delivers_non_empty_list_length
 Definition data_collection_all_delivers_non_empty_list_to_list
   : forall (A : Type) (x : NonEmptyList A) . List A
   := fun (A : Type) (x : NonEmptyList A) . NonEmptyList.to_list x.
+
+Definition data_collection_all_delivers_non_empty_list_notations
+  : forall (A : Type) (a : A) (x : NonEmptyList A) . NonEmptyList A
+  := fun (A : Type) (a : A) (x : NonEmptyList A) .
+       ((a :: x) ++ NonEmptyList.One a)%non_empty_list.
+
+Definition data_collection_all_delivers_non_empty_list_sized
+  : forall (A : Type) (x : NonEmptyList A) . NatWithZero
+  := fun (A : Type) (x : NonEmptyList A) . cardinality x.
+
+Definition data_collection_all_delivers_non_empty_list_membership
+  : forall (A : Type) (a : A) . Prop
+  := fun (A : Type) (a : A) . Contains a (NonEmptyList.One a).
+
+Definition data_collection_all_delivers_non_empty_list_functor
+  : forall (A : Type) (x : NonEmptyList A) . NonEmptyList A
+  := fun (A : Type) (x : NonEmptyList A) . Functor.map (fun (a : A) . a) x.
