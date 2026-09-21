@@ -1,8 +1,10 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Collection.All.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Option.
 
 Definition data_collection_all_delivers
   : forall (A : Type) (a : A) . List A
@@ -56,3 +58,14 @@ Definition data_collection_all_delivers_non_empty_list_membership
 Definition data_collection_all_delivers_non_empty_list_functor
   : forall (A : Type) (x : NonEmptyList A) . NonEmptyList A
   := fun (A : Type) (x : NonEmptyList A) . Functor.map (fun (a : A) . a) x.
+
+Definition data_collection_all_delivers_non_empty_list_extrema
+  : forall (A : Type) (le : A -> A -> Bool) (x : NonEmptyList A) . A
+  := fun (A : Type) (le : A -> A -> Bool) (x : NonEmptyList A) .
+       NonEmptyList.maximum_of le (NonEmptyList.One (NonEmptyList.minimum_of le x)).
+
+Definition data_collection_all_delivers_non_empty_list_conversion
+  : forall (A : Type) (le : A -> A -> Bool) (x : NonEmptyList A) .
+      List.maximum_of le (NonEmptyList.to_list x)
+      = Some (NonEmptyList.maximum_of le x)
+  := @NonEmptyList.conversion.maximum.

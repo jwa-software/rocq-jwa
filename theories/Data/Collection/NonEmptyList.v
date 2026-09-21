@@ -1,12 +1,14 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Collection.List.
 From jwa Require Import Data.Collection.Membership.
 From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Option.
 From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read
@@ -165,6 +167,32 @@ Fixpoint map {A : Type} {B : Type} (f : A -> B) (x : NonEmptyList A)
   match x with
   | One  a    => One (f a)
   | Cons a x' => f a :: map f x'
+  end.
+
+(* The greatest element under [le], with no [Option] around it: every value
+ * of this type carries one. [le a b] answers whether [a] may precede [b],
+ * as it does for [insert] and [insertion_sort].
+ *)
+(* [forall {A : Type} . (A -> A -> Bool) -> NonEmptyList A -> A] *)
+Fixpoint maximum_of {A : Type} (le : A -> A -> Bool) (x : NonEmptyList A) : A :=
+  match x with
+  | One  a    => a
+  | Cons a x' =>
+      match le a (maximum_of le x') with
+      | true  => maximum_of le x'
+      | false => a
+      end
+  end.
+
+(* [forall {A : Type} . (A -> A -> Bool) -> NonEmptyList A -> A] *)
+Fixpoint minimum_of {A : Type} (le : A -> A -> Bool) (x : NonEmptyList A) : A :=
+  match x with
+  | One  a    => a
+  | Cons a x' =>
+      match le a (minimum_of le x') with
+      | true  => a
+      | false => minimum_of le x'
+      end
   end.
 
 Module concatenation. (* concatenation *)
@@ -355,6 +383,112 @@ End preservation. (* mapping.preservation *)
 
 End mapping. (* mapping *)
 
+Module maximum. (* maximum *)
+
+(* Neither law below has a premise about the list being non-empty, and
+ * neither reads a [Some]: the two facts [List]'s pair has to state around
+ * an [Option] are stated here about the element itself. The premises that
+ * remain are about [le], and the facts read off them are [List]'s, since
+ * they are about the comparison rather than about either container.
+ *)
+(* maximum.bound *)
+Theorem bound
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall (x : NonEmptyList A) (a : A) .
+        x contains_member a -> le a (maximum_of le x) = true.
+Proof.
+  intros A le total transitive x.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - intros a h.
+    simplify in |- *.
+    simplify in h.
+    rewrite h in |- *.
+    exact (List.comparison.reflexivity total b).
+  - intros a h.
+    simplify in h.
+    simplify in |- *.
+    destruct (le b (maximum_of le x')) eqn:s.
+    + destruct h as [e | m].
+      * rewrite e in |- *.
+        exact s.
+      * exact (IH a m).
+    + pose proof (List.comparison.contraposition total s) as ha.
+      destruct h as [e | m].
+      * rewrite e in |- *.
+        exact (List.comparison.reflexivity total b).
+      * exact (transitive a (maximum_of le x') b (IH a m) ha).
+Qed.
+
+(* maximum.membership *)
+Theorem membership
+  : forall {A : Type} (le : A -> A -> Bool) (x : NonEmptyList A) .
+      x contains_member maximum_of le x.
+Proof.
+  intros A le x.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    destruct (le b (maximum_of le x')) eqn:s.
+    + exact (Disjunction.R IH).
+    + exact (Disjunction.L (Identity.reflexivity b)).
+Qed.
+
+End maximum. (* maximum *)
+
+Module minimum. (* minimum *)
+
+(* minimum.bound *)
+Theorem bound
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall (x : NonEmptyList A) (a : A) .
+        x contains_member a -> le (minimum_of le x) a = true.
+Proof.
+  intros A le total transitive x.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - intros a h.
+    simplify in |- *.
+    simplify in h.
+    rewrite h in |- *.
+    exact (List.comparison.reflexivity total b).
+  - intros a h.
+    simplify in h.
+    simplify in |- *.
+    destruct (le b (minimum_of le x')) eqn:s.
+    + destruct h as [e | m].
+      * rewrite e in |- *.
+        exact (List.comparison.reflexivity total b).
+      * exact (transitive b (minimum_of le x') a s (IH a m)).
+    + pose proof (List.comparison.contraposition total s) as ha.
+      destruct h as [e | m].
+      * rewrite e in |- *.
+        exact ha.
+      * exact (IH a m).
+Qed.
+
+(* minimum.membership *)
+Theorem membership
+  : forall {A : Type} (le : A -> A -> Bool) (x : NonEmptyList A) .
+      x contains_member minimum_of le x.
+Proof.
+  intros A le x.
+  induction x as [b | b x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    destruct (le b (minimum_of le x')) eqn:s.
+    + exact (Disjunction.L (Identity.reflexivity b)).
+    + exact (Disjunction.R IH).
+Qed.
+
+End minimum. (* minimum *)
+
 Module conversion. (* conversion *)
 
 (* [to_list] is a homomorphism, and the three laws below say so for the
@@ -423,6 +557,38 @@ Proof.
       destruct h as [e | m].
       * exact (Disjunction.L e).
       * exact (Disjunction.R (<-elim IH m)).
+Qed.
+
+(* The [Option] that [List]'s extrema carry is about emptiness and nothing
+ * else: on a list that came from here it is always a [Some], and what it
+ * wraps is the answer this type gives outright.
+ *)
+(* conversion.maximum *)
+Theorem maximum
+  : forall {A : Type} (le : A -> A -> Bool) (x : NonEmptyList A) .
+      List.maximum_of le (to_list x) = Some (maximum_of le x).
+Proof.
+  intros A le x.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    destruct (le a (maximum_of le x')) eqn:s; reflexivity.
+Qed.
+
+(* conversion.minimum *)
+Theorem minimum
+  : forall {A : Type} (le : A -> A -> Bool) (x : NonEmptyList A) .
+      List.minimum_of le (to_list x) = Some (minimum_of le x).
+Proof.
+  intros A le x.
+  induction x as [a | a x' IH] using NonEmptyList.induction.
+  - simplify in |- *.
+    reflexivity.
+  - simplify in |- *.
+    rewrite IH in |- *.
+    destruct (le a (minimum_of le x')) eqn:s; reflexivity.
 Qed.
 
 End conversion. (* conversion *)
