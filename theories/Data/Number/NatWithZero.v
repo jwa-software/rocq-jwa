@@ -20,6 +20,7 @@ From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read [NatWithZero.add].
  * The type and its ctors are declared inside it: [Integer] declares [Zero]
@@ -1497,7 +1498,102 @@ Proof.
     exact (division.invariant p d).
 Qed.
 
+(* division.bound *)
+Theorem bound : forall (n : NatWithZero) (d : Nat) . modulo n d < + d.
+Proof.
+  intros n d.
+  destruct (division.specification n d) as [h1 h2].
+  exact h2.
+Qed.
+
 End division. (* division *)
+
+Local Open Scope jwa_product_scope.
+
+Module euclid. (* euclid *)
+
+(* Euclid's step replaces [(a, b)] by [(b, a mod b)], so both components move
+ * and the pair is what descends; the order on it is the second component's.
+ *)
+Instance well_founded
+  : WellFounded (Preimage pi_2 LessThan) :=
+  WellFounded.preimage (@Product.second NatWithZero NatWithZero) LessThan
+    {| accessibility := order.strict.wellfoundedness |}.
+
+(* The two [return] clauses are what lets [descend] take a proof about [+ q]:
+ * without them [recurse] would still be asking for one about [b].
+ *)
+(* [forall (p : Product NatWithZero NatWithZero) .
+ *    (forall (s : Product NatWithZero NatWithZero) .
+ *       Preimage pi_2 LessThan s p -> NatWithZero) -> NatWithZero]
+ *)
+Definition step :=
+  fun (p : Product NatWithZero NatWithZero)
+    (recurse : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s p -> NatWithZero) .
+    match p as t
+    return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s t -> NatWithZero) -> NatWithZero)
+    with
+    | (a, b) =>
+        match b as c
+        return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, c) -> NatWithZero) -> NatWithZero)
+        with
+        | 0 =>
+            fun (_ : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, 0) -> NatWithZero) . a
+        | + q =>
+            fun (descend : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, + q) -> NatWithZero) .
+              descend
+                ((+ q), modulo a q)
+                (division.bound a q)
+        end
+    end recurse.
+
+(* euclid.extensionality *)
+Lemma extensionality : Extensional step.
+Proof.
+  intros p f g h.
+  destruct p as [a b].
+  destruct b as [| q].
+  - reflexivity.
+  - exact (h ((+ q), modulo a q) (division.bound a q)).
+Qed.
+
+End euclid. (* euclid *)
+
+(* An instance declared inside a submodule is dropped at its [End], so it is
+ * announced again here, where [gcd] resolves it.
+ *)
+Existing Instance euclid.well_founded.
+
+(* Greatest Common Divisor *)
+(* [NatWithZero -> NatWithZero -> NatWithZero] *)
+Definition gcd :=
+  fun (a : NatWithZero) (b : NatWithZero) .
+    (WellFounded.recursion euclid.step (a, b)).
+
+Module gcd. (* gcd *)
+
+(* gcd.zero *)
+Theorem zero : forall (a : NatWithZero) . gcd a 0 = a.
+Proof.
+  intros a.
+  simplify gcd in |- *.
+  rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, 0)) in |- *.
+  reflexivity.
+Qed.
+
+(* gcd.recurrence *)
+Theorem recurrence
+  : forall (a : NatWithZero) (q : Nat) . gcd a (+ q) = gcd (+ q) (modulo a q).
+Proof.
+  intros a q.
+  simplify gcd in |- *.
+  rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, + q)) in |- *.
+  reflexivity.
+Qed.
+
+End gcd. (* gcd *)
+
+Local Close Scope jwa_product_scope.
 
 Module divisibility. (* divisibility *)
 

@@ -21,6 +21,16 @@ Definition data_number_all_delivers_well_founded_with_zero
   : forall (n : NatWithZero) . Accessible NatWithZero.LessThan n
   := fun (n : NatWithZero) . accessibility n.
 
+Definition data_number_all_delivers_gcd_zero
+  : forall (a : NatWithZero) . NatWithZero.gcd a NatWithZero.Zero = a
+  := NatWithZero.gcd.zero.
+
+Definition data_number_all_delivers_gcd_recurrence
+  : forall (a : NatWithZero) (q : Nat) .
+      NatWithZero.gcd a (NatWithZero.Positive q)
+      = NatWithZero.gcd (NatWithZero.Positive q) (NatWithZero.modulo a q)
+  := NatWithZero.gcd.recurrence.
+
 Definition data_number_all_delivers_well_founded_magnitude
   : forall (x : Integer) .
       Accessible (Preimage Integer.abs NatWithZero.LessThan) x
