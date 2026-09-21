@@ -13,6 +13,7 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
+From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.

@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Data.Number.All.
+From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.WellFounded.
 
 Definition data_number_all_delivers
