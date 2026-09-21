@@ -13,6 +13,7 @@ From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Syllogism.
 
 (* A module may carry the type's name; its members read [List.concat]. The
  * type and its ctors are declared inside it, so the names [Nil] and [Cons]
@@ -2815,10 +2816,9 @@ Lemma contraposition
       forall {a : A} {b : A} . le a b = false -> le b a = true.
 Proof.
   intros A le total a b s.
-  destruct (total a b) as [h | h].
-  - rewrite s in h.
-    discriminate h.
-  - exact h.
+  symmetry in s.
+  HS (Identity.transitivity s), Bool.distinctness.backward as n.
+  modus tollendo ponens (total a b), n.
 Qed.
 
 End comparison. (* comparison *)
