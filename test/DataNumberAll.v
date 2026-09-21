@@ -8,4 +8,4 @@ Definition data_number_all_delivers
 
 Definition data_number_all_delivers_operations
   : Integer
-  := (Integer.Zero + Negative One * Integer.Positive One)%integer.
+  := (Integer.Zero + Integer.Negative Nat.One * Integer.Positive Nat.One)%integer.

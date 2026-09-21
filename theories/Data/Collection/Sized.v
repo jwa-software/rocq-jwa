@@ -25,8 +25,8 @@ Local Open Scope jwa_bool_scope.
 (* [forall {F : Type -> Type} {S : Sized F} {A : Type} . F A -> Bool] *)
 Definition is_empty := fun {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) .
   match cardinality x with
-  | Zero       => true
-  | Positive _ => false
+  | NatWithZero.Zero       => true
+  | NatWithZero.Positive _ => false
   end.
 
 (* [forall {F : Type -> Type} {S : Sized F} {A : Type} . F A -> Bool] *)
@@ -38,7 +38,7 @@ Module emptiness. (* emptiness *)
 Theorem reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type}
       (x : F A) .
-      Assert (is_empty x) <-> cardinality x = Zero.
+      Assert (is_empty x) <-> cardinality x = NatWithZero.Zero.
 Proof.
   intros F S A x.
   unfold is_empty in |- *.
@@ -60,7 +60,7 @@ Module inhabitation. (* inhabitation *)
 (* inhabitation.reflection *)
 Theorem reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) .
-      Assert (is_not_empty x) <-> ~ (cardinality x = Zero).
+      Assert (is_not_empty x) <-> ~ (cardinality x = NatWithZero.Zero).
 Proof.
   intros F S A x.
   unfold is_not_empty in |- *.

@@ -14,15 +14,28 @@ From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 
-Inductive Integer : Type :=
-  | Negative : Nat -> Integer
-  | Zero     : Integer
-  | Positive : Nat -> Integer.
+(* A module may carry the type's name; its members read [Integer.add]. The
+ * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
+ * and [Positive] too, and across files a duplicate ctor name rebinds the
+ * bare one silently and with no warning.
+ *)
+Module Integer. (* Integer *)
+
+Inductive T : Type :=
+  | Negative : Nat -> T
+  | Zero     : T
+  | Positive : Nat -> T.
+
+(* The carrier is named [T] so that the type itself reads [Integer] on both
+ * sides of the module: here through this abbreviation, outside through the
+ * one that follows [End Integer].
+ *)
+Abbreviation Integer := T.
 
 (* The eliminator behind [destruct], written out: no recursion, since no
  * ctor carries an [Integer].
  *)
-Definition Integer_induction
+Definition eliminator
   : forall (P : Integer -> Prop) .
       (forall (p : Nat) . P (Negative p)) ->
       P Zero ->
@@ -38,9 +51,6 @@ Definition Integer_induction
        | Zero       => zero
        | Positive p => positive p
        end.
-
-(* A module may carry the type's name; its members read [Integer.add]. *)
-Module Integer. (* Integer *)
 
 (* Short spellings for this module only: [Local] keeps them out of every
  * file that imports this one. [+ p] and [- p] are prefixes, apart from the
@@ -95,10 +105,10 @@ Definition ramp := fun (x : Integer) .
 (* [Nat -> Nat -> Integer] *)
 Fixpoint nat_difference (p : Nat) (q : Nat) : Integer :=
   match p, q with
-  | One, One                   => 0
-  | One, Successor q'          => - q'
-  | Successor p', One          => + p'
-  | Successor p', Successor q' => nat_difference p' q'
+  | Nat.One, Nat.One                   => 0
+  | Nat.One, Nat.Successor q'          => - q'
+  | Nat.Successor p', Nat.One          => + p'
+  | Nat.Successor p', Nat.Successor q' => nat_difference p' q'
   end.
 
 (* [NatWithZero -> NatWithZero -> Integer] *)
@@ -198,11 +208,11 @@ Abbreviation eq := (Comparable.eq compare).
 Definition Divides := fun (d : Integer) (n : Integer) . exists (k : Integer) . d * k = n.
 
 (* [Integer -> Prop] *)
-Definition Even := fun (n : Integer) . Divides (+ (Successor One)) n.
+Definition Even := fun (n : Integer) . Divides (+ (Nat.Successor Nat.One)) n.
 
 (* [Integer -> Prop] *)
 Definition Odd := fun (n : Integer) .
-  exists (k : Integer) . ((+ (Successor One)) * k) + (+ One) = n.
+  exists (k : Integer) . ((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One) = n.
 
 Module magnitude. (* magnitude *)
 
@@ -281,7 +291,7 @@ Module nat. (* difference.nat *)
 Lemma reflexivity : forall (n : Nat) . nat_difference n n = 0.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat_induction.
+  induction n as [| n' IH] using Nat.eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -299,11 +309,11 @@ Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference (Nat.add k p) p = + k.
 Proof.
   intros k p.
-  induction p as [| p' IH] using Nat_induction.
-  - rewrite (Nat.addition.commutativity k One) in |- *.
+  induction p as [| p' IH] using Nat.eliminator.
+  - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     reflexivity.
-  - rewrite (Nat.addition.commutativity k (Successor p')) in |- *.
+  - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
     rewrite (Nat.addition.commutativity p' k) in |- *.
     exact IH.
@@ -326,11 +336,11 @@ Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference p (Nat.add k p) = - k.
 Proof.
   intros k p.
-  induction p as [| p' IH] using Nat_induction.
-  - rewrite (Nat.addition.commutativity k One) in |- *.
+  induction p as [| p' IH] using Nat.eliminator.
+  - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     reflexivity.
-  - rewrite (Nat.addition.commutativity k (Successor p')) in |- *.
+  - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
     rewrite (Nat.addition.commutativity p' k) in |- *.
     exact IH.
@@ -1165,7 +1175,7 @@ Qed.
 Module left. (* multiplication.left *)
 
 (* multiplication.left.identity *)
-Theorem identity : forall (n : Integer) . (+ One) * n = n.
+Theorem identity : forall (n : Integer) . (+ Nat.One) * n = n.
 Proof.
   intros n.
   destruct n as [n' | | n']; simpl in |- *; reflexivity.
@@ -1317,10 +1327,10 @@ End left. (* multiplication.left *)
 Module right. (* multiplication.right *)
 
 (* multiplication.right.identity *)
-Theorem identity : forall (n : Integer) . n * (+ One) = n.
+Theorem identity : forall (n : Integer) . n * (+ Nat.One) = n.
 Proof.
   intros n.
-  rewrite (multiplication.commutativity n (+ One)) in |- *.
+  rewrite (multiplication.commutativity n (+ Nat.One)) in |- *.
   exact (multiplication.left.identity n).
 Qed.
 
@@ -1368,7 +1378,7 @@ End right. (* multiplication.right *)
 
 (* multiplication.identity *)
 Theorem identity
-  : forall (n : Integer) . ((+ One) * n = n) /\ (n * (+ One) = n).
+  : forall (n : Integer) . ((+ Nat.One) * n = n) /\ (n * (+ Nat.One) = n).
 Proof.
   intros n.
   split.
@@ -1622,7 +1632,7 @@ Theorem reflexivity : forall (n : Integer) . Divides n n.
 Proof.
   intros n.
   unfold Divides in |- *.
-  apply (Exists_introduction (+ One)).
+  apply (Exists_introduction (+ Nat.One)).
   exact (multiplication.right.identity n).
 Qed.
 
@@ -1691,10 +1701,10 @@ Theorem totality : forall (n : Integer) . Even n \/ Odd n.
 Proof.
   intros n.
   destruct n as [p | | p].
-  - induction p as [| p' IH] using Nat_induction.
+  - induction p as [| p' IH] using Nat.eliminator.
     + apply Disjunction.R.
       unfold Odd in |- *.
-      apply (Exists_introduction (- One)).
+      apply (Exists_introduction (- Nat.One)).
       unfold add in |- *.
       simpl in |- *.
       reflexivity.
@@ -1703,21 +1713,21 @@ Proof.
         unfold Even, Divides in ev.
         destruct ev as [k e].
         unfold Odd in |- *.
-        apply (Exists_introduction (k + (- One))).
-        rewrite (multiplication.left.distributivity.over.addition (+ (Successor One)) k (- One))
+        apply (Exists_introduction (k + (- Nat.One))).
+        rewrite (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
           in |- *.
-        change ((+ (Successor One)) * (- One))
-          with (- (Successor One))
+        change ((+ (Nat.Successor Nat.One)) * (- Nat.One))
+          with (- (Nat.Successor Nat.One))
           in |- *.
         rewrite e in |- *.
-        rewrite (addition.associativity (- p') (- (Successor One)) (+ One))
+        rewrite (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
           in |- *.
-        change ((- (Successor One)) + (+ One))
-          with (- One)
+        change ((- (Nat.Successor Nat.One)) + (+ Nat.One))
+          with (- Nat.One)
           in |- *.
         unfold add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
       * apply Disjunction.L.
@@ -1725,20 +1735,20 @@ Proof.
         destruct od as [k e].
         unfold Even, Divides in |- *.
         apply (Exists_introduction k).
-        pose proof (Identity.congruence (fun (x : Integer) . x + (- One)) e)
+        pose proof (Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e)
                 as e'.
-        change ((((+ (Successor One)) * k) + (+ One)) + (- One) = (- p') + (- One))
+        change ((((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One))
           in e'.
-        rewrite (addition.associativity ((+ (Successor One)) * k) (+ One) (- One))
+        rewrite (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
           in e'.
-        change ((+ One) + (- One))
+        change ((+ Nat.One) + (- Nat.One))
           with 0
           in e'.
-        rewrite (addition.right.identity ((+ (Successor One)) * k)) in e'.
+        rewrite (addition.right.identity ((+ (Nat.Successor Nat.One)) * k)) in e'.
         rewrite e' in |- *.
         unfold add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
   - apply Disjunction.L.
@@ -1747,7 +1757,7 @@ Proof.
     apply (Exists_introduction 0).
     simpl in |- *.
     reflexivity.
-  - induction p as [| p' IH] using Nat_induction.
+  - induction p as [| p' IH] using Nat.eliminator.
     + apply Disjunction.R.
       unfold Odd, add in |- *.
       apply (Exists_introduction 0).
@@ -1762,27 +1772,27 @@ Proof.
         rewrite e in |- *.
         unfold add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
       * apply Disjunction.L.
         unfold Odd in od.
         destruct od as [k e].
         unfold Even, Divides in |- *.
-        apply (Exists_introduction (k + (+ One))).
+        apply (Exists_introduction (k + (+ Nat.One))).
         rewrite (multiplication.left.distributivity.over.addition
-                  (+ (Successor One)) k (+ One)) in |- *.
-        change ((+ (Successor One)) * (+ One))
-          with ((+ One) + (+ One))
+                  (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
+        change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
+          with ((+ Nat.One) + (+ Nat.One))
           in |- *.
         rewrite <- (addition.associativity
-                      ((+ (Successor One)) * k)
-                      (+ One)
-                      (+ One)) in |- *.
+                      ((+ (Nat.Successor Nat.One)) * k)
+                      (+ Nat.One)
+                      (+ Nat.One)) in |- *.
         rewrite e in |- *.
         unfold add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
 Qed.
@@ -1819,19 +1829,19 @@ Proof.
   destruct h1 as [k1 e1].
   destruct h2 as [k2 e2].
   unfold Even, Divides in |- *.
-  apply (Exists_introduction ((k1 + k2) + (+ One))).
+  apply (Exists_introduction ((k1 + k2) + (+ Nat.One))).
   symmetry in e1, e2.
   rewrite e1, e2 in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-            (+ (Successor One)) (k1 + k2) (+ One)) in |- *.
+            (+ (Nat.Successor Nat.One)) (k1 + k2) (+ Nat.One)) in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-            (+ (Successor One)) k1 k2) in |- *.
-  change ((+ (Successor One)) * (+ One))
-    with ((+ One) + (+ One))
+            (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
+  change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
+    with ((+ Nat.One) + (+ Nat.One))
     in |- *.
   rewrite (addition.interchange
-            ((+ (Successor One)) * k1) (+ One)
-            ((+ (Successor One)) * k2) (+ One)) in |- *.
+            ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
+            ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
   reflexivity.
 Qed.
 
@@ -1842,6 +1852,13 @@ End odd. (* parity.odd *)
 End parity. (* parity *)
 
 End Integer. (* Integer *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Integer], not [Integer.T]. The three ctors keep the prefix, which is
+ * what lets [Zero] and [Positive] mean one thing here and another in
+ * [NatWithZero] without either shadowing the other.
+ *)
+Abbreviation Integer := Integer.T.
 
 (* Makes the notations declared in [Module Integer] usable in every file that
  * imports this one, as [(m + n)%integer] or under an opened
@@ -1857,7 +1874,7 @@ Instance Integer_comparable
    ; Comparable.specification := Integer.comparison.specification
    ; Comparable.antisymmetry  := Integer.comparison.antisymmetry |}.
 
-Instance Integer_add_monoid : Monoid Integer.add Zero :=
+Instance Integer_add_monoid : Monoid Integer.add Integer.Zero :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Integer.addition.associativity |}
    ; Monoid.identity := Integer.addition.identity |}.
@@ -1868,7 +1885,7 @@ Instance Integer_add_cancellative : Cancellative Integer.add :=
 Instance Integer_add_commutative : Commutative Integer.add :=
   {| Commutative.commutativity := Integer.addition.commutativity |}.
 
-Instance Integer_mul_monoid : Monoid Integer.mul (Positive One) :=
+Instance Integer_mul_monoid : Monoid Integer.mul (Integer.Positive Nat.One) :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Integer.multiplication.associativity |}
    ; Monoid.identity := Integer.multiplication.identity |}.
@@ -1877,17 +1894,18 @@ Instance Integer_mul_commutative : Commutative Integer.mul :=
   {| Commutative.commutativity := Integer.multiplication.commutativity |}.
 
 Instance Integer_add_group
-  : Group Integer.add Zero Integer.negate :=
+  : Group Integer.add Integer.Zero Integer.negate :=
   {| Group.monoid  := Integer_add_monoid
    ; Group.inverse := Integer.addition.inverse |}.
 
 Instance Integer_add_abelian_group
-  : AbelianGroup Integer.add Zero Integer.negate :=
+  : AbelianGroup Integer.add Integer.Zero Integer.negate :=
   {| AbelianGroup.group       := Integer_add_group
    ; AbelianGroup.commutative := Integer_add_commutative |}.
 
 Instance Integer_ring
-  : Ring Integer.add Zero Integer.negate Integer.mul (Positive One) :=
+  : Ring Integer.add Integer.Zero Integer.negate Integer.mul
+      (Integer.Positive Nat.One) :=
   {| Ring.abelian_group  := Integer_add_abelian_group
    ; Ring.monoid         := Integer_mul_monoid
    ; Ring.distributivity := Integer.multiplication.distributivity.over.addition |}.

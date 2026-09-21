@@ -121,7 +121,7 @@ Definition append := fun {A : Type} (l : List A) (a : A) . l ++ (a :: []).
 (* [forall {A : Type} . List A -> NatWithZero] *)
 Fixpoint length {A : Type} (l : List A) : NatWithZero :=
   match l with
-  | []      => Zero
+  | []      => NatWithZero.Zero
   | _ :: l' => ++ length l'
   end.
 
@@ -287,9 +287,9 @@ Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
       end
   end.
 
-(* Indexing from [Zero]: [nth l i] is the element [i] places from the front,
+(* Indexing from [NatWithZero.Zero]: [nth l i] is the element [i] places from the front,
  * [None] past the end. Recursion is on the list; the index is peeled by
- * one alongside, [Positive One] being the last step before [Zero].
+ * one alongside, [NatWithZero.Positive Nat.One] being the last step before [NatWithZero.Zero].
  *)
 (* [forall {A : Type} . List A -> NatWithZero -> Option A] *)
 Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
@@ -297,9 +297,9 @@ Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
   | []      => None
   | a :: l' =>
       match i with
-      | Zero                    => Some a
-      | Positive One            => nth l' Zero
-      | Positive (Successor i') => nth l' (Positive i')
+      | NatWithZero.Zero                    => Some a
+      | NatWithZero.Positive Nat.One            => nth l' NatWithZero.Zero
+      | NatWithZero.Positive (Nat.Successor i') => nth l' (NatWithZero.Positive i')
       end
   end.
 
@@ -313,9 +313,9 @@ Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
   | []      => []
   | a :: l' =>
       match n with
-      | Zero                    => []
-      | Positive One            => a :: []
-      | Positive (Successor n') => a :: take (Positive n') l'
+      | NatWithZero.Zero                    => []
+      | NatWithZero.Positive Nat.One            => a :: []
+      | NatWithZero.Positive (Nat.Successor n') => a :: take (NatWithZero.Positive n') l'
       end
   end.
 
@@ -325,9 +325,9 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
   | []      => []
   | a :: l' =>
       match n with
-      | Zero                    => a :: l'
-      | Positive One            => l'
-      | Positive (Successor n') => drop (Positive n') l'
+      | NatWithZero.Zero                    => a :: l'
+      | NatWithZero.Positive Nat.One            => l'
+      | NatWithZero.Positive (Nat.Successor n') => drop (NatWithZero.Positive n') l'
       end
   end.
 
@@ -335,36 +335,36 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
 Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) .
   Product_introduction (take n l) (drop n l).
 
-(* [replicate n a] is [a] repeated [n] times. A count of [Zero] gives [Nil];
+(* [replicate n a] is [a] repeated [n] times. A count of [NatWithZero.Zero] gives [Nil];
  * a positive count recurses on its [Nat], one element per step, since a
  * [NatWithZero] has no step of its own to recurse on.
  *)
 (* [forall {A : Type} . Nat -> A -> List A] *)
 Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
   match k with
-  | One          => a :: []
-  | Successor k' => a :: replicate_positive k' a
+  | Nat.One          => a :: []
+  | Nat.Successor k' => a :: replicate_positive k' a
   end.
 
 (* [forall {A : Type} . NatWithZero -> A -> List A] *)
 Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) .
   match n with
-  | Zero       => []
-  | Positive k => replicate_positive k a
+  | NatWithZero.Zero       => []
+  | NatWithZero.Positive k => replicate_positive k a
   end.
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition sum := fun (l : List NatWithZero) . fold_right NatWithZero.add Zero l.
+Definition sum := fun (l : List NatWithZero) . fold_right NatWithZero.add NatWithZero.Zero l.
 
 (* [List NatWithZero -> NatWithZero] *)
 Definition product := fun (l : List NatWithZero) .
-  fold_right NatWithZero.mul (Positive One) l.
+  fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l.
 
 (* [count p l] is how many elements [p] answers [true] on. *)
 (* [forall {A : Type} . (A -> Bool) -> List A -> NatWithZero] *)
 Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
   match l with
-  | []      => Zero
+  | []      => NatWithZero.Zero
   | a :: l' =>
       match p a with
       | true  => ++ count p l'
@@ -408,19 +408,19 @@ Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
 (* [Nat -> List NatWithZero] *)
 Fixpoint range_positive (p : Nat) : List NatWithZero :=
   match p with
-  | One          => Zero :: []
-  | Successor p' => append (range_positive p') (Positive p')
+  | Nat.One          => NatWithZero.Zero :: []
+  | Nat.Successor p' => append (range_positive p') (NatWithZero.Positive p')
   end.
 
 (* [NatWithZero -> List NatWithZero] *)
 Definition range := fun (n : NatWithZero) .
   match n with
-  | Zero       => []
-  | Positive p => range_positive p
+  | NatWithZero.Zero       => []
+  | NatWithZero.Positive p => range_positive p
   end.
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max Zero l.
+Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max NatWithZero.Zero l.
 
 (* [List NatWithZero -> Option NatWithZero] *)
 Fixpoint minimum_of (l : List NatWithZero) : Option NatWithZero :=
@@ -537,7 +537,7 @@ Proof.
       in |- *.
     rewrite (NatWithZero.increment.specification (|| l1' ||))
       in |- *.
-    rewrite (NatWithZero.addition.associativity (Positive One) (|| l1' ||) (|| l2 ||))
+    rewrite (NatWithZero.addition.associativity (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2 ||))
       in |- *.
     reflexivity.
 Qed.
@@ -551,7 +551,7 @@ Theorem catamorphism
   : forall {A : Type} (l : List A) .
       (|| l ||)
       = fold_right (fun (_ : A) (n : NatWithZero) . (++ n))
-                   Zero
+                   NatWithZero.Zero
                    l.
 Proof.
   intros A l.
@@ -964,7 +964,7 @@ Proof.
   rewrite (length.additivity.over.concatenation l (a :: [])) in |- *.
   simpl in |- *.
   rewrite (NatWithZero.increment.specification (|| l ||)) in |- *.
-  rewrite (NatWithZero.addition.commutativity (Positive One) (|| l ||)) in |- *.
+  rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l ||)) in |- *.
   reflexivity.
 Qed.
 
@@ -1853,7 +1853,7 @@ Proof.
       rewrite (NatWithZero.increment.specification
                  (NatWithZero.min (|| l1' ||) (|| l2' ||))) in |- *.
       rewrite (NatWithZero.minimum.left.distributivity.of.addition
-                 (Positive One) (|| l1' ||) (|| l2' ||)) in |- *.
+                 (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2' ||)) in |- *.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in |- *.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in |- *.
       reflexivity.
@@ -1889,8 +1889,8 @@ Proof.
     + simpl in e.
       pose proof (Identity.symmetry e) as e'.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
-      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l2' ||)) in e'.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) One) as h.
+      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
+      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One) as h.
       unfold Negation in h.
       modus ponens h, e' as f.
       contradiction f.
@@ -1898,8 +1898,8 @@ Proof.
     destruct l2 as [| b l2'].
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
-      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l1' ||)) in e.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) One) as h.
+      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
+      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One) as h.
       unfold Negation in h.
       modus ponens h, e as f.
       contradiction f.
@@ -1949,7 +1949,7 @@ Module indexing. (* indexing *)
 
 (* [nth] answers exactly for the indices below the length. Each step of the
  * index is one step of the list, so the halves lift [IH] through
- * [Positive One] added on both sides of the order.
+ * [NatWithZero.Positive Nat.One] added on both sides of the order.
  *)
 
 Module forward. (* indexing.forward *)
@@ -1969,20 +1969,20 @@ Proof.
     destruct i as [| i'].
     + simpl in |- *.
       rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
-      exact (NatWithZero.addition.right.order.positivity (|| l' ||) One).
+      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
+      exact (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
     + destruct i' as [| i''].
       * simpl in h.
-        pose proof (IH Zero h) as lt.
+        pose proof (IH NatWithZero.Zero h) as lt.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity (Positive One) Zero (|| l' ||) lt).
+        exact (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
       * simpl in h.
-        pose proof (IH (Positive i'') h) as lt.
+        pose proof (IH (NatWithZero.Positive i'') h) as lt.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         exact (NatWithZero.addition.order.strict.monotonicity
-                 (Positive One) (Positive i'') (|| l' ||) lt).
+                 (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) lt).
 Qed.
 
 End forward. (* indexing.forward *)
@@ -2012,16 +2012,16 @@ Proof.
     + destruct i' as [| i''].
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition.order.strict.cancellation (Positive One) Zero (|| l' ||) h)
+        pose proof (NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h)
           as lt.
         simpl in |- *.
-        exact (IH Zero lt).
+        exact (IH NatWithZero.Zero lt).
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
         pose proof (NatWithZero.addition.order.strict.cancellation
-                      (Positive One) (Positive i'') (|| l' ||) h) as lt.
+                      (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h) as lt.
         simpl in |- *.
-        exact (IH (Positive i'') lt).
+        exact (IH (NatWithZero.Positive i'') lt).
 Qed.
 
 End backward. (* indexing.backward *)
@@ -2060,7 +2060,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (IH (Positive n'')) in |- *.
+        rewrite (IH (NatWithZero.Positive n'')) in |- *.
         reflexivity.
 Qed.
 
@@ -2090,21 +2090,21 @@ Proof.
     + destruct n' as [| n''].
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         rewrite (<-elim
-                   (Comparable.minimum.specification (Positive One)
-                      ((|| l' ||) + Positive One))
+                   (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
+                      ((|| l' ||) + NatWithZero.Positive Nat.One))
                    (NatWithZero.addition.right.order.extensivity
-                      (|| l' ||) (Positive One))) in |- *.
+                      (|| l' ||) (NatWithZero.Positive Nat.One))) in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (IH (Positive n'')) in |- *.
+        rewrite (IH (NatWithZero.Positive n'')) in |- *.
         rewrite (NatWithZero.increment.specification
-                   (NatWithZero.min (Positive n'') (|| l' ||))) in |- *.
+                   (NatWithZero.min (NatWithZero.Positive n'') (|| l' ||))) in |- *.
         rewrite (NatWithZero.minimum.left.distributivity.of.addition
-                   (Positive One) (Positive n'') (|| l' ||)) in |- *.
-        change (Positive One + Positive n'')
-          with (Positive (Successor n'')) in |- *.
+                   (NatWithZero.Positive Nat.One) (NatWithZero.Positive n'') (|| l' ||)) in |- *.
+        change (NatWithZero.Positive Nat.One + NatWithZero.Positive n'')
+          with (NatWithZero.Positive (Nat.Successor n'')) in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         reflexivity.
 Qed.
@@ -2134,17 +2134,17 @@ Proof.
     + destruct n' as [| n''].
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         rewrite (NatWithZero.subtraction.saturating.inversion.of.addition
-                   (|| l' ||) (Positive One)) in |- *.
+                   (|| l' ||) (NatWithZero.Positive Nat.One)) in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (IH (Positive n'')) in |- *.
+        rewrite (IH (NatWithZero.Positive n'')) in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        change (Positive (Successor n''))
-          with (Positive One + Positive n'') in |- *.
+        change (NatWithZero.Positive (Nat.Successor n''))
+          with (NatWithZero.Positive Nat.One + NatWithZero.Positive n'') in |- *.
         rewrite (NatWithZero.subtraction.saturating.cancellation
-                   (Positive One) (|| l' ||) (Positive n'')) in |- *.
+                   (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
         reflexivity.
 Qed.
 
@@ -2156,10 +2156,10 @@ Module positive. (* replication.positive *)
 
 (* replication.positive.length *)
 Lemma length
-  : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = Positive k.
+  : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = NatWithZero.Positive k.
 Proof.
   intros A k a.
-  induction k as [| k' IH] using Nat_induction.
+  induction k as [| k' IH] using Nat.eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2203,7 +2203,7 @@ Proof.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.addition.associativity
-               a (fold_right NatWithZero.add Zero l1') (fold_right NatWithZero.add Zero l2))
+               a (fold_right NatWithZero.add NatWithZero.Zero l1') (fold_right NatWithZero.add NatWithZero.Zero l2))
       in |- *.
     reflexivity.
 Qed.
@@ -2229,16 +2229,16 @@ Proof.
   unfold product in |- *.
   induction l1 as [| a l1' IH] using eliminator.
   - rewrite (concatenation.left.identity l2) in |- *.
-    change (fold_right NatWithZero.mul (Positive One) []) with (Positive One) in |- *.
+    change (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) []) with (NatWithZero.Positive Nat.One) in |- *.
     rewrite (NatWithZero.multiplication.left.identity
-               (fold_right NatWithZero.mul (Positive One) l2))
+               (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
       in |- *.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.multiplication.associativity
-               a (fold_right NatWithZero.mul (Positive One) l1')
-               (fold_right NatWithZero.mul (Positive One) l2)) in |- *.
+               a (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l1')
+               (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2)) in |- *.
     reflexivity.
 Qed.
 
@@ -2268,13 +2268,13 @@ Qed.
 
 Module zero. (* counting.zero *)
 
-(* [count] answers [Zero] exactly when [p] answers [false] on every
+(* [count] answers [NatWithZero.Zero] exactly when [p] answers [false] on every
  * member.
  *)
 (* counting.zero.specification *)
 Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
-      count p l = Zero <-> All (fun (a : A) . p a = false) l.
+      count p l = NatWithZero.Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
   induction l as [| a l' IH] using eliminator.
@@ -2290,8 +2290,8 @@ Proof.
       split.
       * intro e.
         rewrite (NatWithZero.increment.specification (count p l')) in e.
-        rewrite (NatWithZero.addition.commutativity (Positive One) (count p l')) in e.
-        pose proof (NatWithZero.addition.right.identity.absence (count p l') One) as r.
+        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
+        pose proof (NatWithZero.addition.right.identity.absence (count p l') Nat.One) as r.
         unfold Negation in r.
         modus ponens r, e as f.
         contradiction f.
@@ -2589,14 +2589,14 @@ Module positive. (* range.positive *)
 
 (* range.positive.length *)
 Lemma length
-  : forall (p : Nat) . (|| range_positive p ||) = Positive p.
+  : forall (p : Nat) . (|| range_positive p ||) = NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (appending.length (range_positive p') (Positive p')) in |- *.
+    rewrite (appending.length (range_positive p') (NatWithZero.Positive p')) in |- *.
     rewrite IH in |- *.
     simpl in |- *.
     reflexivity.
@@ -2607,16 +2607,16 @@ Module forward. (* range.positive.forward *)
 (* range.positive.forward.membership *)
 Lemma membership
   : forall {p : Nat} {i : NatWithZero} .
-      range_positive p contains_member i -> i < Positive p.
+      range_positive p contains_member i -> i < NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.eliminator.
   - intros i h.
     simpl in h.
     destruct h as [e | f].
     + rewrite e in |- *.
       unfold NatWithZero.LessThan in |- *.
-      apply (Exists_introduction One).
+      apply (Exists_introduction Nat.One).
       simpl in |- *.
       reflexivity.
     + contradiction f.
@@ -2624,12 +2624,12 @@ Proof.
     simpl in h.
     pose proof (->elim
                   (membership.distributivity.over.concatenation
-                     i (range_positive p') (Positive p' :: []))
+                     i (range_positive p') (NatWithZero.Positive p' :: []))
                   h) as h'.
-    change (Positive (Successor p'))
-      with (Positive One + Positive p') in |- *.
-    rewrite (NatWithZero.addition.commutativity (Positive One) (Positive p')) in |- *.
-    apply (<-elim (NatWithZero.order.discreteness i (Positive p'))).
+    change (NatWithZero.Positive (Nat.Successor p'))
+      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
+    rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
+    apply (<-elim (NatWithZero.order.discreteness i (NatWithZero.Positive p'))).
     unfold NatWithZero.LessOrEqual in |- *.
     destruct h' as [h1 | h2].
     + exact (Disjunction.R (IH i h1)).
@@ -2646,29 +2646,29 @@ Module backward. (* range.positive.backward *)
 (* range.positive.backward.membership *)
 Lemma membership
   : forall {p : Nat} {i : NatWithZero} .
-      i < Positive p -> range_positive p contains_member i.
+      i < NatWithZero.Positive p -> range_positive p contains_member i.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.eliminator.
   - intros i h.
     unfold NatWithZero.LessThan in h.
     destruct h as [k e].
     destruct i as [| q].
     + simpl in |- *.
-      exact (Disjunction.L (Identity.reflexivity Zero)).
+      exact (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
     + simpl in e.
       pose proof (NatWithZero.positive.injectivity e) as e'.
       destruct q as [| q']; simpl in e'; discriminate e'.
   - intros i h.
-    change (Positive (Successor p'))
-      with (Positive One + Positive p')
+    change (NatWithZero.Positive (Nat.Successor p'))
+      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
       in h.
-    rewrite (NatWithZero.addition.commutativity (Positive One) (Positive p')) in h.
-    pose proof (->elim (NatWithZero.order.discreteness i (Positive p')) h) as h'.
+    rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
+    pose proof (->elim (NatWithZero.order.discreteness i (NatWithZero.Positive p')) h) as h'.
     simpl in |- *.
     apply (<-elim
              (membership.distributivity.over.concatenation
-                i (range_positive p') (Positive p' :: []))).
+                i (range_positive p') (NatWithZero.Positive p' :: []))).
     unfold NatWithZero.LessOrEqual in h'.
     destruct h' as [e | lt].
     + apply Disjunction.R.
@@ -2724,43 +2724,43 @@ Module sum. (* range.sum *)
 
 (* A closed form is an answer written with a fixed number of operations,
  * none of them recursive: [sum (range n)] has to walk the list, while
- * [n * (n + One) / Two] does not, and the count of steps no longer grows
+ * [n * (n + Nat.One) / Two] does not, and the count of steps no longer grows
  * with [n]. There is no division here, so both sides are multiplied by
  * two.
  *)
 (* range.sum.closed_form *)
 Theorem closed_form
   : forall (p : Nat) .
-      Positive (Successor One) * sum (range (Positive (Successor p)))
-      = Positive p * Positive (Successor p).
+      NatWithZero.Positive (Nat.Successor Nat.One) * sum (range (NatWithZero.Positive (Nat.Successor p)))
+      = NatWithZero.Positive p * NatWithZero.Positive (Nat.Successor p).
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.eliminator.
   - unfold sum in |- *.
     simpl in |- *.
     reflexivity.
-  - change (range (Positive (Successor (Successor p'))))
-      with (append (range (Positive (Successor p'))) (Positive (Successor p')))
+  - change (range (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
+      with (append (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p')))
       in |- *.
     rewrite (appending.specification
-               (range (Positive (Successor p'))) (Positive (Successor p'))) in |- *.
+               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite (sum.additivity.over.concatenation
-               (range (Positive (Successor p'))) (Positive (Successor p') :: []))
+               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p') :: []))
       in |- *.
-    change (sum (Positive (Successor p') :: [])) with (Positive (Successor p')) in |- *.
+    change (sum (NatWithZero.Positive (Nat.Successor p') :: [])) with (NatWithZero.Positive (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.left.distributivity.over.addition
-               (Positive (Successor One))
-               (sum (range (Positive (Successor p')))) (Positive (Successor p'))) in |- *.
+               (NatWithZero.Positive (Nat.Successor Nat.One))
+               (sum (range (NatWithZero.Positive (Nat.Successor p')))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite IH in |- *.
     rewrite <- (NatWithZero.multiplication.right.distributivity.over.addition
-                  (Positive (Successor p')) (Positive p') (Positive (Successor One)))
+                  (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
       in |- *.
-    change (Positive p' + Positive (Successor One))
-      with (Positive (Nat.add p' (Successor One))) in |- *.
-    rewrite (Nat.addition.commutativity p' (Successor One)) in |- *.
-    change (Nat.add (Successor One) p') with (Successor (Successor p')) in |- *.
+    change (NatWithZero.Positive p' + NatWithZero.Positive (Nat.Successor Nat.One))
+      with (NatWithZero.Positive (Nat.add p' (Nat.Successor Nat.One))) in |- *.
+    rewrite (Nat.addition.commutativity p' (Nat.Successor Nat.One)) in |- *.
+    change (Nat.add (Nat.Successor Nat.One) p') with (Nat.Successor (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.commutativity
-               (Positive (Successor p')) (Positive (Successor (Successor p')))) in |- *.
+               (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
     reflexivity.
 Qed.
 
@@ -2782,16 +2782,16 @@ Proof.
     exact I.
   - simpl in |- *.
     split.
-    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max Zero l')).
+    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max NatWithZero.Zero l')).
     + exact (quantification.all.monotonicity
                (fun (x : NatWithZero)
-                    (h : x <= fold_right NatWithZero.max Zero l') .
+                    (h : x <= fold_right NatWithZero.max NatWithZero.Zero l') .
                   Comparable.order.transitivity
-                    x (fold_right NatWithZero.max Zero l')
-                    (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
+                    x (fold_right NatWithZero.max NatWithZero.Zero l')
+                    (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero l'))
                     h
                     (Comparable.maximum.right.injection
-                       a (fold_right NatWithZero.max Zero l')))
+                       a (fold_right NatWithZero.max NatWithZero.Zero l')))
                IH).
 Qed.
 
@@ -2812,23 +2812,23 @@ Proof.
       rewrite (NatWithZero.maximum.right.identity a) in |- *.
       exact (Disjunction.L (Identity.reflexivity a)).
     + pose proof (IH (distinctness b l'')) as c.
-      change (NatWithZero.max a (fold_right NatWithZero.max Zero (b :: l'')) = a
+      change (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) = a
               \/ (b :: l'')
                  contains_member
-                 NatWithZero.max a (fold_right NatWithZero.max Zero (b :: l''))) in |- *.
+                 NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
       pose proof (Comparable.order.totality
-                    (fold_right NatWithZero.max Zero (b :: l'')) a) as t.
+                    (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) as t.
       destruct t as [le | ge].
       * apply Disjunction.L.
         exact (<-elim
                  (Comparable.maximum.specification
-                    a (fold_right NatWithZero.max Zero (b :: l''))) le).
+                    a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) le).
       * apply Disjunction.R.
         rewrite (Comparable.maximum.commutativity
-                   a (fold_right NatWithZero.max Zero (b :: l''))) in |- *.
+                   a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
         rewrite (<-elim
                    (Comparable.maximum.specification
-                      (fold_right NatWithZero.max Zero (b :: l'')) a) ge) in |- *.
+                      (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) ge) in |- *.
         exact c.
 Qed.
 
