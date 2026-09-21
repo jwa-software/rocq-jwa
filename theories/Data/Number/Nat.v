@@ -5,20 +5,32 @@ From jwa Require Import Algebra.Commutative.
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
 From jwa Require Import Tactics.Modus.
+
+(* A module may carry the type's name; its members read [Nat.add]. The type
+ * and its ctors are declared inside it: a ctor at the top level is rebound
+ * by any later file declaring the same name, silently and with no warning.
+ *)
+Module Nat. (* Nat *)
 
 (* Zero is not a [Nat]; [One] is the smallest.
  * [Data.Number.NatWithZero] is the type that has it.
  *)
-Inductive Nat : Type :=
-  | One       : Nat
-  | Successor : Nat -> Nat.
+Inductive T : Type :=
+  | One       : T
+  | Successor : T -> T.
 
-Definition Nat_induction
+(* The carrier is named [T] so that the type itself reads [Nat] on both
+ * sides of the module: here through this abbreviation, outside through the
+ * one that follows [End Nat].
+ *)
+Abbreviation Nat := T.
+
+Definition induction
   : forall (P : Nat -> Prop) .
       P One ->
       (forall (n : Nat) . P n -> P (Successor n)) ->
@@ -31,9 +43,6 @@ Definition Nat_induction
          | One          => base
          | Successor n' => step n' (go n')
          end.
-
-(* A module may carry the type's name; its members read [Nat.add]. *)
-Module Nat. (* Nat *)
 
 (* Short spellings for this module only: [Local] keeps them out of the
  * [Export (notations) Nat] after [End Nat].
@@ -106,9 +115,9 @@ Fixpoint power (m : Nat) (n : Nat) : Nat :=
 (* [Nat -> Nat -> Comparison] *)
 Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   match m, n with
-  | 1, 1       => Eq
-  | 1, S _     => Lt
-  | S _, 1     => Gt
+  | 1, 1       => Comparison.Eq
+  | 1, S _     => Comparison.Lt
+  | S _, 1     => Comparison.Gt
   | S m', S n' => compare m' n'
   end.
 
@@ -203,7 +212,7 @@ Theorem associativity
   : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat_induction.
+  induction l as [| l' IH] using Nat.induction.
   -
     simpl in |- *.
     reflexivity.
@@ -218,11 +227,11 @@ Theorem commutativity : forall (m : Nat) (n : Nat) . m + n = n + m.
 Proof.
   intros m n.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
       simpl in |- *.
   -
     induction n as [| n' IH2]
-        using Nat_induction;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -236,7 +245,7 @@ Proof.
     rewrite IH in |- *.
     clear IH.
     induction n as [| n' IH2]
-        using Nat_induction;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -252,7 +261,7 @@ Module identity. (* addition.identity *)
 Theorem absence : forall (k : Nat) (n : Nat) . ~ (k + n = n).
 Proof.
   intros k n.
-  induction n as [| n' IH] using Nat_induction.
+  induction n as [| n' IH] using Nat.induction.
   -
     unfold Negation in |- *.
     intro e.
@@ -283,7 +292,7 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m + n = m + k -> n = k.
 Proof.
   intros m n k.
-  induction m as [| m' IH] using Nat_induction.
+  induction m as [| m' IH] using Nat.induction.
   - simpl in |- *.
     intro e.
     exact (successor.injectivity e).
@@ -426,7 +435,7 @@ Theorem trichotomy
 Proof.
   intro m.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
   intro n; destruct n as [| n'].
   -
     pose proof (Identity.reflexivity 1)
@@ -475,11 +484,11 @@ Theorem commutativity : forall (m : Nat) (n : Nat) . m * n = n * m.
 Proof.
   intros m n.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
       simpl in |- *.
   -
     induction n as [| n' IH2]
-        using Nat_induction;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -493,7 +502,7 @@ Proof.
     rewrite IH in |- *.
     clear IH.
     induction n as [| n' IH2]
-        using Nat_induction;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -518,7 +527,7 @@ Theorem addition
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat_induction; simpl in |- *.
+  induction l as [| l' IH] using Nat.induction; simpl in |- *.
   -
     reflexivity.
   -
@@ -538,7 +547,7 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . l * (m * n) = m * (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat_induction; simpl in |- *.
+  induction l as [| l' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - rewrite IH in |- *.
     rewrite (multiplication.left.distributivity.over.addition m n (l' * n)) in |- *.
@@ -652,7 +661,7 @@ Theorem associativity
     (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat_induction; simpl in |- *.
+  induction l as [| l' IH] using Nat.induction; simpl in |- *.
   -
     reflexivity.
   -
@@ -744,7 +753,7 @@ Qed.
 Lemma annihilation : forall (n : Nat) . power 1 n = 1.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat_induction; simpl in |- *.
+  induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - exact IH.
 Qed.
@@ -758,7 +767,7 @@ Theorem addition
 Proof.
   intros m a b.
   induction a as [| a' IH]
-      using Nat_induction;
+      using Nat.induction;
       simpl in |- *.
   -
     reflexivity.
@@ -774,7 +783,7 @@ Theorem multiplication
       power (power m a) b = power m (a * b).
 Proof.
   intros m a b.
-  induction b as [| b' IH] using Nat_induction.
+  induction b as [| b' IH] using Nat.induction.
   -
     rewrite -> (multiplication.commutativity a 1)
             in |- *.
@@ -805,7 +814,7 @@ Theorem multiplication
       power (m * n) a = power m a * power n a.
 Proof.
   intros m n a.
-  induction a as [| a' IH] using Nat_induction; simpl in |- *.
+  induction a as [| a' IH] using Nat.induction; simpl in |- *.
   -
     reflexivity.
   -
@@ -830,11 +839,11 @@ Module forward. (* comparison.strict.forward *)
 
 (* comparison.strict.forward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . compare m n = Lt -> m < n.
+  : forall {m : Nat} {n : Nat} . compare m n = Comparison.Lt -> m < n.
 Proof.
   intros m.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
       intro n;
   destruct n as [| n'];
       simpl in |- *;
@@ -858,11 +867,11 @@ Module backward. (* comparison.strict.backward *)
 
 (* comparison.strict.backward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . m < n -> compare m n = Lt.
+  : forall {m : Nat} {n : Nat} . m < n -> compare m n = Comparison.Lt.
 Proof.
   intros m.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
       intro n;
   destruct n as [| n'];
       intro h;
@@ -893,11 +902,11 @@ Module forward. (* comparison.equality.forward *)
 
 (* comparison.equality.forward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . compare m n = Eq -> m = n.
+  : forall {m : Nat} {n : Nat} . compare m n = Comparison.Eq -> m = n.
 Proof.
   intros m.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
       intro n;
   destruct n as [| n'];
       intro e;
@@ -915,12 +924,12 @@ Module backward. (* comparison.equality.backward *)
 
 (* comparison.equality.backward.specification *)
 Lemma specification
-  : forall {m : Nat} {n : Nat} . m = n -> compare m n = Eq.
+  : forall {m : Nat} {n : Nat} . m = n -> compare m n = Comparison.Eq.
 Proof.
   intros m n e.
   rewrite e in |- *.
   clear e.
-  induction n as [| n' IH] using Nat_induction; simpl in |- *.
+  induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - exact IH.
 Qed.
@@ -932,7 +941,7 @@ End equality. (* comparison.equality *)
 (* comparison.specification *)
 Theorem specification
   : forall (m : Nat) (n : Nat) .
-      (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
+      (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
   split; split.
@@ -948,7 +957,7 @@ Theorem antisymmetry
 Proof.
   intros m.
   induction m as [| m' IH]
-      using Nat_induction;
+      using Nat.induction;
       intros n;
   destruct n as [| n'];
       simpl in |- *.
@@ -1020,7 +1029,7 @@ Proof.
     rewrite e in |- *.
     clear e.
     induction n as [| n' IH]
-        using Nat_induction;
+        using Nat.induction;
         simpl in |- *.
     + reflexivity.
     + exact IH.
@@ -1031,7 +1040,7 @@ Proof.
     rewrite e' in |- *.
     clear e e'.
     induction m as [| m' IH]
-        using Nat_induction;
+        using Nat.induction;
         simpl in |- *.
     + reflexivity.
     + exact IH.
@@ -1046,7 +1055,7 @@ Theorem addition
   : forall (m : Nat) (n : Nat) . sub (m + n) n = Some m.
 Proof.
   intros m n.
-  induction n as [| n' IH] using Nat_induction.
+  induction n as [| n' IH] using Nat.induction.
   - rewrite (addition.commutativity m 1) in |- *.
     simpl in |- *.
     reflexivity.
@@ -1065,7 +1074,7 @@ Theorem cancellation
   : forall (k : Nat) (m : Nat) (n : Nat) . sub (k + m) (k + n) = sub m n.
 Proof.
   intros k m n.
-  induction k as [| k' IH] using Nat_induction; simpl in |- *.
+  induction k as [| k' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - exact IH.
 Qed.
@@ -1077,7 +1086,7 @@ Lemma specification
   : forall {m : Nat} {n : Nat} {k : Nat} . sub m n = Some k -> n + k = m.
 Proof.
   intros m.
-  induction m as [| m' IH] using Nat_induction.
+  induction m as [| m' IH] using Nat.induction.
   -
     intros n k e.
     simpl in e.
@@ -1174,6 +1183,13 @@ End subtraction. (* subtraction *)
 
 End Nat. (* Nat *)
 
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Nat], not [Nat.T]. The two ctors keep the prefix: [Nat.One] and
+ * [Nat.Successor]
+ * are exactly the short names another numeral type would want.
+ *)
+Abbreviation Nat := Nat.T.
+
 (* Makes the notations declared in [Module Nat] usable in every file that
  * imports this one, as [(m + n)%nat] or under an opened [jwa_nat_scope].
  * Only the notations are exported: [add] and the laws still need the
@@ -1200,7 +1216,7 @@ Instance Nat_mul_cancellative
   {| Cancellative.cancellation := Nat.multiplication.cancellation |}.
 
 Instance Nat_mul_monoid
-  : Monoid Nat.mul One :=
+  : Monoid Nat.mul Nat.One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Nat.multiplication.associativity |}
    ; Monoid.identity := Nat.multiplication.identity |}.
@@ -1218,7 +1234,7 @@ Instance Nat_min_semigroup
   {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
 Instance Nat_max_monoid
-  : Monoid Nat.max One :=
+  : Monoid Nat.max Nat.One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Comparable.maximum.associativity |}
    ; Monoid.identity := Nat.comparison.maximum.identity |}.

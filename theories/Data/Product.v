@@ -15,7 +15,7 @@ Inductive Product (A : Type) (B : Type) : Type :=
 (* Both types are inferred from the components. *)
 Arguments Product_introduction {A} {B} a b.
 
-(* The eliminator behind [induction], written out. Nothing recurses: a
+(* The eliminator behind the [induction] tactic, written out. Nothing recurses: a
  * product holds no smaller product, so one [match] is the whole content.
  *)
 Definition Product_induction

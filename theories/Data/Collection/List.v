@@ -3,7 +3,7 @@
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Collection.Membership.
 From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Comparable.
@@ -14,12 +14,20 @@ From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Modus.
 
+(* A module may carry the type's name; its members read [List.concat]. The
+ * type and its ctors are declared inside it, so the names [Nil] and [Cons]
+ * are reachable only as [List.Nil] and [List.Cons]. A bare ctor at the top
+ * level is claimed by whichever file declares it last, silently and with no
+ * warning, which makes the meaning of a name depend on import order.
+ *)
+Module List. (* List *)
+
 (* A list is empty, or one element in front of a list. [A] is a parameter:
  * every element has the one type.
  *)
-Inductive List (A : Type) : Type :=
-  | Nil  : List A
-  | Cons : A -> List A -> List A.
+Inductive T (A : Type) : Type :=
+  | Nil  : T A
+  | Cons : A -> T A -> T A.
 
 (* [A] is inferred from the element or, for [Nil], from the expected type; a
  * use that has neither needs [@Nil A].
@@ -27,11 +35,18 @@ Inductive List (A : Type) : Type :=
 Arguments Nil  {A}.
 Arguments Cons {A} a l.
 
+(* The carrier is named [T] so that the type itself reads [List] on both
+ * sides of the module: here through this abbreviation, outside through the
+ * one that follows [End List].
+ *)
+Abbreviation List := T.
+
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
- * Both ctors are declared outside [Module List], so their notations are
- * too, and a client reaches them through [Require Export]. Every list
- * notation lives in [jwa_list_scope], which [Core.Notations] declares
- * without opening: a client writes [(a :: l)%list] or opens the scope.
+ * Every list notation lives in [jwa_list_scope], which [Core.Notations]
+ * declares without opening: a client writes [(a :: l)%list] or opens the
+ * scope. The [Export (notations)] below the module is what carries these
+ * out to a client, and it carries the notations alone, so [[]] and [::]
+ * travel without [Nil] and [Cons].
  *)
 (* The token is [[]] as one piece; [[ ]] with a space is not it. *)
 Notation "[]" := Nil
@@ -43,11 +58,14 @@ Notation "[]" := Nil
 Notation "a :: l" := (Cons a l)
   : jwa_list_scope.
 
-(* The eliminator behind [induction], written out. Its content is the [fix]:
+(* Opening the scope here lets every definition and law below use them. *)
+Local Open Scope jwa_list_scope.
+
+(* The eliminator behind the [induction] tactic, written out. Its content is the [fix]:
  * the proof for [Cons a l] is built from the proof for [l], and following
  * [l] down to [Nil] is what terminates.
  *)
-Definition List_induction
+Definition induction
   : forall (A : Type) (P : List A -> Prop) .
       P Nil ->
       (forall (a : A) (l : List A) . P l -> P (Cons a l)) ->
@@ -60,14 +78,6 @@ Definition List_induction
          | Nil       => base
          | Cons a l' => step a l' (go l')
          end.
-
-(* A module may carry the type's name; its members read [List.concat]. *)
-Module List. (* List *)
-
-(* The ctor notations [[]] and [::] are declared above this module; opening
- * their scope here lets every definition and law below use them.
- *)
-Local Open Scope jwa_list_scope.
 
 (* Lengths and counts are [NatWithZero]s, so its scope is opened here too:
  * [length l1 + length l2], [i < length l]. [Nat]'s scope stays closed and
@@ -111,7 +121,7 @@ Definition append := fun {A : Type} (l : List A) (a : A) . l ++ (a :: []).
 (* [forall {A : Type} . List A -> NatWithZero] *)
 Fixpoint length {A : Type} (l : List A) : NatWithZero :=
   match l with
-  | []      => Zero
+  | []      => NatWithZero.Zero
   | _ :: l' => ++ length l'
   end.
 
@@ -277,9 +287,9 @@ Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
       end
   end.
 
-(* Indexing from [Zero]: [nth l i] is the element [i] places from the front,
+(* Indexing from [NatWithZero.Zero]: [nth l i] is the element [i] places from the front,
  * [None] past the end. Recursion is on the list; the index is peeled by
- * one alongside, [Positive One] being the last step before [Zero].
+ * one alongside, [NatWithZero.Positive Nat.One] being the last step before [NatWithZero.Zero].
  *)
 (* [forall {A : Type} . List A -> NatWithZero -> Option A] *)
 Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
@@ -287,9 +297,9 @@ Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
   | []      => None
   | a :: l' =>
       match i with
-      | Zero                    => Some a
-      | Positive One            => nth l' Zero
-      | Positive (Successor i') => nth l' (Positive i')
+      | NatWithZero.Zero                    => Some a
+      | NatWithZero.Positive Nat.One            => nth l' NatWithZero.Zero
+      | NatWithZero.Positive (Nat.Successor i') => nth l' (NatWithZero.Positive i')
       end
   end.
 
@@ -303,9 +313,9 @@ Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
   | []      => []
   | a :: l' =>
       match n with
-      | Zero                    => []
-      | Positive One            => a :: []
-      | Positive (Successor n') => a :: take (Positive n') l'
+      | NatWithZero.Zero                    => []
+      | NatWithZero.Positive Nat.One            => a :: []
+      | NatWithZero.Positive (Nat.Successor n') => a :: take (NatWithZero.Positive n') l'
       end
   end.
 
@@ -315,9 +325,9 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
   | []      => []
   | a :: l' =>
       match n with
-      | Zero                    => a :: l'
-      | Positive One            => l'
-      | Positive (Successor n') => drop (Positive n') l'
+      | NatWithZero.Zero                    => a :: l'
+      | NatWithZero.Positive Nat.One            => l'
+      | NatWithZero.Positive (Nat.Successor n') => drop (NatWithZero.Positive n') l'
       end
   end.
 
@@ -325,36 +335,36 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
 Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) .
   Product_introduction (take n l) (drop n l).
 
-(* [replicate n a] is [a] repeated [n] times. A count of [Zero] gives [Nil];
+(* [replicate n a] is [a] repeated [n] times. A count of [NatWithZero.Zero] gives [Nil];
  * a positive count recurses on its [Nat], one element per step, since a
  * [NatWithZero] has no step of its own to recurse on.
  *)
 (* [forall {A : Type} . Nat -> A -> List A] *)
 Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
   match k with
-  | One          => a :: []
-  | Successor k' => a :: replicate_positive k' a
+  | Nat.One          => a :: []
+  | Nat.Successor k' => a :: replicate_positive k' a
   end.
 
 (* [forall {A : Type} . NatWithZero -> A -> List A] *)
 Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) .
   match n with
-  | Zero       => []
-  | Positive k => replicate_positive k a
+  | NatWithZero.Zero       => []
+  | NatWithZero.Positive k => replicate_positive k a
   end.
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition sum := fun (l : List NatWithZero) . fold_right NatWithZero.add Zero l.
+Definition sum := fun (l : List NatWithZero) . fold_right NatWithZero.add NatWithZero.Zero l.
 
 (* [List NatWithZero -> NatWithZero] *)
 Definition product := fun (l : List NatWithZero) .
-  fold_right NatWithZero.mul (Positive One) l.
+  fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l.
 
 (* [count p l] is how many elements [p] answers [true] on. *)
 (* [forall {A : Type} . (A -> Bool) -> List A -> NatWithZero] *)
 Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
   match l with
-  | []      => Zero
+  | []      => NatWithZero.Zero
   | a :: l' =>
       match p a with
       | true  => ++ count p l'
@@ -398,19 +408,19 @@ Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
 (* [Nat -> List NatWithZero] *)
 Fixpoint range_positive (p : Nat) : List NatWithZero :=
   match p with
-  | One          => Zero :: []
-  | Successor p' => append (range_positive p') (Positive p')
+  | Nat.One          => NatWithZero.Zero :: []
+  | Nat.Successor p' => append (range_positive p') (NatWithZero.Positive p')
   end.
 
 (* [NatWithZero -> List NatWithZero] *)
 Definition range := fun (n : NatWithZero) .
   match n with
-  | Zero       => []
-  | Positive p => range_positive p
+  | NatWithZero.Zero       => []
+  | NatWithZero.Positive p => range_positive p
   end.
 
 (* [List NatWithZero -> NatWithZero] *)
-Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max Zero l.
+Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max NatWithZero.Zero l.
 
 (* [List NatWithZero -> Option NatWithZero] *)
 Fixpoint minimum_of (l : List NatWithZero) : Option NatWithZero :=
@@ -443,7 +453,7 @@ Theorem associativity
       (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros A l1 l2 l3.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -469,7 +479,7 @@ Module right. (* concatenation.right *)
 Lemma identity : forall {A : Type} (l : List A) . l ++ [] = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -495,7 +505,7 @@ Theorem catamorphism
       l1 ++ l2 = fold_right Cons l2 l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -518,7 +528,7 @@ Theorem concatenation
       (|| l1 ++ l2 ||) = (|| l1 ||) + (|| l2 ||).
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -527,7 +537,7 @@ Proof.
       in |- *.
     rewrite (NatWithZero.increment.specification (|| l1' ||))
       in |- *.
-    rewrite (NatWithZero.addition.associativity (Positive One) (|| l1' ||) (|| l2 ||))
+    rewrite (NatWithZero.addition.associativity (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2 ||))
       in |- *.
     reflexivity.
 Qed.
@@ -541,11 +551,11 @@ Theorem catamorphism
   : forall {A : Type} (l : List A) .
       (|| l ||)
       = fold_right (fun (_ : A) (n : NatWithZero) . (++ n))
-                   Zero
+                   NatWithZero.Zero
                    l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -562,7 +572,7 @@ Theorem identity
   : forall {A : Type} (l : List A) . map (fun a . a) l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -577,7 +587,7 @@ Theorem composition
     map g (map f l) = map (fun a . g (f a)) l.
 Proof.
   intros A B C f g l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -595,7 +605,7 @@ Theorem concatenation
       map f (l1 ++ l2) = map f l1 ++ map f l2.
 Proof.
   intros A B f l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -616,7 +626,7 @@ Theorem catamorphism
                    l.
 Proof.
   intros A B f l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -637,7 +647,7 @@ Theorem membership
       l contains_member a -> map f l contains_member f a.
 Proof.
   intros A B f a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro g.
     exact g.
@@ -670,7 +680,7 @@ Theorem concatenation
       fold_right f z (l1 ++ l2) = fold_right f (fold_right f z l2) l1.
 Proof.
   intros A B f z l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -710,7 +720,7 @@ Lemma concatenation
       l1 ++ l2 contains_member a -> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact (Disjunction.R h).
@@ -741,7 +751,7 @@ Lemma concatenation
       l1 contains_member a \/ l2 contains_member a -> l1 ++ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
     destruct h as [f | h2].
@@ -792,7 +802,7 @@ Theorem catamorphism
       = fold_right (fun (b : A) (rest : Prop) . a = b \/ rest) Falsum l.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -814,7 +824,7 @@ Theorem concatenation
       reverse (l1 ++ l2) = reverse l2 ++ reverse l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     rewrite concatenation.right.identity in |- *.
     reflexivity.
@@ -834,7 +844,7 @@ Theorem involution
   : forall {A : Type} (l : List A) . reverse (reverse l) = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -857,7 +867,7 @@ Lemma membership
       reverse l contains_member a -> l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
     exact f.
@@ -891,7 +901,7 @@ Lemma membership
       l contains_member a -> reverse l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
     exact f.
@@ -954,7 +964,7 @@ Proof.
   rewrite (length.additivity.over.concatenation l (a :: [])) in |- *.
   simpl in |- *.
   rewrite (NatWithZero.increment.specification (|| l ||)) in |- *.
-  rewrite (NatWithZero.addition.commutativity (Positive One) (|| l ||)) in |- *.
+  rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l ||)) in |- *.
   reflexivity.
 Qed.
 
@@ -1010,7 +1020,7 @@ Theorem concatenation
       filter p (l1 ++ l2) = filter p l1 ++ filter p l2.
 Proof.
   intros A p l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1040,7 +1050,7 @@ Theorem catamorphism
                     l.
 Proof.
   intros A p l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1056,7 +1066,7 @@ Lemma specification
       filter p l contains_member a -> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
     contradiction f.
@@ -1091,7 +1101,7 @@ Lemma specification
       l contains_member a /\ p a = true -> filter p l contains_member a.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     destruct h as [f _].
@@ -1150,7 +1160,7 @@ Lemma concatenation
       All P (l1 ++ l2) -> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
     split.
@@ -1177,7 +1187,7 @@ Lemma specification
       All P l -> forall (a : A) . l contains_member a -> P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intros v a f.
     contradiction f.
@@ -1206,7 +1216,7 @@ Lemma concatenation
       All P l1 /\ All P l2 -> All P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
     destruct h as [_ h2].
@@ -1233,7 +1243,7 @@ Lemma specification
       (forall (a : A) . l contains_member a -> P a) -> All P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact I.
@@ -1286,7 +1296,7 @@ Lemma monotonicity
       (forall (a : A) . P a -> Q a) -> All P l -> All Q l.
 Proof.
   intros A P Q l h.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
     exact v.
@@ -1302,7 +1312,7 @@ Theorem catamorphism
       All P l = fold_right (fun (a : A) (rest : Prop) . P a /\ rest) Verum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1327,7 +1337,7 @@ Lemma concatenation
       Any P (l1 ++ l2) -> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact (Disjunction.R h).
@@ -1350,7 +1360,7 @@ Lemma specification
       Any P l -> exists (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
     contradiction f.
@@ -1383,7 +1393,7 @@ Lemma concatenation
       Any P l1 \/ Any P l2 -> Any P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
     destruct h as [f | h2].
@@ -1412,7 +1422,7 @@ Lemma specification
       (exists (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     destruct h as [a ha].
@@ -1471,7 +1481,7 @@ Theorem catamorphism
       Any P l = fold_right (fun (a : A) (rest : Prop) . P a \/ rest) Falsum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1801,7 +1811,7 @@ Theorem unzipping
       zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
 Proof.
   intros A B l.
-  induction l as [| p l' IH] using List_induction.
+  induction l as [| p l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1825,7 +1835,7 @@ Theorem length
       (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - intros l2.
     destruct l2 as [| b l2'].
     + simpl in |- *.
@@ -1843,7 +1853,7 @@ Proof.
       rewrite (NatWithZero.increment.specification
                  (NatWithZero.min (|| l1' ||) (|| l2' ||))) in |- *.
       rewrite (NatWithZero.minimum.left.distributivity.of.addition
-                 (Positive One) (|| l1' ||) (|| l2' ||)) in |- *.
+                 (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2' ||)) in |- *.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in |- *.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in |- *.
       reflexivity.
@@ -1870,7 +1880,7 @@ Theorem zipping
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = Product_introduction l1 l2.
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - intros l2 e.
     destruct l2 as [| b l2'].
     + unfold unzip in |- *.
@@ -1879,8 +1889,8 @@ Proof.
     + simpl in e.
       pose proof (Identity.symmetry e) as e'.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
-      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l2' ||)) in e'.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) One) as h.
+      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
+      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One) as h.
       unfold Negation in h.
       modus ponens h, e' as f.
       contradiction f.
@@ -1888,8 +1898,8 @@ Proof.
     destruct l2 as [| b l2'].
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
-      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l1' ||)) in e.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) One) as h.
+      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
+      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One) as h.
       unfold Negation in h.
       modus ponens h, e as f.
       contradiction f.
@@ -1925,7 +1935,7 @@ Theorem specification
           (filter (fun (a : A) . ! p a) l).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1939,7 +1949,7 @@ Module indexing. (* indexing *)
 
 (* [nth] answers exactly for the indices below the length. Each step of the
  * index is one step of the list, so the halves lift [IH] through
- * [Positive One] added on both sides of the order.
+ * [NatWithZero.Positive Nat.One] added on both sides of the order.
  *)
 
 Module forward. (* indexing.forward *)
@@ -1950,7 +1960,7 @@ Lemma specification
       (exists (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - intros i h.
     destruct h as [a e].
     simpl in e.
@@ -1959,20 +1969,20 @@ Proof.
     destruct i as [| i'].
     + simpl in |- *.
       rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-      rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
-      exact (NatWithZero.addition.right.order.positivity (|| l' ||) One).
+      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
+      exact (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
     + destruct i' as [| i''].
       * simpl in h.
-        pose proof (IH Zero h) as lt.
+        pose proof (IH NatWithZero.Zero h) as lt.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity (Positive One) Zero (|| l' ||) lt).
+        exact (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
       * simpl in h.
-        pose proof (IH (Positive i'') h) as lt.
+        pose proof (IH (NatWithZero.Positive i'') h) as lt.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         exact (NatWithZero.addition.order.strict.monotonicity
-                 (Positive One) (Positive i'') (|| l' ||) lt).
+                 (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) lt).
 Qed.
 
 End forward. (* indexing.forward *)
@@ -1985,7 +1995,7 @@ Lemma specification
       i < (|| l ||) -> exists (a : A) . nth l i = Some a.
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - intros i h.
     simpl in h.
     unfold NatWithZero.LessThan in h.
@@ -2002,16 +2012,16 @@ Proof.
     + destruct i' as [| i''].
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition.order.strict.cancellation (Positive One) Zero (|| l' ||) h)
+        pose proof (NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h)
           as lt.
         simpl in |- *.
-        exact (IH Zero lt).
+        exact (IH NatWithZero.Zero lt).
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
         pose proof (NatWithZero.addition.order.strict.cancellation
-                      (Positive One) (Positive i'') (|| l' ||) h) as lt.
+                      (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h) as lt.
         simpl in |- *.
-        exact (IH (Positive i'') lt).
+        exact (IH (NatWithZero.Positive i'') lt).
 Qed.
 
 End backward. (* indexing.backward *)
@@ -2038,7 +2048,7 @@ Theorem decomposition
       take n l ++ drop n l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - intros n.
     simpl in |- *.
     reflexivity.
@@ -2050,7 +2060,7 @@ Proof.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (IH (Positive n'')) in |- *.
+        rewrite (IH (NatWithZero.Positive n'')) in |- *.
         reflexivity.
 Qed.
 
@@ -2067,7 +2077,7 @@ Theorem length
       (|| take n l ||) = NatWithZero.min n (|| l ||).
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - intros n.
     simpl in |- *.
     rewrite (NatWithZero.minimum.right.annihilation n) in |- *.
@@ -2080,21 +2090,21 @@ Proof.
     + destruct n' as [| n''].
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         rewrite (<-elim
-                   (Comparable.minimum.specification (Positive One)
-                      ((|| l' ||) + Positive One))
+                   (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
+                      ((|| l' ||) + NatWithZero.Positive Nat.One))
                    (NatWithZero.addition.right.order.extensivity
-                      (|| l' ||) (Positive One))) in |- *.
+                      (|| l' ||) (NatWithZero.Positive Nat.One))) in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (IH (Positive n'')) in |- *.
+        rewrite (IH (NatWithZero.Positive n'')) in |- *.
         rewrite (NatWithZero.increment.specification
-                   (NatWithZero.min (Positive n'') (|| l' ||))) in |- *.
+                   (NatWithZero.min (NatWithZero.Positive n'') (|| l' ||))) in |- *.
         rewrite (NatWithZero.minimum.left.distributivity.of.addition
-                   (Positive One) (Positive n'') (|| l' ||)) in |- *.
-        change (Positive One + Positive n'')
-          with (Positive (Successor n'')) in |- *.
+                   (NatWithZero.Positive Nat.One) (NatWithZero.Positive n'') (|| l' ||)) in |- *.
+        change (NatWithZero.Positive Nat.One + NatWithZero.Positive n'')
+          with (NatWithZero.Positive (Nat.Successor n'')) in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         reflexivity.
 Qed.
@@ -2112,7 +2122,7 @@ Theorem length
       (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - intros n.
     simpl in |- *.
     reflexivity.
@@ -2124,17 +2134,17 @@ Proof.
     + destruct n' as [| n''].
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition.commutativity (Positive One) (|| l' ||)) in |- *.
+        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         rewrite (NatWithZero.subtraction.saturating.inversion.of.addition
-                   (|| l' ||) (Positive One)) in |- *.
+                   (|| l' ||) (NatWithZero.Positive Nat.One)) in |- *.
         reflexivity.
       * simpl in |- *.
-        rewrite (IH (Positive n'')) in |- *.
+        rewrite (IH (NatWithZero.Positive n'')) in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        change (Positive (Successor n''))
-          with (Positive One + Positive n'') in |- *.
+        change (NatWithZero.Positive (Nat.Successor n''))
+          with (NatWithZero.Positive Nat.One + NatWithZero.Positive n'') in |- *.
         rewrite (NatWithZero.subtraction.saturating.cancellation
-                   (Positive One) (|| l' ||) (Positive n'')) in |- *.
+                   (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
         reflexivity.
 Qed.
 
@@ -2146,10 +2156,10 @@ Module positive. (* replication.positive *)
 
 (* replication.positive.length *)
 Lemma length
-  : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = Positive k.
+  : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = NatWithZero.Positive k.
 Proof.
   intros A k a.
-  induction k as [| k' IH] using Nat_induction.
+  induction k as [| k' IH] using Nat.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2187,13 +2197,13 @@ Theorem concatenation
 Proof.
   intros l1 l2.
   unfold sum in |- *.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.addition.associativity
-               a (fold_right NatWithZero.add Zero l1') (fold_right NatWithZero.add Zero l2))
+               a (fold_right NatWithZero.add NatWithZero.Zero l1') (fold_right NatWithZero.add NatWithZero.Zero l2))
       in |- *.
     reflexivity.
 Qed.
@@ -2217,18 +2227,18 @@ Theorem concatenation
 Proof.
   intros l1 l2.
   unfold product in |- *.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using List.induction.
   - rewrite (concatenation.left.identity l2) in |- *.
-    change (fold_right NatWithZero.mul (Positive One) []) with (Positive One) in |- *.
+    change (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) []) with (NatWithZero.Positive Nat.One) in |- *.
     rewrite (NatWithZero.multiplication.left.identity
-               (fold_right NatWithZero.mul (Positive One) l2))
+               (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
       in |- *.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.multiplication.associativity
-               a (fold_right NatWithZero.mul (Positive One) l1')
-               (fold_right NatWithZero.mul (Positive One) l2)) in |- *.
+               a (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l1')
+               (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2)) in |- *.
     reflexivity.
 Qed.
 
@@ -2245,7 +2255,7 @@ Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) . count p l = (|| filter p l ||).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2258,16 +2268,16 @@ Qed.
 
 Module zero. (* counting.zero *)
 
-(* [count] answers [Zero] exactly when [p] answers [false] on every
+(* [count] answers [NatWithZero.Zero] exactly when [p] answers [false] on every
  * member.
  *)
 (* counting.zero.specification *)
 Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
-      count p l = Zero <-> All (fun (a : A) . p a = false) l.
+      count p l = NatWithZero.Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     split.
     + intro e.
@@ -2280,8 +2290,8 @@ Proof.
       split.
       * intro e.
         rewrite (NatWithZero.increment.specification (count p l')) in e.
-        rewrite (NatWithZero.addition.commutativity (Positive One) (count p l')) in e.
-        pose proof (NatWithZero.addition.right.identity.absence (count p l') One) as r.
+        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
+        pose proof (NatWithZero.addition.right.identity.absence (count p l') Nat.One) as r.
         unfold Negation in r.
         modus ponens r, e as f.
         contradiction f.
@@ -2317,7 +2327,7 @@ Lemma all
       P a -> All P l -> All P (insert le a l).
 Proof.
   intros A le P a l pa.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
     exact (Conjunction_introduction pa v).
@@ -2344,7 +2354,7 @@ Lemma sortedness
       forall (a : A) (l : List A) . Sorted le l -> Sorted le (insert le a l).
 Proof.
   intros A le total transitive a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
     exact (Conjunction_introduction v v).
@@ -2380,7 +2390,7 @@ Lemma membership
       insert le a l contains_member b -> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List_induction.
+  induction l as [| c l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2409,7 +2419,7 @@ Lemma membership
       b = a \/ l contains_member b -> insert le a l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List_induction.
+  induction l as [| c l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2446,7 +2456,7 @@ Lemma length
       (|| insert le a l ||) = ++ (|| l ||).
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2469,7 +2479,7 @@ Theorem sortedness
       forall (l : List A) . Sorted le (insertion_sort le l).
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     exact I.
   - simpl in |- *.
@@ -2489,7 +2499,7 @@ Lemma membership
       insertion_sort le l contains_member a -> l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2519,7 +2529,7 @@ Lemma membership
       l contains_member a -> insertion_sort le l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2558,7 +2568,7 @@ Theorem length
       (|| insertion_sort le l ||) = (|| l ||).
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2579,14 +2589,14 @@ Module positive. (* range.positive *)
 
 (* range.positive.length *)
 Lemma length
-  : forall (p : Nat) . (|| range_positive p ||) = Positive p.
+  : forall (p : Nat) . (|| range_positive p ||) = NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (appending.length (range_positive p') (Positive p')) in |- *.
+    rewrite (appending.length (range_positive p') (NatWithZero.Positive p')) in |- *.
     rewrite IH in |- *.
     simpl in |- *.
     reflexivity.
@@ -2597,16 +2607,16 @@ Module forward. (* range.positive.forward *)
 (* range.positive.forward.membership *)
 Lemma membership
   : forall {p : Nat} {i : NatWithZero} .
-      range_positive p contains_member i -> i < Positive p.
+      range_positive p contains_member i -> i < NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.induction.
   - intros i h.
     simpl in h.
     destruct h as [e | f].
     + rewrite e in |- *.
       unfold NatWithZero.LessThan in |- *.
-      apply (Exists_introduction One).
+      apply (Exists_introduction Nat.One).
       simpl in |- *.
       reflexivity.
     + contradiction f.
@@ -2614,12 +2624,12 @@ Proof.
     simpl in h.
     pose proof (->elim
                   (membership.distributivity.over.concatenation
-                     i (range_positive p') (Positive p' :: []))
+                     i (range_positive p') (NatWithZero.Positive p' :: []))
                   h) as h'.
-    change (Positive (Successor p'))
-      with (Positive One + Positive p') in |- *.
-    rewrite (NatWithZero.addition.commutativity (Positive One) (Positive p')) in |- *.
-    apply (<-elim (NatWithZero.order.discreteness i (Positive p'))).
+    change (NatWithZero.Positive (Nat.Successor p'))
+      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
+    rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
+    apply (<-elim (NatWithZero.order.discreteness i (NatWithZero.Positive p'))).
     unfold NatWithZero.LessOrEqual in |- *.
     destruct h' as [h1 | h2].
     + exact (Disjunction.R (IH i h1)).
@@ -2636,29 +2646,29 @@ Module backward. (* range.positive.backward *)
 (* range.positive.backward.membership *)
 Lemma membership
   : forall {p : Nat} {i : NatWithZero} .
-      i < Positive p -> range_positive p contains_member i.
+      i < NatWithZero.Positive p -> range_positive p contains_member i.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.induction.
   - intros i h.
     unfold NatWithZero.LessThan in h.
     destruct h as [k e].
     destruct i as [| q].
     + simpl in |- *.
-      exact (Disjunction.L (Identity.reflexivity Zero)).
+      exact (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
     + simpl in e.
       pose proof (NatWithZero.positive.injectivity e) as e'.
       destruct q as [| q']; simpl in e'; discriminate e'.
   - intros i h.
-    change (Positive (Successor p'))
-      with (Positive One + Positive p')
+    change (NatWithZero.Positive (Nat.Successor p'))
+      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
       in h.
-    rewrite (NatWithZero.addition.commutativity (Positive One) (Positive p')) in h.
-    pose proof (->elim (NatWithZero.order.discreteness i (Positive p')) h) as h'.
+    rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
+    pose proof (->elim (NatWithZero.order.discreteness i (NatWithZero.Positive p')) h) as h'.
     simpl in |- *.
     apply (<-elim
              (membership.distributivity.over.concatenation
-                i (range_positive p') (Positive p' :: []))).
+                i (range_positive p') (NatWithZero.Positive p' :: []))).
     unfold NatWithZero.LessOrEqual in h'.
     destruct h' as [e | lt].
     + apply Disjunction.R.
@@ -2714,43 +2724,43 @@ Module sum. (* range.sum *)
 
 (* A closed form is an answer written with a fixed number of operations,
  * none of them recursive: [sum (range n)] has to walk the list, while
- * [n * (n + One) / Two] does not, and the count of steps no longer grows
+ * [n * (n + Nat.One) / Two] does not, and the count of steps no longer grows
  * with [n]. There is no division here, so both sides are multiplied by
  * two.
  *)
 (* range.sum.closed_form *)
 Theorem closed_form
   : forall (p : Nat) .
-      Positive (Successor One) * sum (range (Positive (Successor p)))
-      = Positive p * Positive (Successor p).
+      NatWithZero.Positive (Nat.Successor Nat.One) * sum (range (NatWithZero.Positive (Nat.Successor p)))
+      = NatWithZero.Positive p * NatWithZero.Positive (Nat.Successor p).
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.induction.
   - unfold sum in |- *.
     simpl in |- *.
     reflexivity.
-  - change (range (Positive (Successor (Successor p'))))
-      with (append (range (Positive (Successor p'))) (Positive (Successor p')))
+  - change (range (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
+      with (append (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p')))
       in |- *.
     rewrite (appending.specification
-               (range (Positive (Successor p'))) (Positive (Successor p'))) in |- *.
+               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite (sum.additivity.over.concatenation
-               (range (Positive (Successor p'))) (Positive (Successor p') :: []))
+               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p') :: []))
       in |- *.
-    change (sum (Positive (Successor p') :: [])) with (Positive (Successor p')) in |- *.
+    change (sum (NatWithZero.Positive (Nat.Successor p') :: [])) with (NatWithZero.Positive (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.left.distributivity.over.addition
-               (Positive (Successor One))
-               (sum (range (Positive (Successor p')))) (Positive (Successor p'))) in |- *.
+               (NatWithZero.Positive (Nat.Successor Nat.One))
+               (sum (range (NatWithZero.Positive (Nat.Successor p')))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite IH in |- *.
     rewrite <- (NatWithZero.multiplication.right.distributivity.over.addition
-                  (Positive (Successor p')) (Positive p') (Positive (Successor One)))
+                  (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
       in |- *.
-    change (Positive p' + Positive (Successor One))
-      with (Positive (Nat.add p' (Successor One))) in |- *.
-    rewrite (Nat.addition.commutativity p' (Successor One)) in |- *.
-    change (Nat.add (Successor One) p') with (Successor (Successor p')) in |- *.
+    change (NatWithZero.Positive p' + NatWithZero.Positive (Nat.Successor Nat.One))
+      with (NatWithZero.Positive (Nat.add p' (Nat.Successor Nat.One))) in |- *.
+    rewrite (Nat.addition.commutativity p' (Nat.Successor Nat.One)) in |- *.
+    change (Nat.add (Nat.Successor Nat.One) p') with (Nat.Successor (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.commutativity
-               (Positive (Successor p')) (Positive (Successor (Successor p')))) in |- *.
+               (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
     reflexivity.
 Qed.
 
@@ -2767,21 +2777,21 @@ Theorem bound
 Proof.
   intros l.
   unfold maximum_of in |- *.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
     exact I.
   - simpl in |- *.
     split.
-    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max Zero l')).
+    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max NatWithZero.Zero l')).
     + exact (quantification.all.monotonicity
                (fun (x : NatWithZero)
-                    (h : x <= fold_right NatWithZero.max Zero l') .
+                    (h : x <= fold_right NatWithZero.max NatWithZero.Zero l') .
                   Comparable.order.transitivity
-                    x (fold_right NatWithZero.max Zero l')
-                    (NatWithZero.max a (fold_right NatWithZero.max Zero l'))
+                    x (fold_right NatWithZero.max NatWithZero.Zero l')
+                    (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero l'))
                     h
                     (Comparable.maximum.right.injection
-                       a (fold_right NatWithZero.max Zero l')))
+                       a (fold_right NatWithZero.max NatWithZero.Zero l')))
                IH).
 Qed.
 
@@ -2791,7 +2801,7 @@ Theorem membership
 Proof.
   intros l.
   unfold maximum_of in |- *.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - intro h.
     unfold Negation in h.
     pose proof (h (Identity.reflexivity [])) as f.
@@ -2802,23 +2812,23 @@ Proof.
       rewrite (NatWithZero.maximum.right.identity a) in |- *.
       exact (Disjunction.L (Identity.reflexivity a)).
     + pose proof (IH (distinctness b l'')) as c.
-      change (NatWithZero.max a (fold_right NatWithZero.max Zero (b :: l'')) = a
+      change (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) = a
               \/ (b :: l'')
                  contains_member
-                 NatWithZero.max a (fold_right NatWithZero.max Zero (b :: l''))) in |- *.
+                 NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
       pose proof (Comparable.order.totality
-                    (fold_right NatWithZero.max Zero (b :: l'')) a) as t.
+                    (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) as t.
       destruct t as [le | ge].
       * apply Disjunction.L.
         exact (<-elim
                  (Comparable.maximum.specification
-                    a (fold_right NatWithZero.max Zero (b :: l''))) le).
+                    a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) le).
       * apply Disjunction.R.
         rewrite (Comparable.maximum.commutativity
-                   a (fold_right NatWithZero.max Zero (b :: l''))) in |- *.
+                   a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
         rewrite (<-elim
                    (Comparable.maximum.specification
-                      (fold_right NatWithZero.max Zero (b :: l'')) a) ge) in |- *.
+                      (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) ge) in |- *.
         exact c.
 Qed.
 
@@ -2856,7 +2866,7 @@ Theorem bound
       -> All (fun (a : NatWithZero) . m <= a) l.
 Proof.
   intros l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
     discriminate e.
@@ -2891,7 +2901,7 @@ Theorem membership
       minimum_of l = Some m -> l contains_member m.
 Proof.
   intros l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
     discriminate e.
@@ -2921,16 +2931,23 @@ End minimum. (* minimum *)
 
 End List. (* List *)
 
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [List A], not [List.T A].
+ *)
+Abbreviation List := List.T.
+
 (* Makes the notations declared in [Module List] usable in every file that
  * imports this one, as [(l1 ++ l2)%list] or under an opened
- * [jwa_list_scope]. Only the notations are exported: [concat] and the laws
- * still need the [List.] prefix. The ctor notations [[]] and [::] are
- * declared above the module and reach a client with the module itself.
+ * [jwa_list_scope]. Only the notations are exported: [concat], the laws and
+ * the two ctors still need the [List.] prefix. That split is the point of
+ * the selective form -- [[]] and [::] are the spellings a client wants,
+ * while [Nil] and [Cons] are the names a second container would collide
+ * with.
  *)
 Export (notations) List.
 
 Instance List_concat_monoid
-  : forall {A : Type} . Monoid (@List.concat A) Nil :=
+  : forall {A : Type} . Monoid (@List.concat A) List.Nil :=
   fun (A : Type) .
     ({| Monoid.semigroup :=
           {| Semigroup.associativity := @List.concatenation.associativity A |}

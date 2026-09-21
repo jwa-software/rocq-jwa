@@ -7,9 +7,9 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Algebra.Semiring.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
@@ -19,15 +19,25 @@ From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Tactics.Modus.
 
+(* A module may carry the type's name; its members read [NatWithZero.add].
+ * The type and its ctors are declared inside it: [Integer] declares [Zero]
+ * and [Positive] too, and across files a duplicate ctor name rebinds the
+ * bare one silently and with no warning.
+ *)
+Module NatWithZero. (* NatWithZero *)
+
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
  * plus the [Zero] cases.
  *)
-Inductive NatWithZero : Type :=
-  | Zero     : NatWithZero
-  | Positive : Nat -> NatWithZero.
+Inductive T : Type :=
+  | Zero     : T
+  | Positive : Nat -> T.
 
-(* A module may carry the type's name; its members read [NatWithZero.add]. *)
-Module NatWithZero. (* NatWithZero *)
+(* The carrier is named [T] so that the type itself reads [NatWithZero] on
+ * both sides of the module: here through this abbreviation, outside through
+ * the one that follows [End NatWithZero].
+ *)
+Abbreviation NatWithZero := T.
 
 (* Short spellings for this module only: [Local] keeps them out of every
  * file that imports this one. [+ p] is a prefix, apart from the infix [+].
@@ -72,7 +82,7 @@ Local Open Scope jwa_nat_with_zero_scope.
 (* [NatWithZero -> NatWithZero] *)
 Definition inc := fun (n : NatWithZero) .
   match n with
-  | 0   => + One
+  | 0   => + Nat.One
   | + p => + (Nat.inc p)
   end.
 
@@ -82,7 +92,7 @@ Notation "++ n" := (inc n) (only parsing)
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
 Definition power := fun (m : NatWithZero) (n : NatWithZero) .
   match n with
-  | 0   => + One
+  | 0   => + Nat.One
   | + q =>
       match m with
       | 0   => 0
@@ -116,12 +126,12 @@ Definition compare := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
   | 0 =>
       match n with
-      | 0   => Eq
-      | + _ => Lt
+      | 0   => Comparison.Eq
+      | + _ => Comparison.Lt
       end
   | + p =>
       match n with
-      | 0   => Gt
+      | 0   => Comparison.Gt
       | + q => Nat.compare p q
       end
   end.
@@ -168,12 +178,12 @@ Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
 (* [Nat -> Nat -> Product NatWithZero NatWithZero] *)
 Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
   match dividend with
-  | One =>
+  | Nat.One =>
       match divisor with
-      | One         => Product_introduction (+ One) 0
-      | Successor _ => Product_introduction 0 (+ One)
+      | Nat.One         => Product_introduction (+ Nat.One) 0
+      | Nat.Successor _ => Product_introduction 0 (+ Nat.One)
       end
-  | Successor dividend' =>
+  | Nat.Successor dividend' =>
       match division dividend' divisor with
       | Product_introduction quotient remainder =>
           match eq (++ remainder) (+ divisor) with
@@ -202,19 +212,19 @@ Definition modulo := fun (n : NatWithZero) (divisor : Nat) .
 Local Close Scope jwa_product_scope.
 
 (* [d] divides [n] when some multiple of [d] is [n]. It is a partial order:
- * reflexive with [Positive One], transitive by multiplying the witnesses,
- * antisymmetric since [One] is the only unit.
+ * reflexive with [Positive Nat.One], transitive by multiplying the witnesses,
+ * antisymmetric since [Nat.One] is the only unit.
  *)
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition Divides := fun (d : NatWithZero) (n : NatWithZero) .
   exists (k : NatWithZero) . d * k = n.
 
 (* [NatWithZero -> Prop] *)
-Definition Even := fun (n : NatWithZero) . Divides (+ (Successor One)) n.
+Definition Even := fun (n : NatWithZero) . Divides (+ (Nat.Successor Nat.One)) n.
 
 (* [NatWithZero -> Prop] *)
 Definition Odd := fun (n : NatWithZero) .
-  exists (k : NatWithZero) . ((+ (Successor One)) * k) + (+ One) = n.
+  exists (k : NatWithZero) . ((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One) = n.
 
 Module positive. (* positive *)
 
@@ -263,7 +273,7 @@ End positive. (* positive *)
 Module increment. (* increment *)
 
 (* increment.specification *)
-Lemma specification : forall (n : NatWithZero) . (++ n) = (+ One) + n.
+Lemma specification : forall (n : NatWithZero) . (++ n) = (+ Nat.One) + n.
 Proof.
   intros n.
   destruct n as [| p]; simpl in |- *; reflexivity.
@@ -582,7 +592,7 @@ Qed.
 Module left. (* multiplication.left *)
 
 (* multiplication.left.identity *)
-Lemma identity : forall (n : NatWithZero) . (+ One) * n = n.
+Lemma identity : forall (n : NatWithZero) . (+ Nat.One) * n = n.
 Proof.
   intros n.
   destruct n as [| n'].
@@ -656,14 +666,14 @@ End left. (* multiplication.left *)
 Module right. (* multiplication.right *)
 
 (* multiplication.right.identity *)
-Lemma identity : forall (m : NatWithZero) . m * (+ One) = m.
+Lemma identity : forall (m : NatWithZero) . m * (+ Nat.One) = m.
 Proof.
   intros m.
   destruct m as [| m'].
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    rewrite (Nat.multiplication.commutativity m' One) in |- *.
+    rewrite (Nat.multiplication.commutativity m' Nat.One) in |- *.
     simpl in |- *.
     reflexivity.
 Qed.
@@ -693,7 +703,7 @@ End right. (* multiplication.right *)
 
 (* multiplication.identity *)
 Theorem identity
-  : forall (n : NatWithZero) . ((+ One) * n = n) /\ (n * (+ One) = n).
+  : forall (n : NatWithZero) . ((+ Nat.One) * n = n) /\ (n * (+ Nat.One) = n).
 Proof.
   intros n.
   split.
@@ -728,7 +738,7 @@ Module power. (* power *)
 Module exponent. (* power.exponent *)
 
 (* power.exponent.absence *)
-Lemma absence : forall (m : NatWithZero) . power m 0 = + One.
+Lemma absence : forall (m : NatWithZero) . power m 0 = + Nat.One.
 Proof.
   intros m.
   simpl in |- *.
@@ -749,7 +759,7 @@ Proof.
     * simpl in |- *.
       reflexivity.
     * simpl in |- *.
-      rewrite (Nat.multiplication.commutativity (Nat.power m' a') One) in |- *.
+      rewrite (Nat.multiplication.commutativity (Nat.power m' a') Nat.One) in |- *.
       simpl in |- *.
       reflexivity.
   - destruct m as [| m'].
@@ -858,13 +868,13 @@ Qed.
 
 End strict. (* order.strict *)
 
-(* Discreteness: nothing sits strictly between [n] and [n + One], so [<] and
+(* Discreteness: nothing sits strictly between [n] and [n + Nat.One], so [<] and
  * [<=] determine each other by a step of one.
  *)
 (* order.discreteness *)
 Theorem discreteness
   : forall (m : NatWithZero) (n : NatWithZero) .
-      m < n + (+ One) <-> m <= n.
+      m < n + (+ Nat.One) <-> m <= n.
 Proof.
   intros m n.
   split.
@@ -878,30 +888,30 @@ Proof.
     + apply Disjunction.R.
       unfold LessThan in |- *.
       apply (Exists_introduction k').
-      change (+ (Successor k'))
-        with ((+ One) + (+ k'))
+      change (+ (Nat.Successor k'))
+        with ((+ Nat.One) + (+ k'))
         in e.
-      rewrite -> (addition.commutativity (+ One) (+ k'))
+      rewrite -> (addition.commutativity (+ Nat.One) (+ k'))
               in e.
-      rewrite <- (addition.associativity m (+ k') (+ One))
+      rewrite <- (addition.associativity m (+ k') (+ Nat.One))
               in e.
       exact (addition.right.cancellation e).
   - intro h.
     unfold LessOrEqual in h.
     unfold LessThan    in |- *.
     destruct h as [e | lt].
-    + apply (Exists_introduction One).
+    + apply (Exists_introduction Nat.One).
       rewrite e in |- *.
       reflexivity.
     + unfold LessThan in lt.
       destruct lt as [k e].
-      apply (Exists_introduction (Successor k)).
-      change (+ (Successor k))
-        with ((+ One) + (+ k))
+      apply (Exists_introduction (Nat.Successor k)).
+      change (+ (Nat.Successor k))
+        with ((+ Nat.One) + (+ k))
         in |- *.
-      rewrite -> (addition.commutativity (+ One) (+ k))
+      rewrite -> (addition.commutativity (+ Nat.One) (+ k))
               in |- *.
-      rewrite <- (addition.associativity m (+ k) (+ One))
+      rewrite <- (addition.associativity m (+ k) (+ Nat.One))
               in |- *.
       rewrite e
               in |- *.
@@ -933,7 +943,7 @@ Module strict. (* comparison.strict *)
 
 (* comparison.strict.specification *)
 Lemma specification
-  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Lt <-> m < n.
+  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Comparison.Lt <-> m < n.
 Proof.
   intros m n.
   destruct m as [| m']; destruct n as [| n'].
@@ -981,7 +991,7 @@ Module equality. (* comparison.equality *)
 
 (* comparison.equality.specification *)
 Lemma specification
-  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Eq <-> m = n.
+  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros m n.
   split.
@@ -1009,7 +1019,7 @@ End equality. (* comparison.equality *)
 (* comparison.specification *)
 Theorem specification
   : forall (m : NatWithZero) (n : NatWithZero) .
-      (compare m n = Lt <-> m < n) /\ (compare m n = Eq <-> m = n).
+      (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
   split.
@@ -1341,11 +1351,11 @@ Lemma invariant
       /\ pi_2 (division p d) < + d.
 Proof.
   intros p d.
-  induction p as [| p' IH] using Nat_induction.
+  induction p as [| p' IH] using Nat.induction.
   - destruct d as [| d']; split; simpl in |- *.
     * reflexivity.
     * unfold LessThan in |- *.
-      apply (Exists_introduction One).
+      apply (Exists_introduction Nat.One).
       simpl in |- *.
       reflexivity.
     * reflexivity.
@@ -1362,7 +1372,7 @@ Proof.
     * pose proof (->elim (Comparable.comparison.equality.reflection (++ r) (+ d)) E) as full.
       rewrite (increment.specification r) in full.
       rewrite (increment.specification q) in |- *.
-      rewrite (multiplication.right.distributivity.over.addition (+ d) (+ One) q)
+      rewrite (multiplication.right.distributivity.over.addition (+ d) (+ Nat.One) q)
           in |- *.
       rewrite (multiplication.left.identity (+ d))
           in |- *.
@@ -1373,7 +1383,7 @@ Proof.
       simpl in |- *.
       symmetry in full.
       rewrite full in e |- *.
-      rewrite (addition.left.commutativity (q * ((+ One) + r)) (+ One) r) in |- *.
+      rewrite (addition.left.commutativity (q * ((+ Nat.One) + r)) (+ Nat.One) r) in |- *.
       rewrite e in |- *.
       simpl in |- *.
       reflexivity.
@@ -1382,22 +1392,22 @@ Proof.
       simpl in |- *.
       reflexivity.
     * rewrite (increment.specification r) in |- *.
-      rewrite (addition.left.commutativity (q * (+ d)) (+ One) r) in |- *.
+      rewrite (addition.left.commutativity (q * (+ d)) (+ Nat.One) r) in |- *.
       rewrite e in |- *.
       simpl in |- *.
       reflexivity.
     * unfold LessThan in lt.
       destruct lt as [k ek].
       rewrite (increment.specification r) in E.
-      rewrite (addition.commutativity (+ One) r) in E.
+      rewrite (addition.commutativity (+ Nat.One) r) in E.
       rewrite (increment.specification r) in |- *.
-      rewrite (addition.commutativity (+ One) r) in |- *.
+      rewrite (addition.commutativity (+ Nat.One) r) in |- *.
       destruct k as [| k'].
-      { rewrite (<-elim (Comparable.comparison.equality.reflection (r + (+ One)) (+ d)) ek) in E.
+      { rewrite (<-elim (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)) ek) in E.
         discriminate E. }
       { unfold LessThan in |- *.
         apply (Exists_introduction k').
-        rewrite (addition.associativity r (+ One) (+ k')) in |- *.
+        rewrite (addition.associativity r (+ Nat.One) (+ k')) in |- *.
         simpl in |- *.
         exact ek. }
 Qed.
@@ -1432,7 +1442,7 @@ Theorem reflexivity : forall (n : NatWithZero) . Divides n n.
 Proof.
   intros n.
   unfold Divides in |- *.
-  apply (Exists_introduction (+ One)).
+  apply (Exists_introduction (+ Nat.One)).
   exact (multiplication.right.identity n).
 Qed.
 
@@ -1474,7 +1484,7 @@ Proof.
       * simpl in e2.
         pose proof (positive.injectivity e2) as e3.
         rewrite (Nat.multiplication.associativity p k' j') in e3.
-        pose proof (Nat.multiplication.commutativity One p) as c.
+        pose proof (Nat.multiplication.commutativity Nat.One p) as c.
         simpl in c.
         pose proof (Identity.transitivity e3 c)
                 as e4.
@@ -1489,7 +1499,7 @@ Proof.
 Qed.
 
 (* divisibility.bottom *)
-Theorem bottom : forall (n : NatWithZero) . Divides (+ One) n.
+Theorem bottom : forall (n : NatWithZero) . Divides (+ Nat.One) n.
 Proof.
   intros n.
   unfold Divides in |- *.
@@ -1562,7 +1572,7 @@ Proof.
     apply (Exists_introduction 0).
     simpl in |- *.
     reflexivity.
-  - induction p as [| p' IH] using Nat_induction.
+  - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       unfold Odd in |- *.
       apply (Exists_introduction 0).
@@ -1577,7 +1587,7 @@ Proof.
         apply (Exists_introduction k).
         rewrite e in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
       * apply Disjunction.L.
@@ -1585,17 +1595,17 @@ Proof.
         destruct odd as [k e].
         unfold Even in |- *.
         unfold Divides in |- *.
-        apply (Exists_introduction (k + (+ One))).
+        apply (Exists_introduction (k + (+ Nat.One))).
         rewrite (multiplication.left.distributivity.over.addition
-                   (+ (Successor One)) k (+ One)) in |- *.
-        change ((+ (Successor One)) * (+ One))
-          with ((+ One) + (+ One)) in |- *.
+                   (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
+        change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
+          with ((+ Nat.One) + (+ Nat.One)) in |- *.
         rewrite <- (addition.associativity
-                      ((+ (Successor One)) * k)
-                      (+ One) (+ One)) in |- *.
+                      ((+ (Nat.Successor Nat.One)) * k)
+                      (+ Nat.One) (+ Nat.One)) in |- *.
         rewrite e in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' One) in |- *.
+        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
 Qed.
@@ -1621,7 +1631,7 @@ Module odd. (* parity.odd *)
 
 Module addition. (* parity.odd.addition *)
 
-(* Two odds meet at an even, not at an odd: the [+ One] each carries pairs
+(* Two odds meet at an even, not at an odd: the [+ Nat.One] each carries pairs
  * off with the other, so the sum is not closed in [Odd].
  *)
 (* parity.odd.addition.evenness *)
@@ -1634,18 +1644,18 @@ Proof.
   destruct h1 as [k1 e1].
   destruct h2 as [k2 e2].
   unfold Divides in |- *.
-  apply (Exists_introduction ((k1 + k2) + (+ One))).
+  apply (Exists_introduction ((k1 + k2) + (+ Nat.One))).
   symmetry in e1, e2.
   rewrite e1, e2 in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-             (+ (Successor One)) (k1 + k2) (+ One)) in |- *.
+             (+ (Nat.Successor Nat.One)) (k1 + k2) (+ Nat.One)) in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-             (+ (Successor One)) k1 k2) in |- *.
-  change ((+ (Successor One)) * (+ One))
-    with ((+ One) + (+ One)) in |- *.
+             (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
+  change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
+    with ((+ Nat.One) + (+ Nat.One)) in |- *.
   rewrite (addition.interchange
-             ((+ (Successor One)) * k1) (+ One)
-             ((+ (Successor One)) * k2) (+ One)) in |- *.
+             ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
+             ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
   reflexivity.
 Qed.
 
@@ -1656,6 +1666,12 @@ End odd. (* parity.odd *)
 End parity. (* parity *)
 
 End NatWithZero. (* NatWithZero *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [NatWithZero], not [NatWithZero.T]. [Zero] and [Positive] name ctors of
+ * [Integer] as well, so both types write theirs with the prefix.
+ *)
+Abbreviation NatWithZero := NatWithZero.T.
 
 (* Makes the notations declared in [Module NatWithZero] usable in every file
  * that imports this one, as [(m + n)%nat_with_zero] or under an opened
@@ -1672,7 +1688,7 @@ Export (notations) NatWithZero.
 Existing Instance NatWithZero.comparable.
 
 Instance NatWithZero_add_monoid
-  : Monoid NatWithZero.add Zero := {|
+  : Monoid NatWithZero.add NatWithZero.Zero := {|
     Monoid.semigroup :=
       {| Semigroup.associativity := NatWithZero.addition.associativity |}
   ; Monoid.identity := NatWithZero.addition.identity
@@ -1684,7 +1700,7 @@ Instance NatWithZero_add_cancellative
   |}.
 
 Instance NatWithZero_mul_monoid
-  : Monoid NatWithZero.mul (Positive One) := {|
+  : Monoid NatWithZero.mul (NatWithZero.Positive Nat.One) := {|
     Monoid.semigroup := {|
       Semigroup.associativity := NatWithZero.multiplication.associativity |}
   ; Monoid.identity := NatWithZero.multiplication.identity |}.
@@ -1695,7 +1711,7 @@ Instance NatWithZero_add_commutative
   |}.
 
 Instance NatWithZero_add_abelian_monoid
-  : AbelianMonoid NatWithZero.add Zero :=
+  : AbelianMonoid NatWithZero.add NatWithZero.Zero :=
   {| AbelianMonoid.monoid      := NatWithZero_add_monoid
    ; AbelianMonoid.commutative := NatWithZero_add_commutative |}.
 
@@ -1709,7 +1725,7 @@ Instance NatWithZero_min_semigroup
   {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
 Instance NatWithZero_max_monoid
-  : Monoid NatWithZero.max Zero :=
+  : Monoid NatWithZero.max NatWithZero.Zero :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Comparable.maximum.associativity |}
    ; Monoid.identity := NatWithZero.maximum.identity |}.
@@ -1723,7 +1739,8 @@ Instance NatWithZero_max_commutative
   {| Commutative.commutativity := Comparable.maximum.commutativity |}.
 
 Instance NatWithZero_semiring
-  : Semiring NatWithZero.add Zero NatWithZero.mul (Positive One) :=
+  : Semiring NatWithZero.add NatWithZero.Zero NatWithZero.mul
+      (NatWithZero.Positive Nat.One) :=
   {| Semiring.abelian_monoid := NatWithZero_add_abelian_monoid
    ; Semiring.monoid         := NatWithZero_mul_monoid
    ; Semiring.distributivity := NatWithZero.multiplication.distributivity.over.addition
