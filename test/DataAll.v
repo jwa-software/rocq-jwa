@@ -323,9 +323,10 @@ Definition data_all_delivers_range
   := List.range (NatWithZero.Positive Nat.One).
 
 Definition data_all_delivers_extrema
-  : NatWithZero * Option NatWithZero
-  := Product_introduction (List.maximum_of (List.Cons NatWithZero.Zero List.Nil))
-                          (List.minimum_of (List.Cons NatWithZero.Zero List.Nil)).
+  : Option NatWithZero * Option NatWithZero
+  := Product_introduction
+       (List.maximum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil))
+       (List.minimum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil)).
 
 Definition data_all_delivers_gauss
   : NatWithZero.mul (NatWithZero.Positive (Nat.Successor Nat.One))

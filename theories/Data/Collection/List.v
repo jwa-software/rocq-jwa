@@ -419,17 +419,37 @@ Definition range := fun (n : NatWithZero) .
   | NatWithZero.Positive p => range_positive p
   end.
 
-(* [List NatWithZero -> NatWithZero] *)
-Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max NatWithZero.Zero l.
-
-(* [List NatWithZero -> Option NatWithZero] *)
-Fixpoint minimum_of (l : List NatWithZero) : Option NatWithZero :=
+(* [le a b] answers whether [a] may precede [b]; it is the comparison
+ * [insert] and [insertion_sort] take. The maximum of a list is the later of
+ * its head and the maximum of its tail, so the empty list has none.
+ *)
+(* [forall {A : Type} . (A -> A -> Bool) -> List A -> Option A] *)
+Fixpoint maximum_of {A : Type} (le : A -> A -> Bool) (l : List A) : Option A :=
   match l with
   | []      => None
   | a :: l' =>
-      match minimum_of l' with
+      match maximum_of le l' with
       | None   => Some a
-      | Some m => Some (NatWithZero.min a m)
+      | Some m =>
+          match le a m with
+          | true  => Some m
+          | false => Some a
+          end
+      end
+  end.
+
+(* [forall {A : Type} . (A -> A -> Bool) -> List A -> Option A] *)
+Fixpoint minimum_of {A : Type} (le : A -> A -> Bool) (l : List A) : Option A :=
+  match l with
+  | []      => None
+  | a :: l' =>
+      match minimum_of le l' with
+      | None   => Some a
+      | Some m =>
+          match le a m with
+          | true  => Some a
+          | false => Some m
+          end
       end
   end.
 
@@ -2768,68 +2788,137 @@ End sum. (* range.sum *)
 
 End range. (* range *)
 
+Module comparison. (* comparison *)
+
+(* [le] is the comparison that [insert], [insertion_sort], [maximum_of] and
+ * [minimum_of] take. Both facts below follow from totality alone, and the
+ * extrema laws use them where an element is compared with itself or where
+ * a [false] answer has to be read the other way round.
+ *)
+
+(* comparison.reflexivity *)
+Lemma reflexivity
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      forall (a : A) . le a a = true.
+Proof.
+  intros A le total a.
+  destruct (total a a) as [h | h].
+  - exact h.
+  - exact h.
+Qed.
+
+(* comparison.contraposition *)
+Lemma contraposition
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      forall {a : A} {b : A} . le a b = false -> le b a = true.
+Proof.
+  intros A le total a b s.
+  destruct (total a b) as [h | h].
+  - rewrite s in h.
+    discriminate h.
+  - exact h.
+Qed.
+
+End comparison. (* comparison *)
+
 Module maximum. (* maximum *)
+
+Module absence. (* maximum.absence *)
+
+(* maximum.absence.specification *)
+Lemma specification
+  : forall {A : Type} (le : A -> A -> Bool) (l : List A) .
+      maximum_of le l = None <-> l = [].
+Proof.
+  intros A le l.
+  split.
+  - intro e.
+    destruct l as [| a l'].
+    + reflexivity.
+    + simpl in e.
+      destruct (maximum_of le l') as [| m].
+      * discriminate e.
+      * destruct (le a m).
+        -- discriminate e.
+        -- discriminate e.
+  - intro e.
+    rewrite e in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
+End absence. (* maximum.absence *)
 
 (* maximum.bound *)
 Theorem bound
-  : forall (l : List NatWithZero) .
-      All (fun (a : NatWithZero) . a <= maximum_of l) l.
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall {l : List A} {m : A} .
+        maximum_of le l = Some m -> All (fun (a : A) . le a m = true) l.
 Proof.
-  intros l.
-  unfold maximum_of in |- *.
+  intros A le total transitive l.
   induction l as [| a l' IH] using List.induction.
-  - simpl in |- *.
-    exact I.
-  - simpl in |- *.
-    split.
-    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max NatWithZero.Zero l')).
-    + exact (quantification.all.monotonicity
-               (fun (x : NatWithZero)
-                    (h : x <= fold_right NatWithZero.max NatWithZero.Zero l') .
-                  Comparable.order.transitivity
-                    x (fold_right NatWithZero.max NatWithZero.Zero l')
-                    (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero l'))
-                    h
-                    (Comparable.maximum.right.injection
-                       a (fold_right NatWithZero.max NatWithZero.Zero l')))
-               IH).
+  - intros m e.
+    simpl in e.
+    discriminate e.
+  - intros m e.
+    simpl in e.
+    destruct (maximum_of le l') as [| m'] eqn:r.
+    + pose proof (->elim (absence.specification le l') r) as en.
+      pose proof (Option.some.injectivity e) as e'.
+      rewrite en in |- *.
+      rewrite <- e' in |- *.
+      simpl in |- *.
+      split.
+      * exact (comparison.reflexivity total a).
+      * exact I.
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        split.
+        -- exact s.
+        -- exact (IH m' (Identity.reflexivity (Some m'))).
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        pose proof (comparison.contraposition total s) as ha.
+        split.
+        -- exact (comparison.reflexivity total a).
+        -- exact (quantification.all.monotonicity
+                    (fun (x : A) (h : le x m' = true) . transitive x m' a h ha)
+                    (IH m' (Identity.reflexivity (Some m')))).
 Qed.
 
 (* maximum.membership *)
 Theorem membership
-  : forall {l : List NatWithZero} . ~ (l = []) -> l contains_member maximum_of l.
+  : forall {A : Type} {le : A -> A -> Bool} {l : List A} {m : A} .
+      maximum_of le l = Some m -> l contains_member m.
 Proof.
-  intros l.
-  unfold maximum_of in |- *.
+  intros A le l.
   induction l as [| a l' IH] using List.induction.
-  - intro h.
-    unfold Negation in h.
-    pose proof (h (Identity.reflexivity [])) as f.
-    contradiction f.
-  - intro h.
-    destruct l' as [| b l''].
-    + simpl in |- *.
-      rewrite (NatWithZero.maximum.right.identity a) in |- *.
-      exact (Disjunction.L (Identity.reflexivity a)).
-    + pose proof (IH (distinctness b l'')) as c.
-      change (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) = a
-              \/ (b :: l'')
-                 contains_member
-                 NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
-      pose proof (Comparable.order.totality
-                    (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) as t.
-      destruct t as [le | ge].
-      * apply Disjunction.L.
-        exact (<-elim
-                 (Comparable.maximum.specification
-                    a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) le).
-      * apply Disjunction.R.
-        rewrite (Comparable.maximum.commutativity
-                   a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
-        rewrite (<-elim
-                   (Comparable.maximum.specification
-                      (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) ge) in |- *.
-        exact c.
+  - intros m e.
+    simpl in e.
+    discriminate e.
+  - intros m e.
+    simpl in e.
+    destruct (maximum_of le l') as [| m'] eqn:r.
+    + pose proof (Option.some.injectivity e) as e'.
+      simpl in |- *.
+      exact (Disjunction.L (Identity.symmetry e')).
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        apply Disjunction.R.
+        exact (IH m' (Identity.reflexivity (Some m'))).
+      * pose proof (Option.some.injectivity e) as e'.
+        simpl in |- *.
+        exact (Disjunction.L (Identity.symmetry e')).
 Qed.
 
 End maximum. (* maximum *)
@@ -2840,17 +2929,20 @@ Module absence. (* minimum.absence *)
 
 (* minimum.absence.specification *)
 Lemma specification
-  : forall (l : List NatWithZero) . minimum_of l = None <-> l = [].
+  : forall {A : Type} (le : A -> A -> Bool) (l : List A) .
+      minimum_of le l = None <-> l = [].
 Proof.
-  intros l.
+  intros A le l.
   split.
   - intro e.
     destruct l as [| a l'].
     + reflexivity.
     + simpl in e.
-      destruct (minimum_of l') as [| m].
+      destruct (minimum_of le l') as [| m].
       * discriminate e.
-      * discriminate e.
+      * destruct (le a m).
+        -- discriminate e.
+        -- discriminate e.
   - intro e.
     rewrite e in |- *.
     simpl in |- *.
@@ -2861,69 +2953,70 @@ End absence. (* minimum.absence *)
 
 (* minimum.bound *)
 Theorem bound
-  : forall {l : List NatWithZero} {m : NatWithZero} .
-      minimum_of l = Some m
-      -> All (fun (a : NatWithZero) . m <= a) l.
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall {l : List A} {m : A} .
+        minimum_of le l = Some m -> All (fun (a : A) . le m a = true) l.
 Proof.
-  intros l.
+  intros A le total transitive l.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (minimum_of l') as [| m'] eqn:r.
-    + simpl in e.
-      pose proof (->elim (minimum.absence.specification l') r) as en.
+    destruct (minimum_of le l') as [| m'] eqn:r.
+    + pose proof (->elim (absence.specification le l') r) as en.
       pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
-      rewrite e' in |- *.
-      simpl in |- *.
-      exact (Conjunction_introduction (Comparable.order.reflexivity m) I).
-    + simpl in e.
-      pose proof (Option.some.injectivity e) as e'.
-      symmetry in e'.
-      rewrite e' in |- *.
+      rewrite <- e' in |- *.
       simpl in |- *.
       split.
-      * exact (Comparable.minimum.left.projection a m').
-      * exact (quantification.all.monotonicity
-                 (fun (x : NatWithZero) (h : m' <= x) .
-                    Comparable.order.transitivity
-                      (NatWithZero.min a m') m' x
-                      (Comparable.minimum.right.projection a m') h)
-                 (IH m' (Identity.reflexivity (Some m')))).
+      * exact (comparison.reflexivity total a).
+      * exact I.
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        split.
+        -- exact (comparison.reflexivity total a).
+        -- exact (quantification.all.monotonicity
+                    (fun (x : A) (h : le m' x = true) . transitive a m' x s h)
+                    (IH m' (Identity.reflexivity (Some m')))).
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        split.
+        -- exact (comparison.contraposition total s).
+        -- exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
 (* minimum.membership *)
 Theorem membership
-  : forall {l : List NatWithZero} {m : NatWithZero} .
-      minimum_of l = Some m -> l contains_member m.
+  : forall {A : Type} {le : A -> A -> Bool} {l : List A} {m : A} .
+      minimum_of le l = Some m -> l contains_member m.
 Proof.
-  intros l.
+  intros A le l.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (minimum_of l') as [| m'] eqn:r.
-    + simpl in e.
-      pose proof (Option.some.injectivity e) as e'.
+    destruct (minimum_of le l') as [| m'] eqn:r.
+    + pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
       exact (Disjunction.L (Identity.symmetry e')).
-    + simpl in e.
-      pose proof (Option.some.injectivity e) as e'.
-      symmetry in e'.
-      rewrite e' in |- *.
-      simpl in |- *.
-      pose proof (Comparable.order.totality a m') as t.
-      destruct t as [le | ge].
-      * apply Disjunction.L.
-        exact (<-elim (Comparable.minimum.specification a m') le).
-      * apply Disjunction.R.
-        rewrite (Comparable.minimum.commutativity a m') in |- *.
-        rewrite (<-elim (Comparable.minimum.specification m' a) ge) in |- *.
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        simpl in |- *.
+        exact (Disjunction.L (Identity.symmetry e')).
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        apply Disjunction.R.
         exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
