@@ -175,25 +175,25 @@ Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
  * the remainder reaches the divisor. The divisor is a [Nat], so it is never
  * zero. The result is the pair of quotient and remainder.
  *)
+Local Open Scope jwa_product_scope.
+
 (* [Nat -> Nat -> Product NatWithZero NatWithZero] *)
 Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
   match dividend with
   | Nat.One =>
       match divisor with
-      | Nat.One         => Product_introduction (+ Nat.One) 0
-      | Nat.Successor _ => Product_introduction 0 (+ Nat.One)
+      | Nat.One         => ((+ Nat.One), 0)
+      | Nat.Successor _ => (0, (+ Nat.One))
       end
   | Nat.Successor dividend' =>
       match division dividend' divisor with
-      | Product_introduction quotient remainder =>
+      | (quotient, remainder) =>
           match eq (++ remainder) (+ divisor) with
-          | true  => Product_introduction (++ quotient) 0
-          | false => Product_introduction quotient      (++ remainder)
+          | true  => ((++ quotient), 0)
+          | false => (quotient, (++ remainder))
           end
       end
   end.
-
-Local Open Scope jwa_product_scope.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
 Definition divide := fun (n : NatWithZero) (divisor : Nat) .

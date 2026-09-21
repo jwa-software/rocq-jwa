@@ -19,7 +19,7 @@ Definition data_all_delivers_product
   := (true , false)%product.
 
 Definition data_all_delivers_first
-  : forall (A : Type) (a : A) (b : A) . Product.first (Product_introduction a b) = a
+  : forall (A : Type) (a : A) (b : A) . Product.first (a , b)%product = a
   := fun (A : Type) (a : A) (b : A) . Identity.reflexivity a.
 
 Definition data_all_delivers_projections
@@ -28,12 +28,12 @@ Definition data_all_delivers_projections
 
 Definition data_all_delivers_product_functor
   : Bool * Bool
-  := Functor.map (fun (b : Bool) . b) (Product_introduction true false).
+  := Functor.map (fun (b : Bool) . b) (true , false)%product.
 
 Definition data_all_delivers_product_monoid
   : forall (p : Bool * Bool) .
-      Product.direct_product Bool.and Bool.or (Product_introduction true false) p = p
-      /\ Product.direct_product Bool.and Bool.or p (Product_introduction true false) = p
+      Product.direct_product Bool.and Bool.or (true , false)%product p = p
+      /\ Product.direct_product Bool.and Bool.or p (true , false)%product = p
   := Monoid.identity.
 
 Definition data_all_delivers_coproduct
@@ -238,8 +238,8 @@ Definition data_all_delivers_nat_max_monoid
 
 Definition data_all_delivers_division
   : NatWithZero * NatWithZero
-  := Product_introduction (NatWithZero.divide (NatWithZero.Positive Nat.One) Nat.One)
-                          (NatWithZero.modulo (NatWithZero.Positive Nat.One) Nat.One).
+  := (NatWithZero.divide (NatWithZero.Positive Nat.One) Nat.One
+     , NatWithZero.modulo (NatWithZero.Positive Nat.One) Nat.One)%product.
 
 Definition data_all_delivers_nth
   : Option Bool
@@ -332,9 +332,8 @@ Definition data_all_delivers_range_inclusive
 
 Definition data_all_delivers_extrema
   : Option NatWithZero * Option NatWithZero
-  := Product_introduction
-       (List.maximum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil))
-       (List.minimum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil)).
+  := (List.maximum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil)
+     , List.minimum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil))%product.
 
 Definition data_all_delivers_gauss
   : NatWithZero.mul (NatWithZero.Positive (Nat.Successor Nat.One))

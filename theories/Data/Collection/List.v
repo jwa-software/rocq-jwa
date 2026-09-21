@@ -94,6 +94,11 @@ Local Open Scope jwa_nat_with_zero_scope.
  *)
 Local Open Scope jwa_bool_scope.
 
+(* [Product]'s scope is opened for the [(a, b)] of [pop], [zip], [unzip],
+ * [partition] and [split_at], whose results are pairs.
+ *)
+Local Open Scope jwa_product_scope.
+
 (* Recursion is on the first list: [concat Nil l2] is [l2], and each [Cons]
  * of [l1] is put back in front of the result.
  *)
@@ -249,14 +254,14 @@ Definition initial := fun {A : Type} (l : List A) . Option.map reverse (tail (re
 Definition pop := fun {A : Type} (l : List A) .
   match l return Option (A * List A) with
   | []      => None
-  | a :: l' => Some (Product_introduction a l')
+  | a :: l' => Some (a, l')
   end.
 
 (* [forall {A : Type} {B : Type} . List A -> List B -> List (A * B)] *)
 Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
   : List (A * B) :=
   match l1, l2 with
-  | a :: l1', b :: l2' => Product_introduction a b :: zip l1' l2'
+  | a :: l1', b :: l2' => (a, b) :: zip l1' l2'
   | [], []             => []
   | [], _ :: _         => []
   | _ :: _, []         => []
@@ -267,7 +272,7 @@ Fixpoint zip {A : Type} {B : Type} (l1 : List A) (l2 : List B)
  *)
 (* [forall {A : Type} {B : Type} . List (A * B) -> List A * List B] *)
 Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) .
-  Product_introduction (map Product.first l) (map Product.second l).
+  (map Product.first l, map Product.second l).
 
 (* Splits a list into the elements [p] accepts and the ones it rejects, in
  * one pass; the recursive result is opened by a [match] so both halves
@@ -277,13 +282,13 @@ Definition unzip := fun {A : Type} {B : Type} (l : List (A * B)) .
 Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
   : List A * List A :=
   match l with
-  | []      => Product_introduction [] []
+  | []      => ([], [])
   | a :: l' =>
       match partition p l' with
-      | Product_introduction yes no =>
+      | (yes, no) =>
           match p a with
-          | true  => Product_introduction (a :: yes) no
-          | false => Product_introduction yes (a :: no)
+          | true  => (a :: yes, no)
+          | false => (yes, a :: no)
           end
       end
   end.
@@ -334,7 +339,7 @@ Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
 
 (* [forall {A : Type} . NatWithZero -> List A -> List A * List A] *)
 Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) .
-  Product_introduction (take n l) (drop n l).
+  (take n l, drop n l).
 
 (* [replicate n a] is [a] repeated [n] times. A count of [NatWithZero.Zero] gives [Nil];
  * a positive count recurses on its [Nat], one element per step, since a
@@ -1809,7 +1814,7 @@ Module forward. (* popping.forward *)
 (* popping.forward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l' : List A} {l : List A} .
-      pop l = Some (Product_introduction a l') -> l = a :: l'.
+      pop l = Some (a, l') -> l = a :: l'.
 Proof.
   intros A a l' l.
   destruct l as [| b rest].
@@ -1832,7 +1837,7 @@ Module backward. (* popping.backward *)
 (* popping.backward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l' : List A} {l : List A} .
-      l = a :: l' -> pop l = Some (Product_introduction a l').
+      l = a :: l' -> pop l = Some (a, l').
 Proof.
   intros A a l' l e.
   rewrite e in |- *.
@@ -1846,7 +1851,7 @@ End backward. (* popping.backward *)
 (* popping.specification *)
 Theorem specification
   : forall {A : Type} (a : A) (l' : List A) (l : List A) .
-      pop l = Some (Product_introduction a l') <-> l = a :: l'.
+      pop l = Some (a, l') <-> l = a :: l'.
 Proof.
   intros A a l' l.
   split.
@@ -1963,7 +1968,7 @@ Module of. (* unzipping.inversion.of *)
 (* unzipping.inversion.of.zipping *)
 Theorem zipping
   : forall {A : Type} {B : Type} {l1 : List A} {l2 : List B} .
-      (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = Product_introduction l1 l2.
+      (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = (l1, l2).
 Proof.
   intros A B l1.
   induction l1 as [| a l1' IH] using List.induction.
@@ -2016,9 +2021,7 @@ Module partitioning. (* partitioning *)
 Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
       partition p l
-      = Product_introduction
-          (filter p l)
-          (filter (fun (a : A) . ! p a) l).
+      = (filter p l, filter (fun (a : A) . ! p a) l).
 Proof.
   intros A p l.
   induction l as [| a l' IH] using List.induction.
@@ -2030,6 +2033,9 @@ Proof.
 Qed.
 
 End partitioning. (* partitioning *)
+
+(* The last law stated about a pair; nothing below spells one. *)
+Local Close Scope jwa_product_scope.
 
 Module indexing. (* indexing *)
 

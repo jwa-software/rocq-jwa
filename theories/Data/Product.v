@@ -15,18 +15,32 @@ Inductive Product (A : Type) (B : Type) : Type :=
 (* Both types are inferred from the components. *)
 Arguments Product_introduction {A} {B} a b.
 
+(* The level is reserved in [Core.Notations]; only the meaning belongs
+ * here. It lives in [jwa_product_scope], which [Core.Notations] declares
+ * without opening, so a client writes [(a, b)%product] or opens the scope.
+ * It prints as well as parses: a pair reads the same in a goal as in the
+ * source that built it.
+ *)
+Notation "( a , b )" := (Product_introduction a b)
+  : jwa_product_scope.
+
+(* Opened for the whole file, so that every definition and law below spells
+ * a pair the way a client does.
+ *)
+Local Open Scope jwa_product_scope.
+
 (* The eliminator behind the [induction] tactic, written out. Nothing recurses: a
  * product holds no smaller product, so one [match] is the whole content.
  *)
 Definition Product_induction
   : forall (A : Type) (B : Type) (P : Product A B -> Prop) .
-    (forall (a : A) (b : B) . P (Product_introduction a b)) ->
+    (forall (a : A) (b : B) . P (a, b)) ->
     (forall (p : Product A B) . P p)
   := fun (A : Type) (B : Type) (P : Product A B -> Prop)
        (step : forall (a : A) (b : B) .
-       P (Product_introduction a b)) (p : Product A B) .
+       P (a, b)) (p : Product A B) .
        match p with
-       | Product_introduction a b => step a b
+       | (a, b) => step a b
        end.
 
 (* A module may carry the type's name; its members read [Product.first]. *)
@@ -35,19 +49,19 @@ Module Product. (* Product *)
 (* [forall {A : Type} {B : Type} . Product A B -> A] *)
 Definition first := fun {A : Type} {B : Type} (p : Product A B) .
   match p return A with
-  | Product_introduction a _ => a
+  | (a, _) => a
   end.
 
 (* [forall {A : Type} {B : Type} . Product A B -> B] *)
 Definition second := fun {A : Type} {B : Type} (p : Product A B) .
   match p return B with
-  | Product_introduction _ b => b
+  | (_, b) => b
   end.
 
 (* [forall {A : Type} {B : Type} . Product A B -> Product B A] *)
 Definition swap := fun {A : Type} {B : Type} (p : Product A B) .
   match p return Product B A with
-  | Product_introduction a b => Product_introduction b a
+  | (a, b) => (b, a)
   end.
 
 (* [forall {A : Type} {B : Type} {C : Type} .
@@ -56,7 +70,7 @@ Definition swap := fun {A : Type} {B : Type} (p : Product A B) .
 Definition map_first := fun {A : Type} {B : Type} {C : Type}
                           (f : A -> C) (p : Product A B) .
   match p return Product C B with
-  | Product_introduction a b => Product_introduction (f a) b
+  | (a, b) => (f a, b)
   end.
 
 (* [forall {A : Type} {B : Type} {C : Type} .
@@ -65,7 +79,7 @@ Definition map_first := fun {A : Type} {B : Type} {C : Type}
 Definition map_second := fun {A : Type} {B : Type} {C : Type}
                            (f : B -> C) (p : Product A B) .
   match p return Product A C with
-  | Product_introduction a b => Product_introduction a (f b)
+  | (a, b) => (a, f b)
   end.
 
 (* [forall {A : Type} {B : Type} {C : Type} {D : Type} .
@@ -75,19 +89,19 @@ Definition bimap := fun {A : Type} {B : Type} {C : Type} {D : Type}
                       (f : A -> C) (g : B -> D)
                       (p : Product A B) .
   match p return Product C D with
-  | Product_introduction a b => Product_introduction (f a) (g b)
+  | (a, b) => (f a, g b)
   end.
 
 (* [forall {A : Type} {B : Type} {C : Type} . (Product A B -> C) -> A -> B -> C] *)
 Definition curry := fun {A : Type} {B : Type} {C : Type}
                       (f : Product A B -> C) (a : A) (b : B) .
-  f (Product_introduction a b).
+  f (a, b).
 
 (* [forall {A : Type} {B : Type} {C : Type} . (A -> B -> C) -> Product A B -> C] *)
 Definition uncurry := fun {A : Type} {B : Type} {C : Type}
                         (f : A -> B -> C) (p : Product A B) .
   match p return C with
-  | Product_introduction a b => f a b
+  | (a, b) => f a b
   end.
 
 (* [forall {A : Type} {B : Type} .
@@ -97,8 +111,7 @@ Definition direct_product := fun {A : Type} {B : Type}
                                (f1 : A -> A -> A) (f2 : B -> B -> B)
                                (p1 : Product A B) (p2 : Product A B) .
   match p1, p2 return Product A B with
-  | Product_introduction a1 b1, Product_introduction a2 b2 =>
-      Product_introduction (f1 a1 a2) (f2 b1 b2)
+  | (a1, b1), (a2, b2) => (f1 a1 a2, f2 b1 b2)
   end.
 
 Module introduction. (* introduction *)
@@ -106,7 +119,7 @@ Module introduction. (* introduction *)
 (* introduction.injectivity *)
 Theorem injectivity
   : forall {A : Type} {B : Type} {a1 : A} {b1 : B} {a2 : A} {b2 : B} .
-      (Product_introduction a1 b1 = Product_introduction a2 b2) -> (a1 = a2) /\ (b1 = b2).
+      ((a1, b1) = (a2, b2)) -> (a1 = a2) /\ (b1 = b2).
 Proof.
   intros A B a1 b1 a2 b2 e.
   pose proof (Identity.congruence first  e) as a. simpl in a.
@@ -117,7 +130,7 @@ Qed.
 (* introduction.surjectivity *)
 Theorem surjectivity
   : forall {A : Type} {B : Type} (p : Product A B) .
-      p = Product_introduction (first p) (second p).
+      p = (first p, second p).
 Proof.
   intros A B p.
   destruct p as [a b].
@@ -323,7 +336,7 @@ Lemma identity
       Monoid f1 eA ->
       Monoid f2 eB ->
       forall (p : Product A B) .
-        direct_product f1 f2 (Product_introduction eA eB) p = p.
+        direct_product f1 f2 (eA, eB) p = p.
 Proof.
   intros A B f1 eA f2 eB MA MB p.
   destruct p as [a b].
@@ -345,7 +358,7 @@ Lemma identity
       Monoid f1 eA ->
       Monoid f2 eB ->
       forall (p : Product A B) .
-      direct_product f1 f2 p (Product_introduction eA eB) = p.
+      direct_product f1 f2 p (eA, eB) = p.
 Proof.
   intros A B f1 eA f2 eB MA MB p.
   destruct p as [a b].
@@ -365,8 +378,8 @@ Theorem identity
       Monoid f1 eA ->
       Monoid f2 eB ->
       forall (p : Product A B) .
-        (direct_product f1 f2 (Product_introduction eA eB) p = p)
-      /\ (direct_product f1 f2 p (Product_introduction eA eB) = p).
+        (direct_product f1 f2 (eA, eB) p = p)
+      /\ (direct_product f1 f2 p (eA, eB) = p).
 Proof.
   intros A B f1 eA f2 eB MA MB p.
   split.
@@ -402,15 +415,6 @@ End Product. (* Product *)
  *)
 Notation "A * B" := (Product A B)
   : jwa_type_scope.
-
-(* The value-level notations live in [jwa_product_scope], which
- * [Core.Notations] declares without opening: a client writes
- * [(a , b)%product] or opens the scope. [only parsing] keeps them out of
- * printing, so a goal shows [Product_introduction a b] as the code names it
- * rather than [(a, b)%product].
- *)
-Notation "( a , b )" := (Product_introduction a b) (only parsing)
-  : jwa_product_scope.
 
 (* The projections under their textbook names. Each is a keyword standing
  * for the function itself, so [pi_1 p] is ordinary application and
@@ -453,7 +457,7 @@ Instance Product_monoid
       (B : Type) (opB : B -> B -> B) (eB : B) .
       Monoid opA eA ->
       Monoid opB eB ->
-      Monoid (Product.direct_product opA opB) (Product_introduction eA eB) :=
+      Monoid (Product.direct_product opA opB) (eA, eB) :=
   fun (A : Type) (opA : A -> A -> A) (eA : A)
       (B : Type) (opB : B -> B -> B) (eB : B)
       (MA : Monoid opA eA)
