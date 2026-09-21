@@ -14,6 +14,7 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
  * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
@@ -158,6 +159,17 @@ Definition mul := fun (m : Integer) (n : Integer) .
 
 Notation "m * n" := (mul m n) (only parsing)
   : jwa_integer_scope.
+
+(* The divisor is a [Nat], so it is never zero and no case is missing: the
+ * magnitude is divided and the sign carried over.
+ *)
+(* [Integer -> Nat -> Integer] *)
+Definition divide := fun (x : Integer) (d : Nat) .
+  match x with
+  | - p => negate (from_nat_with_zero (NatWithZero.divide (NatWithZero.Positive p) d))
+  | 0   => 0
+  | + p => from_nat_with_zero (NatWithZero.divide (NatWithZero.Positive p) d)
+  end.
 
 (* [Integer -> Integer -> Prop] *)
 Definition LessThan := fun (m : Integer) (n : Integer) .
@@ -1625,6 +1637,24 @@ Proof.
 Qed.
 
 End comparison. (* comparison *)
+
+Module division. (* division *)
+
+(* division.magnitude *)
+Theorem magnitude
+  : forall (x : Integer) (d : Nat) .
+      (| divide x d |) = NatWithZero.divide (| x |) d.
+Proof.
+  intros x d.
+  destruct x as [p | | p].
+  - simplify divide, abs in |- *.
+    destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+  - reflexivity.
+  - simplify divide, abs in |- *.
+    destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+Qed.
+
+End division. (* division *)
 
 Module divisibility. (* divisibility *)
 

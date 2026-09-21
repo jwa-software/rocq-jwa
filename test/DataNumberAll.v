@@ -50,6 +50,17 @@ Definition data_number_all_delivers_gcd_greatest
       NatWithZero.Divides d b -> NatWithZero.Divides d (NatWithZero.gcd a b)
   := NatWithZero.gcd.greatest.
 
+Definition data_number_all_delivers_gcd_positive
+  : forall (q : Nat) (a : NatWithZero) .
+      NatWithZero.gcd a (NatWithZero.Positive q)
+      = NatWithZero.Positive (NatWithZero.gcd.positive a q)
+  := NatWithZero.gcd.positive.specification.
+
+Definition data_number_all_delivers_integer_divide
+  : forall (x : Integer) (d : Nat) .
+      Integer.abs (Integer.divide x d) = NatWithZero.divide (Integer.abs x) d
+  := Integer.division.magnitude.
+
 Definition data_number_all_delivers_well_founded_magnitude
   : forall (x : Integer) .
       Accessible (Preimage Integer.abs NatWithZero.LessThan) x

@@ -1557,12 +1557,67 @@ Proof.
   - exact (h ((+ q), modulo a q) (division.bound a q)).
 Qed.
 
+Module positive. (* euclid.positive *)
+
+(* euclid.positive.well_founded *)
+Instance well_founded
+  : WellFounded (Preimage (@Product.second NatWithZero Nat) Nat.LessThan) :=
+  WellFounded.preimage (@Product.second NatWithZero Nat) Nat.LessThan
+    Nat_less_than_well_founded.
+
+(* The inner [return] carries the bound rather than an equation, so the
+ * branch for a positive remainder has [(+ r) < + q] already in hand.
+ *)
+(* [forall (p : Product NatWithZero Nat) .
+ *    (forall (s : Product NatWithZero Nat) .
+ *       Preimage Product.second Nat.LessThan s p -> Nat) ->
+ *    Nat]
+ *)
+Definition step :=
+  fun (p : Product NatWithZero Nat)
+    (recurse : forall (s : Product NatWithZero Nat) .
+                 Preimage (@Product.second NatWithZero Nat) Nat.LessThan s p -> Nat) .
+    match p as t
+      return ((forall (s : Product NatWithZero Nat) .
+                 Preimage (@Product.second NatWithZero Nat) Nat.LessThan s t -> Nat) ->
+              Nat)
+    with
+    | (a, q) =>
+        fun (descend : forall (s : Product NatWithZero Nat) .
+                         Preimage (@Product.second NatWithZero Nat) Nat.LessThan s (a, q) ->
+                         Nat) .
+          match modulo a q as m return (m < (+ q) -> Nat) with
+          | 0 => fun (_ : 0 < (+ q)) . q
+          | + r =>
+              fun (h : (+ r) < (+ q)) .
+                descend ((+ q), r) (->elim (positive.order.embedding r q) h)
+          end (division.bound a q)
+    end recurse.
+
+(* euclid.positive.extensionality *)
+Lemma extensionality : Extensional step.
+Proof.
+  intros p f g h.
+  destruct p as [a q].
+  simplify step in |- *.
+  generalize (division.bound a q).
+  destruct (modulo a q) as [| r].
+  - intros b.
+    reflexivity.
+  - intros b.
+    exact (h ((+ q), r) (->elim (positive.order.embedding r q) b)).
+Qed.
+
+End positive. (* euclid.positive *)
+
 End euclid. (* euclid *)
 
 (* An instance declared inside a submodule is dropped at its [End], so it is
  * announced again here, where [gcd] resolves it.
  *)
 Existing Instance euclid.well_founded.
+
+Existing Instance euclid.positive.well_founded.
 
 (* Greatest Common Divisor *)
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
@@ -1855,6 +1910,73 @@ Proof.
       exact (divisibility.addition.cancellation hm h1).
   - exact (order.strict.wellfoundedness b).
 Qed.
+
+(* Euclid again, with the second argument and the result both [Nat]. A
+ * denominator has to come back as a [Nat], and a [Prop] saying the general
+ * [gcd] is positive cannot hand one over.
+ *)
+(* [NatWithZero -> Nat -> Nat] *)
+Definition positive :=
+  fun (a : NatWithZero) (q : Nat) .
+    (WellFounded.recursion euclid.positive.step (a, q)).
+
+Module positive. (* gcd.positive *)
+
+(* gcd.positive.zero *)
+Theorem zero
+  : forall (a : NatWithZero) (q : Nat) . modulo a q = 0 -> gcd.positive a q = q.
+Proof.
+  intros a q e.
+  simplify gcd.positive in |- *.
+  rewrite (WellFounded.recursion.unfolding
+             euclid.positive.extensionality (a, q)) in |- *.
+  simplify euclid.positive.step in |- *.
+  generalize (division.bound a q).
+  rewrite e in |- *.
+  intros b.
+  reflexivity.
+Qed.
+
+(* gcd.positive.recurrence *)
+Theorem recurrence
+  : forall (a : NatWithZero) (q : Nat) (r : Nat) .
+      modulo a q = + r -> gcd.positive a q = gcd.positive (+ q) r.
+Proof.
+  intros a q r e.
+  simplify gcd.positive in |- *.
+  rewrite (WellFounded.recursion.unfolding
+             euclid.positive.extensionality (a, q)) in |- *.
+  simplify euclid.positive.step in |- *.
+  generalize (division.bound a q).
+  rewrite e in |- *.
+  intros b.
+  reflexivity.
+Qed.
+
+(* Everything proved of [gcd] travels across this line. *)
+(* gcd.positive.specification *)
+Theorem specification
+  : forall (q : Nat) (a : NatWithZero) . gcd a (+ q) = + (gcd.positive a q).
+Proof.
+  intros q.
+  apply (Accessible.recursion
+           (R := Nat.LessThan)
+           (P := fun (c : Nat) .
+                 forall (a : NatWithZero) . gcd a (+ c) = + (gcd.positive a c))).
+  - intros c recurse a.
+    rewrite (gcd.recurrence a c) in |- *.
+    destruct (modulo a c) as [| r] eqn:e.
+    + rewrite (gcd.zero (+ c)) in |- *.
+      rewrite (gcd.positive.zero a c e) in |- *.
+      reflexivity.
+    + rewrite (gcd.positive.recurrence a c r e) in |- *.
+      pose proof (division.bound a c) as b.
+      rewrite e in b.
+      exact (recurse r (->elim (positive.order.embedding r c) b) (+ c)).
+  - exact (accessibility q).
+Qed.
+
+End positive. (* gcd.positive *)
 
 End gcd. (* gcd *)
 
