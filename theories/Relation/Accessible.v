@@ -54,7 +54,10 @@ Definition descend :=
 Fixpoint recursion
   {A : Type} {P : A -> Type} {R : A -> A -> Prop}
   (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
-  (x : A) (a : Accessible R x) {struct a} : P x :=
+  (x : A)
+  (a : Accessible R x)
+  {struct a}
+  : P x :=
   step x (fun (y : A) (r : R y x) . recursion step y (descend a r)).
 
 Module recursion. (* recursion *)
@@ -63,10 +66,10 @@ Module recursion. (* recursion *)
 Theorem unfolding
   : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop}
       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
-      (x : A) (a : Accessible R x) .
-      Accessible.recursion step x a
-      = step x (fun (y : A) (r : R y x) .
-                  Accessible.recursion step y (Accessible.descend a r)).
+      (x : A)
+      (a : Accessible R x) .
+      recursion step x a
+    = step x (fun (y : A) (r : R y x) . recursion step y (Accessible.descend a r)).
 Proof.
   intros A P R step x a.
   destruct a as [f].
@@ -78,15 +81,15 @@ Theorem independence
   : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop}
       {step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x} .
       Extensional step ->
-      (forall (x : A) (a : Accessible R x) (b : Accessible R x) .
-         Accessible.recursion step x a = Accessible.recursion step x b).
+      forall (x : A) (a : Accessible R x) (b : Accessible R x) .
+      recursion step x a = recursion step x b.
 Proof.
   intros A P R step extensional x a b.
-  apply (Accessible.recursion
+  apply (recursion
            (R := R)
            (P := fun (c : A) .
                  forall (u : Accessible R c) (v : Accessible R c) .
-                   Accessible.recursion step c u = Accessible.recursion step c v)).
+                   recursion step c u = recursion step c v)).
   - intros c recurse u v.
     rewrite (unfolding step c u) in |- *.
     rewrite (unfolding step c v) in |- *.

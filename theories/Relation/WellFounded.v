@@ -11,8 +11,8 @@ From jwa Require Import Tactics.Simplify.
 Class WellFounded {A : Type} (R : A -> A -> Prop) : Prop :=
   { accessibility : forall (x : A) . Accessible R x }.
 
-(* [y] is below [x] under [Preimage f R] exactly when [f y] is below [f x]
- * under [R].
+(* For [f : A -> B],
+ * the preimage of [b : B] is the collection of all [a : A] such that [f a = b].
  *)
 (* [forall {A : Type} {B : Type} . (A -> B) -> (B -> B -> Prop) -> A -> A -> Prop] *)
 Definition Preimage :=
@@ -31,8 +31,8 @@ Module WellFounded. (* WellFounded *)
  *)
 Definition recursion :=
   fun {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R}
-    (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
-    (x : A) . (Accessible.recursion step x (accessibility x)).
+    (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) (x : A) .
+    (Accessible.recursion step x (accessibility x)).
 
 Module recursion. (* recursion *)
 
@@ -41,17 +41,20 @@ Theorem unfolding
   : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R}
       {step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x} .
       Extensional step ->
-      (forall (x : A) .
-         WellFounded.recursion step x
-         = step x (fun (y : A) (r : R y x) . WellFounded.recursion step y)).
+      forall (x : A) .
+        recursion step x
+      = step x (fun (y : A) (r : R y x) . recursion step y).
 Proof.
   intros A P R W step extensional x.
-  simplify WellFounded.recursion in |- *.
+  simplify recursion in |- *.
   rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
   apply extensional.
   intros y r.
-  exact (Accessible.recursion.independence extensional y
-           (Accessible.descend (accessibility x) r) (accessibility y)).
+  exact (Accessible.recursion.independence
+          extensional
+          y
+          (Accessible.descend (accessibility x) r)
+          (accessibility y)).
 Qed.
 
 End recursion. (* recursion *)
