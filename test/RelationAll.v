@@ -14,6 +14,32 @@ Definition relation_all_delivers
          (_ : Equivalence R) (_ : StrictPartialOrder R) (_ : StrictTotalOrder R)
          (_ : PartialOrder R) (_ : TotalOrder R) (_ : ~ Falsum) . I.
 
+Definition relation_all_delivers_well_founded
+  : forall (A : Type) (R : A -> A -> Prop) . WellFounded R -> Verum
+  := fun (A : Type) (R : A -> A -> Prop) (_ : WellFounded R) . I.
+
+Definition relation_all_delivers_accessibility
+  : forall (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) .
+      Accessible R x
+  := fun (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) .
+       accessibility x.
+
+Definition relation_all_delivers_accessible_descend
+  : forall (A : Type) (R : A -> A -> Prop) (x : A) (y : A) .
+      Accessible R x -> R y x -> Accessible R y
+  := fun (A : Type) (R : A -> A -> Prop) (x : A) (y : A) . Accessible.descend.
+
+Definition relation_all_delivers_well_founded_recursion
+  : forall (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) . Verum
+  := fun (A : Type) (R : A -> A -> Prop) (w : WellFounded R) .
+       WellFounded.recursion (fun (x : A) (_ : forall (y : A) . R y x -> Verum) . I).
+
+Definition relation_all_delivers_preimage
+  : forall (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) .
+      WellFounded R -> WellFounded (Preimage f R)
+  := fun (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) .
+       WellFounded.preimage f R.
+
 Definition relation_all_delivers_order_projections
   : forall (A : Type) (R : A -> A -> Prop) (t : TotalOrder R) (x : A) .
       R x x

@@ -18,3 +18,4 @@ From jwa Require Export Relation.Symmetric.
 From jwa Require Export Relation.Total.
 From jwa Require Export Relation.Transitive.
 From jwa Require Export Relation.Trichotomous.
+From jwa Require Export Relation.WellFounded.
