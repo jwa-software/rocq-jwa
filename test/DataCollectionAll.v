@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Data.Collection.All.
+From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 
 Definition data_collection_all_delivers
@@ -18,3 +19,23 @@ Definition data_collection_all_delivers_sized
 Definition data_collection_all_delivers_membership
   : forall (A : Type) (a : A) . Prop
   := fun (A : Type) (a : A) . Contains a (a :: [])%list.
+
+Definition data_collection_all_delivers_non_empty_list
+  : forall (A : Type) (a : A) . NonEmptyList A
+  := fun (A : Type) (a : A) . NonEmptyList.Cons a (NonEmptyList.One a).
+
+Definition data_collection_all_delivers_non_empty_list_head
+  : forall (A : Type) (x : NonEmptyList A) . A
+  := fun (A : Type) (x : NonEmptyList A) . NonEmptyList.head x.
+
+Definition data_collection_all_delivers_non_empty_list_last
+  : forall (A : Type) (x : NonEmptyList A) . A
+  := fun (A : Type) (x : NonEmptyList A) . NonEmptyList.last x.
+
+Definition data_collection_all_delivers_non_empty_list_length
+  : forall (A : Type) (x : NonEmptyList A) . Nat
+  := fun (A : Type) (x : NonEmptyList A) . NonEmptyList.length x.
+
+Definition data_collection_all_delivers_non_empty_list_to_list
+  : forall (A : Type) (x : NonEmptyList A) . List A
+  := fun (A : Type) (x : NonEmptyList A) . NonEmptyList.to_list x.

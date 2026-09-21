@@ -12,4 +12,5 @@ From jwa Require Export Core.All.
 
 From jwa Require Export Data.Collection.List.
 From jwa Require Export Data.Collection.Membership.
+From jwa Require Export Data.Collection.NonEmptyList.
 From jwa Require Export Data.Collection.Sized.
