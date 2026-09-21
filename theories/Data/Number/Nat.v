@@ -9,6 +9,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Option.
+From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
 
 (* A module may carry the type's name; its members read [Nat.add]. The type
@@ -471,6 +472,39 @@ Proof.
         apply Disjunction.R.
         apply Disjunction.R.
         exact (successor.order.monotonicity gt).
+Qed.
+
+(* Descending from [n] cannot go on for ever, since [One] has nothing below
+ * it and each step down lands on a smaller [Nat].
+ *)
+(* order.strict.wellfoundedness *)
+Theorem wellfoundedness : forall (n : Nat) . Accessible LessThan n.
+Proof.
+  intros n.
+  induction n as [| n' IH] using Nat.induction.
+  - apply Accessible_introduction.
+    intros y h.
+    destruct h as [k e].
+    destruct y as [| y'].
+    + simpl in e.
+      discriminate e.
+    + simpl in e.
+      discriminate e.
+  - apply Accessible_introduction.
+    intros y h.
+    destruct h as [k e].
+    rewrite (addition.commutativity y k) in e.
+    destruct k as [| k'].
+    + simpl in e.
+      pose proof (successor.injectivity e) as e'.
+      rewrite e' in |- *.
+      exact IH.
+    + simpl in e.
+      pose proof (successor.injectivity e) as e'.
+      apply (Accessible.descend IH).
+      apply (Exists_introduction k').
+      rewrite (addition.commutativity y k') in |- *.
+      exact e'.
 Qed.
 
 End strict. (* order.strict *)
@@ -1196,6 +1230,10 @@ Abbreviation Nat := Nat.T.
  * [Nat.] prefix, and the local aliases [1] and [S] stay inside the module.
  *)
 Export (notations) Nat.
+
+Instance Nat_less_than_well_founded
+  : WellFounded Nat.LessThan :=
+  {| accessibility := Nat.order.strict.wellfoundedness |}.
 
 Instance Nat_comparable
   : Comparable Nat.compare Nat.LessThan :=

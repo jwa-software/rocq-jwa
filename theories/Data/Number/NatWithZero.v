@@ -17,6 +17,7 @@ From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
+From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
 
 (* A module may carry the type's name; its members read [NatWithZero.add].
@@ -866,6 +867,68 @@ Proof.
   reflexivity.
 Qed.
 
+Module zero. (* order.strict.zero *)
+
+(* order.strict.zero.accessibility *)
+Lemma accessibility : Accessible LessThan 0.
+Proof.
+  apply Accessible_introduction.
+  intros y h.
+  destruct h as [k e].
+  destruct y as [| q].
+  - simpl in e.
+    discriminate e.
+  - simpl in e.
+    discriminate e.
+Qed.
+
+End zero. (* order.strict.zero *)
+
+(* Descending from [n] cannot go on for ever: [0] has nothing below it, and
+ * a step down from a positive number lands on a smaller [Nat].
+ *)
+(* order.strict.wellfoundedness *)
+Theorem wellfoundedness : forall (n : NatWithZero) . Accessible LessThan n.
+Proof.
+  intros n.
+  destruct n as [| p].
+  - exact zero.accessibility.
+  - induction p as [| p' IH] using Nat.induction.
+    + apply Accessible_introduction.
+      intros y h.
+      destruct h as [k e].
+      destruct y as [| q].
+      * exact zero.accessibility.
+      * simpl in e.
+        pose proof (positive.injectivity e) as e'.
+        destruct q as [| q'].
+        -- simpl in e'.
+           discriminate e'.
+        -- simpl in e'.
+           discriminate e'.
+    + apply Accessible_introduction.
+      intros y h.
+      destruct h as [k e].
+      destruct y as [| q].
+      * exact zero.accessibility.
+      * simpl in e.
+        pose proof (positive.injectivity e) as e'.
+        rewrite (Nat.addition.commutativity q k) in e'.
+        destruct k as [| k'].
+        -- simpl in e'.
+           pose proof (Nat.successor.injectivity e') as e''.
+           rewrite e'' in |- *.
+           exact IH.
+        -- simpl in e'.
+           pose proof (Nat.successor.injectivity e') as e''.
+           apply (Accessible.descend IH).
+           apply (Exists_introduction k').
+           simpl in |- *.
+           rewrite (Nat.addition.commutativity q k') in |- *.
+           rewrite e'' in |- *.
+           reflexivity.
+Qed.
+
 End strict. (* order.strict *)
 
 (* Discreteness: nothing sits strictly between [n] and [n + Nat.One], so [<] and
@@ -1686,6 +1749,10 @@ Export (notations) NatWithZero.
  * here.
  *)
 Existing Instance NatWithZero.comparable.
+
+Instance NatWithZero_less_than_well_founded
+  : WellFounded NatWithZero.LessThan :=
+  {| accessibility := NatWithZero.order.strict.wellfoundedness |}.
 
 Instance NatWithZero_add_monoid
   : Monoid NatWithZero.add NatWithZero.Zero := {|
