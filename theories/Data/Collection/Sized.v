@@ -3,7 +3,7 @@
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 From jwa Require Import Data.Assert.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Number.NatWithZero.
 
 (* How many elements a container holds. The count is one function taken at

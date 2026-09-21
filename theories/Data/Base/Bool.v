@@ -9,9 +9,8 @@ From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 
 (* A module may carry the type's name; its members read [Bool.and]. The type
- * and its ctors are declared inside it: across files a duplicate ctor name
- * rebinds the bare one silently and with no warning, so a name's meaning
- * would otherwise depend on import order.
+ * and its ctors are declared inside it: a ctor at the top level is rebound
+ * by any later file declaring the same name, silently and with no warning.
  *)
 Module Bool. (* Bool *)
 
@@ -281,13 +280,10 @@ End Bool. (* Bool *)
  *)
 Abbreviation Bool := Bool.T.
 
-(* The two ctors get their bare spelling back, deliberately and here alone:
- * they are this type's literals, written bare in every language, and an
- * abbreviation is the ctor itself, so [true] still serves as a [match]
- * pattern and still prints bare. It buys the spelling, not the safety -- a
- * later file declaring its own [true] rebinds this one as silently as a
- * duplicate ctor would -- so the exposure is a decision taken here rather
- * than a consequence of where the [Inductive] happened to sit.
+(* [true] and [false] stay reachable unprefixed. An abbreviation is the ctor
+ * itself, so each still serves as a [match] pattern and still prints bare.
+ * It does not reserve the name: a later file declaring its own [true]
+ * rebinds this one, silently and with no warning.
  *)
 Abbreviation true  := Bool.true.
 Abbreviation false := Bool.false.

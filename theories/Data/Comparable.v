@@ -2,8 +2,8 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
-From jwa Require Import Data.Bool.
-From jwa Require Import Data.Comparison.
+From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.

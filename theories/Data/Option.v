@@ -4,9 +4,9 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Functor.
 
 (* A module may carry the type's name; its members read [Option.map]. The
- * type and its ctors are declared inside it: across files a duplicate ctor
- * name rebinds the bare one silently and with no warning, so a name's
- * meaning would otherwise depend on import order.
+ * type and its ctors are declared inside it: a ctor at the top level is
+ * rebound by any later file declaring the same name, silently and with no
+ * warning.
  *)
 Module Option. (* Option *)
 
@@ -78,13 +78,11 @@ End Option. (* Option *)
  *)
 Abbreviation Option := Option.T.
 
-(* The two ctors get their bare spelling back, as [Bool]'s do and for the
- * same reason: they are this type's literals, common enough that the prefix
- * would cost more than it explains. An abbreviation is the ctor itself, so
- * [Some a] still serves as a [match] pattern and the implicit [A] survives.
- * It buys the spelling, not the safety -- a later file declaring its own
- * [Some] rebinds this one silently -- so the exposure is a decision taken
- * here rather than a consequence of where the [Inductive] happened to sit.
+(* [Some] and [None] stay reachable unprefixed. An abbreviation is the ctor
+ * itself, so [Some a] still serves as a [match] pattern, the implicit [A]
+ * survives, and both still print bare. It does not reserve the name: a
+ * later file declaring its own [Some] rebinds this one, silently and with
+ * no warning.
  *)
 Abbreviation None := Option.None.
 Abbreviation Some := Option.Some.

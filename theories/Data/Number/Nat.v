@@ -5,16 +5,15 @@ From jwa Require Import Algebra.Commutative.
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Option.
 From jwa Require Import Tactics.Modus.
 
 (* A module may carry the type's name; its members read [Nat.add]. The type
- * and its ctors are declared inside it: across files a duplicate ctor name
- * rebinds the bare one silently and with no warning, so a name's meaning
- * would otherwise depend on import order.
+ * and its ctors are declared inside it: a ctor at the top level is rebound
+ * by any later file declaring the same name, silently and with no warning.
  *)
 Module Nat. (* Nat *)
 

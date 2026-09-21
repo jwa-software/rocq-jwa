@@ -7,9 +7,9 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Algebra.Semiring.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
@@ -1668,9 +1668,8 @@ End parity. (* parity *)
 End NatWithZero. (* NatWithZero *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
- * [NatWithZero], not [NatWithZero.T]. The ctors keep the prefix, which is
- * what the 29 hand-written [NatWithZero.Zero]s in [Integer.v] were already
- * paying for by hand.
+ * [NatWithZero], not [NatWithZero.T]. [Zero] and [Positive] name ctors of
+ * [Integer] as well, so both types write theirs with the prefix.
  *)
 Abbreviation NatWithZero := NatWithZero.T.
 

@@ -8,9 +8,9 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Ring.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Comparison.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 
@@ -1854,9 +1854,8 @@ End parity. (* parity *)
 End Integer. (* Integer *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
- * [Integer], not [Integer.T]. The three ctors keep the prefix, which is
- * what lets [Zero] and [Positive] mean one thing here and another in
- * [NatWithZero] without either shadowing the other.
+ * [Integer], not [Integer.T]. [Zero] and [Positive] name ctors of
+ * [NatWithZero] as well, so both types write theirs with the prefix.
  *)
 Abbreviation Integer := Integer.T.
 

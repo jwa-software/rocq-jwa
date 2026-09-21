@@ -3,7 +3,7 @@
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Collection.Membership.
 From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Comparable.

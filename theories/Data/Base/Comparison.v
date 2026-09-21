@@ -4,9 +4,9 @@ From jwa Require Import Core.All.
 
 (* A module may carry the type's name;
  * its members read [Comparison.transpose].
- * The type and its ctors are declared inside it: across files a duplicate
- * ctor name rebinds the bare one silently and with no warning, so a name's
- * meaning would otherwise depend on import order.
+ * The type and its ctors are declared inside it: a ctor at the top level is
+ * rebound by any later file declaring the same name, silently and with no
+ * warning.
  *)
 Module Comparison. (* Comparison *)
 
@@ -65,8 +65,6 @@ End transposition. (* transposition *)
 End Comparison. (* Comparison *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
- * [Comparison], not [Comparison.T]. The three ctors keep the prefix: unlike
- * [Bool]'s and [Option]'s they are not literals a reader expects bare, and
- * [Lt] is exactly the kind of short name a second type would want.
+ * [Comparison], not [Comparison.T].
  *)
 Abbreviation Comparison := Comparison.T.

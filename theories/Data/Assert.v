@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
-From jwa Require Import Data.Bool.
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Tactics.Modus.
 
 (* The bridge from a computed answer to a statement. [Assert true] is
