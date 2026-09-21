@@ -73,13 +73,36 @@ Notation "b1 ^^ b2" := (xor b1 b2) (only parsing)
 Local Open Scope jwa_bool_scope.
 
 (* A law of the type itself rather than of any operation, so it belongs to
- * no topic below.
+ * no topic below. Both readings are stated: a proof that has [false = true]
+ * in hand needs the second, and deriving it from the first each time costs
+ * a step that reads as nothing.
  *)
-Theorem distinctness : ~ (true = false).
+Module distinctness. (* distinctness *)
+
+(* distinctness.forward *)
+Theorem forward : ~ (true = false).
 Proof.
   unfold Negation in |- *.
   intro e.
   discriminate e.
+Qed.
+
+(* distinctness.backward *)
+Theorem backward : ~ (false = true).
+Proof.
+  unfold Negation in |- *.
+  intro e.
+  discriminate e.
+Qed.
+
+End distinctness. (* distinctness *)
+
+(* distinctness *)
+Theorem distinctness : ~ (true = false) /\ ~ (false = true).
+Proof.
+  split.
+  - exact distinctness.forward.
+  - exact distinctness.backward.
 Qed.
 
 Module negation. (* negation *)

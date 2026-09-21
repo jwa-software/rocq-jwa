@@ -318,20 +318,29 @@ Definition data_all_delivers_integer_eq
   : Bool
   := Integer.eq (Integer.Negative Nat.One) (Integer.negate (Integer.Positive Nat.One)).
 
+Definition data_all_delivers_range_from_zero
+  : List NatWithZero
+  := List.range_from_zero (NatWithZero.Positive Nat.One).
+
 Definition data_all_delivers_range
   : List NatWithZero
-  := List.range (NatWithZero.Positive Nat.One).
+  := List.range (NatWithZero.Positive Nat.One) (NatWithZero.Positive (Nat.Successor Nat.One)).
+
+Definition data_all_delivers_range_inclusive
+  : List NatWithZero
+  := List.range_inclusive NatWithZero.Zero (NatWithZero.Positive Nat.One).
 
 Definition data_all_delivers_extrema
-  : NatWithZero * Option NatWithZero
-  := Product_introduction (List.maximum_of (List.Cons NatWithZero.Zero List.Nil))
-                          (List.minimum_of (List.Cons NatWithZero.Zero List.Nil)).
+  : Option NatWithZero * Option NatWithZero
+  := Product_introduction
+       (List.maximum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil))
+       (List.minimum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil)).
 
 Definition data_all_delivers_gauss
   : NatWithZero.mul (NatWithZero.Positive (Nat.Successor Nat.One))
-      (List.sum (List.range (NatWithZero.Positive (Nat.Successor Nat.One))))
+      (List.sum (List.range_from_zero (NatWithZero.Positive (Nat.Successor Nat.One))))
     = NatWithZero.mul (NatWithZero.Positive Nat.One) (NatWithZero.Positive (Nat.Successor Nat.One))
-  := List.range.sum.closed_form Nat.One.
+  := List.range.from_zero.sum.closed_form Nat.One.
 
 Definition data_all_delivers_divides
   : Prop

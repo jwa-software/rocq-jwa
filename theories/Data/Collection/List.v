@@ -13,6 +13,7 @@ From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Syllogism.
 
 (* A module may carry the type's name; its members read [List.concat]. The
  * type and its ctors are declared inside it, so the names [Nil] and [Cons]
@@ -413,23 +414,59 @@ Fixpoint range_positive (p : Nat) : List NatWithZero :=
   end.
 
 (* [NatWithZero -> List NatWithZero] *)
-Definition range := fun (n : NatWithZero) .
+Definition range_from_zero := fun (n : NatWithZero) .
   match n with
   | NatWithZero.Zero       => []
   | NatWithZero.Positive p => range_positive p
   end.
 
-(* [List NatWithZero -> NatWithZero] *)
-Definition maximum_of := fun (l : List NatWithZero) . fold_right NatWithZero.max NatWithZero.Zero l.
+(* [range start stop] counts up from [start] and stops before [stop]: it
+ * shifts as many numbers as separate the two. The subtraction is truncated,
+ * so a [stop] at or below [start] leaves nothing to shift and the range is
+ * empty.
+ *)
+(* [NatWithZero -> NatWithZero -> List NatWithZero] *)
+Definition range := fun (start : NatWithZero) (stop : NatWithZero) .
+  map (NatWithZero.add start) (range_from_zero (NatWithZero.saturating_sub stop start)).
 
-(* [List NatWithZero -> Option NatWithZero] *)
-Fixpoint minimum_of (l : List NatWithZero) : Option NatWithZero :=
+(* [range_inclusive start stop] reaches [stop] itself, so it is [range] run
+ * one further.
+ *)
+(* [NatWithZero -> NatWithZero -> List NatWithZero] *)
+Definition range_inclusive := fun (start : NatWithZero) (stop : NatWithZero) .
+  range start (NatWithZero.inc stop).
+
+(* [le a b] answers whether [a] may precede [b]; it is the comparison
+ * [insert] and [insertion_sort] take. The maximum of a list is the later of
+ * its head and the maximum of its tail, so the empty list has none.
+ *)
+(* [forall {A : Type} . (A -> A -> Bool) -> List A -> Option A] *)
+Fixpoint maximum_of {A : Type} (le : A -> A -> Bool) (l : List A) : Option A :=
   match l with
   | []      => None
   | a :: l' =>
-      match minimum_of l' with
+      match maximum_of le l' with
       | None   => Some a
-      | Some m => Some (NatWithZero.min a m)
+      | Some m =>
+          match le a m with
+          | true  => Some m
+          | false => Some a
+          end
+      end
+  end.
+
+(* [forall {A : Type} . (A -> A -> Bool) -> List A -> Option A] *)
+Fixpoint minimum_of {A : Type} (le : A -> A -> Bool) (l : List A) : Option A :=
+  match l with
+  | []      => None
+  | a :: l' =>
+      match minimum_of le l' with
+      | None   => Some a
+      | Some m =>
+          match le a m with
+          | true  => Some a
+          | false => Some m
+          end
       end
   end.
 
@@ -662,9 +699,58 @@ Proof.
       exact h'.
 Qed.
 
+(* mapping.preservation.of.length *)
+Theorem length
+  : forall {A : Type} {B : Type} (f : A -> B) (l : List A) .
+      (|| map f l ||) = (|| l ||).
+Proof.
+  intros A B f l.
+  induction l as [| a l' IH] using List.induction.
+  - simpl in |- *.
+    reflexivity.
+  - simpl in |- *.
+    rewrite IH in |- *.
+    reflexivity.
+Qed.
+
 End of. (* mapping.preservation.of *)
 
 End preservation. (* mapping.preservation *)
+
+Module membership. (* mapping.membership *)
+
+(* An element of [map f l] is the image of an element of [l]. The forward
+ * half of [preservation.of.membership] is the other direction.
+ *)
+(* mapping.membership.specification *)
+Theorem specification
+  : forall {A : Type} {B : Type} (f : A -> B) (b : B) (l : List A) .
+      map f l contains_member b
+      <-> exists (a : A) . l contains_member a /\ b = f a.
+Proof.
+  intros A B f b l.
+  split.
+  - induction l as [| a l' IH] using List.induction.
+    + simpl in |- *.
+      intro g.
+      contradiction g.
+    + simpl in |- *.
+      intro h.
+      destruct h as [e | h'].
+      * exact (Exists_introduction
+                 a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
+      * pose proof (IH h') as w.
+        destruct w as [a' c].
+        destruct c as [m e].
+        exact (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
+  - intro w.
+    destruct w as [a c].
+    destruct c as [m e].
+    rewrite e in |- *.
+    exact (preservation.of.membership f a l m).
+Qed.
+
+End membership. (* mapping.membership *)
 
 End mapping. (* mapping *)
 
@@ -2681,8 +2767,10 @@ End backward. (* range.positive.backward *)
 
 End positive. (* range.positive *)
 
-(* range.length *)
-Theorem length : forall (n : NatWithZero) . (|| range n ||) = n.
+Module from_zero. (* range.from_zero *)
+
+(* range.from_zero.length *)
+Theorem length : forall (n : NatWithZero) . (|| range_from_zero n ||) = n.
 Proof.
   intros n.
   destruct n as [| p].
@@ -2692,12 +2780,12 @@ Proof.
     exact (range.positive.length p).
 Qed.
 
-Module membership. (* range.membership *)
+Module membership. (* range.from_zero.membership *)
 
-(* range.membership.specification *)
+(* range.from_zero.membership.specification *)
 Theorem specification
   : forall (n : NatWithZero) (i : NatWithZero) .
-      range n contains_member i <-> i < n.
+      range_from_zero n contains_member i <-> i < n.
 Proof.
   intros n i.
   destruct n as [| p].
@@ -2718,20 +2806,22 @@ Proof.
     + exact (@range.positive.backward.membership p i).
 Qed.
 
-End membership. (* range.membership *)
+End membership. (* range.from_zero.membership *)
 
-Module sum. (* range.sum *)
+Module sum. (* range.from_zero.sum *)
 
 (* A closed form is an answer written with a fixed number of operations,
  * none of them recursive: [sum (range n)] has to walk the list, while
  * [n * (n + Nat.One) / Two] does not, and the count of steps no longer grows
  * with [n]. There is no division here, so both sides are multiplied by
- * two.
+ * two. A start other than zero would make this an arithmetic series, which
+ * is a different theorem, so it is stated on [range_from_zero].
  *)
-(* range.sum.closed_form *)
+(* range.from_zero.sum.closed_form *)
 Theorem closed_form
   : forall (p : Nat) .
-      NatWithZero.Positive (Nat.Successor Nat.One) * sum (range (NatWithZero.Positive (Nat.Successor p)))
+      NatWithZero.Positive (Nat.Successor Nat.One)
+      * sum (range_from_zero (NatWithZero.Positive (Nat.Successor p)))
       = NatWithZero.Positive p * NatWithZero.Positive (Nat.Successor p).
 Proof.
   intros p.
@@ -2739,18 +2829,22 @@ Proof.
   - unfold sum in |- *.
     simpl in |- *.
     reflexivity.
-  - change (range (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
-      with (append (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p')))
+  - change (range_from_zero (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
+      with (append (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+              (NatWithZero.Positive (Nat.Successor p')))
       in |- *.
     rewrite (appending.specification
-               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite (sum.additivity.over.concatenation
-               (range (NatWithZero.Positive (Nat.Successor p'))) (NatWithZero.Positive (Nat.Successor p') :: []))
+               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+               (NatWithZero.Positive (Nat.Successor p') :: []))
       in |- *.
     change (sum (NatWithZero.Positive (Nat.Successor p') :: [])) with (NatWithZero.Positive (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.left.distributivity.over.addition
                (NatWithZero.Positive (Nat.Successor Nat.One))
-               (sum (range (NatWithZero.Positive (Nat.Successor p')))) (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+               (sum (range_from_zero (NatWithZero.Positive (Nat.Successor p'))))
+               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
     rewrite IH in |- *.
     rewrite <- (NatWithZero.multiplication.right.distributivity.over.addition
                   (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
@@ -2764,72 +2858,263 @@ Proof.
     reflexivity.
 Qed.
 
-End sum. (* range.sum *)
+End sum. (* range.from_zero.sum *)
+
+End from_zero. (* range.from_zero *)
+
+(* range.length *)
+Theorem length
+  : forall (start : NatWithZero) (stop : NatWithZero) .
+      (|| range start stop ||) = NatWithZero.saturating_sub stop start.
+Proof.
+  intros start stop.
+  unfold range in |- *.
+  rewrite (mapping.preservation.of.length
+             (NatWithZero.add start)
+             (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
+  exact (from_zero.length (NatWithZero.saturating_sub stop start)).
+Qed.
+
+Module membership. (* range.membership *)
+
+(* range.membership.specification *)
+Theorem specification
+  : forall (start : NatWithZero) (stop : NatWithZero) (i : NatWithZero) .
+      range start stop contains_member i <-> start <= i /\ i < stop.
+Proof.
+  intros start stop i.
+  unfold range in |- *.
+  destruct (Comparable.order.totality start stop) as [below | above].
+  - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
+    split.
+    + intro h.
+      pose proof (->elim (mapping.membership.specification
+                            (NatWithZero.add start) i
+                            (range_from_zero (NatWithZero.saturating_sub stop start))) h) as w.
+      destruct w as [j c].
+      destruct c as [m e].
+      pose proof (->elim (from_zero.membership.specification
+                            (NatWithZero.saturating_sub stop start) j) m) as lt.
+      split.
+      * rewrite e in |- *.
+        rewrite (NatWithZero.addition.commutativity start j) in |- *.
+        exact (NatWithZero.addition.right.order.extensivity j start).
+      * rewrite e in |- *.
+        rewrite <- reach in |- *.
+        exact (NatWithZero.addition.order.strict.monotonicity
+                 start j (NatWithZero.saturating_sub stop start) lt).
+    + intro c.
+      destruct c as [low high].
+      pose proof (NatWithZero.subtraction.saturating.specification low) as step.
+      apply (<-elim (mapping.membership.specification
+                       (NatWithZero.add start) i
+                       (range_from_zero (NatWithZero.saturating_sub stop start)))).
+      apply (Exists_introduction (NatWithZero.saturating_sub i start)).
+      split.
+      * apply (<-elim (from_zero.membership.specification
+                         (NatWithZero.saturating_sub stop start)
+                         (NatWithZero.saturating_sub i start))).
+        apply (NatWithZero.addition.order.strict.cancellation start).
+        rewrite step in |- *.
+        rewrite reach in |- *.
+        exact high.
+      * symmetry in step.
+        exact step.
+  - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
+    rewrite empty in |- *.
+    simpl in |- *.
+    split.
+    + intro f.
+      contradiction f.
+    + intro c.
+      destruct c as [low high].
+      pose proof (Comparable.order.transitivity stop start i above low) as reached.
+      destruct reached as [e | lt].
+      * rewrite e in high.
+        exact (NatWithZero.order.strict.irreflexivity i high).
+      * exact (Comparable.order.strict.asymmetry i stop high lt).
+Qed.
+
+End membership. (* range.membership *)
+
+Module inclusive. (* range.inclusive *)
+
+(* range.inclusive.length *)
+Theorem length
+  : forall (start : NatWithZero) (stop : NatWithZero) .
+      (|| range_inclusive start stop ||)
+      = NatWithZero.saturating_sub (NatWithZero.inc stop) start.
+Proof.
+  intros start stop.
+  unfold range_inclusive in |- *.
+  exact (range.length start (NatWithZero.inc stop)).
+Qed.
+
+Module membership. (* range.inclusive.membership *)
+
+(* range.inclusive.membership.specification *)
+Theorem specification
+  : forall (start : NatWithZero) (stop : NatWithZero) (i : NatWithZero) .
+      range_inclusive start stop contains_member i <-> start <= i /\ i <= stop.
+Proof.
+  intros start stop i.
+  unfold range_inclusive in |- *.
+  rewrite (NatWithZero.increment.specification stop) in |- *.
+  rewrite (NatWithZero.addition.commutativity
+             (NatWithZero.Positive Nat.One) stop) in |- *.
+  split.
+  - intro h.
+    pose proof (->elim (range.membership.specification
+                          start (stop + NatWithZero.Positive Nat.One) i) h) as c.
+    destruct c as [low high].
+    split.
+    + exact low.
+    + exact (->elim (NatWithZero.order.discreteness i stop) high).
+  - intro c.
+    destruct c as [low high].
+    apply (<-elim (range.membership.specification
+                     start (stop + NatWithZero.Positive Nat.One) i)).
+    split.
+    + exact low.
+    + exact (<-elim (NatWithZero.order.discreteness i stop) high).
+Qed.
+
+End membership. (* range.inclusive.membership *)
+
+End inclusive. (* range.inclusive *)
 
 End range. (* range *)
 
+Module comparison. (* comparison *)
+
+(* [le] is the comparison that [insert], [insertion_sort], [maximum_of] and
+ * [minimum_of] take. Both facts below follow from totality alone, and the
+ * extrema laws use them where an element is compared with itself or where
+ * a [false] answer has to be read the other way round.
+ *)
+
+(* comparison.reflexivity *)
+Lemma reflexivity
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      forall (a : A) . le a a = true.
+Proof.
+  intros A le total a.
+  destruct (total a a) as [h | h].
+  - exact h.
+  - exact h.
+Qed.
+
+(* comparison.contraposition *)
+Lemma contraposition
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      forall {a : A} {b : A} . le a b = false -> le b a = true.
+Proof.
+  intros A le total a b s.
+  symmetry in s.
+  HS (Identity.transitivity s), Bool.distinctness.backward as n.
+  modus tollendo ponens (total a b), n.
+Qed.
+
+End comparison. (* comparison *)
+
 Module maximum. (* maximum *)
+
+Module absence. (* maximum.absence *)
+
+(* maximum.absence.specification *)
+Lemma specification
+  : forall {A : Type} (le : A -> A -> Bool) (l : List A) .
+      maximum_of le l = None <-> l = [].
+Proof.
+  intros A le l.
+  split.
+  - intro e.
+    destruct l as [| a l'].
+    + reflexivity.
+    + simpl in e.
+      destruct (maximum_of le l') as [| m].
+      * discriminate e.
+      * destruct (le a m).
+        -- discriminate e.
+        -- discriminate e.
+  - intro e.
+    rewrite e in |- *.
+    simpl in |- *.
+    reflexivity.
+Qed.
+
+End absence. (* maximum.absence *)
 
 (* maximum.bound *)
 Theorem bound
-  : forall (l : List NatWithZero) .
-      All (fun (a : NatWithZero) . a <= maximum_of l) l.
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall {l : List A} {m : A} .
+        maximum_of le l = Some m -> All (fun (a : A) . le a m = true) l.
 Proof.
-  intros l.
-  unfold maximum_of in |- *.
+  intros A le total transitive l.
   induction l as [| a l' IH] using List.induction.
-  - simpl in |- *.
-    exact I.
-  - simpl in |- *.
-    split.
-    + exact (Comparable.maximum.left.injection a (fold_right NatWithZero.max NatWithZero.Zero l')).
-    + exact (quantification.all.monotonicity
-               (fun (x : NatWithZero)
-                    (h : x <= fold_right NatWithZero.max NatWithZero.Zero l') .
-                  Comparable.order.transitivity
-                    x (fold_right NatWithZero.max NatWithZero.Zero l')
-                    (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero l'))
-                    h
-                    (Comparable.maximum.right.injection
-                       a (fold_right NatWithZero.max NatWithZero.Zero l')))
-               IH).
+  - intros m e.
+    simpl in e.
+    discriminate e.
+  - intros m e.
+    simpl in e.
+    destruct (maximum_of le l') as [| m'] eqn:r.
+    + pose proof (->elim (absence.specification le l') r) as en.
+      pose proof (Option.some.injectivity e) as e'.
+      rewrite en in |- *.
+      rewrite <- e' in |- *.
+      simpl in |- *.
+      split.
+      * exact (comparison.reflexivity total a).
+      * exact I.
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        split.
+        -- exact s.
+        -- exact (IH m' (Identity.reflexivity (Some m'))).
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        pose proof (comparison.contraposition total s) as ha.
+        split.
+        -- exact (comparison.reflexivity total a).
+        -- exact (quantification.all.monotonicity
+                    (fun (x : A) (h : le x m' = true) . transitive x m' a h ha)
+                    (IH m' (Identity.reflexivity (Some m')))).
 Qed.
 
 (* maximum.membership *)
 Theorem membership
-  : forall {l : List NatWithZero} . ~ (l = []) -> l contains_member maximum_of l.
+  : forall {A : Type} {le : A -> A -> Bool} {l : List A} {m : A} .
+      maximum_of le l = Some m -> l contains_member m.
 Proof.
-  intros l.
-  unfold maximum_of in |- *.
+  intros A le l.
   induction l as [| a l' IH] using List.induction.
-  - intro h.
-    unfold Negation in h.
-    pose proof (h (Identity.reflexivity [])) as f.
-    contradiction f.
-  - intro h.
-    destruct l' as [| b l''].
-    + simpl in |- *.
-      rewrite (NatWithZero.maximum.right.identity a) in |- *.
-      exact (Disjunction.L (Identity.reflexivity a)).
-    + pose proof (IH (distinctness b l'')) as c.
-      change (NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) = a
-              \/ (b :: l'')
-                 contains_member
-                 NatWithZero.max a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
-      pose proof (Comparable.order.totality
-                    (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) as t.
-      destruct t as [le | ge].
-      * apply Disjunction.L.
-        exact (<-elim
-                 (Comparable.maximum.specification
-                    a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) le).
-      * apply Disjunction.R.
-        rewrite (Comparable.maximum.commutativity
-                   a (fold_right NatWithZero.max NatWithZero.Zero (b :: l''))) in |- *.
-        rewrite (<-elim
-                   (Comparable.maximum.specification
-                      (fold_right NatWithZero.max NatWithZero.Zero (b :: l'')) a) ge) in |- *.
-        exact c.
+  - intros m e.
+    simpl in e.
+    discriminate e.
+  - intros m e.
+    simpl in e.
+    destruct (maximum_of le l') as [| m'] eqn:r.
+    + pose proof (Option.some.injectivity e) as e'.
+      simpl in |- *.
+      exact (Disjunction.L (Identity.symmetry e')).
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        apply Disjunction.R.
+        exact (IH m' (Identity.reflexivity (Some m'))).
+      * pose proof (Option.some.injectivity e) as e'.
+        simpl in |- *.
+        exact (Disjunction.L (Identity.symmetry e')).
 Qed.
 
 End maximum. (* maximum *)
@@ -2840,17 +3125,20 @@ Module absence. (* minimum.absence *)
 
 (* minimum.absence.specification *)
 Lemma specification
-  : forall (l : List NatWithZero) . minimum_of l = None <-> l = [].
+  : forall {A : Type} (le : A -> A -> Bool) (l : List A) .
+      minimum_of le l = None <-> l = [].
 Proof.
-  intros l.
+  intros A le l.
   split.
   - intro e.
     destruct l as [| a l'].
     + reflexivity.
     + simpl in e.
-      destruct (minimum_of l') as [| m].
+      destruct (minimum_of le l') as [| m].
       * discriminate e.
-      * discriminate e.
+      * destruct (le a m).
+        -- discriminate e.
+        -- discriminate e.
   - intro e.
     rewrite e in |- *.
     simpl in |- *.
@@ -2861,69 +3149,70 @@ End absence. (* minimum.absence *)
 
 (* minimum.bound *)
 Theorem bound
-  : forall {l : List NatWithZero} {m : NatWithZero} .
-      minimum_of l = Some m
-      -> All (fun (a : NatWithZero) . m <= a) l.
+  : forall {A : Type} {le : A -> A -> Bool} .
+      (forall (a : A) (b : A) . le a b = true \/ le b a = true) ->
+      (forall (a : A) (b : A) (c : A) .
+         le a b = true -> le b c = true -> le a c = true) ->
+      forall {l : List A} {m : A} .
+        minimum_of le l = Some m -> All (fun (a : A) . le m a = true) l.
 Proof.
-  intros l.
+  intros A le total transitive l.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (minimum_of l') as [| m'] eqn:r.
-    + simpl in e.
-      pose proof (->elim (minimum.absence.specification l') r) as en.
+    destruct (minimum_of le l') as [| m'] eqn:r.
+    + pose proof (->elim (absence.specification le l') r) as en.
       pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
-      rewrite e' in |- *.
-      simpl in |- *.
-      exact (Conjunction_introduction (Comparable.order.reflexivity m) I).
-    + simpl in e.
-      pose proof (Option.some.injectivity e) as e'.
-      symmetry in e'.
-      rewrite e' in |- *.
+      rewrite <- e' in |- *.
       simpl in |- *.
       split.
-      * exact (Comparable.minimum.left.projection a m').
-      * exact (quantification.all.monotonicity
-                 (fun (x : NatWithZero) (h : m' <= x) .
-                    Comparable.order.transitivity
-                      (NatWithZero.min a m') m' x
-                      (Comparable.minimum.right.projection a m') h)
-                 (IH m' (Identity.reflexivity (Some m')))).
+      * exact (comparison.reflexivity total a).
+      * exact I.
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        split.
+        -- exact (comparison.reflexivity total a).
+        -- exact (quantification.all.monotonicity
+                    (fun (x : A) (h : le m' x = true) . transitive a m' x s h)
+                    (IH m' (Identity.reflexivity (Some m')))).
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        split.
+        -- exact (comparison.contraposition total s).
+        -- exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
 (* minimum.membership *)
 Theorem membership
-  : forall {l : List NatWithZero} {m : NatWithZero} .
-      minimum_of l = Some m -> l contains_member m.
+  : forall {A : Type} {le : A -> A -> Bool} {l : List A} {m : A} .
+      minimum_of le l = Some m -> l contains_member m.
 Proof.
-  intros l.
+  intros A le l.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (minimum_of l') as [| m'] eqn:r.
-    + simpl in e.
-      pose proof (Option.some.injectivity e) as e'.
+    destruct (minimum_of le l') as [| m'] eqn:r.
+    + pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
       exact (Disjunction.L (Identity.symmetry e')).
-    + simpl in e.
-      pose proof (Option.some.injectivity e) as e'.
-      symmetry in e'.
-      rewrite e' in |- *.
-      simpl in |- *.
-      pose proof (Comparable.order.totality a m') as t.
-      destruct t as [le | ge].
-      * apply Disjunction.L.
-        exact (<-elim (Comparable.minimum.specification a m') le).
-      * apply Disjunction.R.
-        rewrite (Comparable.minimum.commutativity a m') in |- *.
-        rewrite (<-elim (Comparable.minimum.specification m' a) ge) in |- *.
+    + destruct (le a m') eqn:s.
+      * pose proof (Option.some.injectivity e) as e'.
+        simpl in |- *.
+        exact (Disjunction.L (Identity.symmetry e')).
+      * pose proof (Option.some.injectivity e) as e'.
+        rewrite <- e' in |- *.
+        simpl in |- *.
+        apply Disjunction.R.
         exact (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
