@@ -59,10 +59,6 @@ Fixpoint recursion
 
 Module recursion. (* recursion *)
 
-(* The accessibility proof a recursion runs on is opaque, so a goal never
- * reduces [Accessible.recursion] on its own; these two are how it moves.
- *)
-
 (* recursion.unfolding *)
 Theorem unfolding
   : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop}
@@ -77,9 +73,6 @@ Proof.
   reflexivity.
 Qed.
 
-(* The motive quantifies over both proofs, so the recursion below is an
- * ordinary one and no eliminator beyond [Accessible.recursion] is needed.
- *)
 (* recursion.independence *)
 Theorem independence
   : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop}
