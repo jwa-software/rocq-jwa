@@ -25,7 +25,7 @@ Inductive T : Type :=
 Abbreviation Comparison := T.
 
 (* [forall (P : Comparison -> Prop) . P Lt -> P Eq -> P Gt -> forall (c : Comparison) . P c] *)
-Definition eliminator
+Definition induction
   : forall (P : Comparison -> Prop) .
       P Lt ->
       P Eq ->

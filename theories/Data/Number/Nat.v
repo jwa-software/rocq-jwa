@@ -30,7 +30,7 @@ Inductive T : Type :=
  *)
 Abbreviation Nat := T.
 
-Definition eliminator
+Definition induction
   : forall (P : Nat -> Prop) .
       P One ->
       (forall (n : Nat) . P n -> P (Successor n)) ->
@@ -212,7 +212,7 @@ Theorem associativity
   : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using eliminator.
+  induction l as [| l' IH] using Nat.induction.
   -
     simpl in |- *.
     reflexivity.
@@ -227,11 +227,11 @@ Theorem commutativity : forall (m : Nat) (n : Nat) . m + n = n + m.
 Proof.
   intros m n.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
       simpl in |- *.
   -
     induction n as [| n' IH2]
-        using eliminator;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -245,7 +245,7 @@ Proof.
     rewrite IH in |- *.
     clear IH.
     induction n as [| n' IH2]
-        using eliminator;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -261,7 +261,7 @@ Module identity. (* addition.identity *)
 Theorem absence : forall (k : Nat) (n : Nat) . ~ (k + n = n).
 Proof.
   intros k n.
-  induction n as [| n' IH] using eliminator.
+  induction n as [| n' IH] using Nat.induction.
   -
     unfold Negation in |- *.
     intro e.
@@ -292,7 +292,7 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m + n = m + k -> n = k.
 Proof.
   intros m n k.
-  induction m as [| m' IH] using eliminator.
+  induction m as [| m' IH] using Nat.induction.
   - simpl in |- *.
     intro e.
     exact (successor.injectivity e).
@@ -435,7 +435,7 @@ Theorem trichotomy
 Proof.
   intro m.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
   intro n; destruct n as [| n'].
   -
     pose proof (Identity.reflexivity 1)
@@ -484,11 +484,11 @@ Theorem commutativity : forall (m : Nat) (n : Nat) . m * n = n * m.
 Proof.
   intros m n.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
       simpl in |- *.
   -
     induction n as [| n' IH2]
-        using eliminator;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -502,7 +502,7 @@ Proof.
     rewrite IH in |- *.
     clear IH.
     induction n as [| n' IH2]
-        using eliminator;
+        using Nat.induction;
         simpl in |- *.
     +
       reflexivity.
@@ -527,7 +527,7 @@ Theorem addition
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using eliminator; simpl in |- *.
+  induction l as [| l' IH] using Nat.induction; simpl in |- *.
   -
     reflexivity.
   -
@@ -547,7 +547,7 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . l * (m * n) = m * (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using eliminator; simpl in |- *.
+  induction l as [| l' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - rewrite IH in |- *.
     rewrite (multiplication.left.distributivity.over.addition m n (l' * n)) in |- *.
@@ -661,7 +661,7 @@ Theorem associativity
     (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using eliminator; simpl in |- *.
+  induction l as [| l' IH] using Nat.induction; simpl in |- *.
   -
     reflexivity.
   -
@@ -753,7 +753,7 @@ Qed.
 Lemma annihilation : forall (n : Nat) . power 1 n = 1.
 Proof.
   intros n.
-  induction n as [| n' IH] using eliminator; simpl in |- *.
+  induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - exact IH.
 Qed.
@@ -767,7 +767,7 @@ Theorem addition
 Proof.
   intros m a b.
   induction a as [| a' IH]
-      using eliminator;
+      using Nat.induction;
       simpl in |- *.
   -
     reflexivity.
@@ -783,7 +783,7 @@ Theorem multiplication
       power (power m a) b = power m (a * b).
 Proof.
   intros m a b.
-  induction b as [| b' IH] using eliminator.
+  induction b as [| b' IH] using Nat.induction.
   -
     rewrite -> (multiplication.commutativity a 1)
             in |- *.
@@ -814,7 +814,7 @@ Theorem multiplication
       power (m * n) a = power m a * power n a.
 Proof.
   intros m n a.
-  induction a as [| a' IH] using eliminator; simpl in |- *.
+  induction a as [| a' IH] using Nat.induction; simpl in |- *.
   -
     reflexivity.
   -
@@ -843,7 +843,7 @@ Lemma specification
 Proof.
   intros m.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
       intro n;
   destruct n as [| n'];
       simpl in |- *;
@@ -871,7 +871,7 @@ Lemma specification
 Proof.
   intros m.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
       intro n;
   destruct n as [| n'];
       intro h;
@@ -906,7 +906,7 @@ Lemma specification
 Proof.
   intros m.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
       intro n;
   destruct n as [| n'];
       intro e;
@@ -929,7 +929,7 @@ Proof.
   intros m n e.
   rewrite e in |- *.
   clear e.
-  induction n as [| n' IH] using eliminator; simpl in |- *.
+  induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - exact IH.
 Qed.
@@ -957,7 +957,7 @@ Theorem antisymmetry
 Proof.
   intros m.
   induction m as [| m' IH]
-      using eliminator;
+      using Nat.induction;
       intros n;
   destruct n as [| n'];
       simpl in |- *.
@@ -1029,7 +1029,7 @@ Proof.
     rewrite e in |- *.
     clear e.
     induction n as [| n' IH]
-        using eliminator;
+        using Nat.induction;
         simpl in |- *.
     + reflexivity.
     + exact IH.
@@ -1040,7 +1040,7 @@ Proof.
     rewrite e' in |- *.
     clear e e'.
     induction m as [| m' IH]
-        using eliminator;
+        using Nat.induction;
         simpl in |- *.
     + reflexivity.
     + exact IH.
@@ -1055,7 +1055,7 @@ Theorem addition
   : forall (m : Nat) (n : Nat) . sub (m + n) n = Some m.
 Proof.
   intros m n.
-  induction n as [| n' IH] using eliminator.
+  induction n as [| n' IH] using Nat.induction.
   - rewrite (addition.commutativity m 1) in |- *.
     simpl in |- *.
     reflexivity.
@@ -1074,7 +1074,7 @@ Theorem cancellation
   : forall (k : Nat) (m : Nat) (n : Nat) . sub (k + m) (k + n) = sub m n.
 Proof.
   intros k m n.
-  induction k as [| k' IH] using eliminator; simpl in |- *.
+  induction k as [| k' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - exact IH.
 Qed.
@@ -1086,7 +1086,7 @@ Lemma specification
   : forall {m : Nat} {n : Nat} {k : Nat} . sub m n = Some k -> n + k = m.
 Proof.
   intros m.
-  induction m as [| m' IH] using eliminator.
+  induction m as [| m' IH] using Nat.induction.
   -
     intros n k e.
     simpl in e.

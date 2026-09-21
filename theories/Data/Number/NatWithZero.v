@@ -1351,7 +1351,7 @@ Lemma invariant
       /\ pi_2 (division p d) < + d.
 Proof.
   intros p d.
-  induction p as [| p' IH] using Nat.eliminator.
+  induction p as [| p' IH] using Nat.induction.
   - destruct d as [| d']; split; simpl in |- *.
     * reflexivity.
     * unfold LessThan in |- *.
@@ -1572,7 +1572,7 @@ Proof.
     apply (Exists_introduction 0).
     simpl in |- *.
     reflexivity.
-  - induction p as [| p' IH] using Nat.eliminator.
+  - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       unfold Odd in |- *.
       apply (Exists_introduction 0).

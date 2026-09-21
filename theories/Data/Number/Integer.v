@@ -32,10 +32,10 @@ Inductive T : Type :=
  *)
 Abbreviation Integer := T.
 
-(* The eliminator behind [destruct], written out: no recursion, since no
+(* The eliminator behind the [destruct] tactic, written out: no recursion, since no
  * ctor carries an [Integer].
  *)
-Definition eliminator
+Definition induction
   : forall (P : Integer -> Prop) .
       (forall (p : Nat) . P (Negative p)) ->
       P Zero ->
@@ -291,7 +291,7 @@ Module nat. (* difference.nat *)
 Lemma reflexivity : forall (n : Nat) . nat_difference n n = 0.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat.eliminator.
+  induction n as [| n' IH] using Nat.induction.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -309,7 +309,7 @@ Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference (Nat.add k p) p = + k.
 Proof.
   intros k p.
-  induction p as [| p' IH] using Nat.eliminator.
+  induction p as [| p' IH] using Nat.induction.
   - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     reflexivity.
@@ -336,7 +336,7 @@ Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference p (Nat.add k p) = - k.
 Proof.
   intros k p.
-  induction p as [| p' IH] using Nat.eliminator.
+  induction p as [| p' IH] using Nat.induction.
   - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     reflexivity.
@@ -1701,7 +1701,7 @@ Theorem totality : forall (n : Integer) . Even n \/ Odd n.
 Proof.
   intros n.
   destruct n as [p | | p].
-  - induction p as [| p' IH] using Nat.eliminator.
+  - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       unfold Odd in |- *.
       apply (Exists_introduction (- Nat.One)).
@@ -1757,7 +1757,7 @@ Proof.
     apply (Exists_introduction 0).
     simpl in |- *.
     reflexivity.
-  - induction p as [| p' IH] using Nat.eliminator.
+  - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       unfold Odd, add in |- *.
       apply (Exists_introduction 0).
