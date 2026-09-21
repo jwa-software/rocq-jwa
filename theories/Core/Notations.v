@@ -20,6 +20,15 @@ Open Scope jwa_type_scope.
 Declare Scope jwa_list_scope.
 Delimit Scope jwa_list_scope with list.
 
+(* The same spellings again for the non-empty list, in a scope of its own:
+   [a :: x] and [x ++ y] read there as the ctor and the join of that type,
+   and a file picks which by opening one scope or by writing [(...)%list]
+   or [(...)%non_empty_list]. The level of each token is reserved once
+   below, so the two readings agree on how they parse and differ only in
+   what they mean. *)
+Declare Scope jwa_non_empty_list_scope.
+Delimit Scope jwa_non_empty_list_scope with non_empty_list.
+
 (* A third scope for the product notations, delimited but not opened like
  * the list one. [A * B] is not in it: a type former belongs in
  * [jwa_type_scope] beside [->].
