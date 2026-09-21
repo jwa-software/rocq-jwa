@@ -14,12 +14,20 @@ From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Modus.
 
+(* A module may carry the type's name; its members read [List.concat]. The
+ * type and its ctors are declared inside it, so the names [Nil] and [Cons]
+ * are reachable only as [List.Nil] and [List.Cons]. A bare ctor at the top
+ * level is claimed by whichever file declares it last, silently and with no
+ * warning, which makes the meaning of a name depend on import order.
+ *)
+Module List. (* List *)
+
 (* A list is empty, or one element in front of a list. [A] is a parameter:
  * every element has the one type.
  *)
-Inductive List (A : Type) : Type :=
-  | Nil  : List A
-  | Cons : A -> List A -> List A.
+Inductive T (A : Type) : Type :=
+  | Nil  : T A
+  | Cons : A -> T A -> T A.
 
 (* [A] is inferred from the element or, for [Nil], from the expected type; a
  * use that has neither needs [@Nil A].
@@ -27,11 +35,18 @@ Inductive List (A : Type) : Type :=
 Arguments Nil  {A}.
 Arguments Cons {A} a l.
 
+(* The carrier is named [T] so that the type itself reads [List] on both
+ * sides of the module: here through this abbreviation, outside through the
+ * one that follows [End List].
+ *)
+Abbreviation List := T.
+
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
- * Both ctors are declared outside [Module List], so their notations are
- * too, and a client reaches them through [Require Export]. Every list
- * notation lives in [jwa_list_scope], which [Core.Notations] declares
- * without opening: a client writes [(a :: l)%list] or opens the scope.
+ * Every list notation lives in [jwa_list_scope], which [Core.Notations]
+ * declares without opening: a client writes [(a :: l)%list] or opens the
+ * scope. The [Export (notations)] below the module is what carries these
+ * out to a client, and it carries the notations alone, so [[]] and [::]
+ * travel without [Nil] and [Cons].
  *)
 (* The token is [[]] as one piece; [[ ]] with a space is not it. *)
 Notation "[]" := Nil
@@ -43,11 +58,14 @@ Notation "[]" := Nil
 Notation "a :: l" := (Cons a l)
   : jwa_list_scope.
 
+(* Opening the scope here lets every definition and law below use them. *)
+Local Open Scope jwa_list_scope.
+
 (* The eliminator behind [induction], written out. Its content is the [fix]:
  * the proof for [Cons a l] is built from the proof for [l], and following
  * [l] down to [Nil] is what terminates.
  *)
-Definition List_induction
+Definition eliminator
   : forall (A : Type) (P : List A -> Prop) .
       P Nil ->
       (forall (a : A) (l : List A) . P l -> P (Cons a l)) ->
@@ -60,14 +78,6 @@ Definition List_induction
          | Nil       => base
          | Cons a l' => step a l' (go l')
          end.
-
-(* A module may carry the type's name; its members read [List.concat]. *)
-Module List. (* List *)
-
-(* The ctor notations [[]] and [::] are declared above this module; opening
- * their scope here lets every definition and law below use them.
- *)
-Local Open Scope jwa_list_scope.
 
 (* Lengths and counts are [NatWithZero]s, so its scope is opened here too:
  * [length l1 + length l2], [i < length l]. [Nat]'s scope stays closed and
@@ -443,7 +453,7 @@ Theorem associativity
       (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros A l1 l2 l3.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -469,7 +479,7 @@ Module right. (* concatenation.right *)
 Lemma identity : forall {A : Type} (l : List A) . l ++ [] = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -495,7 +505,7 @@ Theorem catamorphism
       l1 ++ l2 = fold_right Cons l2 l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -518,7 +528,7 @@ Theorem concatenation
       (|| l1 ++ l2 ||) = (|| l1 ||) + (|| l2 ||).
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -545,7 +555,7 @@ Theorem catamorphism
                    l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -562,7 +572,7 @@ Theorem identity
   : forall {A : Type} (l : List A) . map (fun a . a) l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -577,7 +587,7 @@ Theorem composition
     map g (map f l) = map (fun a . g (f a)) l.
 Proof.
   intros A B C f g l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -595,7 +605,7 @@ Theorem concatenation
       map f (l1 ++ l2) = map f l1 ++ map f l2.
 Proof.
   intros A B f l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -616,7 +626,7 @@ Theorem catamorphism
                    l.
 Proof.
   intros A B f l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -637,7 +647,7 @@ Theorem membership
       l contains_member a -> map f l contains_member f a.
 Proof.
   intros A B f a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro g.
     exact g.
@@ -670,7 +680,7 @@ Theorem concatenation
       fold_right f z (l1 ++ l2) = fold_right f (fold_right f z l2) l1.
 Proof.
   intros A B f z l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -710,7 +720,7 @@ Lemma concatenation
       l1 ++ l2 contains_member a -> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact (Disjunction.R h).
@@ -741,7 +751,7 @@ Lemma concatenation
       l1 contains_member a \/ l2 contains_member a -> l1 ++ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     intro h.
     destruct h as [f | h2].
@@ -792,7 +802,7 @@ Theorem catamorphism
       = fold_right (fun (b : A) (rest : Prop) . a = b \/ rest) Falsum l.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -814,7 +824,7 @@ Theorem concatenation
       reverse (l1 ++ l2) = reverse l2 ++ reverse l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     rewrite concatenation.right.identity in |- *.
     reflexivity.
@@ -834,7 +844,7 @@ Theorem involution
   : forall {A : Type} (l : List A) . reverse (reverse l) = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -857,7 +867,7 @@ Lemma membership
       reverse l contains_member a -> l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro f.
     exact f.
@@ -891,7 +901,7 @@ Lemma membership
       l contains_member a -> reverse l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro f.
     exact f.
@@ -1010,7 +1020,7 @@ Theorem concatenation
       filter p (l1 ++ l2) = filter p l1 ++ filter p l2.
 Proof.
   intros A p l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1040,7 +1050,7 @@ Theorem catamorphism
                     l.
 Proof.
   intros A p l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1056,7 +1066,7 @@ Lemma specification
       filter p l contains_member a -> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro f.
     contradiction f.
@@ -1091,7 +1101,7 @@ Lemma specification
       l contains_member a /\ p a = true -> filter p l contains_member a.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     destruct h as [f _].
@@ -1150,7 +1160,7 @@ Lemma concatenation
       All P (l1 ++ l2) -> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     intro h.
     split.
@@ -1177,7 +1187,7 @@ Lemma specification
       All P l -> forall (a : A) . l contains_member a -> P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intros v a f.
     contradiction f.
@@ -1206,7 +1216,7 @@ Lemma concatenation
       All P l1 /\ All P l2 -> All P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     intro h.
     destruct h as [_ h2].
@@ -1233,7 +1243,7 @@ Lemma specification
       (forall (a : A) . l contains_member a -> P a) -> All P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact I.
@@ -1286,7 +1296,7 @@ Lemma monotonicity
       (forall (a : A) . P a -> Q a) -> All P l -> All Q l.
 Proof.
   intros A P Q l h.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro v.
     exact v.
@@ -1302,7 +1312,7 @@ Theorem catamorphism
       All P l = fold_right (fun (a : A) (rest : Prop) . P a /\ rest) Verum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1327,7 +1337,7 @@ Lemma concatenation
       Any P (l1 ++ l2) -> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact (Disjunction.R h).
@@ -1350,7 +1360,7 @@ Lemma specification
       Any P l -> exists (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro f.
     contradiction f.
@@ -1383,7 +1393,7 @@ Lemma concatenation
       Any P l1 \/ Any P l2 -> Any P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List_induction.
+  induction l1 as [| b l1' IH] using eliminator.
   - simpl in |- *.
     intro h.
     destruct h as [f | h2].
@@ -1412,7 +1422,7 @@ Lemma specification
       (exists (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     destruct h as [a ha].
@@ -1471,7 +1481,7 @@ Theorem catamorphism
       Any P l = fold_right (fun (a : A) (rest : Prop) . P a \/ rest) Falsum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1801,7 +1811,7 @@ Theorem unzipping
       zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
 Proof.
   intros A B l.
-  induction l as [| p l' IH] using List_induction.
+  induction l as [| p l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1825,7 +1835,7 @@ Theorem length
       (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - intros l2.
     destruct l2 as [| b l2'].
     + simpl in |- *.
@@ -1870,7 +1880,7 @@ Theorem zipping
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = Product_introduction l1 l2.
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - intros l2 e.
     destruct l2 as [| b l2'].
     + unfold unzip in |- *.
@@ -1925,7 +1935,7 @@ Theorem specification
           (filter (fun (a : A) . ! p a) l).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1950,7 +1960,7 @@ Lemma specification
       (exists (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - intros i h.
     destruct h as [a e].
     simpl in e.
@@ -1985,7 +1995,7 @@ Lemma specification
       i < (|| l ||) -> exists (a : A) . nth l i = Some a.
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - intros i h.
     simpl in h.
     unfold NatWithZero.LessThan in h.
@@ -2038,7 +2048,7 @@ Theorem decomposition
       take n l ++ drop n l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - intros n.
     simpl in |- *.
     reflexivity.
@@ -2067,7 +2077,7 @@ Theorem length
       (|| take n l ||) = NatWithZero.min n (|| l ||).
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - intros n.
     simpl in |- *.
     rewrite (NatWithZero.minimum.right.annihilation n) in |- *.
@@ -2112,7 +2122,7 @@ Theorem length
       (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - intros n.
     simpl in |- *.
     reflexivity.
@@ -2187,7 +2197,7 @@ Theorem concatenation
 Proof.
   intros l1 l2.
   unfold sum in |- *.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2217,7 +2227,7 @@ Theorem concatenation
 Proof.
   intros l1 l2.
   unfold product in |- *.
-  induction l1 as [| a l1' IH] using List_induction.
+  induction l1 as [| a l1' IH] using eliminator.
   - rewrite (concatenation.left.identity l2) in |- *.
     change (fold_right NatWithZero.mul (Positive One) []) with (Positive One) in |- *.
     rewrite (NatWithZero.multiplication.left.identity
@@ -2245,7 +2255,7 @@ Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) . count p l = (|| filter p l ||).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2267,7 +2277,7 @@ Theorem specification
       count p l = Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     split.
     + intro e.
@@ -2317,7 +2327,7 @@ Lemma all
       P a -> All P l -> All P (insert le a l).
 Proof.
   intros A le P a l pa.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro v.
     exact (Conjunction_introduction pa v).
@@ -2344,7 +2354,7 @@ Lemma sortedness
       forall (a : A) (l : List A) . Sorted le l -> Sorted le (insert le a l).
 Proof.
   intros A le total transitive a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro v.
     exact (Conjunction_introduction v v).
@@ -2380,7 +2390,7 @@ Lemma membership
       insert le a l contains_member b -> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List_induction.
+  induction l as [| c l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2409,7 +2419,7 @@ Lemma membership
       b = a \/ l contains_member b -> insert le a l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List_induction.
+  induction l as [| c l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2446,7 +2456,7 @@ Lemma length
       (|| insert le a l ||) = ++ (|| l ||).
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2469,7 +2479,7 @@ Theorem sortedness
       forall (l : List A) . Sorted le (insertion_sort le l).
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     exact I.
   - simpl in |- *.
@@ -2489,7 +2499,7 @@ Lemma membership
       insertion_sort le l contains_member a -> l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2519,7 +2529,7 @@ Lemma membership
       l contains_member a -> insertion_sort le l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List_induction.
+  induction l as [| b l' IH] using eliminator.
   - simpl in |- *.
     intro h.
     exact h.
@@ -2558,7 +2568,7 @@ Theorem length
       (|| insertion_sort le l ||) = (|| l ||).
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2767,7 +2777,7 @@ Theorem bound
 Proof.
   intros l.
   unfold maximum_of in |- *.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - simpl in |- *.
     exact I.
   - simpl in |- *.
@@ -2791,7 +2801,7 @@ Theorem membership
 Proof.
   intros l.
   unfold maximum_of in |- *.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - intro h.
     unfold Negation in h.
     pose proof (h (Identity.reflexivity [])) as f.
@@ -2856,7 +2866,7 @@ Theorem bound
       -> All (fun (a : NatWithZero) . m <= a) l.
 Proof.
   intros l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - intros m e.
     simpl in e.
     discriminate e.
@@ -2891,7 +2901,7 @@ Theorem membership
       minimum_of l = Some m -> l contains_member m.
 Proof.
   intros l.
-  induction l as [| a l' IH] using List_induction.
+  induction l as [| a l' IH] using eliminator.
   - intros m e.
     simpl in e.
     discriminate e.
@@ -2921,16 +2931,23 @@ End minimum. (* minimum *)
 
 End List. (* List *)
 
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [List A], not [List.T A].
+ *)
+Abbreviation List := List.T.
+
 (* Makes the notations declared in [Module List] usable in every file that
  * imports this one, as [(l1 ++ l2)%list] or under an opened
- * [jwa_list_scope]. Only the notations are exported: [concat] and the laws
- * still need the [List.] prefix. The ctor notations [[]] and [::] are
- * declared above the module and reach a client with the module itself.
+ * [jwa_list_scope]. Only the notations are exported: [concat], the laws and
+ * the two ctors still need the [List.] prefix. That split is the point of
+ * the selective form -- [[]] and [::] are the spellings a client wants,
+ * while [Nil] and [Cons] are the names a second container would collide
+ * with.
  *)
 Export (notations) List.
 
 Instance List_concat_monoid
-  : forall {A : Type} . Monoid (@List.concat A) Nil :=
+  : forall {A : Type} . Monoid (@List.concat A) List.Nil :=
   fun (A : Type) .
     ({| Monoid.semigroup :=
           {| Semigroup.associativity := @List.concatenation.associativity A |}

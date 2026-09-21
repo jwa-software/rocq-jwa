@@ -141,10 +141,11 @@ Definition data_all_delivers_bool_bridge
 
 Definition data_all_delivers_list
   : List Bool
-  := (Cons true Nil ++ Cons false Nil)%list.
+  := (List.Cons true List.Nil ++ List.Cons false List.Nil)%list.
 
 Definition data_all_delivers_list_monoid
-  : forall (A : Type) (l : List A) . (Nil ++ l)%list = l /\ (l ++ Nil)%list = l
+  : forall (A : Type) (l : List A) .
+      (List.Nil ++ l)%list = l /\ (l ++ List.Nil)%list = l
   := fun (A : Type) . Monoid.identity.
 
 Definition data_all_delivers_empty_list
@@ -157,23 +158,23 @@ Definition data_all_delivers_cons
 
 Definition data_all_delivers_list_functor
   : List Bool
-  := Functor.map (fun (b : Bool) . b) (Cons true Nil).
+  := Functor.map (fun (b : Bool) . b) (List.Cons true List.Nil).
 
 Definition data_all_delivers_contains
   : Prop
-  := (Cons true Nil contains_member true)%list.
+  := (List.Cons true List.Nil contains_member true)%list.
 
 Definition data_all_delivers_belongs_to
   : Prop
-  := (true belongs_to Cons true Nil)%list.
+  := (true belongs_to List.Cons true List.Nil)%list.
 
 Definition data_all_delivers_does_not_contain_member
   : Prop
-  := (Nil does_not_contain_member true)%list.
+  := (List.Nil does_not_contain_member true)%list.
 
 Definition data_all_delivers_does_not_belong_to
   : Prop
-  := (true does_not_belong_to Nil)%list.
+  := (true does_not_belong_to List.Nil)%list.
 
 Definition data_all_delivers_nat_order
   : Prop
@@ -242,11 +243,11 @@ Definition data_all_delivers_division
 
 Definition data_all_delivers_nth
   : Option Bool
-  := List.nth (Cons true Nil) NatWithZero.Zero.
+  := List.nth (List.Cons true List.Nil) NatWithZero.Zero.
 
 Definition data_all_delivers_split_at
   : List Bool * List Bool
-  := List.split_at (NatWithZero.Positive One) (Cons true (Cons false Nil)).
+  := List.split_at (NatWithZero.Positive One) (List.Cons true (List.Cons false List.Nil)).
 
 Definition data_all_delivers_replicate
   : List Bool
@@ -254,11 +255,12 @@ Definition data_all_delivers_replicate
 
 Definition data_all_delivers_list_sum
   : NatWithZero
-  := NatWithZero.add (List.sum (Cons (NatWithZero.Positive One) Nil)) (List.product Nil).
+  := NatWithZero.add (List.sum (List.Cons (NatWithZero.Positive One) List.Nil))
+                     (List.product List.Nil).
 
 Definition data_all_delivers_count
   : NatWithZero
-  := List.count (fun (b : Bool) . b) (Cons true Nil).
+  := List.count (fun (b : Bool) . b) (List.Cons true List.Nil).
 
 Definition data_all_delivers_sorting
   : forall (l : List NatWithZero) .
@@ -322,8 +324,8 @@ Definition data_all_delivers_range
 
 Definition data_all_delivers_extrema
   : NatWithZero * Option NatWithZero
-  := Product_introduction (List.maximum_of (Cons NatWithZero.Zero Nil))
-                          (List.minimum_of (Cons NatWithZero.Zero Nil)).
+  := Product_introduction (List.maximum_of (List.Cons NatWithZero.Zero List.Nil))
+                          (List.minimum_of (List.Cons NatWithZero.Zero List.Nil)).
 
 Definition data_all_delivers_gauss
   : NatWithZero.mul (NatWithZero.Positive (Successor One))

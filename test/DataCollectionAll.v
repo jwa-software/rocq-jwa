@@ -9,7 +9,7 @@ Definition data_collection_all_delivers
 
 Definition data_collection_all_delivers_operations
   : forall (A : Type) (l : List A) . List A
-  := fun (A : Type) (l : List A) . (l ++ Nil)%list.
+  := fun (A : Type) (l : List A) . (l ++ List.Nil)%list.
 
 Definition data_collection_all_delivers_sized
   : forall (A : Type) (l : List A) . NatWithZero
