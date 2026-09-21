@@ -13,12 +13,14 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
+From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read [NatWithZero.add].
  * The type and its ctors are declared inside it: [Integer] declares [Zero]
@@ -1496,7 +1498,79 @@ Proof.
     exact (division.invariant p d).
 Qed.
 
+(* division.bound *)
+Theorem bound : forall (n : NatWithZero) (d : Nat) . modulo n d < + d.
+Proof.
+  intros n d.
+  destruct (division.specification n d) as [h1 h2].
+  exact h2.
+Qed.
+
 End division. (* division *)
+
+Local Open Scope jwa_product_scope.
+
+Module euclid. (* euclid *)
+
+(* Euclid's step replaces [(a, b)] by [(b, a mod b)], so both components move
+ * and the pair is what descends; the order on it is the second component's.
+ *)
+Instance well_founded
+  : WellFounded (Preimage pi_2 LessThan) :=
+  WellFounded.preimage (@Product.second NatWithZero NatWithZero) LessThan
+    {| accessibility := order.strict.wellfoundedness |}.
+
+(* The two [return] clauses are what lets [descend] take a proof about [+ q]:
+ * without them [recurse] would still be asking for one about [b].
+ *)
+(* [forall (p : Product NatWithZero NatWithZero) .
+ *    (forall (s : Product NatWithZero NatWithZero) .
+ *       Preimage pi_2 LessThan s p -> NatWithZero) -> NatWithZero]
+ *)
+Definition step :=
+  fun (p : Product NatWithZero NatWithZero)
+    (recurse : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s p -> NatWithZero) .
+    match p as t
+    return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s t -> NatWithZero) -> NatWithZero)
+    with
+    | (a, b) =>
+        match b as c
+        return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, c) -> NatWithZero) -> NatWithZero)
+        with
+        | 0 =>
+            fun (_ : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, 0) -> NatWithZero) . a
+        | + q =>
+            fun (descend : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, + q) -> NatWithZero) .
+              descend
+                ((+ q), modulo a q)
+                (division.bound a q)
+        end
+    end recurse.
+
+(* euclid.extensionality *)
+Lemma extensionality : Extensional step.
+Proof.
+  intros p f g h.
+  destruct p as [a b].
+  destruct b as [| q].
+  - reflexivity.
+  - exact (h ((+ q), modulo a q) (division.bound a q)).
+Qed.
+
+End euclid. (* euclid *)
+
+(* An instance declared inside a submodule is dropped at its [End], so it is
+ * announced again here, where [gcd] resolves it.
+ *)
+Existing Instance euclid.well_founded.
+
+(* Greatest Common Divisor *)
+(* [NatWithZero -> NatWithZero -> NatWithZero] *)
+Definition gcd :=
+  fun (a : NatWithZero) (b : NatWithZero) .
+    (WellFounded.recursion euclid.step (a, b)).
+
+Local Close Scope jwa_product_scope.
 
 Module divisibility. (* divisibility *)
 
@@ -1599,6 +1673,64 @@ Proof.
   reflexivity.
 Qed.
 
+(* The quotients are what the subtraction happens on, so the witness is
+ * [k2 - k1] and the work is showing that [k1] is not the larger.
+ *)
+(* divisibility.addition.cancellation *)
+Theorem cancellation
+  : forall {d : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
+      Divides d m -> Divides d (m + n) -> Divides d n.
+Proof.
+  intros d m n h1 h2.
+  simplify Divides in h1, h2.
+  destruct h1 as [k1 e1].
+  destruct h2 as [k2 e2].
+  destruct d as [| c].
+  - destruct (multiplication.annihilation k1) as [z1 z2].
+    rewrite z1 in e1.
+    destruct (multiplication.annihilation k2) as [w1 w2].
+    rewrite w1 in e2.
+    rewrite <- e1 in e2.
+    destruct (addition.identity n) as [i1 i2].
+    rewrite i1 in e2.
+    rewrite <- e2 in |- *.
+    exact (divisibility.top 0).
+  - destruct (Comparable.order.totality k1 k2) as [le | ge].
+    + simplify Divides in |- *.
+      apply (Exists_introduction (saturating_sub k2 k1)).
+      pose proof (subtraction.saturating.specification le) as s.
+      pose proof (multiplication.left.distributivity.over.addition
+                    (+ c) k1 (saturating_sub k2 k1)) as dist.
+      rewrite s in dist.
+      rewrite e1 in dist.
+      rewrite e2 in dist.
+      symmetry in dist.
+      exact (addition.left.cancellation dist).
+    + simplify LessOrEqual in ge.
+      destruct ge as [eq | lt].
+      * rewrite eq in e2.
+        rewrite e1 in e2.
+        destruct (addition.identity m) as [i1 i2].
+        pose proof (Identity.transitivity i2 e2) as e3.
+        pose proof (addition.left.cancellation e3) as e4.
+        rewrite <- e4 in |- *.
+        exact (divisibility.top (+ c)).
+      * pose proof (multiplication.left.order.strict.monotonicity c k2 k1 lt) as mono.
+        rewrite e1 in mono.
+        rewrite e2 in mono.
+        simplify LessThan in mono.
+        destruct mono as [j ej].
+        rewrite (addition.associativity m n (+ j)) in ej.
+        destruct (addition.identity m) as [i1 i2].
+        symmetry in i2.
+        pose proof (Identity.transitivity ej i2) as e3.
+        pose proof (addition.left.cancellation e3) as e4.
+        pose proof (addition.right.order.positivity n j) as pos.
+        rewrite e4 in pos.
+        exact (Falsum.elimination (Divides (+ c) n)
+                                  (order.strict.irreflexivity 0 pos)).
+Qed.
+
 End addition. (* divisibility.addition *)
 
 Module multiplication. (* divisibility.multiplication *)
@@ -1621,6 +1753,112 @@ Qed.
 End multiplication. (* divisibility.multiplication *)
 
 End divisibility. (* divisibility *)
+
+Local Open Scope jwa_product_scope.
+
+Module gcd. (* gcd *)
+
+(* gcd.zero *)
+Theorem zero : forall (a : NatWithZero) . gcd a 0 = a.
+Proof.
+  intros a.
+  simplify gcd in |- *.
+  rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, 0)) in |- *.
+  reflexivity.
+Qed.
+
+(* gcd.recurrence *)
+Theorem recurrence
+  : forall (a : NatWithZero) (q : Nat) . gcd a (+ q) = gcd (+ q) (modulo a q).
+Proof.
+  intros a q.
+  simplify gcd in |- *.
+  rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, + q)) in |- *.
+  reflexivity.
+Qed.
+
+(* Both halves come out of one descent, the first needing the second at the
+ * step below it.
+ *)
+(* gcd.common *)
+Theorem common
+  : forall (b : NatWithZero) (a : NatWithZero) .
+      Divides (gcd a b) a /\ Divides (gcd a b) b.
+Proof.
+  intros b.
+  apply (Accessible.recursion
+           (R := LessThan)
+           (P := fun (c : NatWithZero) .
+                 forall (a : NatWithZero) .
+                   Divides (gcd a c) a /\ Divides (gcd a c) c)).
+  - intros c recurse a.
+    destruct c as [| q].
+    + rewrite (gcd.zero a) in |- *.
+      split.
+      * exact (divisibility.reflexivity a).
+      * exact (divisibility.top a).
+    + rewrite (gcd.recurrence a q) in |- *.
+      destruct (recurse (modulo a q) (division.bound a q) (+ q)) as [d1 d2].
+      split.
+      * destruct (division.specification a q) as [s1 s2].
+        pose proof (divisibility.multiplication.closure
+                      (gcd (+ q) (modulo a q)) (+ q) (divide a q) d1) as hm.
+        rewrite (multiplication.commutativity (+ q) (divide a q)) in hm.
+        pose proof (divisibility.addition.closure hm d2) as hs.
+        rewrite s1 in hs.
+        exact hs.
+      * exact d1.
+  - exact (order.strict.wellfoundedness b).
+Qed.
+
+(* gcd.left *)
+Theorem left : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) a.
+Proof.
+  intros a b.
+  destruct (gcd.common b a) as [h1 h2].
+  exact h1.
+Qed.
+
+(* gcd.right *)
+Theorem right : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) b.
+Proof.
+  intros a b.
+  destruct (gcd.common b a) as [h1 h2].
+  exact h2.
+Qed.
+
+(* The descent carries [d] down with it, the step needing that [d] divides
+ * the remainder, which is where the cancellation is spent.
+ *)
+(* gcd.greatest *)
+Theorem greatest
+  : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
+      Divides d a -> Divides d b -> Divides d (gcd a b).
+Proof.
+  intros b.
+  apply (Accessible.recursion
+           (R := LessThan)
+           (P := fun (c : NatWithZero) .
+                 forall (a : NatWithZero) (d : NatWithZero) .
+                   Divides d a -> Divides d c -> Divides d (gcd a c))).
+  - intros c recurse a d h1 h2.
+    destruct c as [| q].
+    + rewrite (gcd.zero a) in |- *.
+      exact h1.
+    + rewrite (gcd.recurrence a q) in |- *.
+      apply (recurse (modulo a q) (division.bound a q) (+ q) d h2).
+      destruct (division.specification a q) as [s1 s2].
+      rewrite <- s1 in h1.
+      pose proof (divisibility.multiplication.closure
+                    d (+ q) (divide a q) h2) as hm.
+      rewrite (multiplication.commutativity (+ q) (divide a q)) in hm.
+      exact (divisibility.addition.cancellation hm h1).
+  - exact (order.strict.wellfoundedness b).
+Qed.
+
+End gcd. (* gcd *)
+
+Local Close Scope jwa_product_scope.
 
 Module parity. (* parity *)
 

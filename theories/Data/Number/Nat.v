@@ -9,6 +9,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Option.
+From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
 
