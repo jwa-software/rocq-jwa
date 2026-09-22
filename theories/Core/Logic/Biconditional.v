@@ -125,12 +125,11 @@ Qed.
 
 End Biconditional. (* Biconditional *)
 
-(* [<->symm h] turns a biconditional round and [<->trans a b] chains two.
- * Neither may follow an [@], which takes a qualified name and not a
- * notation, so a use that has to make [P] and [Q] explicit -- the instance
- * fields in [Relation.Equivalence] -- writes the theorem out instead.
+(* [<->trans a b] chains two biconditionals. It may not follow an [@], which
+ * takes a qualified name and not a notation, so a use that has to make [P]
+ * and [Q] explicit -- the instance fields in [Relation.Equivalence] -- writes
+ * the theorem out instead.
  *)
-Notation "<->symm"  := Biconditional.symmetry    (only parsing).
 Notation "<->trans" := Biconditional.transitivity (only parsing).
 
 (* The congruence of [->] belongs to [Conditional], but its statement needs
