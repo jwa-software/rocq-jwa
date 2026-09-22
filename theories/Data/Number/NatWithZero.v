@@ -1696,9 +1696,9 @@ Proof.
   }
 Qed.
 
-Module positive. (* euclid.positive *)
+Module nat. (* euclid.nat *)
 
-(* euclid.positive.well_founded *)
+(* euclid.nat.well_founded *)
 Instance well_founded
   : WellFounded (Induced Nat.LessThan (@Product.second NatWithZero Nat)) :=
   WellFounded.induced Nat.LessThan (@Product.second NatWithZero Nat)
@@ -1739,7 +1739,7 @@ Definition step
           end (division.remainder.boundedness a q)
     end recurse.
 
-(* euclid.positive.extensionality *)
+(* euclid.nat.extensionality *)
 Lemma extensionality : Descent.Extensional step.
 Proof.
   intros p f g h.
@@ -1758,7 +1758,7 @@ Proof.
     modus ponens H, s.
 Qed.
 
-End positive. (* euclid.positive *)
+End nat. (* euclid.nat *)
 
 End euclid. (* euclid *)
 
@@ -1767,7 +1767,7 @@ End euclid. (* euclid *)
  *)
 Existing Instance euclid.well_founded.
 
-Existing Instance euclid.positive.well_founded.
+Existing Instance euclid.nat.well_founded.
 
 (* Greatest Common Divisor *)
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
@@ -2066,37 +2066,38 @@ Qed.
  * [gcd] is positive cannot hand one over.
  *)
 (* [NatWithZero -> Nat -> Nat] *)
-Definition positive :=
+(* gcd.nat *)
+Definition nat :=
   fun (a : NatWithZero) (q : Nat) .
-    (WellFounded.recursion euclid.positive.step (a, q)).
+    (WellFounded.recursion euclid.nat.step (a, q)).
 
-Module positive. (* gcd.positive *)
+Module nat. (* gcd.nat *)
 
-(* gcd.positive.zero *)
+(* gcd.nat.zero *)
 Theorem zero
-  : forall (a : NatWithZero) (q : Nat) . (a %. q) = 0 -> gcd.positive a q = q.
+  : forall (a : NatWithZero) (q : Nat) . (a %. q) = 0 -> gcd.nat a q = q.
 Proof.
   intros a q e.
-  simplify gcd.positive in |- *.
+  simplify gcd.nat in |- *.
   rewrite (WellFounded.recursion.unfolding
-             euclid.positive.extensionality (a, q)) in |- *.
-  simplify euclid.positive.step in |- *.
+             euclid.nat.extensionality (a, q)) in |- *.
+  simplify euclid.nat.step in |- *.
   generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
   reflexivity.
 Qed.
 
-(* gcd.positive.recurrence *)
+(* gcd.nat.recurrence *)
 Theorem recurrence
   : forall (a : NatWithZero) (q : Nat) (r : Nat) .
-      (a %. q) = + r -> gcd.positive a q = gcd.positive (+ q) r.
+      (a %. q) = + r -> gcd.nat a q = gcd.nat (+ q) r.
 Proof.
   intros a q r e.
-  simplify gcd.positive in |- *.
+  simplify gcd.nat in |- *.
   rewrite (WellFounded.recursion.unfolding
-             euclid.positive.extensionality (a, q)) in |- *.
-  simplify euclid.positive.step in |- *.
+             euclid.nat.extensionality (a, q)) in |- *.
+  simplify euclid.nat.step in |- *.
   generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
@@ -2104,22 +2105,22 @@ Proof.
 Qed.
 
 (* Everything proved of [gcd] travels across this line. *)
-(* gcd.positive.specification *)
+(* gcd.nat.specification *)
 Theorem specification
-  : forall (q : Nat) (a : NatWithZero) . gcd a (+ q) = + (gcd.positive a q).
+  : forall (q : Nat) (a : NatWithZero) . gcd a (+ q) = + (gcd.nat a q).
 Proof.
   intros q.
   apply (Accessible.recursion
            (R := Nat.LessThan)
            (P := fun (c : Nat) .
-                 forall (a : NatWithZero) . gcd a (+ c) = + (gcd.positive a c))).
+                 forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c))).
   - intros c recurse a.
     rewrite (gcd.recurrence a c) in |- *.
     destruct (a %. c) as [| r] eqn:e.
     + rewrite (gcd.zero (+ c)) in |- *.
-      rewrite (gcd.positive.zero a c e) in |- *.
+      rewrite (gcd.nat.zero a c e) in |- *.
       reflexivity.
-    + rewrite (gcd.positive.recurrence a c r e) in |- *.
+    + rewrite (gcd.nat.recurrence a c r e) in |- *.
       pose proof (division.remainder.boundedness a c) as b.
       rewrite e in b.
       modus aequans (positive.order.embedding r c), b as lt.
@@ -2127,7 +2128,7 @@ Proof.
   - exact (accessibility q).
 Qed.
 
-End positive. (* gcd.positive *)
+End nat. (* gcd.nat *)
 
 Local Close Scope jwa_product_scope.
 

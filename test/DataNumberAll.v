@@ -51,11 +51,11 @@ Definition data_number_all_delivers_gcd_universality
       NatWithZero.Divides d b -> NatWithZero.Divides d (NatWithZero.gcd a b)
   := NatWithZero.gcd.universality.
 
-Definition data_number_all_delivers_gcd_positive
+Definition data_number_all_delivers_gcd_nat
   : forall (q : Nat) (a : NatWithZero) .
       NatWithZero.gcd a (NatWithZero.Positive q)
-      = NatWithZero.Positive (NatWithZero.gcd.positive a q)
-  := NatWithZero.gcd.positive.specification.
+      = NatWithZero.Positive (NatWithZero.gcd.nat a q)
+  := NatWithZero.gcd.nat.specification.
 
 Definition data_number_all_delivers_integer_divide
   : forall (x : Integer) (d : Nat) .
