@@ -2046,13 +2046,18 @@ Proof.
     + rewrite (gcd.zero a) in |- *.
       exact h1.
     + rewrite (gcd.recurrence a q) in |- *.
-      apply (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2).
-      destruct (division.specification a q) as [s1 s2].
-      rewrite <- s1 in h1.
-      pose proof (divisibility.multiplication.closure
-                    d (+ q) ((a /. q)) h2) as hm.
-      rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
-      exact (divisibility.addition.cancellation hm h1).
+      assert (remainder : Divides d (a %. q)).
+      {
+        destruct (division.specification a q) as [s1 s2].
+        rewrite <- s1 in h1.
+        pose proof (divisibility.multiplication.closure
+                      d (+ q) ((a /. q)) h2) as hm.
+        rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
+        exact (divisibility.addition.cancellation hm h1).
+      }
+      pose proof (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2)
+        as below.
+      modus ponens below, remainder.
   - exact (order.strict.wellfoundedness b).
 Qed.
 
