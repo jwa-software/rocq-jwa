@@ -125,12 +125,6 @@ Qed.
 
 End Biconditional. (* Biconditional *)
 
-(* [->elim h p] and [<-elim h q] run [h : P <-> Q] forward and backward, as
- * [Biconditional.forward.elimination] and [backward.elimination].
- *)
-Notation "->elim" := Biconditional.forward.elimination (only parsing).
-Notation "<-elim" := Biconditional.backward.elimination (only parsing).
-
 (* [<->symm h] turns a biconditional round and [<->trans a b] chains two.
  * Neither may follow an [@], which takes a qualified name and not a
  * notation, so a use that has to make [P] and [Q] explicit -- the instance
