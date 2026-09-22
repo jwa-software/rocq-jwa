@@ -125,13 +125,6 @@ Qed.
 
 End Biconditional. (* Biconditional *)
 
-(* [<->trans a b] chains two biconditionals. It may not follow an [@], which
- * takes a qualified name and not a notation, so a use that has to make [P]
- * and [Q] explicit -- the instance fields in [Relation.Equivalence] -- writes
- * the theorem out instead.
- *)
-Notation "<->trans" := Biconditional.transitivity (only parsing).
-
 (* The congruence of [->] belongs to [Conditional], but its statement needs
  * [<->], so it can be stated only here. A second module of that name
  * carries it, and a client reads [Conditional.congruence].
