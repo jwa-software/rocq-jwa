@@ -91,7 +91,7 @@ Defined.
 Theorem congruence
   : forall {A : Type} {B : Type} {x : A} {y : A} (f : A -> B) . x = y -> f x = f y.
 Proof.
-  intros A B f x y e.
+  intros A B x y f e.
   destruct e.
   reflexivity.
 Defined.
