@@ -1,10 +1,10 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Biimplication.
+From jwa Require Import Core.Logic.Biconditional.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Falsum.
-From jwa Require Import Core.Logic.Implication.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
@@ -257,7 +257,7 @@ Proof.
   (* [|- (A1 -> Falsum) <-> (A2 -> Falsum)] *)
   unfold Negation in |- *.
 
-  (* [Biimplication] has one ctor with two fields,
+  (* [Biconditional] has one ctor with two fields,
    * so the goal splits into two goals:
    * [|- (A1 -> Falsum) -> (A2 -> Falsum)]
    * [|- (A2 -> Falsum) -> (A1 -> Falsum)].

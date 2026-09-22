@@ -9,6 +9,7 @@ From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
+From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read
@@ -264,15 +265,18 @@ Proof.
     + intro h.
       destruct h as [e | h'].
       * exact (Disjunction.L (Disjunction.L e)).
-      * destruct (->elim IH h') as [m | m].
+      * modus aequans IH, h' as d.
+        destruct d as [m | m].
         -- exact (Disjunction.L (Disjunction.R m)).
         -- exact (Disjunction.R m).
     + intro h.
       destruct h as [c | m].
       * destruct c as [e | m].
         -- exact (Disjunction.L e).
-        -- exact (Disjunction.R (<-elim IH (Disjunction.L m))).
-      * exact (Disjunction.R (<-elim IH (Disjunction.R m))).
+        -- modus aequans IH, (Disjunction.L m) as h'.
+           exact (Disjunction.R h').
+      * modus aequans IH, (Disjunction.R m) as h'.
+        exact (Disjunction.R h').
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -552,11 +556,13 @@ Proof.
     + intro h.
       destruct h as [e | m].
       * exact (Disjunction.L e).
-      * exact (Disjunction.R (->elim IH m)).
+      * modus aequans IH, m as m'.
+        exact (Disjunction.R m').
     + intro h.
       destruct h as [e | m].
       * exact (Disjunction.L e).
-      * exact (Disjunction.R (<-elim IH m)).
+      * modus aequans IH, m as m'.
+        exact (Disjunction.R m').
 Qed.
 
 (* The [Option] that [List]'s extrema carry is about emptiness and nothing

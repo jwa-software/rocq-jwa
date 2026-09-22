@@ -15,6 +15,7 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Modus.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
  * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
@@ -1496,10 +1497,10 @@ Proof.
     destruct lt as [k e].
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in e.
-    exact (<-elim (difference.nat.negative.specification k m' n') e).
+    modus aequans (difference.nat.negative.specification k m' n'), e.
   - intro h.
     destruct h as [k e].
-    pose proof (->elim (difference.nat.negative.specification k m' n') e) as e'.
+    modus aequans (difference.nat.negative.specification k m' n'), e as e'.
     apply (@Nat.comparison.strict.backward.specification n' m').
     unfold Nat.LessThan in |- *.
     apply (Exists_introduction k).

@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Biimplication.
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Biconditional.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
@@ -27,10 +27,10 @@ Module exclusion. (* exclusion *)
 Module of. (* exclusion.of *)
 
 (* Two propositions are incompatible when they cannot both hold: an
- * abjunction and the implication between the same two sides.
+ * abjunction and the conditional between the same two sides.
  *)
-(* exclusion.of.implication *)
-Theorem implication
+(* exclusion.of.conditional *)
+Theorem conditional
   : forall {A : Prop} {B : Prop} . A -/> B -> ~ (A -> B).
 Proof.
   intros A B.
@@ -106,12 +106,12 @@ Qed.
 
 End Abjunction. (* Abjunction *)
 
-(* The same incompatibility read from the implication's side belongs to
- * [Implication], but it can be stated only here, where [-/>] is known. A
+(* The same incompatibility read from the conditional's side belongs to
+ * [Conditional], but it can be stated only here, where [-/>] is known. A
  * second module of that name carries it, and a client reads
- * [Implication.exclusion.of.abjunction].
+ * [Conditional.exclusion.of.abjunction].
  *)
-Module Implication. (* Implication *)
+Module Conditional. (* Conditional *)
 
 Module exclusion. (* exclusion *)
 
@@ -136,4 +136,4 @@ End of. (* exclusion.of *)
 
 End exclusion. (* exclusion *)
 
-End Implication. (* Implication *)
+End Conditional. (* Conditional *)

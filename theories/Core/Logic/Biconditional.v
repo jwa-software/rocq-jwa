@@ -1,21 +1,21 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
-Inductive Biimplication (P : Prop) (Q : Prop) : Prop :=
-  | Biimplication_introduction : (P -> Q) -> (Q -> P) -> Biimplication P Q.
+Inductive Biconditional (P : Prop) (Q : Prop) : Prop :=
+  | Biconditional_introduction : (P -> Q) -> (Q -> P) -> Biconditional P Q.
 
-Arguments Biimplication_introduction {P} {Q} forward backward.
+Arguments Biconditional_introduction {P} {Q} forward backward.
 
-Notation "P <-> Q" := (Biimplication P Q)
+Notation "P <-> Q" := (Biconditional P Q)
   : jwa_type_scope.
 
 (* A module may carry the type's name; its laws read
- * [Biimplication.symmetry].
+ * [Biconditional.symmetry].
  *)
-Module Biimplication. (* Biimplication *)
+Module Biconditional. (* Biconditional *)
 
 Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
@@ -118,32 +118,18 @@ Proof.
     exact q1.
 Qed.
 
-(* [Biimplication.exclusion.of.sejunction] is stated in
+(* [Biconditional.exclusion.of.sejunction] is stated in
  * [Core.Logic.Sejunction], the lowest file that knows both connectives, in
  * a second module of this name.
  *)
 
-End Biimplication. (* Biimplication *)
+End Biconditional. (* Biconditional *)
 
-(* [->elim h p] and [<-elim h q] run [h : P <-> Q] forward and backward, as
- * [Biimplication.forward.elimination] and [backward.elimination].
- *)
-Notation "->elim" := Biimplication.forward.elimination (only parsing).
-Notation "<-elim" := Biimplication.backward.elimination (only parsing).
-
-(* [<->symm h] turns a biimplication round and [<->trans a b] chains two.
- * Neither may follow an [@], which takes a qualified name and not a
- * notation, so a use that has to make [P] and [Q] explicit -- the instance
- * fields in [Relation.Equivalence] -- writes the theorem out instead.
- *)
-Notation "<->symm"  := Biimplication.symmetry    (only parsing).
-Notation "<->trans" := Biimplication.transitivity (only parsing).
-
-(* The congruence of [->] belongs to [Implication], but its statement needs
+(* The congruence of [->] belongs to [Conditional], but its statement needs
  * [<->], so it can be stated only here. A second module of that name
- * carries it, and a client reads [Implication.congruence].
+ * carries it, and a client reads [Conditional.congruence].
  *)
-Module Implication. (* Implication *)
+Module Conditional. (* Conditional *)
 
 Theorem congruence
   : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop} .
@@ -167,4 +153,4 @@ Proof.
     exact p1.
 Qed.
 
-End Implication. (* Implication *)
+End Conditional. (* Conditional *)

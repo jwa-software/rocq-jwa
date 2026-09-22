@@ -267,17 +267,17 @@ Definition data_all_delivers_sorting
       List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
   := List.sorting.sortedness
        (fun (m : NatWithZero) (n : NatWithZero) .
-          <-elim
+          Biconditional.backward.elimination
             (Disjunction.congruence
                (Comparable.order.reflection m n) (Comparable.order.reflection n m))
             (Comparable.order.totality m n))
        (fun (a : NatWithZero) (b : NatWithZero) (c : NatWithZero)
             (h1 : NatWithZero.le a b = true) (h2 : NatWithZero.le b c = true) .
-          <-elim
+          Biconditional.backward.elimination
             (Comparable.order.reflection a c)
             (Comparable.order.transitivity a b c
-               (->elim (Comparable.order.reflection a b) h1)
-               (->elim (Comparable.order.reflection b c) h2))).
+               (Biconditional.forward.elimination (Comparable.order.reflection a b) h1)
+               (Biconditional.forward.elimination (Comparable.order.reflection b c) h2))).
 
 Definition data_all_delivers_integer
   : Integer

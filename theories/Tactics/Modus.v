@@ -1,10 +1,12 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Logic.Sejunction.
 From jwa Require Import Core.Ltac.
 
-(* The four modi of traditional logic, each naming the step it takes. Every
+(* The four modi of traditional logic and a fifth in their pattern, each
+ * naming the step it takes. Every
  * form also comes with [as <p>], which puts the conclusion into the context
  * under the intro pattern <p> instead of closing the goal.
  *
@@ -18,9 +20,13 @@ From jwa Require Import Core.Ltac.
  *   modus ponendo tollens <H1>, <H2>    ~ (A /\ B), A |- ~ B
  *                                       ~ (A /\ B), B |- ~ A
  *
- * The last two work on either side of their connective, the second premise
+ *   modus aequans         <H1>, <H2>    A <-> B, A |- B
+ *                                       A <-> B, B |- A
+ *
+ * The last three work on either side of their connective, the second premise
  * saying which: denying one disjunct leaves the other, affirming one half of
- * an incompatibility denies the other.
+ * an incompatibility denies the other, affirming one side of a biconditional
+ * gives the other.
  *
  * The two premises are separated by a comma and may be given in either order:
  * each body tries the other way round when the first does not apply. In the
@@ -34,6 +40,11 @@ From jwa Require Import Core.Ltac.
  * negated conjunction, or the sejunction [A _\/_ B], which says that and also
  * that one of the two holds. The sejunction is carried into the laws by
  * [Sejunction.exclusion.of.conjunction] once the plain forms fail to apply.
+ *
+ * [aequans], equating, is the participle of [aequare] as [ponens] and
+ * [tollens] are of theirs: the mode that carries a truth across an
+ * equivalence, by [Biconditional.forward.elimination] and
+ * [Biconditional.backward.elimination].
  *
  * The proofs are [uconstr]: a [constr] is elaborated alone, where a lemma's
  * implicit binders have nothing yet to fix them.
@@ -114,3 +125,16 @@ Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2)
                     (Sejunction.exclusion.of.conjunction H1) H2) as p
     | pose proof (Negation.exclusion.right.of.conjunction
                     (Sejunction.exclusion.of.conjunction H2) H1) as p ].
+
+Tactic Notation "modus" "aequans" uconstr(H1) "," uconstr(H2) :=
+  first [ exact (Biconditional.forward.elimination H1 H2)
+        | exact (Biconditional.forward.elimination H2 H1)
+        | exact (Biconditional.backward.elimination H1 H2)
+        | exact (Biconditional.backward.elimination H2 H1) ].
+
+Tactic Notation "modus" "aequans" uconstr(H1) "," uconstr(H2)
+    "as" simple_intropattern(p) :=
+  first [ pose proof (Biconditional.forward.elimination H1 H2) as p
+        | pose proof (Biconditional.forward.elimination H2 H1) as p
+        | pose proof (Biconditional.backward.elimination H1 H2) as p
+        | pose proof (Biconditional.backward.elimination H2 H1) as p ].

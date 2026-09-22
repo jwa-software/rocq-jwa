@@ -240,3 +240,32 @@ Proof.
   modus ponendo tollens hs, ha as nb.
   exact nb.
 Qed.
+
+Theorem tactics_all_delivers_modus_aequans
+  : forall (A : Prop) (B : Prop) . (A <-> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  modus aequans hab, ha.
+Qed.
+
+Theorem tactics_all_delivers_modus_aequans_backward
+  : forall (A : Prop) (B : Prop) . (A <-> B) -> B -> A.
+Proof.
+  intros A B hab hb.
+  modus aequans hab, hb.
+Qed.
+
+Theorem tactics_all_delivers_modus_aequans_reversed
+  : forall (A : Prop) (B : Prop) . (A <-> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  modus aequans ha, hab.
+Qed.
+
+Theorem tactics_all_delivers_modus_aequans_as
+  : forall (A : Prop) (B : Prop) . (A <-> B) -> B -> A.
+Proof.
+  intros A B hab hb.
+  modus aequans hab, hb as a.
+  exact a.
+Qed.
