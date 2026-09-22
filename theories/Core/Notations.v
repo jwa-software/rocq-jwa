@@ -91,6 +91,13 @@ Reserved Notation "x && y"
   (at level 40, left associativity).
 Reserved Notation "x * y"
   (at level 40, left associativity).
+(* [x % y] is the scope delimiter's own syntax, so the quotient and the
+ * remainder both carry a dot.
+ *)
+Reserved Notation "x /. y"
+  (at level 40, left associativity).
+Reserved Notation "x %. y"
+  (at level 40, left associativity).
 Reserved Notation "x ^^ y"
   (at level 45, left associativity).
 Reserved Notation "x || y"
