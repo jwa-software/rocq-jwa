@@ -171,6 +171,26 @@ Definition data_number_all_delivers_rational_make
   : Integer -> Nat -> Rational
   := Rational.make.
 
+Definition data_number_all_delivers_rational_negate
+  : Rational -> Rational
+  := Rational.negate.
+
+Definition data_number_all_delivers_rational_add
+  : Rational -> Rational -> Rational
+  := Rational.add.
+
+Definition data_number_all_delivers_rational_sub
+  : Rational -> Rational -> Rational
+  := Rational.sub.
+
+Definition data_number_all_delivers_rational_mul
+  : Rational -> Rational -> Rational
+  := Rational.mul.
+
+Definition data_number_all_delivers_rational_inverse
+  : Rational -> Option Rational
+  := Rational.inverse.
+
 Definition data_number_all_delivers_rational_make_invariance
   : forall (n : Integer) (d : Nat) (k : Nat) .
       Rational.make (Integer.mul (Integer.Positive k) n) (Nat.mul k d)

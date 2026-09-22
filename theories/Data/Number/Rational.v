@@ -4,6 +4,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Option.
 From jwa Require Import Tactics.Simplify.
 
 Module Rational. (* Rational *)
@@ -17,25 +18,65 @@ Inductive T : Type :=
 
 Abbreviation Rational := T.
 
+(* [Integer -> Nat -> Rational] *)
+Definition make := fun (n : Integer) (d : Nat) .
+  let n' := Integer.abs n in
+  let g  := NatWithZero.gcd.nat n' d in
+  let numerator := Integer.divide n g in
+  let denominator := NatWithZero.divide.nat.safe d g (NatWithZero.gcd.nat.right.divisibility n' d) in
+  Rational_introduction numerator denominator.
+
 (* [Rational -> Integer] *)
 Definition numerator := fun (x : Rational) .
-  match x with
+match x with
   | Rational_introduction n _ => n
-  end.
+end.
 
 (* [Rational -> Nat] *)
 Definition denominator := fun (x : Rational) .
-  match x with
+match x with
   | Rational_introduction _ d => d
-  end.
+end.
 
-(* [Integer -> Nat -> Rational] *)
-Definition make := fun (n : Integer) (d : Nat) .
-  let g := NatWithZero.gcd.nat (Integer.abs n) d in
-  Rational_introduction
-    (Integer.divide n g)
-    (NatWithZero.divide.nat.safe d g
-       (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)).
+(* [Rational -> Rational] *)
+Definition negate := fun (x : Rational) .
+  let n := Integer.negate (numerator x) in
+  let d := denominator x in
+  make n d.
+
+(* [Rational -> Rational -> Rational] *)
+Definition add := fun (x : Rational) (y : Rational) .
+  let nx := numerator x in
+  let ny := numerator y in
+  let dx := denominator x in
+  let dy := denominator y in
+  let dx' := Integer.from_nat dx in
+  let dy' := Integer.from_nat dy in
+  let n := Integer.add (Integer.mul nx dy') (Integer.mul ny dx') in
+  let d := Nat.mul dx dy in
+  make n d.
+
+(* [Rational -> Rational -> Rational] *)
+Definition sub := fun (x : Rational) (y : Rational) . let y := negate y in add x y.
+
+(* [Rational -> Rational -> Rational] *)
+Definition mul := fun (x : Rational) (y : Rational) .
+  let n := Integer.mul (numerator x) (numerator y)
+  in
+  let d := Nat.mul (denominator x) ( denominator y)
+  in
+  make n d.
+
+(* x/y -> y/x *)
+(* [Rational -> Option Rational] *)
+Definition inverse := fun (x : Rational) .
+  let n := numerator   x in
+  let d := denominator x in
+  match n with
+  | Integer.Negative n => let d := Integer.Negative d in Some (make d n)
+  | Integer.Zero       => None
+  | Integer.Positive n => let d := Integer.Positive d in Some (make d n)
+  end.
 
 Module make. (* make *)
 
