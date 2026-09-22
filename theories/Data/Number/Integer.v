@@ -1421,6 +1421,15 @@ End over. (* multiplication.distributivity.over *)
 
 End distributivity. (* multiplication.distributivity *)
 
+(* multiplication.magnitude *)
+Theorem magnitude
+  : forall (m : Integer) (n : Integer) .
+      (| m * n |) = NatWithZero.mul (| m |) (| n |).
+Proof.
+  intros m n.
+  destruct m as [m' | | m']; destruct n as [n' | | n']; simplify in |- *; reflexivity.
+Qed.
+
 End multiplication. (* multiplication *)
 
 Module order. (* order *)
