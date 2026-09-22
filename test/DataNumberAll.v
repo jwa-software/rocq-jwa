@@ -134,6 +134,31 @@ Definition data_number_all_delivers_gcd_nat_left_distributivity_of_multiplicatio
           (NatWithZero.mul (NatWithZero.Positive k) a) (Nat.mul k q)
   := NatWithZero.gcd.nat.left.distributivity.of.multiplication.
 
+Definition data_number_all_delivers_divide_nat_safe_congruence
+  : forall (d1 : Nat) (g1 : Nat)
+      (h1 : NatWithZero.Divides
+              (NatWithZero.Positive g1) (NatWithZero.Positive d1))
+      (d2 : Nat) (g2 : Nat)
+      (h2 : NatWithZero.Divides
+              (NatWithZero.Positive g2) (NatWithZero.Positive d2)) .
+      NatWithZero.divide (NatWithZero.Positive d1) g1
+      = NatWithZero.divide (NatWithZero.Positive d2) g2
+      -> NatWithZero.divide.nat.safe d1 g1 h1
+         = NatWithZero.divide.nat.safe d2 g2 h2
+  := NatWithZero.divide.nat.safe.congruence.
+
+Definition data_number_all_delivers_integer_multiplication_magnitude
+  : forall (m : Integer) (n : Integer) .
+      Integer.abs (Integer.mul m n)
+      = NatWithZero.mul (Integer.abs m) (Integer.abs n)
+  := Integer.multiplication.magnitude.
+
+Definition data_number_all_delivers_integer_division_invariance
+  : forall (x : Integer) (d : Nat) (k : Nat) .
+      Integer.divide (Integer.mul (Integer.Positive k) x) (Nat.mul k d)
+      = Integer.divide x d
+  := Integer.division.invariance.
+
 Definition data_number_all_delivers_rational_numerator
   : Rational -> Integer
   := Rational.numerator.
@@ -145,3 +170,9 @@ Definition data_number_all_delivers_rational_denominator
 Definition data_number_all_delivers_rational_make
   : Integer -> Nat -> Rational
   := Rational.make.
+
+Definition data_number_all_delivers_rational_make_invariance
+  : forall (n : Integer) (d : Nat) (k : Nat) .
+      Rational.make (Integer.mul (Integer.Positive k) n) (Nat.mul k d)
+      = Rational.make n d
+  := Rational.make.invariance.
