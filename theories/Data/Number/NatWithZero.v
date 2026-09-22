@@ -1655,6 +1655,89 @@ Proof.
   - exact (division.remainder.boundedness n d).
 Qed.
 
+(* division.uniqueness *)
+Theorem uniqueness
+  : forall (n : NatWithZero) (d : Nat) (m : NatWithZero) (r : NatWithZero) .
+      ((m * (+ d)) + r = n /\ r < (+ d)) -> ((n /. d) = m) /\ ((n %. d) = r).
+Proof.
+  intros n d m r h.
+  destruct h as [e b].
+  pose proof (division.dividend.reconstruction n d) as recon.
+  pose proof (division.remainder.boundedness n d) as bound.
+  assert (quotient : (n /. d) = m).
+  { pose proof (Comparable.order.strict.trichotomy (n /. d) m) as t.
+    destruct t as [below | [equal | above]].
+    - simplify LessThan in below.
+      destruct below as [k hk].
+      symmetry in hk.
+      rewrite hk in e.
+      rewrite (multiplication.right.distributivity.over.addition
+                 (+ d) (n /. d) (+ k)) in e.
+      rewrite (addition.associativity
+                 ((n /. d) * (+ d)) ((+ k) * (+ d)) r) in e.
+      symmetry in recon.
+      pose proof (Identity.transitivity e recon) as chain.
+      pose proof (addition.left.cancellation chain) as excess.
+      symmetry in excess.
+      rewrite excess in bound.
+      rewrite (addition.commutativity ((+ k) * (+ d)) r) in bound.
+      pose proof (multiplication.right.order.extensivity k (+ d)) as reach.
+      pose proof (addition.right.order.extensivity r ((+ k) * (+ d))) as grow.
+      pose proof (Comparable.order.transitivity
+                    (+ d) ((+ k) * (+ d)) (r + ((+ k) * (+ d)))
+                    reach grow) as span.
+      pose proof (order.strict.irreflexivity (+ d)) as i.
+      unfold Negation    in i.
+      unfold LessOrEqual in span.
+      destruct span as [s1 | s2].
+      + symmetry in s1.
+        rewrite s1 in bound.
+        modus ponens i, bound as f.
+        contradiction f.
+      + pose proof (order.strict.transitivity s2 bound) as loop.
+        modus ponens i, loop as f.
+        contradiction f.
+    - exact equal.
+    - simplify LessThan in above.
+      destruct above as [k hk].
+      symmetry in hk.
+      rewrite hk in recon.
+      rewrite (multiplication.right.distributivity.over.addition
+                 (+ d) m (+ k)) in recon.
+      rewrite (addition.associativity
+                 (m * (+ d)) ((+ k) * (+ d)) (n %. d)) in recon.
+      symmetry in e.
+      pose proof (Identity.transitivity recon e) as chain.
+      pose proof (addition.left.cancellation chain) as excess.
+      symmetry in excess.
+      rewrite excess in b.
+      rewrite (addition.commutativity ((+ k) * (+ d)) (n %. d)) in b.
+      pose proof (multiplication.right.order.extensivity k (+ d)) as reach.
+      pose proof (addition.right.order.extensivity
+                    (n %. d) ((+ k) * (+ d))) as grow.
+      pose proof (Comparable.order.transitivity
+                    (+ d) ((+ k) * (+ d)) ((n %. d) + ((+ k) * (+ d)))
+                    reach grow) as span.
+      pose proof (order.strict.irreflexivity (+ d)) as i.
+      unfold Negation    in i.
+      unfold LessOrEqual in span.
+      destruct span as [s1 | s2].
+      + symmetry in s1.
+        rewrite s1 in b.
+        modus ponens i, b as f.
+        contradiction f.
+      + pose proof (order.strict.transitivity s2 b) as loop.
+        modus ponens i, loop as f.
+        contradiction f.
+  }
+  split.
+  - exact quotient.
+  - rewrite quotient in recon.
+    symmetry in e.
+    pose proof (Identity.transitivity recon e) as chain.
+    exact (addition.left.cancellation chain).
+Qed.
+
 End division. (* division *)
 
 Module divide. (* divide *)
