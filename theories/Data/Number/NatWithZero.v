@@ -1516,36 +1516,39 @@ Module euclid. (* euclid *)
  * and the pair is what descends; the order on it is the second component's.
  *)
 Instance well_founded
-  : WellFounded (Preimage pi_2 LessThan) :=
-  WellFounded.preimage (@Product.second NatWithZero NatWithZero) LessThan
+  : WellFounded (Induced (<) pi_2) :=
+  WellFounded.induced LessThan (@Product.second NatWithZero NatWithZero)
     {| accessibility := order.strict.wellfoundedness |}.
 
-(* The two [return] clauses are what lets [descend] take a proof about [+ q]:
- * without them [recurse] would still be asking for one about [b].
+Local Open Scope jwa_type_scope.
+
+(* [forall (x : NatWithZero * NatWithZero) .
+ * (forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) -> NatWithZero]
  *)
-(* [forall (p : Product NatWithZero NatWithZero) .
- *    (forall (s : Product NatWithZero NatWithZero) .
- *       Preimage pi_2 LessThan s p -> NatWithZero) -> NatWithZero]
- *)
-Definition step :=
-  fun (p : Product NatWithZero NatWithZero)
-    (recurse : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s p -> NatWithZero) .
-    match p as t
-    return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s t -> NatWithZero) -> NatWithZero)
-    with
+Definition step
+  : Descent.Step (Induced (<) pi_2) (fun (_ : NatWithZero * NatWithZero) . NatWithZero)
+  :=
+  fun (x : NatWithZero * NatWithZero)
+    (recurse : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) .
+    match x with
+    (* [b = 0] answers [a].
+     * [b = + b'] does not answer with the product [((+ b'), modulo a b')],
+     * it calls [recurse] there with it and answers with the number that comes back.
+     * The product is where the next question is, not the answer.
+     *)
     | (a, b) =>
-        match b as c
-        return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, c) -> NatWithZero) -> NatWithZero)
-        with
+        match b with
         | 0 =>
-            fun (_ : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, 0) -> NatWithZero) . a
-        | + q =>
-            fun (descend : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, + q) -> NatWithZero) .
-              descend
-                ((+ q), modulo a q)
-                (division.bound a q)
+            fun (_ : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y (a, 0) -> NatWithZero) . a
+        | + b' =>
+            fun (recurse : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y (a, + b') -> NatWithZero) .
+              (recurse
+                ((+ b'), modulo a b')
+                (Induced.introduction (division.bound a b')))
         end
     end recurse.
+
+Local Close Scope jwa_type_scope.
 
 (* euclid.extensionality *)
 Lemma extensionality : Extensional step.
