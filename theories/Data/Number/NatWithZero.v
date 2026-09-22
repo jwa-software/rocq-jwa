@@ -1700,8 +1700,8 @@ Module positive. (* euclid.positive *)
 
 (* euclid.positive.well_founded *)
 Instance well_founded
-  : WellFounded (Preimage (@Product.second NatWithZero Nat) Nat.LessThan) :=
-  WellFounded.preimage (@Product.second NatWithZero Nat) Nat.LessThan
+  : WellFounded (Induced Nat.LessThan (@Product.second NatWithZero Nat)) :=
+  WellFounded.induced Nat.LessThan (@Product.second NatWithZero Nat)
     Nat_less_than_well_founded.
 
 (* The inner [return] carries the bound rather than an equation, so the
@@ -1709,42 +1709,53 @@ Instance well_founded
  *)
 (* [forall (p : Product NatWithZero Nat) .
  *    (forall (s : Product NatWithZero Nat) .
- *       Preimage Product.second Nat.LessThan s p -> Nat) ->
+ *       Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) ->
  *    Nat]
  *)
-Definition step :=
+Definition step
+  : Descent.Step (Induced Nat.LessThan (@Product.second NatWithZero Nat))
+                 (fun (_ : Product NatWithZero Nat) . Nat)
+  :=
   fun (p : Product NatWithZero Nat)
     (recurse : forall (s : Product NatWithZero Nat) .
-                 Preimage (@Product.second NatWithZero Nat) Nat.LessThan s p -> Nat) .
+                 Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) .
     match p as t
       return ((forall (s : Product NatWithZero Nat) .
-                 Preimage (@Product.second NatWithZero Nat) Nat.LessThan s t -> Nat) ->
+                 Induced Nat.LessThan (@Product.second NatWithZero Nat) s t -> Nat) ->
               Nat)
     with
     | (a, q) =>
         fun (descend : forall (s : Product NatWithZero Nat) .
-                         Preimage (@Product.second NatWithZero Nat) Nat.LessThan s (a, q) ->
+                         Induced Nat.LessThan (@Product.second NatWithZero Nat) s (a, q) ->
                          Nat) .
-          match modulo a q as m return (m < (+ q) -> Nat) with
+          match (a %. q) as m return (m < (+ q) -> Nat) with
           | 0 => fun (_ : 0 < (+ q)) . q
           | + r =>
               fun (h : (+ r) < (+ q)) .
-                descend ((+ q), r) (->elim (positive.order.embedding r q) h)
-          end (division.bound a q)
+                descend ((+ q), r)
+                  (Induced.introduction
+                     (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+                     (Biconditional.forward.elimination (positive.order.embedding r q) h))
+          end (division.remainder.boundedness a q)
     end recurse.
 
 (* euclid.positive.extensionality *)
-Lemma extensionality : Extensional step.
+Lemma extensionality : Descent.Extensional step.
 Proof.
   intros p f g h.
   destruct p as [a q].
   simplify step in |- *.
-  generalize (division.bound a q).
-  destruct (modulo a q) as [| r].
+  generalize (division.remainder.boundedness a q).
+  destruct (a %. q) as [| r].
   - intros b.
     reflexivity.
   - intros b.
-    exact (h ((+ q), r) (->elim (positive.order.embedding r q) b)).
+    set (s := Induced.introduction
+                (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+                (Biconditional.forward.elimination (positive.order.embedding r q) b)
+            : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q)).
+    pose proof (h ((+ q), r)) as H.
+    modus ponens H, s.
 Qed.
 
 End positive. (* euclid.positive *)
@@ -2058,14 +2069,14 @@ Module positive. (* gcd.positive *)
 
 (* gcd.positive.zero *)
 Theorem zero
-  : forall (a : NatWithZero) (q : Nat) . modulo a q = 0 -> gcd.positive a q = q.
+  : forall (a : NatWithZero) (q : Nat) . (a %. q) = 0 -> gcd.positive a q = q.
 Proof.
   intros a q e.
   simplify gcd.positive in |- *.
   rewrite (WellFounded.recursion.unfolding
              euclid.positive.extensionality (a, q)) in |- *.
   simplify euclid.positive.step in |- *.
-  generalize (division.bound a q).
+  generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
   reflexivity.
@@ -2074,14 +2085,14 @@ Qed.
 (* gcd.positive.recurrence *)
 Theorem recurrence
   : forall (a : NatWithZero) (q : Nat) (r : Nat) .
-      modulo a q = + r -> gcd.positive a q = gcd.positive (+ q) r.
+      (a %. q) = + r -> gcd.positive a q = gcd.positive (+ q) r.
 Proof.
   intros a q r e.
   simplify gcd.positive in |- *.
   rewrite (WellFounded.recursion.unfolding
              euclid.positive.extensionality (a, q)) in |- *.
   simplify euclid.positive.step in |- *.
-  generalize (division.bound a q).
+  generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
   reflexivity.
@@ -2099,14 +2110,15 @@ Proof.
                  forall (a : NatWithZero) . gcd a (+ c) = + (gcd.positive a c))).
   - intros c recurse a.
     rewrite (gcd.recurrence a c) in |- *.
-    destruct (modulo a c) as [| r] eqn:e.
+    destruct (a %. c) as [| r] eqn:e.
     + rewrite (gcd.zero (+ c)) in |- *.
       rewrite (gcd.positive.zero a c e) in |- *.
       reflexivity.
     + rewrite (gcd.positive.recurrence a c r e) in |- *.
-      pose proof (division.bound a c) as b.
+      pose proof (division.remainder.boundedness a c) as b.
       rewrite e in b.
-      exact (recurse r (->elim (positive.order.embedding r c) b) (+ c)).
+      modus aequans (positive.order.embedding r c), b as lt.
+      exact (recurse r lt (+ c)).
   - exact (accessibility q).
 Qed.
 
