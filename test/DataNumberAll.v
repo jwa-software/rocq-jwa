@@ -2,6 +2,7 @@
 
 From jwa Require Import Data.Number.All.
 From jwa Require Import Relation.Accessible.
+From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
 
 Definition data_number_all_delivers
@@ -52,5 +53,5 @@ Definition data_number_all_delivers_gcd_greatest
 
 Definition data_number_all_delivers_well_founded_magnitude
   : forall (x : Integer) .
-      Accessible (Preimage Integer.abs NatWithZero.LessThan) x
+      Accessible (Induced NatWithZero.LessThan Integer.abs) x
   := fun (x : Integer) . accessibility x.
