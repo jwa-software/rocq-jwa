@@ -1551,13 +1551,73 @@ Definition step
 Local Close Scope jwa_type_scope.
 
 (* euclid.extensionality *)
-Lemma extensionality : Extensional step.
+Lemma extensionality : Descent.Extensional step.
 Proof.
-  intros p f g h.
-  destruct p as [a b].
-  destruct b as [| q].
-  - reflexivity.
-  - exact (h ((+ q), modulo a q) (division.bound a q)).
+  (* [x : NatWithZero * NatWithZero]
+   * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+   * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+   * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
+   * :
+   * [|- step x f = step x g]
+   *)
+  intros x f g h.
+
+  (* [|- step (a, b) f = step (a, b) g] *)
+  destruct x as [a b].
+
+  destruct b as [| b'].
+
+  (* b destructed as 0 : [|- step (a, 0) f = step (a, 0) g] *)
+  {
+    (* [|- a = a] *)
+    simplify in |- *.
+    reflexivity.
+  }
+
+  (* b destructed as + b' : [|- step (a, + b') f = step (a, + b') g] *)
+  {
+    (* [|- f ((+ b'), modulo a b') (Induced.introduction (division.bound a b'))
+     *  = g ((+ b'), modulo a b') (Induced.introduction (division.bound a b'))]
+     *)
+    simplify step in |- *.
+
+    (* The context gains [bound := division.bound a b'],
+     * of type [modulo a b' < + b']
+     * :
+     * [|- f ((+ b'), modulo a b') (Induced.introduction bound)
+     *  = g ((+ b'), modulo a b') (Induced.introduction bound)]
+     *)
+    set (bound := division.bound a b'
+                : modulo a b' < + b').
+
+    (* The context gains [y := ((+ b'), modulo a b')]
+     * :
+     * [|- f y (Induced.introduction bound)
+     *  = g y (Induced.introduction bound)]
+     *)
+    set (y := ((+ b'), modulo a b')
+            : NatWithZero * NatWithZero).
+
+    (* The context gains [x := (a, + b')], and [f], [g] and [h] fold to it:
+     * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+     * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+     * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
+     *)
+    set (x := (a, + b')) in *.
+
+    (* The context gains [r := Induced.introduction bound],
+     * of type [Induced (<) pi_2 y x]
+     * :
+     * [|- f y r = g y r]
+     *)
+    set (r := Induced.introduction bound
+            : Induced (<) pi_2 y x).
+
+    (* [H : forall (r : Induced (<) pi_2 y x) . f y r = g y r] *)
+    pose proof (h y) as H.
+
+    modus ponens H, r.
+  }
 Qed.
 
 End euclid. (* euclid *)
