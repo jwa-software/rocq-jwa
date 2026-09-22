@@ -1738,15 +1738,53 @@ Proof.
     exact (addition.left.cancellation chain).
 Qed.
 
+(* division.invariance *)
+Theorem invariance
+  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+      (((+ k) * n) /. (Nat.mul k d)) = n /. d.
+Proof.
+  intros n d k.
+
+  pose proof (division.dividend.reconstruction n d) as recon.
+  pose proof (division.remainder.boundedness n d) as bound.
+
+  assert (rebuild
+            : ((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n).
+  {
+    change (+ (Nat.mul k d))
+      with ((+ k) * (+ d))
+        in |- *.
+    rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
+    rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
+    rewrite (multiplication.commutativity (+ d) (n /. d))           in |- *.
+    pose proof (Identity.symmetry
+                  (multiplication.left.distributivity.over.addition
+                     (+ k) ((n /. d) * (+ d)) (n %. d))) as dist.
+    rewrite dist  in |- *.
+    rewrite recon in |- *.
+    reflexivity.
+  }
+
+  assert (below : ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
+  {
+    change (+ (Nat.mul k d))
+      with ((+ k) * (+ d))
+        in |- *.
+    exact (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+  }
+
+  destruct (division.uniqueness ((+ k) * n) (Nat.mul k d)
+              (n /. d) ((+ k) * (n %. d))
+              (Conjunction_introduction rebuild below)) as [h _].
+  exact h.
+Qed.
+
 End division. (* division *)
 
 Module divide. (* divide *)
 
 Module nat. (* divide.nat *)
 
-(* The quotient of [d] by a divisor [g] of it, as a [Nat]. The proof of
- * divisibility is what rules the [0] branch out.
- *)
 (* [forall (d : Nat) (g : Nat) . Divides (+ g) (+ d) -> Nat] *)
 (* divide.nat.safe *)
 Definition safe :=
@@ -1783,13 +1821,52 @@ End nat. (* divide.nat *)
 
 End divide. (* divide *)
 
+Module modulo. (* modulo *)
+
+(* modulo.homogeneity *)
+Theorem homogeneity
+  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+      (((+ k) * n) %. (Nat.mul k d)) = (+ k) * (n %. d).
+Proof.
+  intros n d k.
+
+  pose proof (division.dividend.reconstruction n d) as recon.
+  pose proof (division.remainder.boundedness n d) as bound.
+
+  assert (rebuild
+          : ((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n).
+  {
+    change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
+    rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
+    rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
+    rewrite (multiplication.commutativity (+ d) (n /. d))           in |- *.
+    pose proof (Identity.symmetry
+                  (multiplication.left.distributivity.over.addition
+                     (+ k) ((n /. d) * (+ d)) (n %. d))) as dist.
+    rewrite dist  in |- *.
+    rewrite recon in |- *.
+    reflexivity.
+  }
+
+  assert (below : ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
+  {
+    change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
+    exact (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+  }
+
+  destruct (division.uniqueness ((+ k) * n) (Nat.mul k d)
+              (n /. d) ((+ k) * (n %. d))
+              (Conjunction_introduction rebuild below)) as [_ h].
+  exact h.
+Qed.
+
+End modulo. (* modulo *)
+
 Local Open Scope jwa_product_scope.
 
 Module euclid. (* euclid *)
 
-(* Euclid's step replaces [(a, b)] by [(b, a mod b)], so both components move
- * and the pair is what descends; the order on it is the second component's.
- *)
+(* euclid.well_founded *)
 Instance well_founded
   : WellFounded (Induced (<) pi_2) :=
   WellFounded.induced LessThan (@Product.second NatWithZero NatWithZero)
@@ -1800,6 +1877,7 @@ Local Open Scope jwa_type_scope.
 (* [forall (x : NatWithZero * NatWithZero) .
  * (forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) -> NatWithZero]
  *)
+(* euclid.step *)
 Definition step
   : Descent.Step (Induced (<) pi_2) (fun (_ : NatWithZero * NatWithZero) . NatWithZero)
   :=
@@ -1911,6 +1989,7 @@ Instance well_founded
  *       Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) ->
  *    Nat]
  *)
+(* euclid.nat.step *)
 Definition step
   : Descent.Step (Induced Nat.LessThan (@Product.second NatWithZero Nat))
                  (fun (_ : Product NatWithZero Nat) . Nat)
@@ -2224,6 +2303,45 @@ Proof.
   exact h1.
 Qed.
 
+Module distributivity. (* gcd.left.distributivity *)
+
+Module of. (* gcd.left.distributivity.of *)
+
+(* A common factor comes out of the greatest common divisor. The descent is
+ * Euclid's own: [modulo.homogeneity] carries the factor across the step, so
+ * the scaled pair takes the same steps as the bare one and stops at the same
+ * place, a factor of [k] higher.
+ *)
+(* gcd.left.distributivity.of.multiplication *)
+Theorem multiplication
+  : forall (k : Nat) (b : NatWithZero) (a : NatWithZero) .
+      (+ k) * gcd a b = gcd ((+ k) * a) ((+ k) * b).
+Proof.
+  intros k b.
+  apply (Accessible.recursion
+           (R := LessThan)
+           (P := fun (c : NatWithZero) .
+                 forall (a : NatWithZero) .
+                   (+ k) * gcd a c = gcd ((+ k) * a) ((+ k) * c))).
+  - intros c recurse a.
+    destruct c as [| q].
+    + rewrite (gcd.zero a) in |- *.
+      change ((+ k) * 0) with (0 : NatWithZero) in |- *.
+      rewrite (gcd.zero ((+ k) * a)) in |- *.
+      reflexivity.
+    + rewrite (gcd.recurrence a q) in |- *.
+      change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in |- *.
+      rewrite (gcd.recurrence ((+ k) * a) (Nat.mul k q)) in |- *.
+      rewrite (modulo.homogeneity a q k) in |- *.
+      change (+ (Nat.mul k q)) with ((+ k) * (+ q)) in |- *.
+      exact (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)).
+  - exact (order.strict.wellfoundedness b).
+Qed.
+
+End of. (* gcd.left.distributivity.of *)
+
+End distributivity. (* gcd.left.distributivity *)
+
 End left. (* gcd.left *)
 
 Module right. (* gcd.right *)
@@ -2348,6 +2466,33 @@ Proof.
   rewrite (gcd.nat.specification q a) in h.
   exact h.
 Qed.
+
+Module distributivity. (* gcd.nat.left.distributivity *)
+
+Module of. (* gcd.nat.left.distributivity.of *)
+
+(* The same law one type down, where [make] needs it: both sides are positive,
+ * so [gcd.nat.specification] carries the [NatWithZero] statement over and
+ * [positive.injectivity] drops the tag.
+ *)
+(* gcd.nat.left.distributivity.of.multiplication *)
+Theorem multiplication
+  : forall (k : Nat) (q : Nat) (a : NatWithZero) .
+      Nat.mul k (gcd.nat a q) = gcd.nat ((+ k) * a) (Nat.mul k q).
+Proof.
+  intros k q a.
+  pose proof (gcd.left.distributivity.of.multiplication k (+ q) a) as h.
+  rewrite (gcd.nat.specification q a) in h.
+  change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in h.
+  rewrite (gcd.nat.specification (Nat.mul k q) ((+ k) * a)) in h.
+  change ((+ k) * (+ (gcd.nat a q)))
+    with (+ (Nat.mul k (gcd.nat a q))) in h.
+  exact (positive.injectivity h).
+Qed.
+
+End of. (* gcd.nat.left.distributivity.of *)
+
+End distributivity. (* gcd.nat.left.distributivity *)
 
 End left. (* gcd.nat.left *)
 

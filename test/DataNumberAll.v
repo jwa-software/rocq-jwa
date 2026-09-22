@@ -93,6 +93,47 @@ Definition data_number_all_delivers_gcd_nat_divisibility
            (NatWithZero.Positive (NatWithZero.gcd.nat a q)) (NatWithZero.Positive q)
   := NatWithZero.gcd.nat.divisibility.
 
+Definition data_number_all_delivers_multiplication_right_order_extensivity
+  : forall (k : Nat) (n : NatWithZero) .
+      NatWithZero.LessOrEqual n (NatWithZero.mul (NatWithZero.Positive k) n)
+  := NatWithZero.multiplication.right.order.extensivity.
+
+Definition data_number_all_delivers_division_uniqueness
+  : forall (n : NatWithZero) (d : Nat) (m : NatWithZero) (r : NatWithZero) .
+      (NatWithZero.add (NatWithZero.mul m (NatWithZero.Positive d)) r = n
+       /\ NatWithZero.LessThan r (NatWithZero.Positive d))
+      -> NatWithZero.divide n d = m /\ NatWithZero.modulo n d = r
+  := NatWithZero.division.uniqueness.
+
+Definition data_number_all_delivers_division_invariance
+  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+      NatWithZero.divide
+        (NatWithZero.mul (NatWithZero.Positive k) n) (Nat.mul k d)
+      = NatWithZero.divide n d
+  := NatWithZero.division.invariance.
+
+Definition data_number_all_delivers_modulo_homogeneity
+  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+      NatWithZero.modulo
+        (NatWithZero.mul (NatWithZero.Positive k) n) (Nat.mul k d)
+      = NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.modulo n d)
+  := NatWithZero.modulo.homogeneity.
+
+Definition data_number_all_delivers_gcd_left_distributivity_of_multiplication
+  : forall (k : Nat) (b : NatWithZero) (a : NatWithZero) .
+      NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.gcd a b)
+      = NatWithZero.gcd
+          (NatWithZero.mul (NatWithZero.Positive k) a)
+          (NatWithZero.mul (NatWithZero.Positive k) b)
+  := NatWithZero.gcd.left.distributivity.of.multiplication.
+
+Definition data_number_all_delivers_gcd_nat_left_distributivity_of_multiplication
+  : forall (k : Nat) (q : Nat) (a : NatWithZero) .
+      Nat.mul k (NatWithZero.gcd.nat a q)
+      = NatWithZero.gcd.nat
+          (NatWithZero.mul (NatWithZero.Positive k) a) (Nat.mul k q)
+  := NatWithZero.gcd.nat.left.distributivity.of.multiplication.
+
 Definition data_number_all_delivers_rational_numerator
   : Rational -> Integer
   := Rational.numerator.
