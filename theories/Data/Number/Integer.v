@@ -173,6 +173,15 @@ Definition divide := fun (x : Integer) (d : Nat) .
   | + p => from_nat_with_zero (NatWithZero.divide (NatWithZero.Positive p) d)
   end.
 
+(* The level is reserved in [Core.Notations]; only the meaning belongs here,
+ * and it is written in parentheses as [NatWithZero]'s is, so the dot that
+ * ends the token never sits beside the one that ends a command. There is no
+ * [%.] to go with it: a remainder on this type needs a sign convention, and
+ * none is chosen, so [Integer] carries no [modulo].
+ *)
+Notation "m /. n" := (divide m n) (only parsing)
+  : jwa_integer_scope.
+
 (* [Integer -> Integer -> Prop] *)
 Definition LessThan := fun (m : Integer) (n : Integer) .
   exists (k : Nat) . m + (+ k) = n.
@@ -1654,7 +1663,7 @@ Module division. (* division *)
 (* division.magnitude *)
 Theorem magnitude
   : forall (x : Integer) (d : Nat) .
-      (| divide x d |) = NatWithZero.divide (| x |) d.
+      (| x /. d |) = NatWithZero.divide (| x |) d.
 Proof.
   intros x d.
   destruct x as [p | | p].
@@ -1663,6 +1672,33 @@ Proof.
   - reflexivity.
   - simplify divide, abs in |- *.
     destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+Qed.
+
+(* division.invariance *)
+Theorem invariance
+  : forall (x : Integer) (d : Nat) (k : Nat) .
+      ((+ k) * x) /. (Nat.mul k d) = x /. d.
+Proof.
+  intros x d k.
+  destruct x as [p | | p].
+  - change ((+ k) * (- p)) with (- (Nat.mul k p)) in |- *.
+    simplify divide in |- *.
+    pose proof (NatWithZero.division.invariance
+                  (NatWithZero.Positive p) d k) as h.
+    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
+      with (NatWithZero.Positive (Nat.mul k p)) in h.
+    rewrite h in |- *.
+    reflexivity.
+  - simpl in |- *.
+    reflexivity.
+  - change ((+ k) * (+ p)) with (+ (Nat.mul k p)) in |- *.
+    simplify divide in |- *.
+    pose proof (NatWithZero.division.invariance
+                  (NatWithZero.Positive p) d k) as h.
+    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
+      with (NatWithZero.Positive (Nat.mul k p)) in h.
+    rewrite h in |- *.
+    reflexivity.
 Qed.
 
 End division. (* division *)
