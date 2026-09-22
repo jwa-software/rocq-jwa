@@ -116,6 +116,12 @@ Defined.
 Notation "x = y" := (Identity x y)
   : jwa_type_scope.
 
+(* The same with no arguments, for where the relation is passed rather than
+ * applied.
+ *)
+Notation "'(=)'" := Identity (only parsing)
+  : jwa_type_scope.
+
 (* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and
  * [rew_r] are Rocq's own, fixed like a registration key.
  *)

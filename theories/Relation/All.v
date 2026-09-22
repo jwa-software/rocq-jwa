@@ -11,7 +11,9 @@ From jwa Require Export Core.All.
 
 From jwa Require Export Relation.Accessible.
 From jwa Require Export Relation.Antisymmetric.
+From jwa Require Export Relation.Descent.
 From jwa Require Export Relation.Equivalence.
+From jwa Require Export Relation.Induced.
 From jwa Require Export Relation.Irreflexive.
 From jwa Require Export Relation.Order.All.
 From jwa Require Export Relation.Reflexive.
