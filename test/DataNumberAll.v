@@ -32,18 +32,19 @@ Definition data_number_all_delivers_gcd_recurrence
       = NatWithZero.gcd (NatWithZero.Positive q) (NatWithZero.modulo a q)
   := NatWithZero.gcd.recurrence.
 
-Definition data_number_all_delivers_gcd_common
+Definition data_number_all_delivers_gcd_divisibility
   : forall (b : NatWithZero) (a : NatWithZero) .
       NatWithZero.Divides (NatWithZero.gcd a b) a
       /\ NatWithZero.Divides (NatWithZero.gcd a b) b
-  := NatWithZero.gcd.common.
+  := NatWithZero.gcd.divisibility.
 
-Definition data_number_all_delivers_gcd_projections
+Definition data_number_all_delivers_gcd_left_right_divisibility
   : forall (a : NatWithZero) (b : NatWithZero) .
       NatWithZero.Divides (NatWithZero.gcd a b) a
       /\ NatWithZero.Divides (NatWithZero.gcd a b) b
   := fun (a : NatWithZero) (b : NatWithZero) .
-       Conjunction_introduction (NatWithZero.gcd.left a b) (NatWithZero.gcd.right a b).
+       Conjunction_introduction
+         (NatWithZero.gcd.left.divisibility a b) (NatWithZero.gcd.right.divisibility a b).
 
 Definition data_number_all_delivers_gcd_universality
   : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
@@ -66,3 +67,40 @@ Definition data_number_all_delivers_well_founded_magnitude
   : forall (x : Integer) .
       Accessible (Induced NatWithZero.LessThan Integer.abs) x
   := fun (x : Integer) . accessibility x.
+
+Definition data_number_all_delivers_divide_nat_safe
+  : forall (d : Nat) (g : Nat)
+      (h : NatWithZero.Divides (NatWithZero.Positive g) (NatWithZero.Positive d)) .
+      NatWithZero.Positive (NatWithZero.divide.nat.safe d g h)
+      = NatWithZero.divide (NatWithZero.Positive d) g
+  := NatWithZero.divide.nat.safe.specification.
+
+Definition data_number_all_delivers_gcd_nat_left_divisibility
+  : forall (a : NatWithZero) (q : Nat) .
+      NatWithZero.Divides (NatWithZero.Positive (NatWithZero.gcd.nat a q)) a
+  := NatWithZero.gcd.nat.left.divisibility.
+
+Definition data_number_all_delivers_gcd_nat_right_divisibility
+  : forall (a : NatWithZero) (q : Nat) .
+      NatWithZero.Divides
+        (NatWithZero.Positive (NatWithZero.gcd.nat a q)) (NatWithZero.Positive q)
+  := NatWithZero.gcd.nat.right.divisibility.
+
+Definition data_number_all_delivers_gcd_nat_divisibility
+  : forall (a : NatWithZero) (q : Nat) .
+      NatWithZero.Divides (NatWithZero.Positive (NatWithZero.gcd.nat a q)) a
+      /\ NatWithZero.Divides
+           (NatWithZero.Positive (NatWithZero.gcd.nat a q)) (NatWithZero.Positive q)
+  := NatWithZero.gcd.nat.divisibility.
+
+Definition data_number_all_delivers_rational_numerator
+  : Rational -> Integer
+  := Rational.numerator.
+
+Definition data_number_all_delivers_rational_denominator
+  : Rational -> Nat
+  := Rational.denominator.
+
+Definition data_number_all_delivers_rational_make
+  : Integer -> Nat -> Rational
+  := Rational.make.
