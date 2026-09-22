@@ -9,33 +9,40 @@ From jwa Require Import Tactics.Simplify.
 
 Module Rational. (* Rational *)
 
-(* A fraction, an [Integer] over a [Nat]: the denominator is never zero by
- * its type. The ctor stays behind this module; [make] is the way in, and
- * what it builds is in lowest terms.
+(* A fraction in lowest terms, an [Integer] over a [Nat]: the denominator is
+ * never zero by its type, and the two share no factor by the equation the
+ * ctor demands. There is no unreduced inhabitant, so a law may speak of
+ * every value and not only of what [make] returned.
  *)
 Inductive T : Type :=
-  | Rational_introduction : Integer -> Nat -> T.
+  | Rational_introduction
+      : forall (n : Integer) (d : Nat) .
+          NatWithZero.gcd.nat (Integer.abs n) d = Nat.One -> T.
 
 Abbreviation Rational := T.
 
 (* [Integer -> Nat -> Rational] *)
 Definition make := fun (n : Integer) (d : Nat) .
-  let n' := Integer.abs n in
-  let g  := NatWithZero.gcd.nat n' d in
-  let numerator := Integer.divide n g in
-  let denominator := NatWithZero.divide.nat.safe d g (NatWithZero.gcd.nat.right.divisibility n' d) in
-  Rational_introduction numerator denominator.
+  let n' := Integer.abs n
+  in
+  let g  := NatWithZero.gcd.nat n' d
+  in
+  let numerator   := Integer.divide n g
+  in
+  let denominator := NatWithZero.divide.nat.safe d g (NatWithZero.gcd.nat.right.divisibility n' d)
+  in
+  Rational_introduction numerator denominator (Integer.division.exhaustiveness n d).
 
 (* [Rational -> Integer] *)
 Definition numerator := fun (x : Rational) .
 match x with
-  | Rational_introduction n _ => n
+  | Rational_introduction n _ _ => n
 end.
 
 (* [Rational -> Nat] *)
 Definition denominator := fun (x : Rational) .
 match x with
-  | Rational_introduction _ d => d
+  | Rational_introduction _ d _ => d
 end.
 
 (* [Rational -> Rational] *)
@@ -77,6 +84,42 @@ Definition inverse := fun (x : Rational) .
   | Integer.Zero       => None
   | Integer.Positive n => let d := Integer.Positive d in Some (make d n)
   end.
+
+(* Two fractions in lowest terms that agree as fractions are the same value.
+ * The third field is an equation between two [Nat]s, and such an equation
+ * is proved in only one way, so it cannot tell them apart.
+ *)
+Theorem extensionality
+  : forall (x : Rational) (y : Rational) .
+      numerator x = numerator y
+      -> denominator x = denominator y
+      -> x = y.
+Proof.
+  intros x y.
+  destruct x as [n1 d1 h1].
+  destruct y as [n2 d2 h2].
+  simplify numerator, denominator in |- *.
+  intros e1 e2.
+  destruct e1.
+  destruct e2.
+  rewrite (Nat.equality.uniqueness
+             (NatWithZero.gcd.nat (Integer.abs n1) d1) Nat.One h1 h2) in |- *.
+  reflexivity.
+Qed.
+
+(* Nothing is in the type that is not in lowest terms; this is the field the
+ * ctor demands, read back off an arbitrary value.
+ *)
+Theorem irreducibility
+  : forall (x : Rational) .
+      NatWithZero.gcd.nat (Integer.abs (numerator x)) (denominator x)
+      = Nat.One.
+Proof.
+  intro x.
+  destruct x as [n d h].
+  simplify numerator, denominator in |- *.
+  exact h.
+Qed.
 
 Module make. (* make *)
 
@@ -134,9 +177,13 @@ Proof.
     exact inv.
   }
 
-  rewrite top    in |- *.
-  rewrite bottom in |- *.
-  reflexivity.
+  apply extensionality.
+  - simplify make      in |- *.
+    simplify numerator in |- *.
+    exact top.
+  - simplify make        in |- *.
+    simplify denominator in |- *.
+    exact bottom.
 Qed.
 
 (* make.proportionality *)
@@ -212,21 +259,6 @@ Proof.
   reflexivity.
 Qed.
 
-(* make.irreducibility *)
-Theorem irreducibility
-  : forall (a : Integer) (b : Nat) .
-      NatWithZero.gcd.nat
-        (| numerator (make a b) |)
-        (denominator (make a b))
-      = Nat.One.
-Proof.
-  intros a b.
-  simplify make in |- *.
-  simplify numerator, denominator in |- *.
-  rewrite (Integer.division.magnitude a (NatWithZero.gcd.nat (| a |) b)) in |- *.
-  exact (NatWithZero.gcd.nat.exhaustiveness (| a |) b).
-Qed.
-
 (* make.characterisation *)
 Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
@@ -247,13 +279,14 @@ Proof.
   }
 
   pose proof (proportionality a b) as P1.
-  pose proof (irreducibility  a b) as I1.
   pose proof (proportionality c d) as P2.
-  pose proof (irreducibility  c d) as I2.
 
-  destruct (make a b) as [p q] eqn:E1.
-  destruct (make c d) as [r s] eqn:E2.
-  simplify numerator, denominator in P1, I1, P2, I2.
+  (* The third field is the irreducibility of each pair, handed over by the
+   * case analysis rather than proved after it.
+   *)
+  destruct (make a b) as [p q I1] eqn:E1.
+  destruct (make c d) as [r s I2] eqn:E2.
+  simplify numerator, denominator in P1, P2.
 
   assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
   {
@@ -410,9 +443,11 @@ Proof.
     rewrite (Integer.multiplication.commutativity r (Integer.from_nat s)) in cross.
     pose proof (Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross)
             as hp.
-    rewrite hp in |- *.
-    rewrite hq in |- *.
-    reflexivity.
+    apply extensionality.
+    + simplify numerator in |- *.
+      exact hp.
+    + simplify denominator in |- *.
+      exact hq.
 Qed.
 
 Local Close Scope jwa_integer_scope.
