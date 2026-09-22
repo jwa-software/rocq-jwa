@@ -1815,6 +1815,22 @@ Proof.
     reflexivity.
 Qed.
 
+(* divide.nat.safe.congruence *)
+Theorem congruence
+  : forall (d1 : Nat) (g1 : Nat) (h1 : Divides (+ g1) (+ d1))
+      (d2 : Nat) (g2 : Nat) (h2 : Divides (+ g2) (+ d2)) .
+      (+ d1) /. g1 = (+ d2) /. g2
+      -> divide.nat.safe d1 g1 h1 = divide.nat.safe d2 g2 h2.
+Proof.
+  intros d1 g1 h1 d2 g2 h2 e.
+  pose proof (divide.nat.safe.specification d1 g1 h1) as s1.
+  pose proof (divide.nat.safe.specification d2 g2 h2) as s2.
+  rewrite e in s1.
+  symmetry in s2.
+  pose proof (Identity.transitivity s1 s2) as full.
+  exact (positive.injectivity full).
+Qed.
+
 End safe. (* divide.nat.safe *)
 
 End nat. (* divide.nat *)
