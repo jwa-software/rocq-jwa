@@ -1,6 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Conditional.
+From jwa Require Import Core.Logic.Disjunction.
+From jwa Require Import Core.Logic.Falsum.
+From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
@@ -24,16 +27,26 @@ Inductive Identity (A : Type) (x : A) : A -> Prop :=
 Arguments Identity              {A} x _.
 Arguments Identity_introduction {A} x.
 
+(* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
+Notation "x = y" := (Identity x y)
+  : jwa_type_scope.
+
+(* The same with no arguments, for where the relation is passed rather than
+ * applied.
+ *)
+Notation "'(=)'" := Identity (only parsing)
+  : jwa_type_scope.
+
 (* Carries a proof across the equation. The tactics fill the slots of
  * [core.eq.ind] by position, so this order -- [P] before the proof and
  * [y] after it -- is the order the registration needs.
  *)
 Theorem Identity_induction
-  : forall {A : Type} (x : A) (P : A -> Prop) .
-      P x -> forall (y : A) . Identity x y -> P y.
+  : forall {A : Type} (x : A) (P : A -> Prop) . P x ->
+    forall (y : A) . x = y -> P y.
 Proof.
   (* The context gains [A], [x], [P] and [p]:
-   * [|- forall (y : A) . Identity x y -> P y]
+   * [|- forall (y : A) . x = y -> P y]
    *)
   intros A x P p.
   (* The context gains [y] and [e]: [|- P y] *)
@@ -53,37 +66,131 @@ Module Identity.
 
 (* Every term equals itself: the reflexivity law of [=]. *)
 Theorem reflexivity
-  : forall {A : Type} (x : A) . Identity x x.
+  : forall {A : Type} (x : A) . x = x.
 Proof.
   intros A x.
   exact (Identity_introduction x).
-Qed.
+Defined.
 
 Theorem symmetry
-  : forall {A : Type} {x : A} {y : A} . Identity x y -> Identity y x.
+  : forall {A : Type} {x : A} {y : A} . x = y -> y = x.
 Proof.
   intros A x y e.
   destruct e.
   reflexivity.
-Qed.
+Defined.
 
 Theorem transitivity
-  : forall {A : Type} {x : A} {y : A} {z : A} .
-      Identity x y -> Identity y z -> Identity x z.
+  : forall {A : Type} {x : A} {y : A} {z : A} . x = y -> y = z -> x = z.
 Proof.
   intros A x y z e1 e2.
   destruct e2.
   exact e1.
-Qed.
+Defined.
 
 Theorem congruence
-  : forall {A : Type} {B : Type} (f : A -> B) {x : A} {y : A} .
-      Identity x y -> Identity (f x) (f y).
+  : forall {A : Type} {B : Type} {x : A} {y : A} (f : A -> B) . x = y -> f x = f y.
 Proof.
   intros A B f x y e.
   destruct e.
   reflexivity.
+Defined.
+
+Local Theorem cancellation
+  : forall {A : Type} {x : A} {y : A} (r : x = y) .
+      transitivity (symmetry r) r = reflexivity y.
+Proof.
+  intros A x y r.
+  (*
+   * [|- transitivity
+   *       (symmetry (Identity_introduction x))
+   *       (Identity_introduction x)
+   *     = reflexivity x]
+   *)
+  destruct r.
+  change (symmetry (Identity_introduction x))
+    with (Identity_introduction x) in |- *.
+  change (transitivity (Identity_introduction x) (Identity_introduction x))
+    with (Identity_introduction x) in |- *.
+  change (reflexivity x) with (Identity_introduction x) in |- *.
+  (* [|- Identity_introduction x = Identity_introduction x] *)
+  reflexivity.
 Qed.
+
+Module hedberg. (* hedberg *)
+
+(* [forall {A : Type} .
+ *    (forall (x : A) (y : A) . x = y \/ ~ (x = y)) ->
+ *    forall (x : A) (y : A) . x = y -> x = y]
+ *)
+(* hedberg.decided *)
+Local Definition decided
+  :=
+  fun {A : Type}
+    (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
+    (x : A) (y : A) (e : x = y) .
+    match decide x y with
+    | Disjunction.L l => l
+    | Disjunction.R r => let falsum: Falsum := (r e) in Falsum.elimination (x = y) falsum
+    end.
+
+(* hedberg.constancy *)
+Local Theorem constancy
+  : forall {A : Type}
+      (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
+      (x : A) (y : A) (p : x = y) (q : x = y) .
+      decided decide x y p = decided decide x y q.
+Proof.
+  intros A decide x y p q.
+  unfold decided in |- *.
+  destruct (decide x y) as [r | n].
+  - reflexivity.
+  - unfold Negation in n.
+    pose proof (n p) as absurdity.
+    contradiction absurdity.
+Qed.
+
+(* hedberg.retraction *)
+Local Theorem retraction
+  : forall {A : Type}
+      (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
+      (x : A) (y : A) (e : x = y) .
+      transitivity
+        (symmetry (decided decide x x (reflexivity x)))
+        (decided decide x y e)
+      = e.
+Proof.
+  intros A decide x y p.
+  destruct p.
+  exact (cancellation (decided decide x x (reflexivity x))).
+Qed.
+
+(* hedberg.uniqueness *)
+Theorem uniqueness
+  : forall {A : Type} .
+      (forall (x : A) (y : A) . x = y \/ ~ (x = y)) ->
+      forall (x : A) (y : A) (p : x = y) (q : x = y) . p = q.
+Proof.
+  intros A decide x y p q.
+
+  pose proof (retraction decide x y p)   as rp.
+  pose proof (retraction decide x y q)   as rq.
+  pose proof (constancy  decide x y p q) as c.
+
+  set (base
+        := decided decide x x (reflexivity x))
+  in *.
+
+  set (shift
+        := fun (e : x = y) . transitivity (symmetry base) e)
+  in |- *.
+
+  pose proof (congruence shift c) as step.
+  pose proof (symmetry rp) as rp'.
+  exact (transitivity rp' (transitivity step rq)).
+Qed.
+
+End hedberg. (* hedberg *)
 
 End Identity.
 
@@ -94,7 +201,7 @@ End Identity.
 
 Definition Identity_rewrite_forward
   : forall (A : Type) (x : A) (P : A -> Type) .
-      P x -> forall (y : A) . Identity x y -> P y.
+      P x -> forall (y : A) . x = y -> P y.
 Proof.
   intros A x P p.
   intros y e.
@@ -104,23 +211,13 @@ Defined.
 
 Definition Identity_rewrite_backward
   : forall (A : Type) (x : A) (y : A) (P : A -> Type) .
-      P y -> Identity x y -> P x.
+      P y -> x = y -> P x.
 Proof.
   intros A x y P p.
   intro e.
   destruct e.
   exact p.
 Defined.
-
-(* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
-Notation "x = y" := (Identity x y)
-  : jwa_type_scope.
-
-(* The same with no arguments, for where the relation is passed rather than
- * applied.
- *)
-Notation "'(=)'" := Identity (only parsing)
-  : jwa_type_scope.
 
 (* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and
  * [rew_r] are Rocq's own, fixed like a registration key.
