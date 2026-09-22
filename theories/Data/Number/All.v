@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-(* Umbrella for [jwa.Data.Number]: re-exports the three number types, so a
+(* Umbrella for [jwa.Data.Number]: re-exports the four number types, so a
  * client imports them with [From jwa Require Import Data.Number.All].
  *)
 
@@ -12,3 +12,4 @@ From jwa Require Export Core.All.
 From jwa Require Export Data.Number.Integer.
 From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.NatWithZero.
+From jwa Require Export Data.Number.Rational.
