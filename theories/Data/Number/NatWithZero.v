@@ -728,6 +728,29 @@ End over. (* multiplication.right.distributivity.over *)
 
 End distributivity. (* multiplication.right.distributivity *)
 
+Module order. (* multiplication.right.order *)
+
+(* multiplication.right.order.extensivity *)
+Theorem extensivity
+  : forall (k : Nat) (n : NatWithZero) . n <= (+ k) * n.
+Proof.
+  intros k n.
+  unfold LessOrEqual in |- *.
+  destruct n as [| p].
+  - simpl in |- *.
+    exact (Disjunction.L (Identity.reflexivity 0)).
+  - destruct k as [| k'].
+    + simpl in |- *.
+      exact (Disjunction.L (Identity.reflexivity (+ p))).
+    + apply Disjunction.R.
+      unfold LessThan in |- *.
+      apply (Exists_introduction (Nat.mul k' p)).
+      simpl in |- *.
+      reflexivity.
+Qed.
+
+End order. (* multiplication.right.order *)
+
 End right. (* multiplication.right *)
 
 (* multiplication.identity *)
