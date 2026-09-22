@@ -3,6 +3,8 @@
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 From jwa Require Import Relation.Accessible.
+From jwa Require Import Relation.Descent.
+From jwa Require Import Relation.Induced.
 From jwa Require Import Tactics.Simplify.
 
 (* [R] points downwards here: [R y x] says that [y] is below [x]. *)
@@ -11,41 +13,31 @@ From jwa Require Import Tactics.Simplify.
 Class WellFounded {A : Type} (R : A -> A -> Prop) : Prop :=
   { accessibility : forall (x : A) . Accessible R x }.
 
-(* For [f : A -> B],
- * the preimage of [b : B] is the collection of all [a : A] such that [f a = b].
- *)
-(* [forall {A : Type} {B : Type} . (A -> B) -> (B -> B -> Prop) -> A -> A -> Prop] *)
-Definition Preimage :=
-  fun {A : Type} {B : Type}
-    (f : A -> B) (R : B -> B -> Prop) (y : A) (x : A) .
-    (R (f y) (f x)).
-
 Module WellFounded. (* WellFounded *)
 
 (* What a definition by descent is written with: one step, answering at [x]
  * from the answers below [x], together with [R]'s well foundedness.
  *)
-(* [forall {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R} .
- *    (forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) ->
- *    (forall (x : A) . P x)]
+(* [forall {A : Type} {R : A -> A -> Prop} {P : A -> Type} {W : WellFounded R} .
+ *    Descent.Step R P -> (forall (x : A) . P x)]
  *)
 Definition recursion :=
-  fun {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R}
-    (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) (x : A) .
+  fun {A : Type} {R : A -> A -> Prop} {P : A -> Type} {W : WellFounded R}
+    (step : Descent.Step R P) (x : A) .
     (Accessible.recursion step x (accessibility x)).
 
 Module recursion. (* recursion *)
 
 (* recursion.unfolding *)
 Theorem unfolding
-  : forall {A : Type} {P : A -> Type} {R : A -> A -> Prop} {W : WellFounded R}
-      {step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x} .
-      Extensional step ->
+  : forall {A : Type} {R : A -> A -> Prop} {P : A -> Type} {W : WellFounded R}
+      {step : Descent.Step R P} .
+      Descent.Extensional step ->
       forall (x : A) .
         recursion step x
       = step x (fun (y : A) (r : R y x) . recursion step y).
 Proof.
-  intros A P R W step extensional x.
+  intros A R P W step extensional x.
   simplify recursion in |- *.
   rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
   apply extensional.
@@ -59,47 +51,48 @@ Qed.
 
 End recursion. (* recursion *)
 
-Module preimage. (* preimage *)
+Module induced. (* induced *)
 
 (* If [f x] is accessible under [R], then [x] is accessible under
- * [Preimage f R].
+ * [Induced R f].
  *)
-(* [forall {A : Type} {B : Type} {f : A -> B} {R : B -> B -> Prop} {b : B} .
+(* [forall {A : Type} {B : Type} {R : B -> B -> Prop} {f : A -> B} {b : B} .
  *    (Accessible R b) ->
- *    (forall (x : A) . R (f x) b -> Accessible (Preimage f R) x)]
+ *    (forall (x : A) . R (f x) b -> Accessible (Induced R f) x)]
  *)
-(* preimage.accessibility *)
+(* induced.accessibility *)
 Theorem accessibility
-  : forall {A : Type} {B : Type} {f : A -> B} {R : B -> B -> Prop} {b : B} .
+  : forall {A : Type} {B : Type} {R : B -> B -> Prop} {f : A -> B} {b : B} .
       (Accessible R b) ->
-      (forall (x : A) . R (f x) b -> Accessible (Preimage f R) x).
+      (forall (x : A) . R (f x) b -> Accessible (Induced R f) x).
 Proof.
-  intros A B f R b a.
+  intros A B R f b a.
   apply (Accessible.recursion
            (R := R)
            (P := fun (c : B) .
-                 forall (x : A) . R (f x) c -> Accessible (Preimage f R) x)).
+                 forall (x : A) . R (f x) c -> Accessible (Induced R f) x)).
   - intros c recurse x r.
     apply Accessible_introduction.
     intros y s.
-    exact (recurse (f x) r y s).
+    exact (recurse (f x) r y (Induced.elimination s)).
   - exact a.
 Qed.
 
-End preimage. (* preimage *)
+End induced. (* induced *)
 
 (* Well foundedness follows, being accessibility at every point. *)
-(* WellFounded.preimage *)
-Theorem preimage
-  : forall {A : Type} {B : Type} (f : A -> B) (R : B -> B -> Prop) .
-      WellFounded R -> WellFounded (Preimage f R).
+(* WellFounded.induced *)
+Theorem induced
+  : forall {A : Type} {B : Type} (R : B -> B -> Prop) (f : A -> B) .
+      WellFounded R -> WellFounded (Induced R f).
 Proof.
-  intros A B f R W.
+  intros A B R f W.
   exact {| accessibility :=
              fun (x : A) .
                Accessible_introduction
-                 (fun (y : A) (s : Preimage f R y x) .
-                    preimage.accessibility (accessibility (f x)) y s) |}.
+                 (fun (y : A) (s : Induced R f y x) .
+                    induced.accessibility (accessibility (f x)) y
+                                          (Induced.elimination s)) |}.
 Qed.
 
 End WellFounded. (* WellFounded *)

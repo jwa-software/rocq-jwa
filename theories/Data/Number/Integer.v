@@ -13,7 +13,9 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
@@ -1507,10 +1509,10 @@ Proof.
     destruct lt as [k e].
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in e.
-    exact (<-elim (difference.nat.negative.specification k m' n') e).
+    modus aequans (difference.nat.negative.specification k m' n'), e.
   - intro h.
     destruct h as [k e].
-    pose proof (->elim (difference.nat.negative.specification k m' n') e) as e'.
+    modus aequans (difference.nat.negative.specification k m' n'), e as e'.
     apply (@Nat.comparison.strict.backward.specification n' m').
     unfold Nat.LessThan in |- *.
     apply (Exists_introduction k).
@@ -1904,8 +1906,8 @@ Export (notations) Integer.
  * so.
  *)
 Instance Integer_magnitude_well_founded
-  : WellFounded (Preimage Integer.abs NatWithZero.LessThan) :=
-  WellFounded.preimage Integer.abs NatWithZero.LessThan
+  : WellFounded (Induced NatWithZero.LessThan Integer.abs) :=
+  WellFounded.induced NatWithZero.LessThan Integer.abs
     NatWithZero_less_than_well_founded.
 
 Instance Integer_comparable

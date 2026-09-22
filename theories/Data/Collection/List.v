@@ -2183,11 +2183,12 @@ Proof.
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
-        rewrite (<-elim
-                   (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
-                      ((|| l' ||) + NatWithZero.Positive Nat.One))
-                   (NatWithZero.addition.right.order.extensivity
-                      (|| l' ||) (NatWithZero.Positive Nat.One))) in |- *.
+        modus aequans
+          (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
+             ((|| l' ||) + NatWithZero.Positive Nat.One)),
+          (NatWithZero.addition.right.order.extensivity
+             (|| l' ||) (NatWithZero.Positive Nat.One)) as e.
+        rewrite e in |- *.
         reflexivity.
       * simpl in |- *.
         rewrite (IH (NatWithZero.Positive n'')) in |- *.
@@ -2393,12 +2394,11 @@ Proof.
     + simpl in |- *.
       split.
       * intro e.
-        exact (Conjunction_introduction
-                 (Identity.reflexivity false)
-                 (->elim IH e)).
+        modus aequans IH, e as all'.
+        exact (Conjunction_introduction (Identity.reflexivity false) all').
       * intro c.
         destruct c as [e all'].
-        exact (<-elim IH all').
+        modus aequans IH, all'.
 Qed.
 
 End zero. (* counting.zero *)
@@ -2714,21 +2714,24 @@ Proof.
     + contradiction f.
   - intros i h.
     simpl in h.
-    pose proof (->elim
-                  (membership.distributivity.over.concatenation
-                     i (range_positive p') (NatWithZero.Positive p' :: []))
-                  h) as h'.
+    modus aequans
+      (membership.distributivity.over.concatenation
+         i (range_positive p') (NatWithZero.Positive p' :: [])),
+      h as h'.
     change (NatWithZero.Positive (Nat.Successor p'))
       with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
     rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
-    apply (<-elim (NatWithZero.order.discreteness i (NatWithZero.Positive p'))).
-    unfold NatWithZero.LessOrEqual in |- *.
-    destruct h' as [h1 | h2].
-    + exact (Disjunction.R (IH i h1)).
-    + simpl in h2.
-      destruct h2 as [e | f].
-      * exact (Disjunction.L e).
-      * contradiction f.
+    assert (below : i <= NatWithZero.Positive p').
+    {
+      unfold NatWithZero.LessOrEqual in |- *.
+      destruct h' as [h1 | h2].
+      + exact (Disjunction.R (IH i h1)).
+      + simpl in h2.
+        destruct h2 as [e | f].
+        * exact (Disjunction.L e).
+        * contradiction f.
+    }
+    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), below.
 Qed.
 
 End forward. (* range.positive.forward *)
@@ -2756,17 +2759,22 @@ Proof.
       with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
       in h.
     rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
-    pose proof (->elim (NatWithZero.order.discreteness i (NatWithZero.Positive p')) h) as h'.
+    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h as h'.
     simpl in |- *.
-    apply (<-elim
-             (membership.distributivity.over.concatenation
-                i (range_positive p') (NatWithZero.Positive p' :: []))).
-    unfold NatWithZero.LessOrEqual in h'.
-    destruct h' as [e | lt].
-    + apply Disjunction.R.
-      simpl in |- *.
-      exact (Disjunction.L e).
-    + exact (Disjunction.L (IH i lt)).
+    assert (side : range_positive p' contains_member i
+                   \/ (NatWithZero.Positive p' :: []) contains_member i).
+    {
+      unfold NatWithZero.LessOrEqual in h'.
+      destruct h' as [e | lt].
+      + apply Disjunction.R.
+        simpl in |- *.
+        exact (Disjunction.L e).
+      + exact (Disjunction.L (IH i lt)).
+    }
+    modus aequans
+      (membership.distributivity.over.concatenation
+         i (range_positive p') (NatWithZero.Positive p' :: [])),
+      side.
 Qed.
 
 End backward. (* range.positive.backward *)
@@ -2894,13 +2902,17 @@ Proof.
   - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
     split.
     + intro h.
-      pose proof (->elim (mapping.membership.specification
-                            (NatWithZero.add start) i
-                            (range_from_zero (NatWithZero.saturating_sub stop start))) h) as w.
+      modus aequans
+        (mapping.membership.specification
+           (NatWithZero.add start) i
+           (range_from_zero (NatWithZero.saturating_sub stop start))),
+        h as w.
       destruct w as [j c].
       destruct c as [m e].
-      pose proof (->elim (from_zero.membership.specification
-                            (NatWithZero.saturating_sub stop start) j) m) as lt.
+      modus aequans
+        (from_zero.membership.specification
+           (NatWithZero.saturating_sub stop start) j),
+        m as lt.
       split.
       * rewrite e in |- *.
         rewrite (NatWithZero.addition.commutativity start j) in |- *.
@@ -2912,20 +2924,33 @@ Proof.
     + intro c.
       destruct c as [low high].
       pose proof (NatWithZero.subtraction.saturating.specification low) as step.
-      apply (<-elim (mapping.membership.specification
-                       (NatWithZero.add start) i
-                       (range_from_zero (NatWithZero.saturating_sub stop start)))).
-      apply (Exists_introduction (NatWithZero.saturating_sub i start)).
-      split.
-      * apply (<-elim (from_zero.membership.specification
-                         (NatWithZero.saturating_sub stop start)
-                         (NatWithZero.saturating_sub i start))).
+      assert (inside : NatWithZero.saturating_sub i start
+                       < NatWithZero.saturating_sub stop start).
+      {
         apply (NatWithZero.addition.order.strict.cancellation start).
         rewrite step in |- *.
         rewrite reach in |- *.
         exact high.
-      * symmetry in step.
-        exact step.
+      }
+      assert (witness : exists (j : NatWithZero) .
+                range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
+                /\ i = NatWithZero.add start j).
+      {
+        apply (Exists_introduction (NatWithZero.saturating_sub i start)).
+        split.
+        * modus aequans
+            (from_zero.membership.specification
+               (NatWithZero.saturating_sub stop start)
+               (NatWithZero.saturating_sub i start)),
+            inside.
+        * symmetry in step.
+          exact step.
+      }
+      modus aequans
+        (mapping.membership.specification
+           (NatWithZero.add start) i
+           (range_from_zero (NatWithZero.saturating_sub stop start))),
+        witness.
   - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
     rewrite empty in |- *.
     simpl in |- *.
@@ -2970,19 +2995,25 @@ Proof.
              (NatWithZero.Positive Nat.One) stop) in |- *.
   split.
   - intro h.
-    pose proof (->elim (range.membership.specification
-                          start (stop + NatWithZero.Positive Nat.One) i) h) as c.
+    modus aequans
+      (range.membership.specification
+         start (stop + NatWithZero.Positive Nat.One) i),
+      h as c.
     destruct c as [low high].
     split.
     + exact low.
-    + exact (->elim (NatWithZero.order.discreteness i stop) high).
+    + modus aequans (NatWithZero.order.discreteness i stop), high.
   - intro c.
     destruct c as [low high].
-    apply (<-elim (range.membership.specification
-                     start (stop + NatWithZero.Positive Nat.One) i)).
-    split.
-    + exact low.
-    + exact (<-elim (NatWithZero.order.discreteness i stop) high).
+    assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
+    {
+      split.
+      + exact low.
+      + modus aequans (NatWithZero.order.discreteness i stop), high.
+    }
+    modus aequans
+      (range.membership.specification start (stop + NatWithZero.Positive Nat.One) i),
+      bounds.
 Qed.
 
 End membership. (* range.inclusive.membership *)
@@ -3070,7 +3101,7 @@ Proof.
   - intros m e.
     simpl in e.
     destruct (maximum_of le l') as [| m'] eqn:r.
-    + pose proof (->elim (absence.specification le l') r) as en.
+    + modus aequans (absence.specification le l'), r as en.
       pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
       rewrite <- e' in |- *.
@@ -3170,7 +3201,7 @@ Proof.
   - intros m e.
     simpl in e.
     destruct (minimum_of le l') as [| m'] eqn:r.
-    + pose proof (->elim (absence.specification le l') r) as en.
+    + modus aequans (absence.specification le l'), r as en.
       pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
       rewrite <- e' in |- *.

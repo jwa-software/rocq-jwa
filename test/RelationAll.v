@@ -34,39 +34,41 @@ Definition relation_all_delivers_well_founded_recursion
   := fun (A : Type) (R : A -> A -> Prop) (w : WellFounded R) .
        WellFounded.recursion (fun (x : A) (_ : forall (y : A) . R y x -> Verum) . I).
 
-Definition relation_all_delivers_preimage
+Definition relation_all_delivers_induced
   : forall (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) .
-      WellFounded R -> WellFounded (Preimage f R)
+      WellFounded R -> WellFounded (Induced R f)
   := fun (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) .
-       WellFounded.preimage f R.
+       WellFounded.induced R f.
+
+Definition relation_all_delivers_induced_rules
+  : forall (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) (y : A) (x : A) .
+      (R (f y) (f x) -> Induced R f y x) /\ (Induced R f y x -> R (f y) (f x))
+  := fun (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) (y : A) (x : A) .
+       Conjunction_introduction Induced.introduction Induced.elimination.
 
 Definition relation_all_delivers_extensional
-  : forall (A : Type) (P : A -> Type) (R : A -> A -> Prop)
-      (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
-      Extensional step -> Verum
-  := fun (A : Type) (P : A -> Type) (R : A -> A -> Prop)
-       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x)
-       (_ : Extensional step) . I.
+  : forall (A : Type) (R : A -> A -> Prop) (P : A -> Type) (step : Descent.Step R P) .
+      Descent.Extensional step -> Verum
+  := fun (A : Type) (R : A -> A -> Prop) (P : A -> Type) (step : Descent.Step R P)
+       (_ : Descent.Extensional step) . I.
 
 Definition relation_all_delivers_accessible_recursion_independence
-  : forall (A : Type) (P : A -> Type) (R : A -> A -> Prop)
-      (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
-      Extensional step ->
+  : forall (A : Type) (R : A -> A -> Prop) (P : A -> Type) (step : Descent.Step R P) .
+      Descent.Extensional step ->
       (forall (x : A) (a : Accessible R x) (b : Accessible R x) .
          Accessible.recursion step x a = Accessible.recursion step x b)
-  := fun (A : Type) (P : A -> Type) (R : A -> A -> Prop)
-       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+  := fun (A : Type) (R : A -> A -> Prop) (P : A -> Type) (step : Descent.Step R P) .
        Accessible.recursion.independence.
 
 Definition relation_all_delivers_well_founded_recursion_unfolding
-  : forall (A : Type) (P : A -> Type) (R : A -> A -> Prop) (W : WellFounded R)
-      (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
-      Extensional step ->
+  : forall (A : Type) (R : A -> A -> Prop) (P : A -> Type) (W : WellFounded R)
+      (step : Descent.Step R P) .
+      Descent.Extensional step ->
       (forall (x : A) .
          WellFounded.recursion step x
          = step x (fun (y : A) (r : R y x) . WellFounded.recursion step y))
-  := fun (A : Type) (P : A -> Type) (R : A -> A -> Prop) (W : WellFounded R)
-       (step : forall (x : A) . (forall (y : A) . R y x -> P y) -> P x) .
+  := fun (A : Type) (R : A -> A -> Prop) (P : A -> Type) (W : WellFounded R)
+       (step : Descent.Step R P) .
        WellFounded.recursion.unfolding.
 
 Definition relation_all_delivers_order_projections
@@ -85,7 +87,7 @@ Definition relation_all_delivers_identity_instance
   : forall (A : Type) (x : A) (y : A) . x = y -> y = x
   := fun (A : Type) (x : A) (y : A) . Symmetric.symmetry x y.
 
-Definition relation_all_delivers_biimplication_instance
+Definition relation_all_delivers_biconditional_instance
   : forall (P : Prop) (Q : Prop) (S : Prop) .
       (P <-> Q) -> (Q <-> S) -> (P <-> S)
   := fun (P : Prop) (Q : Prop) (S : Prop) . Transitive.transitivity P Q S.

@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Syllogism.
 From jwa Require Import Core.Ltac.
 
@@ -28,17 +28,17 @@ From jwa Require Import Core.Ltac.
  *)
 
 Tactic Notation "HS" uconstr(Hab) "," uconstr(Hbc) :=
-  exact (Implication.transitivity Hab Hbc).
+  exact (Conditional.transitivity Hab Hbc).
 
 Tactic Notation "HS" uconstr(Hab) "," uconstr(Hbc) "as" simple_intropattern(p) :=
-  pose proof (Implication.transitivity Hab Hbc) as p.
+  pose proof (Conditional.transitivity Hab Hbc) as p.
 
 Tactic Notation "hypothetical" "syllogism" uconstr(Hab) "," uconstr(Hbc) :=
-  exact (Implication.transitivity Hab Hbc).
+  exact (Conditional.transitivity Hab Hbc).
 
 Tactic Notation "hypothetical" "syllogism" uconstr(Hab) "," uconstr(Hbc)
     "as" simple_intropattern(p) :=
-  pose proof (Implication.transitivity Hab Hbc) as p.
+  pose proof (Conditional.transitivity Hab Hbc) as p.
 
 Tactic Notation "barbara" uconstr(Hmp) "," uconstr(Hsm) :=
   exact (Syllogism.Barbara Hmp Hsm).

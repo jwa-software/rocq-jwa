@@ -15,6 +15,8 @@ From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Antisymmetric.
+From jwa Require Import Relation.Descent.
+From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
@@ -124,6 +126,20 @@ Notation "m > n" := (LessThan n m) (only parsing)
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
   : jwa_nat_with_zero_scope.
 
+(* The same four with no arguments, for where a relation is passed rather than
+ * applied, as [Induced] takes one.
+ *)
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_nat_with_zero_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_nat_with_zero_scope.
+Notation "'(>)'" :=
+  (fun (m : NatWithZero) (n : NatWithZero) . LessThan n m) (only parsing)
+  : jwa_nat_with_zero_scope.
+Notation "'(>=)'" :=
+  (fun (m : NatWithZero) (n : NatWithZero) . LessOrEqual n m) (only parsing)
+  : jwa_nat_with_zero_scope.
+
 (* [NatWithZero -> NatWithZero -> Comparison] *)
 Definition compare := fun (m : NatWithZero) (n : NatWithZero) .
   match m with
@@ -181,7 +197,7 @@ Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
 Local Open Scope jwa_product_scope.
 
 (* [Nat -> Nat -> Product NatWithZero NatWithZero] *)
-Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
+Fixpoint nat_div (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
   match dividend with
   | Nat.One =>
       match divisor with
@@ -189,7 +205,7 @@ Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWith
       | Nat.Successor _ => (0, (+ Nat.One))
       end
   | Nat.Successor dividend' =>
-      match division dividend' divisor with
+      match nat_div dividend' divisor with
       | (quotient, remainder) =>
           match eq (++ remainder) (+ divisor) with
           | true  => ((++ quotient), 0)
@@ -198,19 +214,30 @@ Fixpoint division (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWith
       end
   end.
 
-(* [NatWithZero -> Nat -> NatWithZero] *)
-Definition divide := fun (n : NatWithZero) (divisor : Nat) .
+(* Zero is the one dividend [nat_div] cannot take, and it is handled here so
+ * that [divide] and [modulo] are projections and nothing else.
+ *)
+(* [NatWithZero -> Nat -> Product NatWithZero NatWithZero] *)
+Definition div := fun (n : NatWithZero) (divisor : Nat) .
   match n with
-  | 0          => 0
-  | + dividend => pi_1 (division dividend divisor)
+  | 0          => (0, 0)
+  | + dividend => nat_div dividend divisor
   end.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
-Definition modulo := fun (n : NatWithZero) (divisor : Nat) .
-  match n with
-  | 0          => 0
-  | + dividend => pi_2 (division dividend divisor)
-  end.
+Definition divide := fun (n : NatWithZero) (divisor : Nat) . pi_1 (div n divisor).
+
+(* [NatWithZero -> Nat -> NatWithZero] *)
+Definition modulo := fun (n : NatWithZero) (divisor : Nat) . pi_2 (div n divisor).
+
+(* The levels are reserved in [Core.Notations]; only the meanings belong here.
+ * Both are always written in parentheses, so the dot that ends the token is
+ * never next to the one that ends a command or separates a binder.
+ *)
+Notation "m /. n" := (divide m n) (only parsing)
+  : jwa_nat_with_zero_scope.
+Notation "m %. n" := (modulo m n) (only parsing)
+  : jwa_nat_with_zero_scope.
 
 Local Close Scope jwa_product_scope.
 
@@ -1042,12 +1069,12 @@ Proof.
   - split.
     * simpl in |- *.
       intro e.
-      exact (<-elim (positive.order.embedding m' n')
-                    (Nat.comparison.strict.forward.specification e)).
+      modus aequans (positive.order.embedding m' n'),
+                    (Nat.comparison.strict.forward.specification e).
     * intro h.
       simpl in |- *.
-      exact (Nat.comparison.strict.backward.specification
-              (->elim (positive.order.embedding m' n') h)).
+      modus aequans (positive.order.embedding m' n'), h as lt.
+      exact (Nat.comparison.strict.backward.specification lt).
 Qed.
 
 End strict. (* comparison.strict *)
@@ -1169,18 +1196,19 @@ Proof.
   intros k m n.
   pose proof (Comparable.order.totality m n) as t.
   destruct t as [h | h].
-  - rewrite (<-elim (Comparable.minimum.specification m n) h) in |- *.
-    rewrite (<-elim (Comparable.minimum.specification (k + m) (k + n))
-                    (addition.order.monotonicity k m n h))
-                    in |- *.
+  - modus aequans (Comparable.minimum.specification m n), h as e1.
+    rewrite e1 in |- *.
+    modus aequans (Comparable.minimum.specification (k + m) (k + n)),
+                  (addition.order.monotonicity k m n h) as e2.
+    rewrite e2 in |- *.
     reflexivity.
   - rewrite (Comparable.minimum.commutativity m n)             in |- *.
     rewrite (Comparable.minimum.commutativity (k + m) (k + n)) in |- *.
-    rewrite (<-elim (Comparable.minimum.specification n m) h)
-                    in |- *.
-    rewrite (<-elim (Comparable.minimum.specification (k + n) (k + m))
-                    (addition.order.monotonicity k n m h))
-                    in |- *.
+    modus aequans (Comparable.minimum.specification n m), h as e1.
+    rewrite e1 in |- *.
+    modus aequans (Comparable.minimum.specification (k + n) (k + m)),
+                  (addition.order.monotonicity k n m h) as e2.
+    rewrite e2 in |- *.
     reflexivity.
 Qed.
 
@@ -1345,8 +1373,7 @@ Proof.
   intros m n h.
   unfold sub in |- *.
   destruct (le n m) as [|] eqn:c.
-  - pose proof (->elim (Comparable.order.reflection n m) c)
-      as order.
+  - modus aequans (Comparable.order.reflection n m), c as order.
     unfold Comparable.LessOrEqual in order.
     destruct order as [e | lt].
     + rewrite e in h.
@@ -1372,8 +1399,9 @@ Proof.
   intros m n.
   unfold sub in |- *.
   rewrite (subtraction.saturating.inversion.of.addition m n) in |- *.
-  rewrite (<-elim (Comparable.order.reflection n (m + n))
-                  (addition.right.order.extensivity m n)) in |- *.
+  modus aequans (Comparable.order.reflection n (m + n)),
+                (addition.right.order.extensivity m n) as e.
+  rewrite e in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -1393,7 +1421,7 @@ Proof.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
     + pose proof (Option.some.injectivity e) as e'.
-      pose proof (->elim (Comparable.order.reflection n m) c) as order.
+      modus aequans (Comparable.order.reflection n m), c as order.
       rewrite <- e' in |- *.
       exact (subtraction.saturating.specification order).
     + discriminate e.
@@ -1409,13 +1437,16 @@ Module division. (* division *)
 
 Local Open Scope jwa_product_scope.
 
-(* division.invariant *)
-Lemma invariant
+Module nat. (* division.nat *)
+
+(* division.nat.specification *)
+Lemma specification
   : forall (p : Nat) (d : Nat) .
-      ((pi_1 (division p d) * (+ d)) + pi_2 (division p d) = + p)
-      /\ pi_2 (division p d) < + d.
+      ((((+ p) /. d) * (+ d)) + ((+ p) %. d) = + p)
+      /\ ((+ p) %. d) < + d.
 Proof.
   intros p d.
+  simplify divide, modulo, div in |- *.
   induction p as [| p' IH] using Nat.induction.
   - destruct d as [| d']; split; simpl in |- *.
     * reflexivity.
@@ -1430,11 +1461,11 @@ Proof.
       reflexivity.
   - destruct IH as [e lt].
     simpl in |- *.
-    destruct (division p' d) as [q r] eqn:D.
+    destruct (nat_div p' d) as [q r] eqn:D.
     simpl in e.
     simpl in lt.
     destruct (eq (++ r) (+ d)) as [|] eqn:E; split; simpl in |- *.
-    * pose proof (->elim (Comparable.comparison.equality.reflection (++ r) (+ d)) E) as full.
+    * modus aequans (Comparable.comparison.equality.reflection (++ r) (+ d)), E as full.
       rewrite (increment.specification r) in full.
       rewrite (increment.specification q) in |- *.
       rewrite (multiplication.right.distributivity.over.addition (+ d) (+ Nat.One) q)
@@ -1468,7 +1499,8 @@ Proof.
       rewrite (increment.specification r) in |- *.
       rewrite (addition.commutativity (+ Nat.One) r) in |- *.
       destruct k as [| k'].
-      { rewrite (<-elim (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)) ek) in E.
+      { modus aequans (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)), ek as full.
+        rewrite full in E.
         discriminate E. }
       { unfold LessThan in |- *.
         apply (Exists_introduction k').
@@ -1477,33 +1509,77 @@ Proof.
         exact ek. }
 Qed.
 
+Module dividend. (* division.nat.dividend *)
+
+(* division.nat.dividend.reconstruction *)
+Theorem reconstruction
+  : forall (p : Nat) (d : Nat) . (((+ p) /. d) * (+ d)) + ((+ p) %. d) = + p.
+Proof.
+  intros p d.
+  destruct (division.nat.specification p d) as [h1 h2].
+  exact h1.
+Qed.
+
+End dividend. (* division.nat.dividend *)
+
+Module remainder. (* division.nat.remainder *)
+
+(* division.nat.remainder.boundedness *)
+Theorem boundedness
+  : forall (p : Nat) (d : Nat) . ((+ p) %. d) < + d.
+Proof.
+  intros p d.
+  destruct (division.nat.specification p d) as [h1 h2].
+  exact h2.
+Qed.
+
+End remainder. (* division.nat.remainder *)
+
+End nat. (* division.nat *)
+
 Local Close Scope jwa_product_scope.
 
-(* division.specification *)
-Theorem specification
-  : forall (n : NatWithZero) (d : Nat) .
-      ((divide n d * (+ d)) + modulo n d = n)
-      /\ modulo n d < + d.
+Module dividend. (* division.dividend *)
+
+(* division.dividend.reconstruction *)
+Theorem reconstruction
+  : forall (n : NatWithZero) (d : Nat) . ((n /. d) * (+ d)) + (n %. d) = n.
 Proof.
   intros n d.
   destruct n as [| p].
   - simpl in |- *.
-    split.
-    + reflexivity.
-    + unfold LessThan in |- *.
-      apply (Exists_introduction d).
-      simpl in |- *.
-      reflexivity.
-  - unfold divide, modulo in |- *.
-    exact (division.invariant p d).
+    reflexivity.
+  - exact (division.nat.dividend.reconstruction p d).
 Qed.
 
-(* division.bound *)
-Theorem bound : forall (n : NatWithZero) (d : Nat) . modulo n d < + d.
+End dividend. (* division.dividend *)
+
+Module remainder. (* division.remainder *)
+
+(* division.remainder.boundedness *)
+Theorem boundedness : forall (n : NatWithZero) (d : Nat) . (n %. d) < + d.
 Proof.
   intros n d.
-  destruct (division.specification n d) as [h1 h2].
-  exact h2.
+  destruct n as [| p].
+  - simplify LessThan in |- *.
+    apply (Exists_introduction d).
+    simpl in |- *.
+    reflexivity.
+  - exact (division.nat.remainder.boundedness p d).
+Qed.
+
+End remainder. (* division.remainder *)
+
+(* division.specification *)
+Theorem specification
+  : forall (n : NatWithZero) (d : Nat) .
+      (((n /. d) * (+ d)) + (n %. d) = n)
+      /\ (n %. d) < + d.
+Proof.
+  intros n d.
+  split.
+  - exact (division.dividend.reconstruction n d).
+  - exact (division.remainder.boundedness n d).
 Qed.
 
 End division. (* division *)
@@ -1516,45 +1592,108 @@ Module euclid. (* euclid *)
  * and the pair is what descends; the order on it is the second component's.
  *)
 Instance well_founded
-  : WellFounded (Preimage pi_2 LessThan) :=
-  WellFounded.preimage (@Product.second NatWithZero NatWithZero) LessThan
+  : WellFounded (Induced (<) pi_2) :=
+  WellFounded.induced LessThan (@Product.second NatWithZero NatWithZero)
     {| accessibility := order.strict.wellfoundedness |}.
 
-(* The two [return] clauses are what lets [descend] take a proof about [+ q]:
- * without them [recurse] would still be asking for one about [b].
+Local Open Scope jwa_type_scope.
+
+(* [forall (x : NatWithZero * NatWithZero) .
+ * (forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) -> NatWithZero]
  *)
-(* [forall (p : Product NatWithZero NatWithZero) .
- *    (forall (s : Product NatWithZero NatWithZero) .
- *       Preimage pi_2 LessThan s p -> NatWithZero) -> NatWithZero]
- *)
-Definition step :=
-  fun (p : Product NatWithZero NatWithZero)
-    (recurse : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s p -> NatWithZero) .
-    match p as t
-    return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s t -> NatWithZero) -> NatWithZero)
-    with
+Definition step
+  : Descent.Step (Induced (<) pi_2) (fun (_ : NatWithZero * NatWithZero) . NatWithZero)
+  :=
+  fun (x : NatWithZero * NatWithZero)
+    (recurse : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) .
+    match x with
+    (* [b = 0] answers [a].
+     * [b = + b'] does not answer with the product [((+ b'), (a %. b'))],
+     * it calls [recurse] there with it and answers with the number that comes back.
+     * The product is where the next question is, not the answer.
+     *)
     | (a, b) =>
-        match b as c
-        return ((forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, c) -> NatWithZero) -> NatWithZero)
-        with
+        match b with
         | 0 =>
-            fun (_ : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, 0) -> NatWithZero) . a
-        | + q =>
-            fun (descend : forall (s : Product NatWithZero NatWithZero) . Preimage pi_2 LessThan s (a, + q) -> NatWithZero) .
-              descend
-                ((+ q), modulo a q)
-                (division.bound a q)
+            fun (_ : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y (a, 0) -> NatWithZero) . a
+        | + b' =>
+            fun (recurse : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y (a, + b') -> NatWithZero) .
+              (recurse
+                ((+ b'), (a %. b'))
+                (Induced.introduction (division.remainder.boundedness a b')))
         end
     end recurse.
 
+Local Close Scope jwa_type_scope.
+
 (* euclid.extensionality *)
-Lemma extensionality : Extensional step.
+Lemma extensionality : Descent.Extensional step.
 Proof.
-  intros p f g h.
-  destruct p as [a b].
-  destruct b as [| q].
-  - reflexivity.
-  - exact (h ((+ q), modulo a q) (division.bound a q)).
+  (* [x : NatWithZero * NatWithZero]
+   * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+   * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+   * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
+   * :
+   * [|- step x f = step x g]
+   *)
+  intros x f g h.
+
+  (* [|- step (a, b) f = step (a, b) g] *)
+  destruct x as [a b].
+
+  destruct b as [| b'].
+
+  (* b destructed as 0 : [|- step (a, 0) f = step (a, 0) g] *)
+  {
+    (* [|- a = a] *)
+    simplify in |- *.
+    reflexivity.
+  }
+
+  (* b destructed as + b' : [|- step (a, + b') f = step (a, + b') g] *)
+  {
+    (* [|- f ((+ b'), (a %. b')) (Induced.introduction (division.remainder.boundedness a b'))
+     *  = g ((+ b'), (a %. b')) (Induced.introduction (division.remainder.boundedness a b'))]
+     *)
+    simplify step in |- *.
+
+    (* The context gains [bound := division.remainder.boundedness a b'],
+     * of type [(a %. b') < + b']
+     * :
+     * [|- f ((+ b'), (a %. b')) (Induced.introduction bound)
+     *  = g ((+ b'), (a %. b')) (Induced.introduction bound)]
+     *)
+    set (bound := division.remainder.boundedness a b'
+                : (a %. b') < + b').
+
+    (* The context gains [y := ((+ b'), (a %. b'))]
+     * :
+     * [|- f y (Induced.introduction bound)
+     *  = g y (Induced.introduction bound)]
+     *)
+    set (y := ((+ b'), (a %. b'))
+            : NatWithZero * NatWithZero).
+
+    (* The context gains [x := (a, + b')], and [f], [g] and [h] fold to it:
+     * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+     * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
+     * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
+     *)
+    set (x := (a, + b')) in *.
+
+    (* The context gains [r := Induced.introduction bound],
+     * of type [Induced (<) pi_2 y x]
+     * :
+     * [|- f y r = g y r]
+     *)
+    set (r := Induced.introduction bound
+            : Induced (<) pi_2 y x).
+
+    (* [H : forall (r : Induced (<) pi_2 y x) . f y r = g y r] *)
+    pose proof (h y) as H.
+
+    modus ponens H, r.
+  }
 Qed.
 
 Module positive. (* euclid.positive *)
@@ -1809,9 +1948,10 @@ End multiplication. (* divisibility.multiplication *)
 
 End divisibility. (* divisibility *)
 
-Local Open Scope jwa_product_scope.
 
 Module gcd. (* gcd *)
+
+Local Open Scope jwa_product_scope.
 
 (* gcd.zero *)
 Theorem zero : forall (a : NatWithZero) . gcd a 0 = a.
@@ -1824,7 +1964,7 @@ Qed.
 
 (* gcd.recurrence *)
 Theorem recurrence
-  : forall (a : NatWithZero) (q : Nat) . gcd a (+ q) = gcd (+ q) (modulo a q).
+  : forall (a : NatWithZero) (q : Nat) . gcd a (+ q) = gcd (+ q) ((a %. q)).
 Proof.
   intros a q.
   simplify gcd in |- *.
@@ -1832,9 +1972,6 @@ Proof.
   reflexivity.
 Qed.
 
-(* Both halves come out of one descent, the first needing the second at the
- * step below it.
- *)
 (* gcd.common *)
 Theorem common
   : forall (b : NatWithZero) (a : NatWithZero) .
@@ -1853,12 +1990,12 @@ Proof.
       * exact (divisibility.reflexivity a).
       * exact (divisibility.top a).
     + rewrite (gcd.recurrence a q) in |- *.
-      destruct (recurse (modulo a q) (division.bound a q) (+ q)) as [d1 d2].
+      destruct (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)) as [d1 d2].
       split.
       * destruct (division.specification a q) as [s1 s2].
         pose proof (divisibility.multiplication.closure
-                      (gcd (+ q) (modulo a q)) (+ q) (divide a q) d1) as hm.
-        rewrite (multiplication.commutativity (+ q) (divide a q)) in hm.
+                      (gcd (+ q) ((a %. q))) (+ q) ((a /. q)) d1) as hm.
+        rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
         pose proof (divisibility.addition.closure hm d2) as hs.
         rewrite s1 in hs.
         exact hs.
@@ -1882,9 +2019,6 @@ Proof.
   exact h2.
 Qed.
 
-(* The descent carries [d] down with it, the step needing that [d] divides
- * the remainder, which is where the cancellation is spent.
- *)
 (* gcd.greatest *)
 Theorem greatest
   : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
@@ -1901,12 +2035,12 @@ Proof.
     + rewrite (gcd.zero a) in |- *.
       exact h1.
     + rewrite (gcd.recurrence a q) in |- *.
-      apply (recurse (modulo a q) (division.bound a q) (+ q) d h2).
+      apply (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2).
       destruct (division.specification a q) as [s1 s2].
       rewrite <- s1 in h1.
       pose proof (divisibility.multiplication.closure
-                    d (+ q) (divide a q) h2) as hm.
-      rewrite (multiplication.commutativity (+ q) (divide a q)) in hm.
+                    d (+ q) ((a /. q)) h2) as hm.
+      rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
       exact (divisibility.addition.cancellation hm h1).
   - exact (order.strict.wellfoundedness b).
 Qed.
@@ -1978,9 +2112,10 @@ Qed.
 
 End positive. (* gcd.positive *)
 
+Local Close Scope jwa_product_scope.
+
 End gcd. (* gcd *)
 
-Local Close Scope jwa_product_scope.
 
 Module parity. (* parity *)
 

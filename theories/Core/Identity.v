@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
@@ -114,6 +114,12 @@ Defined.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Identity x y)
+  : jwa_type_scope.
+
+(* The same with no arguments, for where the relation is passed rather than
+ * applied.
+ *)
+Notation "'(=)'" := Identity (only parsing)
   : jwa_type_scope.
 
 (* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and

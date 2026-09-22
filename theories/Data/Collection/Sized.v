@@ -66,7 +66,7 @@ Proof.
   unfold is_not_empty in |- *.
   pose proof (Assert.negation (is_empty x)) as n.
   pose proof (Negation.congruence (emptiness.reflection x)) as c.
-  exact (<->trans n c).
+  exact (Biconditional.transitivity n c).
 Qed.
 
 End inhabitation. (* inhabitation *)
