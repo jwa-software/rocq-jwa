@@ -169,6 +169,11 @@ Definition data_number_all_delivers_gcd_multiplication_cancellation
       -> NatWithZero.Divides p r
   := NatWithZero.gcd.multiplication.cancellation.
 
+Definition data_number_all_delivers_gcd_commutativity
+  : forall (a : NatWithZero) (b : NatWithZero) .
+      NatWithZero.gcd a b = NatWithZero.gcd b a
+  := NatWithZero.gcd.commutativity.
+
 Definition data_number_all_delivers_integer_multiplication_magnitude
   : forall (m : Integer) (n : Integer) .
       Integer.abs (Integer.mul m n)
@@ -180,6 +185,19 @@ Definition data_number_all_delivers_integer_division_invariance
       Integer.divide (Integer.mul (Integer.Positive k) x) (Nat.mul k d)
       = Integer.divide x d
   := Integer.division.invariance.
+
+Definition data_number_all_delivers_integer_division_exactness
+  : forall (x : Integer) (d : Nat) .
+      NatWithZero.Divides (NatWithZero.Positive d) (Integer.abs x)
+      -> Integer.mul (Integer.divide x d) (Integer.Positive d) = x
+  := Integer.division.exactness.
+
+Definition data_number_all_delivers_integer_multiplication_cancellation
+  : forall (k : Integer) (m : Integer) (n : Integer) .
+      ~ (k = Integer.Zero)
+      -> Integer.mul k m = Integer.mul k n
+      -> m = n
+  := Integer.multiplication.cancellation.
 
 Definition data_number_all_delivers_rational_numerator
   : Rational -> Integer
@@ -218,3 +236,18 @@ Definition data_number_all_delivers_rational_make_invariance
       Rational.make (Integer.mul (Integer.Positive k) n) (Nat.mul k d)
       = Rational.make n d
   := Rational.make.invariance.
+
+Definition data_number_all_delivers_rational_make_proportionality
+  : forall (a : Integer) (b : Nat) .
+      Integer.mul (Rational.numerator (Rational.make a b)) (Integer.from_nat b)
+      = Integer.mul a
+          (Integer.from_nat (Rational.denominator (Rational.make a b)))
+  := Rational.make.proportionality.
+
+Definition data_number_all_delivers_rational_make_irreducibility
+  : forall (a : Integer) (b : Nat) .
+      NatWithZero.gcd.nat
+        (Integer.abs (Rational.numerator (Rational.make a b)))
+        (Rational.denominator (Rational.make a b))
+      = Nat.One
+  := Rational.make.irreducibility.

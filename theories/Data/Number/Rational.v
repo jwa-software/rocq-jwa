@@ -139,6 +139,94 @@ Proof.
   reflexivity.
 Qed.
 
+(* make.proportionality *)
+Theorem proportionality
+  : forall (a : Integer) (b : Nat) .
+      (numerator (make a b)) * (Integer.from_nat b)
+      = a * (Integer.from_nat (denominator (make a b))).
+Proof.
+  intros a b.
+  simplify make in |- *.
+  simplify numerator, denominator in |- *.
+
+  assert (bottom
+          : Nat.mul
+              (NatWithZero.divide.nat.safe
+                b (NatWithZero.gcd.nat (| a |) b)
+                (NatWithZero.gcd.nat.right.divisibility (| a |) b))
+              (NatWithZero.gcd.nat (| a |) b)
+          = b).
+  {
+    pose proof (NatWithZero.divide.nat.safe.specification
+                  b (NatWithZero.gcd.nat (| a |) b)
+                  (NatWithZero.gcd.nat.right.divisibility (| a |) b)) as s.
+    pose proof (NatWithZero.division.exactness
+                  (NatWithZero.Positive b) (NatWithZero.gcd.nat (| a |) b)
+                  (NatWithZero.gcd.nat.right.divisibility (| a |) b)) as e.
+    symmetry in s.
+    rewrite s in e.
+    exact (NatWithZero.positive.injectivity e).
+  }
+
+  assert (lifted
+          : Integer.from_nat b
+          = (Integer.from_nat
+              (NatWithZero.divide.nat.safe
+                  b (NatWithZero.gcd.nat (| a |) b)
+                  (NatWithZero.gcd.nat.right.divisibility (| a |) b)))
+            * (Integer.from_nat (NatWithZero.gcd.nat (| a |) b))).
+  {
+    pose proof (Identity.congruence Integer.from_nat bottom) as c.
+    symmetry in c.
+    rewrite c in |- *.
+    reflexivity.
+  }
+
+  assert (whole
+          : (a /. (NatWithZero.gcd.nat (| a |) b)) * (Integer.from_nat (NatWithZero.gcd.nat (| a |) b))
+          = a).
+  {
+    exact (Integer.division.exactness
+            a (NatWithZero.gcd.nat (| a |) b)
+            (NatWithZero.gcd.nat.left.divisibility (| a |) b)).
+  }
+
+  rewrite lifted in |- *.
+  rewrite (Integer.multiplication.commutativity
+            (Integer.from_nat
+              (NatWithZero.divide.nat.safe
+                b (NatWithZero.gcd.nat (| a |) b)
+                (NatWithZero.gcd.nat.right.divisibility (| a |) b)))
+            (Integer.from_nat (NatWithZero.gcd.nat (| a |) b))) in |- *.
+  pose proof (Identity.symmetry
+                (Integer.multiplication.associativity
+                  (a /. (NatWithZero.gcd.nat (| a |) b))
+                  (Integer.from_nat (NatWithZero.gcd.nat (| a |) b))
+                  (Integer.from_nat
+                    (NatWithZero.divide.nat.safe
+                      b (NatWithZero.gcd.nat (| a |) b)
+                      (NatWithZero.gcd.nat.right.divisibility (| a |) b)))))
+          as assoc.
+  rewrite assoc in |- *.
+  rewrite whole in |- *.
+  reflexivity.
+Qed.
+
+(* make.irreducibility *)
+Theorem irreducibility
+  : forall (a : Integer) (b : Nat) .
+      NatWithZero.gcd.nat
+        (| numerator (make a b) |)
+        (denominator (make a b))
+      = Nat.One.
+Proof.
+  intros a b.
+  simplify make in |- *.
+  simplify numerator, denominator in |- *.
+  rewrite (Integer.division.magnitude a (NatWithZero.gcd.nat (| a |) b)) in |- *.
+  exact (NatWithZero.gcd.nat.exhaustiveness (| a |) b).
+Qed.
+
 Local Close Scope jwa_integer_scope.
 
 End make. (* make *)
