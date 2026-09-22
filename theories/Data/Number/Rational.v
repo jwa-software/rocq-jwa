@@ -12,26 +12,26 @@ Module Rational. (* Rational *)
  * what it builds is in lowest terms.
  *)
 Inductive T : Type :=
-  | Fraction : Integer -> Nat -> T.
+  | Rational_introduction : Integer -> Nat -> T.
 
 Abbreviation Rational := T.
 
 (* [Rational -> Integer] *)
 Definition numerator := fun (x : Rational) .
   match x with
-  | Fraction n _ => n
+  | Rational_introduction n _ => n
   end.
 
 (* [Rational -> Nat] *)
 Definition denominator := fun (x : Rational) .
   match x with
-  | Fraction _ d => d
+  | Rational_introduction _ d => d
   end.
 
 (* [Integer -> Nat -> Rational] *)
 Definition make := fun (n : Integer) (d : Nat) .
   let g := NatWithZero.gcd.nat (Integer.abs n) d in
-  Fraction
+  Rational_introduction
     (Integer.divide n g)
     (NatWithZero.divide.nat.safe d g
        (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)).
