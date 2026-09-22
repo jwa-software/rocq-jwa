@@ -71,7 +71,7 @@ Qed.
 
 (* Two laws of [->] are stated higher up, each in a second module of this
  * name in the lowest file that knows both connectives:
- * [Implication.congruence] in [Core.Logic.Biimplication] and
+ * [Implication.congruence] in [Core.Logic.Biconditional] and
  * [Implication.exclusion.of.abjunction] in [Core.Logic.Abjunction].
  *)
 

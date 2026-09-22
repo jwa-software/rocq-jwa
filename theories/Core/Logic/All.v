@@ -8,7 +8,7 @@
  * through [Import].
  *)
 From jwa Require Export Core.Logic.Abjunction.
-From jwa Require Export Core.Logic.Biimplication.
+From jwa Require Export Core.Logic.Biconditional.
 From jwa Require Export Core.Logic.Conjunction.
 From jwa Require Export Core.Logic.Disjunction.
 From jwa Require Export Core.Logic.Exists.

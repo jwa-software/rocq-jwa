@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Biimplication.
+From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Implication.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
@@ -109,7 +109,7 @@ Proof.
   intros a b.
   destruct a as [a12 a21].
   destruct b as [b12 b21].
-  (* [Biimplication] has one ctor with two fields, so the goal splits into two
+  (* [Biconditional] has one ctor with two fields, so the goal splits into two
    * goals: [|- A1 /\ B1 -> A2 /\ B2] and [|- A2 /\ B2 -> A1 /\ B1].
    *)
   split.

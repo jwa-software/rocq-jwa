@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Abjunction.
-From jwa Require Import Core.Logic.Biimplication.
+From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Implication.
@@ -198,7 +198,7 @@ End weakening. (* weakening *)
 
 (* Two propositions are incompatible when they cannot both hold. A
  * sejunction is incompatible with the conjunction of its sides and with
- * their biimplication.
+ * their biconditional.
  *)
 
 Module exclusion. (* exclusion *)
@@ -219,8 +219,8 @@ Proof.
   - exact (na a).
 Qed.
 
-(* exclusion.of.biimplication *)
-Theorem biimplication
+(* exclusion.of.biconditional *)
+Theorem biconditional
   : forall {A : Prop} {B : Prop} . A _\/_ B -> ~ (A <-> B).
 Proof.
   intros A B.
@@ -245,12 +245,12 @@ End exclusion. (* exclusion *)
 
 End Sejunction. (* Sejunction *)
 
-(* The same incompatibility read from the biimplication's side belongs to
- * [Biimplication], but it can be stated only here, where [_\/_] is known. A
+(* The same incompatibility read from the biconditional's side belongs to
+ * [Biconditional], but it can be stated only here, where [_\/_] is known. A
  * second module of that name carries it, and a client reads
- * [Biimplication.exclusion.of.sejunction].
+ * [Biconditional.exclusion.of.sejunction].
  *)
-Module Biimplication. (* Biimplication *)
+Module Biconditional. (* Biconditional *)
 
 Module exclusion. (* exclusion *)
 
@@ -280,4 +280,4 @@ End of. (* exclusion.of *)
 
 End exclusion. (* exclusion *)
 
-End Biimplication. (* Biimplication *)
+End Biconditional. (* Biconditional *)

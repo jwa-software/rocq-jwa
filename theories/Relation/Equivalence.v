@@ -16,14 +16,14 @@ Class Equivalence {A : Type} (R : A -> A -> Prop) : Prop :=
  * [Core].
  *)
 
-Instance Biimplication_equivalence
-  : Equivalence Biimplication :=
+Instance Biconditional_equivalence
+  : Equivalence Biconditional :=
   {| Equivalence.reflexivity :=
-       {| Reflexive.reflexivity := Biimplication.reflexivity |}
+       {| Reflexive.reflexivity := Biconditional.reflexivity |}
    ; Equivalence.symmetry :=
-       {| Symmetric.symmetry := @Biimplication.symmetry |}
+       {| Symmetric.symmetry := @Biconditional.symmetry |}
    ; Equivalence.transitivity :=
-       {| Transitive.transitivity := @Biimplication.transitivity |} |}.
+       {| Transitive.transitivity := @Biconditional.transitivity |} |}.
 
 Instance Identity_equivalence
   : forall (A : Type) . Equivalence (@Identity A) :=
