@@ -1069,12 +1069,12 @@ Proof.
   - split.
     * simpl in |- *.
       intro e.
-      exact (<-elim (positive.order.embedding m' n')
-                    (Nat.comparison.strict.forward.specification e)).
+      modus aequans (positive.order.embedding m' n'),
+                    (Nat.comparison.strict.forward.specification e).
     * intro h.
       simpl in |- *.
-      exact (Nat.comparison.strict.backward.specification
-              (->elim (positive.order.embedding m' n') h)).
+      modus aequans (positive.order.embedding m' n'), h as lt.
+      exact (Nat.comparison.strict.backward.specification lt).
 Qed.
 
 End strict. (* comparison.strict *)
@@ -1196,18 +1196,19 @@ Proof.
   intros k m n.
   pose proof (Comparable.order.totality m n) as t.
   destruct t as [h | h].
-  - rewrite (<-elim (Comparable.minimum.specification m n) h) in |- *.
-    rewrite (<-elim (Comparable.minimum.specification (k + m) (k + n))
-                    (addition.order.monotonicity k m n h))
-                    in |- *.
+  - modus aequans (Comparable.minimum.specification m n), h as e1.
+    rewrite e1 in |- *.
+    modus aequans (Comparable.minimum.specification (k + m) (k + n)),
+                  (addition.order.monotonicity k m n h) as e2.
+    rewrite e2 in |- *.
     reflexivity.
   - rewrite (Comparable.minimum.commutativity m n)             in |- *.
     rewrite (Comparable.minimum.commutativity (k + m) (k + n)) in |- *.
-    rewrite (<-elim (Comparable.minimum.specification n m) h)
-                    in |- *.
-    rewrite (<-elim (Comparable.minimum.specification (k + n) (k + m))
-                    (addition.order.monotonicity k n m h))
-                    in |- *.
+    modus aequans (Comparable.minimum.specification n m), h as e1.
+    rewrite e1 in |- *.
+    modus aequans (Comparable.minimum.specification (k + n) (k + m)),
+                  (addition.order.monotonicity k n m h) as e2.
+    rewrite e2 in |- *.
     reflexivity.
 Qed.
 
@@ -1372,8 +1373,7 @@ Proof.
   intros m n h.
   unfold sub in |- *.
   destruct (le n m) as [|] eqn:c.
-  - pose proof (->elim (Comparable.order.reflection n m) c)
-      as order.
+  - modus aequans (Comparable.order.reflection n m), c as order.
     unfold Comparable.LessOrEqual in order.
     destruct order as [e | lt].
     + rewrite e in h.
@@ -1399,8 +1399,9 @@ Proof.
   intros m n.
   unfold sub in |- *.
   rewrite (subtraction.saturating.inversion.of.addition m n) in |- *.
-  rewrite (<-elim (Comparable.order.reflection n (m + n))
-                  (addition.right.order.extensivity m n)) in |- *.
+  modus aequans (Comparable.order.reflection n (m + n)),
+                (addition.right.order.extensivity m n) as e.
+  rewrite e in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -1420,7 +1421,7 @@ Proof.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
     + pose proof (Option.some.injectivity e) as e'.
-      pose proof (->elim (Comparable.order.reflection n m) c) as order.
+      modus aequans (Comparable.order.reflection n m), c as order.
       rewrite <- e' in |- *.
       exact (subtraction.saturating.specification order).
     + discriminate e.
@@ -1464,7 +1465,7 @@ Proof.
     simpl in e.
     simpl in lt.
     destruct (eq (++ r) (+ d)) as [|] eqn:E; split; simpl in |- *.
-    * pose proof (->elim (Comparable.comparison.equality.reflection (++ r) (+ d)) E) as full.
+    * modus aequans (Comparable.comparison.equality.reflection (++ r) (+ d)), E as full.
       rewrite (increment.specification r) in full.
       rewrite (increment.specification q) in |- *.
       rewrite (multiplication.right.distributivity.over.addition (+ d) (+ Nat.One) q)
@@ -1498,7 +1499,8 @@ Proof.
       rewrite (increment.specification r) in |- *.
       rewrite (addition.commutativity (+ Nat.One) r) in |- *.
       destruct k as [| k'].
-      { rewrite (<-elim (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)) ek) in E.
+      { modus aequans (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)), ek as full.
+        rewrite full in E.
         discriminate E. }
       { unfold LessThan in |- *.
         apply (Exists_introduction k').
