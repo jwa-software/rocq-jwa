@@ -3,16 +3,16 @@
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
-(* Implication is the conditional, [if A then B]. [->] is the kernel's
+(* Conditional is the conditional, [if A then B]. [->] is the kernel's
  * non-dependent [forall], which this line only gives a spelling.
  *)
 Notation "A -> B" := (forall (_ : A) . B)
   : jwa_type_scope.
 
 (* No type is declared for [->], so the module carries the connective's
- * name by itself; its laws read [Implication.transitivity].
+ * name by itself; its laws read [Conditional.transitivity].
  *)
-Module Implication. (* Implication *)
+Module Conditional. (* Conditional *)
 
 Theorem reflexivity : forall {A : Prop} . A -> A.
 Proof.
@@ -71,8 +71,8 @@ Qed.
 
 (* Two laws of [->] are stated higher up, each in a second module of this
  * name in the lowest file that knows both connectives:
- * [Implication.congruence] in [Core.Logic.Biconditional] and
- * [Implication.exclusion.of.abjunction] in [Core.Logic.Abjunction].
+ * [Conditional.congruence] in [Core.Logic.Biconditional] and
+ * [Conditional.exclusion.of.abjunction] in [Core.Logic.Abjunction].
  *)
 
-End Implication. (* Implication *)
+End Conditional. (* Conditional *)

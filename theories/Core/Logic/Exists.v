@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Notations.
 
 (* [P] is a predicate, not a binder: [exists x . p] is [Exists (fun x . p)],

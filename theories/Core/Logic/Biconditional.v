@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
@@ -139,11 +139,11 @@ Notation "<-elim" := Biconditional.backward.elimination (only parsing).
 Notation "<->symm"  := Biconditional.symmetry    (only parsing).
 Notation "<->trans" := Biconditional.transitivity (only parsing).
 
-(* The congruence of [->] belongs to [Implication], but its statement needs
+(* The congruence of [->] belongs to [Conditional], but its statement needs
  * [<->], so it can be stated only here. A second module of that name
- * carries it, and a client reads [Implication.congruence].
+ * carries it, and a client reads [Conditional.congruence].
  *)
-Module Implication. (* Implication *)
+Module Conditional. (* Conditional *)
 
 Theorem congruence
   : forall {P1 : Prop} {P2 : Prop} {Q1 : Prop} {Q2 : Prop} .
@@ -167,4 +167,4 @@ Proof.
     exact p1.
 Qed.
 
-End Implication. (* Implication *)
+End Conditional. (* Conditional *)

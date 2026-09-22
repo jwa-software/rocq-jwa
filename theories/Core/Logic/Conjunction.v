@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Biconditional.
-From jwa Require Import Core.Logic.Implication.
+From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
 
