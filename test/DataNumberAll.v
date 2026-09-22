@@ -147,6 +147,28 @@ Definition data_number_all_delivers_divide_nat_safe_congruence
          = NatWithZero.divide.nat.safe d2 g2 h2
   := NatWithZero.divide.nat.safe.congruence.
 
+Definition data_number_all_delivers_division_exactness
+  : forall (n : NatWithZero) (d : Nat) .
+      NatWithZero.Divides (NatWithZero.Positive d) n
+      -> NatWithZero.mul (NatWithZero.divide n d) (NatWithZero.Positive d) = n
+  := NatWithZero.division.exactness.
+
+Definition data_number_all_delivers_gcd_nat_exhaustiveness
+  : forall (a : NatWithZero) (q : Nat) .
+      NatWithZero.gcd.nat
+        (NatWithZero.divide a (NatWithZero.gcd.nat a q))
+        (NatWithZero.divide.nat.safe q (NatWithZero.gcd.nat a q)
+           (NatWithZero.gcd.nat.right.divisibility a q))
+      = Nat.One
+  := NatWithZero.gcd.nat.exhaustiveness.
+
+Definition data_number_all_delivers_gcd_multiplication_cancellation
+  : forall (p : NatWithZero) (q : NatWithZero) (r : NatWithZero) .
+      NatWithZero.Divides p (NatWithZero.mul q r)
+      -> NatWithZero.gcd p q = NatWithZero.Positive Nat.One
+      -> NatWithZero.Divides p r
+  := NatWithZero.gcd.multiplication.cancellation.
+
 Definition data_number_all_delivers_integer_multiplication_magnitude
   : forall (m : Integer) (n : Integer) .
       Integer.abs (Integer.mul m n)
