@@ -16,3 +16,9 @@ Proof.
   intros A x.
   reflexivity.
 Qed.
+
+Definition core_all_delivers_identity_hedberg_uniqueness
+  : forall (A : Type) .
+      (forall (x : A) (y : A) . x = y \/ ~ (x = y))
+      -> forall (x : A) (y : A) (p : x = y) (q : x = y) . p = q
+  := fun (A : Type) . @Identity.hedberg.uniqueness A.

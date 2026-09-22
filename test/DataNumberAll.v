@@ -22,6 +22,14 @@ Definition data_number_all_delivers_well_founded_with_zero
   : forall (n : NatWithZero) . Accessible NatWithZero.LessThan n
   := fun (n : NatWithZero) . accessibility n.
 
+Definition data_number_all_delivers_nat_equality_decidability
+  : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n)
+  := Nat.equality.decidability.
+
+Definition data_number_all_delivers_nat_equality_uniqueness
+  : forall (m : Nat) (n : Nat) (p : m = n) (q : m = n) . p = q
+  := Nat.equality.uniqueness.
+
 Definition data_number_all_delivers_gcd_zero
   : forall (a : NatWithZero) . NatWithZero.gcd a NatWithZero.Zero = a
   := NatWithZero.gcd.zero.
@@ -192,6 +200,17 @@ Definition data_number_all_delivers_integer_division_exactness
       -> Integer.mul (Integer.divide x d) (Integer.Positive d) = x
   := Integer.division.exactness.
 
+Definition data_number_all_delivers_integer_division_exhaustiveness
+  : forall (x : Integer) (d : Nat) .
+      NatWithZero.gcd.nat
+        (Integer.abs
+           (Integer.divide x (NatWithZero.gcd.nat (Integer.abs x) d)))
+        (NatWithZero.divide.nat.safe d
+           (NatWithZero.gcd.nat (Integer.abs x) d)
+           (NatWithZero.gcd.nat.right.divisibility (Integer.abs x) d))
+      = Nat.One
+  := Integer.division.exhaustiveness.
+
 Definition data_number_all_delivers_integer_multiplication_cancellation
   : forall (k : Integer) (m : Integer) (n : Integer) .
       ~ (k = Integer.Zero)
@@ -250,13 +269,20 @@ Definition data_number_all_delivers_rational_make_proportionality
           (Integer.from_nat (Rational.denominator (Rational.make a b)))
   := Rational.make.proportionality.
 
-Definition data_number_all_delivers_rational_make_irreducibility
-  : forall (a : Integer) (b : Nat) .
+Definition data_number_all_delivers_rational_irreducibility
+  : forall (x : Rational) .
       NatWithZero.gcd.nat
-        (Integer.abs (Rational.numerator (Rational.make a b)))
-        (Rational.denominator (Rational.make a b))
+        (Integer.abs (Rational.numerator x))
+        (Rational.denominator x)
       = Nat.One
-  := Rational.make.irreducibility.
+  := Rational.irreducibility.
+
+Definition data_number_all_delivers_rational_extensionality
+  : forall (x : Rational) (y : Rational) .
+      Rational.numerator x = Rational.numerator y
+      -> Rational.denominator x = Rational.denominator y
+      -> x = y
+  := Rational.extensionality.
 
 Definition data_number_all_delivers_rational_make_characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
