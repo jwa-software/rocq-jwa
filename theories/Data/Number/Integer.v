@@ -1760,6 +1760,21 @@ Proof.
       reflexivity.
 Qed.
 
+(* division.exhaustiveness *)
+Theorem exhaustiveness
+  : forall (x : Integer) (d : Nat) .
+      NatWithZero.gcd.nat
+        (| x /. (NatWithZero.gcd.nat (| x |) d) |)
+        (NatWithZero.divide.nat.safe
+          d (NatWithZero.gcd.nat (| x |) d)
+          (NatWithZero.gcd.nat.right.divisibility (| x |) d))
+      = Nat.One.
+Proof.
+  intros x d.
+  rewrite (division.magnitude x (NatWithZero.gcd.nat (| x |) d)) in |- *.
+  exact (NatWithZero.gcd.nat.exhaustiveness (| x |) d).
+Qed.
+
 (* division.invariance *)
 Theorem invariance
   : forall (x : Integer) (d : Nat) (k : Nat) .
