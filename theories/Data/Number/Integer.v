@@ -1430,6 +1430,22 @@ End over. (* multiplication.distributivity.over *)
 
 End distributivity. (* multiplication.distributivity *)
 
+(* multiplication.interchange *)
+Theorem interchange
+  : forall (a : Integer) (b : Integer) (c : Integer) (d : Integer) .
+      (a * b) * (c * d) = (a * c) * (b * d).
+Proof.
+  intros a b c d.
+  rewrite (multiplication.associativity a b (c * d)) in |- *.
+  pose proof (Identity.symmetry (multiplication.associativity b c d)) as inner.
+  rewrite inner in |- *.
+  rewrite (multiplication.commutativity b c) in |- *.
+  rewrite (multiplication.associativity c b d) in |- *.
+  pose proof (Identity.symmetry (multiplication.associativity a c (b * d))) as outer.
+  rewrite outer in |- *.
+  reflexivity.
+Qed.
+
 (* multiplication.cancellation *)
 Theorem cancellation
   : forall (k : Integer) (m : Integer) (n : Integer) .
