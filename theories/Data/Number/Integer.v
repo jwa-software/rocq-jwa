@@ -1430,6 +1430,46 @@ End over. (* multiplication.distributivity.over *)
 
 End distributivity. (* multiplication.distributivity *)
 
+(* multiplication.cancellation *)
+Theorem cancellation
+  : forall (k : Integer) (m : Integer) (n : Integer) .
+      ~ (k = 0) -> k * m = k * n -> m = n.
+Proof.
+  intros k m n nonzero e.
+  destruct k as [p | | p].
+  - destruct m as [a | | a]; destruct n as [b | | b]; simplify in e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
+      reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
+      reflexivity.
+  - unfold Negation in nonzero.
+    modus ponens nonzero, (Identity.reflexivity 0) as f.
+    contradiction f.
+  - destruct m as [a | | a]; destruct n as [b | | b]; simplify in e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
+      reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
+      reflexivity.
+Qed.
+
 (* multiplication.magnitude *)
 Theorem magnitude
   : forall (m : Integer) (n : Integer) .
@@ -1672,6 +1712,36 @@ Proof.
   - reflexivity.
   - simplify divide, abs in |- *.
     destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+Qed.
+
+(* division.exactness *)
+Theorem exactness
+  : forall (x : Integer) (d : Nat) .
+      NatWithZero.Divides (NatWithZero.Positive d) (| x |)
+      -> (x /. d) * (+ d) = x.
+Proof.
+  intros x d h.
+  destruct x as [x' | | x'].
+  - simplify divide in |- *.
+    pose proof (NatWithZero.division.exactness
+                  (NatWithZero.Positive x') d h) as e.
+    destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
+    + simplify in e.
+      discriminate e.
+    + simplify in |- *.
+      rewrite (NatWithZero.positive.injectivity e) in |- *.
+      reflexivity.
+  - simplify in |- *.
+    reflexivity.
+  - simplify divide in |- *.
+    pose proof (NatWithZero.division.exactness
+                  (NatWithZero.Positive x') d h) as e.
+    destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
+    + simplify in e.
+      discriminate e.
+    + simplify in |- *.
+      rewrite (NatWithZero.positive.injectivity e) in |- *.
+      reflexivity.
 Qed.
 
 (* division.invariance *)

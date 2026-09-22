@@ -2341,11 +2341,6 @@ Module distributivity. (* gcd.left.distributivity *)
 
 Module of. (* gcd.left.distributivity.of *)
 
-(* A common factor comes out of the greatest common divisor. The descent is
- * Euclid's own: [modulo.homogeneity] carries the factor across the step, so
- * the scaled pair takes the same steps as the bare one and stops at the same
- * place, a factor of [k] higher.
- *)
 (* gcd.left.distributivity.of.multiplication *)
 Theorem multiplication
   : forall (k : Nat) (b : NatWithZero) (a : NatWithZero) .
@@ -2420,6 +2415,22 @@ Proof.
         as below.
       modus ponens below, remainder.
   - exact (order.strict.wellfoundedness b).
+Qed.
+
+(* gcd.commutativity *)
+Theorem commutativity
+  : forall (a : NatWithZero) (b : NatWithZero) . gcd a b = gcd b a.
+Proof.
+  intros a b.
+  apply divisibility.antisymmetry.
+  - exact (gcd.universality
+            a b (gcd a b)
+            (gcd.right.divisibility a b)
+            (gcd.left.divisibility  a b)).
+  - exact (gcd.universality
+            b a (gcd b a)
+            (gcd.right.divisibility b a)
+            (gcd.left.divisibility  b a)).
 Qed.
 
 Module multiplication. (* gcd.multiplication *)
@@ -2713,9 +2724,6 @@ Module odd. (* parity.odd *)
 
 Module addition. (* parity.odd.addition *)
 
-(* Two odds meet at an even, not at an odd: the [+ Nat.One] each carries pairs
- * off with the other, so the sum is not closed in [Odd].
- *)
 (* parity.odd.addition.evenness *)
 Theorem evenness
   : forall {m : NatWithZero} {n : NatWithZero} . Odd m -> Odd n -> Even (m + n).
@@ -2730,14 +2738,15 @@ Proof.
   symmetry in e1, e2.
   rewrite e1, e2 in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-             (+ (Nat.Successor Nat.One)) (+ Nat.One) (k1 + k2)) in |- *.
+            (+ (Nat.Successor Nat.One)) (+ Nat.One) (k1 + k2)) in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-             (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
+            (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
   change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
-    with ((+ Nat.One) + (+ Nat.One)) in |- *.
+    with ((+ Nat.One) + (+ Nat.One))
+      in |- *.
   rewrite (addition.interchange
-             (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k1)
-             (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
+            (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k1)
+            (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
   reflexivity.
 Qed.
 
