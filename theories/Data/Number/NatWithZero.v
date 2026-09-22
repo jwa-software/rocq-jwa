@@ -2030,8 +2030,8 @@ Proof.
   exact h2.
 Qed.
 
-(* gcd.greatest *)
-Theorem greatest
+(* gcd.universality *)
+Theorem universality
   : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
       Divides d a -> Divides d b -> Divides d (gcd a b).
 Proof.

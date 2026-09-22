@@ -45,11 +45,11 @@ Definition data_number_all_delivers_gcd_projections
   := fun (a : NatWithZero) (b : NatWithZero) .
        Conjunction_introduction (NatWithZero.gcd.left a b) (NatWithZero.gcd.right a b).
 
-Definition data_number_all_delivers_gcd_greatest
+Definition data_number_all_delivers_gcd_universality
   : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
       NatWithZero.Divides d a ->
       NatWithZero.Divides d b -> NatWithZero.Divides d (NatWithZero.gcd a b)
-  := NatWithZero.gcd.greatest.
+  := NatWithZero.gcd.universality.
 
 Definition data_number_all_delivers_gcd_positive
   : forall (q : Nat) (a : NatWithZero) .
