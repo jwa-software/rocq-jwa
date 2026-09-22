@@ -199,6 +199,12 @@ Definition data_number_all_delivers_integer_multiplication_cancellation
       -> m = n
   := Integer.multiplication.cancellation.
 
+Definition data_number_all_delivers_integer_multiplication_interchange
+  : forall (a : Integer) (b : Integer) (c : Integer) (d : Integer) .
+      Integer.mul (Integer.mul a b) (Integer.mul c d)
+      = Integer.mul (Integer.mul a c) (Integer.mul b d)
+  := Integer.multiplication.interchange.
+
 Definition data_number_all_delivers_rational_numerator
   : Rational -> Integer
   := Rational.numerator.
@@ -251,3 +257,10 @@ Definition data_number_all_delivers_rational_make_irreducibility
         (Rational.denominator (Rational.make a b))
       = Nat.One
   := Rational.make.irreducibility.
+
+Definition data_number_all_delivers_rational_make_characterisation
+  : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
+      Rational.make a b = Rational.make c d
+      <-> Integer.mul a (Integer.from_nat d)
+          = Integer.mul c (Integer.from_nat b)
+  := Rational.make.characterisation.

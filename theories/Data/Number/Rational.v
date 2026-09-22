@@ -227,6 +227,194 @@ Proof.
   exact (NatWithZero.gcd.nat.exhaustiveness (| a |) b).
 Qed.
 
+(* make.characterisation *)
+Theorem characterisation
+  : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
+      make a b = make c d
+      <-> a * (Integer.from_nat d) = c * (Integer.from_nat b).
+Proof.
+  intros a b c d.
+
+  assert (swap
+          : forall (x : Integer) (y : Integer) (z : Integer) . (x * y) * z = (x * z) * y).
+  {
+    intros x y z.
+    rewrite (Integer.multiplication.associativity x y z) in |- *.
+    rewrite (Integer.multiplication.commutativity y z)   in |- *.
+    pose proof (Identity.symmetry (Integer.multiplication.associativity x z y)) as h.
+    rewrite h in |- *.
+    reflexivity.
+  }
+
+  pose proof (proportionality a b) as P1.
+  pose proof (irreducibility  a b) as I1.
+  pose proof (proportionality c d) as P2.
+  pose proof (irreducibility  c d) as I2.
+
+  destruct (make a b) as [p q] eqn:E1.
+  destruct (make c d) as [r s] eqn:E2.
+  simplify numerator, denominator in P1, I1, P2, I2.
+
+  assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
+  {
+    unfold Negation in |- *.
+    intro z.
+    discriminate z.
+  }
+
+  assert (nzs : ~ (Integer.from_nat s = Integer.Zero)).
+  {
+    unfold Negation in |- *.
+    intro z.
+    discriminate z.
+  }
+
+  split.
+
+  - intro e.
+    pose proof (Identity.congruence numerator   e) as hp.
+    pose proof (Identity.congruence denominator e) as hq.
+    simplify numerator   in hp.
+    simplify denominator in hq.
+    rewrite hp in P1.
+    rewrite hq in P1.
+
+    assert (Q1 : (r * (Integer.from_nat b)) * (Integer.from_nat d)
+                 = (a * (Integer.from_nat s)) * (Integer.from_nat d)).
+    {
+      rewrite P1 in |- *.
+      reflexivity.
+    }
+
+    assert (Q2 : (r * (Integer.from_nat d)) * (Integer.from_nat b)
+                 = (c * (Integer.from_nat s)) * (Integer.from_nat b)).
+    {
+      rewrite P2 in |- *.
+      reflexivity.
+    }
+
+    rewrite (swap r (Integer.from_nat b) (Integer.from_nat d)) in Q1.
+    symmetry in Q1.
+    pose proof (Identity.transitivity Q1 Q2) as Q.
+    rewrite (swap a (Integer.from_nat s) (Integer.from_nat d)) in Q.
+    rewrite (swap c (Integer.from_nat s) (Integer.from_nat b)) in Q.
+    rewrite (Integer.multiplication.commutativity (a * (Integer.from_nat d)) (Integer.from_nat s)) in Q.
+    rewrite (Integer.multiplication.commutativity (c * (Integer.from_nat b)) (Integer.from_nat s)) in Q.
+    exact (Integer.multiplication.cancellation
+            (Integer.from_nat s) (a * (Integer.from_nat d))
+            (c * (Integer.from_nat b)) nzs Q).
+
+  - intro e.
+
+    assert (nzbd
+            : ~ ((Integer.from_nat b) * (Integer.from_nat d)
+            = Integer.Zero)).
+    {
+      unfold Negation in |- *.
+      intro z.
+      discriminate z.
+    }
+
+    assert (widened
+            : (p * (Integer.from_nat s)) * ((Integer.from_nat b) * (Integer.from_nat d))
+            = (r * (Integer.from_nat q)) * ((Integer.from_nat b) * (Integer.from_nat d))).
+    {
+      rewrite (Integer.multiplication.interchange
+                p (Integer.from_nat s) (Integer.from_nat b) (Integer.from_nat d)) in |- *.
+      rewrite P1 in |- *.
+      rewrite (Integer.multiplication.commutativity (Integer.from_nat s) (Integer.from_nat d)) in |- *.
+      rewrite (Integer.multiplication.interchange
+                a (Integer.from_nat q) (Integer.from_nat d) (Integer.from_nat s)) in |- *.
+      rewrite e in |- *.
+      rewrite (Integer.multiplication.commutativity (Integer.from_nat q) (Integer.from_nat s)) in |- *.
+      rewrite (Integer.multiplication.interchange
+                c (Integer.from_nat b) (Integer.from_nat s) (Integer.from_nat q)) in |- *.
+      pose proof (Identity.symmetry P2) as P2'.
+      rewrite P2' in |- *.
+      rewrite (Integer.multiplication.commutativity (Integer.from_nat b) (Integer.from_nat q)) in |- *.
+      rewrite (Integer.multiplication.interchange
+                r (Integer.from_nat d) (Integer.from_nat q) (Integer.from_nat b)) in |- *.
+      rewrite (Integer.multiplication.commutativity (Integer.from_nat d) (Integer.from_nat b)) in |- *.
+      reflexivity.
+    }
+
+    rewrite (Integer.multiplication.commutativity
+              (p * (Integer.from_nat s))
+              ((Integer.from_nat b) * (Integer.from_nat d))) in widened.
+    rewrite (Integer.multiplication.commutativity
+              (r * (Integer.from_nat q))
+              ((Integer.from_nat b) * (Integer.from_nat d))) in widened.
+    pose proof (Integer.multiplication.cancellation
+                  ((Integer.from_nat b) * (Integer.from_nat d))
+                  (p * (Integer.from_nat s)) (r * (Integer.from_nat q))
+                  nzbd widened) as cross.
+
+    pose proof (Identity.congruence Integer.abs cross) as m.
+    rewrite (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
+    rewrite (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
+    change (| Integer.from_nat s |) with (NatWithZero.Positive s) in m.
+    change (| Integer.from_nat q |) with (NatWithZero.Positive q) in m.
+
+    assert (coprime1
+            : NatWithZero.gcd (NatWithZero.Positive q) (| p |)
+            = NatWithZero.Positive Nat.One).
+    {
+      pose proof (NatWithZero.gcd.nat.specification q (| p |)) as g.
+      rewrite I1 in g.
+      rewrite (NatWithZero.gcd.commutativity (| p |) (NatWithZero.Positive q)) in g.
+      exact g.
+    }
+
+    assert (coprime2
+            : NatWithZero.gcd (NatWithZero.Positive s) (| r |)
+            = NatWithZero.Positive Nat.One).
+    {
+      pose proof (NatWithZero.gcd.nat.specification s (| r |)) as g.
+      rewrite I2 in g.
+      rewrite (NatWithZero.gcd.commutativity (| r |)
+                 (NatWithZero.Positive s)) in g.
+      exact g.
+    }
+
+    assert (qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s)).
+    {
+      pose proof (NatWithZero.divisibility.multiplication.closure
+                    (NatWithZero.Positive q) (NatWithZero.Positive q) (| r |)
+                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive q)))
+              as h.
+      rewrite (NatWithZero.multiplication.commutativity
+                (NatWithZero.Positive q) (| r |)) in h.
+      pose proof (Identity.symmetry m) as m'.
+      rewrite m' in h.
+      exact (NatWithZero.gcd.multiplication.cancellation
+              (NatWithZero.Positive q) (| p |)
+              (NatWithZero.Positive s) h coprime1).
+    }
+
+    assert (sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q)).
+    {
+      pose proof (NatWithZero.divisibility.multiplication.closure
+                    (NatWithZero.Positive s) (NatWithZero.Positive s) (| p |)
+                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive s))) as h.
+      rewrite (NatWithZero.multiplication.commutativity
+                 (NatWithZero.Positive s) (| p |)) in h.
+      rewrite m in h.
+      exact (NatWithZero.gcd.multiplication.cancellation
+               (NatWithZero.Positive s) (| r |)
+               (NatWithZero.Positive q) h coprime2).
+    }
+
+    pose proof (NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq)) as hq.
+    rewrite hq in cross.
+    rewrite (Integer.multiplication.commutativity p (Integer.from_nat s)) in cross.
+    rewrite (Integer.multiplication.commutativity r (Integer.from_nat s)) in cross.
+    pose proof (Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross)
+            as hp.
+    rewrite hp in |- *.
+    rewrite hq in |- *.
+    reflexivity.
+Qed.
+
 Local Close Scope jwa_integer_scope.
 
 End make. (* make *)
