@@ -25,6 +25,12 @@ From jwa Require Import Core.Ltac.
  *   simpl <d1>, ..., <d10> in <hypotheses>        unfold <d1>, ..., <d10> in <hypotheses>
  *   simpl <d1>, ..., <d10> in <hypotheses> |- *   and the other two places likewise
  *
+ * Unfolding only the <n>th occurrence of one definition, counting from one,
+ * in one hypothesis or in the goal:
+ *
+ *   simpl <d> at <n> in <H>                       unfold <d> at <n> in <H>
+ *   simpl <d> at <n> in |- *                      unfold <d> at <n> in |- *
+ *
  * Reducing what is already applied is Rocq's own [simpl], untouched:
  * [simpl in <hypotheses>], [simpl in <hypotheses> |- *], [simpl in |- *],
  * [simpl in *]. [|- *] is the goal, and [*] every hypothesis together with
@@ -52,6 +58,12 @@ Tactic Notation "simpl" reference(d) "in" "|-" "*" :=
 
 Tactic Notation "simpl" reference(d) "in" "*" :=
   unfold d in *.
+
+Tactic Notation "simpl" reference(d) "at" int_or_var(n) "in" hyp(H) :=
+  unfold d at n in H.
+
+Tactic Notation "simpl" reference(d) "at" int_or_var(n) "in" "|-" "*" :=
+  unfold d at n in |- *.
 
 Tactic Notation "simpl" reference(d1) "," reference(d2)
     "in" ne_hyp_list_sep(hypotheses, ",") :=

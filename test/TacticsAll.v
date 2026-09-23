@@ -196,6 +196,36 @@ Proof.
   exact (na a).
 Qed.
 
+Theorem tactics_all_delivers_simpl_first_occurrence
+  : forall (A : Prop) . ~ A /\ ~ A -> (A -> Falsum) /\ ~ A.
+Proof.
+  intros A h.
+  simpl Negation at 1 in h.
+  lazymatch type of h with
+  | (A -> Falsum) /\ ~ A => ipso h
+  end.
+Qed.
+
+Theorem tactics_all_delivers_simpl_second_occurrence
+  : forall (A : Prop) . ~ A /\ ~ A -> ~ A /\ (A -> Falsum).
+Proof.
+  intros A h.
+  simpl Negation at 2 in h.
+  lazymatch type of h with
+  | ~ A /\ (A -> Falsum) => ipso h
+  end.
+Qed.
+
+Theorem tactics_all_delivers_simpl_occurrence_in_goal
+  : forall (A : Prop) . ~ A /\ ~ A -> ~ A /\ ~ A.
+Proof.
+  intros A h.
+  simpl Negation at 2 in |- *.
+  lazymatch goal with
+  | |- ~ A /\ (A -> Falsum) => ipso h
+  end.
+Qed.
+
 Theorem tactics_all_delivers_simpl_four_definitions
   : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
 Proof.
