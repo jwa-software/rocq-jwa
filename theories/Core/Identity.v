@@ -77,7 +77,7 @@ Theorem symmetry
 Proof.
   intros A x y e.
   destruct e.
-  reflexivity.
+  quod idem est.
 Defined.
 
 Theorem transitivity
@@ -93,7 +93,7 @@ Theorem congruence
 Proof.
   intros A B x y f e.
   destruct e.
-  reflexivity.
+  quod idem est.
 Defined.
 
 Local Theorem cancellation
@@ -114,7 +114,7 @@ Proof.
     with (Identity_introduction x) in |- *.
   change (reflexivity x) with (Identity_introduction x) in |- *.
   (* [|- Identity_introduction x = Identity_introduction x] *)
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module hedberg. (* hedberg *)
@@ -144,7 +144,7 @@ Proof.
   intros A decide x y p q.
   unfold decided in |- *.
   destruct (decide x y) as [r | n].
-  - reflexivity.
+  - quod idem est.
   - unfold Negation in n.
     pose proof (n p) as absurdity.
     ex absurdity quodlibet.
