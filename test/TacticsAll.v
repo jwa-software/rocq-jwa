@@ -304,3 +304,67 @@ Proof.
   modus aequans hab, hb as a.
   exact a.
 Qed.
+
+Theorem tactics_all_delivers_modus_ponens_turnstile
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B /\ C) -> A -> B.
+Proof.
+  intros A B C hab ha.
+  modus ponens hab, ha |- [b c].
+  ipso b.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponens_implicit_turnstile
+  : forall (m : Nat) (n : Nat) . Nat.compare m n = Comparison.Lt -> Nat.LessThan m n.
+Proof.
+  intros m n c.
+  modus ponens Nat.comparison.strict.forward.specification, c |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponendo_ponens_turnstile
+  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  modus ponendo ponens hab, ha |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_modus_tollens_turnstile
+  : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
+Proof.
+  intros A B hab hnb.
+  modus tollens hab, hnb |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_modus_tollendo_tollens_turnstile
+  : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
+Proof.
+  intros A B hab hnb.
+  modus tollendo tollens hab, hnb |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_modus_tollendo_ponens_turnstile
+  : forall (A : Prop) (B : Prop) . A \/ B -> ~ B -> A.
+Proof.
+  intros A B hor hnb.
+  modus tollendo ponens hor, hnb |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponendo_tollens_turnstile
+  : forall (A : Prop) (B : Prop) . A _\/_ B -> B -> ~ A.
+Proof.
+  intros A B exclusion hb.
+  modus ponendo tollens exclusion, hb |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_modus_aequans_turnstile
+  : forall (A : Prop) (B : Prop) . (A <-> B) -> B -> A.
+Proof.
+  intros A B hab hb.
+  modus aequans hab, hb |- facto.
+  ipso facto.
+Qed.
