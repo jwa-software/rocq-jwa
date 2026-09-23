@@ -8,6 +8,7 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Ring.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
@@ -116,6 +117,31 @@ Definition inverse := fun (x : Rational) .
   | Integer.Zero       => None
   | Integer.Positive n => let d := Integer.Positive d in Some (make d n)
   end.
+
+(* [Rational -> Rational -> Prop] *)
+Definition LessThan := fun (x : Rational) (y : Rational) .
+  Integer.LessThan
+    (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
+    (Integer.mul (numerator y) (Integer.from_nat (denominator x))).
+
+(* [Rational -> Rational -> Prop] *)
+Definition LessOrEqual := fun (x : Rational) (y : Rational) .
+  x = y \/ LessThan x y.
+
+Notation "x < y" := (LessThan x y) (only parsing)
+  : jwa_rational_scope.
+Notation "x <= y" := (LessOrEqual x y) (only parsing)
+  : jwa_rational_scope.
+Notation "x > y" := (LessThan y x) (only parsing)
+  : jwa_rational_scope.
+Notation "x >= y" := (LessOrEqual y x) (only parsing)
+  : jwa_rational_scope.
+
+(* [Rational -> Rational -> Comparison] *)
+Definition compare := fun (x : Rational) (y : Rational) .
+  Integer.compare
+    (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
+    (Integer.mul (numerator y) (Integer.from_nat (denominator x))).
 
 Local Open Scope jwa_rational_scope.
 
