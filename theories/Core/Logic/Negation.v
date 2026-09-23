@@ -115,7 +115,7 @@ Proof.
 
   destruct h as [a | b].
   - pose proof (not_a a) as f.
-    contradiction f.
+    ex f quodlibet.
   - exact b.
 Qed.
 
@@ -143,7 +143,7 @@ Proof.
   destruct h as [a | b].
   - exact a.
   - pose proof (not_b b) as f.
-    contradiction f.
+    ex f quodlibet.
 Qed.
 
 End of. (* elimination.right.of *)

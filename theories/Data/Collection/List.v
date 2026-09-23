@@ -12,6 +12,7 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Syllogism.
 
@@ -738,7 +739,7 @@ Proof.
   - induction l as [| a l' IH] using List.induction.
     + simpl in |- *.
       intro g.
-      contradiction g.
+      ex g quodlibet.
     + simpl in |- *.
       intro h.
       destruct h as [e | h'].
@@ -846,7 +847,7 @@ Proof.
   - simpl in |- *.
     intro h.
     destruct h as [f | h2].
-    + contradiction f.
+    + ex f quodlibet.
     + exact h2.
   - simpl in |- *.
     intro h.
@@ -971,7 +972,7 @@ Proof.
     + simpl in h2.
       destruct h2 as [e | f].
       * exact (Disjunction.L e).
-      * contradiction f.
+      * ex f quodlibet.
 Qed.
 
 End of. (* reversal.forward.preservation.of *)
@@ -1073,7 +1074,7 @@ Proof.
     + simpl in h2.
       destruct h2 as [e | f].
       * exact (Disjunction.L e).
-      * contradiction f.
+      * ex f quodlibet.
   - intro h.
     apply membership.backward.distributivity.over.concatenation.
     destruct h as [e | h'].
@@ -1160,7 +1161,7 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     destruct (p b) as [|] eqn:pb.
     + simpl in |- *.
@@ -1196,7 +1197,7 @@ Proof.
   - simpl in |- *.
     intro h.
     destruct h as [f _].
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
     destruct h as [h1 pa].
@@ -1281,7 +1282,7 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intros v a f.
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
     destruct h as [pb h'].
@@ -1454,7 +1455,7 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
     destruct h as [pb | h'].
@@ -1488,7 +1489,7 @@ Proof.
   - simpl in |- *.
     intro h.
     destruct h as [f | h2].
-    + contradiction f.
+    + ex f quodlibet.
     + exact h2.
   - simpl in |- *.
     intro h.
@@ -1518,7 +1519,7 @@ Proof.
     intro h.
     destruct h as [a ha].
     destruct ha as [f _].
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
     destruct h as [a ha].
@@ -1984,7 +1985,7 @@ Proof.
       pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One) as h.
       unfold Negation in h.
       modus ponens h, e' as f.
-      contradiction f.
+      ex f quodlibet.
   - intros l2 e.
     destruct l2 as [| b l2'].
     + simpl in e.
@@ -1993,7 +1994,7 @@ Proof.
       pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One) as h.
       unfold Negation in h.
       modus ponens h, e as f.
-      contradiction f.
+      ex f quodlibet.
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e.
@@ -2095,7 +2096,7 @@ Proof.
     pose proof (NatWithZero.addition.right.identity.absence i k) as r.
     unfold Negation in r.
     modus ponens r, e as f.
-    contradiction f.
+    ex f quodlibet.
   - intros i h.
     destruct i as [| i'].
     + simpl in |- *.
@@ -2387,7 +2388,7 @@ Proof.
         pose proof (NatWithZero.addition.right.identity.absence (count p l') Nat.One) as r.
         unfold Negation in r.
         modus ponens r, e as f.
-        contradiction f.
+        ex f quodlibet.
       * intro c.
         destruct c as [e f].
         discriminate e.
@@ -2711,7 +2712,7 @@ Proof.
       apply (Exists_introduction Nat.One).
       simpl in |- *.
       reflexivity.
-    + contradiction f.
+    + ex f quodlibet.
   - intros i h.
     simpl in h.
     modus aequans
@@ -2729,7 +2730,7 @@ Proof.
       + simpl in h2.
         destruct h2 as [e | f].
         * exact (Disjunction.L e).
-        * contradiction f.
+        * ex f quodlibet.
     }
     exact (modus aequans
              (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
@@ -2808,14 +2809,14 @@ Proof.
   - simpl in |- *.
     split.
     + intro f.
-      contradiction f.
+      ex f quodlibet.
     + intro h.
       unfold NatWithZero.LessThan in h.
       destruct h as [k e].
       pose proof (NatWithZero.addition.right.identity.absence i k) as r.
       unfold Negation in r.
       modus ponens r, e as f.
-      contradiction f.
+      ex f quodlibet.
   - simpl in |- *.
     split.
     + exact (@range.positive.forward.membership  p i).
@@ -2958,7 +2959,7 @@ Proof.
     simpl in |- *.
     split.
     + intro f.
-      contradiction f.
+      ex f quodlibet.
     + intro c.
       destruct c as [low high].
       pose proof (Comparable.order.transitivity stop start i above low) as reached.

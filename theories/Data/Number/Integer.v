@@ -13,6 +13,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
@@ -1469,7 +1470,7 @@ Proof.
       reflexivity.
   - unfold Negation in nonzero.
     modus ponens nonzero, (Identity.reflexivity 0) as f.
-    contradiction f.
+    ex f quodlibet.
   - destruct m as [a | | a]; destruct n as [b | | b]; simpl in e.
     + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.

@@ -14,6 +14,7 @@ From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Tactics.Modus.
 
@@ -1540,7 +1541,7 @@ Proof.
     pose proof (Integer.order.strict.irreflexivity
                   (Integer.mul (Integer.Positive d)
                          (Integer.mul e (Integer.Positive b)))) as ir.
-    contradiction ir.
+    ex (ir chain) quodlibet.
 
   - pose proof (Integer.multiplication.left.order.strict.monotonicity
                   d (Integer.mul e (Integer.Positive b))
@@ -1549,7 +1550,7 @@ Proof.
     pose proof (Integer.order.strict.irreflexivity
                   (Integer.mul (Integer.Positive d)
                          (Integer.mul a (Integer.Positive f)))) as ir.
-    contradiction ir.
+    ex (ir loop) quodlibet.
 Qed.
 
 End strict. (* order.strict *)
@@ -1675,7 +1676,7 @@ Proof.
       + rewrite equal in h.
         pose proof (Integer.order.strict.irreflexivity
                       (Integer.mul q (Integer.Positive k))) as ir.
-        contradiction ir.
+        ex (ir h) quodlibet.
       + pose proof (Integer.multiplication.left.order.strict.monotonicity
                       k q p above) as s.
         rewrite (Integer.multiplication.commutativity
@@ -1685,7 +1686,7 @@ Proof.
         pose proof (Integer.order.strict.transitivity h s) as loop.
         pose proof (Integer.order.strict.irreflexivity
                       (Integer.mul p (Integer.Positive k))) as ir.
-        contradiction ir.
+        ex (ir loop) quodlibet.
   }
 
   pose proof (make.proportionality m Nat.One) as P1.

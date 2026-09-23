@@ -9,6 +9,7 @@ From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Tactics.Modus.
 
@@ -550,7 +551,7 @@ Proof.
     + intro h.
       destruct h as [e | f].
       * exact e.
-      * contradiction f.
+      * ex f quodlibet.
   - simpl in |- *.
     split.
     + intro h.

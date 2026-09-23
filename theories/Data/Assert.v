@@ -2,6 +2,7 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Tactics.Modus.
 
 (* The bridge from a computed answer to a statement. [Assert true] is
@@ -42,13 +43,13 @@ Proof.
           split; intro h.
   - split; exact I.
   - exact I.
-  - contradiction h.
+  - ex h quodlibet.
   - destruct h as [_ h].
     exact h.
-  - contradiction h.
+  - ex h quodlibet.
   - destruct h as [h _].
     exact h.
-  - contradiction h.
+  - ex h quodlibet.
   - destruct h as [h _].
     exact h.
 Qed.
@@ -68,7 +69,7 @@ Proof.
   - exact I.
   - exact (Disjunction.right I).
   - exact I.
-  - contradiction h.
+  - ex h quodlibet.
   - destruct h as [h1 | h2].
     + exact h1.
     + exact h2.
@@ -85,13 +86,13 @@ Proof.
           simpl in |- *;
             split;
               intro h.
-  - contradiction h.
+  - ex h quodlibet.
   - destruct h as [t nt | nt t]; exact (modus ponens nt, t).
   - exact (Sejunction.left  I (fun (f : Falsum) . f)).
   - exact I.
   - exact (Sejunction.right (fun (f : Falsum) . f) I).
   - exact I.
-  - contradiction h.
+  - ex h quodlibet.
   - destruct h as [f _ | _ f]; exact f.
 Qed.
 
@@ -105,7 +106,7 @@ Proof.
       simpl in |- *;
           split;
             intro h.
-  - contradiction h.
+  - ex h quodlibet.
   - exact (modus ponens h, I).
   - intro k.
     destruct k.
@@ -119,7 +120,7 @@ Proof.
   destruct b as [|]; simpl in |- *; split; intro h.
   - reflexivity.
   - exact I.
-  - contradiction h.
+  - ex h quodlibet.
   - discriminate h.
 Qed.
 

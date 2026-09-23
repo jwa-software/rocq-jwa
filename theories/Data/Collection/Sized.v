@@ -5,6 +5,7 @@ From jwa Require Import Core.Class.
 From jwa Require Import Data.Assert.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Dialect.ExFalso.
 
 (* How many elements a container holds. The count is one function taken at
  * every element type at once, which is what makes it a fact about the
@@ -48,7 +49,7 @@ Proof.
   - intro e.
     exact I.
   - intro h.
-    contradiction h.
+    ex h quodlibet.
   - intro e.
     discriminate e.
 Qed.

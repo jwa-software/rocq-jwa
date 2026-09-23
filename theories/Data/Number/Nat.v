@@ -9,6 +9,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
@@ -404,7 +405,7 @@ Proof.
           as i.
   unfold Negation in i.
   modus ponens i, e as f.
-  contradiction f.
+  ex f quodlibet.
 Qed.
 
 (* order.strict.transitivity *)
@@ -626,7 +627,7 @@ Proof.
             as i.
     unfold Negation in i.
     modus ponens i, lt' as f.
-    contradiction f.
+    ex f quodlibet.
   - destruct rest as [eq | gt].
     + exact eq.
     + pose proof (multiplication.left.order.monotonicity m k n gt)
@@ -637,7 +638,7 @@ Proof.
               as i.
       unfold Negation in i.
       modus ponens i, gt' as f.
-      contradiction f.
+      ex f quodlibet.
 Qed.
 
 End left. (* multiplication.left *)
@@ -915,7 +916,7 @@ Proof.
     pose proof (order.strict.irreflexivity 1) as i.
     unfold Negation in i.
     modus ponens i, h as f.
-    contradiction f.
+    ex f quodlibet.
   +
     reflexivity.
   +

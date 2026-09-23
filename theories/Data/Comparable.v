@@ -4,6 +4,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.
@@ -222,7 +223,7 @@ Proof.
   pose proof (order.strict.irreflexivity m) as i.
   unfold Negation in i.
   modus ponens i, h as f.
-  contradiction f.
+  ex f quodlibet.
 Qed.
 
 (* order.strict.trichotomy *)
@@ -281,7 +282,7 @@ Proof.
     + pose proof (order.strict.asymmetry m n lt1) as a.
       unfold Negation in a.
       modus ponens a, lt2 as f.
-      contradiction f.
+      ex f quodlibet.
 Qed.
 
 (* order.transitivity *)

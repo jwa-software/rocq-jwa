@@ -147,7 +147,7 @@ Proof.
   - reflexivity.
   - unfold Negation in n.
     pose proof (n p) as absurdity.
-    contradiction absurdity.
+    ex absurdity quodlibet.
 Qed.
 
 (* hedberg.retraction *)

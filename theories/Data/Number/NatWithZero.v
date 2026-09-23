@@ -13,6 +13,7 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Antisymmetric.
@@ -382,7 +383,7 @@ Proof.
       pose proof (Nat.addition.identity.absence k' n') as h.
       unfold Negation in h.
       modus ponens h, e' as f.
-      contradiction f.
+      ex f quodlibet.
     + simpl in |- *.
       intro e.
       pose proof (positive.injectivity e) as e'.
@@ -390,7 +391,7 @@ Proof.
       pose proof (Nat.addition.identity.absence m' n') as h.
       unfold Negation in h.
       modus ponens h, e' as f.
-      contradiction f.
+      ex f quodlibet.
     + simpl in |- *.
       intro e.
       pose proof (positive.injectivity e) as e'.
@@ -893,7 +894,7 @@ Proof.
     pose proof (Nat.addition.identity.absence k n') as i.
     unfold Negation in i.
     modus ponens i, e' as f.
-    contradiction f.
+    ex f quodlibet.
 Qed.
 
 (* order.strict.transitivity *)
@@ -1066,7 +1067,7 @@ Proof.
       pose proof (order.strict.irreflexivity 0) as i.
       unfold Negation in i.
       modus ponens i, h as f.
-      contradiction f.
+      ex f quodlibet.
   - split.
     * intro e.
       unfold LessThan in |- *.
@@ -1399,11 +1400,11 @@ Proof.
       pose proof (order.strict.irreflexivity m) as i.
       unfold Negation in i.
       modus ponens i, h as f.
-      contradiction f.
+      ex f quodlibet.
     + pose proof (Comparable.order.strict.asymmetry m n h) as a.
       unfold Negation in a.
       modus ponens a, lt as f.
-      contradiction f.
+      ex f quodlibet.
   - reflexivity.
 Qed.
 
@@ -1582,7 +1583,7 @@ Proof.
       pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
       simpl Negation in irreflexivity.
       modus ponens irreflexivity, bound as f.
-      contradiction f.
+      ex f quodlibet.
     + change (+ (Nat.Successor k'')) with ((+ Nat.One) + (+ k'')) in hk.
       rewrite (multiplication.left.distributivity.over.addition (+ g) (+ Nat.One) (+ k'')) in hk.
       rewrite (multiplication.right.identity (+ g)) in hk.
@@ -1595,12 +1596,12 @@ Proof.
         pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
         simpl Negation in irreflexivity.
         modus ponens irreflexivity, bound as f.
-        contradiction f.
+        ex f quodlibet.
       * pose proof (order.strict.transitivity bound less) as circular.
         pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
         simpl Negation in irreflexivity.
         modus ponens irreflexivity, circular as f.
-        contradiction f.
+        ex f quodlibet.
 Qed.
 
 End quotient. (* division.nat.quotient *)
@@ -1690,10 +1691,10 @@ Proof.
       + symmetry in s1.
         rewrite s1 in bound.
         modus ponens i, bound as f.
-        contradiction f.
+        ex f quodlibet.
       + pose proof (order.strict.transitivity s2 bound) as loop.
         modus ponens i, loop as f.
-        contradiction f.
+        ex f quodlibet.
     - exact equal.
     - simpl LessThan in above.
       destruct above as [k hk].
@@ -1722,10 +1723,10 @@ Proof.
       + symmetry in s1.
         rewrite s1 in b.
         modus ponens i, b as f.
-        contradiction f.
+        ex f quodlibet.
       + pose proof (order.strict.transitivity s2 b) as loop.
         modus ponens i, loop as f.
-        contradiction f.
+        ex f quodlibet.
   }
   split.
   - exact quotient.
@@ -1827,7 +1828,7 @@ Proof.
   destruct ((+ d) /. g) as [| q'].
   - intro n.
     modus ponens n, (Identity.reflexivity 0) as f.
-    contradiction f.
+    ex f quodlibet.
   - intro n.
     simpl in |- *.
     reflexivity.
