@@ -4,137 +4,104 @@ From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Logic.Sejunction.
 From jwa Require Import Core.Ltac.
+From jwa Require Import Core.Notations.
 
-(* The four modi of traditional logic and a fifth in their pattern, each
- * naming the step it takes. Every
- * form also comes with [as <p>], which puts the conclusion into the context
- * under the intro pattern <p> instead of closing the goal.
+(* The four modi of traditional logic and a fifth in their pattern.
  *
  *   modus ponens          <H1>, <H2>    A -> B, A |- B
- *
  *   modus tollens         <H1>, <H2>    A -> B, ~ B |- ~ A
- *
  *   modus tollendo ponens <H1>, <H2>    A \/ B, ~ A |- B
  *                                       A \/ B, ~ B |- A
- *
  *   modus ponendo tollens <H1>, <H2>    ~ (A /\ B), A |- ~ B
  *                                       ~ (A /\ B), B |- ~ A
- *
  *   modus aequans         <H1>, <H2>    A <-> B, A |- B
  *                                       A <-> B, B |- A
  *
- * The last three work on either side of their connective, the second premise
- * saying which: denying one disjunct leaves the other, affirming one half of
- * an incompatibility denies the other, affirming one side of a biconditional
- * gives the other.
+ * Bare, each is a term: [exact (modus ponens hab, ha)], [pose proof (modus
+ * aequans e, a) as h], or one nested in another. Only [... as <p>] is a
+ * tactic. Every one takes its premises in the order written, the connective
+ * first and the term second. The last three read either side of their
+ * connective, and [modus ponendo tollens] takes a sejunction [A _\/_ B] as
+ * well as a negated conjunction; the first two also answer to [modus ponendo
+ * ponens] and [modus tollendo tollens].
  *
- * The two premises are separated by a comma and may be given in either order:
- * each body tries the other way round when the first does not apply. In the
- * bare form the goal decides; under [as] there is no goal to decide, so if
- * both orders happen to type check the first one stands.
- *
- * The first two answer to their full names as well, [modus ponendo ponens]
- * and [modus tollendo tollens].
- *
- * [modus ponendo tollens] accepts either spelling of incompatibility: the
- * negated conjunction, or the sejunction [A _\/_ B], which says that and also
- * that one of the two holds. The sejunction is carried into the laws by
- * [Sejunction.exclusion.of.conjunction] once the plain forms fail to apply.
- *
- * [aequans], equating, is the participle of [aequare] as [ponens] and
- * [tollens] are of theirs: the mode that carries a truth across an
- * equivalence, by [Biconditional.forward.elimination] and
- * [Biconditional.backward.elimination].
- *
- * The proofs are [uconstr]: a [constr] is elaborated alone, where a lemma's
- * implicit binders have nothing yet to fix them.
+ * Nothing anywhere may be named [modus], [ponens], [tollens], [ponendo],
+ * [tollendo] or [aequans]. In the last three, whose bodies must try their
+ * branches, a premise that is a bare lemma name whose implicits only the
+ * other premise would fix does not elaborate: give them with [@], name the
+ * lemma first, or use the [as] form.
  *)
 
-Tactic Notation "modus" "ponens" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (H1 H2) | exact (H2 H1) ].
+(* The levels are reserved in [Core.Notations]; only the meanings belong
+ * here. [ltac:] is what lets a term carry a [first]: it opens a goal, runs
+ * the tactic, and the proof is the term.
+ *)
+Notation "'modus' 'ponens' H1 , H2" := (H1 H2)
+  (only parsing).
 
 Tactic Notation "modus" "ponens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
-  first [ pose proof (H1 H2) as p | pose proof (H2 H1) as p ].
+  pose proof (H1 H2) as p.
 
-Tactic Notation "modus" "ponendo" "ponens" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (H1 H2) | exact (H2 H1) ].
+Notation "'modus' 'ponendo' 'ponens' H1 , H2" := (H1 H2)
+  (only parsing).
 
 Tactic Notation "modus" "ponendo" "ponens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
-  first [ pose proof (H1 H2) as p | pose proof (H2 H1) as p ].
+  pose proof (H1 H2) as p.
 
-Tactic Notation "modus" "tollens" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (Negation.contraposition H1 H2)
-        | exact (Negation.contraposition H2 H1) ].
+Notation "'modus' 'tollens' H1 , H2" := (Negation.contraposition H1 H2)
+  (only parsing).
 
 Tactic Notation "modus" "tollens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
-  first [ pose proof (Negation.contraposition H1 H2) as p
-        | pose proof (Negation.contraposition H2 H1) as p ].
+  pose proof (Negation.contraposition H1 H2) as p.
 
-Tactic Notation "modus" "tollendo" "tollens" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (Negation.contraposition H1 H2)
-        | exact (Negation.contraposition H2 H1) ].
+Notation "'modus' 'tollendo' 'tollens' H1 , H2"
+    := (Negation.contraposition H1 H2)
+  (only parsing).
 
 Tactic Notation "modus" "tollendo" "tollens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
-  first [ pose proof (Negation.contraposition H1 H2) as p
-        | pose proof (Negation.contraposition H2 H1) as p ].
+  pose proof (Negation.contraposition H1 H2) as p.
 
-Tactic Notation "modus" "tollendo" "ponens" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (Negation.elimination.left.of.disjunction H1 H2)
-        | exact (Negation.elimination.left.of.disjunction H2 H1)
-        | exact (Negation.elimination.right.of.disjunction H1 H2)
-        | exact (Negation.elimination.right.of.disjunction H2 H1) ].
+Notation "'modus' 'tollendo' 'ponens' H1 , H2"
+    := (ltac:(first [ exact (Negation.elimination.left.of.disjunction H1 H2)
+                    | exact (Negation.elimination.right.of.disjunction H1 H2)
+                    ]))
+  (only parsing).
 
 Tactic Notation "modus" "tollendo" "ponens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
   first [ pose proof (Negation.elimination.left.of.disjunction H1 H2) as p
-        | pose proof (Negation.elimination.left.of.disjunction H2 H1) as p
-        | pose proof (Negation.elimination.right.of.disjunction H1 H2) as p
-        | pose proof (Negation.elimination.right.of.disjunction H2 H1) as p ].
+        | pose proof (Negation.elimination.right.of.disjunction H1 H2) as p ].
 
-Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2) :=
-  first
-    [ exact (Negation.exclusion.left.of.conjunction H1 H2)
-    | exact (Negation.exclusion.left.of.conjunction H2 H1)
-    | exact (Negation.exclusion.right.of.conjunction H1 H2)
-    | exact (Negation.exclusion.right.of.conjunction H2 H1)
-    | exact (Negation.exclusion.left.of.conjunction
-               (Sejunction.exclusion.of.conjunction H1) H2)
-    | exact (Negation.exclusion.left.of.conjunction
-               (Sejunction.exclusion.of.conjunction H2) H1)
-    | exact (Negation.exclusion.right.of.conjunction
-               (Sejunction.exclusion.of.conjunction H1) H2)
-    | exact (Negation.exclusion.right.of.conjunction
-               (Sejunction.exclusion.of.conjunction H2) H1) ].
+Notation "'modus' 'ponendo' 'tollens' H1 , H2"
+    := (ltac:(first
+                [ exact (Negation.exclusion.left.of.conjunction H1 H2)
+                | exact (Negation.exclusion.right.of.conjunction H1 H2)
+                | exact (Negation.exclusion.left.of.conjunction
+                           (Sejunction.exclusion.of.conjunction H1) H2)
+                | exact (Negation.exclusion.right.of.conjunction
+                           (Sejunction.exclusion.of.conjunction H1) H2) ]))
+  (only parsing).
 
 Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
   first
     [ pose proof (Negation.exclusion.left.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.left.of.conjunction H2 H1) as p
     | pose proof (Negation.exclusion.right.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.right.of.conjunction H2 H1) as p
     | pose proof (Negation.exclusion.left.of.conjunction
                     (Sejunction.exclusion.of.conjunction H1) H2) as p
-    | pose proof (Negation.exclusion.left.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H2) H1) as p
     | pose proof (Negation.exclusion.right.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H1) H2) as p
-    | pose proof (Negation.exclusion.right.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H2) H1) as p ].
+                    (Sejunction.exclusion.of.conjunction H1) H2) as p ].
 
-Tactic Notation "modus" "aequans" uconstr(H1) "," uconstr(H2) :=
-  first [ exact (Biconditional.forward.elimination H1 H2)
-        | exact (Biconditional.forward.elimination H2 H1)
-        | exact (Biconditional.backward.elimination H1 H2)
-        | exact (Biconditional.backward.elimination H2 H1) ].
+Notation "'modus' 'aequans' H1 , H2"
+    := (ltac:(first [ exact (Biconditional.forward.elimination H1 H2)
+                    | exact (Biconditional.backward.elimination H1 H2) ]))
+  (only parsing).
 
 Tactic Notation "modus" "aequans" uconstr(H1) "," uconstr(H2)
     "as" simple_intropattern(p) :=
   first [ pose proof (Biconditional.forward.elimination H1 H2) as p
-        | pose proof (Biconditional.forward.elimination H2 H1) as p
-        | pose proof (Biconditional.backward.elimination H1 H2) as p
-        | pose proof (Biconditional.backward.elimination H2 H1) as p ].
+        | pose proof (Biconditional.backward.elimination H1 H2) as p ].

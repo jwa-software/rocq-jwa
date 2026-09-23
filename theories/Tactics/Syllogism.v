@@ -33,7 +33,10 @@ From jwa Require Import Core.Notations.
  *
  * The tactics take their proofs as [uconstr]: a [constr] is elaborated
  * alone, where a lemma's implicit binders have nothing yet to fix them. The
- * term form needs no such care, being elaborated in the place it stands.
+ * term form has no such delay to offer, each of its premises being a term in
+ * its own right, so a bare lemma name whose implicits only the other premise
+ * would fix does not elaborate there. Name it first, or write [@] and supply
+ * them; or use the [as] form, which still takes [uconstr].
  *)
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)

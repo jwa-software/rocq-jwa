@@ -7,14 +7,7 @@ Theorem tactics_all_delivers_modus_ponens
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  modus ponens hab, ha.
-Qed.
-
-Theorem tactics_all_delivers_modus_ponens_reversed
-  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
-Proof.
-  intros A B hab ha.
-  modus ponens ha, hab.
+  exact (modus ponens hab, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponens_as
@@ -29,7 +22,7 @@ Theorem tactics_all_delivers_modus_ponendo_ponens
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  modus ponendo ponens hab, ha.
+  exact (modus ponendo ponens hab, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_ponens_as
@@ -44,7 +37,15 @@ Theorem tactics_all_delivers_modus_ponens_implicit
   : forall (m : Nat) (n : Nat) . Nat.compare m n = Comparison.Lt -> Nat.LessThan m n.
 Proof.
   intros m n c.
-  modus ponens Nat.comparison.strict.forward.specification, c.
+  modus ponens Nat.comparison.strict.forward.specification, c as h.
+  exact h.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponens_implicit_as_a_term
+  : forall (m : Nat) (n : Nat) . Nat.compare m n = Comparison.Lt -> Nat.LessThan m n.
+Proof.
+  intros m n c.
+  exact (modus ponens Nat.comparison.strict.forward.specification, c).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_short
@@ -198,7 +199,7 @@ Theorem tactics_all_delivers_modus_tollens
   : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
 Proof.
   intros A B hab hnb.
-  modus tollens hab, hnb.
+  exact (modus tollens hab, hnb).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_tollens
@@ -213,7 +214,7 @@ Theorem tactics_all_delivers_modus_tollendo_ponens
   : forall (A : Prop) (B : Prop) . A \/ B -> ~ A -> B.
 Proof.
   intros A B hor hna.
-  modus tollendo ponens hor, hna.
+  exact (modus tollendo ponens hor, hna).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_ponens_as
@@ -228,21 +229,21 @@ Theorem tactics_all_delivers_modus_tollendo_ponens_right
   : forall (A : Prop) (B : Prop) . A \/ B -> ~ B -> A.
 Proof.
   intros A B hor hnb.
-  modus tollendo ponens hor, hnb.
+  exact (modus tollendo ponens hor, hnb).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> A -> ~ B.
 Proof.
   intros A B hn ha.
-  modus ponendo tollens hn, ha.
+  exact (modus ponendo tollens hn, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_right
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> B -> ~ A.
 Proof.
   intros A B hn hb.
-  modus ponendo tollens hn, hb.
+  exact (modus ponendo tollens hn, hb).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction_right
@@ -265,21 +266,14 @@ Theorem tactics_all_delivers_modus_aequans
   : forall (A : Prop) (B : Prop) . (A <-> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  modus aequans hab, ha.
+  exact (modus aequans hab, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_aequans_backward
   : forall (A : Prop) (B : Prop) . (A <-> B) -> B -> A.
 Proof.
   intros A B hab hb.
-  modus aequans hab, hb.
-Qed.
-
-Theorem tactics_all_delivers_modus_aequans_reversed
-  : forall (A : Prop) (B : Prop) . (A <-> B) -> A -> B.
-Proof.
-  intros A B hab ha.
-  modus aequans ha, hab.
+  exact (modus aequans hab, hb).
 Qed.
 
 Theorem tactics_all_delivers_modus_aequans_as

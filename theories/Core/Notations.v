@@ -133,6 +133,24 @@ Reserved Notation "'hypothetical' 'syllogism' Hab , Hbc"
 Reserved Notation "'barbara' Hmp , Hsm"
   (at level 10, Hmp at next level, Hsm at next level).
 
+(* The modi written as terms, for the same reason and at the same level.
+ * Their meanings belong to [Tactics.Modus].
+ *)
+Reserved Notation "'modus' 'ponens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'ponendo' 'ponens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'tollens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'tollendo' 'tollens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'tollendo' 'ponens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'ponendo' 'tollens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'aequans' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"
