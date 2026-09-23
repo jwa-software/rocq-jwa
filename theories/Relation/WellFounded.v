@@ -5,7 +5,7 @@ From jwa Require Import Core.Class.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Relation.Induced.
-From jwa Require Import Tactics.Simplify.
+From jwa Require Import Tactics.Simpl.
 
 (* [R] points downwards here: [R y x] says that [y] is below [x]. *)
 
@@ -38,7 +38,7 @@ Theorem unfolding
       = step x (fun (y : A) (r : R y x) . recursion step y).
 Proof.
   intros A R P W step extensional x.
-  simplify recursion in |- *.
+  simpl recursion in |- *.
   rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
   apply extensional.
   intros y r.

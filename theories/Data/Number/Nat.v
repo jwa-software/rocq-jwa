@@ -282,7 +282,7 @@ Proof.
     rewrite (addition.commutativity n' k)
             in e'.
     unfold Negation in IH.
-    modus ponens IH, e'.
+    exact (modus ponens IH, e').
 Qed.
 
 End identity. (* addition.identity *)
@@ -302,7 +302,7 @@ Proof.
     intro e.
     pose proof (successor.injectivity e)
             as e'.
-    modus ponens IH, e'.
+    exact (modus ponens IH, e').
 Qed.
 
 (* addition.left.commutativity *)

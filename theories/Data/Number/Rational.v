@@ -15,7 +15,7 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simplify.
+From jwa Require Import Tactics.Simpl.
 
 Module Rational. (* Rational *)
 
@@ -158,7 +158,7 @@ Proof.
   intros x y.
   destruct x as [n1 d1 h1].
   destruct y as [n2 d2 h2].
-  simplify numerator, denominator in |- *.
+  simpl numerator, denominator in |- *.
   intros e1 e2.
   destruct e1.
   destruct e2.
@@ -174,7 +174,7 @@ Theorem irreducibility
 Proof.
   intro x.
   destruct x as [n d h].
-  simplify numerator, denominator in |- *.
+  simpl numerator, denominator in |- *.
   exact h.
 Qed.
 
@@ -187,7 +187,7 @@ Theorem retraction
 Proof.
   intro x.
   destruct x as [n d h].
-  simplify numerator, denominator in |- *.
+  simpl numerator, denominator in |- *.
 
   assert (whole : Integer.divide n Nat.One = n).
   {
@@ -224,12 +224,12 @@ Proof.
   }
 
   apply extensionality.
-  - simplify make      in |- *.
-    simplify numerator in |- *.
+  - simpl make      in |- *.
+    simpl numerator in |- *.
     rewrite h in |- *.
     exact whole.
-  - simplify make        in |- *.
-    simplify denominator in |- *.
+  - simpl make        in |- *.
+    simpl denominator in |- *.
     pose proof (NatWithZero.divide.nat.safe.congruence
                   d (NatWithZero.gcd.nat (Integer.abs n) d)
                   (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)
@@ -270,7 +270,7 @@ Proof.
     exact gd.
   }
 
-  simplify make in |- *.
+  simpl make in |- *.
 
   assert (top
           : Integer.divide
@@ -312,11 +312,11 @@ Proof.
   }
 
   apply extensionality.
-  - simplify make      in |- *.
-    simplify numerator in |- *.
+  - simpl make      in |- *.
+    simpl numerator in |- *.
     exact top.
-  - simplify make        in |- *.
-    simplify denominator in |- *.
+  - simpl make        in |- *.
+    simpl denominator in |- *.
     exact bottom.
 Qed.
 
@@ -327,8 +327,8 @@ Theorem proportionality
       = Integer.mul a (Integer.from_nat (denominator (make a b))).
 Proof.
   intros a b.
-  simplify make in |- *.
-  simplify numerator, denominator in |- *.
+  simpl make in |- *.
+  simpl numerator, denominator in |- *.
 
   assert (bottom
           : Nat.mul
@@ -432,7 +432,7 @@ Proof.
    *)
   destruct (make a b) as [p q I1] eqn:E1.
   destruct (make c d) as [r s I2] eqn:E2.
-  simplify numerator, denominator in P1, P2.
+  simpl numerator, denominator in P1, P2.
 
   assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
   {
@@ -453,8 +453,8 @@ Proof.
   - intro e.
     pose proof (Identity.congruence numerator   e) as hp.
     pose proof (Identity.congruence denominator e) as hq.
-    simplify numerator   in hp.
-    simplify denominator in hq.
+    simpl numerator   in hp.
+    simpl denominator in hq.
     rewrite hp in P1.
     rewrite hq in P1.
 
@@ -608,9 +608,9 @@ Proof.
     pose proof (Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross)
             as hp.
     apply extensionality.
-    + simplify numerator in |- *.
+    + simpl numerator in |- *.
       exact hp.
-    + simplify denominator in |- *.
+    + simpl denominator in |- *.
       exact hq.
 Qed.
 
@@ -653,15 +653,15 @@ Theorem homomorphism
              (Nat.mul b d).
 Proof.
   intros a b c d.
-  simplify add in |- *.
+  simpl add in |- *.
 
   pose proof (proportionality a b) as P1.
   pose proof (proportionality c d) as P2.
 
   destruct (make a b) as [p q I1] eqn:E1.
   destruct (make c d) as [r s I2] eqn:E2.
-  simplify numerator, denominator in P1, P2.
-  simplify numerator, denominator in |- *.
+  simpl numerator, denominator in P1, P2.
+  simpl numerator, denominator in |- *.
 
   set (b' := Integer.from_nat b) in *.
   set (d' := Integer.from_nat d) in *.
@@ -732,15 +732,15 @@ Theorem homomorphism
     (make a b) * (make c d) = make (Integer.mul a c) (Nat.mul b d).
 Proof.
   intros a b c d.
-  simplify mul in |- *.
+  simpl mul in |- *.
 
   pose proof (proportionality a b) as P1.
   pose proof (proportionality c d) as P2.
 
   destruct (make a b) as [p q I1] eqn:E1.
   destruct (make c d) as [r s I2] eqn:E2.
-  simplify numerator, denominator in P1, P2.
-  simplify numerator, denominator in |- *.
+  simpl numerator, denominator in P1, P2.
+  simpl numerator, denominator in |- *.
 
   assert (cross
           : Integer.mul (Integer.mul p r) (Integer.from_nat (Nat.mul b d))
@@ -778,13 +778,13 @@ Theorem homomorphism
       negate (make a b) = make (Integer.negate a) b.
 Proof.
   intros a b.
-  simplify negate in |- *.
+  simpl negate in |- *.
 
   pose proof (proportionality a b) as P1.
 
   destruct (make a b) as [p q I1] eqn:E1.
-  simplify numerator, denominator in P1.
-  simplify numerator, denominator in |- *.
+  simpl numerator, denominator in P1.
+  simpl numerator, denominator in |- *.
 
   assert (cross
           : Integer.mul (Integer.negate p) (Integer.from_nat b)
@@ -905,7 +905,7 @@ Theorem commutativity
   : forall (x : Rational) (y : Rational) . x + y = y + x.
 Proof.
   intros x y.
-  simplify add in |- *.
+  simpl add in |- *.
   rewrite (Integer.addition.commutativity
             (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
             (Integer.mul (numerator y) (Integer.from_nat (denominator x)))) in |- *.
@@ -919,7 +919,7 @@ Module left. (* addition.left *)
   Theorem identity : forall (x : Rational) . Zero + x = x.
 Proof.
   intro x.
-  simplify add in |- *.
+  simpl add in |- *.
   change (numerator Zero)
     with Integer.Zero
       in |- *.
@@ -978,7 +978,7 @@ Proof.
   pose proof (Identity.congruence
                 (fun (t : Rational) . add (negate k) t)
                 (e)) as h.
-  simplify in h.
+  simpl in h.
 
   symmetry in an.
   exact (Identity.transitivity am (Identity.transitivity h an)).
@@ -992,7 +992,7 @@ Module right. (* addition.right *)
   Theorem identity : forall (x : Rational) . x + Zero = x.
 Proof.
   intro x.
-  simplify add in |- *.
+  simpl add in |- *.
   change (numerator   Zero) with Integer.Zero in |- *.
   change (denominator Zero) with Nat.One  in |- *.
   change (Integer.from_nat Nat.One) with (Integer.Positive Nat.One) in |- *.
@@ -1045,7 +1045,7 @@ Proof.
 
   pose proof (Identity.congruence (fun (t : Rational) . add t (negate k)) e)
           as h.
-  simplify in h.
+  simpl in h.
 
   symmetry in am.
   exact (Identity.transitivity am (Identity.transitivity h an)).
@@ -1095,7 +1095,7 @@ Theorem commutativity
   : forall (x : Rational) (y : Rational) . x * y = y * x.
 Proof.
   intros x y.
-  simplify mul in |- *.
+  simpl mul in |- *.
   rewrite (Integer.multiplication.commutativity (numerator   x) (numerator   y)) in |- *.
   rewrite (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
   reflexivity.
@@ -1141,7 +1141,7 @@ Module left. (* multiplication.left *)
 Theorem identity : forall (x : Rational) . mul One x = x.
 Proof.
   intro x.
-  simplify mul in |- *.
+  simpl mul in |- *.
   change (numerator   One) with (Integer.Positive Nat.One) in |- *.
   change (denominator One) with Nat.One              in |- *.
   change (Nat.mul Nat.One (denominator x)) with (denominator x) in |- *.
@@ -1153,7 +1153,7 @@ Qed.
 Theorem annihilation : forall (x : Rational) . Zero * x = Zero.
 Proof.
   intro x.
-  simplify mul in |- *.
+  simpl mul in |- *.
   change (numerator   Zero) with Integer.Zero in |- *.
   change (denominator Zero) with Nat.One  in |- *.
   change (Nat.mul Nat.One (denominator x)) with (denominator x)  in |- *.
@@ -1358,7 +1358,7 @@ Proof.
   }
 
   pose proof (make.retraction x) as r.
-  simplify inverse in e.
+  simpl inverse in e.
   destruct (numerator x) as [p | | p] eqn:E.
 
   - pose proof (Option.some.injectivity e) as hy.

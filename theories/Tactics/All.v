@@ -7,6 +7,11 @@
 (* [Require Export], not a plain [Require]: a tactic notation reaches a client
  * only through [Import].
  *)
+From jwa Require Export Tactics.DeMorgan.
+From jwa Require Export Tactics.DoubleNegation.
+From jwa Require Export Tactics.Ipso.
+From jwa Require Export Tactics.Leibniz.
+From jwa Require Export Tactics.Let.
 From jwa Require Export Tactics.Modus.
-From jwa Require Export Tactics.Simplify.
+From jwa Require Export Tactics.Simpl.
 From jwa Require Export Tactics.Syllogism.

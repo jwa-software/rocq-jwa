@@ -2398,7 +2398,7 @@ Proof.
         exact (Conjunction_introduction (Identity.reflexivity false) all').
       * intro c.
         destruct c as [e all'].
-        modus aequans IH, all'.
+        exact (modus aequans IH, all').
 Qed.
 
 End zero. (* counting.zero *)
@@ -2731,7 +2731,9 @@ Proof.
         * exact (Disjunction.L e).
         * contradiction f.
     }
-    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), below.
+    exact (modus aequans
+             (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
+           below).
 Qed.
 
 End forward. (* range.positive.forward *)
@@ -2771,10 +2773,10 @@ Proof.
         exact (Disjunction.L e).
       + exact (Disjunction.L (IH i lt)).
     }
-    modus aequans
-      (membership.distributivity.over.concatenation
-         i (range_positive p') (NatWithZero.Positive p' :: [])),
-      side.
+    exact (modus aequans
+             (membership.distributivity.over.concatenation
+                i (range_positive p') (NatWithZero.Positive p' :: [])),
+           side).
 Qed.
 
 End backward. (* range.positive.backward *)
@@ -2938,19 +2940,19 @@ Proof.
       {
         apply (Exists_introduction (NatWithZero.saturating_sub i start)).
         split.
-        * modus aequans
-            (from_zero.membership.specification
-               (NatWithZero.saturating_sub stop start)
-               (NatWithZero.saturating_sub i start)),
-            inside.
+        * exact (modus aequans
+                   (from_zero.membership.specification
+                      (NatWithZero.saturating_sub stop start)
+                      (NatWithZero.saturating_sub i start)),
+                 inside).
         * symmetry in step.
           exact step.
       }
-      modus aequans
-        (mapping.membership.specification
-           (NatWithZero.add start) i
-           (range_from_zero (NatWithZero.saturating_sub stop start))),
-        witness.
+      exact (modus aequans
+               (mapping.membership.specification
+                  (NatWithZero.add start) i
+                  (range_from_zero (NatWithZero.saturating_sub stop start))),
+             witness).
   - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
     rewrite empty in |- *.
     simpl in |- *.
@@ -3002,18 +3004,19 @@ Proof.
     destruct c as [low high].
     split.
     + exact low.
-    + modus aequans (NatWithZero.order.discreteness i stop), high.
+    + exact (modus aequans (NatWithZero.order.discreteness i stop), high).
   - intro c.
     destruct c as [low high].
     assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
     {
       split.
       + exact low.
-      + modus aequans (NatWithZero.order.discreteness i stop), high.
+      + exact (modus aequans (NatWithZero.order.discreteness i stop), high).
     }
-    modus aequans
-      (range.membership.specification start (stop + NatWithZero.Positive Nat.One) i),
-      bounds.
+    exact (modus aequans
+             (range.membership.specification
+                start (stop + NatWithZero.Positive Nat.One) i),
+           bounds).
 Qed.
 
 End membership. (* range.inclusive.membership *)
@@ -3050,8 +3053,8 @@ Lemma contraposition
 Proof.
   intros A le total a b s.
   symmetry in s.
-  HS (Identity.transitivity s), Bool.distinctness.backward as n.
-  modus tollendo ponens (total a b), n.
+  hs (Identity.transitivity s), Bool.distinctness.backward as n.
+  exact (modus tollendo ponens (total a b), n).
 Qed.
 
 End comparison. (* comparison *)

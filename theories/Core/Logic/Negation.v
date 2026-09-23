@@ -4,6 +4,7 @@ From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
+From jwa Require Import Core.Logic.Exists.
 From jwa Require Import Core.Logic.Falsum.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
@@ -64,6 +65,27 @@ Proof.
   destruct h as [not_a | not_b].
   - exact (not_a a).
   - exact (not_b b).
+Qed.
+
+(* De Morgan for [exists], the disjunction over every [x]: no [x] satisfies
+ * [P] exactly when each [x] fails it, in both directions.
+ *)
+(* de_morgan.existential *)
+Theorem existential
+  : forall (A : Type) (P : A -> Prop) . ~ (exists (x : A) . P x) <-> forall (x : A) . ~ P x.
+Proof.
+  intros A P.
+  unfold Negation in |- *.
+  split.
+  - intro h.
+    intro x.
+    intro p.
+    apply h.
+    exact (Exists_introduction x p).
+  - intro h.
+    intro e.
+    destruct e as [x p].
+    exact (h x p).
 Qed.
 
 End de_morgan. (* de_morgan *)

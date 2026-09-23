@@ -121,6 +121,50 @@ Reserved Notation "l 'does_not_contain_member' a"
 Reserved Notation "a 'does_not_belong_to' l"
   (at level 70, no associativity).
 
+(* The syllogisms written as terms, so that one may stand where its
+ * conclusion is wanted and nest inside another. Their meanings belong to
+ * [Tactics.Syllogism], beside the tactics that carry the same names; only
+ * the levels are fixed here, as every other level is.
+ *)
+Reserved Notation "'hs' Hab , Hbc"
+  (at level 10, Hab at next level, Hbc at next level).
+Reserved Notation "'hypothetical' 'syllogism' Hab , Hbc"
+  (at level 10, Hab at next level, Hbc at next level).
+Reserved Notation "'barbara' Hmp , Hsm"
+  (at level 10, Hmp at next level, Hsm at next level).
+
+(* The modi written as terms, for the same reason and at the same level.
+ * Their meanings belong to [Tactics.Modus].
+ *)
+Reserved Notation "'modus' 'ponens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'ponendo' 'ponens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'tollens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'tollendo' 'tollens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'tollendo' 'ponens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'ponendo' 'tollens' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'modus' 'aequans' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+
+(* Double negation written as terms, for the same reason and at the same
+ * level. Their meanings belong to [Tactics.DoubleNegation].
+ *)
+Reserved Notation "'dni' H"
+  (at level 10, H at next level).
+Reserved Notation "'dne' H"
+  (at level 10, H at next level).
+
+(* De Morgan written as a term, for the same reason and at the same level.
+ * Its meaning belongs to [Tactics.DeMorgan].
+ *)
+Reserved Notation "'de' 'morgan' H"
+  (at level 10, H at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"
