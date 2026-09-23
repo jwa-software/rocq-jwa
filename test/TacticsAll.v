@@ -251,6 +251,33 @@ Proof.
   end.
 Qed.
 
+Theorem tactics_all_delivers_let_proof
+  : forall (m : Nat) (n : Nat) .
+      Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
+Proof.
+  intros m n h.
+  let proof facto = Nat.addition.order.monotonicity Nat.One m n h.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_with_a_pattern
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B /\ C) -> A -> C.
+Proof.
+  intros A B C hab ha.
+  let proof [b c] = hab ha.
+  ipso c.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_with_a_type
+  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  let proof facto : B = hab ha.
+  lazymatch type of facto with
+  | B => ipso facto
+  end.
+Qed.
+
 Theorem tactics_all_delivers_ipso
   : forall (A : Prop) . A -> A.
 Proof.
