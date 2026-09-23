@@ -24,6 +24,70 @@ Proof.
   ipso ipso.
 Qed.
 
+Theorem tactics_all_delivers_leibniz
+  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . x = y -> P y -> P x.
+Proof.
+  intros A P x y e p.
+  leibniz e.
+  ipso p.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_forward
+  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . x = y -> P y -> P x.
+Proof.
+  intros A P x y e p.
+  leibniz -> e.
+  ipso p.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_backward
+  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . y = x -> P y -> P x.
+Proof.
+  intros A P x y e p.
+  leibniz <- e.
+  ipso p.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_hypotheses
+  : forall (A : Type) (P : A -> Prop) (Q : A -> Prop) (x : A) (y : A) .
+      x = y -> P x -> Q x -> P y /\ Q y.
+Proof.
+  intros A P Q x y e p q.
+  leibniz e in p, q.
+  ipso (Conjunction_introduction p q).
+Qed.
+
+Theorem tactics_all_delivers_leibniz_hypotheses_and_goal
+  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . y = x -> P x -> P x.
+Proof.
+  intros A P x y e p.
+  leibniz <- e in p |- *.
+  ipso p.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_goal
+  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . x = y -> P y -> P x.
+Proof.
+  intros A P x y e p.
+  leibniz -> e in |- *.
+  ipso p.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_everywhere
+  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . x = y -> P x -> P y.
+Proof.
+  intros A P x y e p.
+  leibniz e in *.
+  ipso p.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_as_a_name
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A leibniz.
+  ipso leibniz.
+Qed.
+
 Theorem tactics_all_delivers_modus_ponens
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
