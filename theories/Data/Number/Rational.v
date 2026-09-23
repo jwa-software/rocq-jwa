@@ -61,7 +61,7 @@ Definition One :=
       (Integer.abs (Integer.Positive Nat.One))
       (Nat.One)
       ((Identity.reflexivity NatWithZero.Zero)
-        : NatWithZero.modulo (Integer.abs (Integer.Positive Nat.One)) Nat.One= NatWithZero.Zero)).
+        : NatWithZero.modulo (Integer.abs (Integer.Positive Nat.One)) Nat.One = NatWithZero.Zero)).
 
 (* [Rational -> Rational] *)
 Definition negate := fun (x : Rational) .
