@@ -28,15 +28,7 @@ Theorem tactics_all_delivers_leibniz
   : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . x = y -> P y -> P x.
 Proof.
   intros A P x y e p.
-  leibniz e.
-  ipso p.
-Qed.
-
-Theorem tactics_all_delivers_leibniz_forward
-  : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . x = y -> P y -> P x.
-Proof.
-  intros A P x y e p.
-  leibniz -> e.
+  leibniz e in |- *.
   ipso p.
 Qed.
 
@@ -44,7 +36,7 @@ Theorem tactics_all_delivers_leibniz_backward
   : forall (A : Type) (P : A -> Prop) (x : A) (y : A) . y = x -> P y -> P x.
 Proof.
   intros A P x y e p.
-  leibniz <- e.
+  leibniz <- e in |- *.
   ipso p.
 Qed.
 
