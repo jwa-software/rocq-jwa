@@ -225,7 +225,7 @@ Theorem tactics_all_delivers_let
   : forall (m : Nat) . m = m.
 Proof.
   intro m.
-  let k = m.
+  let k := m.
   lazymatch goal with
   | k := m |- _ => reflexivity
   end.
@@ -235,7 +235,7 @@ Theorem tactics_all_delivers_let_of_an_application
   : forall (m : Nat) . Nat.add m m = Nat.add m m.
 Proof.
   intro m.
-  let k = Nat.add m m.
+  let k := Nat.add m m.
   lazymatch goal with
   | k := Nat.add m m |- _ => reflexivity
   end.
@@ -245,7 +245,7 @@ Theorem tactics_all_delivers_let_with_a_type
   : forall (m : Nat) . Nat.add m m = Nat.add m m.
 Proof.
   intro m.
-  let k : Nat = Nat.add m m.
+  let k : Nat := Nat.add m m.
   lazymatch goal with
   | k := Nat.add m m : Nat |- _ => reflexivity
   end.
@@ -256,7 +256,7 @@ Theorem tactics_all_delivers_let_proof
       Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
 Proof.
   intros m n h.
-  let proof facto = Nat.addition.order.monotonicity Nat.One m n h.
+  let proof facto := Nat.addition.order.monotonicity Nat.One m n h.
   ipso facto.
 Qed.
 
@@ -264,7 +264,7 @@ Theorem tactics_all_delivers_let_proof_with_a_pattern
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B /\ C) -> A -> C.
 Proof.
   intros A B C hab ha.
-  let proof [b c] = hab ha.
+  let proof [b c] := hab ha.
   ipso c.
 Qed.
 
@@ -272,10 +272,74 @@ Theorem tactics_all_delivers_let_proof_with_a_type
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  let proof facto : B = hab ha.
+  let proof facto : B := hab ha.
   lazymatch type of facto with
   | B => ipso facto
   end.
+Qed.
+
+Theorem tactics_all_delivers_let_with_an_arrow_type
+  : forall (A : Prop) . ~ A -> ~ A.
+Proof.
+  intros A na.
+  let k : A -> Falsum := na.
+  lazymatch goal with
+  | k := na : A -> Falsum |- _ => ipso k
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_retyping_a_hypothesis
+  : forall (A : Prop) . ~ A -> ~ A.
+Proof.
+  intros A h.
+  let proof h : A -> Falsum := h.
+  lazymatch type of h with
+  | A -> Falsum => ipso h
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_retyping_a_definition
+  : forall (A : Prop) . ~ A -> ~ A.
+Proof.
+  intros A na.
+  let k := na.
+  let k : A -> Falsum := k.
+  lazymatch goal with
+  | k := na : A -> Falsum |- _ => ipso k
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_shadowing
+  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
+Proof.
+  intros A B hab h.
+  let proof h := hab h.
+  lazymatch goal with
+  | h : B |- _ => ipso h
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_shadowing
+  : forall (m : Nat) . m = m.
+Proof.
+  intro m.
+  let k := Nat.add m m.
+  let k := Nat.add k k.
+  lazymatch goal with
+  | k := Nat.add (Nat.add m m) (Nat.add m m) |- _ => idtac
+  end.
+  Fail lazymatch goal with
+  | _ := Nat.add m m |- _ => idtac
+  end.
+  reflexivity.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_refusing_what_another_depends_on
+  : forall (n : Nat) (e : n = n) (P : n = n -> Prop) . P e -> P e.
+Proof.
+  intros n e P p.
+  Fail let proof e := Identity.symmetry e.
+  ipso p.
 Qed.
 
 Theorem tactics_all_delivers_ipso
