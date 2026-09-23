@@ -3,6 +3,36 @@
 From jwa Require Import Data.All.
 From jwa Require Import Tactics.All.
 
+Theorem tactics_all_delivers_dni
+  : forall (A : Prop) . A -> ~ ~ A.
+Proof.
+  intros A a.
+  ipso (dni a).
+Qed.
+
+Theorem tactics_all_delivers_dni_nested
+  : forall (A : Prop) . A -> ~ ~ ~ ~ A.
+Proof.
+  intros A a.
+  ipso (dni (dni a)).
+Qed.
+
+Theorem tactics_all_delivers_dni_as
+  : forall (A : Prop) . A -> ~ ~ A.
+Proof.
+  intros A a.
+  dni a as facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_dni_turnstile
+  : forall (A : Prop) . A -> ~ ~ A.
+Proof.
+  intros A a.
+  dni a |- facto.
+  ipso facto.
+Qed.
+
 Theorem tactics_all_delivers_ipso
   : forall (A : Prop) . A -> A.
 Proof.

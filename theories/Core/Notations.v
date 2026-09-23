@@ -151,6 +151,12 @@ Reserved Notation "'modus' 'ponendo' 'tollens' H1 , H2"
 Reserved Notation "'modus' 'aequans' H1 , H2"
   (at level 10, H1 at next level, H2 at next level).
 
+(* Double negation written as a term, for the same reason and at the same
+ * level. Its meaning belongs to [Tactics.DoubleNegation].
+ *)
+Reserved Notation "'dni' H"
+  (at level 10, H at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"
