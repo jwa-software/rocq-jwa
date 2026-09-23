@@ -15,17 +15,15 @@ From jwa Require Import Core.Notations.
  *                                          forall x . S x -> M x
  *                                          |- forall x . S x -> P x
  *
- * [hs] and [hypothetical syllogism] are tactics: bare they close the goal,
- * and [as <p>] puts the conclusion into the context under the intro pattern
- * <p> instead.
+ * Each of the three splits into two shapes. Bare, none of them is a tactic:
+ * each is a term, so it closes nothing and stands where its conclusion is
+ * wanted -- inside [exact], a [pose proof], or another of the same, which is
+ * what lets two syllogisms be written as one expression, [hs (hs hab, hbc),
+ * hcd]. Only [<name> <H1>, <H2> as <p>] is a tactic, putting the conclusion
+ * into the context under the intro pattern <p>.
  *
- * [barbara] splits the two. Bare it is not a tactic but a term, so it closes
- * nothing and stands where its conclusion is wanted -- inside [exact], a
- * [pose proof], or another [barbara], which is what lets two syllogisms be
- * written as one expression. Only [barbara <Hmp>, <Hsm> as <p>] is a tactic.
  * A term notation makes its head a keyword, so nothing anywhere may be named
- * [barbara]; [hs] keeps both tactic forms, that name being in use for
- * hypotheses.
+ * [hs], [hypothetical], [syllogism] or [barbara].
  *
  * The premises are taken in the order written: the middle term is what the
  * first concludes and the second assumes. Giving them the other way round is
@@ -38,14 +36,17 @@ From jwa Require Import Core.Notations.
  * term form needs no such care, being elaborated in the place it stands.
  *)
 
-Tactic Notation "hs" uconstr(Hab) "," uconstr(Hbc) :=
-  exact (Conditional.transitivity Hab Hbc).
+(* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
+Notation "'hs' Hab , Hbc" := (Conditional.transitivity Hab Hbc)
+  (only parsing).
 
 Tactic Notation "hs" uconstr(Hab) "," uconstr(Hbc) "as" simple_intropattern(p) :=
   pose proof (Conditional.transitivity Hab Hbc) as p.
 
-Tactic Notation "hypothetical" "syllogism" uconstr(Hab) "," uconstr(Hbc) :=
-  exact (Conditional.transitivity Hab Hbc).
+(* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
+Notation "'hypothetical' 'syllogism' Hab , Hbc"
+    := (Conditional.transitivity Hab Hbc)
+  (only parsing).
 
 Tactic Notation "hypothetical" "syllogism" uconstr(Hab) "," uconstr(Hbc)
     "as" simple_intropattern(p) :=

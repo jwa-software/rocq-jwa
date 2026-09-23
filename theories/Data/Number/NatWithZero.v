@@ -2316,9 +2316,9 @@ Proof.
         pose proof (divisibility.multiplication.closure
                       (gcd (+ q) ((a %. q))) (+ q) ((a /. q)) d1) as hm.
         rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
-        pose proof (divisibility.addition.closure hm d2) as hs.
-        rewrite s1 in hs.
-        exact hs.
+        pose proof (divisibility.addition.closure hm d2) as ha.
+        rewrite s1 in ha.
+        exact ha.
       * exact d1.
   - exact (order.strict.wellfoundedness b).
 Qed.

@@ -51,7 +51,15 @@ Theorem tactics_all_delivers_hypothetical_syllogism_short
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C hab hbc.
-  hs hab, hbc.
+  exact (hs hab, hbc).
+Qed.
+
+Theorem tactics_all_delivers_hypothetical_syllogism_short_nested
+  : forall (A : Prop) (B : Prop) (C : Prop) (D : Prop) .
+      (A -> B) -> (B -> C) -> (C -> D) -> (A -> D).
+Proof.
+  intros A B C D hab hbc hcd.
+  exact (hs (hs hab, hbc), hcd).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_short_as
@@ -66,7 +74,7 @@ Theorem tactics_all_delivers_hypothetical_syllogism
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C hab hbc.
-  hypothetical syllogism hab, hbc.
+  exact (hypothetical syllogism hab, hbc).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_as
@@ -240,16 +248,16 @@ Qed.
 Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction_right
   : forall (A : Prop) (B : Prop) . A _\/_ B -> B -> ~ A.
 Proof.
-  intros A B hs hb.
-  modus ponendo tollens hs, hb as na.
+  intros A B exclusion hb.
+  modus ponendo tollens exclusion, hb as na.
   exact na.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction
   : forall (A : Prop) (B : Prop) . A _\/_ B -> A -> ~ B.
 Proof.
-  intros A B hs ha.
-  modus ponendo tollens hs, ha as nb.
+  intros A B exclusion ha.
+  modus ponendo tollens exclusion, ha as nb.
   exact nb.
 Qed.
 

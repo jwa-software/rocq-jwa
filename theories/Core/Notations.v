@@ -121,11 +121,15 @@ Reserved Notation "l 'does_not_contain_member' a"
 Reserved Notation "a 'does_not_belong_to' l"
   (at level 70, no associativity).
 
-(* [barbara] is the syllogism written as a term, so that one may stand where
- * its conclusion is wanted and nest inside another. Its meaning belongs to
- * [Tactics.Syllogism], beside the tactic that carries the same name; only
- * the level is fixed here, as every other level is.
+(* The syllogisms written as terms, so that one may stand where its
+ * conclusion is wanted and nest inside another. Their meanings belong to
+ * [Tactics.Syllogism], beside the tactics that carry the same names; only
+ * the levels are fixed here, as every other level is.
  *)
+Reserved Notation "'hs' Hab , Hbc"
+  (at level 10, Hab at next level, Hbc at next level).
+Reserved Notation "'hypothetical' 'syllogism' Hab , Hbc"
+  (at level 10, Hab at next level, Hbc at next level).
 Reserved Notation "'barbara' Hmp , Hsm"
   (at level 10, Hmp at next level, Hsm at next level).
 
