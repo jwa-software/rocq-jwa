@@ -126,18 +126,9 @@ Notation "m > n" := (LessThan n m) (only parsing)
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
   : jwa_nat_with_zero_scope.
 
-(* The same four with no arguments, for where a relation is passed rather than
- * applied, as [Induced] takes one.
- *)
 Notation "'(<)'" := LessThan (only parsing)
   : jwa_nat_with_zero_scope.
 Notation "'(<=)'" := LessOrEqual (only parsing)
-  : jwa_nat_with_zero_scope.
-Notation "'(>)'" :=
-  (fun (m : NatWithZero) (n : NatWithZero) . LessThan n m) (only parsing)
-  : jwa_nat_with_zero_scope.
-Notation "'(>=)'" :=
-  (fun (m : NatWithZero) (n : NatWithZero) . LessOrEqual n m) (only parsing)
   : jwa_nat_with_zero_scope.
 
 (* [NatWithZero -> NatWithZero -> Comparison] *)
@@ -196,8 +187,11 @@ Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
  *)
 Local Open Scope jwa_product_scope.
 
+Module div. (* div *)
+
 (* [Nat -> Nat -> Product NatWithZero NatWithZero] *)
-Fixpoint nat_div (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
+(* div.nat *)
+Fixpoint nat (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
   match dividend with
   | Nat.One =>
       match divisor with
@@ -205,7 +199,7 @@ Fixpoint nat_div (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZ
       | Nat.Successor _ => (0, (+ Nat.One))
       end
   | Nat.Successor dividend' =>
-      match nat_div dividend' divisor with
+      match nat dividend' divisor with
       | (quotient, remainder) =>
           match eq (++ remainder) (+ divisor) with
           | true  => ((++ quotient), 0)
@@ -214,14 +208,16 @@ Fixpoint nat_div (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZ
       end
   end.
 
-(* Zero is the one dividend [nat_div] cannot take, and it is handled here so
+End div. (* div *)
+
+(* Zero is the one dividend [div.nat] cannot take, and it is handled here so
  * that [divide] and [modulo] are projections and nothing else.
  *)
 (* [NatWithZero -> Nat -> Product NatWithZero NatWithZero] *)
 Definition div := fun (n : NatWithZero) (divisor : Nat) .
   match n with
   | 0          => (0, 0)
-  | + dividend => nat_div dividend divisor
+  | + dividend => div.nat dividend divisor
   end.
 
 (* [NatWithZero -> Nat -> NatWithZero] *)
@@ -254,7 +250,7 @@ Definition Even := fun (n : NatWithZero) . Divides (+ (Nat.Successor Nat.One)) n
 
 (* [NatWithZero -> Prop] *)
 Definition Odd := fun (n : NatWithZero) .
-  exists (k : NatWithZero) . ((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One) = n.
+  exists (k : NatWithZero) . (+ Nat.One) + ((+ (Nat.Successor Nat.One)) * k) = n.
 
 Module positive. (* positive *)
 
@@ -728,6 +724,29 @@ Qed.
 End over. (* multiplication.right.distributivity.over *)
 
 End distributivity. (* multiplication.right.distributivity *)
+
+Module order. (* multiplication.right.order *)
+
+(* multiplication.right.order.extensivity *)
+Theorem extensivity
+  : forall (k : Nat) (n : NatWithZero) . n <= (+ k) * n.
+Proof.
+  intros k n.
+  unfold LessOrEqual in |- *.
+  destruct n as [| p].
+  - simpl in |- *.
+    exact (Disjunction.L (Identity.reflexivity 0)).
+  - destruct k as [| k'].
+    + simpl in |- *.
+      exact (Disjunction.L (Identity.reflexivity (+ p))).
+    + apply Disjunction.R.
+      unfold LessThan in |- *.
+      apply (Exists_introduction (Nat.mul k' p)).
+      simpl in |- *.
+      reflexivity.
+Qed.
+
+End order. (* multiplication.right.order *)
 
 End right. (* multiplication.right *)
 
@@ -1461,7 +1480,7 @@ Proof.
       reflexivity.
   - destruct IH as [e lt].
     simpl in |- *.
-    destruct (nat_div p' d) as [q r] eqn:D.
+    destruct (div.nat p' d) as [q r] eqn:D.
     simpl in e.
     simpl in lt.
     destruct (eq (++ r) (+ d)) as [|] eqn:E; split; simpl in |- *.
@@ -1535,6 +1554,57 @@ Qed.
 
 End remainder. (* division.nat.remainder *)
 
+Module quotient. (* division.nat.quotient *)
+
+(* division.nat.quotient.positivity *)
+Theorem positivity
+  : forall (d : Nat) (g : Nat) . Divides (+ g) (+ d) -> ~ ((+ d) /. g = 0).
+Proof.
+  intros d g h.
+  simplify Negation in |- *.
+  intro e.
+  pose proof (division.nat.dividend.reconstruction d g) as reconstruction.
+  rewrite e in reconstruction.
+  destruct (multiplication.annihilation (+ g)) as [annihilation _].
+  rewrite annihilation in reconstruction.
+  destruct (addition.identity ((+ d) %. g)) as [identity _].
+  rewrite identity in reconstruction.
+  pose proof (division.nat.remainder.boundedness d g) as bound.
+  rewrite reconstruction in bound.
+  destruct h as [k hk].
+  destruct k as [| k'].
+  - destruct (multiplication.annihilation (+ g)) as [_ annihilation'].
+    rewrite annihilation' in hk.
+    discriminate hk.
+  - destruct k' as [| k''].
+    + rewrite (multiplication.right.identity (+ g)) in hk.
+      rewrite hk in bound.
+      pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
+      simplify Negation in irreflexivity.
+      modus ponens irreflexivity, bound as f.
+      contradiction f.
+    + change (+ (Nat.Successor k'')) with ((+ Nat.One) + (+ k'')) in hk.
+      rewrite (multiplication.left.distributivity.over.addition (+ g) (+ Nat.One) (+ k'')) in hk.
+      rewrite (multiplication.right.identity (+ g)) in hk.
+      rewrite (addition.commutativity (+ g) ((+ g) * (+ k''))) in hk.
+      pose proof (addition.right.order.extensivity ((+ g) * (+ k'')) (+ g)) as extensivity.
+      rewrite hk in extensivity.
+      simplify LessOrEqual in extensivity.
+      destruct extensivity as [equal | less].
+      * rewrite equal in bound.
+        pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
+        simplify Negation in irreflexivity.
+        modus ponens irreflexivity, bound as f.
+        contradiction f.
+      * pose proof (order.strict.transitivity bound less) as circular.
+        pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
+        simplify Negation in irreflexivity.
+        modus ponens irreflexivity, circular as f.
+        contradiction f.
+Qed.
+
+End quotient. (* division.nat.quotient *)
+
 End nat. (* division.nat *)
 
 Local Close Scope jwa_product_scope.
@@ -1582,15 +1652,252 @@ Proof.
   - exact (division.remainder.boundedness n d).
 Qed.
 
+(* division.uniqueness *)
+Theorem uniqueness
+  : forall (n : NatWithZero) (d : Nat) (m : NatWithZero) (r : NatWithZero) .
+      ((m * (+ d)) + r = n /\ r < (+ d)) -> ((n /. d) = m) /\ ((n %. d) = r).
+Proof.
+  intros n d m r h.
+  destruct h as [e b].
+  pose proof (division.dividend.reconstruction n d) as recon.
+  pose proof (division.remainder.boundedness n d) as bound.
+  assert (quotient : (n /. d) = m).
+  { pose proof (Comparable.order.strict.trichotomy (n /. d) m) as t.
+    destruct t as [below | [equal | above]].
+    - simplify LessThan in below.
+      destruct below as [k hk].
+      symmetry in hk.
+      rewrite hk in e.
+      rewrite (multiplication.right.distributivity.over.addition
+                 (+ d) (n /. d) (+ k)) in e.
+      rewrite (addition.associativity
+                 ((n /. d) * (+ d)) ((+ k) * (+ d)) r) in e.
+      symmetry in recon.
+      pose proof (Identity.transitivity e recon) as chain.
+      pose proof (addition.left.cancellation chain) as excess.
+      symmetry in excess.
+      rewrite excess in bound.
+      rewrite (addition.commutativity ((+ k) * (+ d)) r) in bound.
+      pose proof (multiplication.right.order.extensivity k (+ d)) as reach.
+      pose proof (addition.right.order.extensivity r ((+ k) * (+ d))) as grow.
+      pose proof (Comparable.order.transitivity
+                    (+ d) ((+ k) * (+ d)) (r + ((+ k) * (+ d)))
+                    reach grow) as span.
+      pose proof (order.strict.irreflexivity (+ d)) as i.
+      unfold Negation    in i.
+      unfold LessOrEqual in span.
+      destruct span as [s1 | s2].
+      + symmetry in s1.
+        rewrite s1 in bound.
+        modus ponens i, bound as f.
+        contradiction f.
+      + pose proof (order.strict.transitivity s2 bound) as loop.
+        modus ponens i, loop as f.
+        contradiction f.
+    - exact equal.
+    - simplify LessThan in above.
+      destruct above as [k hk].
+      symmetry in hk.
+      rewrite hk in recon.
+      rewrite (multiplication.right.distributivity.over.addition
+                 (+ d) m (+ k)) in recon.
+      rewrite (addition.associativity
+                 (m * (+ d)) ((+ k) * (+ d)) (n %. d)) in recon.
+      symmetry in e.
+      pose proof (Identity.transitivity recon e) as chain.
+      pose proof (addition.left.cancellation chain) as excess.
+      symmetry in excess.
+      rewrite excess in b.
+      rewrite (addition.commutativity ((+ k) * (+ d)) (n %. d)) in b.
+      pose proof (multiplication.right.order.extensivity k (+ d)) as reach.
+      pose proof (addition.right.order.extensivity
+                    (n %. d) ((+ k) * (+ d))) as grow.
+      pose proof (Comparable.order.transitivity
+                    (+ d) ((+ k) * (+ d)) ((n %. d) + ((+ k) * (+ d)))
+                    reach grow) as span.
+      pose proof (order.strict.irreflexivity (+ d)) as i.
+      unfold Negation    in i.
+      unfold LessOrEqual in span.
+      destruct span as [s1 | s2].
+      + symmetry in s1.
+        rewrite s1 in b.
+        modus ponens i, b as f.
+        contradiction f.
+      + pose proof (order.strict.transitivity s2 b) as loop.
+        modus ponens i, loop as f.
+        contradiction f.
+  }
+  split.
+  - exact quotient.
+  - rewrite quotient in recon.
+    symmetry in e.
+    pose proof (Identity.transitivity recon e) as chain.
+    exact (addition.left.cancellation chain).
+Qed.
+
+(* division.invariance *)
+Theorem invariance
+  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+      (((+ k) * n) /. (Nat.mul k d)) = n /. d.
+Proof.
+  intros n d k.
+
+  pose proof (division.dividend.reconstruction n d) as recon.
+  pose proof (division.remainder.boundedness n d) as bound.
+
+  assert (witness
+          : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
+          /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
+  {
+    split.
+    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
+      rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
+      rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
+      rewrite (multiplication.commutativity (+ d) (n /. d))           in |- *.
+      pose proof (Identity.symmetry
+                    (multiplication.left.distributivity.over.addition
+                       (+ k) ((n /. d) * (+ d)) (n %. d))) as dist.
+      rewrite dist  in |- *.
+      rewrite recon in |- *.
+      reflexivity.
+    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
+      exact (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+  }
+
+  destruct (division.uniqueness ((+ k) * n) (Nat.mul k d)
+              (n /. d) ((+ k) * (n %. d)) witness) as [h _].
+  exact h.
+Qed.
+
+(* division.exactness *)
+Theorem exactness
+  : forall (n : NatWithZero) (d : Nat) .
+      Divides (+ d) n -> (n /. d) * (+ d) = n.
+Proof.
+  intros n d h.
+  simplify Divides in h.
+  destruct h as [k hk].
+
+  assert (witness : ((k * (+ d)) + 0 = n) /\ 0 < (+ d)).
+  {
+    split.
+    - destruct (addition.identity (k * (+ d))) as [_ vanishing].
+      rewrite vanishing in |- *.
+      rewrite (multiplication.commutativity k (+ d)) in |- *.
+      exact hk.
+    - simplify LessThan in |- *.
+      apply (Exists_introduction d).
+      simpl in |- *.
+      reflexivity.
+  }
+
+  destruct (division.uniqueness n d k 0 witness) as [quotient _].
+  rewrite quotient in |- *.
+  rewrite (multiplication.commutativity k (+ d)) in |- *.
+  exact hk.
+Qed.
+
 End division. (* division *)
+
+Module divide. (* divide *)
+
+Module nat. (* divide.nat *)
+
+(* [forall (d : Nat) (g : Nat) . Divides (+ g) (+ d) -> Nat] *)
+(* divide.nat.safe *)
+Definition safe :=
+  fun (d : Nat) (g : Nat) (h : Divides (+ g) (+ d)) .
+    match (+ d) /. g as q
+    with (* the Zero branch is never reachable *)
+    | 0    => fun (n : ~ (0 = 0)) . match n (Identity.reflexivity 0) return Nat with end
+    | + q' => fun (_ : ~ ((+ q') = 0)) . q'
+    end (division.nat.quotient.positivity d g h).
+
+Module safe. (* divide.nat.safe *)
+
+(* divide.nat.safe.specification *)
+Theorem specification
+  : forall (d : Nat) (g : Nat) (h : Divides (+ g) (+ d)) .
+      (+ (divide.nat.safe d g h)) = (+ d) /. g.
+Proof.
+  intros d g h.
+  simplify divide.nat.safe in |- *.
+  set (n := division.nat.quotient.positivity d g h).
+  generalize dependent n.
+  destruct ((+ d) /. g) as [| q'].
+  - intro n.
+    modus ponens n, (Identity.reflexivity 0) as f.
+    contradiction f.
+  - intro n.
+    simplify in |- *.
+    reflexivity.
+Qed.
+
+(* divide.nat.safe.congruence *)
+Theorem congruence
+  : forall (d1 : Nat) (g1 : Nat) (h1 : Divides (+ g1) (+ d1))
+      (d2 : Nat) (g2 : Nat) (h2 : Divides (+ g2) (+ d2)) .
+      (+ d1) /. g1 = (+ d2) /. g2
+      -> divide.nat.safe d1 g1 h1 = divide.nat.safe d2 g2 h2.
+Proof.
+  intros d1 g1 h1 d2 g2 h2 e.
+  pose proof (divide.nat.safe.specification d1 g1 h1) as s1.
+  pose proof (divide.nat.safe.specification d2 g2 h2) as s2.
+  rewrite e in s1.
+  symmetry in s2.
+  pose proof (Identity.transitivity s1 s2) as full.
+  exact (positive.injectivity full).
+Qed.
+
+End safe. (* divide.nat.safe *)
+
+End nat. (* divide.nat *)
+
+End divide. (* divide *)
+
+Module modulo. (* modulo *)
+
+(* modulo.homogeneity *)
+Theorem homogeneity
+  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+      (((+ k) * n) %. (Nat.mul k d)) = (+ k) * (n %. d).
+Proof.
+  intros n d k.
+
+  pose proof (division.dividend.reconstruction n d) as recon.
+  pose proof (division.remainder.boundedness n d) as bound.
+
+  assert (witness
+          : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
+            /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
+  {
+    split.
+    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
+      rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
+      rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
+      rewrite (multiplication.commutativity (+ d) (n /. d))           in |- *.
+      pose proof (Identity.symmetry
+                    (multiplication.left.distributivity.over.addition
+                       (+ k) ((n /. d) * (+ d)) (n %. d))) as dist.
+      rewrite dist  in |- *.
+      rewrite recon in |- *.
+      reflexivity.
+    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
+      exact (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+  }
+
+  destruct (division.uniqueness ((+ k) * n) (Nat.mul k d)
+              (n /. d) ((+ k) * (n %. d)) witness) as [_ h].
+  exact h.
+Qed.
+
+End modulo. (* modulo *)
 
 Local Open Scope jwa_product_scope.
 
 Module euclid. (* euclid *)
 
-(* Euclid's step replaces [(a, b)] by [(b, a mod b)], so both components move
- * and the pair is what descends; the order on it is the second component's.
- *)
+(* euclid.well_founded *)
 Instance well_founded
   : WellFounded (Induced (<) pi_2) :=
   WellFounded.induced LessThan (@Product.second NatWithZero NatWithZero)
@@ -1601,6 +1908,7 @@ Local Open Scope jwa_type_scope.
 (* [forall (x : NatWithZero * NatWithZero) .
  * (forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) -> NatWithZero]
  *)
+(* euclid.step *)
 Definition step
   : Descent.Step (Induced (<) pi_2) (fun (_ : NatWithZero * NatWithZero) . NatWithZero)
   :=
@@ -1696,12 +2004,79 @@ Proof.
   }
 Qed.
 
+Module nat. (* euclid.nat *)
+
+(* euclid.nat.well_founded *)
+Instance well_founded
+  : WellFounded (Induced Nat.LessThan (@Product.second NatWithZero Nat)) :=
+  WellFounded.induced Nat.LessThan (@Product.second NatWithZero Nat)
+    Nat_less_than_well_founded.
+
+(* The inner [return] carries the bound rather than an equation, so the
+ * branch for a positive remainder has [(+ r) < + q] already in hand.
+ *)
+(* [forall (p : Product NatWithZero Nat) .
+ *    (forall (s : Product NatWithZero Nat) .
+ *       Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) ->
+ *    Nat]
+ *)
+(* euclid.nat.step *)
+Definition step
+  : Descent.Step (Induced Nat.LessThan (@Product.second NatWithZero Nat))
+                 (fun (_ : Product NatWithZero Nat) . Nat)
+  :=
+  fun (p : Product NatWithZero Nat)
+    (recurse : forall (s : Product NatWithZero Nat) .
+                 Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) .
+    match p as t
+      return ((forall (s : Product NatWithZero Nat) .
+                 Induced Nat.LessThan (@Product.second NatWithZero Nat) s t -> Nat) ->
+              Nat)
+    with
+    | (a, q) =>
+        fun (descend : forall (s : Product NatWithZero Nat) .
+                         Induced Nat.LessThan (@Product.second NatWithZero Nat) s (a, q) ->
+                         Nat) .
+          match (a %. q) as m return (m < (+ q) -> Nat) with
+          | 0 => fun (_ : 0 < (+ q)) . q
+          | + r =>
+              fun (h : (+ r) < (+ q)) .
+                descend ((+ q), r)
+                  (Induced.introduction
+                     (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+                     (Biconditional.forward.elimination (positive.order.embedding r q) h))
+          end (division.remainder.boundedness a q)
+    end recurse.
+
+(* euclid.nat.extensionality *)
+Lemma extensionality : Descent.Extensional step.
+Proof.
+  intros p f g h.
+  destruct p as [a q].
+  simplify step in |- *.
+  generalize (division.remainder.boundedness a q).
+  destruct (a %. q) as [| r].
+  - intros b.
+    reflexivity.
+  - intros b.
+    set (s := Induced.introduction
+                (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+                (Biconditional.forward.elimination (positive.order.embedding r q) b)
+            : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q)).
+    pose proof (h ((+ q), r)) as H.
+    modus ponens H, s.
+Qed.
+
+End nat. (* euclid.nat *)
+
 End euclid. (* euclid *)
 
 (* An instance declared inside a submodule is dropped at its [End], so it is
  * announced again here, where [gcd] resolves it.
  *)
 Existing Instance euclid.well_founded.
+
+Existing Instance euclid.nat.well_founded.
 
 (* Greatest Common Divisor *)
 (* [NatWithZero -> NatWithZero -> NatWithZero] *)
@@ -1917,8 +2292,8 @@ Proof.
   reflexivity.
 Qed.
 
-(* gcd.common *)
-Theorem common
+(* gcd.divisibility *)
+Theorem divisibility
   : forall (b : NatWithZero) (a : NatWithZero) .
       Divides (gcd a b) a /\ Divides (gcd a b) b.
 Proof.
@@ -1948,24 +2323,68 @@ Proof.
   - exact (order.strict.wellfoundedness b).
 Qed.
 
-(* gcd.left *)
-Theorem left : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) a.
+Module left. (* gcd.left *)
+
+(* gcd.left.divisibility *)
+Theorem divisibility
+  : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) a.
 Proof.
   intros a b.
-  destruct (gcd.common b a) as [h1 h2].
+  destruct (gcd.divisibility b a) as [h1 h2].
   exact h1.
 Qed.
 
-(* gcd.right *)
-Theorem right : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) b.
+Module distributivity. (* gcd.left.distributivity *)
+
+Module of. (* gcd.left.distributivity.of *)
+
+(* gcd.left.distributivity.of.multiplication *)
+Theorem multiplication
+  : forall (k : Nat) (b : NatWithZero) (a : NatWithZero) .
+      (+ k) * gcd a b = gcd ((+ k) * a) ((+ k) * b).
+Proof.
+  intros k b.
+  apply (Accessible.recursion
+           (R := LessThan)
+           (P := fun (c : NatWithZero) .
+                 forall (a : NatWithZero) .
+                   (+ k) * gcd a c = gcd ((+ k) * a) ((+ k) * c))).
+  - intros c recurse a.
+    destruct c as [| q].
+    + rewrite (gcd.zero a) in |- *.
+      change ((+ k) * 0) with (0 : NatWithZero) in |- *.
+      rewrite (gcd.zero ((+ k) * a)) in |- *.
+      reflexivity.
+    + rewrite (gcd.recurrence a q) in |- *.
+      change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in |- *.
+      rewrite (gcd.recurrence ((+ k) * a) (Nat.mul k q)) in |- *.
+      rewrite (modulo.homogeneity a q k) in |- *.
+      change (+ (Nat.mul k q)) with ((+ k) * (+ q)) in |- *.
+      exact (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)).
+  - exact (order.strict.wellfoundedness b).
+Qed.
+
+End of. (* gcd.left.distributivity.of *)
+
+End distributivity. (* gcd.left.distributivity *)
+
+End left. (* gcd.left *)
+
+Module right. (* gcd.right *)
+
+(* gcd.right.divisibility *)
+Theorem divisibility
+  : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) b.
 Proof.
   intros a b.
-  destruct (gcd.common b a) as [h1 h2].
+  destruct (gcd.divisibility b a) as [h1 h2].
   exact h2.
 Qed.
 
-(* gcd.greatest *)
-Theorem greatest
+End right. (* gcd.right *)
+
+(* gcd.universality *)
+Theorem universality
   : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
       Divides d a -> Divides d b -> Divides d (gcd a b).
 Proof.
@@ -1980,15 +2399,255 @@ Proof.
     + rewrite (gcd.zero a) in |- *.
       exact h1.
     + rewrite (gcd.recurrence a q) in |- *.
-      apply (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2).
-      destruct (division.specification a q) as [s1 s2].
-      rewrite <- s1 in h1.
-      pose proof (divisibility.multiplication.closure
-                    d (+ q) ((a /. q)) h2) as hm.
-      rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
-      exact (divisibility.addition.cancellation hm h1).
+      assert (remainder : Divides d (a %. q)).
+      {
+        destruct (division.specification a q) as [s1 s2].
+        rewrite <- s1 in h1.
+        pose proof (divisibility.multiplication.closure
+                      d (+ q) ((a /. q)) h2) as hm.
+        rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
+        exact (divisibility.addition.cancellation hm h1).
+      }
+      pose proof (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2)
+        as below.
+      modus ponens below, remainder.
   - exact (order.strict.wellfoundedness b).
 Qed.
+
+(* gcd.commutativity *)
+Theorem commutativity
+  : forall (a : NatWithZero) (b : NatWithZero) . gcd a b = gcd b a.
+Proof.
+  intros a b.
+  apply divisibility.antisymmetry.
+  - exact (gcd.universality
+            a b (gcd a b)
+            (gcd.right.divisibility a b)
+            (gcd.left.divisibility  a b)).
+  - exact (gcd.universality
+            b a (gcd b a)
+            (gcd.right.divisibility b a)
+            (gcd.left.divisibility  b a)).
+Qed.
+
+Module multiplication. (* gcd.multiplication *)
+
+(* gcd.multiplication.cancellation *)
+Theorem cancellation
+  : forall (p : NatWithZero) (q : NatWithZero) (r : NatWithZero) .
+      Divides p (q * r) -> gcd p q = (+ Nat.One) -> Divides p r.
+Proof.
+  intros p q r h coprime.
+  destruct r as [| s].
+  - exact (divisibility.top p).
+  - assert (scaled : gcd ((+ s) * p) ((+ s) * q) = (+ s)).
+    {
+      pose proof (gcd.left.distributivity.of.multiplication s q p) as dist.
+      rewrite coprime in dist.
+      rewrite (multiplication.right.identity (+ s)) in dist.
+      symmetry in dist.
+      exact dist.
+    }
+    pose proof (divisibility.multiplication.closure
+                  p p (+ s)
+                  (divisibility.reflexivity p))
+            as hp.
+    rewrite (multiplication.commutativity p (+ s)) in hp.
+    rewrite (multiplication.commutativity q (+ s)) in h.
+    pose proof (gcd.universality ((+ s) * q) ((+ s) * p) p hp h) as u.
+    rewrite scaled in u.
+    exact u.
+Qed.
+
+End multiplication. (* gcd.multiplication *)
+
+(* [NatWithZero -> Nat -> Nat] *)
+(* gcd.nat *)
+Definition nat :=
+  fun (a : NatWithZero) (q : Nat) .
+    (WellFounded.recursion euclid.nat.step (a, q)).
+
+Module nat. (* gcd.nat *)
+
+(* gcd.nat.zero *)
+Theorem zero
+  : forall (a : NatWithZero) (q : Nat) . (a %. q) = 0 -> gcd.nat a q = q.
+Proof.
+  intros a q e.
+  simplify gcd.nat in |- *.
+  rewrite (WellFounded.recursion.unfolding
+             euclid.nat.extensionality (a, q)) in |- *.
+  simplify euclid.nat.step in |- *.
+  generalize (division.remainder.boundedness a q).
+  rewrite e in |- *.
+  intros b.
+  reflexivity.
+Qed.
+
+(* gcd.nat.recurrence *)
+Theorem recurrence
+  : forall (a : NatWithZero) (q : Nat) (r : Nat) .
+      (a %. q) = + r -> gcd.nat a q = gcd.nat (+ q) r.
+Proof.
+  intros a q r e.
+  simplify gcd.nat in |- *.
+  rewrite (WellFounded.recursion.unfolding
+             euclid.nat.extensionality (a, q)) in |- *.
+  simplify euclid.nat.step in |- *.
+  generalize (division.remainder.boundedness a q).
+  rewrite e in |- *.
+  intros b.
+  reflexivity.
+Qed.
+
+(* gcd.nat.specification *)
+Theorem specification
+  : forall (q : Nat) (a : NatWithZero) . gcd a (+ q) = + (gcd.nat a q).
+Proof.
+  intros q.
+  apply (Accessible.recursion
+           (R := Nat.LessThan)
+           (P := fun (c : Nat) .
+                 forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c))).
+  - intros c recurse a.
+    rewrite (gcd.recurrence a c) in |- *.
+    destruct (a %. c) as [| r] eqn:e.
+    + rewrite (gcd.zero (+ c)) in |- *.
+      rewrite (gcd.nat.zero a c e) in |- *.
+      reflexivity.
+    + rewrite (gcd.nat.recurrence a c r e) in |- *.
+      pose proof (division.remainder.boundedness a c) as b.
+      rewrite e in b.
+      modus aequans (positive.order.embedding r c), b as lt.
+      exact (recurse r lt (+ c)).
+  - exact (accessibility q).
+Qed.
+
+Module left. (* gcd.nat.left *)
+
+(* gcd.nat.left.divisibility *)
+Theorem divisibility
+  : forall (a : NatWithZero) (q : Nat) . Divides (+ (gcd.nat a q)) a.
+Proof.
+  intros a q.
+  pose proof (gcd.left.divisibility a (+ q)) as h.
+  rewrite (gcd.nat.specification q a) in h.
+  exact h.
+Qed.
+
+Module distributivity. (* gcd.nat.left.distributivity *)
+
+Module of. (* gcd.nat.left.distributivity.of *)
+
+(* gcd.nat.left.distributivity.of.multiplication *)
+Theorem multiplication
+  : forall (k : Nat) (q : Nat) (a : NatWithZero) .
+      Nat.mul k (gcd.nat a q) = gcd.nat ((+ k) * a) (Nat.mul k q).
+Proof.
+  intros k q a.
+  pose proof (gcd.left.distributivity.of.multiplication k (+ q) a) as h.
+  rewrite (gcd.nat.specification q a) in h.
+  change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in h.
+  rewrite (gcd.nat.specification (Nat.mul k q) ((+ k) * a)) in h.
+  change ((+ k) * (+ (gcd.nat a q)))
+    with (+ (Nat.mul k (gcd.nat a q))) in h.
+  exact (positive.injectivity h).
+Qed.
+
+End of. (* gcd.nat.left.distributivity.of *)
+
+End distributivity. (* gcd.nat.left.distributivity *)
+
+End left. (* gcd.nat.left *)
+
+Module right. (* gcd.nat.right *)
+
+(* gcd.nat.right.divisibility *)
+Theorem divisibility
+  : forall (a : NatWithZero) (q : Nat) . Divides (+ (gcd.nat a q)) (+ q).
+Proof.
+  intros a q.
+  pose proof (gcd.right.divisibility a (+ q)) as h.
+  rewrite (gcd.nat.specification q a) in h.
+  exact h.
+Qed.
+
+End right. (* gcd.nat.right *)
+
+(* gcd.nat.divisibility *)
+Theorem divisibility
+  : forall (a : NatWithZero) (q : Nat) .
+      Divides (+ (gcd.nat a q)) a /\ Divides (+ (gcd.nat a q)) (+ q).
+Proof.
+  intros a q.
+  split.
+  - exact (gcd.nat.left.divisibility  a q).
+  - exact (gcd.nat.right.divisibility a q).
+Qed.
+
+(* gcd.nat.exhaustiveness *)
+Theorem exhaustiveness
+  : forall (a : NatWithZero) (q : Nat) .
+      gcd.nat
+        (a /. (gcd.nat a q))
+        (divide.nat.safe
+          q (gcd.nat a q)
+          (gcd.nat.right.divisibility a q))
+      = Nat.One.
+Proof.
+  intros a q.
+  assert (top : (+ (gcd.nat a q)) * (a /. (gcd.nat a q)) = a).
+  {
+    pose proof (division.exactness a (gcd.nat a q)
+                  (gcd.nat.left.divisibility a q)) as e.
+    rewrite (multiplication.commutativity
+               (+ (gcd.nat a q)) (a /. (gcd.nat a q))) in |- *.
+    exact e.
+  }
+  assert (bottom
+          : Nat.mul
+              (gcd.nat a q)
+              (divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))
+          = q).
+  {
+    pose proof (divide.nat.safe.specification
+                  q (gcd.nat a q)
+                  (gcd.nat.right.divisibility a q)) as s.
+    pose proof (division.exactness
+                  (+ q) (gcd.nat a q)
+                  (gcd.nat.right.divisibility a q)) as e.
+    symmetry in s.
+    rewrite s in e.
+    pose proof (positive.injectivity e) as e'.
+    rewrite (Nat.multiplication.commutativity
+               (gcd.nat a q)
+               (divide.nat.safe q (gcd.nat a q)
+                  (gcd.nat.right.divisibility a q))) in |- *.
+    exact e'.
+  }
+  pose proof (gcd.nat.left.distributivity.of.multiplication
+                (gcd.nat a q)
+                (divide.nat.safe
+                  q (gcd.nat a q)
+                  (gcd.nat.right.divisibility a q))
+                (a /. (gcd.nat a q))) as dist.
+  rewrite top    in dist.
+  rewrite bottom in dist.
+  destruct (Nat.multiplication.identity (gcd.nat a q)) as [_ unit].
+  symmetry in unit.
+  pose proof (Identity.transitivity dist unit) as chain.
+  destruct (Nat.multiplication.cancellation
+              (gcd.nat a q)
+              (gcd.nat
+                (a /. (gcd.nat a q))
+                (divide.nat.safe
+                  q (gcd.nat a q)
+                  (gcd.nat.right.divisibility a q)))
+              Nat.One) as [cancel _].
+  exact (cancel chain).
+Qed.
+
+End nat. (* gcd.nat *)
 
 Local Close Scope jwa_product_scope.
 
@@ -2023,25 +2682,20 @@ Proof.
         apply (Exists_introduction k).
         rewrite e in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
-        simpl in |- *.
         reflexivity.
       * apply Disjunction.L.
         unfold Odd in odd.
         destruct odd as [k e].
         unfold Even in |- *.
         unfold Divides in |- *.
-        apply (Exists_introduction (k + (+ Nat.One))).
+        apply (Exists_introduction ((+ Nat.One) + k)).
         rewrite (multiplication.left.distributivity.over.addition
-                   (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
+                   (+ (Nat.Successor Nat.One)) (+ Nat.One) k) in |- *.
         change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
           with ((+ Nat.One) + (+ Nat.One)) in |- *.
-        rewrite <- (addition.associativity
-                      ((+ (Nat.Successor Nat.One)) * k)
-                      (+ Nat.One) (+ Nat.One)) in |- *.
+        rewrite (addition.associativity
+                   (+ Nat.One) (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k)) in |- *.
         rewrite e in |- *.
-        simpl in |- *.
-        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         reflexivity.
 Qed.
@@ -2067,9 +2721,6 @@ Module odd. (* parity.odd *)
 
 Module addition. (* parity.odd.addition *)
 
-(* Two odds meet at an even, not at an odd: the [+ Nat.One] each carries pairs
- * off with the other, so the sum is not closed in [Odd].
- *)
 (* parity.odd.addition.evenness *)
 Theorem evenness
   : forall {m : NatWithZero} {n : NatWithZero} . Odd m -> Odd n -> Even (m + n).
@@ -2080,18 +2731,19 @@ Proof.
   destruct h1 as [k1 e1].
   destruct h2 as [k2 e2].
   unfold Divides in |- *.
-  apply (Exists_introduction ((k1 + k2) + (+ Nat.One))).
+  apply (Exists_introduction ((+ Nat.One) + (k1 + k2))).
   symmetry in e1, e2.
   rewrite e1, e2 in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-             (+ (Nat.Successor Nat.One)) (k1 + k2) (+ Nat.One)) in |- *.
+            (+ (Nat.Successor Nat.One)) (+ Nat.One) (k1 + k2)) in |- *.
   rewrite (multiplication.left.distributivity.over.addition
-             (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
+            (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
   change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
-    with ((+ Nat.One) + (+ Nat.One)) in |- *.
+    with ((+ Nat.One) + (+ Nat.One))
+      in |- *.
   rewrite (addition.interchange
-             ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
-             ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
+            (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k1)
+            (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
   reflexivity.
 Qed.
 

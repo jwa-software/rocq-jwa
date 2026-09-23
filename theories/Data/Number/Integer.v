@@ -16,6 +16,7 @@ From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Simplify.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
  * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
@@ -159,6 +160,26 @@ Definition mul := fun (m : Integer) (n : Integer) .
   end.
 
 Notation "m * n" := (mul m n) (only parsing)
+  : jwa_integer_scope.
+
+(* The divisor is a [Nat], so it is never zero and no case is missing: the
+ * magnitude is divided and the sign carried over.
+ *)
+(* [Integer -> Nat -> Integer] *)
+Definition divide := fun (x : Integer) (d : Nat) .
+  match x with
+  | - p => negate (from_nat_with_zero (NatWithZero.divide (NatWithZero.Positive p) d))
+  | 0   => 0
+  | + p => from_nat_with_zero (NatWithZero.divide (NatWithZero.Positive p) d)
+  end.
+
+(* The level is reserved in [Core.Notations]; only the meaning belongs here,
+ * and it is written in parentheses as [NatWithZero]'s is, so the dot that
+ * ends the token never sits beside the one that ends a command. There is no
+ * [%.] to go with it: a remainder on this type needs a sign convention, and
+ * none is chosen, so [Integer] carries no [modulo].
+ *)
+Notation "m /. n" := (divide m n) (only parsing)
   : jwa_integer_scope.
 
 (* [Integer -> Integer -> Prop] *)
@@ -1409,6 +1430,71 @@ End over. (* multiplication.distributivity.over *)
 
 End distributivity. (* multiplication.distributivity *)
 
+(* multiplication.interchange *)
+Theorem interchange
+  : forall (a : Integer) (b : Integer) (c : Integer) (d : Integer) .
+      (a * b) * (c * d) = (a * c) * (b * d).
+Proof.
+  intros a b c d.
+  rewrite (multiplication.associativity a b (c * d)) in |- *.
+  pose proof (Identity.symmetry (multiplication.associativity b c d)) as inner.
+  rewrite inner in |- *.
+  rewrite (multiplication.commutativity b c) in |- *.
+  rewrite (multiplication.associativity c b d) in |- *.
+  pose proof (Identity.symmetry (multiplication.associativity a c (b * d))) as outer.
+  rewrite outer in |- *.
+  reflexivity.
+Qed.
+
+(* multiplication.cancellation *)
+Theorem cancellation
+  : forall (k : Integer) (m : Integer) (n : Integer) .
+      ~ (k = 0) -> k * m = k * n -> m = n.
+Proof.
+  intros k m n nonzero e.
+  destruct k as [p | | p].
+  - destruct m as [a | | a]; destruct n as [b | | b]; simplify in e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
+      reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
+      reflexivity.
+  - unfold Negation in nonzero.
+    modus ponens nonzero, (Identity.reflexivity 0) as f.
+    contradiction f.
+  - destruct m as [a | | a]; destruct n as [b | | b]; simplify in e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
+      reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + reflexivity.
+    + discriminate e.
+    + discriminate e.
+    + discriminate e.
+    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+      rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
+      reflexivity.
+Qed.
+
+(* multiplication.magnitude *)
+Theorem magnitude
+  : forall (m : Integer) (n : Integer) .
+      (| m * n |) = NatWithZero.mul (| m |) (| n |).
+Proof.
+  intros m n.
+  destruct m as [m' | | m']; destruct n as [n' | | n']; simplify in |- *; reflexivity.
+Qed.
+
 End multiplication. (* multiplication *)
 
 Module order. (* order *)
@@ -1627,6 +1713,96 @@ Proof.
 Qed.
 
 End comparison. (* comparison *)
+
+Module division. (* division *)
+
+(* division.magnitude *)
+Theorem magnitude
+  : forall (x : Integer) (d : Nat) .
+      (| x /. d |) = NatWithZero.divide (| x |) d.
+Proof.
+  intros x d.
+  destruct x as [p | | p].
+  - simplify divide, abs in |- *.
+    destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+  - reflexivity.
+  - simplify divide, abs in |- *.
+    destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+Qed.
+
+(* division.exactness *)
+Theorem exactness
+  : forall (x : Integer) (d : Nat) .
+      NatWithZero.Divides (NatWithZero.Positive d) (| x |)
+      -> (x /. d) * (+ d) = x.
+Proof.
+  intros x d h.
+  destruct x as [x' | | x'].
+  - simplify divide in |- *.
+    pose proof (NatWithZero.division.exactness
+                  (NatWithZero.Positive x') d h) as e.
+    destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
+    + simplify in e.
+      discriminate e.
+    + simplify in |- *.
+      rewrite (NatWithZero.positive.injectivity e) in |- *.
+      reflexivity.
+  - simplify in |- *.
+    reflexivity.
+  - simplify divide in |- *.
+    pose proof (NatWithZero.division.exactness
+                  (NatWithZero.Positive x') d h) as e.
+    destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
+    + simplify in e.
+      discriminate e.
+    + simplify in |- *.
+      rewrite (NatWithZero.positive.injectivity e) in |- *.
+      reflexivity.
+Qed.
+
+(* division.exhaustiveness *)
+Theorem exhaustiveness
+  : forall (x : Integer) (d : Nat) .
+      NatWithZero.gcd.nat
+        (| x /. (NatWithZero.gcd.nat (| x |) d) |)
+        (NatWithZero.divide.nat.safe
+          d (NatWithZero.gcd.nat (| x |) d)
+          (NatWithZero.gcd.nat.right.divisibility (| x |) d))
+      = Nat.One.
+Proof.
+  intros x d.
+  rewrite (division.magnitude x (NatWithZero.gcd.nat (| x |) d)) in |- *.
+  exact (NatWithZero.gcd.nat.exhaustiveness (| x |) d).
+Qed.
+
+(* division.invariance *)
+Theorem invariance
+  : forall (x : Integer) (d : Nat) (k : Nat) .
+      ((+ k) * x) /. (Nat.mul k d) = x /. d.
+Proof.
+  intros x d k.
+  destruct x as [p | | p].
+  - change ((+ k) * (- p)) with (- (Nat.mul k p)) in |- *.
+    simplify divide in |- *.
+    pose proof (NatWithZero.division.invariance
+                  (NatWithZero.Positive p) d k) as h.
+    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
+      with (NatWithZero.Positive (Nat.mul k p)) in h.
+    rewrite h in |- *.
+    reflexivity.
+  - simpl in |- *.
+    reflexivity.
+  - change ((+ k) * (+ p)) with (+ (Nat.mul k p)) in |- *.
+    simplify divide in |- *.
+    pose proof (NatWithZero.division.invariance
+                  (NatWithZero.Positive p) d k) as h.
+    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
+      with (NatWithZero.Positive (Nat.mul k p)) in h.
+    rewrite h in |- *.
+    reflexivity.
+Qed.
+
+End division. (* division *)
 
 Module divisibility. (* divisibility *)
 

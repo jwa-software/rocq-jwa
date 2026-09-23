@@ -1051,6 +1051,46 @@ End maximum. (* comparison.maximum *)
 
 End comparison. (* comparison *)
 
+Module equality. (* equality *)
+
+(* [compare] settles every equation between two [Nat]s, which is what
+ * Hedberg's theorem asks of a type.
+ *)
+(* equality.decidability *)
+Theorem decidability
+  : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n).
+Proof.
+  intros m n.
+  destruct (compare m n) as [| |] eqn:e.
+  - apply Disjunction.R.
+    unfold Negation in |- *.
+    intro h.
+    pose proof (comparison.equality.backward.specification h) as b.
+    rewrite e in b.
+    discriminate b.
+  - apply Disjunction.L.
+    exact (comparison.equality.forward.specification e).
+  - apply Disjunction.R.
+    unfold Negation in |- *.
+    intro h.
+    pose proof (comparison.equality.backward.specification h) as b.
+    rewrite e in b.
+    discriminate b.
+Qed.
+
+(* What a type carrying an equation as a field needs before two of its
+ * values can be compared at all.
+ *)
+(* equality.uniqueness *)
+Theorem uniqueness
+  : forall (m : Nat) (n : Nat) (p : m = n) (q : m = n) . p = q.
+Proof.
+  intros m n p q.
+  exact (Identity.hedberg.uniqueness decidability m n p q).
+Qed.
+
+End equality. (* equality *)
+
 Module subtraction. (* subtraction *)
 
 (* subtraction.truncation *)
