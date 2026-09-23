@@ -10,6 +10,7 @@
  *)
 From jwa Require Export Dialect.Context.
 From jwa Require Export Dialect.ExFalso.
+From jwa Require Export Dialect.Idem.
 From jwa Require Export Dialect.Ipso.
 From jwa Require Export Dialect.Leibniz.
 From jwa Require Export Dialect.Let.
