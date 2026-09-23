@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Conditional is the conditional, [if A then B]. [->] is the kernel's
  * non-dependent [forall], which this line only gives a spelling.

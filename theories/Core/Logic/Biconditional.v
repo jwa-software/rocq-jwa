@@ -1,8 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Conditional.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 Inductive Biconditional (P : Prop) (Q : Prop) : Prop :=
   | Biconditional_introduction : (P -> Q) -> (Q -> P) -> Biconditional P Q.

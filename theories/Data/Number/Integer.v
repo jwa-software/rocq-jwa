@@ -13,10 +13,10 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simpl.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
  * type and its ctors are declared inside it: [NatWithZero] declares [Zero]

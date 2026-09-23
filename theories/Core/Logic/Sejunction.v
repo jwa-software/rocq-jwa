@@ -6,8 +6,8 @@ From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Sejunction is exclusive disjunction: one side holds and the other does
  * not. [Theorem t : Verum _\/_ Verum.] is accepted and [Proof.] opens, but no

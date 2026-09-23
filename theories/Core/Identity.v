@@ -4,8 +4,8 @@ From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Falsum.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Gottfried Leibniz, seventeenth century: two things are the same exactly
  * when no property tells them apart. If everything true of [x] is true of

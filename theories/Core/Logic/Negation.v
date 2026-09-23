@@ -6,8 +6,8 @@ From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Exists.
 From jwa Require Import Core.Logic.Falsum.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Negation: a proof of [A] leads to [Falsum]. *)
 (* [Prop -> Prop] *)

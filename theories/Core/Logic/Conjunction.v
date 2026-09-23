@@ -2,8 +2,8 @@
 
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 Inductive Conjunction (A : Prop) (B : Prop) : Prop :=
   | Conjunction_introduction : A -> B -> Conjunction A B.

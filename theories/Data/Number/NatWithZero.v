@@ -13,6 +13,7 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Descent.
@@ -22,7 +23,6 @@ From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simpl.
 
 (* A module may carry the type's name; its members read [NatWithZero.add].
  * The type and its ctors are declared inside it: [Integer] declares [Zero]

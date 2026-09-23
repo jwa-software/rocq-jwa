@@ -3,8 +3,8 @@
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Abjunction is material nonimplication: [A] holds and [B] does not, the
  * one case in which [A -> B] fails.

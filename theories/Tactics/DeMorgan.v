@@ -6,8 +6,8 @@ From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Exists.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std String.
 

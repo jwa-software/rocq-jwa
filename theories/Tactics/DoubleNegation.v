@@ -1,8 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std.
 

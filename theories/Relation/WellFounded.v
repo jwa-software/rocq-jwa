@@ -2,10 +2,10 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Relation.Induced.
-From jwa Require Import Tactics.Simpl.
 
 (* [R] points downwards here: [R y x] says that [y] is below [x]. *)
 

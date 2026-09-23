@@ -1,9 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simpl.
 
 (* [R] points downwards throughout this file: its first argument is the
  * lower one, so [R y x] says that [y] is below [x]. [Accessible R x] holds

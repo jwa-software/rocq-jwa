@@ -3,8 +3,8 @@
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Logic.Sejunction.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 From Ltac2 Require Control Std.
 
 (* The four modi of traditional logic and a fifth in their pattern.

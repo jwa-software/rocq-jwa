@@ -3,8 +3,8 @@
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 Inductive Disjunction (A : Prop) (B : Prop) : Prop :=
   | Disjunction_introduction_left  : A -> Disjunction A B
