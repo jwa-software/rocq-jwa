@@ -3,7 +3,7 @@
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Syllogism.
 From jwa Require Import Core.Notations.
-From jwa Require Import Dialect.All.
+From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Control Std.
 
 (* Syllogisms: two premises meeting in a middle term compose into a third.
