@@ -23,6 +23,32 @@ Tactic Notation "dni" uconstr(H) "as" simple_intropattern(p) :=
 Tactic Notation "dni" uconstr(H) "|-" simple_intropattern(p) :=
   pose proof (Negation.double.introduction H) as p.
 
+(* In place, adding nothing:
+ *
+ *   dni in <H>            <H> : A becomes ~ ~ A
+ *   dni in |- *           the goal ~ ~ A becomes A
+ *   dni in <H> |- *       both
+ *
+ * On the goal the rule runs backward, from the new goal to the old, so the
+ * goal loses its two negations and grows stronger: [~ ~ (A \/ ~ A)] is
+ * provable, [A \/ ~ A] is not.
+ *)
+Ltac dni_in_goal :=
+  lazymatch goal with
+  | |- ~ ~ _ => apply Negation.double.introduction
+  | |- _ => fail "dni: expects a goal of the shape ~ ~ A"
+  end.
+
+Tactic Notation "dni" "in" hyp(H) :=
+  apply Negation.double.introduction in H.
+
+Tactic Notation "dni" "in" "|-" "*" :=
+  dni_in_goal.
+
+Tactic Notation "dni" "in" hyp(H) "|-" "*" :=
+  apply Negation.double.introduction in H;
+  dni_in_goal.
+
 (* Double negation elimination, only where it holds constructively.
  *
  *   dne <H>    ~ ~ ~ A |- ~ A
@@ -44,3 +70,35 @@ Tactic Notation "dne" uconstr(H) "as" simple_intropattern(p) :=
 
 Tactic Notation "dne" uconstr(H) "|-" simple_intropattern(p) :=
   pose proof (Negation.triple.reduction H) as p.
+
+(* In place, adding nothing:
+ *
+ *   dne in <H>            <H> : ~ ~ ~ A becomes ~ A
+ *   dne in |- *           the goal ~ A becomes ~ ~ ~ A
+ *   dne in <H> |- *       both
+ *
+ * The two are equivalent, so on the goal nothing is lost. The shape is read
+ * first, so that a refusal says why.
+ *)
+Ltac dne_in_hypothesis H :=
+  lazymatch type of H with
+  | ~ ~ ~ _ => apply Negation.triple.reduction in H
+  | _ =>
+      fail "dne: expects ~ ~ ~ A, since ~ ~ A |- A in general is not constructive"
+  end.
+
+Ltac dne_in_goal :=
+  lazymatch goal with
+  | |- ~ _ => apply Negation.triple.reduction
+  | |- _ => fail "dne: expects a goal of the shape ~ A"
+  end.
+
+Tactic Notation "dne" "in" hyp(H) :=
+  dne_in_hypothesis H.
+
+Tactic Notation "dne" "in" "|-" "*" :=
+  dne_in_goal.
+
+Tactic Notation "dne" "in" hyp(H) "|-" "*" :=
+  dne_in_hypothesis H;
+  dne_in_goal.

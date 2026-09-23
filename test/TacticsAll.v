@@ -157,6 +157,70 @@ Proof.
   ipso facto.
 Qed.
 
+Theorem tactics_all_delivers_dni_in_hypothesis
+  : forall (A : Prop) . A -> ~ ~ A.
+Proof.
+  intros A a.
+  dni in a.
+  lazymatch type of a with
+  | ~ ~ A => ipso a
+  end.
+Qed.
+
+Theorem tactics_all_delivers_dni_in_goal
+  : forall (A : Prop) . A -> ~ ~ A.
+Proof.
+  intros A a.
+  dni in |- *.
+  lazymatch goal with
+  | |- A => ipso a
+  end.
+Qed.
+
+Theorem tactics_all_delivers_dni_in_hypothesis_and_goal
+  : forall (A : Prop) . A -> ~ ~ ~ ~ A.
+Proof.
+  intros A a.
+  dni in a |- *.
+  ipso a.
+Qed.
+
+Theorem tactics_all_delivers_dne_in_hypothesis
+  : forall (A : Prop) . ~ ~ ~ A -> ~ A.
+Proof.
+  intros A nnna.
+  dne in nnna.
+  lazymatch type of nnna with
+  | ~ A => ipso nnna
+  end.
+Qed.
+
+Theorem tactics_all_delivers_dne_in_goal
+  : forall (A : Prop) . ~ ~ ~ A -> ~ A.
+Proof.
+  intros A nnna.
+  dne in |- *.
+  lazymatch goal with
+  | |- ~ ~ ~ A => ipso nnna
+  end.
+Qed.
+
+Theorem tactics_all_delivers_dne_in_hypothesis_and_goal
+  : forall (A : Prop) . ~ ~ ~ A -> ~ A.
+Proof.
+  intros A nnna.
+  dne in nnna |- *.
+  ipso (dni nnna).
+Qed.
+
+Theorem tactics_all_delivers_dne_in_refusing_a_double_negation
+  : forall (A : Prop) . ~ ~ A -> ~ ~ A.
+Proof.
+  intros A nna.
+  Fail dne in nna.
+  ipso nna.
+Qed.
+
 Theorem tactics_all_delivers_ipso
   : forall (A : Prop) . A -> A.
 Proof.
