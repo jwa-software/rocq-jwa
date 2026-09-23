@@ -7,5 +7,4 @@
 (rocq.theory
  (name jwa.Assumption)
  (package rocq-jwa)
- (flags :standard -noinit)
  (theories Ltac2 jwa.Core))

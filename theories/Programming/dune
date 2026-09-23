@@ -6,5 +6,4 @@
 (rocq.theory
  (name jwa.Programming)
  (package rocq-jwa)
- (flags :standard -noinit)
  (theories Ltac2 jwa.Core jwa.Tactics jwa.Algebra jwa.Relation jwa.Data))

@@ -2,7 +2,6 @@
 
 (rocq.theory
  (name jwa_test)
- (flags :standard -noinit)
  (theories
   Ltac2
   jwa
