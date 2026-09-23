@@ -7,7 +7,9 @@
 (rocq.theory
  (name jwa)
  (package rocq-jwa)
+ (flags :standard -noinit)
  (theories
+  Ltac2
   jwa.Core
   jwa.Tactics
   jwa.Algebra

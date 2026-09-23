@@ -3,4 +3,5 @@
 (rocq.theory
  (name jwa.Tactics)
  (package rocq-jwa)
- (theories jwa.Core))
+ (flags :standard -noinit)
+ (theories Ltac2 jwa.Core))

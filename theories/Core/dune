@@ -5,6 +5,13 @@
 
 (include_subdirs qualified)
 
+; Ltac2 is the one installed theory this tree depends on. Depending on one
+; makes dune drop -noinit, and the Rocq prelude would then be loaded into
+; every file, so every theory here passes -noinit itself. (stdlib no) is not
+; the way: it also unbinds Corelib, and Ltac2.Init requires Corelib.Init.Ltac.
+
 (rocq.theory
  (name jwa.Core)
- (package rocq-jwa))
+ (package rocq-jwa)
+ (flags :standard -noinit)
+ (theories Ltac2))
