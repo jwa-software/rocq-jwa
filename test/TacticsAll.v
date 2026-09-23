@@ -171,79 +171,79 @@ Proof.
   exact hac.
 Qed.
 
-Theorem tactics_all_delivers_simplify_definition
+Theorem tactics_all_delivers_simpl_definition
   : forall (A : Prop) . ~ A -> ~ A -> A -> Falsum.
 Proof.
   intros A na1 na2 a.
-  simplify Negation in na1, na2.
+  simpl Negation in na1, na2.
   exact (na1 a).
 Qed.
 
-Theorem tactics_all_delivers_simplify_definition_and_goal
+Theorem tactics_all_delivers_simpl_definition_and_goal
   : forall (A : Prop) . ~ A -> A -> Falsum.
 Proof.
   intros A na a.
-  simplify Negation in na |- *.
+  simpl Negation in na |- *.
   exact (na a).
 Qed.
 
-Theorem tactics_all_delivers_simplify_goal
+Theorem tactics_all_delivers_simpl_goal
   : forall (A : Prop) . A -> ~ ~ A.
 Proof.
   intros A a.
-  simplify Negation in |- *.
+  simpl Negation in |- *.
   intro na.
   exact (na a).
 Qed.
 
-Theorem tactics_all_delivers_simplify_four_definitions
+Theorem tactics_all_delivers_simpl_four_definitions
   : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
 Proof.
   intros m e.
-  simplify NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
+  simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
       NatWithZero.LessThan in e.
   exact e.
 Qed.
 
-Theorem tactics_all_delivers_simplify_ten_definitions
+Theorem tactics_all_delivers_simpl_ten_definitions
   : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
 Proof.
   intros m e.
-  simplify NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
+  simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
       NatWithZero.LessThan, NatWithZero.LessOrEqual, NatWithZero.add,
       NatWithZero.mul, NatWithZero.sub, NatWithZero.le, NatWithZero.min in e.
   exact e.
 Qed.
 
-Theorem tactics_all_delivers_simplify_everywhere
+Theorem tactics_all_delivers_simpl_everywhere
   : forall (A : Prop) . ~ A -> A -> Falsum.
 Proof.
   intros A na a.
-  simplify Negation in *.
+  simpl Negation in *.
   exact (na a).
 Qed.
 
-Theorem tactics_all_delivers_simplify_reduction_everywhere
+Theorem tactics_all_delivers_simpl_reduction_everywhere
   : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.add Nat.One m = n.
 Proof.
   intros m n e.
-  simplify in *.
+  simpl in *.
   exact e.
 Qed.
 
-Theorem tactics_all_delivers_simplify_reduction
+Theorem tactics_all_delivers_simpl_reduction
   : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.add Nat.One m = n.
 Proof.
   intros m n e.
-  simplify in e |- *.
+  simpl in e |- *.
   exact e.
 Qed.
 
-Theorem tactics_all_delivers_simplify_reduction_goal
+Theorem tactics_all_delivers_simpl_reduction_goal
   : forall (m : Nat) . Nat.add Nat.One m = Nat.add Nat.One m.
 Proof.
   intro m.
-  simplify in |- *.
+  simpl in |- *.
   reflexivity.
 Qed.
 

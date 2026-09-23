@@ -10,5 +10,5 @@
 From jwa Require Export Tactics.Ipso.
 From jwa Require Export Tactics.Leibniz.
 From jwa Require Export Tactics.Modus.
-From jwa Require Export Tactics.Simplify.
+From jwa Require Export Tactics.Simpl.
 From jwa Require Export Tactics.Syllogism.
