@@ -36,10 +36,10 @@ Proof.
   intro x.
   intro s.
 
-  apply mp.
-  apply sm.
+  let proof m := sm x s.
+  let proof facto := mp x m.
 
-  ipso s.
+  ipso facto.
 Qed.
 
 End Syllogism. (* Syllogism *)
