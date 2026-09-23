@@ -28,9 +28,9 @@ Proof.
   intro ab.
   intro bc.
   intro a.
-  apply bc.
-  apply ab.
-  ipso a.
+  let proof b := ab a.
+  let proof facto := bc b.
+  ipso facto.
 Qed.
 
 (* The three structural rules of Gentzen's sequent calculus, as theorems
@@ -51,9 +51,7 @@ Proof.
   intros A B.
   intro f.
   intro a.
-  apply f.
-  - ipso a.
-  - ipso a.
+  ipso (f a a).
 Qed.
 
 (* Its own converse: applying it twice restores the order. *)
@@ -64,9 +62,7 @@ Proof.
   intro f.
   intro b.
   intro a.
-  apply f.
-  - ipso a.
-  - ipso b.
+  ipso (f a b).
 Qed.
 
 (* Two laws of [->] are stated higher up, each in a second module of this
