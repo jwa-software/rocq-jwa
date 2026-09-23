@@ -3,6 +3,27 @@
 From jwa Require Import Data.All.
 From jwa Require Import Tactics.All.
 
+Theorem tactics_all_delivers_ipso
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  ipso a.
+Qed.
+
+Theorem tactics_all_delivers_ipso_with_a_term
+  : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
+Proof.
+  intros A B hab ha.
+  ipso (modus ponens hab, ha).
+Qed.
+
+Theorem tactics_all_delivers_ipso_as_a_name
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A ipso.
+  ipso ipso.
+Qed.
+
 Theorem tactics_all_delivers_modus_ponens
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
