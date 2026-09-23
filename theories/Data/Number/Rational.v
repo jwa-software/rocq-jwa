@@ -9,6 +9,7 @@ From jwa Require Import Algebra.Ring.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Comparison.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
@@ -142,6 +143,9 @@ Definition compare := fun (x : Rational) (y : Rational) .
   Integer.compare
     (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
     (Integer.mul (numerator y) (Integer.from_nat (denominator x))).
+
+(* [Integer -> Rational] *)
+Definition from_integer := fun (n : Integer) . make n Nat.One.
 
 Local Open Scope jwa_rational_scope.
 
@@ -403,7 +407,7 @@ Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       make a b = make c d
       <-> Integer.mul a (Integer.from_nat d)
-          = Integer.mul c (Integer.from_nat b).
+        = Integer.mul c (Integer.from_nat b).
 Proof.
   intros a b c d.
 
@@ -802,6 +806,20 @@ End negation. (* make.negation *)
 
 End make. (* make *)
 
+Theorem characterisation
+  : forall (x : Rational) (y : Rational) .
+      x = y
+      <-> Integer.mul (numerator x) (Integer.from_nat (denominator y))
+        = Integer.mul (numerator y) (Integer.from_nat (denominator x)).
+Proof.
+  intros x y.
+  pose proof (make.characterisation
+                (numerator x) (denominator x)
+                (numerator y) (denominator y)) as c.
+  rewrite (make.retraction x) in c.
+  rewrite (make.retraction y) in c.
+  exact c.
+Qed.
 
 Module addition. (* addition *)
 
@@ -1422,6 +1440,287 @@ Qed.
 
 End inverse. (* inverse *)
 
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall (x : Rational) (y : Rational) (z : Rational) .
+      LessThan x y -> LessThan y z -> LessThan x z.
+Proof.
+  intros x y z H1 H2.
+  unfold LessThan in H1, H2 |- *.
+  unfold Integer.from_nat in H1, H2 |- *.
+
+  set (a := numerator   x) in *.
+  set (b := denominator x) in *.
+  set (c := numerator   y) in *.
+  set (d := denominator y) in *.
+  set (e := numerator   z) in *.
+  set (f := denominator z) in *.
+
+  assert (bridge
+          : Integer.mul (Integer.Positive f)
+                        (Integer.mul c (Integer.Positive b))
+          = Integer.mul (Integer.Positive b)
+                        (Integer.mul c (Integer.Positive f))).
+  {
+    pose proof (Identity.symmetry
+                  (Integer.multiplication.associativity
+                    (Integer.Positive f) c (Integer.Positive b))) as h.
+    rewrite h in |- *.
+    rewrite (Integer.multiplication.commutativity
+               (Integer.Positive f) c) in |- *.
+    rewrite (Integer.multiplication.commutativity
+               (Integer.mul c (Integer.Positive f))
+               (Integer.Positive b)) in |- *.
+    reflexivity.
+  }
+
+  assert (leftward
+          : Integer.mul (Integer.Positive f)
+                  (Integer.mul a (Integer.Positive d))
+          = Integer.mul (Integer.Positive d)
+                  (Integer.mul a (Integer.Positive f))).
+  {
+    pose proof (Identity.symmetry
+                  (Integer.multiplication.associativity
+                    (Integer.Positive f) a (Integer.Positive d))) as h.
+    rewrite h in |- *.
+    rewrite (Integer.multiplication.commutativity
+              (Integer.Positive f)
+              (a)) in |- *.
+    rewrite (Integer.multiplication.commutativity
+              (Integer.mul a (Integer.Positive f))
+              (Integer.Positive d)) in |- *.
+    reflexivity.
+  }
+
+  assert (rightward
+          : Integer.mul (Integer.Positive b)
+                  (Integer.mul e (Integer.Positive d))
+          = Integer.mul (Integer.Positive d)
+                  (Integer.mul e (Integer.Positive b))).
+  {
+    pose proof (Identity.symmetry
+                  (Integer.multiplication.associativity
+                    (Integer.Positive b)
+                    (e)
+                    (Integer.Positive d))) as h.
+    rewrite h in |- *.
+    rewrite (Integer.multiplication.commutativity (Integer.Positive b) e) in |- *.
+    rewrite (Integer.multiplication.commutativity
+               (Integer.mul e (Integer.Positive b))
+               (Integer.Positive d)) in |- *.
+    reflexivity.
+  }
+
+  pose proof (Integer.multiplication.left.order.strict.monotonicity
+                f (Integer.mul a (Integer.Positive d))
+                  (Integer.mul c (Integer.Positive b)) H1) as S1.
+  pose proof (Integer.multiplication.left.order.strict.monotonicity
+                b (Integer.mul c (Integer.Positive f))
+                  (Integer.mul e (Integer.Positive d)) H2) as S2.
+
+  rewrite bridge    in S1.
+  rewrite leftward  in S1.
+  rewrite rightward in S2.
+
+  pose proof (Integer.order.strict.transitivity S1 S2) as chain.
+
+  destruct (Comparable.order.strict.trichotomy
+              (Integer.mul a (Integer.Positive f))
+              (Integer.mul e (Integer.Positive b)))
+        as [lt | [eq | gt]].
+
+  - exact lt.
+
+  - rewrite eq in chain.
+    pose proof (Integer.order.strict.irreflexivity
+                  (Integer.mul (Integer.Positive d)
+                         (Integer.mul e (Integer.Positive b)))) as ir.
+    contradiction ir.
+
+  - pose proof (Integer.multiplication.left.order.strict.monotonicity
+                  d (Integer.mul e (Integer.Positive b))
+                    (Integer.mul a (Integer.Positive f)) gt) as back.
+    pose proof (Integer.order.strict.transitivity chain back) as loop.
+    pose proof (Integer.order.strict.irreflexivity
+                  (Integer.mul (Integer.Positive d)
+                         (Integer.mul a (Integer.Positive f)))) as ir.
+    contradiction ir.
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (x : Rational) (y : Rational) .
+      (compare x y = Comparison.Lt <-> x < y)
+    /\ (compare x y = Comparison.Eq <-> x = y).
+Proof.
+  intros x y.
+
+  destruct (Integer.comparison.specification
+              (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
+              (Integer.mul (numerator y) (Integer.from_nat (denominator x))))
+        as [below equal].
+
+  split.
+  - exact below.
+  - split.
+    + intro h.
+      modus aequans equal, h as cross.
+      modus aequans (characterisation x y), cross as same.
+      exact same.
+    + intro h.
+      modus aequans (characterisation x y), h as cross.
+      modus aequans equal, cross as answer.
+      exact answer.
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (x : Rational) (y : Rational) .
+      compare x y = Comparison.transpose (compare y x).
+Proof.
+  intros x y.
+  exact (Integer.comparison.antisymmetry
+          (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
+          (Integer.mul (numerator y) (Integer.from_nat (denominator x)))).
+Qed.
+
+End comparison. (* comparison *)
+
+Module embedding. (* embedding *)
+
+(* embedding.injectivity *)
+Theorem injectivity
+  : forall {m : Integer} {n : Integer} .
+      from_integer m = from_integer n -> m = n.
+Proof.
+  intros m n e.
+  unfold from_integer in e.
+  modus aequans (make.characterisation m Nat.One n Nat.One), e as cross.
+  change (Integer.from_nat Nat.One)
+    with (Integer.Positive Nat.One) in cross.
+  rewrite (Integer.multiplication.right.identity m) in cross.
+  rewrite (Integer.multiplication.right.identity n) in cross.
+  exact cross.
+Qed.
+
+(* embedding.addition *)
+Theorem addition
+  : forall (m : Integer) (n : Integer) .
+      from_integer (Integer.add m n)
+    = (from_integer m) + (from_integer n).
+Proof.
+  intros m n.
+  unfold from_integer in |- *.
+  rewrite (make.addition.homomorphism m Nat.One n Nat.One) in |- *.
+  change (Integer.from_nat Nat.One)
+    with (Integer.Positive Nat.One) in |- *.
+  rewrite (Integer.multiplication.right.identity m) in |- *.
+  rewrite (Integer.multiplication.right.identity n) in |- *.
+  change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
+  reflexivity.
+Qed.
+
+(* embedding.multiplication *)
+Theorem multiplication
+  : forall (m : Integer) (n : Integer) .
+      from_integer (Integer.mul m n)
+    = (from_integer m) * (from_integer n).
+Proof.
+  intros m n.
+  unfold from_integer in |- *.
+  rewrite (make.multiplication.homomorphism m Nat.One n Nat.One) in |- *.
+  change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
+  reflexivity.
+Qed.
+
+(* embedding.order *)
+Theorem order
+  : forall (m : Integer) (n : Integer) .
+      Integer.LessThan m n
+      <-> LessThan (from_integer m) (from_integer n).
+Proof.
+  intros m n.
+
+  assert (scaling
+          : forall (p : Integer) (q : Integer) (k : Nat) .
+              Integer.LessThan p q
+              <-> Integer.LessThan (Integer.mul p (Integer.Positive k))
+                                   (Integer.mul q (Integer.Positive k))).
+  {
+    intros p q k.
+    split.
+    - intro h.
+      pose proof (Integer.multiplication.left.order.strict.monotonicity
+                    k p q h) as s.
+      rewrite (Integer.multiplication.commutativity
+                 (Integer.Positive k) p) in s.
+      rewrite (Integer.multiplication.commutativity
+                 (Integer.Positive k) q) in s.
+      exact s.
+    - intro h.
+      destruct (Comparable.order.strict.trichotomy p q)
+            as [below | [equal | above]].
+      + exact below.
+      + rewrite equal in h.
+        pose proof (Integer.order.strict.irreflexivity
+                      (Integer.mul q (Integer.Positive k))) as ir.
+        contradiction ir.
+      + pose proof (Integer.multiplication.left.order.strict.monotonicity
+                      k q p above) as s.
+        rewrite (Integer.multiplication.commutativity
+                   (Integer.Positive k) q) in s.
+        rewrite (Integer.multiplication.commutativity
+                   (Integer.Positive k) p) in s.
+        pose proof (Integer.order.strict.transitivity h s) as loop.
+        pose proof (Integer.order.strict.irreflexivity
+                      (Integer.mul p (Integer.Positive k))) as ir.
+        contradiction ir.
+  }
+
+  pose proof (make.proportionality m Nat.One) as P1.
+  pose proof (make.proportionality n Nat.One) as P2.
+  change (Integer.from_nat Nat.One)
+    with (Integer.Positive Nat.One) in P1, P2.
+  rewrite (Integer.multiplication.right.identity
+             (numerator (make m Nat.One))) in P1.
+  rewrite (Integer.multiplication.right.identity
+             (numerator (make n Nat.One))) in P2.
+
+  unfold LessThan   in |- *.
+  unfold from_integer in |- *.
+  rewrite P1 in |- *.
+  rewrite P2 in |- *.
+
+  set (dm := Integer.from_nat (denominator (make m Nat.One))) in *.
+  set (dn := Integer.from_nat (denominator (make n Nat.One))) in *.
+
+  rewrite (Integer.multiplication.associativity m dm dn) in |- *.
+  rewrite (Integer.multiplication.associativity n dn dm) in |- *.
+  rewrite (Integer.multiplication.commutativity dn dm) in |- *.
+
+  change (Integer.mul dm dn)
+    with (Integer.Positive
+           (Nat.mul (denominator (make m Nat.One))
+                    (denominator (make n Nat.One)))) in |- *.
+
+  exact (scaling m n
+           (Nat.mul (denominator (make m Nat.One))
+                    (denominator (make n Nat.One)))).
+Qed.
+
+End embedding. (* embedding *)
+
 Local Close Scope jwa_rational_scope.
 
 End Rational. (* Rational *)
@@ -1433,6 +1732,12 @@ Abbreviation Rational := Rational.T.
  * exported: [add] and the laws still need the [Rational.] prefix.
  *)
 Export (notations) Rational.
+
+Instance Rational_comparable
+  : Comparable Rational.compare Rational.LessThan :=
+  {| Comparable.transitivity  := Rational.order.strict.transitivity
+   ; Comparable.specification := Rational.comparison.specification
+   ; Comparable.antisymmetry  := Rational.comparison.antisymmetry |}.
 
 Instance Rational_add_monoid : Monoid Rational.add Rational.Zero :=
   {| Monoid.semigroup :=
