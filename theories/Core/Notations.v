@@ -121,6 +121,14 @@ Reserved Notation "l 'does_not_contain_member' a"
 Reserved Notation "a 'does_not_belong_to' l"
   (at level 70, no associativity).
 
+(* [barbara] is the syllogism written as a term, so that one may stand where
+ * its conclusion is wanted and nest inside another. Its meaning belongs to
+ * [Tactics.Syllogism], beside the tactic that carries the same name; only
+ * the level is fixed here, as every other level is.
+ *)
+Reserved Notation "'barbara' Hmp , Hsm"
+  (at level 10, Hmp at next level, Hsm at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"

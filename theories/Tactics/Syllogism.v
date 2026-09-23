@@ -3,6 +3,7 @@
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Syllogism.
 From jwa Require Import Core.Ltac.
+From jwa Require Import Core.Notations.
 
 (* Syllogisms: two premises meeting in a middle term compose into a third.
  *
@@ -14,8 +15,17 @@ From jwa Require Import Core.Ltac.
  *                                          forall x . S x -> M x
  *                                          |- forall x . S x -> P x
  *
- * [as <p>] puts the conclusion into the context under the intro pattern <p>
- * instead of closing the goal.
+ * [hs] and [hypothetical syllogism] are tactics: bare they close the goal,
+ * and [as <p>] puts the conclusion into the context under the intro pattern
+ * <p> instead.
+ *
+ * [barbara] splits the two. Bare it is not a tactic but a term, so it closes
+ * nothing and stands where its conclusion is wanted -- inside [exact], a
+ * [pose proof], or another [barbara], which is what lets two syllogisms be
+ * written as one expression. Only [barbara <Hmp>, <Hsm> as <p>] is a tactic.
+ * A term notation makes its head a keyword, so nothing anywhere may be named
+ * [barbara]; [hs] keeps both tactic forms, that name being in use for
+ * hypotheses.
  *
  * The premises are taken in the order written: the middle term is what the
  * first concludes and the second assumes. Giving them the other way round is
@@ -23,8 +33,9 @@ From jwa Require Import Core.Ltac.
  * premises have different shapes, both premises of a syllogism look alike,
  * so their order is what says which one is the major.
  *
- * The proofs are [uconstr]: a [constr] is elaborated alone, where a lemma's
- * implicit binders have nothing yet to fix them.
+ * The tactics take their proofs as [uconstr]: a [constr] is elaborated
+ * alone, where a lemma's implicit binders have nothing yet to fix them. The
+ * term form needs no such care, being elaborated in the place it stands.
  *)
 
 Tactic Notation "hs" uconstr(Hab) "," uconstr(Hbc) :=
@@ -40,8 +51,9 @@ Tactic Notation "hypothetical" "syllogism" uconstr(Hab) "," uconstr(Hbc)
     "as" simple_intropattern(p) :=
   pose proof (Conditional.transitivity Hab Hbc) as p.
 
-Tactic Notation "barbara" uconstr(Hmp) "," uconstr(Hsm) :=
-  exact (Syllogism.Barbara Hmp Hsm).
+(* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
+Notation "'barbara' Hmp , Hsm" := (Syllogism.Barbara Hmp Hsm)
+  (only parsing).
 
 Tactic Notation "barbara" uconstr(Hmp) "," uconstr(Hsm) "as" simple_intropattern(p) :=
   pose proof (Syllogism.Barbara Hmp Hsm) as p.

@@ -160,7 +160,7 @@ Theorem tactics_all_delivers_barbara
       (forall (x : A) . S x -> P x).
 Proof.
   intros A S M P mp sm.
-  barbara mp, sm.
+  exact (barbara mp, sm).
 Qed.
 
 Theorem tactics_all_delivers_barbara_as
@@ -172,6 +172,18 @@ Proof.
   intros A S M P mp sm.
   barbara mp, sm as sp.
   exact sp.
+Qed.
+
+Theorem tactics_all_delivers_barbara_nested
+  : forall (A : Type) (R : A -> Prop) (S : A -> Prop) (M : A -> Prop)
+      (P : A -> Prop) .
+      (forall (x : A) . M x -> P x) ->
+      (forall (x : A) . S x -> M x) ->
+      (forall (x : A) . R x -> S x) ->
+      (forall (x : A) . R x -> P x).
+Proof.
+  intros A R S M P mp sm rs.
+  exact (barbara (barbara mp, sm), rs).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollens
