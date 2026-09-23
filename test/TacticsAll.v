@@ -33,6 +33,36 @@ Proof.
   ipso facto.
 Qed.
 
+Theorem tactics_all_delivers_dne
+  : forall (A : Prop) . ~ ~ ~ A -> ~ A.
+Proof.
+  intros A nnna.
+  ipso (dne nnna).
+Qed.
+
+Theorem tactics_all_delivers_dne_of_dni
+  : forall (A : Prop) . ~ A -> ~ A.
+Proof.
+  intros A na.
+  ipso (dne (dni na)).
+Qed.
+
+Theorem tactics_all_delivers_dne_as
+  : forall (A : Prop) . ~ ~ ~ A -> ~ A.
+Proof.
+  intros A nnna.
+  dne nnna as facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_dne_turnstile
+  : forall (A : Prop) . ~ ~ ~ A -> ~ A.
+Proof.
+  intros A nnna.
+  dne nnna |- facto.
+  ipso facto.
+Qed.
+
 Theorem tactics_all_delivers_ipso
   : forall (A : Prop) . A -> A.
 Proof.

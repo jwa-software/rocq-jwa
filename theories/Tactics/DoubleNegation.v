@@ -22,3 +22,25 @@ Tactic Notation "dni" uconstr(H) "as" simple_intropattern(p) :=
 
 Tactic Notation "dni" uconstr(H) "|-" simple_intropattern(p) :=
   pose proof (Negation.double.introduction H) as p.
+
+(* Double negation elimination, only where it holds constructively.
+ *
+ *   dne <H>    ~ ~ ~ A |- ~ A
+ *
+ * [~ ~ A |- A] in general is classical: [~ ~ A] says only that [A] cannot
+ * fail, and gives no proof of [A] to return. The library adds no axiom, so
+ * [dne] removes two negations only when a third remains beneath them, [~ A]
+ * being a function into [Falsum] that [~ ~ ~ A] suffices to build. On any
+ * other shape it is a type error.
+ *
+ * Shaped like [dni]: a term when bare, a tactic with [as <p>] or [|- <p>].
+ * Nothing anywhere may be named [dne].
+ *)
+Notation "'dne' H" := (Negation.triple.reduction H)
+  (only parsing).
+
+Tactic Notation "dne" uconstr(H) "as" simple_intropattern(p) :=
+  pose proof (Negation.triple.reduction H) as p.
+
+Tactic Notation "dne" uconstr(H) "|-" simple_intropattern(p) :=
+  pose proof (Negation.triple.reduction H) as p.
