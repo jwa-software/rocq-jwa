@@ -334,6 +334,69 @@ Proof.
   reflexivity.
 Qed.
 
+Theorem tactics_all_delivers_let_proof_dropping_a_body
+  : forall (m : Nat) (n : Nat) .
+      Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
+Proof.
+  intros m n h.
+  let H := Nat.addition.order.monotonicity Nat.One m n h.
+  let proof H := H.
+  Fail lazymatch goal with
+  | _ := _ |- _ => idtac
+  end.
+  ipso H.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_dropping_a_body_with_a_type
+  : forall (m : Nat) (n : Nat) .
+      Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
+Proof.
+  intros m n h.
+  let H := Nat.addition.order.monotonicity Nat.One m n h.
+  let proof H : Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n) := H.
+  Fail lazymatch goal with
+  | _ := _ |- _ => idtac
+  end.
+  ipso H.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_of_a_definition_under_another_name
+  : forall (m : Nat) (n : Nat) .
+      Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
+Proof.
+  intros m n h.
+  let H := Nat.addition.order.monotonicity Nat.One m n h.
+  let proof facto := H.
+  lazymatch goal with
+  | H := _ |- _ => ipso facto
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_dropping_a_body_others_mention
+  : forall (m : Nat) . Verum.
+Proof.
+  intro m.
+  let k := Nat.add m m.
+  assert (q : k = k).
+  - reflexivity.
+  - let proof k := k.
+    Fail lazymatch goal with
+    | _ := _ |- _ => idtac
+    end.
+    lazymatch goal with
+    | q : k = k |- _ => ipso I
+    end.
+Qed.
+
+Theorem tactics_all_delivers_let_proof_leaving_a_hypothesis_alone
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A H.
+  let proof H := H.
+  let proof H : A := H.
+  ipso H.
+Qed.
+
 Theorem tactics_all_delivers_let_proof_refusing_what_another_depends_on
   : forall (n : Nat) (e : n = n) (P : n = n -> Prop) . P e -> P e.
 Proof.

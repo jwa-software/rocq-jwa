@@ -14,12 +14,15 @@ From jwa Require Import Core.Ltac.
  *
  * A name already in the context is shadowed, not refused:
  *
- *   let proof h : (A -> Falsum) := h    retypes [h] in place, by [change]
- *   let proof h := lemma h              binds [h] to the result
+ *   let proof h : A -> Falsum := h    retypes [h] in place, by [change]
+ *   let proof h := h                  drops the body of [h], by [clearbody]
+ *   let proof h := lemma h            binds [h] to the result
  *
- * With a type and the same name on the right, [h] keeps its body and takes
- * the new type, which must be convertible with the old. Otherwise the old
- * [h] is replaced: gone from the context, and, if it was a definition,
+ * With the same name on the right, [h] stays where it is: [let] may give it
+ * a new type, which must be convertible with the old, and keeps its body;
+ * [let proof] does the same and then drops the body, so that [h] becomes a
+ * hypothesis, and does nothing to a hypothesis already of that type.
+ * Otherwise the old [h] is replaced: gone from the context, and, if it was a definition,
  * written out in the new body where it was mentioned. When another
  * hypothesis depends on the old [h], nothing happens and [clear] says which.
  * Once [let proof] exists, [let] cannot name a definition [proof].
@@ -62,16 +65,23 @@ Ltac let_definition_typed x T e :=
      else (let y := fresh x in refine (let y : T := e in _); let_replace x y))
   else refine (let x : T := e in _).
 
+(* [let proof h := h] keeps the name and drops the body: [clearbody] leaves
+ * every hypothesis that mentions [h] valid, where a replacement would have
+ * to clear [h] and so refuse. On a hypothesis with no body it does nothing.
+ *)
 Ltac let_proof h e :=
   tryif (let t := type of h in idtac)
-  then (let y := fresh h in pose proof e as y; let_replace h y)
+  then
+    (tryif constr_eq e h
+     then try clearbody h
+     else (let y := fresh h in pose proof e as y; let_replace h y))
   else pose proof e as h.
 
 Ltac let_proof_typed h T e :=
   tryif (let t := type of h in idtac)
   then
     (tryif constr_eq e h
-     then change T in (type of h)
+     then (change T in (type of h); try clearbody h)
      else (let y := fresh h in pose proof (e : T) as y; let_replace h y))
   else pose proof (e : T) as h.
 
