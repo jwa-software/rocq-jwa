@@ -219,7 +219,7 @@ Proof.
       exact (h a' b').
     }
 
-    modus ponens H', pointwise.
+    exact (modus ponens H', pointwise).
 
   - exact a.
 Qed.

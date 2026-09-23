@@ -84,7 +84,7 @@ Theorem reflexivity
 Proof.
   intros A compare lt C n.
   destruct (Comparable.specification n n) as [_ s].
-  modus aequans s, (Identity.reflexivity n).
+  exact (modus aequans s, (Identity.reflexivity n)).
 Qed.
 
 Module strict. (* comparison.strict *)
@@ -123,7 +123,7 @@ Proof.
   - intro e.
     destruct (compare n m) as [| |] eqn:c.
     + destruct (Comparable.specification n m) as [s _].
-      modus aequans s, c.
+      exact (modus aequans s, c).
     + simpl in e.
       discriminate e.
     + simpl in e.
@@ -172,7 +172,7 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + discriminate e.
     + destruct (Comparable.specification m n) as [_ s].
-      modus aequans s, c.
+      exact (modus aequans s, c).
     + discriminate e.
   - intro h.
     destruct (Comparable.specification m n) as [_ s].
@@ -340,14 +340,14 @@ Proof.
     + intro e.
       apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
-      modus aequans s, c.
+      exact (modus aequans s, c).
     + intro h.
       reflexivity.
   - split.
     + intro e.
       apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
-      modus aequans s, c.
+      exact (modus aequans s, c).
     + intro h.
       reflexivity.
   - split.
@@ -386,10 +386,10 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
-      modus aequans s, c.
+      exact (modus aequans s, c).
     + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
-      modus aequans s, c.
+      exact (modus aequans s, c).
     + apply Disjunction.L.
       exact (Identity.symmetry e).
   - intro h.
@@ -422,7 +422,8 @@ Proof.
   - exact (Disjunction.L (Identity.reflexivity l)).
   - exact (Disjunction.L (Identity.reflexivity l)).
   - apply Disjunction.R.
-    modus aequans (comparison.strict.transposition.specification l r), c.
+    exact (modus aequans
+             (comparison.strict.transposition.specification l r), c).
 Qed.
 
 End left. (* minimum.left *)
@@ -444,10 +445,10 @@ Proof.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
-    modus aequans s, c.
+    exact (modus aequans s, c).
   - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
-    modus aequans s, c.
+    exact (modus aequans s, c).
   - exact (Disjunction.L (Identity.reflexivity r)).
 Qed.
 
@@ -576,7 +577,8 @@ Proof.
       modus aequans s, c as e'.
       exact (Identity.symmetry e').
     + apply Disjunction.R.
-      modus aequans (comparison.strict.transposition.specification m n), c.
+      exact (modus aequans
+               (comparison.strict.transposition.specification m n), c).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
     + destruct h as [e | gt].
@@ -605,7 +607,7 @@ Proof.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
-    modus aequans s, c.
+    exact (modus aequans s, c).
   - exact (Disjunction.L (Identity.reflexivity l)).
   - exact (Disjunction.L (Identity.reflexivity l)).
 Qed.
@@ -633,7 +635,8 @@ Proof.
     modus aequans s, c as e.
     exact (Identity.symmetry e).
   - apply Disjunction.R.
-    modus aequans (comparison.strict.transposition.specification l r), c.
+    exact (modus aequans
+             (comparison.strict.transposition.specification l r), c).
 Qed.
 
 End right. (* maximum.right *)

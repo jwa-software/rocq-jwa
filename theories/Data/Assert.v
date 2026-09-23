@@ -86,7 +86,7 @@ Proof.
             split;
               intro h.
   - contradiction h.
-  - destruct h as [t nt | nt t]; modus ponens nt, t.
+  - destruct h as [t nt | nt t]; exact (modus ponens nt, t).
   - exact (Sejunction.left  I (fun (f : Falsum) . f)).
   - exact I.
   - exact (Sejunction.right (fun (f : Falsum) . f) I).
@@ -106,7 +106,7 @@ Proof.
           split;
             intro h.
   - contradiction h.
-  - modus ponens h, I.
+  - exact (modus ponens h, I).
   - intro k.
     destruct k.
   - exact I.

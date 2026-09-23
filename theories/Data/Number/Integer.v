@@ -1583,7 +1583,7 @@ Proof.
     destruct lt as [k e].
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in e.
-    modus aequans (difference.nat.negative.specification k m' n'), e.
+    exact (modus aequans (difference.nat.negative.specification k m' n'), e).
   - intro h.
     destruct h as [k e].
     modus aequans (difference.nat.negative.specification k m' n'), e as e'.

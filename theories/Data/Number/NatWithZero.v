@@ -1088,8 +1088,8 @@ Proof.
   - split.
     * simpl in |- *.
       intro e.
-      modus aequans (positive.order.embedding m' n'),
-                    (Nat.comparison.strict.forward.specification e).
+      exact (modus aequans (positive.order.embedding m' n'),
+                           (Nat.comparison.strict.forward.specification e)).
     * intro h.
       simpl in |- *.
       modus aequans (positive.order.embedding m' n'), h as lt.
@@ -2000,7 +2000,7 @@ Proof.
     (* [H : forall (r : Induced (<) pi_2 y x) . f y r = g y r] *)
     pose proof (h y) as H.
 
-    modus ponens H, r.
+    exact (modus ponens H, r).
   }
 Qed.
 
@@ -2064,7 +2064,7 @@ Proof.
                 (Biconditional.forward.elimination (positive.order.embedding r q) b)
             : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q)).
     pose proof (h ((+ q), r)) as H.
-    modus ponens H, s.
+    exact (modus ponens H, s).
 Qed.
 
 End nat. (* euclid.nat *)
@@ -2410,7 +2410,7 @@ Proof.
       }
       pose proof (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2)
         as below.
-      modus ponens below, remainder.
+      exact (modus ponens below, remainder).
   - exact (order.strict.wellfoundedness b).
 Qed.
 
