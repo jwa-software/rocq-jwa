@@ -143,6 +143,69 @@ Module make. (* make *)
 
 Local Open Scope jwa_integer_scope.
 
+(* make.retraction *)
+Theorem retraction
+  : forall (x : Rational) . make (numerator x) (denominator x) = x.
+Proof.
+  intro x.
+  destruct x as [n d h].
+  simplify numerator, denominator in |- *.
+
+  assert (whole : n /. Nat.One = n).
+  {
+    pose proof (Integer.division.exactness
+                  n Nat.One
+                  (NatWithZero.divisibility.bottom (| n |))) as e.
+    pose proof (Integer.multiplication.right.identity (n /. Nat.One)) as i.
+    symmetry in i.
+    exact (Identity.transitivity i e).
+  }
+
+  assert (undivided
+          : NatWithZero.divide (NatWithZero.Positive d) (Nat.One)
+          = NatWithZero.Positive d).
+  {
+    pose proof (NatWithZero.division.exactness
+                  (NatWithZero.Positive d) (Nat.One)
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)))
+            as e.
+    pose proof (NatWithZero.multiplication.right.identity
+                  (NatWithZero.divide (NatWithZero.Positive d) (Nat.One))) as i.
+    symmetry in i.
+    exact (Identity.transitivity i e).
+  }
+
+  assert (same
+          : NatWithZero.divide (NatWithZero.Positive d) (NatWithZero.gcd.nat (| n |) d)
+          = NatWithZero.divide (NatWithZero.Positive d) (Nat.One)).
+  {
+    rewrite h in |- *.
+    reflexivity.
+  }
+
+  apply extensionality.
+  - simplify make      in |- *.
+    simplify numerator in |- *.
+    rewrite h in |- *.
+    exact whole.
+  - simplify make        in |- *.
+    simplify denominator in |- *.
+    pose proof (NatWithZero.divide.nat.safe.congruence
+                  d (NatWithZero.gcd.nat (| n |) d)
+                  (NatWithZero.gcd.nat.right.divisibility (| n |) d)
+                  d Nat.One
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d))
+                  same)
+            as c.
+    pose proof (NatWithZero.divide.nat.safe.specification
+                  d Nat.One
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)))
+            as s.
+    rewrite undivided in s.
+    pose proof (NatWithZero.positive.injectivity s) as inj.
+    exact (Identity.transitivity c inj).
+Qed.
+
 (* make.invariance *)
 Theorem invariance
   : forall (n : Integer) (d : Nat) (k : Nat) .
