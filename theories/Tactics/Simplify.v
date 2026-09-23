@@ -4,31 +4,32 @@ From jwa Require Import Core.Ltac.
 
 (* One name for the two ways a statement is made plainer without changing
  * what it says: unfolding a definition, and reducing what is already applied.
- * Below, <hs> is a comma-separated list of hypotheses, one or more.
+ * Below, <hypotheses> is a comma-separated list of hypothesis names, one or
+ * more.
  *
  * Unfolding one definition, in the four places a step can act:
  *
- *   simplify <d> in <hs>                     unfold <d> in <hs>
- *   simplify <d> in <hs> |- *                unfold <d> in <hs> |- *
- *   simplify <d> in |- *                     unfold <d> in |- *
- *   simplify <d> in *                        unfold <d> in *
+ *   simplify <d> in <hypotheses>                     unfold <d> in <hypotheses>
+ *   simplify <d> in <hypotheses> |- *                unfold <d> in <hypotheses> |- *
+ *   simplify <d> in |- *                             unfold <d> in |- *
+ *   simplify <d> in *                                unfold <d> in *
  *
  * The same four places, for two definitions and so on up to ten:
  *
- *   simplify <d1>, <d2> in <hs>              unfold <d1>, <d2> in <hs>
- *   simplify <d1>, <d2> in <hs> |- *         unfold <d1>, <d2> in <hs> |- *
- *   simplify <d1>, <d2> in |- *              unfold <d1>, <d2> in |- *
- *   simplify <d1>, <d2> in *                 unfold <d1>, <d2> in *
+ *   simplify <d1>, <d2> in <hypotheses>              unfold <d1>, <d2> in <hypotheses>
+ *   simplify <d1>, <d2> in <hypotheses> |- *         unfold <d1>, <d2> in <hypotheses> |- *
+ *   simplify <d1>, <d2> in |- *                      unfold <d1>, <d2> in |- *
+ *   simplify <d1>, <d2> in *                         unfold <d1>, <d2> in *
  *
- *   simplify <d1>, ..., <d10> in <hs>        unfold <d1>, ..., <d10> in <hs>
- *   simplify <d1>, ..., <d10> in <hs> |- *   and the other two places likewise
+ *   simplify <d1>, ..., <d10> in <hypotheses>        unfold <d1>, ..., <d10> in <hypotheses>
+ *   simplify <d1>, ..., <d10> in <hypotheses> |- *   and the other two places likewise
  *
  * Reducing what is already applied:
  *
- *   simplify in <hs>                         simpl in <hs>
- *   simplify in <hs> |- *                    simpl in <hs> |- *
- *   simplify in |- *                         simpl in |- *
- *   simplify in *                            simpl in *
+ *   simplify in <hypotheses>                         simpl in <hypotheses>
+ *   simplify in <hypotheses> |- *                    simpl in <hypotheses> |- *
+ *   simplify in |- *                                 simpl in |- *
+ *   simplify in *                                    simpl in *
  *
  * [|- *] is the goal, and [*] every hypothesis together with the goal.
  *
@@ -53,11 +54,11 @@ From jwa Require Import Core.Ltac.
  * kind that survives the journey. Past ten, [unfold] itself has no limit.
  *)
 
-Tactic Notation "simplify" reference(d) "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d in hs.
+Tactic Notation "simplify" reference(d) "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d in hypotheses.
 
-Tactic Notation "simplify" reference(d) "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d in hs |- *.
+Tactic Notation "simplify" reference(d) "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d) "in" "|-" "*" :=
   unfold d in |- *.
@@ -66,12 +67,12 @@ Tactic Notation "simplify" reference(d) "in" "*" :=
   unfold d in *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2)
     "in" "|-" "*" :=
@@ -82,12 +83,12 @@ Tactic Notation "simplify" reference(d1) "," reference(d2)
   unfold d1, d2 in *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "in" "|-" "*" :=
@@ -99,13 +100,13 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4)
@@ -119,13 +120,13 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4, d5 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4, d5 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4, d5 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5)
@@ -139,13 +140,13 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4, d5, d6 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4, d5, d6 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4, d5, d6 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
@@ -160,14 +161,14 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4, d5, d6, d7 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4, d5, d6, d7 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
@@ -184,14 +185,14 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7) "," reference(d8)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4, d5, d6, d7, d8 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7) "," reference(d8)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4, d5, d6, d7, d8 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
@@ -208,14 +209,14 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7) "," reference(d8) "," reference(d9)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7) "," reference(d8) "," reference(d9)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
@@ -233,15 +234,15 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7) "," reference(d8) "," reference(d9)
     "," reference(d10)
-    "in" ne_hyp_list_sep(hs, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in hs.
+    "in" ne_hyp_list_sep(hypotheses, ",") :=
+  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in hypotheses.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
     "," reference(d7) "," reference(d8) "," reference(d9)
     "," reference(d10)
-    "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in hs |- *.
+    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in hypotheses |- *.
 
 Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "," reference(d4) "," reference(d5) "," reference(d6)
@@ -257,11 +258,11 @@ Tactic Notation "simplify" reference(d1) "," reference(d2) "," reference(d3)
     "in" "*" :=
   unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in *.
 
-Tactic Notation "simplify" "in" ne_hyp_list_sep(hs, ",") :=
-  simpl in hs.
+Tactic Notation "simplify" "in" ne_hyp_list_sep(hypotheses, ",") :=
+  simpl in hypotheses.
 
-Tactic Notation "simplify" "in" ne_hyp_list_sep(hs, ",") "|-" "*" :=
-  simpl in hs |- *.
+Tactic Notation "simplify" "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
+  simpl in hypotheses |- *.
 
 Tactic Notation "simplify" "in" "|-" "*" :=
   simpl in |- *.

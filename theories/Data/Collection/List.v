@@ -3050,7 +3050,7 @@ Lemma contraposition
 Proof.
   intros A le total a b s.
   symmetry in s.
-  HS (Identity.transitivity s), Bool.distinctness.backward as n.
+  hs (Identity.transitivity s), Bool.distinctness.backward as n.
   modus tollendo ponens (total a b), n.
 Qed.
 

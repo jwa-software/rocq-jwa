@@ -51,14 +51,14 @@ Theorem tactics_all_delivers_hypothetical_syllogism_short
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C hab hbc.
-  HS hab, hbc.
+  hs hab, hbc.
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_short_as
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C hab hbc.
-  HS hab, hbc as hac.
+  hs hab, hbc as hac.
   exact hac.
 Qed.
 

@@ -6,7 +6,7 @@ From jwa Require Import Core.Ltac.
 
 (* Syllogisms: two premises meeting in a middle term compose into a third.
  *
- *   HS                     <Hab>, <Hbc>    A -> B, B -> C |- A -> C
+ *   hs                     <Hab>, <Hbc>    A -> B, B -> C |- A -> C
  *
  *   hypothetical syllogism <Hab>, <Hbc>    the same rule, spelled out
  *
@@ -27,10 +27,10 @@ From jwa Require Import Core.Ltac.
  * implicit binders have nothing yet to fix them.
  *)
 
-Tactic Notation "HS" uconstr(Hab) "," uconstr(Hbc) :=
+Tactic Notation "hs" uconstr(Hab) "," uconstr(Hbc) :=
   exact (Conditional.transitivity Hab Hbc).
 
-Tactic Notation "HS" uconstr(Hab) "," uconstr(Hbc) "as" simple_intropattern(p) :=
+Tactic Notation "hs" uconstr(Hab) "," uconstr(Hbc) "as" simple_intropattern(p) :=
   pose proof (Conditional.transitivity Hab Hbc) as p.
 
 Tactic Notation "hypothetical" "syllogism" uconstr(Hab) "," uconstr(Hbc) :=
