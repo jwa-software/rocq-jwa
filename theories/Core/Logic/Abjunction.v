@@ -40,7 +40,7 @@ Proof.
   intro ab.
   apply nb.
   apply ab.
-  exact a.
+  ipso a.
 Qed.
 
 End of. (* exclusion.of *)
@@ -61,15 +61,15 @@ Proof.
     intro nb.
     apply h.
     split.
-    + exact a.
-    + exact nb.
+    + ipso a.
+    + ipso nb.
   - unfold Negation in |- *.
     intro f.
     intro h.
     destruct h as [a nb].
     apply f.
-    + exact a.
-    + exact nb.
+    + ipso a.
+    + ipso nb.
 Qed.
 
 End negation. (* negation *)
@@ -87,21 +87,21 @@ Proof.
   - destruct h as [a1 nb1].
     split.
     + apply a12.
-      exact a1.
+      ipso a1.
     + unfold Negation in nb1 |- *.
       intro b2.
       apply nb1.
       apply b21.
-      exact b2.
+      ipso b2.
   - destruct h as [a2 nb2].
     split.
     + apply a21.
-      exact a2.
+      ipso a2.
     + unfold Negation in nb2 |- *.
       intro b1.
       apply nb2.
       apply b12.
-      exact b1.
+      ipso b1.
 Qed.
 
 End Abjunction. (* Abjunction *)
@@ -129,7 +129,7 @@ Proof.
   unfold Negation in nb.
   apply nb.
   apply ab.
-  exact a.
+  ipso a.
 Qed.
 
 End of. (* exclusion.of *)

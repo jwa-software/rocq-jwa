@@ -161,7 +161,7 @@ Proof.
   pose (f := (fun (x : Nat) . match x with | 1 => m | S y => y end)).
   pose proof (Identity.congruence f e) as e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 Module order. (* successor.order *)
@@ -199,7 +199,7 @@ Proof.
   pose proof (successor.injectivity e)
           as e'.
   unfold LessThan in |- *.
-  exact (Exists_introduction k e').
+  ipso (Exists_introduction k e').
 Qed.
 
 End monotonicity. (* successor.order.monotonicity *)
@@ -283,7 +283,7 @@ Proof.
     rewrite (addition.commutativity n' k)
             in e'.
     unfold Negation in IH.
-    exact (modus ponens IH, e').
+    ipso (modus ponens IH, e').
 Qed.
 
 End identity. (* addition.identity *)
@@ -298,12 +298,12 @@ Proof.
   induction m as [| m' IH] using Nat.induction.
   - simpl in |- *.
     intro e.
-    exact (successor.injectivity e).
+    ipso (successor.injectivity e).
   - simpl in |- *.
     intro e.
     pose proof (successor.injectivity e)
             as e'.
-    exact (modus ponens IH, e').
+    ipso (modus ponens IH, e').
 Qed.
 
 (* addition.left.commutativity *)
@@ -328,7 +328,7 @@ Proof.
   intros m n k e.
   rewrite (addition.commutativity k n) in e.
   rewrite (addition.commutativity m n) in e.
-  exact (addition.left.cancellation e).
+  ipso (addition.left.cancellation e).
 Qed.
 
 (* addition.right.commutativity *)
@@ -351,8 +351,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (@addition.left.cancellation  m n k).
-  - exact (@addition.right.cancellation m n k).
+  - ipso (@addition.left.cancellation  m n k).
+  - ipso (@addition.right.cancellation m n k).
 Qed.
 
 Module order. (* addition.order *)
@@ -424,7 +424,7 @@ Proof.
           as a.
   rewrite a  in |- *.
   rewrite e1 in |- *.
-  exact e2.
+  ipso e2.
 Qed.
 
 (* Trichotomy, "cut in three": for any [m] and [n], exactly one of
@@ -443,7 +443,7 @@ Proof.
   -
     pose proof (Identity.reflexivity 1)
             as id.
-    exact (Disjunction.R (Disjunction.L id)).
+    ipso (Disjunction.R (Disjunction.L id)).
   -
     apply Disjunction.L.
     unfold LessThan in |- *.
@@ -462,7 +462,7 @@ Proof.
     destruct t as [lt | rest].
     +
       apply Disjunction.L.
-      exact (successor.order.monotonicity lt).
+      ipso (successor.order.monotonicity lt).
     +
       destruct rest as [eq | gt].
       *
@@ -473,7 +473,7 @@ Proof.
       *
         apply Disjunction.R.
         apply Disjunction.R.
-        exact (successor.order.monotonicity gt).
+        ipso (successor.order.monotonicity gt).
 Qed.
 
 (* Descending from [n] cannot go on for ever, since [One] has nothing below
@@ -500,13 +500,13 @@ Proof.
     + simpl in e.
       pose proof (successor.injectivity e) as e'.
       rewrite e' in |- *.
-      exact IH.
+      ipso IH.
     + simpl in e.
       pose proof (successor.injectivity e) as e'.
       apply (Accessible.descend IH).
       apply (Exists_introduction k').
       rewrite (addition.commutativity y k') in |- *.
-      exact e'.
+      ipso e'.
 Qed.
 
 End strict. (* order.strict *)
@@ -629,7 +629,7 @@ Proof.
     modus ponens i, lt' as f.
     ex f quodlibet.
   - destruct rest as [eq | gt].
-    + exact eq.
+    + ipso eq.
     + pose proof (multiplication.left.order.monotonicity m k n gt)
               as gt'.
       rewrite e
@@ -673,7 +673,7 @@ Proof.
   intros m n k e.
   rewrite (multiplication.commutativity m n) in e.
   rewrite (multiplication.commutativity k n) in e.
-  exact (multiplication.left.cancellation e).
+  ipso (multiplication.left.cancellation e).
 Qed.
 
 (* multiplication.right.commutativity *)
@@ -732,7 +732,7 @@ Proof.
   -
     split.
     + reflexivity.
-    + exact e.
+    + ipso e.
   -
     destruct j as [| j'].
     + simpl in e.
@@ -771,8 +771,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (@multiplication.left.cancellation  m n k).
-  - exact (@multiplication.right.cancellation m n k).
+  - ipso (@multiplication.left.cancellation  m n k).
+  - ipso (@multiplication.right.cancellation m n k).
 Qed.
 
 End multiplication. (* multiplication *)
@@ -791,7 +791,7 @@ Proof.
   intros n.
   induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
-  - exact IH.
+  - ipso IH.
 Qed.
 
 Module exponent. (* power.exponent *)
@@ -894,7 +894,7 @@ Proof.
   -
     discriminate e.
   -
-    exact (successor.order.monotonicity (IH n' e)).
+    ipso (successor.order.monotonicity (IH n' e)).
 Qed.
 
 End forward. (* comparison.strict.forward *)
@@ -925,7 +925,7 @@ Proof.
     simpl in e.
     discriminate e.
   +
-    exact (IH n' (successor.order.monotonicity.inversion h)).
+    ipso (IH n' (successor.order.monotonicity.inversion h)).
 Qed.
 
 End backward. (* comparison.strict.backward *)
@@ -967,7 +967,7 @@ Proof.
   clear e.
   induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
-  - exact IH.
+  - ipso IH.
 Qed.
 
 End backward. (* comparison.equality.backward *)
@@ -981,10 +981,10 @@ Theorem specification
 Proof.
   intros m n.
   split; split.
-  - exact (@comparison.strict.forward.specification    m n).
-  - exact (@comparison.strict.backward.specification   m n).
-  - exact (@comparison.equality.forward.specification  m n).
-  - exact (@comparison.equality.backward.specification m n).
+  - ipso (@comparison.strict.forward.specification    m n).
+  - ipso (@comparison.strict.backward.specification   m n).
+  - ipso (@comparison.equality.forward.specification  m n).
+  - ipso (@comparison.equality.backward.specification m n).
 Qed.
 
 (* comparison.antisymmetry *)
@@ -1000,7 +1000,7 @@ Proof.
   - reflexivity.
   - reflexivity.
   - reflexivity.
-  - exact (IH n').
+  - ipso (IH n').
 Qed.
 
 Module maximum. (* comparison.maximum *)
@@ -1044,8 +1044,8 @@ Theorem identity
 Proof.
   intros n.
   split.
-  - exact (comparison.maximum.left.identity  n).
-  - exact (comparison.maximum.right.identity n).
+  - ipso (comparison.maximum.left.identity  n).
+  - ipso (comparison.maximum.right.identity n).
 Qed.
 
 End maximum. (* comparison.maximum *)
@@ -1070,7 +1070,7 @@ Proof.
     rewrite e in b.
     discriminate b.
   - apply Disjunction.L.
-    exact (comparison.equality.forward.specification e).
+    ipso (comparison.equality.forward.specification e).
   - apply Disjunction.R.
     unfold Negation in |- *.
     intro h.
@@ -1087,7 +1087,7 @@ Theorem uniqueness
   : forall (m : Nat) (n : Nat) (p : m = n) (q : m = n) . p = q.
 Proof.
   intros m n p q.
-  exact (Identity.hedberg.uniqueness decidability m n p q).
+  ipso (Identity.hedberg.uniqueness decidability m n p q).
 Qed.
 
 End equality. (* equality *)
@@ -1108,7 +1108,7 @@ Proof.
         using Nat.induction;
         simpl in |- *.
     + reflexivity.
-    + exact IH.
+    + ipso IH.
   -
     unfold LessThan in lt.
     destruct lt as [k e].
@@ -1119,7 +1119,7 @@ Proof.
         using Nat.induction;
         simpl in |- *.
     + reflexivity.
-    + exact IH.
+    + ipso IH.
 Qed.
 
 Module inversion. (* subtraction.inversion *)
@@ -1138,7 +1138,7 @@ Proof.
   - rewrite (addition.commutativity m (S n')) in |- *.
     simpl in |- *.
     rewrite (addition.commutativity n' m) in |- *.
-    exact IH.
+    ipso IH.
 Qed.
 
 End of. (* subtraction.inversion.of *)
@@ -1152,7 +1152,7 @@ Proof.
   intros k m n.
   induction k as [| k' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
-  - exact IH.
+  - ipso IH.
 Qed.
 
 Module forward. (* subtraction.forward *)
@@ -1193,7 +1193,7 @@ Proof.
   symmetry in e.
   rewrite e in |- *.
   rewrite (addition.commutativity n k) in |- *.
-  exact (subtraction.inversion.of.addition k n).
+  ipso (subtraction.inversion.of.addition k n).
 Qed.
 
 End backward. (* subtraction.backward *)
@@ -1204,8 +1204,8 @@ Theorem specification
 Proof.
   intros m n k.
   split.
-  - exact (@subtraction.forward.specification  m n k).
-  - exact (@subtraction.backward.specification m n k).
+  - ipso (@subtraction.forward.specification  m n k).
+  - ipso (@subtraction.backward.specification m n k).
 Qed.
 
 Module saturating. (* subtraction.saturating *)
@@ -1250,7 +1250,7 @@ Proof.
   unfold saturating_sub in |- *.
   rewrite (subtraction.backward.specification e) in |- *.
   simpl in |- *.
-  exact e.
+  ipso e.
 Qed.
 
 End saturating. (* subtraction.saturating *)

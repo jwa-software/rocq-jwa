@@ -538,8 +538,8 @@ Theorem identity
 Proof.
   intros A l.
   split.
-  - exact (concatenation.left.identity  l).
-  - exact (concatenation.right.identity l).
+  - ipso (concatenation.left.identity  l).
+  - ipso (concatenation.right.identity l).
 Qed.
 
 (* concatenation.catamorphism *)
@@ -693,7 +693,7 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro g.
-    exact g.
+    ipso g.
   - simpl in |- *.
     intro h.
     destruct h as [e | h'].
@@ -702,7 +702,7 @@ Proof.
       reflexivity.
     + apply Disjunction.R.
       apply IH.
-      exact h'.
+      ipso h'.
 Qed.
 
 (* mapping.preservation.of.length *)
@@ -743,17 +743,17 @@ Proof.
     + simpl in |- *.
       intro h.
       destruct h as [e | h'].
-      * exact (Exists_introduction
+      * ipso (Exists_introduction
                  a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
       * pose proof (IH h') as w.
         destruct w as [a' c].
         destruct c as [m e].
-        exact (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
+        ipso (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
   - intro w.
     destruct w as [a c].
     destruct c as [m e].
     rewrite e in |- *.
-    exact (preservation.of.membership f a l m).
+    ipso (preservation.of.membership f a l m).
 Qed.
 
 End membership. (* mapping.membership *)
@@ -797,7 +797,7 @@ Proof.
   unfold Negation in |- *.
   simpl in |- *.
   intro f.
-  exact f.
+  ipso f.
 Qed.
 
 Module forward. (* membership.forward *)
@@ -815,14 +815,14 @@ Proof.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact (Disjunction.R h).
+    ipso (Disjunction.R h).
   - simpl in |- *.
     intro h.
     destruct h as [e | h'].
-    + exact (Disjunction.L (Disjunction.L e)).
+    + ipso (Disjunction.L (Disjunction.L e)).
     + destruct (IH h') as [h1 | h2].
-      * exact (Disjunction.L (Disjunction.R h1)).
-      * exact (Disjunction.R h2).
+      * ipso (Disjunction.L (Disjunction.R h1)).
+      * ipso (Disjunction.R h2).
 Qed.
 
 End over. (* membership.forward.distributivity.over *)
@@ -848,18 +848,18 @@ Proof.
     intro h.
     destruct h as [f | h2].
     + ex f quodlibet.
-    + exact h2.
+    + ipso h2.
   - simpl in |- *.
     intro h.
     destruct h as [h1 | h2].
     + destruct h1 as [e | h1'].
-      * exact (Disjunction.L e).
+      * ipso (Disjunction.L e).
       * apply Disjunction.R.
         apply IH.
-        exact (Disjunction.L h1').
+        ipso (Disjunction.L h1').
     + apply Disjunction.R.
       apply IH.
-      exact (Disjunction.R h2).
+      ipso (Disjunction.R h2).
 Qed.
 
 End over. (* membership.backward.distributivity.over *)
@@ -879,8 +879,8 @@ Theorem concatenation
 Proof.
   intros A a l1 l2.
   split.
-  - exact (@membership.forward.distributivity.over.concatenation  A a l1 l2).
-  - exact (@membership.backward.distributivity.over.concatenation A a l1 l2).
+  - ipso (@membership.forward.distributivity.over.concatenation  A a l1 l2).
+  - ipso (@membership.backward.distributivity.over.concatenation A a l1 l2).
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -962,16 +962,16 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
-    exact f.
+    ipso f.
   - simpl in |- *.
     intro h.
     destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
     + apply Disjunction.R.
       apply IH.
-      exact h1.
+      ipso h1.
     + simpl in h2.
       destruct h2 as [e | f].
-      * exact (Disjunction.L e).
+      * ipso (Disjunction.L e).
       * ex f quodlibet.
 Qed.
 
@@ -996,17 +996,17 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro f.
-    exact f.
+    ipso f.
   - simpl in |- *.
     intro h.
     apply membership.backward.distributivity.over.concatenation.
     destruct h as [e | h'].
     + apply Disjunction.R.
       simpl in |- *.
-      exact (Disjunction.L e).
+      ipso (Disjunction.L e).
     + apply Disjunction.L.
       apply IH.
-      exact h'.
+      ipso h'.
 Qed.
 
 End of. (* reversal.backward.preservation.of *)
@@ -1026,8 +1026,8 @@ Theorem membership
 Proof.
   intros A a l.
   split.
-  - exact (@reversal.forward.preservation.of.membership  A a l).
-  - exact (@reversal.backward.preservation.of.membership A a l).
+  - ipso (@reversal.forward.preservation.of.membership  A a l).
+  - ipso (@reversal.backward.preservation.of.membership A a l).
 Qed.
 
 End of. (* reversal.preservation.of *)
@@ -1070,18 +1070,18 @@ Proof.
   split.
   - intro h.
     destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
-    + exact (Disjunction.R h1).
+    + ipso (Disjunction.R h1).
     + simpl in h2.
       destruct h2 as [e | f].
-      * exact (Disjunction.L e).
+      * ipso (Disjunction.L e).
       * ex f quodlibet.
   - intro h.
     apply membership.backward.distributivity.over.concatenation.
     destruct h as [e | h'].
     + apply Disjunction.R.
       simpl in |- *.
-      exact (Disjunction.L e).
-    + exact (Disjunction.L h').
+      ipso (Disjunction.L e).
+    + ipso (Disjunction.L h').
 Qed.
 
 (* The mirror of [reverse]'s own step: its definition turns a [Cons] into
@@ -1121,7 +1121,7 @@ Proof.
       rewrite IH in |- *.
       reflexivity.
     + simpl in |- *.
-      exact IH.
+      ipso IH.
 Qed.
 
 End over. (* filtering.distributivity.over *)
@@ -1168,19 +1168,19 @@ Proof.
       intro h.
       destruct h as [e | h'].
       * split.
-        -- exact (Disjunction.L e).
+        -- ipso (Disjunction.L e).
         -- rewrite e in |- *.
-           exact pb.
+           ipso pb.
       * destruct (IH h') as [hl pa].
         split.
-        -- exact (Disjunction.R hl).
-        -- exact pa.
+        -- ipso (Disjunction.R hl).
+        -- ipso pa.
     + simpl in |- *.
       intro h'.
       destruct (IH h') as [hl pa].
       split.
-      * exact (Disjunction.R hl).
-      * exact pa.
+      * ipso (Disjunction.R hl).
+      * ipso pa.
 Qed.
 
 End forward. (* filtering.forward *)
@@ -1205,19 +1205,19 @@ Proof.
     + rewrite e in pa.
       rewrite pa in |- *.
       simpl in |- *.
-      exact (Disjunction.L e).
+      ipso (Disjunction.L e).
     + destruct (p b) as [|].
       * simpl in |- *.
         apply Disjunction.R.
         apply IH.
         split.
-        -- exact h'.
-        -- exact pa.
+        -- ipso h'.
+        -- ipso pa.
       * simpl in |- *.
         apply IH.
         split.
-        -- exact h'.
-        -- exact pa.
+        -- ipso h'.
+        -- ipso pa.
 Qed.
 
 End backward. (* filtering.backward *)
@@ -1229,8 +1229,8 @@ Theorem specification
 Proof.
   intros A p a l.
   split.
-  - exact (@filtering.forward.specification  A p a l).
-  - exact (@filtering.backward.specification A p a l).
+  - ipso (@filtering.forward.specification  A p a l).
+  - ipso (@filtering.backward.specification A p a l).
 Qed.
 
 End filtering. (* filtering *)
@@ -1256,17 +1256,17 @@ Proof.
   - simpl in |- *.
     intro h.
     split.
-    + exact I.
-    + exact h.
+    + ipso I.
+    + ipso h.
   - simpl in |- *.
     intro h.
     destruct h as [pb h'].
     destruct (IH h') as [h1 h2].
     split.
     + split.
-      * exact pb.
-      * exact h1.
-    + exact h2.
+      * ipso pb.
+      * ipso h1.
+    + ipso h2.
 Qed.
 
 End over. (* quantification.all.forward.distributivity.over *)
@@ -1289,9 +1289,9 @@ Proof.
     intros a ha.
     destruct ha as [e | ha'].
     + rewrite e in |- *.
-      exact pb.
+      ipso pb.
     + apply (IH h').
-      exact ha'.
+      ipso ha'.
 Qed.
 
 End forward. (* quantification.all.forward *)
@@ -1312,17 +1312,17 @@ Proof.
   - simpl in |- *.
     intro h.
     destruct h as [_ h2].
-    exact h2.
+    ipso h2.
   - simpl in |- *.
     intro h.
     destruct h as [h1 h2].
     destruct h1 as [pb h1'].
     split.
-    + exact pb.
+    + ipso pb.
     + apply IH.
       split.
-      * exact h1'.
-      * exact h2.
+      * ipso h1'.
+      * ipso h2.
 Qed.
 
 End over. (* quantification.all.backward.distributivity.over *)
@@ -1338,16 +1338,16 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact I.
+    ipso I.
   - simpl in |- *.
     intro h.
     split.
     + apply (h b).
-      exact (Disjunction.L (Identity.reflexivity b)).
+      ipso (Disjunction.L (Identity.reflexivity b)).
     + apply IH.
       intros a ha.
       apply (h a).
-      exact (Disjunction.R ha).
+      ipso (Disjunction.R ha).
 Qed.
 
 End backward. (* quantification.all.backward *)
@@ -1363,8 +1363,8 @@ Theorem concatenation
 Proof.
   intros A P l1 l2.
   split.
-  - exact (@quantification.all.forward.distributivity.over.concatenation  A P l1 l2).
-  - exact (@quantification.all.backward.distributivity.over.concatenation A P l1 l2).
+  - ipso (@quantification.all.forward.distributivity.over.concatenation  A P l1 l2).
+  - ipso (@quantification.all.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
 
 End over. (* quantification.all.distributivity.over *)
@@ -1378,8 +1378,8 @@ Theorem specification
 Proof.
   intros A P l.
   split.
-  - exact (@quantification.all.forward.specification  A P l).
-  - exact (@quantification.all.backward.specification A P l).
+  - ipso (@quantification.all.forward.specification  A P l).
+  - ipso (@quantification.all.backward.specification A P l).
 Qed.
 
 (* quantification.all.monotonicity *)
@@ -1391,11 +1391,11 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
-    exact v.
+    ipso v.
   - simpl in |- *.
     intro c.
     destruct c as [pb all'].
-    exact (Conjunction_introduction (h b pb) (IH all')).
+    ipso (Conjunction_introduction (h b pb) (IH all')).
 Qed.
 
 (* quantification.all.catamorphism *)
@@ -1432,14 +1432,14 @@ Proof.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact (Disjunction.R h).
+    ipso (Disjunction.R h).
   - simpl in |- *.
     intro h.
     destruct h as [pb | h'].
-    + exact (Disjunction.L (Disjunction.L pb)).
+    + ipso (Disjunction.L (Disjunction.L pb)).
     + destruct (IH h') as [h1 | h2].
-      * exact (Disjunction.L (Disjunction.R h1)).
-      * exact (Disjunction.R h2).
+      * ipso (Disjunction.L (Disjunction.R h1)).
+      * ipso (Disjunction.R h2).
 Qed.
 
 End over. (* quantification.any.forward.distributivity.over *)
@@ -1461,14 +1461,14 @@ Proof.
     destruct h as [pb | h'].
     + apply (Exists_introduction b).
       split.
-      * exact (Disjunction.L (Identity.reflexivity b)).
-      * exact pb.
+      * ipso (Disjunction.L (Identity.reflexivity b)).
+      * ipso pb.
     + destruct (IH h') as [a ha].
       destruct ha as [ha' pa].
       apply (Exists_introduction a).
       split.
-      * exact (Disjunction.R ha').
-      * exact pa.
+      * ipso (Disjunction.R ha').
+      * ipso pa.
 Qed.
 
 End forward. (* quantification.any.forward *)
@@ -1490,18 +1490,18 @@ Proof.
     intro h.
     destruct h as [f | h2].
     + ex f quodlibet.
-    + exact h2.
+    + ipso h2.
   - simpl in |- *.
     intro h.
     destruct h as [h1 | h2].
     + destruct h1 as [pb | h1'].
-      * exact (Disjunction.L pb).
+      * ipso (Disjunction.L pb).
       * apply Disjunction.R.
         apply IH.
-        exact (Disjunction.L h1').
+        ipso (Disjunction.L h1').
     + apply Disjunction.R.
       apply IH.
-      exact (Disjunction.R h2).
+      ipso (Disjunction.R h2).
 Qed.
 
 End over. (* quantification.any.backward.distributivity.over *)
@@ -1526,13 +1526,13 @@ Proof.
     destruct ha as [ha' pa].
     destruct ha' as [e | ha''].
     + rewrite e in pa.
-      exact (Disjunction.L pa).
+      ipso (Disjunction.L pa).
     + apply Disjunction.R.
       apply IH.
       apply (Exists_introduction a).
       split.
-      * exact ha''.
-      * exact pa.
+      * ipso ha''.
+      * ipso pa.
 Qed.
 
 End backward. (* quantification.any.backward *)
@@ -1548,8 +1548,8 @@ Theorem concatenation
 Proof.
   intros A P l1 l2.
   split.
-  - exact (@quantification.any.forward.distributivity.over.concatenation  A P l1 l2).
-  - exact (@quantification.any.backward.distributivity.over.concatenation A P l1 l2).
+  - ipso (@quantification.any.forward.distributivity.over.concatenation  A P l1 l2).
+  - ipso (@quantification.any.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
 
 End over. (* quantification.any.distributivity.over *)
@@ -1563,8 +1563,8 @@ Theorem specification
 Proof.
   intros A P l.
   split.
-  - exact (@quantification.any.forward.specification  A P l).
-  - exact (@quantification.any.backward.specification A P l).
+  - ipso (@quantification.any.forward.specification  A P l).
+  - ipso (@quantification.any.backward.specification A P l).
 Qed.
 
 (* quantification.any.catamorphism *)
@@ -1633,8 +1633,8 @@ Theorem specification
 Proof.
   intros A a l.
   split.
-  - exact (@head.forward.specification  A a l).
-  - exact (@head.backward.specification A a l).
+  - ipso (@head.forward.specification  A a l).
+  - ipso (@head.backward.specification A a l).
 Qed.
 
 End head. (* head *)
@@ -1687,8 +1687,8 @@ Theorem specification
 Proof.
   intros A l l'.
   split.
-  - exact (@tail.forward.specification  A l l').
-  - exact (@tail.backward.specification A l l').
+  - ipso (@tail.forward.specification  A l l').
+  - ipso (@tail.backward.specification A l l').
 Qed.
 
 End tail. (* tail *)
@@ -1710,7 +1710,7 @@ Proof.
   pose proof (Identity.congruence reverse e) as e'.
   rewrite reversal.involution in e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End forward. (* last.forward *)
@@ -1741,8 +1741,8 @@ Theorem specification
 Proof.
   intros A a l.
   split.
-  - exact (@last.forward.specification  A a l).
-  - exact (@last.backward.specification A a l).
+  - ipso (@last.forward.specification  A a l).
+  - ipso (@last.backward.specification A a l).
 Qed.
 
 End last. (* last *)
@@ -1770,7 +1770,7 @@ Proof.
     rewrite reversal.involution in er'.
     simpl in er'.
     rewrite e' in er'.
-    exact er'.
+    ipso er'.
 Qed.
 
 End forward. (* initial.forward *)
@@ -1802,8 +1802,8 @@ Theorem specification
 Proof.
   intros A l l'.
   split.
-  - exact (@initial.forward.specification  A l l').
-  - exact (@initial.backward.specification A l l').
+  - ipso (@initial.forward.specification  A l l').
+  - ipso (@initial.backward.specification A l l').
 Qed.
 
 End initial. (* initial *)
@@ -1856,8 +1856,8 @@ Theorem specification
 Proof.
   intros A a l' l.
   split.
-  - exact (@popping.forward.specification  A a l' l).
-  - exact (@popping.backward.specification A a l' l).
+  - ipso (@popping.forward.specification  A a l' l).
+  - ipso (@popping.backward.specification A a l' l).
 Qed.
 
 (* Projecting a [pop] gives back [head] and [tail]. *)
@@ -2063,18 +2063,18 @@ Proof.
     + simpl in |- *.
       rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
-      exact (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
+      ipso (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
     + destruct i' as [| i''].
       * simpl in h.
         pose proof (IH NatWithZero.Zero h) as lt.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
+        ipso (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
       * simpl in h.
         pose proof (IH (NatWithZero.Positive i'') h) as lt.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity
+        ipso (NatWithZero.addition.order.strict.monotonicity
                  (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) lt).
 Qed.
 
@@ -2108,13 +2108,13 @@ Proof.
         pose proof (NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h)
           as lt.
         simpl in |- *.
-        exact (IH NatWithZero.Zero lt).
+        ipso (IH NatWithZero.Zero lt).
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
         pose proof (NatWithZero.addition.order.strict.cancellation
                       (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h) as lt.
         simpl in |- *.
-        exact (IH (NatWithZero.Positive i'') lt).
+        ipso (IH (NatWithZero.Positive i'') lt).
 Qed.
 
 End backward. (* indexing.backward *)
@@ -2126,8 +2126,8 @@ Theorem specification
 Proof.
   intros A l i.
   split.
-  - exact (@indexing.forward.specification  A l i).
-  - exact (@indexing.backward.specification A l i).
+  - ipso (@indexing.forward.specification  A l i).
+  - ipso (@indexing.backward.specification A l i).
 Qed.
 
 End indexing. (* indexing *)
@@ -2273,7 +2273,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (replication.positive.length k a).
+    ipso (replication.positive.length k a).
 Qed.
 
 End replication. (* replication *)
@@ -2357,7 +2357,7 @@ Proof.
     + simpl in |- *.
       rewrite IH in |- *.
       reflexivity.
-    + exact IH.
+    + ipso IH.
 Qed.
 
 Module zero. (* counting.zero *)
@@ -2375,7 +2375,7 @@ Proof.
   - simpl in |- *.
     split.
     + intro e.
-      exact I.
+      ipso I.
     + intro v.
       reflexivity.
   - simpl in |- *.
@@ -2396,10 +2396,10 @@ Proof.
       split.
       * intro e.
         modus aequans IH, e as all'.
-        exact (Conjunction_introduction (Identity.reflexivity false) all').
+        ipso (Conjunction_introduction (Identity.reflexivity false) all').
       * intro c.
         destruct c as [e all'].
-        exact (modus aequans IH, all').
+        ipso (modus aequans IH, all').
 Qed.
 
 End zero. (* counting.zero *)
@@ -2423,15 +2423,15 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
-    exact (Conjunction_introduction pa v).
+    ipso (Conjunction_introduction pa v).
   - simpl in |- *.
     intro c.
     destruct c as [pb all'].
     destruct (le a b) as [|].
     + simpl in |- *.
-      exact (Conjunction_introduction pa (Conjunction_introduction pb all')).
+      ipso (Conjunction_introduction pa (Conjunction_introduction pb all')).
     + simpl in |- *.
-      exact (Conjunction_introduction pb (IH all')).
+      ipso (Conjunction_introduction pb (IH all')).
 Qed.
 
 End of. (* sorting.insertion.preservation.of *)
@@ -2450,7 +2450,7 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
-    exact (Conjunction_introduction v v).
+    ipso (Conjunction_introduction v v).
   - simpl in |- *.
     intro s.
     destruct s as [below sorted'].
@@ -2459,7 +2459,7 @@ Proof.
       pose proof (quantification.all.monotonicity
                     (fun (x : A) (h : le b x = true) . transitive a b x c h) below)
         as below_a.
-      exact (Conjunction_introduction
+      ipso (Conjunction_introduction
                (Conjunction_introduction c below_a)
                (Conjunction_introduction below sorted')).
     + simpl in |- *.
@@ -2467,7 +2467,7 @@ Proof.
       destruct t as [ab | ba].
       * rewrite c in ab.
         discriminate ab.
-      * exact (Conjunction_introduction
+      * ipso (Conjunction_introduction
                  (sorting.insertion.preservation.of.all
                     le (fun (x : A) . le b x = true) a l' ba below)
                  (IH sorted')).
@@ -2486,20 +2486,20 @@ Proof.
   induction l as [| c l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
     destruct (le a c) as [|].
     + simpl in |- *.
       intro h.
-      exact h.
+      ipso h.
     + simpl in |- *.
       intro h.
       destruct h as [e | h'].
-      * exact (Disjunction.R (Disjunction.L e)).
+      * ipso (Disjunction.R (Disjunction.L e)).
       * modus ponens IH, h' as h''.
         destruct h'' as [e | h'''].
-        { exact (Disjunction.L e). }
-        { exact (Disjunction.R (Disjunction.R h''')). }
+        { ipso (Disjunction.L e). }
+        { ipso (Disjunction.R (Disjunction.R h''')). }
 Qed.
 
 End forward. (* sorting.insertion.forward *)
@@ -2515,19 +2515,19 @@ Proof.
   induction l as [| c l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
     destruct (le a c) as [|].
     + simpl in |- *.
       intro h.
-      exact h.
+      ipso h.
     + simpl in |- *.
       intro h.
       destruct h as [e | h'].
-      * exact (Disjunction.R (IH (Disjunction.L e))).
+      * ipso (Disjunction.R (IH (Disjunction.L e))).
       * destruct h' as [e | h''].
-        { exact (Disjunction.L e). }
-        { exact (Disjunction.R (IH (Disjunction.R h''))). }
+        { ipso (Disjunction.L e). }
+        { ipso (Disjunction.R (IH (Disjunction.R h''))). }
 Qed.
 
 End backward. (* sorting.insertion.backward *)
@@ -2539,8 +2539,8 @@ Theorem membership
 Proof.
   intros A le a b l.
   split.
-  - exact (@sorting.insertion.forward.membership  A le a b l).
-  - exact (sorting.insertion.backward.membership le a b l).
+  - ipso (@sorting.insertion.forward.membership  A le a b l).
+  - ipso (sorting.insertion.backward.membership le a b l).
 Qed.
 
 (* sorting.insertion.length *)
@@ -2574,9 +2574,9 @@ Proof.
   intros A le total transitive l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    exact I.
+    ipso I.
   - simpl in |- *.
-    exact (sorting.insertion.sortedness
+    ipso (sorting.insertion.sortedness
              total transitive a (insertion_sort le l') IH).
 Qed.
 
@@ -2595,13 +2595,13 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
     intro h.
     pose proof (sorting.insertion.forward.membership h) as h'.
     destruct h' as [e | h''].
-    + exact (Disjunction.L e).
-    + exact (Disjunction.R (IH h'')).
+    + ipso (Disjunction.L e).
+    + ipso (Disjunction.R (IH h'')).
 Qed.
 
 End of. (* sorting.forward.preservation.of *)
@@ -2625,13 +2625,13 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
     intro h.
     apply (sorting.insertion.backward.membership le b a (insertion_sort le l')).
     destruct h as [e | h'].
-    + exact (Disjunction.L e).
-    + exact (Disjunction.R (IH h')).
+    + ipso (Disjunction.L e).
+    + ipso (Disjunction.R (IH h')).
 Qed.
 
 End of. (* sorting.backward.preservation.of *)
@@ -2651,8 +2651,8 @@ Theorem membership
 Proof.
   intros A le a l.
   split.
-  - exact (@sorting.forward.preservation.of.membership  A le a l).
-  - exact (sorting.backward.preservation.of.membership le a l).
+  - ipso (@sorting.forward.preservation.of.membership  A le a l).
+  - ipso (sorting.backward.preservation.of.membership le a l).
 Qed.
 
 (* sorting.preservation.of.length *)
@@ -2726,13 +2726,13 @@ Proof.
     {
       unfold NatWithZero.LessOrEqual in |- *.
       destruct h' as [h1 | h2].
-      + exact (Disjunction.R (IH i h1)).
+      + ipso (Disjunction.R (IH i h1)).
       + simpl in h2.
         destruct h2 as [e | f].
-        * exact (Disjunction.L e).
+        * ipso (Disjunction.L e).
         * ex f quodlibet.
     }
-    exact (modus aequans
+    ipso (modus aequans
              (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
            below).
 Qed.
@@ -2753,7 +2753,7 @@ Proof.
     destruct h as [k e].
     destruct i as [| q].
     + simpl in |- *.
-      exact (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
+      ipso (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
     + simpl in e.
       pose proof (NatWithZero.positive.injectivity e) as e'.
       destruct q as [| q']; simpl in e'; discriminate e'.
@@ -2771,10 +2771,10 @@ Proof.
       destruct h' as [e | lt].
       + apply Disjunction.R.
         simpl in |- *.
-        exact (Disjunction.L e).
-      + exact (Disjunction.L (IH i lt)).
+        ipso (Disjunction.L e).
+      + ipso (Disjunction.L (IH i lt)).
     }
-    exact (modus aequans
+    ipso (modus aequans
              (membership.distributivity.over.concatenation
                 i (range_positive p') (NatWithZero.Positive p' :: [])),
            side).
@@ -2794,7 +2794,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (range.positive.length p).
+    ipso (range.positive.length p).
 Qed.
 
 Module membership. (* range.from_zero.membership *)
@@ -2819,8 +2819,8 @@ Proof.
       ex f quodlibet.
   - simpl in |- *.
     split.
-    + exact (@range.positive.forward.membership  p i).
-    + exact (@range.positive.backward.membership p i).
+    + ipso (@range.positive.forward.membership  p i).
+    + ipso (@range.positive.backward.membership p i).
 Qed.
 
 End membership. (* range.from_zero.membership *)
@@ -2889,7 +2889,7 @@ Proof.
   rewrite (mapping.preservation.of.length
              (NatWithZero.add start)
              (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
-  exact (from_zero.length (NatWithZero.saturating_sub stop start)).
+  ipso (from_zero.length (NatWithZero.saturating_sub stop start)).
 Qed.
 
 Module membership. (* range.membership *)
@@ -2919,10 +2919,10 @@ Proof.
       split.
       * rewrite e in |- *.
         rewrite (NatWithZero.addition.commutativity start j) in |- *.
-        exact (NatWithZero.addition.right.order.extensivity j start).
+        ipso (NatWithZero.addition.right.order.extensivity j start).
       * rewrite e in |- *.
         rewrite <- reach in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity
+        ipso (NatWithZero.addition.order.strict.monotonicity
                  start j (NatWithZero.saturating_sub stop start) lt).
     + intro c.
       destruct c as [low high].
@@ -2933,7 +2933,7 @@ Proof.
         apply (NatWithZero.addition.order.strict.cancellation start).
         rewrite step in |- *.
         rewrite reach in |- *.
-        exact high.
+        ipso high.
       }
       assert (witness : exists (j : NatWithZero) .
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
@@ -2941,15 +2941,15 @@ Proof.
       {
         apply (Exists_introduction (NatWithZero.saturating_sub i start)).
         split.
-        * exact (modus aequans
+        * ipso (modus aequans
                    (from_zero.membership.specification
                       (NatWithZero.saturating_sub stop start)
                       (NatWithZero.saturating_sub i start)),
                  inside).
         * symmetry in step.
-          exact step.
+          ipso step.
       }
-      exact (modus aequans
+      ipso (modus aequans
                (mapping.membership.specification
                   (NatWithZero.add start) i
                   (range_from_zero (NatWithZero.saturating_sub stop start))),
@@ -2965,8 +2965,8 @@ Proof.
       pose proof (Comparable.order.transitivity stop start i above low) as reached.
       destruct reached as [e | lt].
       * rewrite e in high.
-        exact (NatWithZero.order.strict.irreflexivity i high).
-      * exact (Comparable.order.strict.asymmetry i stop high lt).
+        ipso (NatWithZero.order.strict.irreflexivity i high).
+      * ipso (Comparable.order.strict.asymmetry i stop high lt).
 Qed.
 
 End membership. (* range.membership *)
@@ -2981,7 +2981,7 @@ Theorem length
 Proof.
   intros start stop.
   unfold range_inclusive in |- *.
-  exact (range.length start (NatWithZero.inc stop)).
+  ipso (range.length start (NatWithZero.inc stop)).
 Qed.
 
 Module membership. (* range.inclusive.membership *)
@@ -3004,17 +3004,17 @@ Proof.
       h as c.
     destruct c as [low high].
     split.
-    + exact low.
-    + exact (modus aequans (NatWithZero.order.discreteness i stop), high).
+    + ipso low.
+    + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
   - intro c.
     destruct c as [low high].
     assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
     {
       split.
-      + exact low.
-      + exact (modus aequans (NatWithZero.order.discreteness i stop), high).
+      + ipso low.
+      + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
     }
-    exact (modus aequans
+    ipso (modus aequans
              (range.membership.specification
                 start (stop + NatWithZero.Positive Nat.One) i),
            bounds).
@@ -3042,8 +3042,8 @@ Lemma reflexivity
 Proof.
   intros A le total a.
   destruct (total a a) as [h | h].
-  - exact h.
-  - exact h.
+  - ipso h.
+  - ipso h.
 Qed.
 
 (* comparison.contraposition *)
@@ -3055,7 +3055,7 @@ Proof.
   intros A le total a b s.
   symmetry in s.
   hs (Identity.transitivity s), Bool.distinctness.backward as n.
-  exact (modus tollendo ponens (total a b), n).
+  ipso (modus tollendo ponens (total a b), n).
 Qed.
 
 End comparison. (* comparison *)
@@ -3111,22 +3111,22 @@ Proof.
       rewrite <- e' in |- *.
       simpl in |- *.
       split.
-      * exact (comparison.reflexivity total a).
-      * exact I.
+      * ipso (comparison.reflexivity total a).
+      * ipso I.
     + destruct (le a m') eqn:s.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         split.
-        -- exact s.
-        -- exact (IH m' (Identity.reflexivity (Some m'))).
+        -- ipso s.
+        -- ipso (IH m' (Identity.reflexivity (Some m'))).
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         pose proof (comparison.contraposition total s) as ha.
         split.
-        -- exact (comparison.reflexivity total a).
-        -- exact (quantification.all.monotonicity
+        -- ipso (comparison.reflexivity total a).
+        -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le x m' = true) . transitive x m' a h ha)
                     (IH m' (Identity.reflexivity (Some m')))).
 Qed.
@@ -3146,16 +3146,16 @@ Proof.
     destruct (maximum_of le l') as [| m'] eqn:r.
     + pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
-      exact (Disjunction.L (Identity.symmetry e')).
+      ipso (Disjunction.L (Identity.symmetry e')).
     + destruct (le a m') eqn:s.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         apply Disjunction.R.
-        exact (IH m' (Identity.reflexivity (Some m'))).
+        ipso (IH m' (Identity.reflexivity (Some m'))).
       * pose proof (Option.some.injectivity e) as e'.
         simpl in |- *.
-        exact (Disjunction.L (Identity.symmetry e')).
+        ipso (Disjunction.L (Identity.symmetry e')).
 Qed.
 
 End maximum. (* maximum *)
@@ -3211,23 +3211,23 @@ Proof.
       rewrite <- e' in |- *.
       simpl in |- *.
       split.
-      * exact (comparison.reflexivity total a).
-      * exact I.
+      * ipso (comparison.reflexivity total a).
+      * ipso I.
     + destruct (le a m') eqn:s.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         split.
-        -- exact (comparison.reflexivity total a).
-        -- exact (quantification.all.monotonicity
+        -- ipso (comparison.reflexivity total a).
+        -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le m' x = true) . transitive a m' x s h)
                     (IH m' (Identity.reflexivity (Some m')))).
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         split.
-        -- exact (comparison.contraposition total s).
-        -- exact (IH m' (Identity.reflexivity (Some m'))).
+        -- ipso (comparison.contraposition total s).
+        -- ipso (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
 (* minimum.membership *)
@@ -3245,16 +3245,16 @@ Proof.
     destruct (minimum_of le l') as [| m'] eqn:r.
     + pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
-      exact (Disjunction.L (Identity.symmetry e')).
+      ipso (Disjunction.L (Identity.symmetry e')).
     + destruct (le a m') eqn:s.
       * pose proof (Option.some.injectivity e) as e'.
         simpl in |- *.
-        exact (Disjunction.L (Identity.symmetry e')).
+        ipso (Disjunction.L (Identity.symmetry e')).
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         apply Disjunction.R.
-        exact (IH m' (Identity.reflexivity (Some m'))).
+        ipso (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
 End minimum. (* minimum *)

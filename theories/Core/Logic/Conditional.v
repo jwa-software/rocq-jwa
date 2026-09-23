@@ -18,7 +18,7 @@ Theorem reflexivity : forall {A : Prop} . A -> A.
 Proof.
   intro A.
   intro a.
-  exact a.
+  ipso a.
 Qed.
 
 Theorem transitivity
@@ -30,7 +30,7 @@ Proof.
   intro a.
   apply bc.
   apply ab.
-  exact a.
+  ipso a.
 Qed.
 
 (* The three structural rules of Gentzen's sequent calculus, as theorems
@@ -42,7 +42,7 @@ Proof.
   intros A B.
   intro a.
   intro b.
-  exact a.
+  ipso a.
 Qed.
 
 Theorem contraction
@@ -52,8 +52,8 @@ Proof.
   intro f.
   intro a.
   apply f.
-  - exact a.
-  - exact a.
+  - ipso a.
+  - ipso a.
 Qed.
 
 (* Its own converse: applying it twice restores the order. *)
@@ -65,8 +65,8 @@ Proof.
   intro b.
   intro a.
   apply f.
-  - exact a.
-  - exact b.
+  - ipso a.
+  - ipso b.
 Qed.
 
 (* Two laws of [->] are stated higher up, each in a second module of this

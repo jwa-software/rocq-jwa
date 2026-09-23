@@ -85,7 +85,7 @@ Theorem reflexivity
 Proof.
   intros A compare lt C n.
   destruct (Comparable.specification n n) as [_ s].
-  exact (modus aequans s, (Identity.reflexivity n)).
+  ipso (modus aequans s, (Identity.reflexivity n)).
 Qed.
 
 Module strict. (* comparison.strict *)
@@ -101,7 +101,7 @@ Theorem specification
 Proof.
   intros A compare lt C m n.
   destruct (Comparable.specification m n) as [s _].
-  exact s.
+  ipso s.
 Qed.
 
 Module transposition. (* comparison.strict.transposition *)
@@ -124,7 +124,7 @@ Proof.
   - intro e.
     destruct (compare n m) as [| |] eqn:c.
     + destruct (Comparable.specification n m) as [s _].
-      exact (modus aequans s, c).
+      ipso (modus aequans s, c).
     + simpl in e.
       discriminate e.
     + simpl in e.
@@ -154,7 +154,7 @@ Theorem specification
 Proof.
   intros A compare lt C m n.
   destruct (Comparable.specification m n) as [_ s].
-  exact s.
+  ipso s.
 Qed.
 
 (* comparison.equality.reflection *)
@@ -173,7 +173,7 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + discriminate e.
     + destruct (Comparable.specification m n) as [_ s].
-      exact (modus aequans s, c).
+      ipso (modus aequans s, c).
     + discriminate e.
   - intro h.
     destruct (Comparable.specification m n) as [_ s].
@@ -239,12 +239,12 @@ Proof.
   destruct (compare m n) as [| |] eqn:c.
   - destruct (Comparable.specification m n) as [s _].
     modus aequans s, c as h.
-    exact (Disjunction.L h).
+    ipso (Disjunction.L h).
   - destruct (Comparable.specification m n) as [_ s].
     modus aequans s, c as h.
-    exact (Disjunction.R (Disjunction.L h)).
+    ipso (Disjunction.R (Disjunction.L h)).
   - modus aequans (comparison.strict.transposition.specification m n), c as h.
-    exact (Disjunction.R (Disjunction.R h)).
+    ipso (Disjunction.R (Disjunction.R h)).
 Qed.
 
 End strict. (* order.strict *)
@@ -260,7 +260,7 @@ Theorem reflexivity
 Proof.
   intros A compare lt C n.
   unfold LessOrEqual in |- *.
-  exact (Disjunction.L (Identity.reflexivity n)).
+  ipso (Disjunction.L (Identity.reflexivity n)).
 Qed.
 
 (* order.antisymmetry *)
@@ -276,9 +276,9 @@ Proof.
   unfold LessOrEqual in h1.
   unfold LessOrEqual in h2.
   destruct h1 as [e1 | lt1].
-  - exact e1.
+  - ipso e1.
   - destruct h2 as [e2 | lt2].
-    + exact (Identity.symmetry e2).
+    + ipso (Identity.symmetry e2).
     + pose proof (order.strict.asymmetry m n lt1) as a.
       unfold Negation in a.
       modus ponens a, lt2 as f.
@@ -298,11 +298,11 @@ Proof.
   unfold LessOrEqual in h1, h2 |- *.
   destruct h1 as [e1 | lt1].
   - rewrite e1 in |- *.
-    exact h2.
+    ipso h2.
   - destruct h2 as [e2 | lt2].
     + rewrite e2 in lt1.
-      exact (Disjunction.R lt1).
-    + exact (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
+      ipso (Disjunction.R lt1).
+    + ipso (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
 Qed.
 
 (* order.totality *)
@@ -318,10 +318,10 @@ Proof.
   pose proof (order.strict.trichotomy m n) as t.
   unfold LessOrEqual in |- *.
   destruct t as [lt1 | rest].
-  - exact (Disjunction.L (Disjunction.R lt1)).
+  - ipso (Disjunction.L (Disjunction.R lt1)).
   - destruct rest as [e | gt].
-    + exact (Disjunction.L (Disjunction.L e)).
-    + exact (Disjunction.R (Disjunction.R gt)).
+    + ipso (Disjunction.L (Disjunction.L e)).
+    + ipso (Disjunction.R (Disjunction.R gt)).
 Qed.
 
 (* order.reflection *)
@@ -341,14 +341,14 @@ Proof.
     + intro e.
       apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
-      exact (modus aequans s, c).
+      ipso (modus aequans s, c).
     + intro h.
       reflexivity.
   - split.
     + intro e.
       apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
-      exact (modus aequans s, c).
+      ipso (modus aequans s, c).
     + intro h.
       reflexivity.
   - split.
@@ -387,18 +387,18 @@ Proof.
     destruct (compare m n) as [| |] eqn:c.
     + apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
-      exact (modus aequans s, c).
+      ipso (modus aequans s, c).
     + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
-      exact (modus aequans s, c).
+      ipso (modus aequans s, c).
     + apply Disjunction.L.
-      exact (Identity.symmetry e).
+      ipso (Identity.symmetry e).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
     + reflexivity.
     + reflexivity.
     + destruct h as [e | lt1].
-      * exact (Identity.symmetry e).
+      * ipso (Identity.symmetry e).
       * destruct (Comparable.specification m n) as [s _].
         modus aequans s, lt1 as e.
         rewrite e in c.
@@ -420,10 +420,10 @@ Proof.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.L (Identity.reflexivity l)).
-  - exact (Disjunction.L (Identity.reflexivity l)).
+  - ipso (Disjunction.L (Identity.reflexivity l)).
+  - ipso (Disjunction.L (Identity.reflexivity l)).
   - apply Disjunction.R.
-    exact (modus aequans
+    ipso (modus aequans
              (comparison.strict.transposition.specification l r), c).
 Qed.
 
@@ -446,11 +446,11 @@ Proof.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
-    exact (modus aequans s, c).
+    ipso (modus aequans s, c).
   - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
-    exact (modus aequans s, c).
-  - exact (Disjunction.L (Identity.reflexivity r)).
+    ipso (modus aequans s, c).
+  - ipso (Disjunction.L (Identity.reflexivity r)).
 Qed.
 
 End right. (* minimum.right *)
@@ -467,9 +467,9 @@ Proof.
   intros A c lt C k m n h1 h2.
   unfold min in |- *.
   destruct (c m n) as [| |].
-  - exact h1.
-  - exact h1.
-  - exact h2.
+  - ipso h1.
+  - ipso h1.
+  - ipso h2.
 Qed.
 
 (* minimum.commutativity *)
@@ -483,10 +483,10 @@ Theorem commutativity
 Proof.
   intros A c lt C m n.
   apply (order.antisymmetry (min c m n) (min c n m)).
-  - exact (minimum.universality
+  - ipso (minimum.universality
             (min c m n) n m
             (minimum.right.projection m n) (minimum.left.projection m n)).
-  - exact (minimum.universality
+  - ipso (minimum.universality
             (min c n m) m n
             (minimum.right.projection n m) (minimum.left.projection n m)).
 Qed.
@@ -506,17 +506,17 @@ Proof.
           (min c l (min c m n))).
   - apply (minimum.universality
             (min c (min c l m) n) l (min c m n)).
-    + exact (order.transitivity
+    + ipso (order.transitivity
               (min c (min c l m) n) (min c l m) l
               (minimum.left.projection (min c l m) n)
               (minimum.left.projection l m)).
     + apply (minimum.universality
               (min c (min c l m) n) m n).
-      * exact (order.transitivity
+      * ipso (order.transitivity
                 (min c (min c l m) n) (min c l m) m
                 (minimum.left.projection (min c l m) n)
                 (minimum.right.projection l m)).
-      * exact (minimum.right.projection
+      * ipso (minimum.right.projection
                 (min c l m) n).
   - apply (minimum.universality
               (min c l (min c m n))
@@ -524,14 +524,14 @@ Proof.
               n).
     + apply (minimum.universality
               (min c l (min c m n)) l m).
-      * exact (minimum.left.projection
+      * ipso (minimum.left.projection
                 l
                 (min c m n)).
-      * exact (order.transitivity
+      * ipso (order.transitivity
                 (min c l (min c m n)) (min c m n) m
                 (minimum.right.projection l (min c m n))
                 (minimum.left.projection m n)).
-    + exact (order.transitivity
+    + ipso (order.transitivity
               (min c l (min c m n)) (min c m n) n
               (minimum.right.projection l (min c m n))
               (minimum.right.projection m n)).
@@ -572,18 +572,18 @@ Proof.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
     + apply Disjunction.L.
-      exact e.
+      ipso e.
     + apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
       modus aequans s, c as e'.
-      exact (Identity.symmetry e').
+      ipso (Identity.symmetry e').
     + apply Disjunction.R.
-      exact (modus aequans
+      ipso (modus aequans
                (comparison.strict.transposition.specification m n), c).
   - intro h.
     destruct (compare m n) as [| |] eqn:c.
     + destruct h as [e | gt].
-      * exact e.
+      * ipso e.
       * modus aequans (comparison.strict.transposition.specification m n), gt as e.
         rewrite e in c.
         discriminate c.
@@ -608,9 +608,9 @@ Proof.
   destruct (compare l r) as [| |] eqn:c.
   - apply Disjunction.R.
     destruct (Comparable.specification l r) as [s _].
-    exact (modus aequans s, c).
-  - exact (Disjunction.L (Identity.reflexivity l)).
-  - exact (Disjunction.L (Identity.reflexivity l)).
+    ipso (modus aequans s, c).
+  - ipso (Disjunction.L (Identity.reflexivity l)).
+  - ipso (Disjunction.L (Identity.reflexivity l)).
 Qed.
 
 End left. (* maximum.left *)
@@ -630,13 +630,13 @@ Proof.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.L (Identity.reflexivity r)).
+  - ipso (Disjunction.L (Identity.reflexivity r)).
   - apply Disjunction.L.
     destruct (Comparable.specification l r) as [_ s].
     modus aequans s, c as e.
-    exact (Identity.symmetry e).
+    ipso (Identity.symmetry e).
   - apply Disjunction.R.
-    exact (modus aequans
+    ipso (modus aequans
              (comparison.strict.transposition.specification l r), c).
 Qed.
 
@@ -655,9 +655,9 @@ Proof.
   intros A c lt C k m n h1 h2.
   unfold max in |- *.
   destruct (c m n) as [| |].
-  - exact h2.
-  - exact h1.
-  - exact h1.
+  - ipso h2.
+  - ipso h1.
+  - ipso h1.
 Qed.
 
 (* maximum.commutativity *)
@@ -671,10 +671,10 @@ Theorem commutativity
 Proof.
   intros A c lt C m n.
   apply (order.antisymmetry (max c m n) (max c n m)).
-  - exact (maximum.universality
+  - ipso (maximum.universality
             (max c n m) m n
             (maximum.right.injection n m) (maximum.left.injection n m)).
-  - exact (maximum.universality
+  - ipso (maximum.universality
             (max c m n) n m
             (maximum.right.injection m n) (maximum.left.injection m n)).
 Qed.
@@ -698,31 +698,31 @@ Proof.
             n).
     + apply (maximum.universality
               (max c l (max c m n)) l m).
-      * exact (maximum.left.injection
+      * ipso (maximum.left.injection
                 l (max c m n)).
-      * exact (order.transitivity
+      * ipso (order.transitivity
                 m (max c m n) (max c l (max c m n))
                 (maximum.left.injection m n)
                 (maximum.right.injection l (max c m n))).
-    + exact (order.transitivity
+    + ipso (order.transitivity
               n (max c m n) (max c l (max c m n))
               (maximum.right.injection m n)
               (maximum.right.injection l (max c m n))).
   - apply (maximum.universality
             (max c (max c l m) n)
             l (max c m n)).
-    + exact (order.transitivity
+    + ipso (order.transitivity
               l (max c l m) (max c (max c l m) n)
               (maximum.left.injection l m)
               (maximum.left.injection (max c l m)
               n)).
     + apply (maximum.universality
               (max c (max c l m) n) m n).
-      * exact (order.transitivity
+      * ipso (order.transitivity
                 m (max c l m) (max c (max c l m) n)
                 (maximum.right.injection l m)
                 (maximum.left.injection (max c l m) n)).
-      * exact (maximum.right.injection
+      * ipso (maximum.right.injection
                 (max c l m) n).
 Qed.
 

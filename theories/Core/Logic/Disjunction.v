@@ -44,8 +44,8 @@ Proof.
    * - one with [b : B].
    *)
   destruct h as [a | b].
-  - exact (right a).
-  - exact (left  b).
+  - ipso (right a).
+  - ipso (left  b).
 Qed.
 
 Theorem associativity
@@ -56,15 +56,15 @@ Proof.
   - intro h.
     destruct h as [ab | c].
     + destruct ab as [a | b].
-      * exact (Disjunction.left a).
-      * exact (Disjunction.right (Disjunction.left b)).
-    + exact (Disjunction.right (Disjunction.right c)).
+      * ipso (Disjunction.left a).
+      * ipso (Disjunction.right (Disjunction.left b)).
+    + ipso (Disjunction.right (Disjunction.right c)).
   - intro h.
     destruct h as [a | bc].
-    + exact (Disjunction.left (Disjunction.left a)).
+    + ipso (Disjunction.left (Disjunction.left a)).
     + destruct bc as [b | c].
-      * exact (Disjunction.left (Disjunction.right b)).
-      * exact (Disjunction.right c).
+      * ipso (Disjunction.left (Disjunction.right b)).
+      * ipso (Disjunction.right c).
 Qed.
 
 Module distributivity. (* distributivity *)
@@ -80,22 +80,22 @@ Proof.
   - intro h.
     destruct h as [a | bc].
     + split.
-      * exact (Disjunction.left a).
-      * exact (Disjunction.left a).
+      * ipso (Disjunction.left a).
+      * ipso (Disjunction.left a).
     + destruct bc as [b c].
       split.
-      * exact (Disjunction.right b).
-      * exact (Disjunction.right c).
+      * ipso (Disjunction.right b).
+      * ipso (Disjunction.right c).
   - intro h.
     destruct h  as [ab ac].
     destruct ab as [a | b].
-    + exact (Disjunction.left a).
+    + ipso (Disjunction.left a).
     + destruct ac as [a | c].
-      * exact (Disjunction.left a).
+      * ipso (Disjunction.left a).
       * apply Disjunction.right.
         split.
-        { exact b. }
-        { exact c. }
+        { ipso b. }
+        { ipso c. }
 Qed.
 
 End over. (* distributivity.over *)
@@ -115,18 +115,18 @@ Proof.
     split.
     + intro a.
       apply f.
-      exact (Disjunction.left a).
+      ipso (Disjunction.left a).
     + intro b.
       apply f.
-      exact (Disjunction.right b).
+      ipso (Disjunction.right b).
   - intro h.
     destruct h as [ac bc].
     intro ab.
     destruct ab as [a | b].
     + apply ac.
-      exact a.
+      ipso a.
     + apply bc.
-      exact b.
+      ipso b.
 Qed.
 
 Theorem congruence
@@ -144,21 +144,21 @@ Proof.
     + (* [|- A2] *)
       apply Disjunction.left.
       apply a12.
-      exact a1.
+      ipso a1.
     + (* [|- B2] *)
       apply Disjunction.right.
       apply b12.
-      exact b1.
+      ipso b1.
   - (* [h : A2 \/ B2]: [|- A1 \/ B1] *)
     destruct h as [a2 | b2].
     + (* [|- A1] *)
       apply Disjunction.left.
       apply a21.
-      exact a2.
+      ipso a2.
     + (* [|- B1] *)
       apply Disjunction.right.
       apply b21.
-      exact b2.
+      ipso b2.
 Qed.
 
 End Disjunction. (* Disjunction *)
@@ -187,23 +187,23 @@ Proof.
     + (* [|- A /\ B] *)
       apply Disjunction.left.
       split.
-      * exact a.
-      * exact b.
+      * ipso a.
+      * ipso b.
     + (* [|- A /\ C] *)
       apply Disjunction.right.
       split.
-      * exact a.
-      * exact c.
+      * ipso a.
+      * ipso c.
   - intro h.
     destruct h as [ab | ac].
     + destruct ab as [a b].
       split.
-      * exact a.
-      * exact (Disjunction.left b).
+      * ipso a.
+      * ipso (Disjunction.left b).
     + destruct ac as [a c].
       split.
-      * exact a.
-      * exact (Disjunction.right c).
+      * ipso a.
+      * ipso (Disjunction.right c).
 Qed.
 
 End over. (* distributivity.over *)

@@ -40,7 +40,7 @@ Proof.
   pose (f := fun (o : Option A) . match o with | Some x => x | None => a end).
   pose proof (Identity.congruence f e) as e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End some. (* some *)

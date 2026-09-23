@@ -41,17 +41,17 @@ Proof.
   destruct b1 as [|];
       destruct b2 as [|]; simpl in |- *;
           split; intro h.
-  - split; exact I.
-  - exact I.
+  - split; ipso I.
+  - ipso I.
   - ex h quodlibet.
   - destruct h as [_ h].
-    exact h.
+    ipso h.
   - ex h quodlibet.
   - destruct h as [h _].
-    exact h.
+    ipso h.
   - ex h quodlibet.
   - destruct h as [h _].
-    exact h.
+    ipso h.
 Qed.
 
 (* Assert.disjunction *)
@@ -63,16 +63,16 @@ Proof.
   destruct b1 as [|];
       destruct b2 as [|]; simpl in |- *;
           split; intro h.
-  - exact (Disjunction.left I).
-  - exact I.
-  - exact (Disjunction.left I).
-  - exact I.
-  - exact (Disjunction.right I).
-  - exact I.
+  - ipso (Disjunction.left I).
+  - ipso I.
+  - ipso (Disjunction.left I).
+  - ipso I.
+  - ipso (Disjunction.right I).
+  - ipso I.
   - ex h quodlibet.
   - destruct h as [h1 | h2].
-    + exact h1.
-    + exact h2.
+    + ipso h1.
+    + ipso h2.
 Qed.
 
 (* Assert.sejunction *)
@@ -87,13 +87,13 @@ Proof.
             split;
               intro h.
   - ex h quodlibet.
-  - destruct h as [t nt | nt t]; exact (modus ponens nt, t).
-  - exact (Sejunction.left  I (fun (f : Falsum) . f)).
-  - exact I.
-  - exact (Sejunction.right (fun (f : Falsum) . f) I).
-  - exact I.
+  - destruct h as [t nt | nt t]; ipso (modus ponens nt, t).
+  - ipso (Sejunction.left  I (fun (f : Falsum) . f)).
+  - ipso I.
+  - ipso (Sejunction.right (fun (f : Falsum) . f) I).
+  - ipso I.
   - ex h quodlibet.
-  - destruct h as [f _ | _ f]; exact f.
+  - destruct h as [f _ | _ f]; ipso f.
 Qed.
 
 (* Assert.negation *)
@@ -107,10 +107,10 @@ Proof.
           split;
             intro h.
   - ex h quodlibet.
-  - exact (modus ponens h, I).
+  - ipso (modus ponens h, I).
   - intro k.
     destruct k.
-  - exact I.
+  - ipso I.
 Qed.
 
 (* Assert.specification *)
@@ -119,7 +119,7 @@ Proof.
   intros b.
   destruct b as [|]; simpl in |- *; split; intro h.
   - reflexivity.
-  - exact I.
+  - ipso I.
   - ex h quodlibet.
   - discriminate h.
 Qed.

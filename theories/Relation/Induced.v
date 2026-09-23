@@ -21,7 +21,7 @@ Theorem introduction
       R (f y) (f x) -> Induced R f y x.
 Proof.
   intros A B R f y x h.
-  exact h.
+  ipso h.
 Qed.
 
 (* Induced.elimination *)
@@ -30,7 +30,7 @@ Theorem elimination
       Induced R f y x -> R (f y) (f x).
 Proof.
   intros A B R f y x h.
-  exact h.
+  ipso h.
 Qed.
 
 End Induced. (* Induced *)

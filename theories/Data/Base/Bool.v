@@ -101,8 +101,8 @@ End distinctness. (* distinctness *)
 Theorem distinctness : ~ (true = false) /\ ~ (false = true).
 Proof.
   split.
-  - exact distinctness.forward.
-  - exact distinctness.backward.
+  - ipso distinctness.forward.
+  - ipso distinctness.backward.
 Qed.
 
 Module negation. (* negation *)
@@ -202,8 +202,8 @@ Theorem sejunction
 Proof.
   intros b1 b2 b3.
   split.
-  - exact (conjunction.left.distributivity.over.sejunction  b1 b2 b3).
-  - exact (conjunction.right.distributivity.over.sejunction b1 b2 b3).
+  - ipso (conjunction.left.distributivity.over.sejunction  b1 b2 b3).
+  - ipso (conjunction.right.distributivity.over.sejunction b1 b2 b3).
 Qed.
 
 End over. (* conjunction.distributivity.over *)
@@ -290,8 +290,8 @@ Theorem inverse
 Proof.
   intros b.
   split.
-  - exact (sejunction.irreflexivity b).
-  - exact (sejunction.irreflexivity b).
+  - ipso (sejunction.irreflexivity b).
+  - ipso (sejunction.irreflexivity b).
 Qed.
 
 End sejunction. (* sejunction *)

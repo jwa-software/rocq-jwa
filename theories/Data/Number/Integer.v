@@ -252,7 +252,7 @@ Proof.
                 (fun (x : Integer) . match x with | - r => r | 0 => p | + _ => p end)
                 e) as e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End negative. (* magnitude.negative *)
@@ -268,7 +268,7 @@ Proof.
                 (fun (x : Integer) . match x with | - _ => p | 0 => p | + r => r end)
                 e) as e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End positive. (* magnitude.positive *)
@@ -280,8 +280,8 @@ Theorem injectivity
 Proof.
   intros p q.
   split.
-  - exact (@magnitude.negative.injectivity p q).
-  - exact (@magnitude.positive.injectivity p q).
+  - ipso (@magnitude.negative.injectivity p q).
+  - ipso (@magnitude.positive.injectivity p q).
 Qed.
 
 End magnitude. (* magnitude *)
@@ -320,7 +320,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact IH.
+    ipso IH.
 Qed.
 
 Module left. (* difference.nat.left *)
@@ -341,7 +341,7 @@ Proof.
   - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
     rewrite (Nat.addition.commutativity p' k) in |- *.
-    exact IH.
+    ipso IH.
 Qed.
 
 End of. (* difference.nat.left.inversion.of *)
@@ -368,7 +368,7 @@ Proof.
   - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
     rewrite (Nat.addition.commutativity p' k) in |- *.
-    exact IH.
+    ipso IH.
 Qed.
 
 End of. (* difference.nat.right.inversion.of *)
@@ -501,12 +501,12 @@ Proof.
     simpl in s.
     pose proof (NatWithZero.positive.injectivity s) as e'.
     rewrite (Nat.addition.commutativity p k) in |- *.
-    exact (Identity.symmetry e').
+    ipso (Identity.symmetry e').
   - intro e.
     symmetry in e.
     rewrite e in |- *.
     rewrite (Nat.addition.commutativity p k) in |- *.
-    exact (difference.nat.right.inversion.of.addition k p).
+    ipso (difference.nat.right.inversion.of.addition k p).
 Qed.
 
 End negative. (* difference.nat.negative *)
@@ -524,10 +524,10 @@ Proof.
     rewrite e in s.
     simpl in s.
     pose proof (NatWithZero.positive.injectivity s) as e'.
-    exact (Identity.symmetry e').
+    ipso (Identity.symmetry e').
   - intro e.
     rewrite e in |- *.
-    exact (difference.nat.reflexivity q).
+    ipso (difference.nat.reflexivity q).
 Qed.
 
 End zero. (* difference.nat.zero *)
@@ -546,12 +546,12 @@ Proof.
     simpl in s.
     pose proof (NatWithZero.positive.injectivity s) as e'.
     rewrite (Nat.addition.commutativity q k) in |- *.
-    exact e'.
+    ipso e'.
   - intro e.
     symmetry in e.
     rewrite e in |- *.
     rewrite (Nat.addition.commutativity q k) in |- *.
-    exact (difference.nat.left.inversion.of.addition k q).
+    ipso (difference.nat.left.inversion.of.addition k q).
 Qed.
 
 End positive. (* difference.nat.positive *)
@@ -615,7 +615,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (difference.nat.reflexivity p).
+    ipso (difference.nat.reflexivity p).
 Qed.
 
 Module left. (* difference.nat_with_zero.left *)
@@ -634,7 +634,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (difference.nat.left.inversion.of.addition k q).
+    ipso (difference.nat.left.inversion.of.addition k q).
 Qed.
 
 End of. (* difference.nat_with_zero.left.inversion.of *)
@@ -659,7 +659,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (difference.nat.right.inversion.of.addition k q).
+    ipso (difference.nat.right.inversion.of.addition k q).
 Qed.
 
 End of. (* difference.nat_with_zero.right.inversion.of *)
@@ -683,7 +683,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (difference.nat.specification p q).
+    ipso (difference.nat.specification p q).
 Qed.
 
 (* difference.nat_with_zero.well_definedness *)
@@ -738,7 +738,7 @@ Proof.
     + simpl in h.
       pose proof (NatWithZero.positive.injectivity h) as e.
       simpl in |- *.
-      exact (difference.nat.well_definedness e).
+      ipso (difference.nat.well_definedness e).
 Qed.
 
 (* difference.nat_with_zero.negation *)
@@ -755,7 +755,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (difference.nat.negation p q).
+    ipso (difference.nat.negation p q).
 Qed.
 
 (* difference.nat_with_zero.additivity *)
@@ -820,7 +820,7 @@ Proof.
               (NatWithZero.Positive q))
       with (nat_difference p q)
       in |- *.
-    exact (difference.nat.scaling k p q).
+    ipso (difference.nat.scaling k p q).
 Qed.
 
 End nat_with_zero. (* difference.nat_with_zero *)
@@ -958,13 +958,13 @@ Proof.
   destruct n as [p | | p].
   - unfold add in |- *.
     simpl in |- *.
-    exact (difference.nat.reflexivity p).
+    ipso (difference.nat.reflexivity p).
   - unfold add in |- *.
     simpl in |- *.
     reflexivity.
   - unfold add in |- *.
     simpl in |- *.
-    exact (difference.nat.reflexivity p).
+    ipso (difference.nat.reflexivity p).
 Qed.
 
 (* addition.left.cancellation *)
@@ -981,7 +981,7 @@ Proof.
   rewrite (addition.left.inverse k)  in h'.
   rewrite (addition.left.identity m) in h'.
   rewrite (addition.left.identity n) in h'.
-  exact h'.
+  ipso h'.
 Qed.
 
 End left. (* addition.left *)
@@ -993,7 +993,7 @@ Theorem identity : forall (n : Integer) . n + 0 = n.
 Proof.
   intros n.
   rewrite (addition.commutativity n 0) in |- *.
-  exact (addition.left.identity n).
+  ipso (addition.left.identity n).
 Qed.
 
 (* addition.right.inverse *)
@@ -1001,7 +1001,7 @@ Theorem inverse : forall (n : Integer) . n + negate n = 0.
 Proof.
   intros n.
   rewrite (addition.commutativity n (negate n)) in |- *.
-  exact (addition.left.inverse n).
+  ipso (addition.left.inverse n).
 Qed.
 
 (* addition.right.cancellation *)
@@ -1011,7 +1011,7 @@ Proof.
   intros m n k h.
   rewrite (addition.commutativity m k) in h.
   rewrite (addition.commutativity n k) in h.
-  exact (addition.left.cancellation h).
+  ipso (addition.left.cancellation h).
 Qed.
 
 End right. (* addition.right *)
@@ -1034,8 +1034,8 @@ Theorem identity
 Proof.
   intros n.
   split.
-  - exact (addition.left.identity  n).
-  - exact (addition.right.identity n).
+  - ipso (addition.left.identity  n).
+  - ipso (addition.right.identity n).
 Qed.
 
 (* addition.inverse *)
@@ -1044,8 +1044,8 @@ Theorem inverse
 Proof.
   intros n.
   split.
-  - exact (addition.left.inverse  n).
-  - exact (addition.right.inverse n).
+  - ipso (addition.left.inverse  n).
+  - ipso (addition.right.inverse n).
 Qed.
 
 (* addition.cancellation *)
@@ -1055,8 +1055,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (@addition.left.cancellation  m n k).
-  - exact (@addition.right.cancellation m k n).
+  - ipso (@addition.left.cancellation  m n k).
+  - ipso (@addition.right.cancellation m k n).
 Qed.
 
 Module order. (* addition.order *)
@@ -1098,7 +1098,7 @@ Proof.
   unfold sub in |- *.
   rewrite (addition.associativity m n (negate n)) in |- *.
   rewrite (addition.right.inverse n) in |- *.
-  exact (addition.right.identity m).
+  ipso (addition.right.identity m).
 Qed.
 
 End of. (* subtraction.inversion.of *)
@@ -1314,7 +1314,7 @@ Proof.
   - simpl in |- *.
     rewrite (addition.left.identity 0) in |- *.
     reflexivity.
-  - exact (multiplication.left.positive.distributivity.over.addition p m n).
+  - ipso (multiplication.left.positive.distributivity.over.addition p m n).
 Qed.
 
 End over. (* multiplication.left.distributivity.over *)
@@ -1356,7 +1356,7 @@ Theorem identity : forall (n : Integer) . n * (+ Nat.One) = n.
 Proof.
   intros n.
   rewrite (multiplication.commutativity n (+ Nat.One)) in |- *.
-  exact (multiplication.left.identity n).
+  ipso (multiplication.left.identity n).
 Qed.
 
 (* multiplication.right.annihilation *)
@@ -1364,7 +1364,7 @@ Theorem annihilation : forall (n : Integer) . n * 0 = 0.
 Proof.
   intros n.
   rewrite (multiplication.commutativity n 0) in |- *.
-  exact (multiplication.left.annihilation n).
+  ipso (multiplication.left.annihilation n).
 Qed.
 
 (* multiplication.right.negation *)
@@ -1407,8 +1407,8 @@ Theorem identity
 Proof.
   intros n.
   split.
-  - exact (multiplication.left.identity  n).
-  - exact (multiplication.right.identity n).
+  - ipso (multiplication.left.identity  n).
+  - ipso (multiplication.right.identity n).
 Qed.
 
 Module distributivity. (* multiplication.distributivity *)
@@ -1423,8 +1423,8 @@ Theorem addition
 Proof.
   intros x y z.
   split.
-  - exact (multiplication.left.distributivity.over.addition  x y z).
-  - exact (multiplication.right.distributivity.over.addition x y z).
+  - ipso (multiplication.left.distributivity.over.addition  x y z).
+  - ipso (multiplication.right.distributivity.over.addition x y z).
 Qed.
 
 End over. (* multiplication.distributivity.over *)
@@ -1533,7 +1533,7 @@ Proof.
     in |- *.
   rewrite <- (addition.associativity l (+ k1) (+ k2)) in |- *.
   rewrite e1 in |- *.
-  exact e2.
+  ipso e2.
 Qed.
 
 End strict. (* order.strict *)
@@ -1549,7 +1549,7 @@ Proof.
   intros m n.
   destruct m as [m' | | m']; destruct n as [n' | | n'].
   - simpl in |- *.
-    exact (Nat.comparison.antisymmetry n' m').
+    ipso (Nat.comparison.antisymmetry n' m').
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -1565,7 +1565,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    exact (Nat.comparison.antisymmetry m' n').
+    ipso (Nat.comparison.antisymmetry m' n').
 Qed.
 
 Module strict. (* comparison.strict *)
@@ -1584,7 +1584,7 @@ Proof.
     destruct lt as [k e].
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in e.
-    exact (modus aequans (difference.nat.negative.specification k m' n'), e).
+    ipso (modus aequans (difference.nat.negative.specification k m' n'), e).
   - intro h.
     destruct h as [k e].
     modus aequans (difference.nat.negative.specification k m' n'), e as e'.
@@ -1592,15 +1592,15 @@ Proof.
     unfold Nat.LessThan in |- *.
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in |- *.
-    exact e'.
+    ipso e'.
   - intro c.
     apply (Exists_introduction m').
-    exact (difference.nat.reflexivity m').
+    ipso (difference.nat.reflexivity m').
   - intro h.
     reflexivity.
   - intro c.
     apply (Exists_introduction (Nat.add n' m')).
-    exact (difference.nat.left.inversion.of.addition n' m').
+    ipso (difference.nat.left.inversion.of.addition n' m').
   - intro h.
     reflexivity.
   - intro c.
@@ -1641,7 +1641,7 @@ Proof.
     apply (@Nat.comparison.strict.backward.specification m' n').
     unfold Nat.LessThan in |- *.
     apply (Exists_introduction k).
-    exact e'.
+    ipso e'.
 Qed.
 
 End strict. (* comparison.strict *)
@@ -1661,7 +1661,7 @@ Proof.
   - intro e.
     pose proof (magnitude.negative.injectivity e) as e'.
     rewrite e' in |- *.
-    exact (Comparable.comparison.reflexivity n').
+    ipso (Comparable.comparison.reflexivity n').
   - intro c.
     discriminate c.
   - intro e.
@@ -1697,7 +1697,7 @@ Proof.
   - intro e.
     pose proof (magnitude.positive.injectivity e) as e'.
     rewrite e' in |- *.
-    exact (Comparable.comparison.reflexivity n').
+    ipso (Comparable.comparison.reflexivity n').
 Qed.
 
 End equality. (* comparison.equality *)
@@ -1709,8 +1709,8 @@ Theorem specification
 Proof.
   intros m n.
   split.
-  - exact (comparison.strict.specification m n).
-  - exact (comparison.equality.specification m n).
+  - ipso (comparison.strict.specification m n).
+  - ipso (comparison.equality.specification m n).
 Qed.
 
 End comparison. (* comparison *)
@@ -1773,7 +1773,7 @@ Theorem exhaustiveness
 Proof.
   intros x d.
   rewrite (division.magnitude x (NatWithZero.gcd.nat (| x |) d)) in |- *.
-  exact (NatWithZero.gcd.nat.exhaustiveness (| x |) d).
+  ipso (NatWithZero.gcd.nat.exhaustiveness (| x |) d).
 Qed.
 
 (* division.invariance *)
@@ -1813,7 +1813,7 @@ Proof.
   intros n.
   unfold Divides in |- *.
   apply (Exists_introduction (+ Nat.One)).
-  exact (multiplication.right.identity n).
+  ipso (multiplication.right.identity n).
 Qed.
 
 (* divisibility.transitivity *)
@@ -1831,7 +1831,7 @@ Proof.
           in |- *.
   rewrite -> e1
           in |- *.
-  exact e2.
+  ipso e2.
 Qed.
 
 Module addition. (* divisibility.addition *)
@@ -1989,7 +1989,7 @@ Proof.
   unfold Even in h1.
   unfold Even in h2.
   unfold Even in |- *.
-  exact (divisibility.addition.closure h1 h2).
+  ipso (divisibility.addition.closure h1 h2).
 Qed.
 
 End addition. (* parity.even.addition *)

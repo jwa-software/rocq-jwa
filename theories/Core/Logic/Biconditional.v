@@ -20,7 +20,7 @@ Module Biconditional. (* Biconditional *)
 Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
   intro P.
-  split; intro p; exact p.
+  split; intro p; ipso p.
 Qed.
 
 Theorem symmetry
@@ -30,8 +30,8 @@ Proof.
   intro h.
   destruct h as [pq qp].
   split.
-  - exact qp.
-  - exact pq.
+  - ipso qp.
+  - ipso pq.
 Qed.
 
 Theorem transitivity
@@ -47,11 +47,11 @@ Proof.
   - intro p.
     apply qr.
     apply pq.
-    exact p.
+    ipso p.
   - intro r.
     apply qp.
     apply rq.
-    exact r.
+    ipso r.
 Qed.
 
 Module forward. (* forward *)
@@ -63,7 +63,7 @@ Proof.
   intros P Q.
   intro e.
   destruct e as [pq qp].
-  exact pq.
+  ipso pq.
 Qed.
 
 End forward. (* forward *)
@@ -77,7 +77,7 @@ Proof.
   intros P Q.
   intro e.
   destruct e as [pq qp].
-  exact qp.
+  ipso qp.
 Qed.
 
 End backward. (* backward *)
@@ -97,25 +97,25 @@ Proof.
     apply q12.
     apply pq.
     apply p21.
-    exact p2.
+    ipso p2.
   +
     intro q2.
     apply p12.
     apply qp.
     apply q21.
-    exact q2.
+    ipso q2.
   +
     intro p1.
     apply q21.
     apply pq.
     apply p12.
-    exact p1.
+    ipso p1.
   +
     intro q1.
     apply p21.
     apply qp.
     apply q12.
-    exact q1.
+    ipso q1.
 Qed.
 
 (* [Biconditional.exclusion.of.sejunction] is stated in
@@ -145,12 +145,12 @@ Proof.
     apply q12.
     apply f.
     apply p21.
-    exact p2.
+    ipso p2.
   - intro p1.
     apply q21.
     apply f.
     apply p12.
-    exact p1.
+    ipso p1.
 Qed.
 
 End Conditional. (* Conditional *)

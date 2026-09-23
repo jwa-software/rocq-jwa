@@ -176,7 +176,7 @@ Proof.
   intro x.
   destruct x as [n d h].
   simpl numerator, denominator in |- *.
-  exact h.
+  ipso h.
 Qed.
 
 
@@ -198,7 +198,7 @@ Proof.
     pose proof (Integer.multiplication.right.identity
                   (Integer.divide n Nat.One)) as i.
     symmetry in i.
-    exact (Identity.transitivity i e).
+    ipso (Identity.transitivity i e).
   }
 
   assert (undivided
@@ -212,7 +212,7 @@ Proof.
     pose proof (NatWithZero.multiplication.right.identity
                   (NatWithZero.divide (NatWithZero.Positive d) (Nat.One))) as i.
     symmetry in i.
-    exact (Identity.transitivity i e).
+    ipso (Identity.transitivity i e).
   }
 
   assert (same
@@ -228,7 +228,7 @@ Proof.
   - simpl make      in |- *.
     simpl numerator in |- *.
     rewrite h in |- *.
-    exact whole.
+    ipso whole.
   - simpl make        in |- *.
     simpl denominator in |- *.
     pose proof (NatWithZero.divide.nat.safe.congruence
@@ -244,7 +244,7 @@ Proof.
             as s.
     rewrite undivided in s.
     pose proof (NatWithZero.positive.injectivity s) as inj.
-    exact (Identity.transitivity c inj).
+    ipso (Identity.transitivity c inj).
 Qed.
 
 (* make.invariance *)
@@ -268,7 +268,7 @@ Proof.
                   k d (Integer.abs n))
             as gd.
     symmetry in gd.
-    exact gd.
+    ipso gd.
   }
 
   simpl make in |- *.
@@ -282,7 +282,7 @@ Proof.
           = Integer.divide n (NatWithZero.gcd.nat (Integer.abs n) d)).
   {
     rewrite common in |- *.
-    exact (Integer.division.invariance
+    ipso (Integer.division.invariance
              n (NatWithZero.gcd.nat (Integer.abs n) d) k).
   }
 
@@ -309,16 +309,16 @@ Proof.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive d))
       with (NatWithZero.Positive (Nat.mul k d))
         in inv.
-    exact inv.
+    ipso inv.
   }
 
   apply extensionality.
   - simpl make      in |- *.
     simpl numerator in |- *.
-    exact top.
+    ipso top.
   - simpl make        in |- *.
     simpl denominator in |- *.
-    exact bottom.
+    ipso bottom.
 Qed.
 
 (* make.proportionality *)
@@ -350,7 +350,7 @@ Proof.
                     (Integer.abs a) b)) as e.
     symmetry in s.
     rewrite s in e.
-    exact (NatWithZero.positive.injectivity e).
+    ipso (NatWithZero.positive.injectivity e).
   }
 
   assert (lifted
@@ -375,7 +375,7 @@ Proof.
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))
           = a).
   {
-    exact (Integer.division.exactness
+    ipso (Integer.division.exactness
             a (NatWithZero.gcd.nat (Integer.abs a) b)
             (NatWithZero.gcd.nat.left.divisibility (Integer.abs a) b)).
   }
@@ -488,7 +488,7 @@ Proof.
     rewrite (Integer.multiplication.commutativity
               (Integer.mul c (Integer.from_nat b))
               (Integer.from_nat s)) in Q.
-    exact (Integer.multiplication.cancellation
+    ipso (Integer.multiplication.cancellation
             (Integer.from_nat s) (Integer.mul a (Integer.from_nat d))
             (Integer.mul c (Integer.from_nat b)) nzs Q).
 
@@ -558,7 +558,7 @@ Proof.
       rewrite I1 in g.
       rewrite (NatWithZero.gcd.commutativity
                 (Integer.abs p) (NatWithZero.Positive q)) in g.
-      exact g.
+      ipso g.
     }
 
     assert (coprime2
@@ -569,7 +569,7 @@ Proof.
       rewrite I2 in g.
       rewrite (NatWithZero.gcd.commutativity (Integer.abs r)
                  (NatWithZero.Positive s)) in g.
-      exact g.
+      ipso g.
     }
 
     assert (qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s)).
@@ -583,7 +583,7 @@ Proof.
                 (NatWithZero.Positive q) (Integer.abs r)) in h.
       pose proof (Identity.symmetry m) as m'.
       rewrite m' in h.
-      exact (NatWithZero.gcd.multiplication.cancellation
+      ipso (NatWithZero.gcd.multiplication.cancellation
               (NatWithZero.Positive q) (Integer.abs p)
               (NatWithZero.Positive s) h coprime1).
     }
@@ -597,7 +597,7 @@ Proof.
       rewrite (NatWithZero.multiplication.commutativity
                  (NatWithZero.Positive s) (Integer.abs p)) in h.
       rewrite m in h.
-      exact (NatWithZero.gcd.multiplication.cancellation
+      ipso (NatWithZero.gcd.multiplication.cancellation
                (NatWithZero.Positive s) (Integer.abs r)
                (NatWithZero.Positive q) h coprime2).
     }
@@ -610,9 +610,9 @@ Proof.
             as hp.
     apply extensionality.
     + simpl numerator in |- *.
-      exact hp.
+      ipso hp.
     + simpl denominator in |- *.
-      exact hq.
+      ipso hq.
 Qed.
 
 (* make.annihilation *)
@@ -626,7 +626,7 @@ Proof.
     pose proof (retraction Zero) as r.
     change (numerator   Zero) with Integer.Zero in r.
     change (denominator Zero) with Nat.One  in r.
-    exact r.
+    ipso r.
   }
 
   assert (cross
@@ -640,7 +640,7 @@ Proof.
 
   pose proof (characterisation Integer.Zero b Integer.Zero Nat.One) as criterion.
   modus aequans criterion, cross as joined.
-  exact (Identity.transitivity joined unit).
+  ipso (Identity.transitivity joined unit).
 Qed.
 
 Module addition. (* make.addition *)
@@ -720,7 +720,7 @@ Proof.
                 (Integer.add (Integer.mul a d') (Integer.mul c b'))
                 (Nat.mul b d)) as criterion.
   modus aequans criterion, cross as joined.
-  exact joined.
+  ipso joined.
 Qed.
 
 End addition. (* make.addition *)
@@ -766,7 +766,7 @@ Proof.
                 (Integer.mul p r) (Nat.mul q s)
                 (Integer.mul a c) (Nat.mul b d)) as criterion.
   modus aequans criterion, cross as joined.
-  exact joined.
+  ipso joined.
 Qed.
 
 End multiplication. (* make.multiplication *)
@@ -800,7 +800,7 @@ Proof.
   pose proof (characterisation
                 (Integer.negate p) q (Integer.negate a) b) as criterion.
   modus aequans criterion, cross as joined.
-  exact joined.
+  ipso joined.
 Qed.
 
 End negation. (* make.negation *)
@@ -819,7 +819,7 @@ Proof.
                 (numerator y) (denominator y)) as c.
   rewrite (make.retraction x) in c.
   rewrite (make.retraction y) in c.
-  exact c.
+  ipso c.
 Qed.
 
 Module addition. (* addition *)
@@ -898,7 +898,7 @@ Proof.
   rewrite (make.retraction x) in g.
   rewrite (make.retraction y) in g.
   rewrite (make.retraction z) in g.
-  exact g.
+  ipso g.
 Qed.
 
 (* addition.commutativity *)
@@ -937,7 +937,7 @@ Proof.
              (Integer.mul (numerator x)
                           (Integer.Positive Nat.One))) in |- *.
   rewrite (Integer.multiplication.right.identity (numerator x)) in |- *.
-  exact (make.retraction x).
+  ipso (make.retraction x).
 Qed.
 
 (* addition.left.inverse *)
@@ -953,12 +953,12 @@ Proof.
     rewrite (make.addition.homomorphism (Integer.negate a) b a b) in |- *.
     rewrite (Integer.multiplication.left.negation (a) (Integer.from_nat b)) in |- *.
     rewrite (Integer.addition.left.inverse (Integer.mul a (Integer.from_nat b))) in |- *.
-    exact (make.annihilation (Nat.mul b b)).
+    ipso (make.annihilation (Nat.mul b b)).
   }
 
   pose proof (general (numerator x) (denominator x)) as g.
   rewrite (make.retraction x) in g.
-  exact g.
+  ipso g.
 Qed.
 
 (* addition.left.cancellation *)
@@ -982,7 +982,7 @@ Proof.
   simpl in h.
 
   symmetry in an.
-  exact (Identity.transitivity am (Identity.transitivity h an)).
+  ipso (Identity.transitivity am (Identity.transitivity h an)).
 Qed.
 
 End left. (* addition.left *)
@@ -1002,7 +1002,7 @@ Proof.
   rewrite (Integer.addition.right.identity (numerator x)) in |- *.
   destruct (Nat.multiplication.identity (denominator x)) as [_ unit].
   rewrite unit in |- *.
-  exact (make.retraction x).
+  ipso (make.retraction x).
 Qed.
 
 (* addition.right.inverse *)
@@ -1021,12 +1021,12 @@ Proof.
                a (Integer.from_nat b)) in |- *.
     rewrite (Integer.addition.right.inverse
                (Integer.mul a (Integer.from_nat b))) in |- *.
-    exact (make.annihilation (Nat.mul b b)).
+    ipso (make.annihilation (Nat.mul b b)).
   }
 
   pose proof (general (numerator x) (denominator x)) as g.
   rewrite (make.retraction x) in g.
-  exact g.
+  ipso g.
 Qed.
 
 (* addition.right.cancellation *)
@@ -1049,7 +1049,7 @@ Proof.
   simpl in h.
 
   symmetry in am.
-  exact (Identity.transitivity am (Identity.transitivity h an)).
+  ipso (Identity.transitivity am (Identity.transitivity h an)).
 Qed.
 
 End right. (* addition.right *)
@@ -1060,8 +1060,8 @@ Theorem identity
 Proof.
   intro x.
   split.
-  - exact (left.identity  x).
-  - exact (right.identity x).
+  - ipso (left.identity  x).
+  - ipso (right.identity x).
 Qed.
 
 (* addition.inverse *)
@@ -1071,8 +1071,8 @@ Theorem inverse
 Proof.
   intro x.
   split.
-  - exact (left.inverse  x).
-  - exact (right.inverse x).
+  - ipso (left.inverse  x).
+  - ipso (right.inverse x).
 Qed.
 
 (* addition.cancellation *)
@@ -1082,8 +1082,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   split.
-  - exact (left.cancellation  m n k).
-  - exact (right.cancellation n m k).
+  - ipso (left.cancellation  m n k).
+  - ipso (right.cancellation n m k).
 Qed.
 
 End addition. (* addition *)
@@ -1133,7 +1133,7 @@ Proof.
   rewrite (make.retraction x) in g.
   rewrite (make.retraction y) in g.
   rewrite (make.retraction z) in g.
-  exact g.
+  ipso g.
 Qed.
 
 Module left. (* multiplication.left *)
@@ -1147,7 +1147,7 @@ Proof.
   change (denominator One) with Nat.One              in |- *.
   change (Nat.mul Nat.One (denominator x)) with (denominator x) in |- *.
   rewrite (Integer.multiplication.left.identity (numerator x)) in |- *.
-  exact (make.retraction x).
+  ipso (make.retraction x).
 Qed.
 
 (* multiplication.left.annihilation *)
@@ -1159,7 +1159,7 @@ Proof.
   change (denominator Zero) with Nat.One  in |- *.
   change (Nat.mul Nat.One (denominator x)) with (denominator x)  in |- *.
   rewrite (Integer.multiplication.left.annihilation (numerator x)) in |- *.
-  exact (make.annihilation (denominator x)).
+  ipso (make.annihilation (denominator x)).
 Qed.
 
 Module distributivity. (* multiplication.left.distributivity *)
@@ -1246,7 +1246,7 @@ Proof.
     rewrite tops in |- *.
     rewrite bots in |- *.
     symmetry in |- *.
-    exact (make.invariance
+    ipso (make.invariance
             (Integer.mul (a) (Integer.add (Integer.mul c f') (Integer.mul e d')))
             (Nat.mul (b) (Nat.mul d f))
             (b)).
@@ -1259,7 +1259,7 @@ Proof.
   rewrite (make.retraction x) in g.
   rewrite (make.retraction y) in g.
   rewrite (make.retraction z) in g.
-  exact g.
+  ipso g.
 Qed.
 
 End over. (* multiplication.left.distributivity.over *)
@@ -1275,7 +1275,7 @@ Module right. (* multiplication.right *)
 Proof.
   intro x.
   rewrite (commutativity x One) in |- *.
-  exact (left.identity x).
+  ipso (left.identity x).
 Qed.
 
 (* multiplication.right.annihilation *)
@@ -1283,7 +1283,7 @@ Theorem annihilation : forall (x : Rational) . x * Zero = Zero.
 Proof.
   intro x.
   rewrite (commutativity x Zero) in |- *.
-  exact (left.annihilation x).
+  ipso (left.annihilation x).
 Qed.
 
 Module distributivity. (* multiplication.right.distributivity *)
@@ -1315,8 +1315,8 @@ Theorem identity
 Proof.
   intro x.
   split.
-  - exact (left.identity  x).
-  - exact (right.identity x).
+  - ipso (left.identity  x).
+  - ipso (right.identity x).
 Qed.
 
 Module distributivity. (* multiplication.distributivity *)
@@ -1331,8 +1331,8 @@ Theorem addition
 Proof.
   intros x y z.
   split.
-  - exact (left.distributivity.over.addition  x y z).
-  - exact (right.distributivity.over.addition x y z).
+  - ipso (left.distributivity.over.addition  x y z).
+  - ipso (right.distributivity.over.addition x y z).
 Qed.
 
 End over. (* multiplication.distributivity.over *)
@@ -1355,7 +1355,7 @@ Proof.
     pose proof (make.retraction One) as r.
     change (numerator   One) with (Integer.Positive Nat.One) in r.
     change (denominator One) with Nat.One              in r.
-    exact r.
+    ipso r.
   }
 
   pose proof (make.retraction x) as r.
@@ -1399,7 +1399,7 @@ Proof.
                   (Integer.Positive Nat.One)
                   (Nat.One)) as criterion.
     modus aequans criterion, cross as joined.
-    exact (Identity.transitivity joined unit).
+    ipso (Identity.transitivity joined unit).
 
   - discriminate e.
 
@@ -1436,7 +1436,7 @@ Proof.
                   (Integer.Positive Nat.One)
                   (Nat.One)) as criterion.
     modus aequans criterion, cross as joined.
-    exact (Identity.transitivity joined unit).
+    ipso (Identity.transitivity joined unit).
 Qed.
 
 End inverse. (* inverse *)
@@ -1535,7 +1535,7 @@ Proof.
               (Integer.mul e (Integer.Positive b)))
         as [lt | [eq | gt]].
 
-  - exact lt.
+  - ipso lt.
 
   - rewrite eq in chain.
     pose proof (Integer.order.strict.irreflexivity
@@ -1573,16 +1573,16 @@ Proof.
         as [below equal].
 
   split.
-  - exact below.
+  - ipso below.
   - split.
     + intro h.
       modus aequans equal, h as cross.
       modus aequans (characterisation x y), cross as same.
-      exact same.
+      ipso same.
     + intro h.
       modus aequans (characterisation x y), h as cross.
       modus aequans equal, cross as answer.
-      exact answer.
+      ipso answer.
 Qed.
 
 (* comparison.antisymmetry *)
@@ -1591,7 +1591,7 @@ Theorem antisymmetry
       compare x y = Comparison.transpose (compare y x).
 Proof.
   intros x y.
-  exact (Integer.comparison.antisymmetry
+  ipso (Integer.comparison.antisymmetry
           (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
           (Integer.mul (numerator y) (Integer.from_nat (denominator x)))).
 Qed.
@@ -1612,7 +1612,7 @@ Proof.
     with (Integer.Positive Nat.One) in cross.
   rewrite (Integer.multiplication.right.identity m) in cross.
   rewrite (Integer.multiplication.right.identity n) in cross.
-  exact cross.
+  ipso cross.
 Qed.
 
 (* embedding.addition *)
@@ -1668,11 +1668,11 @@ Proof.
                  (Integer.Positive k) p) in s.
       rewrite (Integer.multiplication.commutativity
                  (Integer.Positive k) q) in s.
-      exact s.
+      ipso s.
     - intro h.
       destruct (Comparable.order.strict.trichotomy p q)
             as [below | [equal | above]].
-      + exact below.
+      + ipso below.
       + rewrite equal in h.
         pose proof (Integer.order.strict.irreflexivity
                       (Integer.mul q (Integer.Positive k))) as ir.
@@ -1715,7 +1715,7 @@ Proof.
            (Nat.mul (denominator (make m Nat.One))
                     (denominator (make n Nat.One)))) in |- *.
 
-  exact (scaling m n
+  ipso (scaling m n
            (Nat.mul (denominator (make m Nat.One))
                     (denominator (make n Nat.One)))).
 Qed.

@@ -58,7 +58,7 @@ Proof.
    *)
   destruct e.
   (* [p] is a proof of the goal as it stands. *)
-  exact p.
+  ipso p.
 Defined.
 
 (* A module may carry the type's name; its laws read [Identity.symmetry]. *)
@@ -69,7 +69,7 @@ Theorem reflexivity
   : forall {A : Type} (x : A) . x = x.
 Proof.
   intros A x.
-  exact (Identity_introduction x).
+  ipso (Identity_introduction x).
 Defined.
 
 Theorem symmetry
@@ -85,7 +85,7 @@ Theorem transitivity
 Proof.
   intros A x y z e1 e2.
   destruct e2.
-  exact e1.
+  ipso e1.
 Defined.
 
 Theorem congruence
@@ -162,7 +162,7 @@ Local Theorem retraction
 Proof.
   intros A decide x y p.
   destruct p.
-  exact (cancellation (decided decide x x (reflexivity x))).
+  ipso (cancellation (decided decide x x (reflexivity x))).
 Qed.
 
 (* hedberg.uniqueness *)
@@ -187,7 +187,7 @@ Proof.
 
   pose proof (congruence shift c) as step.
   pose proof (symmetry rp) as rp'.
-  exact (transitivity rp' (transitivity step rq)).
+  ipso (transitivity rp' (transitivity step rq)).
 Qed.
 
 End hedberg. (* hedberg *)
@@ -206,7 +206,7 @@ Proof.
   intros A x P p.
   intros y e.
   destruct e.
-  exact p.
+  ipso p.
 Defined.
 
 Definition Identity_rewrite_backward
@@ -216,7 +216,7 @@ Proof.
   intros A x y P p.
   intro e.
   destruct e.
-  exact p.
+  ipso p.
 Defined.
 
 (* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and

@@ -258,26 +258,26 @@ Proof.
   - simpl in |- *.
     split.
     + intro h.
-      exact h.
+      ipso h.
     + intro h.
-      exact h.
+      ipso h.
   - simpl in |- *.
     split.
     + intro h.
       destruct h as [e | h'].
-      * exact (Disjunction.L (Disjunction.L e)).
+      * ipso (Disjunction.L (Disjunction.L e)).
       * modus aequans IH, h' as d.
         destruct d as [m | m].
-        -- exact (Disjunction.L (Disjunction.R m)).
-        -- exact (Disjunction.R m).
+        -- ipso (Disjunction.L (Disjunction.R m)).
+        -- ipso (Disjunction.R m).
     + intro h.
       destruct h as [c | m].
       * destruct c as [e | m].
-        -- exact (Disjunction.L e).
+        -- ipso (Disjunction.L e).
         -- modus aequans IH, (Disjunction.L m) as h'.
-           exact (Disjunction.R h').
+           ipso (Disjunction.R h').
       * modus aequans IH, (Disjunction.R m) as h'.
-        exact (Disjunction.R h').
+        ipso (Disjunction.R h').
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -303,7 +303,7 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    exact (concatenation.associativity (reverse y) (reverse x') [a]).
+    ipso (concatenation.associativity (reverse y) (reverse x') [a]).
 Qed.
 
 End over. (* reversal.antidistributivity.over *)
@@ -379,7 +379,7 @@ Proof.
       rewrite e in |- *.
       reflexivity.
     + apply Disjunction.R.
-      exact (IH h').
+      ipso (IH h').
 Qed.
 
 End of. (* mapping.preservation.of *)
@@ -411,20 +411,20 @@ Proof.
     simpl in |- *.
     simpl in h.
     rewrite h in |- *.
-    exact (List.comparison.reflexivity total b).
+    ipso (List.comparison.reflexivity total b).
   - intros a h.
     simpl in h.
     simpl in |- *.
     destruct (le b (maximum_of le x')) eqn:s.
     + destruct h as [e | m].
       * rewrite e in |- *.
-        exact s.
-      * exact (IH a m).
+        ipso s.
+      * ipso (IH a m).
     + pose proof (List.comparison.contraposition total s) as ha.
       destruct h as [e | m].
       * rewrite e in |- *.
-        exact (List.comparison.reflexivity total b).
-      * exact (transitive a (maximum_of le x') b (IH a m) ha).
+        ipso (List.comparison.reflexivity total b).
+      * ipso (transitive a (maximum_of le x') b (IH a m) ha).
 Qed.
 
 (* maximum.membership *)
@@ -438,8 +438,8 @@ Proof.
     reflexivity.
   - simpl in |- *.
     destruct (le b (maximum_of le x')) eqn:s.
-    + exact (Disjunction.R IH).
-    + exact (Disjunction.L (Identity.reflexivity b)).
+    + ipso (Disjunction.R IH).
+    + ipso (Disjunction.L (Identity.reflexivity b)).
 Qed.
 
 End maximum. (* maximum *)
@@ -461,20 +461,20 @@ Proof.
     simpl in |- *.
     simpl in h.
     rewrite h in |- *.
-    exact (List.comparison.reflexivity total b).
+    ipso (List.comparison.reflexivity total b).
   - intros a h.
     simpl in h.
     simpl in |- *.
     destruct (le b (minimum_of le x')) eqn:s.
     + destruct h as [e | m].
       * rewrite e in |- *.
-        exact (List.comparison.reflexivity total b).
-      * exact (transitive b (minimum_of le x') a s (IH a m)).
+        ipso (List.comparison.reflexivity total b).
+      * ipso (transitive b (minimum_of le x') a s (IH a m)).
     + pose proof (List.comparison.contraposition total s) as ha.
       destruct h as [e | m].
       * rewrite e in |- *.
-        exact ha.
-      * exact (IH a m).
+        ipso ha.
+      * ipso (IH a m).
 Qed.
 
 (* minimum.membership *)
@@ -488,8 +488,8 @@ Proof.
     reflexivity.
   - simpl in |- *.
     destruct (le b (minimum_of le x')) eqn:s.
-    + exact (Disjunction.L (Identity.reflexivity b)).
-    + exact (Disjunction.R IH).
+    + ipso (Disjunction.L (Identity.reflexivity b)).
+    + ipso (Disjunction.R IH).
 Qed.
 
 End minimum. (* minimum *)
@@ -547,23 +547,23 @@ Proof.
   - simpl in |- *.
     split.
     + intro e.
-      exact (Disjunction.L e).
+      ipso (Disjunction.L e).
     + intro h.
       destruct h as [e | f].
-      * exact e.
+      * ipso e.
       * ex f quodlibet.
   - simpl in |- *.
     split.
     + intro h.
       destruct h as [e | m].
-      * exact (Disjunction.L e).
+      * ipso (Disjunction.L e).
       * modus aequans IH, m as m'.
-        exact (Disjunction.R m').
+        ipso (Disjunction.R m').
     + intro h.
       destruct h as [e | m].
-      * exact (Disjunction.L e).
+      * ipso (Disjunction.L e).
       * modus aequans IH, m as m'.
-        exact (Disjunction.R m').
+        ipso (Disjunction.R m').
 Qed.
 
 (* The [Option] that [List]'s extrema carry is about emptiness and nothing

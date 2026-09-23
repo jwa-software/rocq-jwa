@@ -42,7 +42,7 @@ Proof.
   rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
   apply extensional.
   intros y r.
-  exact (Accessible.recursion.independence
+  ipso (Accessible.recursion.independence
           extensional
           y
           (Accessible.descend (accessibility x) r)
@@ -74,8 +74,8 @@ Proof.
   - intros c recurse x r.
     apply Accessible_introduction.
     intros y s.
-    exact (recurse (f x) r y (Induced.elimination s)).
-  - exact a.
+    ipso (recurse (f x) r y (Induced.elimination s)).
+  - ipso a.
 Qed.
 
 End induced. (* induced *)
@@ -87,7 +87,7 @@ Theorem induced
       WellFounded R -> WellFounded (Induced R f).
 Proof.
   intros A B R f W.
-  exact {| accessibility :=
+  ipso {| accessibility :=
              fun (x : A) .
                Accessible_introduction
                  (fun (y : A) (s : Induced R f y x) .

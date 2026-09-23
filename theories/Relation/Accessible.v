@@ -216,12 +216,12 @@ Proof.
        *)
       simpl P in h.
 
-      exact (h a' b').
+      ipso (h a' b').
     }
 
-    exact (modus ponens H', pointwise).
+    ipso (modus ponens H', pointwise).
 
-  - exact a.
+  - ipso a.
 Qed.
 
 End recursion. (* recursion *)

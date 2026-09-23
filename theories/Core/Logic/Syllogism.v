@@ -39,7 +39,7 @@ Proof.
   apply mp.
   apply sm.
 
-  exact s.
+  ipso s.
 Qed.
 
 End Syllogism. (* Syllogism *)

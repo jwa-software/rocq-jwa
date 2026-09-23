@@ -486,7 +486,7 @@ Theorem tactics_all_delivers_modus_ponens
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  exact (modus ponens hab, ha).
+  ipso (modus ponens hab, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponens_as
@@ -494,14 +494,14 @@ Theorem tactics_all_delivers_modus_ponens_as
 Proof.
   intros A B C hab ha.
   modus ponens hab, ha as [b c].
-  exact b.
+  ipso b.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_ponens
   : forall (A : Prop) (B : Prop) . (A -> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  exact (modus ponendo ponens hab, ha).
+  ipso (modus ponendo ponens hab, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_ponens_as
@@ -509,7 +509,7 @@ Theorem tactics_all_delivers_modus_ponendo_ponens_as
 Proof.
   intros A B hab ha.
   modus ponendo ponens hab, ha as h.
-  exact h.
+  ipso h.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponens_implicit
@@ -517,21 +517,21 @@ Theorem tactics_all_delivers_modus_ponens_implicit
 Proof.
   intros m n c.
   modus ponens Nat.comparison.strict.forward.specification, c as h.
-  exact h.
+  ipso h.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponens_implicit_as_a_term
   : forall (m : Nat) (n : Nat) . Nat.compare m n = Comparison.Lt -> Nat.LessThan m n.
 Proof.
   intros m n c.
-  exact (modus ponens Nat.comparison.strict.forward.specification, c).
+  ipso (modus ponens Nat.comparison.strict.forward.specification, c).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_short
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C hab hbc.
-  exact (hs hab, hbc).
+  ipso (hs hab, hbc).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_short_nested
@@ -539,7 +539,7 @@ Theorem tactics_all_delivers_hypothetical_syllogism_short_nested
       (A -> B) -> (B -> C) -> (C -> D) -> (A -> D).
 Proof.
   intros A B C D hab hbc hcd.
-  exact (hs (hs hab, hbc), hcd).
+  ipso (hs (hs hab, hbc), hcd).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_short_as
@@ -547,14 +547,14 @@ Theorem tactics_all_delivers_hypothetical_syllogism_short_as
 Proof.
   intros A B C hab hbc.
   hs hab, hbc as hac.
-  exact hac.
+  ipso hac.
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism
   : forall (A : Prop) (B : Prop) (C : Prop) . (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros A B C hab hbc.
-  exact (hypothetical syllogism hab, hbc).
+  ipso (hypothetical syllogism hab, hbc).
 Qed.
 
 Theorem tactics_all_delivers_hypothetical_syllogism_as
@@ -562,7 +562,7 @@ Theorem tactics_all_delivers_hypothetical_syllogism_as
 Proof.
   intros A B C hab hbc.
   hypothetical syllogism hab, hbc as hac.
-  exact hac.
+  ipso hac.
 Qed.
 
 Theorem tactics_all_delivers_simpl_definition
@@ -570,7 +570,7 @@ Theorem tactics_all_delivers_simpl_definition
 Proof.
   intros A na1 na2 a.
   simpl Negation in na1, na2.
-  exact (na1 a).
+  ipso (na1 a).
 Qed.
 
 Theorem tactics_all_delivers_simpl_definition_and_goal
@@ -578,7 +578,7 @@ Theorem tactics_all_delivers_simpl_definition_and_goal
 Proof.
   intros A na a.
   simpl Negation in na |- *.
-  exact (na a).
+  ipso (na a).
 Qed.
 
 Theorem tactics_all_delivers_simpl_goal
@@ -587,7 +587,7 @@ Proof.
   intros A a.
   simpl Negation in |- *.
   intro na.
-  exact (na a).
+  ipso (na a).
 Qed.
 
 Theorem tactics_all_delivers_simpl_first_occurrence
@@ -626,7 +626,7 @@ Proof.
   intros m e.
   simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
       NatWithZero.LessThan in e.
-  exact e.
+  ipso e.
 Qed.
 
 Theorem tactics_all_delivers_simpl_ten_definitions
@@ -636,7 +636,7 @@ Proof.
   simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
       NatWithZero.LessThan, NatWithZero.LessOrEqual, NatWithZero.add,
       NatWithZero.mul, NatWithZero.sub, NatWithZero.le, NatWithZero.min in e.
-  exact e.
+  ipso e.
 Qed.
 
 Theorem tactics_all_delivers_simpl_everywhere
@@ -644,7 +644,7 @@ Theorem tactics_all_delivers_simpl_everywhere
 Proof.
   intros A na a.
   simpl Negation in *.
-  exact (na a).
+  ipso (na a).
 Qed.
 
 Theorem tactics_all_delivers_simpl_reduction_everywhere
@@ -652,7 +652,7 @@ Theorem tactics_all_delivers_simpl_reduction_everywhere
 Proof.
   intros m n e.
   simpl in *.
-  exact e.
+  ipso e.
 Qed.
 
 Theorem tactics_all_delivers_simpl_reduction
@@ -660,7 +660,7 @@ Theorem tactics_all_delivers_simpl_reduction
 Proof.
   intros m n e.
   simpl in e |- *.
-  exact e.
+  ipso e.
 Qed.
 
 Theorem tactics_all_delivers_simpl_reduction_goal
@@ -678,7 +678,7 @@ Theorem tactics_all_delivers_barbara
       (forall (x : A) . S x -> P x).
 Proof.
   intros A S M P mp sm.
-  exact (barbara mp, sm).
+  ipso (barbara mp, sm).
 Qed.
 
 Theorem tactics_all_delivers_barbara_as
@@ -689,7 +689,7 @@ Theorem tactics_all_delivers_barbara_as
 Proof.
   intros A S M P mp sm.
   barbara mp, sm as sp.
-  exact sp.
+  ipso sp.
 Qed.
 
 Theorem tactics_all_delivers_barbara_nested
@@ -701,14 +701,14 @@ Theorem tactics_all_delivers_barbara_nested
       (forall (x : A) . R x -> P x).
 Proof.
   intros A R S M P mp sm rs.
-  exact (barbara (barbara mp, sm), rs).
+  ipso (barbara (barbara mp, sm), rs).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollens
   : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
 Proof.
   intros A B hab hnb.
-  exact (modus tollens hab, hnb).
+  ipso (modus tollens hab, hnb).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_tollens
@@ -716,14 +716,14 @@ Theorem tactics_all_delivers_modus_tollendo_tollens
 Proof.
   intros A B hab hnb.
   modus tollendo tollens hab, hnb as na.
-  exact na.
+  ipso na.
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_ponens
   : forall (A : Prop) (B : Prop) . A \/ B -> ~ A -> B.
 Proof.
   intros A B hor hna.
-  exact (modus tollendo ponens hor, hna).
+  ipso (modus tollendo ponens hor, hna).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_ponens_as
@@ -731,28 +731,28 @@ Theorem tactics_all_delivers_modus_tollendo_ponens_as
 Proof.
   intros A B hor hna.
   modus tollendo ponens hor, hna as b.
-  exact b.
+  ipso b.
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_ponens_right
   : forall (A : Prop) (B : Prop) . A \/ B -> ~ B -> A.
 Proof.
   intros A B hor hnb.
-  exact (modus tollendo ponens hor, hnb).
+  ipso (modus tollendo ponens hor, hnb).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> A -> ~ B.
 Proof.
   intros A B hn ha.
-  exact (modus ponendo tollens hn, ha).
+  ipso (modus ponendo tollens hn, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_right
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> B -> ~ A.
 Proof.
   intros A B hn hb.
-  exact (modus ponendo tollens hn, hb).
+  ipso (modus ponendo tollens hn, hb).
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction_right
@@ -760,7 +760,7 @@ Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction_right
 Proof.
   intros A B exclusion hb.
   modus ponendo tollens exclusion, hb as na.
-  exact na.
+  ipso na.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction
@@ -768,21 +768,21 @@ Theorem tactics_all_delivers_modus_ponendo_tollens_sejunction
 Proof.
   intros A B exclusion ha.
   modus ponendo tollens exclusion, ha as nb.
-  exact nb.
+  ipso nb.
 Qed.
 
 Theorem tactics_all_delivers_modus_aequans
   : forall (A : Prop) (B : Prop) . (A <-> B) -> A -> B.
 Proof.
   intros A B hab ha.
-  exact (modus aequans hab, ha).
+  ipso (modus aequans hab, ha).
 Qed.
 
 Theorem tactics_all_delivers_modus_aequans_backward
   : forall (A : Prop) (B : Prop) . (A <-> B) -> B -> A.
 Proof.
   intros A B hab hb.
-  exact (modus aequans hab, hb).
+  ipso (modus aequans hab, hb).
 Qed.
 
 Theorem tactics_all_delivers_modus_aequans_as
@@ -790,7 +790,7 @@ Theorem tactics_all_delivers_modus_aequans_as
 Proof.
   intros A B hab hb.
   modus aequans hab, hb as a.
-  exact a.
+  ipso a.
 Qed.
 
 Theorem tactics_all_delivers_modus_ponens_turnstile

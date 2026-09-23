@@ -124,7 +124,7 @@ Proof.
   intros A B a1 b1 a2 b2 e.
   pose proof (Identity.congruence first  e) as a. simpl in a.
   pose proof (Identity.congruence second e) as b. simpl in b.
-  exact (Conjunction_introduction a b).
+  ipso (Conjunction_introduction a b).
 Qed.
 
 (* introduction.surjectivity *)
@@ -383,8 +383,8 @@ Theorem identity
 Proof.
   intros A B f1 eA f2 eB MA MB p.
   split.
-  - exact (direct.left.identity  MA MB p).
-  - exact (direct.right.identity MA MB p).
+  - ipso (direct.left.identity  MA MB p).
+  - ipso (direct.right.identity MA MB p).
 Qed.
 
 (* direct.commutativity *)

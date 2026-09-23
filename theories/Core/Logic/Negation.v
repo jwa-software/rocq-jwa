@@ -37,16 +37,16 @@ Proof.
     split.
     + intro a.
       apply h.
-      exact (Disjunction.left a).
+      ipso (Disjunction.left a).
     + intro b.
       apply h.
-      exact (Disjunction.right b).
+      ipso (Disjunction.right b).
   - intro h.
     destruct h as [not_a not_b].
     intro ab.
     destruct ab as [a | b].
-    + exact (not_a a).
-    + exact (not_b b).
+    + ipso (not_a a).
+    + ipso (not_b b).
 Qed.
 
 (* De Morgan for a conjunction holds in this direction only: from
@@ -63,8 +63,8 @@ Proof.
   intro ab.
   destruct ab as [a b].
   destruct h as [not_a | not_b].
-  - exact (not_a a).
-  - exact (not_b b).
+  - ipso (not_a a).
+  - ipso (not_b b).
 Qed.
 
 (* De Morgan for [exists], the disjunction over every [x]: no [x] satisfies
@@ -81,11 +81,11 @@ Proof.
     intro x.
     intro p.
     apply h.
-    exact (Exists_introduction x p).
+    ipso (Exists_introduction x p).
   - intro h.
     intro e.
     destruct e as [x p].
-    exact (h x p).
+    ipso (h x p).
 Qed.
 
 End de_morgan. (* de_morgan *)
@@ -116,7 +116,7 @@ Proof.
   destruct h as [a | b].
   - pose proof (not_a a) as f.
     ex f quodlibet.
-  - exact b.
+  - ipso b.
 Qed.
 
 End of. (* elimination.left.of *)
@@ -141,7 +141,7 @@ Proof.
   intro not_b.
 
   destruct h as [a | b].
-  - exact a.
+  - ipso a.
   - pose proof (not_b b) as f.
     ex f quodlibet.
 Qed.
@@ -175,7 +175,7 @@ Proof.
   (* [|- A /\ B] *)
   apply h.
 
-  exact (Conjunction_introduction a b).
+  ipso (Conjunction_introduction a b).
 Qed.
 
 End of. (* exclusion.left.of *)
@@ -203,7 +203,7 @@ Proof.
   (* [|- A /\ B] *)
   apply h.
 
-  exact (Conjunction_introduction a b).
+  ipso (Conjunction_introduction a b).
 Qed.
 
 End of. (* exclusion.right.of *)
@@ -221,7 +221,7 @@ Proof.
   intro a.
   unfold Negation in |- *.
   intro not_a.
-  exact (not_a a).
+  ipso (not_a a).
 Qed.
 
 End double. (* double *)
@@ -237,7 +237,7 @@ Proof.
   intro a.
   apply not_not_not_a.
   intro not_a.
-  exact (not_a a).
+  ipso (not_a a).
 Qed.
 
 End triple. (* triple *)
@@ -262,7 +262,7 @@ Proof.
   (* [|- A] *)
   apply ab.
 
-  exact a.
+  ipso a.
 Qed.
 
 Theorem congruence
@@ -294,7 +294,7 @@ Proof.
     (* [|- A2] *)
     apply a21.
 
-    exact a2.
+    ipso a2.
 
   - intro not_a2.
     intro a1.
@@ -304,7 +304,7 @@ Proof.
     (* [|- A1] *)
     apply a12.
 
-    exact a1.
+    ipso a1.
 Qed.
 
 End Negation. (* Negation *)

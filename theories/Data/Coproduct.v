@@ -111,7 +111,7 @@ Proof.
              match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end).
   pose proof (Identity.congruence f e) as e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End left. (* left *)
@@ -128,7 +128,7 @@ Proof.
              match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end).
   pose proof (Identity.congruence f e) as e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End right. (* right *)

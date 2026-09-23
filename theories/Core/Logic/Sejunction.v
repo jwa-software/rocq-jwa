@@ -49,8 +49,8 @@ Proof.
    * - one with [na : ~ A] and [b : B].
    *)
   destruct h as [a nb | na b].
-  - exact (Sejunction.right nb  a).
-  - exact (Sejunction.left   b na).
+  - ipso (Sejunction.right nb  a).
+  - ipso (Sejunction.left   b na).
 Qed.
 
 Module decomposition. (* decomposition *)
@@ -70,18 +70,18 @@ Proof.
     destruct h as [a nb | na b].
     + apply Disjunction.left.
       split.
-      * exact a.
-      * exact nb.
+      * ipso a.
+      * ipso nb.
     + apply Disjunction.right.
       split.
-      * exact b.
-      * exact na.
+      * ipso b.
+      * ipso na.
   - intro h.
     destruct h as [ab | ba].
     + destruct ab as [a nb].
-      exact (Sejunction.left a nb).
+      ipso (Sejunction.left a nb).
     + destruct ba as [b na].
-      exact (Sejunction.right na b).
+      ipso (Sejunction.right na b).
 Qed.
 
 End into. (* decomposition.into *)
@@ -98,36 +98,36 @@ Proof.
   split.
   - intro h.
     destruct h as [a nb | na b]; split.
-    + exact (Disjunction.left a).
+    + ipso (Disjunction.left a).
     + unfold Negation in nb |- *.
       intro ab.
       destruct ab as [_ b].
-      exact (nb b).
-    + exact (Disjunction.right b).
+      ipso (nb b).
+    + ipso (Disjunction.right b).
     + unfold Negation in na |- *.
       intro ab.
       destruct ab as [a _].
-      exact (na a).
+      ipso (na a).
   - intro h.
     destruct h as [ab nab].
     unfold Negation in nab.
     destruct ab as [a | b].
     + apply Sejunction.left.
-      * exact a.
+      * ipso a.
       * unfold Negation in |- *.
         intro b.
         apply nab.
         split.
-        { exact a. }
-        { exact b. }
+        { ipso a. }
+        { ipso b. }
     + apply Sejunction.right.
       * unfold Negation in |- *.
         intro a.
         apply nab.
         split.
-        { exact a. }
-        { exact b. }
-      * exact b.
+        { ipso a. }
+        { ipso b. }
+      * ipso b.
 Qed.
 
 Theorem congruence
@@ -143,37 +143,37 @@ Proof.
   - destruct h as [a1 nb1 | na1 b1].
     + apply Sejunction.left.
       * apply a12.
-        exact a1.
+        ipso a1.
       * unfold Negation in nb1 |- *.
         intro b2.
         apply nb1.
         apply b21.
-        exact b2.
+        ipso b2.
     + apply Sejunction.right.
       * unfold Negation in na1 |- *.
         intro a2.
         apply na1.
         apply a21.
-        exact a2.
+        ipso a2.
       * apply b12.
-        exact b1.
+        ipso b1.
   - destruct h as [a2 nb2 | na2 b2].
     + apply Sejunction.left.
       * apply a21.
-        exact a2.
+        ipso a2.
       * unfold Negation in nb2 |- *.
         intro b1.
         apply nb2.
         apply b12.
-        exact b1.
+        ipso b1.
     + apply Sejunction.right.
       * unfold Negation in na2 |- *.
         intro a1.
         apply na2.
         apply a12.
-        exact a1.
+        ipso a1.
       * apply b21.
-        exact b2.
+        ipso b2.
 Qed.
 
 Module weakening. (* weakening *)
@@ -188,8 +188,8 @@ Proof.
   intros A B.
   intro h.
   destruct h as [a nb | na b].
-  - exact (Disjunction.left  a).
-  - exact (Disjunction.right b).
+  - ipso (Disjunction.left  a).
+  - ipso (Disjunction.right b).
 Qed.
 
 End to. (* weakening.to *)
@@ -215,8 +215,8 @@ Proof.
   intro ab.
   destruct ab as [a b].
   destruct h  as [_ nb | na _].
-  - exact (nb b).
-  - exact (na a).
+  - ipso (nb b).
+  - ipso (na a).
 Qed.
 
 (* exclusion.of.biconditional *)
@@ -232,11 +232,11 @@ Proof.
   - unfold Negation in nb.
     apply nb.
     apply ab.
-    exact a.
+    ipso a.
   - unfold Negation in na.
     apply na.
     apply ba.
-    exact b.
+    ipso b.
 Qed.
 
 End of. (* exclusion.of *)
@@ -269,11 +269,11 @@ Proof.
   - unfold Negation in nb.
     apply nb.
     apply ab.
-    exact a.
+    ipso a.
   - unfold Negation in na.
     apply na.
     apply ba.
-    exact b.
+    ipso b.
 Qed.
 
 End of. (* exclusion.of *)

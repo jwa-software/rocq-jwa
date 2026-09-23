@@ -47,7 +47,7 @@ Proof.
   - intro h.
     reflexivity.
   - intro e.
-    exact I.
+    ipso I.
   - intro h.
     ex h quodlibet.
   - intro e.
@@ -67,7 +67,7 @@ Proof.
   unfold is_not_empty in |- *.
   pose proof (Assert.negation (is_empty x)) as n.
   pose proof (Negation.congruence (emptiness.reflection x)) as c.
-  exact (Biconditional.transitivity n c).
+  ipso (Biconditional.transitivity n c).
 Qed.
 
 End inhabitation. (* inhabitation *)

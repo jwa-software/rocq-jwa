@@ -28,8 +28,8 @@ Proof.
    * so the goal splits into two goals: [|- B] and [|- A].
    *)
   split.
-  - exact b.
-  - exact a.
+  - ipso b.
+  - ipso a.
 Qed.
 
 Theorem associativity
@@ -41,18 +41,18 @@ Proof.
     destruct h  as [ab c].
     destruct ab as [a b].
     split.
-    + exact a.
+    + ipso a.
     + split.
-      * exact b.
-      * exact c.
+      * ipso b.
+      * ipso c.
   - intro h.
     destruct h  as [a bc].
     destruct bc as [b c].
     split.
     + split.
-      * exact a.
-      * exact b.
-    + exact c.
+      * ipso a.
+      * ipso b.
+    + ipso c.
 Qed.
 
 (* Currying: a proof from a pair is a proof from the first that returns a
@@ -68,14 +68,14 @@ Proof.
     intro b.
     apply f.
     split.
-    + exact a.
-    + exact b.
+    + ipso a.
+    + ipso b.
   - intro f.
     intro h.
     destruct h as [a b].
     apply f.
-    + exact a.
-    + exact b.
+    + ipso a.
+    + ipso b.
 Qed.
 
 (* The universal property of [/\] as a product: a proof of [B /\ C] from [A]
@@ -89,16 +89,16 @@ Proof.
   split.
   - intro f.
     split; intro a; destruct (f a) as [b c].
-    + exact b.
-    + exact c.
+    + ipso b.
+    + ipso c.
   - intro h.
     destruct h as [ab ac].
     intro a.
     split.
     + apply ab.
-      exact a.
+      ipso a.
     + apply ac.
-      exact a.
+      ipso a.
 Qed.
 
 Theorem congruence
@@ -119,18 +119,18 @@ Proof.
     (* The goal splits into [|- A2] and [|- B2]. *)
     split.
     + apply a12.
-      exact a1.
+      ipso a1.
     + apply b12.
-      exact b1.
+      ipso b1.
   - (* [h : A2 /\ B2]: [|- A1 /\ B1] *)
     intro h.
     destruct h as [a2 b2].
     (* The goal splits into [|- A1] and [|- B1]. *)
     split.
     + apply a21.
-      exact a2.
+      ipso a2.
     + apply b21.
-      exact b2.
+      ipso b2.
 Qed.
 
 (* [Conjunction.distributivity.over.disjunction] is stated in
