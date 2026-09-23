@@ -159,6 +159,12 @@ Reserved Notation "'dni' H"
 Reserved Notation "'dne' H"
   (at level 10, H at next level).
 
+(* De Morgan written as a term, for the same reason and at the same level.
+ * Its meaning belongs to [Tactics.DeMorgan].
+ *)
+Reserved Notation "'de' 'morgan' H"
+  (at level 10, H at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"

@@ -3,6 +3,38 @@
 From jwa Require Import Data.All.
 From jwa Require Import Tactics.All.
 
+Theorem tactics_all_delivers_de_morgan
+  : forall (A : Prop) (B : Prop) . ~ (A \/ B) -> ~ A /\ ~ B.
+Proof.
+  intros A B h.
+  ipso (de morgan h).
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_as
+  : forall (A : Prop) (B : Prop) . ~ (A \/ B) -> ~ B.
+Proof.
+  intros A B h.
+  de morgan h as [na nb].
+  ipso nb.
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_turnstile
+  : forall (A : Prop) (B : Prop) . ~ (A \/ B) -> ~ A /\ ~ B.
+Proof.
+  intros A B h.
+  de morgan h |- facto.
+  ipso facto.
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_refusing_a_conjunction
+  : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> ~ (A /\ B).
+Proof.
+  intros A B h.
+  Fail de morgan h as x.
+  Fail pose proof (de morgan h) as x.
+  ipso h.
+Qed.
+
 Theorem tactics_all_delivers_dni
   : forall (A : Prop) . A -> ~ ~ A.
 Proof.
