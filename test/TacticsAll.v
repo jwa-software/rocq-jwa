@@ -35,6 +35,30 @@ Proof.
   ipso h.
 Qed.
 
+Theorem tactics_all_delivers_de_morgan_existential
+  : forall (A : Type) (P : A -> Prop) . ~ (exists (x : A) . P x) -> forall (x : A) . ~ P x.
+Proof.
+  intros A P h.
+  ipso (de morgan h).
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_existential_as
+  : forall (A : Type) (P : A -> Prop) (a : A) . ~ (exists (x : A) . P x) -> ~ P a.
+Proof.
+  intros A P a h.
+  de morgan h as facto.
+  ipso (facto a).
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_refusing_a_universal
+  : forall (A : Type) (P : A -> Prop) . ~ (forall (x : A) . P x) -> ~ (forall (x : A) . P x).
+Proof.
+  intros A P h.
+  Fail de morgan h as x.
+  Fail pose proof (de morgan h) as x.
+  ipso h.
+Qed.
+
 Theorem tactics_all_delivers_dni
   : forall (A : Prop) . A -> ~ ~ A.
 Proof.
