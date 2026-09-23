@@ -22,7 +22,7 @@ From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simplify.
+From jwa Require Import Tactics.Simpl.
 
 (* A module may carry the type's name; its members read [NatWithZero.add].
  * The type and its ctors are declared inside it: [Integer] declares [Zero]
@@ -1465,7 +1465,7 @@ Lemma specification
       /\ ((+ p) %. d) < + d.
 Proof.
   intros p d.
-  simplify divide, modulo, div in |- *.
+  simpl divide, modulo, div in |- *.
   induction p as [| p' IH] using Nat.induction.
   - destruct d as [| d']; split; simpl in |- *.
     * reflexivity.
@@ -1561,7 +1561,7 @@ Theorem positivity
   : forall (d : Nat) (g : Nat) . Divides (+ g) (+ d) -> ~ ((+ d) /. g = 0).
 Proof.
   intros d g h.
-  simplify Negation in |- *.
+  simpl Negation in |- *.
   intro e.
   pose proof (division.nat.dividend.reconstruction d g) as reconstruction.
   rewrite e in reconstruction.
@@ -1580,7 +1580,7 @@ Proof.
     + rewrite (multiplication.right.identity (+ g)) in hk.
       rewrite hk in bound.
       pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
-      simplify Negation in irreflexivity.
+      simpl Negation in irreflexivity.
       modus ponens irreflexivity, bound as f.
       contradiction f.
     + change (+ (Nat.Successor k'')) with ((+ Nat.One) + (+ k'')) in hk.
@@ -1589,16 +1589,16 @@ Proof.
       rewrite (addition.commutativity (+ g) ((+ g) * (+ k''))) in hk.
       pose proof (addition.right.order.extensivity ((+ g) * (+ k'')) (+ g)) as extensivity.
       rewrite hk in extensivity.
-      simplify LessOrEqual in extensivity.
+      simpl LessOrEqual in extensivity.
       destruct extensivity as [equal | less].
       * rewrite equal in bound.
         pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
-        simplify Negation in irreflexivity.
+        simpl Negation in irreflexivity.
         modus ponens irreflexivity, bound as f.
         contradiction f.
       * pose proof (order.strict.transitivity bound less) as circular.
         pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
-        simplify Negation in irreflexivity.
+        simpl Negation in irreflexivity.
         modus ponens irreflexivity, circular as f.
         contradiction f.
 Qed.
@@ -1631,7 +1631,7 @@ Theorem boundedness : forall (n : NatWithZero) (d : Nat) . (n %. d) < + d.
 Proof.
   intros n d.
   destruct n as [| p].
-  - simplify LessThan in |- *.
+  - simpl LessThan in |- *.
     apply (Exists_introduction d).
     simpl in |- *.
     reflexivity.
@@ -1664,7 +1664,7 @@ Proof.
   assert (quotient : (n /. d) = m).
   { pose proof (Comparable.order.strict.trichotomy (n /. d) m) as t.
     destruct t as [below | [equal | above]].
-    - simplify LessThan in below.
+    - simpl LessThan in below.
       destruct below as [k hk].
       symmetry in hk.
       rewrite hk in e.
@@ -1695,7 +1695,7 @@ Proof.
         modus ponens i, loop as f.
         contradiction f.
     - exact equal.
-    - simplify LessThan in above.
+    - simpl LessThan in above.
       destruct above as [k hk].
       symmetry in hk.
       rewrite hk in recon.
@@ -1775,7 +1775,7 @@ Theorem exactness
       Divides (+ d) n -> (n /. d) * (+ d) = n.
 Proof.
   intros n d h.
-  simplify Divides in h.
+  simpl Divides in h.
   destruct h as [k hk].
 
   assert (witness : ((k * (+ d)) + 0 = n) /\ 0 < (+ d)).
@@ -1785,7 +1785,7 @@ Proof.
       rewrite vanishing in |- *.
       rewrite (multiplication.commutativity k (+ d)) in |- *.
       exact hk.
-    - simplify LessThan in |- *.
+    - simpl LessThan in |- *.
       apply (Exists_introduction d).
       simpl in |- *.
       reflexivity.
@@ -1821,7 +1821,7 @@ Theorem specification
       (+ (divide.nat.safe d g h)) = (+ d) /. g.
 Proof.
   intros d g h.
-  simplify divide.nat.safe in |- *.
+  simpl divide.nat.safe in |- *.
   set (n := division.nat.quotient.positivity d g h).
   generalize dependent n.
   destruct ((+ d) /. g) as [| q'].
@@ -1829,7 +1829,7 @@ Proof.
     modus ponens n, (Identity.reflexivity 0) as f.
     contradiction f.
   - intro n.
-    simplify in |- *.
+    simpl in |- *.
     reflexivity.
 Qed.
 
@@ -1954,7 +1954,7 @@ Proof.
   (* b destructed as 0 : [|- step (a, 0) f = step (a, 0) g] *)
   {
     (* [|- a = a] *)
-    simplify in |- *.
+    simpl in |- *.
     reflexivity.
   }
 
@@ -1963,7 +1963,7 @@ Proof.
     (* [|- f ((+ b'), (a %. b')) (Induced.introduction (division.remainder.boundedness a b'))
      *  = g ((+ b'), (a %. b')) (Induced.introduction (division.remainder.boundedness a b'))]
      *)
-    simplify step in |- *.
+    simpl step in |- *.
 
     (* The context gains [bound := division.remainder.boundedness a b'],
      * of type [(a %. b') < + b']
@@ -2053,7 +2053,7 @@ Lemma extensionality : Descent.Extensional step.
 Proof.
   intros p f g h.
   destruct p as [a q].
-  simplify step in |- *.
+  simpl step in |- *.
   generalize (division.remainder.boundedness a q).
   destruct (a %. q) as [| r].
   - intros b.
@@ -2196,7 +2196,7 @@ Theorem cancellation
       Divides d m -> Divides d (m + n) -> Divides d n.
 Proof.
   intros d m n h1 h2.
-  simplify Divides in h1, h2.
+  simpl Divides in h1, h2.
   destruct h1 as [k1 e1].
   destruct h2 as [k2 e2].
   destruct d as [| c].
@@ -2210,7 +2210,7 @@ Proof.
     rewrite <- e2 in |- *.
     exact (divisibility.top 0).
   - destruct (Comparable.order.totality k1 k2) as [le | ge].
-    + simplify Divides in |- *.
+    + simpl Divides in |- *.
       apply (Exists_introduction (saturating_sub k2 k1)).
       pose proof (subtraction.saturating.specification le) as s.
       pose proof (multiplication.left.distributivity.over.addition
@@ -2220,7 +2220,7 @@ Proof.
       rewrite e2 in dist.
       symmetry in dist.
       exact (addition.left.cancellation dist).
-    + simplify LessOrEqual in ge.
+    + simpl LessOrEqual in ge.
       destruct ge as [eq | lt].
       * rewrite eq in e2.
         rewrite e1 in e2.
@@ -2232,7 +2232,7 @@ Proof.
       * pose proof (multiplication.left.order.strict.monotonicity c k2 k1 lt) as mono.
         rewrite e1 in mono.
         rewrite e2 in mono.
-        simplify LessThan in mono.
+        simpl LessThan in mono.
         destruct mono as [j ej].
         rewrite (addition.associativity m n (+ j)) in ej.
         destruct (addition.identity m) as [i1 i2].
@@ -2277,7 +2277,7 @@ Local Open Scope jwa_product_scope.
 Theorem zero : forall (a : NatWithZero) . gcd a 0 = a.
 Proof.
   intros a.
-  simplify gcd in |- *.
+  simpl gcd in |- *.
   rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, 0)) in |- *.
   reflexivity.
 Qed.
@@ -2287,7 +2287,7 @@ Theorem recurrence
   : forall (a : NatWithZero) (q : Nat) . gcd a (+ q) = gcd (+ q) ((a %. q)).
 Proof.
   intros a q.
-  simplify gcd in |- *.
+  simpl gcd in |- *.
   rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, + q)) in |- *.
   reflexivity.
 Qed.
@@ -2474,10 +2474,10 @@ Theorem zero
   : forall (a : NatWithZero) (q : Nat) . (a %. q) = 0 -> gcd.nat a q = q.
 Proof.
   intros a q e.
-  simplify gcd.nat in |- *.
+  simpl gcd.nat in |- *.
   rewrite (WellFounded.recursion.unfolding
              euclid.nat.extensionality (a, q)) in |- *.
-  simplify euclid.nat.step in |- *.
+  simpl euclid.nat.step in |- *.
   generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
@@ -2490,10 +2490,10 @@ Theorem recurrence
       (a %. q) = + r -> gcd.nat a q = gcd.nat (+ q) r.
 Proof.
   intros a q r e.
-  simplify gcd.nat in |- *.
+  simpl gcd.nat in |- *.
   rewrite (WellFounded.recursion.unfolding
              euclid.nat.extensionality (a, q)) in |- *.
-  simplify euclid.nat.step in |- *.
+  simpl euclid.nat.step in |- *.
   generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.

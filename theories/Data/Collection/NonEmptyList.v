@@ -10,7 +10,7 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simplify.
+From jwa Require Import Tactics.Simpl.
 
 (* A module may carry the type's name; its members read
  * [NonEmptyList.head]. The type and its ctors are declared inside it: a
@@ -206,9 +206,9 @@ Theorem associativity
 Proof.
   intros A x y z.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -228,9 +228,9 @@ Theorem concatenation
 Proof.
   intros A x y.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -254,13 +254,13 @@ Theorem concatenation
 Proof.
   intros A a x y.
   induction x as [b | b x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     split.
     + intro h.
       exact h.
     + intro h.
       exact h.
-  - simplify in |- *.
+  - simpl in |- *.
     split.
     + intro h.
       destruct h as [e | h'].
@@ -298,9 +298,9 @@ Theorem concatenation
 Proof.
   intros A x y.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     exact (concatenation.associativity (reverse y) (reverse x') [a]).
 Qed.
@@ -315,11 +315,11 @@ Theorem involution
 Proof.
   intros A x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
-    simplify in |- *.
+    simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -334,9 +334,9 @@ Theorem identity
 Proof.
   intros A x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -349,9 +349,9 @@ Theorem composition
 Proof.
   intros A B C f g x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -367,11 +367,11 @@ Theorem membership
 Proof.
   intros A B f a x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     intro e.
     rewrite e in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     intro h.
     destruct h as [e | h'].
     + apply Disjunction.L.
@@ -407,13 +407,13 @@ Proof.
   intros A le total transitive x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - intros a h.
-    simplify in |- *.
-    simplify in h.
+    simpl in |- *.
+    simpl in h.
     rewrite h in |- *.
     exact (List.comparison.reflexivity total b).
   - intros a h.
-    simplify in h.
-    simplify in |- *.
+    simpl in h.
+    simpl in |- *.
     destruct (le b (maximum_of le x')) eqn:s.
     + destruct h as [e | m].
       * rewrite e in |- *.
@@ -433,9 +433,9 @@ Theorem membership
 Proof.
   intros A le x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     destruct (le b (maximum_of le x')) eqn:s.
     + exact (Disjunction.R IH).
     + exact (Disjunction.L (Identity.reflexivity b)).
@@ -457,13 +457,13 @@ Proof.
   intros A le total transitive x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - intros a h.
-    simplify in |- *.
-    simplify in h.
+    simpl in |- *.
+    simpl in h.
     rewrite h in |- *.
     exact (List.comparison.reflexivity total b).
   - intros a h.
-    simplify in h.
-    simplify in |- *.
+    simpl in h.
+    simpl in |- *.
     destruct (le b (minimum_of le x')) eqn:s.
     + destruct h as [e | m].
       * rewrite e in |- *.
@@ -483,9 +483,9 @@ Theorem membership
 Proof.
   intros A le x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     destruct (le b (minimum_of le x')) eqn:s.
     + exact (Disjunction.L (Identity.reflexivity b)).
     + exact (Disjunction.R IH).
@@ -511,9 +511,9 @@ Theorem concatenation
 Proof.
   intros A x y.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -529,9 +529,9 @@ Theorem length
 Proof.
   intros A x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     reflexivity.
 Qed.
@@ -543,7 +543,7 @@ Theorem membership
 Proof.
   intros A a x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     split.
     + intro e.
       exact (Disjunction.L e).
@@ -551,7 +551,7 @@ Proof.
       destruct h as [e | f].
       * exact e.
       * contradiction f.
-  - simplify in |- *.
+  - simpl in |- *.
     split.
     + intro h.
       destruct h as [e | m].
@@ -576,9 +576,9 @@ Theorem maximum
 Proof.
   intros A le x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     destruct (le a (maximum_of le x')) eqn:s; reflexivity.
 Qed.
@@ -590,9 +590,9 @@ Theorem minimum
 Proof.
   intros A le x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     rewrite IH in |- *.
     destruct (le a (minimum_of le x')) eqn:s; reflexivity.
 Qed.

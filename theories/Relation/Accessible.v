@@ -3,7 +3,7 @@
 From jwa Require Import Core.All.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simplify.
+From jwa Require Import Tactics.Simpl.
 
 (* [R] points downwards throughout this file: its first argument is the
  * lower one, so [R y x] says that [y] is below [x]. [Accessible R x] holds
@@ -81,7 +81,7 @@ Proof.
   (* [|- step x (fun (y : A) (r : R y x) . recursion step y (f y r))
    *  = step x (fun (y : A) (r : R y x) . recursion step y (f y r))]
    *)
-  simplify in |- *.
+  simpl in |- *.
 
   (* The two sides are the same term. *)
   reflexivity.
@@ -137,7 +137,7 @@ Proof.
   - clear a b x.
 
     (* [|- forall (x : A) . (forall (y : A) . R y x -> P y) -> P x] *)
-    simplify Descent.Step in |- *.
+    simpl Descent.Step in |- *.
 
     (* [x : A]
      * [recurse : forall (y : A) . R y x -> P y]
@@ -149,7 +149,7 @@ Proof.
     (* [|- forall (a : Accessible R x) (b : Accessible R x) .
      *      recursion step x a = recursion step x b]
      *)
-    simplify P in |- *.
+    simpl P in |- *.
 
     (* [a : Accessible R x]
      * [b : Accessible R x]
@@ -200,7 +200,7 @@ Proof.
       (* [|- recursion step y (descend a r)
        *  = recursion step y (descend b r) ]
        *)
-      simplify f, g in |- *.
+      simpl f, g in |- *.
 
       (* [|- recursion step y a'
        *  = recursion step y b' ]
@@ -214,7 +214,7 @@ Proof.
       (* [h : forall (a : Accessible R y) (b : Accessible R y) .
        *      recursion step y a = recursion step y b]
        *)
-      simplify P in h.
+      simpl P in h.
 
       exact (h a' b').
     }

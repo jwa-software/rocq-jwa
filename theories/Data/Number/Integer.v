@@ -16,7 +16,7 @@ From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simplify.
+From jwa Require Import Tactics.Simpl.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
  * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
@@ -1453,7 +1453,7 @@ Theorem cancellation
 Proof.
   intros k m n nonzero e.
   destruct k as [p | | p].
-  - destruct m as [a | | a]; destruct n as [b | | b]; simplify in e.
+  - destruct m as [a | | a]; destruct n as [b | | b]; simpl in e.
     + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
       reflexivity.
@@ -1470,7 +1470,7 @@ Proof.
   - unfold Negation in nonzero.
     modus ponens nonzero, (Identity.reflexivity 0) as f.
     contradiction f.
-  - destruct m as [a | | a]; destruct n as [b | | b]; simplify in e.
+  - destruct m as [a | | a]; destruct n as [b | | b]; simpl in e.
     + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
       reflexivity.
@@ -1492,7 +1492,7 @@ Theorem magnitude
       (| m * n |) = NatWithZero.mul (| m |) (| n |).
 Proof.
   intros m n.
-  destruct m as [m' | | m']; destruct n as [n' | | n']; simplify in |- *; reflexivity.
+  destruct m as [m' | | m']; destruct n as [n' | | n']; simpl in |- *; reflexivity.
 Qed.
 
 End multiplication. (* multiplication *)
@@ -1723,10 +1723,10 @@ Theorem magnitude
 Proof.
   intros x d.
   destruct x as [p | | p].
-  - simplify divide, abs in |- *.
+  - simpl divide, abs in |- *.
     destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
   - reflexivity.
-  - simplify divide, abs in |- *.
+  - simpl divide, abs in |- *.
     destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
 Qed.
 
@@ -1738,24 +1738,24 @@ Theorem exactness
 Proof.
   intros x d h.
   destruct x as [x' | | x'].
-  - simplify divide in |- *.
+  - simpl divide in |- *.
     pose proof (NatWithZero.division.exactness
                   (NatWithZero.Positive x') d h) as e.
     destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
-    + simplify in e.
+    + simpl in e.
       discriminate e.
-    + simplify in |- *.
+    + simpl in |- *.
       rewrite (NatWithZero.positive.injectivity e) in |- *.
       reflexivity.
-  - simplify in |- *.
+  - simpl in |- *.
     reflexivity.
-  - simplify divide in |- *.
+  - simpl divide in |- *.
     pose proof (NatWithZero.division.exactness
                   (NatWithZero.Positive x') d h) as e.
     destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
-    + simplify in e.
+    + simpl in e.
       discriminate e.
-    + simplify in |- *.
+    + simpl in |- *.
       rewrite (NatWithZero.positive.injectivity e) in |- *.
       reflexivity.
 Qed.
@@ -1783,7 +1783,7 @@ Proof.
   intros x d k.
   destruct x as [p | | p].
   - change ((+ k) * (- p)) with (- (Nat.mul k p)) in |- *.
-    simplify divide in |- *.
+    simpl divide in |- *.
     pose proof (NatWithZero.division.invariance
                   (NatWithZero.Positive p) d k) as h.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
@@ -1793,7 +1793,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - change ((+ k) * (+ p)) with (+ (Nat.mul k p)) in |- *.
-    simplify divide in |- *.
+    simpl divide in |- *.
     pose proof (NatWithZero.division.invariance
                   (NatWithZero.Positive p) d k) as h.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
