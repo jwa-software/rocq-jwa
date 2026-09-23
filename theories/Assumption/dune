@@ -7,4 +7,4 @@
 (rocq.theory
  (name jwa.Assumption)
  (package rocq-jwa)
- (theories Ltac2 jwa.Core))
+ (theories Ltac2 jwa.Dialect jwa.Core))

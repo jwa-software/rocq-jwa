@@ -5,13 +5,10 @@
 
 (include_subdirs qualified)
 
-; Ltac2 is the one installed theory this tree depends on: the tactic
-; language, loaded by Ltac.v. Each theory lists it with the rest of its
-; closure. -noinit comes from the env stanza in the root dune file, not from
-; here. (stdlib no) is not wanted: it unbinds Corelib, and Ltac2.Init
-; requires Corelib.Init.Ltac.
+; The full dependency closure is listed, not only the direct dependencies,
+; so the position of this layer in the stack can be read off this file.
 
 (rocq.theory
  (name jwa.Core)
  (package rocq-jwa)
- (theories Ltac2))
+ (theories Ltac2 jwa.Dialect))

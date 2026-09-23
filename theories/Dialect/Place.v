@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Ltac.
+From jwa Require Export Dialect.Ltac.
 From Ltac2 Require List Std.
 
 (* The four places a step of this layer acts on, each spelled with [in]:

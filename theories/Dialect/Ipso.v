@@ -1,6 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Ltac.
+From jwa Require Export Dialect.Ltac.
 From Ltac2 Require Constr Control Std.
 
 (* ipso <H>    closes the goal with <H>, as Rocq's [exact <H>] does

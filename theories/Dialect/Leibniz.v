@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Ltac.
-From jwa Require Import Tactics.Place.
+From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Place.
 From Ltac2 Require Control Std.
 
 (* Leibniz's law, x = y, P x |- P y: what is equal may be put for what it
