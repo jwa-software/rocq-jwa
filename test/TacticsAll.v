@@ -59,6 +59,44 @@ Proof.
   ipso h.
 Qed.
 
+Theorem tactics_all_delivers_de_morgan_in_hypothesis
+  : forall (A : Prop) (B : Prop) . ~ (A \/ B) -> ~ B.
+Proof.
+  intros A B h.
+  de morgan in h.
+  lazymatch type of h with
+  | ~ A /\ ~ B => destruct h as [na nb]
+  end.
+  ipso nb.
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_in_goal
+  : forall (A : Type) (P : A -> Prop) . (forall (x : A) . ~ P x) -> ~ (exists (x : A) . P x).
+Proof.
+  intros A P h.
+  de morgan in |- *.
+  lazymatch goal with
+  | |- forall (x : A) . ~ P x => ipso h
+  end.
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_in_hypothesis_and_goal
+  : forall (A : Prop) (B : Prop) . ~ (A \/ B) -> ~ (A \/ B).
+Proof.
+  intros A B h.
+  de morgan in h |- *.
+  ipso h.
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_in_refusing_a_conjunction
+  : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> ~ (A /\ B).
+Proof.
+  intros A B h.
+  Fail de morgan in h.
+  Fail de morgan in |- *.
+  ipso h.
+Qed.
+
 Theorem tactics_all_delivers_dni
   : forall (A : Prop) . A -> ~ ~ A.
 Proof.
