@@ -8,9 +8,7 @@ From Ltac2 Require Control Std.
  * [Dialect.Ltac] loads Ltac2 without [Ltac2.Notations], which holds the
  * syntax of every Rocq tactic, so none exists until it is declared. Each
  * declaration below is copied from [Ltac2.Notations] and behaves as Rocq's
- * tactic of that name. A tactic this dialect replaces -- [exact], [rewrite],
- * [unfold], [pose], [pose proof], [reflexivity] -- is not borrowed, and a
- * keyword is declared once, here or in the file of the tactic that owns it.
+ * tactic of that name.
  *
  *   intros <patterns>              intro every premise, by the patterns given
  *   intro [<name>] [<location>]    intro one premise
