@@ -126,9 +126,6 @@ Notation "m > n" := (LessThan n m) (only parsing)
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
   : jwa_nat_with_zero_scope.
 
-(* The same four with no arguments, for where a relation is passed rather than
- * applied, as [Induced] takes one.
- *)
 Notation "'(<)'" := LessThan (only parsing)
   : jwa_nat_with_zero_scope.
 Notation "'(<=)'" := LessOrEqual (only parsing)
