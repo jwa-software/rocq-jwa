@@ -8,6 +8,7 @@
  * syntax hidden, and the tactics that name no definition of this tree. The
  * tactics built on its logic live in [jwa.Tactics].
  *)
+From jwa Require Export Dialect.Context.
 From jwa Require Export Dialect.Ipso.
 From jwa Require Export Dialect.Leibniz.
 From jwa Require Export Dialect.Let.
