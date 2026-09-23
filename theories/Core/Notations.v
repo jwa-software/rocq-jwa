@@ -55,6 +55,8 @@ Declare Scope jwa_nat_with_zero_scope.
 Delimit Scope jwa_nat_with_zero_scope with nat_with_zero.
 Declare Scope jwa_integer_scope.
 Delimit Scope jwa_integer_scope with integer.
+Declare Scope jwa_rational_scope.
+Delimit Scope jwa_rational_scope with rational.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [exists] beyond them, so a formula reads without parentheses; [_\/_] sits
