@@ -1,5 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Number.All.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Induced.
@@ -391,3 +392,58 @@ Definition data_number_all_delivers_rational_inverse_specification
   : forall (x : Rational) (y : Rational) .
       Rational.inverse x = Some y -> Rational.mul x y = Rational.One
   := Rational.inverse.specification.
+
+Definition data_number_all_delivers_rational_less_or_equal
+  : Rational -> Rational -> Prop
+  := Rational.LessOrEqual.
+
+Definition data_number_all_delivers_rational_characterisation
+  : forall (x : Rational) (y : Rational) .
+      x = y
+      <-> Integer.mul (Rational.numerator x)
+                      (Integer.from_nat (Rational.denominator y))
+          = Integer.mul (Rational.numerator y)
+                        (Integer.from_nat (Rational.denominator x))
+  := Rational.characterisation.
+
+Definition data_number_all_delivers_rational_order_strict_transitivity
+  : forall (x : Rational) (y : Rational) (z : Rational) .
+      Rational.LessThan x y
+      -> Rational.LessThan y z
+      -> Rational.LessThan x z
+  := Rational.order.strict.transitivity.
+
+Definition data_number_all_delivers_rational_comparison_specification
+  : forall (x : Rational) (y : Rational) .
+      (Rational.compare x y = Comparison.Lt <-> Rational.LessThan x y)
+      /\ (Rational.compare x y = Comparison.Eq <-> x = y)
+  := Rational.comparison.specification.
+
+Definition data_number_all_delivers_rational_comparison_antisymmetry
+  : forall (x : Rational) (y : Rational) .
+      Rational.compare x y = Comparison.transpose (Rational.compare y x)
+  := Rational.comparison.antisymmetry.
+
+Definition data_number_all_delivers_rational_embedding_injectivity
+  : forall (m : Integer) (n : Integer) .
+      Rational.from_integer m = Rational.from_integer n -> m = n
+  := fun (m : Integer) (n : Integer) . @Rational.embedding.injectivity m n.
+
+Definition data_number_all_delivers_rational_embedding_addition
+  : forall (m : Integer) (n : Integer) .
+      Rational.from_integer (Integer.add m n)
+      = Rational.add (Rational.from_integer m) (Rational.from_integer n)
+  := Rational.embedding.addition.
+
+Definition data_number_all_delivers_rational_embedding_multiplication
+  : forall (m : Integer) (n : Integer) .
+      Rational.from_integer (Integer.mul m n)
+      = Rational.mul (Rational.from_integer m) (Rational.from_integer n)
+  := Rational.embedding.multiplication.
+
+Definition data_number_all_delivers_rational_embedding_order
+  : forall (m : Integer) (n : Integer) .
+      Integer.LessThan m n
+      <-> Rational.LessThan (Rational.from_integer m)
+                            (Rational.from_integer n)
+  := Rational.embedding.order.
