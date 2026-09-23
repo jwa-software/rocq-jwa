@@ -290,3 +290,104 @@ Definition data_number_all_delivers_rational_make_characterisation
       <-> Integer.mul a (Integer.from_nat d)
           = Integer.mul c (Integer.from_nat b)
   := Rational.make.characterisation.
+
+Definition data_number_all_delivers_rational_zero
+  : Rational
+  := Rational.Zero.
+
+Definition data_number_all_delivers_rational_one
+  : Rational
+  := Rational.One.
+
+Definition data_number_all_delivers_rational_make_retraction
+  : forall (x : Rational) .
+      Rational.make (Rational.numerator x) (Rational.denominator x) = x
+  := Rational.make.retraction.
+
+Definition data_number_all_delivers_rational_make_annihilation
+  : forall (b : Nat) . Rational.make Integer.Zero b = Rational.Zero
+  := Rational.make.annihilation.
+
+Definition data_number_all_delivers_rational_make_addition_homomorphism
+  : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
+      Rational.add (Rational.make a b) (Rational.make c d)
+      = Rational.make
+          (Integer.add (Integer.mul a (Integer.from_nat d))
+                       (Integer.mul c (Integer.from_nat b)))
+          (Nat.mul b d)
+  := Rational.make.addition.homomorphism.
+
+Definition data_number_all_delivers_rational_make_multiplication_homomorphism
+  : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
+      Rational.mul (Rational.make a b) (Rational.make c d)
+      = Rational.make (Integer.mul a c) (Nat.mul b d)
+  := Rational.make.multiplication.homomorphism.
+
+Definition data_number_all_delivers_rational_make_negation_homomorphism
+  : forall (a : Integer) (b : Nat) .
+      Rational.negate (Rational.make a b)
+      = Rational.make (Integer.negate a) b
+  := Rational.make.negation.homomorphism.
+
+Definition data_number_all_delivers_rational_addition_associativity
+  : forall (x : Rational) (y : Rational) (z : Rational) .
+      Rational.add (Rational.add x y) z = Rational.add x (Rational.add y z)
+  := Rational.addition.associativity.
+
+Definition data_number_all_delivers_rational_addition_commutativity
+  : forall (x : Rational) (y : Rational) .
+      Rational.add x y = Rational.add y x
+  := Rational.addition.commutativity.
+
+Definition data_number_all_delivers_rational_addition_identity
+  : forall (x : Rational) .
+      (Rational.add Rational.Zero x = x) /\ (Rational.add x Rational.Zero = x)
+  := Rational.addition.identity.
+
+Definition data_number_all_delivers_rational_addition_inverse
+  : forall (x : Rational) .
+      (Rational.add (Rational.negate x) x = Rational.Zero)
+      /\ (Rational.add x (Rational.negate x) = Rational.Zero)
+  := Rational.addition.inverse.
+
+Definition data_number_all_delivers_rational_addition_cancellation
+  : forall (m : Rational) (n : Rational) (k : Rational) .
+      (Rational.add m n = Rational.add m k -> n = k)
+      /\ (Rational.add m n = Rational.add k n -> m = k)
+  := Rational.addition.cancellation.
+
+Definition data_number_all_delivers_rational_multiplication_associativity
+  : forall (x : Rational) (y : Rational) (z : Rational) .
+      Rational.mul (Rational.mul x y) z = Rational.mul x (Rational.mul y z)
+  := Rational.multiplication.associativity.
+
+Definition data_number_all_delivers_rational_multiplication_commutativity
+  : forall (x : Rational) (y : Rational) .
+      Rational.mul x y = Rational.mul y x
+  := Rational.multiplication.commutativity.
+
+Definition data_number_all_delivers_rational_multiplication_identity
+  : forall (x : Rational) .
+      (Rational.mul Rational.One x = x) /\ (Rational.mul x Rational.One = x)
+  := Rational.multiplication.identity.
+
+Definition data_number_all_delivers_rational_multiplication_left_annihilation
+  : forall (x : Rational) . Rational.mul Rational.Zero x = Rational.Zero
+  := Rational.multiplication.left.annihilation.
+
+Definition data_number_all_delivers_rational_multiplication_right_annihilation
+  : forall (x : Rational) . Rational.mul x Rational.Zero = Rational.Zero
+  := Rational.multiplication.right.annihilation.
+
+Definition data_number_all_delivers_rational_multiplication_distributivity
+  : forall (x : Rational) (y : Rational) (z : Rational) .
+      (Rational.mul x (Rational.add y z)
+       = Rational.add (Rational.mul x y) (Rational.mul x z))
+      /\ (Rational.mul (Rational.add y z) x
+          = Rational.add (Rational.mul y x) (Rational.mul z x))
+  := Rational.multiplication.distributivity.over.addition.
+
+Definition data_number_all_delivers_rational_inverse_specification
+  : forall (x : Rational) (y : Rational) .
+      Rational.inverse x = Some y -> Rational.mul x y = Rational.One
+  := Rational.inverse.specification.
