@@ -9,6 +9,7 @@
  * tactics built on its logic live in [jwa.Tactics].
  *)
 From jwa Require Export Dialect.Context.
+From jwa Require Export Dialect.DivideEtImpera.
 From jwa Require Export Dialect.ExFalso.
 From jwa Require Export Dialect.Idem.
 From jwa Require Export Dialect.Ipso.
@@ -16,5 +17,6 @@ From jwa Require Export Dialect.Leibniz.
 From jwa Require Export Dialect.Let.
 From jwa Require Export Dialect.Loanword.
 From jwa Require Export Dialect.Ltac.
+From jwa Require Export Dialect.Match.
 From jwa Require Export Dialect.Place.
 From jwa Require Export Dialect.Simpl.
