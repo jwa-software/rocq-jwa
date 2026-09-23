@@ -5,6 +5,7 @@ From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Logic.Sejunction.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From Ltac2 Require Control Std.
 
 (* The four modi of traditional logic and a fifth in their pattern.
  *
@@ -17,128 +18,190 @@ From jwa Require Import Core.Notations.
  *   modus aequans         <H1>, <H2>    A <-> B, A |- B
  *                                       A <-> B, B |- A
  *
- * Bare, each is a term: [exact (modus ponens hab, ha)], [pose proof (modus
- * aequans e, a) as h], or one nested in another. Only [... as <p>] is a
- * tactic, and [... |- <p>] spells the same tactic the way the table above
- * reads. Every one takes its premises in the order written, the connective
- * first and the term second. The last three read either side of their
- * connective, and [modus ponendo tollens] takes a sejunction [A _\/_ B] as
- * well as a negated conjunction; the first two also answer to [modus ponendo
- * ponens] and [modus tollendo tollens].
+ * Bare, each is a term: [ipso (modus ponens hab, ha)], [let proof h := modus
+ * aequans e, a], or one nested in another. Only [... as <p>] is a tactic, and
+ * [... |- <p>] spells the same tactic the way the table above reads. Every
+ * one takes its premises in the order written, the connective first and the
+ * term second. The last three read either side of their connective, and
+ * [modus ponendo tollens] takes a sejunction [A _\/_ B] as well as a negated
+ * conjunction; the first two also answer to [modus ponendo ponens] and
+ * [modus tollendo tollens].
  *
  * Nothing anywhere may be named [modus], [ponens], [tollens], [ponendo],
- * [tollendo] or [aequans]. In the last three, whose bodies must try their
- * branches, a premise that is a bare lemma name whose implicits only the
- * other premise would fix does not elaborate: give them with [@], name the
- * lemma first, or use the [as] form.
+ * [tollendo] or [aequans]. The tactics type the whole application at once,
+ * so a lemma's implicit arguments may be fixed by the other premise; the
+ * term forms of the last three, whose bodies must try their branches, do
+ * not, and there a premise that is a bare lemma name whose implicits only
+ * the other premise would fix does not elaborate: give them with [@], name
+ * the lemma first, or use the [as] form.
  *)
 
+(* Tries each branch in turn and keeps the first that succeeds; a later
+ * failure does not come back to try the next, as [Control.plus] alone
+ * would.
+ *)
+Ltac2 rec first_branch (branches : (unit -> unit) list) :=
+  match branches with
+  | [] => Control.zero (Tactic_failure None)
+  | branch :: rest => Control.once_plus branch (fun _ => first_branch rest)
+  end.
+
 (* The levels are reserved in [Core.Notations]; only the meanings belong
- * here. [ltac:] is what lets a term carry a [first]: it opens a goal, runs
- * the tactic, and the proof is the term.
+ * here. [ltac2:] is what lets a term try branches: it opens a goal, runs the
+ * tactic, and the proof is the term. Inside it the notation's variables are
+ * [preterm]s, typed with the whole application at once.
  *)
 Notation "'modus' 'ponens' H1 , H2" := (H1 H2)
   (only parsing).
 
-Tactic Notation "modus" "ponens" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  pose proof (H1 H2) as p.
+Ltac2 Notation "modus" "ponens" h1(preterm) "," h2(preterm) "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p)).
 
-Tactic Notation "modus" "ponens" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  pose proof (H1 H2) as p.
+Ltac2 Notation "modus" "ponens" h1(preterm) "," h2(preterm) "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p)).
 
 Notation "'modus' 'ponendo' 'ponens' H1 , H2" := (H1 H2)
   (only parsing).
 
-Tactic Notation "modus" "ponendo" "ponens" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  pose proof (H1 H2) as p.
+Ltac2 Notation "modus" "ponendo" "ponens" h1(preterm) "," h2(preterm)
+    "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p)).
 
-Tactic Notation "modus" "ponendo" "ponens" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  pose proof (H1 H2) as p.
+Ltac2 Notation "modus" "ponendo" "ponens" h1(preterm) "," h2(preterm)
+    "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p)).
 
 Notation "'modus' 'tollens' H1 , H2" := (Negation.contraposition H1 H2)
   (only parsing).
 
-Tactic Notation "modus" "tollens" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  pose proof (Negation.contraposition H1 H2) as p.
+Ltac2 Notation "modus" "tollens" h1(preterm) "," h2(preterm) "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+      (Some p)).
 
-Tactic Notation "modus" "tollens" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  pose proof (Negation.contraposition H1 H2) as p.
+Ltac2 Notation "modus" "tollens" h1(preterm) "," h2(preterm) "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+      (Some p)).
 
 Notation "'modus' 'tollendo' 'tollens' H1 , H2"
     := (Negation.contraposition H1 H2)
   (only parsing).
 
-Tactic Notation "modus" "tollendo" "tollens" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  pose proof (Negation.contraposition H1 H2) as p.
+Ltac2 Notation "modus" "tollendo" "tollens" h1(preterm) "," h2(preterm)
+    "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+      (Some p)).
 
-Tactic Notation "modus" "tollendo" "tollens" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  pose proof (Negation.contraposition H1 H2) as p.
+Ltac2 Notation "modus" "tollendo" "tollens" h1(preterm) "," h2(preterm)
+    "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+      (Some p)).
 
 Notation "'modus' 'tollendo' 'ponens' H1 , H2"
-    := (ltac:(first [ exact (Negation.elimination.left.of.disjunction H1 H2)
-                    | exact (Negation.elimination.right.of.disjunction H1 H2)
-                    ]))
+    := (ltac2:(first_branch
+                 [ (fun () => Control.refine (fun () =>
+                      constr:(Negation.elimination.left.of.disjunction
+                                $preterm:H1 $preterm:H2)));
+                   (fun () => Control.refine (fun () =>
+                      constr:(Negation.elimination.right.of.disjunction
+                                $preterm:H1 $preterm:H2))) ]))
   (only parsing).
 
-Tactic Notation "modus" "tollendo" "ponens" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  first [ pose proof (Negation.elimination.left.of.disjunction H1 H2) as p
-        | pose proof (Negation.elimination.right.of.disjunction H1 H2) as p ].
+Ltac2 modus_tollendo_ponens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern) :=
+  Control.enter (fun () =>
+    first_branch
+      [ (fun () => Std.specialize
+           (open_constr:(Negation.elimination.left.of.disjunction
+                      $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
+        (fun () => Std.specialize
+           (open_constr:(Negation.elimination.right.of.disjunction
+                      $preterm:h1 $preterm:h2), Std.NoBindings) (Some p)) ]).
 
-Tactic Notation "modus" "tollendo" "ponens" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  first [ pose proof (Negation.elimination.left.of.disjunction H1 H2) as p
-        | pose proof (Negation.elimination.right.of.disjunction H1 H2) as p ].
+Ltac2 Notation "modus" "tollendo" "ponens" h1(preterm) "," h2(preterm)
+    "as" p(intropattern) :=
+  modus_tollendo_ponens h1 h2 p.
+
+Ltac2 Notation "modus" "tollendo" "ponens" h1(preterm) "," h2(preterm)
+    "|-" p(intropattern) :=
+  modus_tollendo_ponens h1 h2 p.
 
 Notation "'modus' 'ponendo' 'tollens' H1 , H2"
-    := (ltac:(first
-                [ exact (Negation.exclusion.left.of.conjunction H1 H2)
-                | exact (Negation.exclusion.right.of.conjunction H1 H2)
-                | exact (Negation.exclusion.left.of.conjunction
-                           (Sejunction.exclusion.of.conjunction H1) H2)
-                | exact (Negation.exclusion.right.of.conjunction
-                           (Sejunction.exclusion.of.conjunction H1) H2) ]))
+    := (ltac2:(first_branch
+                 [ (fun () => Control.refine (fun () =>
+                      constr:(Negation.exclusion.left.of.conjunction
+                                $preterm:H1 $preterm:H2)));
+                   (fun () => Control.refine (fun () =>
+                      constr:(Negation.exclusion.right.of.conjunction
+                                $preterm:H1 $preterm:H2)));
+                   (fun () => Control.refine (fun () =>
+                      constr:(Negation.exclusion.left.of.conjunction
+                                (Sejunction.exclusion.of.conjunction $preterm:H1)
+                                $preterm:H2)));
+                   (fun () => Control.refine (fun () =>
+                      constr:(Negation.exclusion.right.of.conjunction
+                                (Sejunction.exclusion.of.conjunction $preterm:H1)
+                                $preterm:H2))) ]))
   (only parsing).
 
-Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  first
-    [ pose proof (Negation.exclusion.left.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.right.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.left.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H1) H2) as p
-    | pose proof (Negation.exclusion.right.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H1) H2) as p ].
+Ltac2 modus_ponendo_tollens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern) :=
+  Control.enter (fun () =>
+    first_branch
+      [ (fun () => Std.specialize
+           (open_constr:(Negation.exclusion.left.of.conjunction
+                      $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
+        (fun () => Std.specialize
+           (open_constr:(Negation.exclusion.right.of.conjunction
+                      $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
+        (fun () => Std.specialize
+           (open_constr:(Negation.exclusion.left.of.conjunction
+                      (Sejunction.exclusion.of.conjunction $preterm:h1)
+                      $preterm:h2), Std.NoBindings) (Some p));
+        (fun () => Std.specialize
+           (open_constr:(Negation.exclusion.right.of.conjunction
+                      (Sejunction.exclusion.of.conjunction $preterm:h1)
+                      $preterm:h2), Std.NoBindings) (Some p)) ]).
 
-Tactic Notation "modus" "ponendo" "tollens" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  first
-    [ pose proof (Negation.exclusion.left.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.right.of.conjunction H1 H2) as p
-    | pose proof (Negation.exclusion.left.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H1) H2) as p
-    | pose proof (Negation.exclusion.right.of.conjunction
-                    (Sejunction.exclusion.of.conjunction H1) H2) as p ].
+Ltac2 Notation "modus" "ponendo" "tollens" h1(preterm) "," h2(preterm)
+    "as" p(intropattern) :=
+  modus_ponendo_tollens h1 h2 p.
+
+Ltac2 Notation "modus" "ponendo" "tollens" h1(preterm) "," h2(preterm)
+    "|-" p(intropattern) :=
+  modus_ponendo_tollens h1 h2 p.
 
 Notation "'modus' 'aequans' H1 , H2"
-    := (ltac:(first [ exact (Biconditional.forward.elimination H1 H2)
-                    | exact (Biconditional.backward.elimination H1 H2) ]))
+    := (ltac2:(first_branch
+                 [ (fun () => Control.refine (fun () =>
+                      constr:(Biconditional.forward.elimination
+                                $preterm:H1 $preterm:H2)));
+                   (fun () => Control.refine (fun () =>
+                      constr:(Biconditional.backward.elimination
+                                $preterm:H1 $preterm:H2))) ]))
   (only parsing).
 
-Tactic Notation "modus" "aequans" uconstr(H1) "," uconstr(H2)
-    "as" simple_intropattern(p) :=
-  first [ pose proof (Biconditional.forward.elimination H1 H2) as p
-        | pose proof (Biconditional.backward.elimination H1 H2) as p ].
+Ltac2 modus_aequans (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern) :=
+  Control.enter (fun () =>
+    first_branch
+      [ (fun () => Std.specialize
+           (open_constr:(Biconditional.forward.elimination
+                      $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
+        (fun () => Std.specialize
+           (open_constr:(Biconditional.backward.elimination
+                      $preterm:h1 $preterm:h2), Std.NoBindings) (Some p)) ]).
 
-Tactic Notation "modus" "aequans" uconstr(H1) "," uconstr(H2)
-    "|-" simple_intropattern(p) :=
-  first [ pose proof (Biconditional.forward.elimination H1 H2) as p
-        | pose proof (Biconditional.backward.elimination H1 H2) as p ].
+Ltac2 Notation "modus" "aequans" h1(preterm) "," h2(preterm) "as" p(intropattern) :=
+  modus_aequans h1 h2 p.
+
+Ltac2 Notation "modus" "aequans" h1(preterm) "," h2(preterm) "|-" p(intropattern) :=
+  modus_aequans h1 h2 p.

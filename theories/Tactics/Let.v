@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Ltac.
+From Ltac2 Require Constr Control Fresh Std.
 
 (* let <x> := <e>                pose (<x> := <e>)
  * let <x> : <T> := <e>          pose (<x> : <T> := <e>)
@@ -22,24 +23,43 @@ From jwa Require Import Core.Ltac.
  * a new type, which must be convertible with the old, and keeps its body;
  * [let proof] does the same and then drops the body, so that [h] becomes a
  * hypothesis, and does nothing to a hypothesis already of that type.
- * Otherwise the old [h] is replaced: gone from the context, and, if it was a definition,
- * written out in the new body where it was mentioned. When another
- * hypothesis depends on the old [h], nothing happens and [clear] says which.
- * Once [let proof] exists, [let] cannot name a definition [proof].
+ * Otherwise the old [h] is replaced: gone from the context, and, if it was a
+ * definition, written out in the new body where it was mentioned. When
+ * another hypothesis depends on the old [h], nothing happens and [clear]
+ * says which. Once [let proof] exists, [let] cannot name a definition
+ * [proof].
  *
- * Declared at level 5 beside Ltac's own [let <x> := <v> in <tac>], which it
- * shadows wherever this file is imported. <T> and <e> are [lconstr]s, terms
- * at level 200, so that neither an application nor an operator needs
- * parentheses; a plain [constr] stops at level 8.
+ * Declared at level 5 beside Ltac2's own [let <x> := <v> in <e>], which is
+ * part of the language and which these notations shadow: in a proof, and in
+ * any file importing this one, Ltac2's [let ... in] no longer parses. <T>
+ * and <e> are [lconstr]s, terms at level 200, so that neither an application
+ * nor an operator needs parentheses.
  *)
 
-(* The helpers come first: they use Ltac's [let ... in], which the notations
- * below take over.
+(* The helpers come first: they use Ltac2's [let ... in], which the
+ * notations below take over.
  *)
 
-(* [tryif (let t := type of x in idtac)] asks whether [x] names anything in
- * the context.
+(* [Control.once_plus], not [Control.plus]: a later failure must not come
+ * back here and try the other answer, which would turn a refused [clear]
+ * into a second, wrong attempt under the assumption that the name is free.
  *)
+Ltac2 is_in_context (x : ident) : bool :=
+  Control.once_plus (fun () => let _ := Control.hyp x in true) (fun _ => false).
+
+Ltac2 type_of (x : ident) : Std.clause :=
+  { Std.on_hyps := Some [(x, Std.AllOccurrences, Std.InHypTypeOnly)];
+    Std.on_concl := Std.NoOccurrences }.
+
+Ltac2 value_of (x : ident) : Std.clause :=
+  { Std.on_hyps := Some [(x, Std.AllOccurrences, Std.InHypValueOnly)];
+    Std.on_concl := Std.NoOccurrences }.
+
+Ltac2 retype (x : ident) (t : constr) :=
+  Std.change None (fun _ => t) (type_of x).
+
+Ltac2 drop_body (x : ident) :=
+  Control.once_plus (fun () => Std.clearbody [x]) (fun _ => ()).
 
 (* The new value <y> is bound first, so that <e> may still mention the old
  * <x>. If the old <x> is a definition, its body is written into <y> in its
@@ -47,62 +67,67 @@ From jwa Require Import Core.Ltac.
  * takes the name. The [clear] fails, with the whole step, when something
  * else still depends on the old <x>.
  *)
-Ltac let_replace x y :=
-  try unfold x in (value of y);
-  clear x;
-  rename y into x.
+Ltac2 shadow_with (x : ident) (y : ident) :=
+  Control.once_plus
+    (fun () => Std.unfold [(Std.VarRef x, Std.AllOccurrences)] (value_of y))
+    (fun _ => ());
+  Std.clear [x];
+  Std.rename [(y, x)].
 
-Ltac let_definition x e :=
-  tryif (let t := type of x in idtac)
-  then (let y := fresh x in pose (y := e); let_replace x y)
-  else pose (x := e).
+Ltac2 pose_proof (e : constr) (x : ident) :=
+  Std.specialize (e, Std.NoBindings) (Some (Std.IntroNaming (Std.IntroIdentifier x))).
 
-Ltac let_definition_typed x T e :=
-  tryif (let t := type of x in idtac)
+Ltac2 let_definition (x : ident) (e : constr) :=
+  if is_in_context x
+  then (let y := Fresh.in_goal x in Std.pose (Some y) e; shadow_with x y)
+  else Std.pose (Some x) e.
+
+Ltac2 let_definition_typed (x : ident) (t : constr) (e : constr) :=
+  if is_in_context x
   then
-    (tryif constr_eq e x
-     then change T in (type of x)
-     else (let y := fresh x in refine (let y : T := e in _); let_replace x y))
-  else refine (let x : T := e in _).
+    if Constr.equal e (Control.hyp x)
+    then retype x t
+    else (let y := Fresh.in_goal x in Std.pose (Some y) e; retype y t; shadow_with x y)
+  else (Std.pose (Some x) e; retype x t).
 
 (* [let proof h := h] keeps the name and drops the body: [clearbody] leaves
  * every hypothesis that mentions [h] valid, where a replacement would have
  * to clear [h] and so refuse. On a hypothesis with no body it does nothing.
  *)
-Ltac let_proof h e :=
-  tryif (let t := type of h in idtac)
+Ltac2 let_proof (h : ident) (e : constr) :=
+  if is_in_context h
   then
-    (tryif constr_eq e h
-     then try clearbody h
-     else (let y := fresh h in pose proof e as y; let_replace h y))
-  else pose proof e as h.
+    if Constr.equal e (Control.hyp h)
+    then drop_body h
+    else (let y := Fresh.in_goal h in pose_proof e y; shadow_with h y)
+  else pose_proof e h.
 
-Ltac let_proof_typed h T e :=
-  tryif (let t := type of h in idtac)
+Ltac2 let_proof_typed (h : ident) (t : constr) (e : constr) :=
+  if is_in_context h
   then
-    (tryif constr_eq e h
-     then (change T in (type of h); try clearbody h)
-     else (let y := fresh h in pose proof (e : T) as y; let_replace h y))
-  else pose proof (e : T) as h.
+    if Constr.equal e (Control.hyp h)
+    then (retype h t; drop_body h)
+    else (let y := Fresh.in_goal h in pose_proof constr:($e : $t) y; shadow_with h y)
+  else pose_proof constr:($e : $t) h.
 
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
  * must reach the helpers that know how to shadow.
  *)
-Tactic Notation (at level 5) "let" "proof" simple_intropattern(p) ":=" lconstr(e) :=
-  pose proof e as p.
+Ltac2 Notation "let" "proof" p(intropattern) ":=" e(lconstr) : 5 :=
+  Control.enter (fun () => Std.specialize (e, Std.NoBindings) (Some p)).
 
-Tactic Notation (at level 5) "let" "proof" simple_intropattern(p) ":" lconstr(T) ":=" lconstr(e) :=
-  pose proof (e : T) as p.
+Ltac2 Notation "let" "proof" p(intropattern) ":" t(lconstr) ":=" e(lconstr) : 5 :=
+  Control.enter (fun () => Std.specialize (constr:($e : $t), Std.NoBindings) (Some p)).
 
-Tactic Notation (at level 5) "let" ident(x) ":=" lconstr(e) :=
-  let_definition x e.
+Ltac2 Notation "let" x(ident) ":=" e(lconstr) : 5 :=
+  Control.enter (fun () => let_definition x e).
 
-Tactic Notation (at level 5) "let" ident(x) ":" lconstr(T) ":=" lconstr(e) :=
-  let_definition_typed x T e.
+Ltac2 Notation "let" x(ident) ":" t(lconstr) ":=" e(lconstr) : 5 :=
+  Control.enter (fun () => let_definition_typed x t e).
 
-Tactic Notation (at level 5) "let" "proof" ident(h) ":=" lconstr(e) :=
-  let_proof h e.
+Ltac2 Notation "let" "proof" h(ident) ":=" e(lconstr) : 5 :=
+  Control.enter (fun () => let_proof h e).
 
-Tactic Notation (at level 5) "let" "proof" ident(h) ":" lconstr(T) ":=" lconstr(e) :=
-  let_proof_typed h T e.
+Ltac2 Notation "let" "proof" h(ident) ":" t(lconstr) ":=" e(lconstr) : 5 :=
+  Control.enter (fun () => let_proof_typed h t e).

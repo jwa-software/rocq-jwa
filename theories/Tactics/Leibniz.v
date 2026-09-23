@@ -1,6 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Ltac.
+From jwa Require Import Tactics.Place.
+From Ltac2 Require Control Std.
 
 (* Leibniz's law, x = y, P x |- P y: what is equal may be put for what it
  * equals. Below, <e> is a proof of an equation and <hypotheses> a
@@ -13,44 +15,30 @@ From jwa Require Import Core.Ltac.
  *
  * There is no bare [leibniz <e>]: the place is always written, the goal as
  * [in |- *]. Each of the four also takes [->] or [<-] before <e>, as
- * [rewrite] does.
- * [<-] is the same law read the other way, [=] being symmetric. Lists of
- * equations, [at] and [by] are not forwarded: a clause cannot be handed on
- * whole, so every shape here is spelled out.
+ * [rewrite] does. [<-] is the same law read the other way, [=] being
+ * symmetric. A list of equations, [at] and [by] are not taken.
+ *
+ * <e> is a [preterm] typed as an open term, so that a hole in it is left for
+ * the rewrite to fill by matching.
  *)
+Ltac2 leibniz_rewrite (orientation : Std.orientation option) (e : preterm) (place : Std.clause) :=
+  Control.enter (fun () =>
+    Std.rewrite
+      false
+      [ { Std.rew_orient := orientation;
+          Std.rew_repeat := Std.Precisely 1;
+          Std.rew_equatn := (fun () => (open_constr:($preterm:e), Std.NoBindings)) } ]
+      place
+      None).
 
-Tactic Notation "leibniz" uconstr(e) "in" ne_hyp_list_sep(hypotheses, ",") :=
-  rewrite e in hypotheses.
+Ltac2 Notation "leibniz" o(orient) e(preterm) "in" hypotheses(list1(ident, ",")) :=
+  leibniz_rewrite o e (Place.hypotheses hypotheses).
 
-Tactic Notation "leibniz" uconstr(e) "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  rewrite e in hypotheses |- *.
+Ltac2 Notation "leibniz" o(orient) e(preterm) "in" hypotheses(list1(ident, ",")) "|-" "*" :=
+  leibniz_rewrite o e (Place.hypotheses_and_goal hypotheses).
 
-Tactic Notation "leibniz" uconstr(e) "in" "|-" "*" :=
-  rewrite e in |- *.
+Ltac2 Notation "leibniz" o(orient) e(preterm) "in" "|-" "*" :=
+  leibniz_rewrite o e Place.goal.
 
-Tactic Notation "leibniz" uconstr(e) "in" "*" :=
-  rewrite e in *.
-
-Tactic Notation "leibniz" "->" uconstr(e) "in" ne_hyp_list_sep(hypotheses, ",") :=
-  rewrite -> e in hypotheses.
-
-Tactic Notation "leibniz" "->" uconstr(e) "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  rewrite -> e in hypotheses |- *.
-
-Tactic Notation "leibniz" "->" uconstr(e) "in" "|-" "*" :=
-  rewrite -> e in |- *.
-
-Tactic Notation "leibniz" "->" uconstr(e) "in" "*" :=
-  rewrite -> e in *.
-
-Tactic Notation "leibniz" "<-" uconstr(e) "in" ne_hyp_list_sep(hypotheses, ",") :=
-  rewrite <- e in hypotheses.
-
-Tactic Notation "leibniz" "<-" uconstr(e) "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  rewrite <- e in hypotheses |- *.
-
-Tactic Notation "leibniz" "<-" uconstr(e) "in" "|-" "*" :=
-  rewrite <- e in |- *.
-
-Tactic Notation "leibniz" "<-" uconstr(e) "in" "*" :=
-  rewrite <- e in *.
+Ltac2 Notation "leibniz" o(orient) e(preterm) "in" "*" :=
+  leibniz_rewrite o e Place.everywhere.

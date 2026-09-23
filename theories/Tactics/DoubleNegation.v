@@ -3,13 +3,23 @@
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From Ltac2 Require Import Notations.
+From Ltac2 Require Constr Control List Message Std.
+
+(* [Ltac2.Notations] is imported for [apply] and [lazy_match!] inside this
+ * file; an [Import] does not travel, so a file importing this one still sees
+ * none of Rocq's tactic syntax.
+ *)
+
+Ltac2 refuse (message : string) :=
+  Control.zero (Tactic_failure (Some (Message.of_string message))).
 
 (* Double negation introduction.
  *
  *   dni <H>    A |- ~ ~ A
  *
- * Bare, it is a term: [ipso (dni a)], [pose proof (dni a) as h], or one
- * nested in another. Only [dni <H> as <p>], or equally [dni <H> |- <p>], is a
+ * Bare, it is a term: [ipso (dni a)], [let proof h := dni a], or one nested
+ * in another. Only [dni <H> as <p>], or equally [dni <H> |- <p>], is a
  * tactic. Nothing anywhere may be named [dni].
  *)
 
@@ -17,37 +27,44 @@ From jwa Require Import Core.Notations.
 Notation "'dni' H" := (Negation.double.introduction H)
   (only parsing).
 
-Tactic Notation "dni" uconstr(H) "as" simple_intropattern(p) :=
-  pose proof (Negation.double.introduction H) as p.
+Ltac2 Notation "dni" h(preterm) "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
 
-Tactic Notation "dni" uconstr(H) "|-" simple_intropattern(p) :=
-  pose proof (Negation.double.introduction H) as p.
+Ltac2 Notation "dni" h(preterm) "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
 
-(* In place, adding nothing:
+(* In place, adding nothing; <hypotheses> is a comma-separated list of names,
+ * one or more:
  *
- *   dni in <H>            <H> : A becomes ~ ~ A
- *   dni in |- *           the goal ~ ~ A becomes A
- *   dni in <H> |- *       both
+ *   dni in <hypotheses>           each A becomes ~ ~ A
+ *   dni in |- *                   the goal ~ ~ A becomes A
+ *   dni in <hypotheses> |- *      both
  *
  * On the goal the rule runs backward, from the new goal to the old, so the
  * goal loses its two negations and grows stronger: [~ ~ (A \/ ~ A)] is
  * provable, [A \/ ~ A] is not.
  *)
-Ltac dni_in_goal :=
-  lazymatch goal with
-  | |- ~ ~ _ => apply Negation.double.introduction
-  | |- _ => fail "dni: expects a goal of the shape ~ ~ A"
+Ltac2 dni_in_hypothesis (h : ident) :=
+  apply Negation.double.introduction in $h.
+
+Ltac2 dni_in_goal () :=
+  lazy_match! goal with
+  | [ |- ~ ~ _ ] => apply Negation.double.introduction
+  | [ |- _ ] => refuse "dni: expects a goal of the shape ~ ~ A"
   end.
 
-Tactic Notation "dni" "in" hyp(H) :=
-  apply Negation.double.introduction in H.
+Ltac2 Notation "dni" "in" hypotheses(list1(ident, ",")) :=
+  Control.enter (fun () => List.iter dni_in_hypothesis hypotheses).
 
-Tactic Notation "dni" "in" "|-" "*" :=
-  dni_in_goal.
+Ltac2 Notation "dni" "in" "|-" "*" :=
+  Control.enter dni_in_goal.
 
-Tactic Notation "dni" "in" hyp(H) "|-" "*" :=
-  apply Negation.double.introduction in H;
-  dni_in_goal.
+Ltac2 Notation "dni" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
+  Control.enter (fun () => List.iter dni_in_hypothesis hypotheses; dni_in_goal ()).
 
 (* Double negation elimination, only where it holds constructively.
  *
@@ -65,40 +82,42 @@ Tactic Notation "dni" "in" hyp(H) "|-" "*" :=
 Notation "'dne' H" := (Negation.triple.reduction H)
   (only parsing).
 
-Tactic Notation "dne" uconstr(H) "as" simple_intropattern(p) :=
-  pose proof (Negation.triple.reduction H) as p.
+Ltac2 Notation "dne" h(preterm) "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
 
-Tactic Notation "dne" uconstr(H) "|-" simple_intropattern(p) :=
-  pose proof (Negation.triple.reduction H) as p.
+Ltac2 Notation "dne" h(preterm) "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize
+      (open_constr:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
 
 (* In place, adding nothing:
  *
- *   dne in <H>            <H> : ~ ~ ~ A becomes ~ A
- *   dne in |- *           the goal ~ A becomes ~ ~ ~ A
- *   dne in <H> |- *       both
+ *   dne in <hypotheses>           each ~ ~ ~ A becomes ~ A
+ *   dne in |- *                   the goal ~ A becomes ~ ~ ~ A
+ *   dne in <hypotheses> |- *      both
  *
  * The two are equivalent, so on the goal nothing is lost. The shape is read
  * first, so that a refusal says why.
  *)
-Ltac dne_in_hypothesis H :=
-  lazymatch type of H with
-  | ~ ~ ~ _ => apply Negation.triple.reduction in H
-  | _ =>
-      fail "dne: expects ~ ~ ~ A, since ~ ~ A |- A in general is not constructive"
+Ltac2 dne_in_hypothesis (h : ident) :=
+  lazy_match! Constr.type (Control.hyp h) with
+  | ~ ~ ~ _ => apply Negation.triple.reduction in $h
+  | _ => refuse "dne: expects ~ ~ ~ A, since ~ ~ A |- A in general is not constructive"
   end.
 
-Ltac dne_in_goal :=
-  lazymatch goal with
-  | |- ~ _ => apply Negation.triple.reduction
-  | |- _ => fail "dne: expects a goal of the shape ~ A"
+Ltac2 dne_in_goal () :=
+  lazy_match! goal with
+  | [ |- ~ _ ] => apply Negation.triple.reduction
+  | [ |- _ ] => refuse "dne: expects a goal of the shape ~ A"
   end.
 
-Tactic Notation "dne" "in" hyp(H) :=
-  dne_in_hypothesis H.
+Ltac2 Notation "dne" "in" hypotheses(list1(ident, ",")) :=
+  Control.enter (fun () => List.iter dne_in_hypothesis hypotheses).
 
-Tactic Notation "dne" "in" "|-" "*" :=
-  dne_in_goal.
+Ltac2 Notation "dne" "in" "|-" "*" :=
+  Control.enter dne_in_goal.
 
-Tactic Notation "dne" "in" hyp(H) "|-" "*" :=
-  dne_in_hypothesis H;
-  dne_in_goal.
+Ltac2 Notation "dne" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
+  Control.enter (fun () => List.iter dne_in_hypothesis hypotheses; dne_in_goal ()).

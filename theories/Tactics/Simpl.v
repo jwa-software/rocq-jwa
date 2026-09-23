@@ -1,258 +1,86 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Ltac.
+From jwa Require Import Tactics.Place.
+From Ltac2 Require Control List Message RedFlags Std.
 
 (* [unfold] and [simpl] serve one purpose, making a statement plainer
  * without changing what it says, so this file gives them one name: [simpl]
- * with a definition unfolds it, [simpl] without one reduces what is already
- * applied. Below, <hypotheses> is a comma-separated list of hypothesis names,
- * one or more.
+ * with definitions unfolds them, [simpl] without one reduces what is already
+ * applied. Below, <definitions> and <hypotheses> are comma-separated lists
+ * of names, one or more of each.
  *
- * Unfolding one definition, in the four places a step can act:
+ * Unfolding, in the four places a step can act:
  *
- *   simpl <d> in <hypotheses>                     unfold <d> in <hypotheses>
- *   simpl <d> in <hypotheses> |- *                unfold <d> in <hypotheses> |- *
- *   simpl <d> in |- *                             unfold <d> in |- *
- *   simpl <d> in *                                unfold <d> in *
- *
- * The same four places, for two definitions and so on up to ten:
- *
- *   simpl <d1>, <d2> in <hypotheses>              unfold <d1>, <d2> in <hypotheses>
- *   simpl <d1>, <d2> in <hypotheses> |- *         unfold <d1>, <d2> in <hypotheses> |- *
- *   simpl <d1>, <d2> in |- *                      unfold <d1>, <d2> in |- *
- *   simpl <d1>, <d2> in *                         unfold <d1>, <d2> in *
- *
- *   simpl <d1>, ..., <d10> in <hypotheses>        unfold <d1>, ..., <d10> in <hypotheses>
- *   simpl <d1>, ..., <d10> in <hypotheses> |- *   and the other two places likewise
+ *   simpl <definitions> in <hypotheses>          unfold <definitions> in <hypotheses>
+ *   simpl <definitions> in <hypotheses> |- *     unfold <definitions> in <hypotheses> |- *
+ *   simpl <definitions> in |- *                  unfold <definitions> in |- *
+ *   simpl <definitions> in *                     unfold <definitions> in *
  *
  * Unfolding only the <n>th occurrence of one definition, counting from one,
  * in one hypothesis or in the goal:
  *
- *   simpl <d> at <n> in <H>                       unfold <d> at <n> in <H>
- *   simpl <d> at <n> in |- *                      unfold <d> at <n> in |- *
+ *   simpl <d> at <n> in <H>                      unfold <d> at <n> in <H>
+ *   simpl <d> at <n> in |- *                     unfold <d> at <n> in |- *
  *
- * Reducing what is already applied is Rocq's own [simpl], untouched:
- * [simpl in <hypotheses>], [simpl in <hypotheses> |- *], [simpl in |- *],
- * [simpl in *]. [|- *] is the goal, and [*] every hypothesis together with
- * the goal.
+ * Reducing what is already applied, Rocq's own [simpl]:
  *
- * Rocq's own [simpl <d> in ...] reduces only the calls headed by <d> and
- * leaves a stuck one as it was; here it unfolds <d> whatever follows. Its
- * [simpl <d>] and [simpl <d> at <n>], without [in], no longer parse where
- * this file is imported.
+ *   simpl in <hypotheses>
+ *   simpl in <hypotheses> |- *
+ *   simpl in |- *
+ *   simpl in *
  *
- * The definitions are counted out to ten, four notations each, because a list
- * of references cannot be handed on: [unfold] parses its own list, while this
- * file can only forward what it was given, and a list of hypotheses is the one
- * kind that survives the journey. Past ten, [unfold] itself has no limit.
+ * [|- *] is the goal, and [*] every hypothesis together with the goal.
+ * There is no bare [simpl] and no [simpl <d>]: the place is always written.
+ * Rocq's own [simpl <d> in ...] would reduce only the calls headed by <d>
+ * and leave a stuck one as it was; here it unfolds <d> whatever follows.
  *)
 
-Tactic Notation "simpl" reference(d) "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d in hypotheses.
+Ltac2 unfold_definitions (ds : Std.reference list) (place : Std.clause) :=
+  Control.enter (fun () =>
+    Std.unfold (List.map (fun d => (d, Std.AllOccurrences)) ds) place).
 
-Tactic Notation "simpl" reference(d) "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d in hypotheses |- *.
+(* One notation takes both [simpl <definitions> in] and [simpl <d> at <n>
+ * in], the parser having no way to tell a list of one from a single name
+ * before it reaches [at]; the second form checks that the list has one.
+ *)
+Ltac2 unfold_occurrence (ds : Std.reference list) (n : int) (place : Std.clause) :=
+  match ds with
+  | [d] => Control.enter (fun () => Std.unfold [(d, Std.OnlyOccurrences [n])] place)
+  | _ =>
+      Control.zero
+        (Tactic_failure (Some (Message.of_string "simpl: at <n> takes one definition")))
+  end.
 
-Tactic Notation "simpl" reference(d) "in" "|-" "*" :=
-  unfold d in |- *.
+Ltac2 reduce (place : Std.clause) :=
+  Control.enter (fun () => Std.simpl RedFlags.all None place).
 
-Tactic Notation "simpl" reference(d) "in" "*" :=
-  unfold d in *.
+Ltac2 Notation "simpl" ds(list1(reference, ",")) "in" hypotheses(list1(ident, ",")) :=
+  unfold_definitions ds (Place.hypotheses hypotheses).
 
-Tactic Notation "simpl" reference(d) "at" int_or_var(n) "in" hyp(H) :=
-  unfold d at n in H.
+Ltac2 Notation "simpl" ds(list1(reference, ",")) "in" hypotheses(list1(ident, ",")) "|-" "*" :=
+  unfold_definitions ds (Place.hypotheses_and_goal hypotheses).
 
-Tactic Notation "simpl" reference(d) "at" int_or_var(n) "in" "|-" "*" :=
-  unfold d at n in |- *.
+Ltac2 Notation "simpl" ds(list1(reference, ",")) "in" "|-" "*" :=
+  unfold_definitions ds Place.goal.
 
-Tactic Notation "simpl" reference(d1) "," reference(d2)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2 in hypotheses.
+Ltac2 Notation "simpl" ds(list1(reference, ",")) "in" "*" :=
+  unfold_definitions ds Place.everywhere.
 
-Tactic Notation "simpl" reference(d1) "," reference(d2)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2 in hypotheses |- *.
+Ltac2 Notation "simpl" ds(list1(reference, ",")) "at" n(tactic(0)) "in" h(ident) :=
+  unfold_occurrence ds n (Place.hypotheses [h]).
 
-Tactic Notation "simpl" reference(d1) "," reference(d2)
-    "in" "|-" "*" :=
-  unfold d1, d2 in |- *.
+Ltac2 Notation "simpl" ds(list1(reference, ",")) "at" n(tactic(0)) "in" "|-" "*" :=
+  unfold_occurrence ds n Place.goal.
 
-Tactic Notation "simpl" reference(d1) "," reference(d2)
-    "in" "*" :=
-  unfold d1, d2 in *.
+Ltac2 Notation "simpl" "in" hypotheses(list1(ident, ",")) :=
+  reduce (Place.hypotheses hypotheses).
 
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3 in hypotheses.
+Ltac2 Notation "simpl" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
+  reduce (Place.hypotheses_and_goal hypotheses).
 
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3 in hypotheses |- *.
+Ltac2 Notation "simpl" "in" "|-" "*" :=
+  reduce Place.goal.
 
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "in" "*" :=
-  unfold d1, d2, d3 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4)
-    "in" "*" :=
-  unfold d1, d2, d3, d4 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4, d5 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4, d5 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5)
-    "in" "*" :=
-  unfold d1, d2, d3, d4, d5 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4, d5, d6 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "in" "*" :=
-  unfold d1, d2, d3, d4, d5, d6 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7)
-    "in" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8)
-    "in" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "in" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9 in *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "," reference(d10)
-    "in" ne_hyp_list_sep(hypotheses, ",") :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in hypotheses.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "," reference(d10)
-    "in" ne_hyp_list_sep(hypotheses, ",") "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in hypotheses |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "," reference(d10)
-    "in" "|-" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in |- *.
-
-Tactic Notation "simpl" reference(d1) "," reference(d2) "," reference(d3)
-    "," reference(d4) "," reference(d5) "," reference(d6)
-    "," reference(d7) "," reference(d8) "," reference(d9)
-    "," reference(d10)
-    "in" "*" :=
-  unfold d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 in *.
+Ltac2 Notation "simpl" "in" "*" :=
+  reduce Place.everywhere.
