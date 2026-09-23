@@ -45,6 +45,24 @@ match x with
   | Rational_introduction _ d _ => d
 end.
 
+(* [Rational] *)
+Definition Zero :=
+  Rational_introduction Integer.Zero Nat.One
+    (NatWithZero.gcd.nat.zero
+      (Integer.abs Integer.Zero)
+      (Nat.One)
+      ((Identity.reflexivity NatWithZero.Zero)
+        : NatWithZero.modulo (Integer.abs Integer.Zero) Nat.One = NatWithZero.Zero)).
+
+(* [Rational] *)
+Definition One :=
+  Rational_introduction (Integer.Positive Nat.One) Nat.One
+    (NatWithZero.gcd.nat.zero
+      (Integer.abs (Integer.Positive Nat.One))
+      (Nat.One)
+      ((Identity.reflexivity NatWithZero.Zero)
+        : NatWithZero.modulo (Integer.abs (Integer.Positive Nat.One)) Nat.One= NatWithZero.Zero)).
+
 (* [Rational -> Rational] *)
 Definition negate := fun (x : Rational) .
   let n := Integer.negate (numerator x) in
