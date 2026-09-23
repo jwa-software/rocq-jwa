@@ -221,6 +221,36 @@ Proof.
   ipso nna.
 Qed.
 
+Theorem tactics_all_delivers_let
+  : forall (m : Nat) . m = m.
+Proof.
+  intro m.
+  let k = m.
+  lazymatch goal with
+  | k := m |- _ => reflexivity
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_of_an_application
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
+Proof.
+  intro m.
+  let k = Nat.add m m.
+  lazymatch goal with
+  | k := Nat.add m m |- _ => reflexivity
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_with_a_type
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
+Proof.
+  intro m.
+  let k : Nat = Nat.add m m.
+  lazymatch goal with
+  | k := Nat.add m m : Nat |- _ => reflexivity
+  end.
+Qed.
+
 Theorem tactics_all_delivers_ipso
   : forall (A : Prop) . A -> A.
 Proof.
