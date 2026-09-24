@@ -3,12 +3,14 @@
 From jwa Require Export Dialect.Ltac.
 From jwa Require Import Dialect.Local.
 From jwa Require Import Dialect.Place.
-From Ltac2 Require Constr Control Fresh Ident List Message Std.
+From Ltac2 Require Constr Control Fresh Ident Int List Message Std.
 
 (* let <x> := <e>                           pose (<x> := <e>)
  * let <x> : <T> := <e>                     pose (<x> : <T> := <e>)
  * let <x> := <e> in <places>               set (<x> := <e>) in <places>
  * let <x> : <T> := <e> in <places>         set (<x> : <T> := <e>) in <places>
+ * let <x> := <e> at <n> in <H>             set (<x> := <e>) in <H> at <n>
+ * let <x> := <e> at <n> in |- *            set (<x> := <e>) in |- * at <n>
  * let proof <p> := <e>                     pose proof (<e>) as <p>
  * let proof <p> : <T> := <e>               pose proof (<e> : <T>) as <p>
  *
@@ -20,7 +22,9 @@ From Ltac2 Require Constr Control Fresh Ident List Message Std.
  * With [in], [let] also writes <x> for each occurrence of <e> in the places
  * named, the four of [simpl]: [in &h1, &h2], [in &h1 |- *], [in |- *],
  * [in *]. It fails when <e> does not occur in a hypothesis named, in the
- * goal when [|- *] is named, or anywhere under [in *].
+ * goal when [|- *] is named, or anywhere under [in *]. With [at <n>], typed
+ * or not, only the <n>th occurrence of <e>, counting from one, is written
+ * <x>, in one hypothesis or in the goal; it fails when there is none.
  *
  * A name already in the context is shadowed, not refused:
  *
@@ -189,10 +193,12 @@ Ltac2 let_places
       end
   end.
 
-(* [set] under the name [y], and [x] shadowed by it as [let] does. *)
-Ltac2 set_definition (x : ident) (e : constr) (place : Std.clause) (typed : constr option) :=
+(* [set_under y] sets the value under the name [y]; [x] is shadowed by it as
+ * [let] does.
+ *)
+Ltac2 set_definition (x : ident) (set_under : ident -> unit) (typed : constr option) :=
   let bind y :=
-    (Std.set false (fun () => (Some y, e)) place;
+    (set_under y;
      match typed with Some t => retype y t | None => () end) in
   if is_in_context x
   then (let y := Fresh.in_goal x in bind y; shadow_with x y)
@@ -223,7 +229,7 @@ Ltac2 let_in
       let before := List.map (fun h => (h, entry h)) hs in
       let context_before := Control.hyps () in
       let goal_before := Control.goal () in
-      set_definition x e place typed;
+      set_definition x (fun y => Std.set false (fun () => (Some y, e)) place) typed;
       let does_not_occur place_name :=
         let_refuse [Message.of_string "let: "; Message.of_constr e;
                     Message.of_string " does not occur in "; place_name] in
@@ -257,6 +263,65 @@ Ltac2 let_in
          else ()))
   end.
 
+Ltac2 hypothesis_at (h : ident) (n : int) : Std.clause :=
+  { Std.on_hyps := Some [(h, Std.OnlyOccurrences [n], Std.InHyp)];
+    Std.on_concl := Std.NoOccurrences }.
+
+Ltac2 goal_at (n : int) : Std.clause :=
+  { Std.on_hyps := Some []; Std.on_concl := Std.OnlyOccurrences [n] }.
+
+(* Rocq's own complaint about an <n> past the last occurrence names neither
+ * <e> nor the place, so it is replaced; a place left unchanged gets the
+ * same message.
+ *)
+Ltac2 let_at
+  (x : ident) (e : constr) (typed : constr option) (n : int)
+  (places : ident list * bool * bool) :=
+  let no_occurrence place_name :=
+    let_refuse [Message.of_string "let: "; Message.of_constr e;
+                Message.of_string " has no occurrence "; Message.of_int n;
+                Message.of_string " in "; place_name] in
+  let set_at place place_name y :=
+    Control.once_plus
+      (fun () => Std.set false (fun () => (Some y, e)) place)
+      (fun _ => no_occurrence place_name) in
+  let one_place () :=
+    let_refuse [Message.of_string "let: at <n> acts in one hypothesis or in |- *"] in
+  if Int.lt n 1
+  then
+    let_refuse [Message.of_string "let: at "; Message.of_int n;
+                Message.of_string " names no occurrence, since they count from 1"]
+  else
+    match places with
+    | (hs, goal, everywhere) =>
+        if everywhere
+        then one_place ()
+        else
+          match hs with
+          | [h] =>
+              if goal
+              then one_place ()
+              else
+                match entry h with
+                | None =>
+                    let_refuse [Message.of_string "let: "; Message.of_ident h;
+                                Message.of_string " is not in the context"]
+                | Some before =>
+                    (set_definition x (set_at (hypothesis_at h n) (Message.of_ident h)) typed;
+                     if same_entry (Some before) (entry h)
+                     then no_occurrence (Message.of_ident h)
+                     else ())
+                end
+          | [] =>
+              let before := Control.goal () in
+              (set_definition x (set_at (goal_at n) (Message.of_string "the goal")) typed;
+               if Constr.equal before (Control.goal ())
+               then no_occurrence (Message.of_string "the goal")
+               else ())
+          | _ => one_place ()
+          end
+    end.
+
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
  * must reach the helpers that know how to shadow.
@@ -287,6 +352,19 @@ Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr))
   : 5 :=
   Control.enter (fun () =>
     let_in x (Local.checked "let" e) (Some (Local.checked "let" t))
+      (let_places hypotheses goal everywhere)).
+
+Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr)) "at" n(tactic(0))
+  "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
+  : 5 :=
+  Control.enter (fun () =>
+    let_at x (Local.checked "let" e) None n (let_places hypotheses goal everywhere)).
+
+Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) "at" n(tactic(0))
+  "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
+  : 5 :=
+  Control.enter (fun () =>
+    let_at x (Local.checked "let" e) (Some (Local.checked "let" t)) n
       (let_places hypotheses goal everywhere)).
 
 Ltac2 Notation "let" "proof" h(ident) ":=" e(thunk(lconstr)) : 5 :=
