@@ -129,12 +129,9 @@ Proof.
    *)
   simpl &P at 2 in recursor.
 
-  (* [|- Descent.Step R P]
-   * [|- Accessible R x]
-   *)
-  apply recursor.
-
-  - rm a b x.
+  lemma descent : Descent.Step R &P.
+  {
+    rm a b x.
 
     (* [|- forall (x : A) . (forall (y : A) . R y x -> P y) -> P x] *)
     simpl Descent.Step in |- *.
@@ -149,7 +146,7 @@ Proof.
     (* [|- forall (a : Accessible R x) (b : Accessible R x) .
      *      recursion step x a = recursion step x b]
      *)
-    simpl P in |- *.
+    simpl &P in |- *.
 
     (* [a : Accessible R x]
      * [b : Accessible R x]
@@ -200,7 +197,7 @@ Proof.
       (* [|- recursion step y (descend a r)
        *  = recursion step y (descend b r) ]
        *)
-      simpl f, g in |- *.
+      simpl &f, &g in |- *.
 
       (* [|- recursion step y a'
        *  = recursion step y b' ]
@@ -214,14 +211,15 @@ Proof.
       (* [h : forall (a : Accessible R y) (b : Accessible R y) .
        *      recursion step y a = recursion step y b]
        *)
-      simpl P in h.
+      simpl &P in h.
 
       ipso (h a' b').
     }
 
     ipso (modus ponens H', pointwise).
+  }
 
-  - ipso a.
+  ipso (recursor &descent &x &a &a &b).
 Qed.
 
 End recursion. (* recursion *)
