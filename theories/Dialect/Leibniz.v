@@ -17,7 +17,12 @@ From Ltac2 Require Array Bool Constr Control Fresh Ident Int List Message Std.
  * There is no bare [leibniz <e>]: the place is always written, the goal as
  * [in |- *]. Each of the four also takes [->] or [<-] before <e>: with
  * <e> : <a> = <b>, [->] (the default) puts <b> for every <a>, [<-] puts <a>
- * for every <b>. A list of equations, [at] and [by] are not taken.
+ * for every <b>. [at] and [by] are not taken.
+ *
+ * <e> may also be a comma-separated list, each equation with its own [->]
+ * or [<-]: [leibniz <e1>, <- <e2> in <places>] is [leibniz <e1> in <places>]
+ * followed by [leibniz <- <e2> in <places>], each checked as if written
+ * alone.
  *
  * <e> is an equation given whole, never a law still waiting for arguments:
  * [leibniz (addition.commutativity m n) in |- *], so the step shows which
@@ -268,15 +273,52 @@ Ltac2 leibniz_everywhere (orientation : Std.orientation option) (e : preterm) :=
                           says " occurs nowhere, neither in the context nor in the goal"]
     end).
 
-Ltac2 Notation "leibniz" o(orient) e(preterm) "in" hypotheses(list1(context_name, ",")) :=
-  leibniz_named o e (Local.context_idents "leibniz" hypotheses) false.
+(* The place of a step, rebuilt from the pieces the notation reads: the
+ * hypotheses and whether the goal is named, or [None] for [in *].
+ *)
+Ltac2 leibniz_place
+  (hypotheses : (bool * ident) list option) (goal : unit option) (everywhere : unit option)
+  : (ident list * bool) option :=
+  let alone () :=
+    leibniz_refuse [says "leibniz: in * stands alone, with no hypothesis and no |- *"] in
+  match everywhere with
+  | Some _ =>
+      match hypotheses with
+      | Some _ => alone ()
+      | None => match goal with Some _ => alone () | None => None end
+      end
+  | None =>
+      let hs :=
+        match hypotheses with
+        | Some hs => Local.context_idents "leibniz" hs
+        | None => []
+        end in
+      let goal := match goal with Some _ => true | None => false end in
+      match hs with
+      | [] =>
+          if goal
+          then Some ([], true)
+          else leibniz_refuse [says "leibniz: a place must follow in, such as in |- * for the goal"]
+      | _ => Some (hs, goal)
+      end
+  end.
 
-Ltac2 Notation "leibniz" o(orient) e(preterm)
-  "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
-  leibniz_named o e (Local.context_idents "leibniz" hypotheses) true.
+Ltac2 leibniz_steps
+  (steps : (Std.orientation option * preterm) list) (place : (ident list * bool) option) :=
+  List.iter
+    (fun step =>
+      match step with
+      | (orientation, e) =>
+          match place with
+          | Some (hypotheses, goal) => leibniz_named orientation e hypotheses goal
+          | None => leibniz_everywhere orientation e
+          end
+      end)
+    steps.
 
-Ltac2 Notation "leibniz" o(orient) e(preterm) "in" "|-" "*" :=
-  leibniz_named o e [] true.
-
-Ltac2 Notation "leibniz" o(orient) e(preterm) "in" "*" :=
-  leibniz_everywhere o e.
+(* One notation, whose place arrives in pieces: notations opening with the
+ * same list of equations cannot be told apart by the parser.
+ *)
+Ltac2 Notation "leibniz" steps(list1(seq(orient, preterm), ","))
+  "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*")) :=
+  leibniz_steps steps (leibniz_place hypotheses goal everywhere).
