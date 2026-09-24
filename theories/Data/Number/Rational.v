@@ -1239,7 +1239,7 @@ Proof.
               (Integer.mul a c) (Nat.mul b d)
               (Integer.mul a e) (Nat.mul b f)) in |- *.
 
-    let b' := Integer.from_nat b in *.
+    let b' := Integer.from_nat b.
     let d' := Integer.from_nat d in *.
     let f' := Integer.from_nat f in *.
 

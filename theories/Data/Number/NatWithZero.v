@@ -1567,9 +1567,9 @@ Proof.
   let proof reconstruction := division.nat.dividend.reconstruction d g.
   leibniz e in reconstruction.
   match (multiplication.annihilation (+ g)) with | annihilation _ end.
-  leibniz annihilation in reconstruction.
+  leibniz &annihilation in reconstruction.
   match (addition.identity ((+ d) %. g)) with | identity _ end.
-  leibniz identity in reconstruction.
+  leibniz &identity in reconstruction.
   let proof bound := division.nat.remainder.boundedness d g.
   leibniz reconstruction in bound.
   match h with | k hk end.
