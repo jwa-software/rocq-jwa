@@ -165,6 +165,14 @@ Reserved Notation "'dne' H"
 Reserved Notation "'de' 'morgan' H"
   (at level 10, H at next level).
 
+(* The symmetry and the transitivity of [=] written as terms, for the same
+ * reason and at the same level. Their meanings belong to [Tactics.Equation].
+ *)
+Reserved Notation "'symm' H"
+  (at level 10, H at next level).
+Reserved Notation "'trans' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"

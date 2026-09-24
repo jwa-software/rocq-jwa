@@ -9,5 +9,6 @@
  *)
 From jwa Require Export Tactics.DeMorgan.
 From jwa Require Export Tactics.DoubleNegation.
+From jwa Require Export Tactics.Equation.
 From jwa Require Export Tactics.Modus.
 From jwa Require Export Tactics.Syllogism.
