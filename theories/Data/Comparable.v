@@ -177,8 +177,8 @@ Proof.
     + ex e quodlibet.
   - intro h.
     match (Comparable.specification m n) with | _ s end.
-    modus aequans s, h |- e.
-    leibniz e in |- *.
+    leibniz (modus aequans s, h) in |- *.
+    simpl in |- *.
     quod idem est.
 Qed.
 
