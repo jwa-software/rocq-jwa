@@ -206,7 +206,7 @@ Theorem associativity
       (x ++ y) ++ z = x ++ (y ++ z).
 Proof.
   intros A x y z.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -228,7 +228,7 @@ Theorem concatenation
       (|| x ++ y ||) = Nat.add (|| x ||) (|| y ||).
 Proof.
   intros A x y.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -254,7 +254,7 @@ Theorem concatenation
       (x ++ y) contains_member a <-> x contains_member a \/ y contains_member a.
 Proof.
   intros A a x y.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     divide et impera.
     + intro h.
@@ -298,7 +298,7 @@ Theorem concatenation
       reverse (x ++ y) = reverse y ++ reverse x.
 Proof.
   intros A x y.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -315,7 +315,7 @@ Theorem involution
   : forall {A : Type} (x : NonEmptyList A) . reverse (reverse x) = x.
 Proof.
   intros A x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -334,7 +334,7 @@ Theorem identity
   : forall (A : Type) (x : NonEmptyList A) . map (fun (a : A) . a) x = x.
 Proof.
   intros A x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -349,7 +349,7 @@ Theorem composition
       map g (map f x) = map (fun (a : A) . g (f a)) x.
 Proof.
   intros A B C f g x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -367,7 +367,7 @@ Theorem membership
       x contains_member a -> (map f x) contains_member f a.
 Proof.
   intros A B f a x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     intro e.
     leibniz e in |- *.
@@ -406,7 +406,7 @@ Theorem bound
         x contains_member a -> le a (maximum_of le x) = true.
 Proof.
   intros A le total transitive x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - intros a h.
     simpl in |- *.
     simpl in h.
@@ -433,7 +433,7 @@ Theorem membership
       x contains_member maximum_of le x.
 Proof.
   intros A le x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -456,7 +456,7 @@ Theorem bound
         x contains_member a -> le (minimum_of le x) a = true.
 Proof.
   intros A le total transitive x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - intros a h.
     simpl in |- *.
     simpl in h.
@@ -483,7 +483,7 @@ Theorem membership
       x contains_member minimum_of le x.
 Proof.
   intros A le x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -511,7 +511,7 @@ Theorem concatenation
       to_list (x ++ y) = List.concat (to_list x) (to_list y).
 Proof.
   intros A x y.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -529,7 +529,7 @@ Theorem length
       List.length (to_list x) = NatWithZero.Positive (|| x ||).
 Proof.
   intros A x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -543,7 +543,7 @@ Theorem membership
       x contains_member a <-> List.Contains a (to_list x).
 Proof.
   intros A a x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     divide et impera.
     + intro e.
@@ -576,7 +576,7 @@ Theorem maximum
       List.maximum_of le (to_list x) = Some (maximum_of le x).
 Proof.
   intros A le x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -590,7 +590,7 @@ Theorem minimum
       List.minimum_of le (to_list x) = Some (minimum_of le x).
 Proof.
   intros A le x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.

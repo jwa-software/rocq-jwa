@@ -317,7 +317,7 @@ Module nat. (* difference.nat *)
 Lemma reflexivity : forall (n : Nat) . nat_difference n n = 0.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat.induction.
+  match n with | | n' by IH end per Nat.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -335,7 +335,7 @@ Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference (Nat.add k p) p = + k.
 Proof.
   intros k p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - leibniz (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     quod idem est.
@@ -362,7 +362,7 @@ Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference p (Nat.add k p) = - k.
 Proof.
   intros k p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - leibniz (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     quod idem est.
@@ -1897,7 +1897,7 @@ Theorem totality : forall (n : Integer) . Even n \/ Odd n.
 Proof.
   intros n.
   match n with | p | | p end.
-  - induction p as [| p' IH] using Nat.induction.
+  - match p with | | p' by IH end per Nat.induction.
     + apply Disjunction.R.
       simpl Odd in |- *.
       exists (- Nat.One).
@@ -1957,7 +1957,7 @@ Proof.
     exists 0.
     simpl in |- *.
     quod idem est.
-  - induction p as [| p' IH] using Nat.induction.
+  - match p with | | p' by IH end per Nat.induction.
     + apply Disjunction.R.
       simpl Odd, add in |- *.
       exists 0.

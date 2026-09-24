@@ -215,7 +215,7 @@ Theorem associativity
   : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction.
+  match l with | | l' by IH end per Nat.induction.
   -
     simpl in |- *.
     quod idem est.
@@ -229,12 +229,12 @@ Qed.
 Theorem commutativity : forall (m : Nat) (n : Nat) . m + n = n + m.
 Proof.
   intros m n.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       simpl in |- *.
   -
-    induction n as [| n' IH2]
-        using Nat.induction;
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
       quod idem est.
@@ -246,8 +246,8 @@ Proof.
   -
     leibniz IH in |- *.
     rm IH.
-    induction n as [| n' IH2]
-        using Nat.induction;
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
       quod idem est.
@@ -263,7 +263,7 @@ Module identity. (* addition.identity *)
 Theorem absence : forall (k : Nat) (n : Nat) . ~ (k + n = n).
 Proof.
   intros k n.
-  induction n as [| n' IH] using Nat.induction.
+  match n with | | n' by IH end per Nat.induction.
   -
     simpl (~ _) in |- *.
     intro e.
@@ -293,7 +293,7 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m + n = m + k -> n = k.
 Proof.
   intros m n k.
-  induction m as [| m' IH] using Nat.induction.
+  match m with | | m' by IH end per Nat.induction.
   - simpl in |- *.
     intro e.
     ipso (successor.injectivity e).
@@ -432,8 +432,8 @@ Theorem trichotomy
   : forall (m : Nat) (n : Nat) . (m < n) \/ (m = n) \/ (n < m).
 Proof.
   intro m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
   intro n; match n with | | n' end.
   -
     let proof id := Identity.reflexivity 1.
@@ -477,7 +477,7 @@ Qed.
 Theorem wellfoundedness : forall (n : Nat) . Accessible LessThan n.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat.induction.
+  match n with | | n' by IH end per Nat.induction.
   - apply Accessible_introduction.
     intros y h.
     match h with | k e end.
@@ -513,12 +513,12 @@ Module multiplication. (* multiplication *)
 Theorem commutativity : forall (m : Nat) (n : Nat) . m * n = n * m.
 Proof.
   intros m n.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       simpl in |- *.
   -
-    induction n as [| n' IH2]
-        using Nat.induction;
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
       quod idem est.
@@ -530,8 +530,8 @@ Proof.
   -
     leibniz IH in |- *.
     rm IH.
-    induction n as [| n' IH2]
-        using Nat.induction;
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
       quod idem est.
@@ -556,7 +556,7 @@ Theorem addition
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction; simpl in |- *.
+  match l with | | l' by IH end per Nat.induction; simpl in |- *.
   -
     quod idem est.
   -
@@ -576,7 +576,7 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . l * (m * n) = m * (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction; simpl in |- *.
+  match l with | | l' by IH end per Nat.induction; simpl in |- *.
   - quod idem est.
   - leibniz IH in |- *.
     leibniz (multiplication.left.distributivity.over.addition m n (l' * n)) in |- *.
@@ -685,7 +685,7 @@ Theorem associativity
     (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction; simpl in |- *.
+  match l with | | l' by IH end per Nat.induction; simpl in |- *.
   -
     quod idem est.
   -
@@ -777,7 +777,7 @@ Qed.
 Lemma annihilation : forall (n : Nat) . power 1 n = 1.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat.induction; simpl in |- *.
+  match n with | | n' by IH end per Nat.induction; simpl in |- *.
   - quod idem est.
   - ipso IH.
 Qed.
@@ -790,8 +790,8 @@ Theorem addition
       power m a * power m b = power m (a + b).
 Proof.
   intros m a b.
-  induction a as [| a' IH]
-      using Nat.induction;
+  match a with | | a' by IH end
+      per Nat.induction;
       simpl in |- *.
   -
     quod idem est.
@@ -807,7 +807,7 @@ Theorem multiplication
       power (power m a) b = power m (a * b).
 Proof.
   intros m a b.
-  induction b as [| b' IH] using Nat.induction.
+  match b with | | b' by IH end per Nat.induction.
   -
     leibniz -> (multiplication.commutativity a 1)
             in |- *.
@@ -838,7 +838,7 @@ Theorem multiplication
       power (m * n) a = power m a * power n a.
 Proof.
   intros m n a.
-  induction a as [| a' IH] using Nat.induction; simpl in |- *.
+  match a with | | a' by IH end per Nat.induction; simpl in |- *.
   -
     quod idem est.
   -
@@ -866,8 +866,8 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . compare m n = Comparison.Lt -> m < n.
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intro n;
   match n with | | n' end;
       simpl in |- *;
@@ -894,8 +894,8 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . m < n -> compare m n = Comparison.Lt.
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intro n;
   match n with | | n' end;
       intro h;
@@ -929,8 +929,8 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . compare m n = Comparison.Eq -> m = n.
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intro n;
   match n with | | n' end;
       intro e;
@@ -953,7 +953,7 @@ Proof.
   intros m n e.
   leibniz e in |- *.
   rm e.
-  induction n as [| n' IH] using Nat.induction; simpl in |- *.
+  match n with | | n' by IH end per Nat.induction; simpl in |- *.
   - quod idem est.
   - ipso IH.
 Qed.
@@ -980,8 +980,8 @@ Theorem antisymmetry
   : forall (m : Nat) (n : Nat) . compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intros n;
   match n with | | n' end;
       simpl in |- *.
@@ -1091,8 +1091,8 @@ Proof.
   -
     leibniz e in |- *.
     rm e.
-    induction n as [| n' IH]
-        using Nat.induction;
+    match n with | | n' by IH end
+        per Nat.induction;
         simpl in |- *.
     + quod idem est.
     + ipso IH.
@@ -1102,8 +1102,8 @@ Proof.
     let proof e' := Identity.symmetry e.
     leibniz e' in |- *.
     rm e e'.
-    induction m as [| m' IH]
-        using Nat.induction;
+    match m with | | m' by IH end
+        per Nat.induction;
         simpl in |- *.
     + quod idem est.
     + ipso IH.
@@ -1118,7 +1118,7 @@ Theorem addition
   : forall (m : Nat) (n : Nat) . sub (m + n) n = Some m.
 Proof.
   intros m n.
-  induction n as [| n' IH] using Nat.induction.
+  match n with | | n' by IH end per Nat.induction.
   - leibniz (addition.commutativity m 1) in |- *.
     simpl in |- *.
     quod idem est.
@@ -1137,7 +1137,7 @@ Theorem cancellation
   : forall (k : Nat) (m : Nat) (n : Nat) . sub (k + m) (k + n) = sub m n.
 Proof.
   intros k m n.
-  induction k as [| k' IH] using Nat.induction; simpl in |- *.
+  match k with | | k' by IH end per Nat.induction; simpl in |- *.
   - quod idem est.
   - ipso IH.
 Qed.
@@ -1149,7 +1149,7 @@ Lemma specification
   : forall {m : Nat} {n : Nat} {k : Nat} . sub m n = Some k -> n + k = m.
 Proof.
   intros m.
-  induction m as [| m' IH] using Nat.induction.
+  match m with | | m' by IH end per Nat.induction.
   -
     intros n k e.
     simpl in e.

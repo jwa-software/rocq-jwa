@@ -497,7 +497,7 @@ Theorem associativity
       (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros A l1 l2 l3.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -523,7 +523,7 @@ Module right. (* concatenation.right *)
 Lemma identity : forall {A : Type} (l : List A) . l ++ [] = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -549,7 +549,7 @@ Theorem catamorphism
       l1 ++ l2 = fold_right Cons l2 l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -572,7 +572,7 @@ Theorem concatenation
       (|| l1 ++ l2 ||) = (|| l1 ||) + (|| l2 ||).
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -599,7 +599,7 @@ Theorem catamorphism
                    l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -616,7 +616,7 @@ Theorem identity
   : forall {A : Type} (l : List A) . map (fun a . a) l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -631,7 +631,7 @@ Theorem composition
     map g (map f l) = map (fun a . g (f a)) l.
 Proof.
   intros A B C f g l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -649,7 +649,7 @@ Theorem concatenation
       map f (l1 ++ l2) = map f l1 ++ map f l2.
 Proof.
   intros A B f l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -670,7 +670,7 @@ Theorem catamorphism
                    l.
 Proof.
   intros A B f l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -691,7 +691,7 @@ Theorem membership
       l contains_member a -> map f l contains_member f a.
 Proof.
   intros A B f a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro g.
     ipso g.
@@ -712,7 +712,7 @@ Theorem length
       (|| map f l ||) = (|| l ||).
 Proof.
   intros A B f l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -737,7 +737,7 @@ Theorem specification
 Proof.
   intros A B f b l.
   divide et impera.
-  - induction l as [| a l' IH] using List.induction.
+  - match l with | | a l' by IH end per List.induction.
     + simpl in |- *.
       intro g.
       ex g quodlibet.
@@ -773,7 +773,7 @@ Theorem concatenation
       fold_right f z (l1 ++ l2) = fold_right f (fold_right f z l2) l1.
 Proof.
   intros A B f z l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -813,7 +813,7 @@ Lemma concatenation
       l1 ++ l2 contains_member a -> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso (Disjunction.R h).
@@ -844,7 +844,7 @@ Lemma concatenation
       l1 contains_member a \/ l2 contains_member a -> l1 ++ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     match h with | f | h2 end.
@@ -895,7 +895,7 @@ Theorem catamorphism
       = fold_right (fun (b : A) (rest : Prop) . a = b \/ rest) Falsum l.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -917,7 +917,7 @@ Theorem concatenation
       reverse (l1 ++ l2) = reverse l2 ++ reverse l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     leibniz concatenation.right.identity in |- *.
     quod idem est.
@@ -937,7 +937,7 @@ Theorem involution
   : forall {A : Type} (l : List A) . reverse (reverse l) = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -960,7 +960,7 @@ Lemma membership
       reverse l contains_member a -> l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
     ipso f.
@@ -994,7 +994,7 @@ Lemma membership
       l contains_member a -> reverse l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
     ipso f.
@@ -1113,7 +1113,7 @@ Theorem concatenation
       filter p (l1 ++ l2) = filter p l1 ++ filter p l2.
 Proof.
   intros A p l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -1143,7 +1143,7 @@ Theorem catamorphism
                     l.
 Proof.
   intros A p l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -1159,7 +1159,7 @@ Lemma specification
       filter p l contains_member a -> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
     ex f quodlibet.
@@ -1194,7 +1194,7 @@ Lemma specification
       l contains_member a /\ p a = true -> filter p l contains_member a.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     match h with | f _ end.
@@ -1253,7 +1253,7 @@ Lemma concatenation
       All P (l1 ++ l2) -> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     divide et impera.
@@ -1280,7 +1280,7 @@ Lemma specification
       All P l -> forall (a : A) . l contains_member a -> P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intros v a f.
     ex f quodlibet.
@@ -1309,7 +1309,7 @@ Lemma concatenation
       All P l1 /\ All P l2 -> All P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     match h with | _ h2 end.
@@ -1336,7 +1336,7 @@ Lemma specification
       (forall (a : A) . l contains_member a -> P a) -> All P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso I.
@@ -1389,7 +1389,7 @@ Lemma monotonicity
       (forall (a : A) . P a -> Q a) -> All P l -> All Q l.
 Proof.
   intros A P Q l h.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro v.
     ipso v.
@@ -1405,7 +1405,7 @@ Theorem catamorphism
       All P l = fold_right (fun (a : A) (rest : Prop) . P a /\ rest) Verum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -1430,7 +1430,7 @@ Lemma concatenation
       Any P (l1 ++ l2) -> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso (Disjunction.R h).
@@ -1453,7 +1453,7 @@ Lemma specification
       Any P l -> forsome (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
     ex f quodlibet.
@@ -1486,7 +1486,7 @@ Lemma concatenation
       Any P l1 \/ Any P l2 -> Any P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     match h with | f | h2 end.
@@ -1515,7 +1515,7 @@ Lemma specification
       (forsome (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     match h with | a ha end.
@@ -1574,7 +1574,7 @@ Theorem catamorphism
       Any P l = fold_right (fun (a : A) (rest : Prop) . P a \/ rest) Falsum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -1905,7 +1905,7 @@ Theorem unzipping
       zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
 Proof.
   intros A B l.
-  induction l as [| p l' IH] using List.induction.
+  match l with | | p l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -1929,7 +1929,7 @@ Theorem length
       (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - intros l2.
     match l2 with | | b l2' end.
     + simpl in |- *.
@@ -1974,7 +1974,7 @@ Theorem zipping
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = (l1, l2).
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - intros l2 e.
     match l2 with | | b l2' end.
     + simpl unzip in |- *.
@@ -2027,7 +2027,7 @@ Theorem specification
       = (filter p l, filter (fun (a : A) . ! p a) l).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2055,7 +2055,7 @@ Lemma specification
       (forsome (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - intros i h.
     match h with | a e end.
     simpl in e.
@@ -2090,7 +2090,7 @@ Lemma specification
       i < (|| l ||) -> forsome (a : A) . nth l i = Some a.
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - intros i h.
     simpl in h.
     simpl NatWithZero.LessThan in h.
@@ -2142,7 +2142,7 @@ Theorem decomposition
       take n l ++ drop n l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
     quod idem est.
@@ -2171,7 +2171,7 @@ Theorem length
       (|| take n l ||) = NatWithZero.min n (|| l ||).
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
     leibniz (NatWithZero.minimum.right.annihilation n) in |- *.
@@ -2218,7 +2218,7 @@ Theorem length
       (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
     quod idem est.
@@ -2260,7 +2260,7 @@ Lemma length
   : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = NatWithZero.Positive k.
 Proof.
   intros A k a.
-  induction k as [| k' IH] using Nat.induction.
+  match k with | | k' by IH end per Nat.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2298,7 +2298,7 @@ Theorem concatenation
 Proof.
   intros l1 l2.
   simpl sum in |- *.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2328,7 +2328,7 @@ Theorem concatenation
 Proof.
   intros l1 l2.
   simpl product in |- *.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - leibniz (concatenation.left.identity l2) in |- *.
     lemma facto
       : fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) &l2
@@ -2362,7 +2362,7 @@ Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) . count p l = (|| filter p l ||).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2384,7 +2384,7 @@ Theorem specification
       count p l = NatWithZero.Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     divide et impera.
     + intro e.
@@ -2433,7 +2433,7 @@ Lemma all
       P a -> All P l -> All P (insert le a l).
 Proof.
   intros A le P a l pa.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro v.
     ipso (conjoin pa, v).
@@ -2460,7 +2460,7 @@ Lemma sortedness
       forall (a : A) (l : List A) . Sorted le l -> Sorted le (insert le a l).
 Proof.
   intros A le total transitive a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro v.
     ipso (conjoin v, v).
@@ -2495,7 +2495,7 @@ Lemma membership
       insert le a l contains_member b -> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List.induction.
+  match l with | | c l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso h.
@@ -2524,7 +2524,7 @@ Lemma membership
       b = a \/ l contains_member b -> insert le a l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List.induction.
+  match l with | | c l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso h.
@@ -2561,7 +2561,7 @@ Lemma length
       (|| insert le a l ||) = ++ (|| l ||).
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2584,7 +2584,7 @@ Theorem sortedness
       forall (l : List A) . Sorted le (insertion_sort le l).
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     ipso I.
   - simpl in |- *.
@@ -2604,7 +2604,7 @@ Lemma membership
       insertion_sort le l contains_member a -> l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso h.
@@ -2634,7 +2634,7 @@ Lemma membership
       l contains_member a -> insertion_sort le l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
     ipso h.
@@ -2673,7 +2673,7 @@ Theorem length
       (|| insertion_sort le l ||) = (|| l ||).
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2697,7 +2697,7 @@ Lemma length
   : forall (p : Nat) . (|| range_positive p ||) = NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
@@ -2715,7 +2715,7 @@ Lemma membership
       range_positive p contains_member i -> i < NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - intros i h.
     simpl in h.
     match h with | e | f end.
@@ -2761,7 +2761,7 @@ Lemma membership
       i < NatWithZero.Positive p -> range_positive p contains_member i.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - intros i h.
     simpl NatWithZero.LessThan in h.
     match h with | k e end.
@@ -2854,7 +2854,7 @@ Theorem closed_form
       = NatWithZero.Positive p * NatWithZero.Positive (Nat.Successor p).
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - simpl sum in |- *.
     simpl in |- *.
     quod idem est.
@@ -3136,7 +3136,7 @@ Theorem bound
         maximum_of le l = Some m -> All (fun (a : A) . le a m = true) l.
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
     ex e quodlibet.
@@ -3175,7 +3175,7 @@ Theorem membership
       maximum_of le l = Some m -> l contains_member m.
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
     ex e quodlibet.
@@ -3236,7 +3236,7 @@ Theorem bound
         minimum_of le l = Some m -> All (fun (a : A) . le m a = true) l.
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
     ex e quodlibet.
@@ -3274,7 +3274,7 @@ Theorem membership
       minimum_of le l = Some m -> l contains_member m.
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
     ex e quodlibet.

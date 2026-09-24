@@ -943,7 +943,7 @@ Proof.
   intros n.
   match n with | | p end.
   - ipso zero.accessibility.
-  - induction p as [| p' IH] using Nat.induction.
+  - match p with | | p' by IH end per Nat.induction.
     + apply Accessible_introduction.
       intros y h.
       match h with | k e end.
@@ -1467,7 +1467,7 @@ Lemma specification
 Proof.
   intros p d.
   simpl divide, modulo, div in |- *.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - match d with | | d' end; divide et impera; simpl in |- *.
     * quod idem est.
     * simpl LessThan in |- *.
@@ -2686,7 +2686,7 @@ Proof.
     exists 0.
     simpl in |- *.
     quod idem est.
-  - induction p as [| p' IH] using Nat.induction.
+  - match p with | | p' by IH end per Nat.induction.
     + apply Disjunction.R.
       simpl Odd in |- *.
       exists 0.
