@@ -440,35 +440,39 @@ Proof.
     let proof id := Identity.reflexivity 1.
     ipso (Disjunction.R (Disjunction.L id)).
   -
-    apply Disjunction.L.
-    simpl LessThan in |- *.
-    exists n'.
-    simpl in |- *.
-    quod idem est.
+    lemma facto : 1 < Successor &n'.
+    {
+      simpl LessThan in |- *.
+      exists n'.
+      simpl in |- *.
+      quod idem est.
+    }
+    ipso (disjoin &facto, _).
   -
-    apply Disjunction.R.
-    apply Disjunction.R.
-    simpl LessThan in |- *.
-    exists m'.
-    simpl in |- *.
-    quod idem est.
+    lemma facto : 1 < Successor &m'.
+    {
+      simpl LessThan in |- *.
+      exists m'.
+      simpl in |- *.
+      quod idem est.
+    }
+    ipso (disjoin _, (disjoin _, &facto)).
   -
     let proof t := IH n'.
     match t with | lt | rest end.
     +
-      apply Disjunction.L.
-      ipso (successor.order.monotonicity lt).
+      ipso (disjoin (successor.order.monotonicity lt), _).
     +
       match rest with | eq | gt end.
       *
-        apply Disjunction.R.
-        apply Disjunction.L.
-        leibniz eq in |- *.
-        quod idem est.
+        lemma facto : Successor &m' = Successor &n'.
+        {
+          leibniz &eq in |- *.
+          quod idem est.
+        }
+        ipso (disjoin _, (disjoin &facto, _)).
       *
-        apply Disjunction.R.
-        apply Disjunction.R.
-        ipso (successor.order.monotonicity gt).
+        ipso (disjoin _, (disjoin _, (successor.order.monotonicity gt))).
 Qed.
 
 (* Descending from [n] cannot go on for ever, since [One] has nothing below
@@ -479,29 +483,39 @@ Theorem wellfoundedness : forall (n : Nat) . Accessible LessThan n.
 Proof.
   intros n.
   match n with | | n' by IH end per Nat.induction.
-  - apply Accessible_introduction.
-    intros y h.
-    match h with | k e end.
-    match y with | | y' end.
-    + simpl in e.
-      ex e quodlibet.
-    + simpl in e.
-      ex e quodlibet.
-  - apply Accessible_introduction.
-    intros y h.
-    match h with | k e end.
-    leibniz (addition.commutativity y k) in e.
-    match k with | | k' end.
-    + simpl in e.
-      let proof e' := successor.injectivity e.
-      leibniz e' in |- *.
-      ipso IH.
-    + simpl in e.
-      let proof e' := successor.injectivity e.
-      apply (Accessible.descend IH).
-      exists k'.
-      leibniz (addition.commutativity y k') in |- *.
-      ipso e'.
+  - lemma below : forall (y : Nat) . y < 1 -> Accessible LessThan y.
+    {
+      intros y h.
+      match h with | k e end.
+      match y with | | y' end.
+      + simpl in e.
+        ex e quodlibet.
+      + simpl in e.
+        ex e quodlibet.
+    }
+    ipso (Accessible_introduction &below).
+  - lemma below : forall (y : Nat) . y < Successor &n' -> Accessible LessThan y.
+    {
+      intros y h.
+      match h with | k e end.
+      leibniz (addition.commutativity y k) in e.
+      match k with | | k' end.
+      + simpl in e.
+        let proof e' := successor.injectivity e.
+        leibniz e' in |- *.
+        ipso IH.
+      + simpl in e.
+        let proof e' := successor.injectivity e.
+        lemma smaller : &y < &n'.
+        {
+          simpl LessThan in |- *.
+          exists k'.
+          leibniz (addition.commutativity y k') in |- *.
+          ipso e'.
+        }
+        ipso (Accessible.descend &IH &smaller).
+    }
+    ipso (Accessible_introduction &below).
 Qed.
 
 End strict. (* order.strict *)
@@ -620,7 +634,7 @@ Proof.
     modus ponens i, lt' |- f.
     ex f quodlibet.
   - match rest with | eq | gt end.
-    + ipso eq.
+    + ipso &eq.
     + let proof gt' := multiplication.left.order.monotonicity m k n gt.
       leibniz e
               in gt'.
@@ -935,7 +949,7 @@ Proof.
       intro n;
   match n with | | n' end;
       intro e;
-      simpl in |- *.
+      simpl in e.
   + quod idem est.
   + ex e quodlibet.
   + ex e quodlibet.
@@ -1051,20 +1065,25 @@ Theorem decidability
 Proof.
   intros m n.
   match (compare m n) with | | | end |- e.
-  - apply Disjunction.R.
-    simpl (~ _) in |- *.
-    intro h.
-    let proof b := comparison.equality.backward.specification h.
-    leibniz e in b.
-    ex b quodlibet.
-  - apply Disjunction.L.
-    ipso (comparison.equality.forward.specification e).
-  - apply Disjunction.R.
-    simpl (~ _) in |- *.
-    intro h.
-    let proof b := comparison.equality.backward.specification h.
-    leibniz e in b.
-    ex b quodlibet.
+  - lemma facto : ~ (&m = &n).
+    {
+      simpl (~ _) in |- *.
+      intro h.
+      let proof b := comparison.equality.backward.specification h.
+      leibniz e in b.
+      ex b quodlibet.
+    }
+    ipso (disjoin _, &facto).
+  - ipso (disjoin (comparison.equality.forward.specification e), _).
+  - lemma facto : ~ (&m = &n).
+    {
+      simpl (~ _) in |- *.
+      intro h.
+      let proof b := comparison.equality.backward.specification h.
+      leibniz e in b.
+      ex b quodlibet.
+    }
+    ipso (disjoin _, &facto).
 Qed.
 
 (* What a type carrying an equation as a field needs before two of its
