@@ -305,7 +305,10 @@ Module increment. (* increment *)
 Lemma specification : forall (n : NatWithZero) . (++ n) = (+ Nat.One) + n.
 Proof.
   intros n.
-  match n with | | p end; simpl in |- *; quod idem est.
+  match n with | | p end; simpl in |- *.
+  - quod idem est.
+  - simpl Nat.inc in |- *.
+    quod idem est.
 Qed.
 
 End increment. (* increment *)
@@ -328,7 +331,7 @@ Proof.
       * simpl in |- *.
         quod idem est.
       * simpl in |- *.
-        leibniz Nat.addition.associativity in |- *.
+        leibniz (Nat.addition.associativity l' m' n') in |- *.
         quod idem est.
 Qed.
 
@@ -345,7 +348,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    leibniz Nat.addition.commutativity in |- *.
+    leibniz (Nat.addition.commutativity m' n') in |- *.
     quod idem est.
 Qed.
 
@@ -893,8 +896,7 @@ Proof.
   intro h.
   simpl LessThan in h.
   match h with | k e end.
-  simpl in e.
-  match n with | | n' end.
+  match n with | | n' end; simpl in e.
   - ex e quodlibet.
   - let proof e' := positive.injectivity e.
     leibniz (Nat.addition.commutativity n' k) in e'.
@@ -1640,7 +1642,8 @@ Theorem reconstruction
 Proof.
   intros n d.
   match n with | | p end.
-  - simpl in |- *.
+  - simpl divide, modulo, div in |- *.
+    simpl in |- *.
     quod idem est.
   - ipso (division.nat.dividend.reconstruction p d).
 Qed.
@@ -1708,7 +1711,7 @@ Proof.
                     reach grow.
       let proof i := order.strict.irreflexivity (+ d).
       simpl (~ _)    in i.
-      simpl LessOrEqual in span.
+      simpl Comparable.LessOrEqual in span.
       match span with | s1 | s2 end.
       + symm in s1.
         leibniz s1 in bound.
@@ -1741,7 +1744,7 @@ Proof.
                       reach grow.
         let proof i := order.strict.irreflexivity (+ d).
         simpl (~ _)    in i.
-        simpl LessOrEqual in span.
+        simpl Comparable.LessOrEqual in span.
         match span with | s1 | s2 end.
         * symm in s1.
           leibniz s1 in b.
@@ -2248,7 +2251,7 @@ Proof.
   - match (Comparable.order.totality k1 k2) with | le | ge end.
     + simpl Divides in |- *.
       exists (saturating_sub k2 k1).
-      let proof s := subtraction.saturating.specification le.
+      let proof s := subtraction.saturating.specification &le.
       let proof dist := multiplication.left.distributivity.over.addition
                     (+ c) k1 (saturating_sub k2 k1).
       leibniz s in dist.
@@ -2256,9 +2259,9 @@ Proof.
       leibniz e2 in dist.
       symm in dist.
       ipso (addition.left.cancellation dist).
-    + simpl LessOrEqual in ge.
+    + simpl Comparable.LessOrEqual in ge.
       match ge with | eq | lt end.
-      * leibniz eq in e2.
+      * leibniz &eq in e2.
         leibniz e1 in e2.
         match (addition.identity m) with | i1 i2 end.
         let proof e3 := Identity.transitivity i2 e2.
@@ -2315,6 +2318,7 @@ Proof.
   intros a.
   simpl gcd in |- *.
   leibniz (WellFounded.recursion.unfolding euclid.extensionality (a, 0)) in |- *.
+  simpl euclid.step in |- *.
   quod idem est.
 Qed.
 
@@ -2325,6 +2329,7 @@ Proof.
   intros a q.
   simpl gcd in |- *.
   leibniz (WellFounded.recursion.unfolding euclid.extensionality (a, + q)) in |- *.
+  simpl euclid.step in |- *.
   quod idem est.
 Qed.
 
