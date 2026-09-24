@@ -294,7 +294,7 @@ Theorem injectivity
       from_nat_with_zero m = from_nat_with_zero n -> m = n.
 Proof.
   intros m n e.
-  destruct m as [| p]; destruct n as [| q].
+  match m with | | p end; match n with | | q end.
   - reflexivity.
   - simpl in e.
     discriminate e.
@@ -387,9 +387,9 @@ Lemma well_definedness
 Proof.
   intros p q r s h.
   pose proof (Nat.order.strict.trichotomy p q) as t.
-  destruct t as [lt | rest].
+  match t with | lt | rest end.
   - unfold Nat.LessThan in lt.
-    destruct lt as [k e].
+    match lt with | k e end.
     symmetry in e.
     rewrite e in h |- *.
     rewrite (Nat.addition.commutativity p k) in |- *.
@@ -400,7 +400,7 @@ Proof.
     rewrite (Nat.addition.commutativity r k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k r) in |- *.
     reflexivity.
-  - destruct rest as [eq | gt].
+  - match rest with | eq | gt end.
     + rewrite eq in h |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       rewrite (Nat.addition.commutativity r q) in h.
@@ -409,7 +409,7 @@ Proof.
       rewrite (difference.nat.reflexivity r) in |- *.
       reflexivity.
     + unfold Nat.LessThan in gt.
-      destruct gt as [k e].
+      match gt with | k e end.
       symmetry in e.
       rewrite e in h |- *.
       rewrite (Nat.addition.commutativity q k) in |- *.
@@ -429,9 +429,9 @@ Lemma negation
 Proof.
   intros p q.
   pose proof (Nat.order.strict.trichotomy p q) as t.
-  destruct t as [lt | rest].
+  match t with | lt | rest end.
   - unfold Nat.LessThan in lt.
-    destruct lt as [k e].
+    match lt with | k e end.
     symmetry in e.
     rewrite e in |- *.
     rewrite (Nat.addition.commutativity p k) in |- *.
@@ -439,13 +439,13 @@ Proof.
     rewrite (difference.nat.left.inversion.of.addition  k p) in |- *.
     simpl in |- *.
     reflexivity.
-  - destruct rest as [eq | gt].
+  - match rest with | eq | gt end.
     + rewrite eq in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       reflexivity.
     + unfold Nat.LessThan in gt.
-      destruct gt as [k e].
+      match gt with | k e end.
       symmetry in e.
       rewrite e in |- *.
       rewrite (Nat.addition.commutativity q k) in |- *.
@@ -463,22 +463,22 @@ Lemma specification
 Proof.
   intros p q.
   pose proof (Nat.order.strict.trichotomy p q) as t.
-  destruct t as [lt | rest].
+  match t with | lt | rest end.
   - unfold Nat.LessThan in lt.
-    destruct lt as [k e].
+    match lt with | k e end.
     symmetry in e.
     rewrite e in |- *.
     rewrite (Nat.addition.commutativity p k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
     simpl in |- *.
     reflexivity.
-  - destruct rest as [eq | gt].
+  - match rest with | eq | gt end.
     + rewrite eq in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       reflexivity.
     + unfold Nat.LessThan in gt.
-      destruct gt as [k e].
+      match gt with | k e end.
       symmetry in e.
       rewrite e in |- *.
       rewrite (Nat.addition.commutativity q k) in |- *.
@@ -563,9 +563,9 @@ Lemma scaling
 Proof.
   intros k p q.
   pose proof (Nat.order.strict.trichotomy p q) as t.
-  destruct t as [lt | rest].
+  match t with | lt | rest end.
   - unfold Nat.LessThan in lt.
-    destruct lt as [j e].
+    match lt with | j e end.
     symmetry in e.
     rewrite e in |- *.
     rewrite (Nat.addition.commutativity p j) in |- *.
@@ -575,14 +575,14 @@ Proof.
     rewrite (difference.nat.right.inversion.of.addition
               (Nat.mul k j) (Nat.mul k p)) in |- *.
     reflexivity.
-  - destruct rest as [eq | gt].
+  - match rest with | eq | gt end.
     + rewrite eq in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       rewrite (difference.nat.reflexivity (Nat.mul k q)) in |- *.
       simpl in |- *.
       reflexivity.
     + unfold Nat.LessThan in gt.
-      destruct gt as [j e].
+      match gt with | j e end.
       symmetry in e.
       rewrite e in |- *.
       rewrite (Nat.addition.commutativity q j) in |- *.
@@ -603,7 +603,7 @@ Lemma canonicity
   : forall (x : Integer) . nat_with_zero_difference (ramp x) (ramp (negate x)) = x.
 Proof.
   intros x.
-  destruct x as [p | | p]; simpl in |- *; reflexivity.
+  match x with | p | | p end; simpl in |- *; reflexivity.
 Qed.
 
 (* difference.nat_with_zero.reflexivity *)
@@ -611,7 +611,7 @@ Lemma reflexivity
   : forall (n : NatWithZero) . nat_with_zero_difference n n = 0.
 Proof.
   intros n.
-  destruct n as [| p].
+  match n with | | p end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -630,7 +630,7 @@ Lemma addition
       nat_with_zero_difference (NatWithZero.add (NatWithZero.Positive k) a) a = + k.
 Proof.
   intros k a.
-  destruct a as [| q].
+  match a with | | q end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -655,7 +655,7 @@ Lemma addition
       nat_with_zero_difference a (NatWithZero.add (NatWithZero.Positive k) a) = - k.
 Proof.
   intros k a.
-  destruct a as [| q].
+  match a with | | q end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -675,7 +675,7 @@ Lemma specification
       = NatWithZero.add (ramp (negate (nat_with_zero_difference a b))) a.
 Proof.
   intros a b.
-  destruct a as [| p]; destruct b as [| q].
+  match a with | | p end; match b with | | q end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -693,7 +693,7 @@ Lemma well_definedness
       nat_with_zero_difference a b = nat_with_zero_difference c d.
 Proof.
   intros a b c d h.
-  destruct a as [| p]; destruct b as [| q].
+  match a with | | p end; match b with | | q end.
   - simpl in h.
     rewrite (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     simpl in h.
@@ -714,7 +714,7 @@ Proof.
     rewrite (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
     simpl in |- *.
     reflexivity.
-  - destruct c as [| r]; destruct d as [| s].
+  - match c with | | r end; match d with | | s end.
     + simpl in h.
       pose proof (NatWithZero.positive.injectivity h) as e.
       rewrite e in |- *.
@@ -747,7 +747,7 @@ Lemma negation
       negate (nat_with_zero_difference a b) = nat_with_zero_difference b a.
 Proof.
   intros a b.
-  destruct a as [| p]; destruct b as [| q].
+  match a with | | p end; match b with | | q end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -803,7 +803,7 @@ Lemma scaling
           (NatWithZero.mul (NatWithZero.Positive k) b).
 Proof.
   intros k a b.
-  destruct a as [| p]; destruct b as [| q].
+  match a with | | p end; match b with | | q end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -835,7 +835,7 @@ Lemma scaling
       ramp ((+ k) * x) = NatWithZero.mul (NatWithZero.Positive k) (ramp x).
 Proof.
   intros k x.
-  destruct x as [x' | | x']; simpl in |- *; reflexivity.
+  match x with | x' | | x' end; simpl in |- *; reflexivity.
 Qed.
 
 End ramp. (* ramp *)
@@ -846,7 +846,7 @@ Module negation. (* negation *)
 Theorem involution : forall (x : Integer) . negate (negate x) = x.
 Proof.
   intros x.
-  destruct x as [p | | n]; simpl in |- *; reflexivity.
+  match x with | p | | n end; simpl in |- *; reflexivity.
 Qed.
 
 (* negation.additivity *)
@@ -937,7 +937,7 @@ Module left. (* addition.left *)
 Theorem identity : forall (n : Integer) . 0 + n = n.
 Proof.
   intros n.
-  destruct n as [n' | | n']; unfold add in |- *; simpl in |- *; reflexivity.
+  match n with | n' | | n' end; unfold add in |- *; simpl in |- *; reflexivity.
 Qed.
 
 (* addition.left.commutativity *)
@@ -955,7 +955,7 @@ Qed.
 Theorem inverse : forall (n : Integer) . negate n + n = 0.
 Proof.
   intros n.
-  destruct n as [p | | p].
+  match n with | p | | p end.
   - unfold add in |- *.
     simpl in |- *.
     ipso (difference.nat.reflexivity p).
@@ -1070,7 +1070,7 @@ Theorem monotonicity
 Proof.
   intros k m n h.
   unfold LessThan in h.
-  destruct h as [d e].
+  match h with | d e end.
   unfold LessThan in |- *.
   apply (Exists_introduction d).
   rewrite (addition.associativity k m (+ d)) in |- *.
@@ -1114,7 +1114,7 @@ Theorem commutativity
   : forall (m : Integer) (n : Integer) . m * n = n * m.
 Proof.
   intros m n.
-  destruct m as [m' | | m']; destruct n as [n' | | n'].
+  match m with | m' | | m' end; match n with | n' | | n' end.
   - simpl in |- *.
     rewrite (Nat.multiplication.commutativity m' n') in |- *.
     reflexivity.
@@ -1144,9 +1144,9 @@ Theorem associativity
   : forall (l : Integer) (m : Integer) (n : Integer) . (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
-  destruct l as [l' | | l'].
-  - destruct m as [m' | | m'].
-    + destruct n as [n' | | n'].
+  match l with | l' | | l' end.
+  - match m with | m' | | m' end.
+    + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
@@ -1159,7 +1159,7 @@ Proof.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
         reflexivity.
     + simpl in |- *. reflexivity.
-    + destruct n as [n' | | n'].
+    + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
@@ -1171,8 +1171,8 @@ Proof.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
         reflexivity.
   - simpl in |- *. reflexivity.
-  - destruct m as [m' | | m'].
-    + destruct n as [n' | | n'].
+  - match m with | m' | | m' end.
+    + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
@@ -1184,7 +1184,7 @@ Proof.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
         reflexivity.
     + simpl in |- *. reflexivity.
-    + destruct n as [n' | | n'].
+    + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
@@ -1203,7 +1203,7 @@ Module left. (* multiplication.left *)
 Theorem identity : forall (n : Integer) . (+ Nat.One) * n = n.
 Proof.
   intros n.
-  destruct n as [n' | | n']; simpl in |- *; reflexivity.
+  match n with | n' | | n' end; simpl in |- *; reflexivity.
 Qed.
 
 (* multiplication.left.annihilation *)
@@ -1222,10 +1222,10 @@ Theorem negation
   : forall (m : Integer) (n : Integer) . negate m * n = negate (m * n).
 Proof.
   intros m n.
-  destruct m as [m' | | m'].
-  - destruct n as [n' | | n']; simpl in |- *; reflexivity.
+  match m with | m' | | m' end.
+  - match n with | n' | | n' end; simpl in |- *; reflexivity.
   - simpl in |- *. reflexivity.
-  - destruct n as [n' | | n']; simpl in |- *; reflexivity.
+  - match n with | n' | | n' end; simpl in |- *; reflexivity.
 Qed.
 
 Module positive. (* multiplication.left.positive *)
@@ -1298,7 +1298,7 @@ Theorem addition
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
-  destruct l as [p | | p].
+  match l with | p | | p end.
   - change (- p) with (negate (+ p)) in |- *.
     rewrite -> (multiplication.left.negation (+ p) (m + n))
             in |- *.
@@ -1332,7 +1332,7 @@ Theorem monotonicity
 Proof.
   intros p m n h.
   unfold LessThan in h.
-  destruct h as [d e].
+  match h with | d e end.
   unfold LessThan in |- *.
   apply (Exists_introduction (Nat.mul p d)).
   change (+ (Nat.mul p d)) with ((+ p) * (+ d)) in |- *.
@@ -1453,9 +1453,9 @@ Theorem cancellation
       ~ (k = 0) -> k * m = k * n -> m = n.
 Proof.
   intros k m n nonzero e.
-  destruct k as [p | | p].
-  - destruct m as [a | | a]; destruct n as [b | | b]; simpl in e.
-    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+  match k with | p | | p end.
+  - match m with | a | | a end; match n with | b | | b end; simpl in e.
+    + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
       reflexivity.
     + discriminate e.
@@ -1465,14 +1465,14 @@ Proof.
     + discriminate e.
     + discriminate e.
     + discriminate e.
-    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+    + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
       reflexivity.
   - unfold Negation in nonzero.
     modus ponens nonzero, (Identity.reflexivity 0) as f.
     ex f quodlibet.
-  - destruct m as [a | | a]; destruct n as [b | | b]; simpl in e.
-    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+  - match m with | a | | a end; match n with | b | | b end; simpl in e.
+    + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
       reflexivity.
     + discriminate e.
@@ -1482,7 +1482,7 @@ Proof.
     + discriminate e.
     + discriminate e.
     + discriminate e.
-    + destruct (Nat.multiplication.cancellation p a b) as [cancel _].
+    + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
       reflexivity.
 Qed.
@@ -1493,7 +1493,7 @@ Theorem magnitude
       (| m * n |) = NatWithZero.mul (| m |) (| n |).
 Proof.
   intros m n.
-  destruct m as [m' | | m']; destruct n as [n' | | n']; simpl in |- *; reflexivity.
+  match m with | m' | | m' end; match n with | n' | | n' end; simpl in |- *; reflexivity.
 Qed.
 
 End multiplication. (* multiplication *)
@@ -1509,7 +1509,7 @@ Proof.
   unfold Negation in |- *.
   intro h.
   unfold LessThan in h.
-  destruct h as [k e].
+  match h with | k e end.
   pose proof (Identity.transitivity e (Identity.symmetry (addition.right.identity n)))
           as e'.
   pose proof (addition.left.cancellation e')
@@ -1524,8 +1524,8 @@ Theorem transitivity
 Proof.
   intros l m n h1 h2.
   unfold LessThan in h1, h2.
-  destruct h1 as [k1 e1].
-  destruct h2 as [k2 e2].
+  match h1 with | k1 e1 end.
+  match h2 with | k2 e2 end.
   unfold LessThan in |- *.
   apply (Exists_introduction (Nat.add k1 k2)).
   change (+ (Nat.add k1 k2))
@@ -1547,7 +1547,7 @@ Theorem antisymmetry
   : forall (m : Integer) (n : Integer) . compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m n.
-  destruct m as [m' | | m']; destruct n as [n' | | n'].
+  match m with | m' | | m' end; match n with | n' | | n' end.
   - simpl in |- *.
     ipso (Nat.comparison.antisymmetry n' m').
   - simpl in |- *.
@@ -1577,16 +1577,16 @@ Proof.
   intros m n.
   unfold LessThan in |- *.
   unfold add in |- *.
-  destruct m as [m' | | m']; destruct n as [n' | | n']; divide et impera; simpl in |- *.
+  match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
     pose proof (Nat.comparison.strict.forward.specification c) as lt.
     unfold Nat.LessThan in lt.
-    destruct lt as [k e].
+    match lt with | k e end.
     apply (Exists_introduction k).
     rewrite (Nat.addition.commutativity n' k) in e.
     ipso (modus aequans (difference.nat.negative.specification k m' n'), e).
   - intro h.
-    destruct h as [k e].
+    match h with | k e end.
     modus aequans (difference.nat.negative.specification k m' n'), e as e'.
     apply (@Nat.comparison.strict.backward.specification n' m').
     unfold Nat.LessThan in |- *.
@@ -1606,12 +1606,12 @@ Proof.
   - intro c.
     discriminate c.
   - intro h.
-    destruct h as [k e].
+    match h with | k e end.
     discriminate e.
   - intro c.
     discriminate c.
   - intro h.
-    destruct h as [k e].
+    match h with | k e end.
     discriminate e.
   - intro c.
     apply (Exists_introduction n').
@@ -1621,22 +1621,22 @@ Proof.
   - intro c.
     discriminate c.
   - intro h.
-    destruct h as [k e].
+    match h with | k e end.
     discriminate e.
   - intro c.
     discriminate c.
   - intro h.
-    destruct h as [k e].
+    match h with | k e end.
     discriminate e.
   - intro c.
     pose proof (Nat.comparison.strict.forward.specification c) as lt.
     unfold Nat.LessThan in lt.
-    destruct lt as [k e].
+    match lt with | k e end.
     apply (Exists_introduction k).
     rewrite e in |- *.
     reflexivity.
   - intro h.
-    destruct h as [k e].
+    match h with | k e end.
     pose proof (magnitude.positive.injectivity e) as e'.
     apply (@Nat.comparison.strict.backward.specification m' n').
     unfold Nat.LessThan in |- *.
@@ -1653,7 +1653,7 @@ Lemma specification
   : forall (m : Integer) (n : Integer) . compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros m n.
-  destruct m as [m' | | m']; destruct n as [n' | | n']; divide et impera; simpl in |- *.
+  match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
     pose proof (Nat.comparison.equality.forward.specification c) as e.
     rewrite e in |- *.
@@ -1723,12 +1723,12 @@ Theorem magnitude
       (| x /. d |) = NatWithZero.divide (| x |) d.
 Proof.
   intros x d.
-  destruct x as [p | | p].
+  match x with | p | | p end.
   - simpl divide, abs in |- *.
-    destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; reflexivity.
   - reflexivity.
   - simpl divide, abs in |- *.
-    destruct (NatWithZero.divide (NatWithZero.Positive p) d) as [| k]; reflexivity.
+    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; reflexivity.
 Qed.
 
 (* division.exactness *)
@@ -1738,11 +1738,11 @@ Theorem exactness
       -> (x /. d) * (+ d) = x.
 Proof.
   intros x d h.
-  destruct x as [x' | | x'].
+  match x with | x' | | x' end.
   - simpl divide in |- *.
     pose proof (NatWithZero.division.exactness
                   (NatWithZero.Positive x') d h) as e.
-    destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
+    match (NatWithZero.divide (NatWithZero.Positive x') d) with | | m end.
     + simpl in e.
       discriminate e.
     + simpl in |- *.
@@ -1753,7 +1753,7 @@ Proof.
   - simpl divide in |- *.
     pose proof (NatWithZero.division.exactness
                   (NatWithZero.Positive x') d h) as e.
-    destruct (NatWithZero.divide (NatWithZero.Positive x') d) as [| m].
+    match (NatWithZero.divide (NatWithZero.Positive x') d) with | | m end.
     + simpl in e.
       discriminate e.
     + simpl in |- *.
@@ -1782,7 +1782,7 @@ Theorem invariance
       ((+ k) * x) /. (Nat.mul k d) = x /. d.
 Proof.
   intros x d k.
-  destruct x as [p | | p].
+  match x with | p | | p end.
   - change ((+ k) * (- p)) with (- (Nat.mul k p)) in |- *.
     simpl divide in |- *.
     pose proof (NatWithZero.division.invariance
@@ -1823,8 +1823,8 @@ Theorem transitivity
 Proof.
   intros l m n h1 h2.
   unfold Divides in h1, h2.
-  destruct h1 as [k1 e1].
-  destruct h2 as [k2 e2].
+  match h1 with | k1 e1 end.
+  match h2 with | k2 e2 end.
   unfold Divides in |- *.
   apply (Exists_introduction (k1 * k2)).
   rewrite <- (multiplication.associativity l k1 k2)
@@ -1843,8 +1843,8 @@ Theorem closure
 Proof.
   intros d m n h1 h2.
   unfold Divides in h1, h2.
-  destruct h1 as [k1 e1].
-  destruct h2 as [k2 e2].
+  match h1 with | k1 e1 end.
+  match h2 with | k2 e2 end.
   unfold Divides in |- *.
   apply (Exists_introduction (k1 + k2)).
   rewrite (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
@@ -1862,7 +1862,7 @@ Theorem closure
 Proof.
   intros d m n h.
   unfold Divides in h.
-  destruct h as [k e].
+  match h with | k e end.
   unfold Divides in |- *.
   apply (Exists_introduction (k * n)).
   rewrite <- (multiplication.associativity d k n) in |- *.
@@ -1880,7 +1880,7 @@ Module parity. (* parity *)
 Theorem totality : forall (n : Integer) . Even n \/ Odd n.
 Proof.
   intros n.
-  destruct n as [p | | p].
+  match n with | p | | p end.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       unfold Odd in |- *.
@@ -1888,10 +1888,10 @@ Proof.
       unfold add in |- *.
       simpl in |- *.
       reflexivity.
-    + destruct IH as [ev | od].
+    + match IH with | ev | od end.
       * apply Disjunction.R.
         unfold Even, Divides in ev.
-        destruct ev as [k e].
+        match ev with | k e end.
         unfold Odd in |- *.
         apply (Exists_introduction (k + (- Nat.One))).
         rewrite (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
@@ -1912,7 +1912,7 @@ Proof.
         reflexivity.
       * apply Disjunction.L.
         unfold Odd in od.
-        destruct od as [k e].
+        match od with | k e end.
         unfold Even, Divides in |- *.
         apply (Exists_introduction k).
         pose proof (Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e)
@@ -1943,10 +1943,10 @@ Proof.
       apply (Exists_introduction 0).
       simpl in |- *.
       reflexivity.
-    + destruct IH as [ev | od].
+    + match IH with | ev | od end.
       * apply Disjunction.R.
         unfold Even, Divides in ev.
-        destruct ev as [k e].
+        match ev with | k e end.
         unfold Odd in |- *.
         apply (Exists_introduction k).
         rewrite e in |- *.
@@ -1957,7 +1957,7 @@ Proof.
         reflexivity.
       * apply Disjunction.L.
         unfold Odd in od.
-        destruct od as [k e].
+        match od with | k e end.
         unfold Even, Divides in |- *.
         apply (Exists_introduction (k + (+ Nat.One))).
         rewrite (multiplication.left.distributivity.over.addition
@@ -2006,8 +2006,8 @@ Theorem evenness
 Proof.
   intros m n h1 h2.
   unfold Odd in h1, h2.
-  destruct h1 as [k1 e1].
-  destruct h2 as [k2 e2].
+  match h1 with | k1 e1 end.
+  match h2 with | k2 e2 end.
   unfold Even, Divides in |- *.
   apply (Exists_introduction ((k1 + k2) + (+ Nat.One))).
   symmetry in e1, e2.

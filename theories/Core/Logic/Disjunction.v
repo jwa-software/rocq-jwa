@@ -43,7 +43,7 @@ Proof.
    * - one with [a : A],
    * - one with [b : B].
    *)
-  destruct h as [a | b].
+  match h with | a | b end.
   - ipso (right a).
   - ipso (left  b).
 Qed.
@@ -54,15 +54,15 @@ Proof.
   intros A B C.
   divide et impera.
   - intro h.
-    destruct h as [ab | c].
-    + destruct ab as [a | b].
+    match h with | ab | c end.
+    + match ab with | a | b end.
       * ipso (Disjunction.left a).
       * ipso (Disjunction.right (Disjunction.left b)).
     + ipso (Disjunction.right (Disjunction.right c)).
   - intro h.
-    destruct h as [a | bc].
+    match h with | a | bc end.
     + ipso (Disjunction.left (Disjunction.left a)).
-    + destruct bc as [b | c].
+    + match bc with | b | c end.
       * ipso (Disjunction.left (Disjunction.right b)).
       * ipso (Disjunction.right c).
 Qed.
@@ -78,19 +78,19 @@ Proof.
   intros A B C.
   divide et impera.
   - intro h.
-    destruct h as [a | bc].
+    match h with | a | bc end.
     + divide et impera.
       * ipso (Disjunction.left a).
       * ipso (Disjunction.left a).
-    + destruct bc as [b c].
+    + match bc with | b c end.
       divide et impera.
       * ipso (Disjunction.right b).
       * ipso (Disjunction.right c).
   - intro h.
-    destruct h  as [ab ac].
-    destruct ab as [a | b].
+    match h  with | ab ac end.
+    match ab with | a | b end.
     + ipso (Disjunction.left a).
-    + destruct ac as [a | c].
+    + match ac with | a | c end.
       * ipso (Disjunction.left a).
       * apply Disjunction.right.
         divide et impera.
@@ -120,9 +120,9 @@ Proof.
       apply f.
       ipso (Disjunction.right b).
   - intro h.
-    destruct h as [ac bc].
+    match h with | ac bc end.
     intro ab.
-    destruct ab as [a | b].
+    match ab with | a | b end.
     + apply ac.
       ipso a.
     + apply bc.
@@ -136,11 +136,11 @@ Proof.
   intros A1 A2 B1 B2.
   intro a.
   intro b.
-  destruct a as [a12 a21].
-  destruct b as [b12 b21].
+  match a with | a12 a21 end.
+  match b with | b12 b21 end.
   divide et impera; intro h.
   - (* [h : A1 \/ B1]: [|- A2 \/ B2] *)
-    destruct h as [a1 | b1].
+    match h with | a1 | b1 end.
     + (* [|- A2] *)
       apply Disjunction.left.
       apply a12.
@@ -150,7 +150,7 @@ Proof.
       apply b12.
       ipso b1.
   - (* [h : A2 \/ B2]: [|- A1 \/ B1] *)
-    destruct h as [a2 | b2].
+    match h with | a2 | b2 end.
     + (* [|- A1] *)
       apply Disjunction.left.
       apply a21.
@@ -182,8 +182,8 @@ Proof.
   intros A B C.
   divide et impera.
   - intro h.
-    destruct h as [a bc].
-    destruct bc as [b | c].
+    match h with | a bc end.
+    match bc with | b | c end.
     + (* [|- A /\ B] *)
       apply Disjunction.left.
       divide et impera.
@@ -195,12 +195,12 @@ Proof.
       * ipso a.
       * ipso c.
   - intro h.
-    destruct h as [ab | ac].
-    + destruct ab as [a b].
+    match h with | ab | ac end.
+    + match ab with | a b end.
       divide et impera.
       * ipso a.
       * ipso (Disjunction.left b).
-    + destruct ac as [a c].
+    + match ac with | a c end.
       divide et impera.
       * ipso a.
       * ipso (Disjunction.right c).

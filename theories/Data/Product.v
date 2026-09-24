@@ -133,7 +133,7 @@ Theorem surjectivity
       p = (first p, second p).
 Proof.
   intros A B p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -147,7 +147,7 @@ Theorem involution
   : forall {A : Type} {B : Type} (p : Product A B) . swap (swap p) = p.
 Proof.
   intros A B p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -163,7 +163,7 @@ Theorem identity
   : forall {A : Type} {B : Type} (p : Product A B) . map_first (fun (a : A) . a) p = p.
 Proof.
   intros A B p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -174,7 +174,7 @@ Theorem composition
       map_first g (map_first f p) = map_first (fun (a : A) . g (f a)) p.
 Proof.
   intros A B C D f g p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -188,7 +188,7 @@ Theorem identity
   : forall {A : Type} {B : Type} (p : Product A B) . map_second (fun (b : B) . b) p = p.
 Proof.
   intros A B p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -199,7 +199,7 @@ Theorem composition
       map_second g (map_second f p) = map_second (fun (b : B) . g (f b)) p.
 Proof.
   intros A B C D f g p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -212,7 +212,7 @@ Theorem commutativity
       map_first f (map_second g p) = map_second g (map_first f p).
 Proof.
   intros A B C D f g p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -225,7 +225,7 @@ Theorem identity
       bimap (fun (a : A) . a) (fun (b : B) . b) p = p.
 Proof.
   intros A B p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -237,7 +237,7 @@ Theorem composition
       bimap g1 g2 (bimap f1 f2 p) = bimap (fun (a : A) . g1 (f1 a)) (fun (b : B) . g2 (f2 b)) p.
 Proof.
   intros A B C D E F f1 f2 g1 g2 p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -249,7 +249,7 @@ Theorem decomposition
       bimap f g p = map_first f (map_second g p).
 Proof.
   intros A B C D f g p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -293,7 +293,7 @@ Theorem currying
       uncurry (curry f) p = f p.
 Proof.
   intros A B C f p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
   unfold curry in |- *.
   reflexivity.
@@ -318,9 +318,9 @@ Theorem associativity
       = direct_product f1 f2 p1 (direct_product f1 f2 p2 p3).
 Proof.
   intros A B f1 f2 SA SB p1 p2 p3.
-  destruct p1 as [a1 b1].
-  destruct p2 as [a2 b2].
-  destruct p3 as [a3 b3].
+  match p1 with | a1 b1 end.
+  match p2 with | a2 b2 end.
+  match p3 with | a3 b3 end.
   simpl in |- *.
   rewrite (Semigroup.associativity a1 a2 a3) in |- *.
   rewrite (Semigroup.associativity b1 b2 b3) in |- *.
@@ -339,10 +339,10 @@ Lemma identity
         direct_product f1 f2 (eA, eB) p = p.
 Proof.
   intros A B f1 eA f2 eB MA MB p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
-  destruct (Monoid.identity a) as [la _].
-  destruct (Monoid.identity b) as [lb _].
+  match (Monoid.identity a) with | la _ end.
+  match (Monoid.identity b) with | lb _ end.
   rewrite la, lb in |- *.
   reflexivity.
 Qed.
@@ -361,10 +361,10 @@ Lemma identity
       direct_product f1 f2 p (eA, eB) = p.
 Proof.
   intros A B f1 eA f2 eB MA MB p.
-  destruct p as [a b].
+  match p with | a b end.
   simpl in |- *.
-  destruct (Monoid.identity a) as [_ ra].
-  destruct (Monoid.identity b) as [_ rb].
+  match (Monoid.identity a) with | _ ra end.
+  match (Monoid.identity b) with | _ rb end.
   rewrite ra, rb in |- *.
   reflexivity.
 Qed.
@@ -396,8 +396,8 @@ Theorem commutativity
         direct_product f1 f2 p1 p2 = direct_product f1 f2 p2 p1.
 Proof.
   intros A B f1 f2 CA CB p1 p2.
-  destruct p1 as [a1 b1].
-  destruct p2 as [a2 b2].
+  match p1 with | a1 b1 end.
+  match p2 with | a2 b2 end.
   simpl in |- *.
   rewrite (Commutative.commutativity a1 a2) in |- *.
   rewrite (Commutative.commutativity b1 b2) in |- *.

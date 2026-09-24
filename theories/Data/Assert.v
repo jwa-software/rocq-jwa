@@ -38,19 +38,19 @@ Theorem conjunction
       Assert (b1 && b2) <-> Assert b1 /\ Assert b2.
 Proof.
   intros b1 b2.
-  destruct b1 as [|];
-      destruct b2 as [|]; simpl in |- *;
+  match b1 with | | end;
+      match b2 with | | end; simpl in |- *;
           divide et impera; intro h.
   - divide et impera; ipso I.
   - ipso I.
   - ex h quodlibet.
-  - destruct h as [_ h].
+  - match h with | _ h end.
     ipso h.
   - ex h quodlibet.
-  - destruct h as [h _].
+  - match h with | h _ end.
     ipso h.
   - ex h quodlibet.
-  - destruct h as [h _].
+  - match h with | h _ end.
     ipso h.
 Qed.
 
@@ -60,8 +60,8 @@ Theorem disjunction
       Assert (b1 || b2) <-> Assert b1 \/ Assert b2.
 Proof.
   intros b1 b2.
-  destruct b1 as [|];
-      destruct b2 as [|]; simpl in |- *;
+  match b1 with | | end;
+      match b2 with | | end; simpl in |- *;
           divide et impera; intro h.
   - ipso (Disjunction.left I).
   - ipso I.
@@ -70,7 +70,7 @@ Proof.
   - ipso (Disjunction.right I).
   - ipso I.
   - ex h quodlibet.
-  - destruct h as [h1 | h2].
+  - match h with | h1 | h2 end.
     + ipso h1.
     + ipso h2.
 Qed.
@@ -81,19 +81,19 @@ Theorem sejunction
       Assert (b1 ^^ b2) <-> Assert b1 _\/_ Assert b2.
 Proof.
   intros b1 b2.
-  destruct b1 as [|];
-      destruct b2 as [|];
+  match b1 with | | end;
+      match b2 with | | end;
           simpl in |- *;
             divide et impera;
               intro h.
   - ex h quodlibet.
-  - destruct h as [t nt | nt t]; ipso (modus ponens nt, t).
+  - match h with | t nt | nt t end; ipso (modus ponens nt, t).
   - ipso (Sejunction.left  I (fun (f : Falsum) . f)).
   - ipso I.
   - ipso (Sejunction.right (fun (f : Falsum) . f) I).
   - ipso I.
   - ex h quodlibet.
-  - destruct h as [f _ | _ f]; ipso f.
+  - match h with | f _ | _ f end; ipso f.
 Qed.
 
 (* Assert.negation *)
@@ -102,14 +102,14 @@ Theorem negation
 Proof.
   intros b.
   unfold Negation in |- *.
-  destruct b as [|];
+  match b with | | end;
       simpl in |- *;
           divide et impera;
             intro h.
   - ex h quodlibet.
   - ipso (modus ponens h, I).
   - intro k.
-    destruct k.
+    match k with end.
   - ipso I.
 Qed.
 
@@ -117,7 +117,7 @@ Qed.
 Theorem specification : forall (b : Bool) . Assert b <-> b = true.
 Proof.
   intros b.
-  destruct b as [|]; simpl in |- *; divide et impera; intro h.
+  match b with | | end; simpl in |- *; divide et impera; intro h.
   - reflexivity.
   - ipso I.
   - ex h quodlibet.

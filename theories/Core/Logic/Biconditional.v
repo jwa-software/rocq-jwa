@@ -28,7 +28,7 @@ Theorem symmetry
 Proof.
   intros P Q.
   intro h.
-  destruct h as [pq qp].
+  match h with | pq qp end.
   divide et impera.
   - ipso qp.
   - ipso pq.
@@ -41,8 +41,8 @@ Proof.
   intros P Q C.
   intro hpq.
   intro hqr.
-  destruct hpq as [pq qp].
-  destruct hqr as [qr rq].
+  match hpq with | pq qp end.
+  match hqr with | qr rq end.
   divide et impera.
   - intro p.
     apply qr.
@@ -62,7 +62,7 @@ Theorem elimination
 Proof.
   intros P Q.
   intro e.
-  destruct e as [pq qp].
+  match e with | pq qp end.
   ipso pq.
 Qed.
 
@@ -76,7 +76,7 @@ Theorem elimination
 Proof.
   intros P Q.
   intro e.
-  destruct e as [pq qp].
+  match e with | pq qp end.
   ipso qp.
 Qed.
 
@@ -89,9 +89,9 @@ Proof.
   intros P1 P2 Q1 Q2.
   intro a.
   intro b.
-  destruct a as [p12 p21].
-  destruct b as [q12 q21].
-  divide et impera; intro e; destruct e as [pq qp]; divide et impera.
+  match a with | p12 p21 end.
+  match b with | q12 q21 end.
+  divide et impera; intro e; match e with | pq qp end; divide et impera.
   +
     intro p2.
     apply q12.
@@ -138,8 +138,8 @@ Proof.
   intros P1 P2 Q1 Q2.
   intro a.
   intro b.
-  destruct a as [p12 p21].
-  destruct b as [q12 q21].
+  match a with | p12 p21 end.
+  match b with | q12 q21 end.
   divide et impera; intro f.
   - intro p2.
     apply q12.

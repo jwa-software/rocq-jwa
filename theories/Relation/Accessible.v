@@ -76,7 +76,7 @@ Proof.
    *  = step x (fun (y : A) (r : R y x)
    *            . recursion step y (descend (Accessible_introduction f) r))]
    *)
-  destruct a as [f].
+  match a with | f end.
 
   (* [|- step x (fun (y : A) (r : R y x) . recursion step y (f y r))
    *  = step x (fun (y : A) (r : R y x) . recursion step y (f y r))]

@@ -48,7 +48,7 @@ Proof.
    * - one with [a : A]    and [nb : ~ B],
    * - one with [na : ~ A] and [b : B].
    *)
-  destruct h as [a nb | na b].
+  match h with | a nb | na b end.
   - ipso (Sejunction.right nb  a).
   - ipso (Sejunction.left   b na).
 Qed.
@@ -67,7 +67,7 @@ Proof.
   intros A B.
   divide et impera.
   - intro h.
-    destruct h as [a nb | na b].
+    match h with | a nb | na b end.
     + apply Disjunction.left.
       divide et impera.
       * ipso a.
@@ -77,10 +77,10 @@ Proof.
       * ipso b.
       * ipso na.
   - intro h.
-    destruct h as [ab | ba].
-    + destruct ab as [a nb].
+    match h with | ab | ba end.
+    + match ab with | a nb end.
       ipso (Sejunction.left a nb).
-    + destruct ba as [b na].
+    + match ba with | b na end.
       ipso (Sejunction.right na b).
 Qed.
 
@@ -97,21 +97,21 @@ Proof.
   intros A B.
   divide et impera.
   - intro h.
-    destruct h as [a nb | na b]; divide et impera.
+    match h with | a nb | na b end; divide et impera.
     + ipso (Disjunction.left a).
     + unfold Negation in nb |- *.
       intro ab.
-      destruct ab as [_ b].
+      match ab with | _ b end.
       ipso (nb b).
     + ipso (Disjunction.right b).
     + unfold Negation in na |- *.
       intro ab.
-      destruct ab as [a _].
+      match ab with | a _ end.
       ipso (na a).
   - intro h.
-    destruct h as [ab nab].
+    match h with | ab nab end.
     unfold Negation in nab.
-    destruct ab as [a | b].
+    match ab with | a | b end.
     + apply Sejunction.left.
       * ipso a.
       * unfold Negation in |- *.
@@ -137,10 +137,10 @@ Proof.
   intros A1 A2 B1 B2.
   intro ea.
   intro eb.
-  destruct ea as [a12 a21].
-  destruct eb as [b12 b21].
+  match ea with | a12 a21 end.
+  match eb with | b12 b21 end.
   divide et impera; intro h.
-  - destruct h as [a1 nb1 | na1 b1].
+  - match h with | a1 nb1 | na1 b1 end.
     + apply Sejunction.left.
       * apply a12.
         ipso a1.
@@ -157,7 +157,7 @@ Proof.
         ipso a2.
       * apply b12.
         ipso b1.
-  - destruct h as [a2 nb2 | na2 b2].
+  - match h with | a2 nb2 | na2 b2 end.
     + apply Sejunction.left.
       * apply a21.
         ipso a2.
@@ -187,7 +187,7 @@ Theorem disjunction
 Proof.
   intros A B.
   intro h.
-  destruct h as [a nb | na b].
+  match h with | a nb | na b end.
   - ipso (Disjunction.left  a).
   - ipso (Disjunction.right b).
 Qed.
@@ -213,8 +213,8 @@ Proof.
   intro h.
   unfold Negation in |- *.
   intro ab.
-  destruct ab as [a b].
-  destruct h  as [_ nb | na _].
+  match ab with | a b end.
+  match h  with | _ nb | na _ end.
   - ipso (nb b).
   - ipso (na a).
 Qed.
@@ -227,8 +227,8 @@ Proof.
   intro h.
   unfold Negation in |- *.
   intro e.
-  destruct e as [ab ba].
-  destruct h as [a nb | na b].
+  match e with | ab ba end.
+  match h with | a nb | na b end.
   - unfold Negation in nb.
     apply nb.
     apply ab.
@@ -262,10 +262,10 @@ Theorem sejunction
 Proof.
   intros A B.
   intro e.
-  destruct e as [ab ba].
+  match e with | ab ba end.
   unfold Negation in |- *.
   intro h.
-  destruct h as [a nb | na b].
+  match h with | a nb | na b end.
   - unfold Negation in nb.
     apply nb.
     apply ab.

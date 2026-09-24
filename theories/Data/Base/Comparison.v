@@ -57,7 +57,7 @@ Theorem involution
   : forall (c : Comparison) . transpose (transpose c) = c.
 Proof.
   intros c.
-  destruct c as [| |]; simpl in |- *; reflexivity.
+  match c with | | | end; simpl in |- *; reflexivity.
 Qed.
 
 End transposition. (* transposition *)

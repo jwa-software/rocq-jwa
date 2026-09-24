@@ -35,7 +35,7 @@ Theorem conditional
 Proof.
   intros A B.
   intro h.
-  destruct h as [a nb].
+  match h with | a nb end.
   unfold Negation in nb |- *.
   intro ab.
   apply nb.
@@ -66,7 +66,7 @@ Proof.
   - unfold Negation in |- *.
     intro f.
     intro h.
-    destruct h as [a nb].
+    match h with | a nb end.
     apply f.
     + ipso a.
     + ipso nb.
@@ -81,10 +81,10 @@ Proof.
   intros A1 A2 B1 B2.
   intro ea.
   intro eb.
-  destruct ea as [a12 a21].
-  destruct eb as [b12 b21].
+  match ea with | a12 a21 end.
+  match eb with | b12 b21 end.
   divide et impera; intro h.
-  - destruct h as [a1 nb1].
+  - match h with | a1 nb1 end.
     divide et impera.
     + apply a12.
       ipso a1.
@@ -93,7 +93,7 @@ Proof.
       apply nb1.
       apply b21.
       ipso b2.
-  - destruct h as [a2 nb2].
+  - match h with | a2 nb2 end.
     divide et impera.
     + apply a21.
       ipso a2.
@@ -125,7 +125,7 @@ Proof.
   intro ab.
   unfold Negation in |- *.
   intro h.
-  destruct h as [a nb].
+  match h with | a nb end.
   unfold Negation in nb.
   apply nb.
   apply ab.

@@ -84,7 +84,7 @@ Theorem reflexivity
     compare n n = Comparison.Eq.
 Proof.
   intros A compare lt C n.
-  destruct (Comparable.specification n n) as [_ s].
+  match (Comparable.specification n n) with | _ s end.
   ipso (modus aequans s, (Identity.reflexivity n)).
 Qed.
 
@@ -100,7 +100,7 @@ Theorem specification
     compare m n = Comparison.Lt <-> lt m n.
 Proof.
   intros A compare lt C m n.
-  destruct (Comparable.specification m n) as [s _].
+  match (Comparable.specification m n) with | s _ end.
   ipso s.
 Qed.
 
@@ -122,15 +122,15 @@ Proof.
   rewrite (Comparable.antisymmetry m n) in |- *.
   divide et impera.
   - intro e.
-    destruct (compare n m) as [| |] eqn:c.
-    + destruct (Comparable.specification n m) as [s _].
+    match (compare n m) per c with | | | end.
+    + match (Comparable.specification n m) with | s _ end.
       ipso (modus aequans s, c).
     + simpl in e.
       discriminate e.
     + simpl in e.
       discriminate e.
   - intro h.
-    destruct (Comparable.specification n m) as [s _].
+    match (Comparable.specification n m) with | s _ end.
     modus aequans s, h as e.
     rewrite e in |- *.
     simpl in |- *.
@@ -153,7 +153,7 @@ Theorem specification
     compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros A compare lt C m n.
-  destruct (Comparable.specification m n) as [_ s].
+  match (Comparable.specification m n) with | _ s end.
   ipso s.
 Qed.
 
@@ -170,13 +170,13 @@ Proof.
   unfold eq in |- *.
   divide et impera.
   - intro e.
-    destruct (compare m n) as [| |] eqn:c.
+    match (compare m n) per c with | | | end.
     + discriminate e.
-    + destruct (Comparable.specification m n) as [_ s].
+    + match (Comparable.specification m n) with | _ s end.
       ipso (modus aequans s, c).
     + discriminate e.
   - intro h.
-    destruct (Comparable.specification m n) as [_ s].
+    match (Comparable.specification m n) with | _ s end.
     modus aequans s, h as e.
     rewrite e in |- *.
     reflexivity.
@@ -236,11 +236,11 @@ Theorem trichotomy
     lt m n \/ m = n \/ lt n m.
 Proof.
   intros A compare lt C m n.
-  destruct (compare m n) as [| |] eqn:c.
-  - destruct (Comparable.specification m n) as [s _].
+  match (compare m n) per c with | | | end.
+  - match (Comparable.specification m n) with | s _ end.
     modus aequans s, c as h.
     ipso (Disjunction.L h).
-  - destruct (Comparable.specification m n) as [_ s].
+  - match (Comparable.specification m n) with | _ s end.
     modus aequans s, c as h.
     ipso (Disjunction.R (Disjunction.L h)).
   - modus aequans (comparison.strict.transposition.specification m n), c as h.
@@ -275,9 +275,9 @@ Proof.
   intros A compare lt C m n h1 h2.
   unfold LessOrEqual in h1.
   unfold LessOrEqual in h2.
-  destruct h1 as [e1 | lt1].
+  match h1 with | e1 | lt1 end.
   - ipso e1.
-  - destruct h2 as [e2 | lt2].
+  - match h2 with | e2 | lt2 end.
     + ipso (Identity.symmetry e2).
     + pose proof (order.strict.asymmetry m n lt1) as a.
       unfold Negation in a.
@@ -296,10 +296,10 @@ Theorem transitivity
 Proof.
   intros A compare lt C l m n h1 h2.
   unfold LessOrEqual in h1, h2 |- *.
-  destruct h1 as [e1 | lt1].
+  match h1 with | e1 | lt1 end.
   - rewrite e1 in |- *.
     ipso h2.
-  - destruct h2 as [e2 | lt2].
+  - match h2 with | e2 | lt2 end.
     + rewrite e2 in lt1.
       ipso (Disjunction.R lt1).
     + ipso (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
@@ -317,9 +317,9 @@ Proof.
   intros A c lt C m n.
   pose proof (order.strict.trichotomy m n) as t.
   unfold LessOrEqual in |- *.
-  destruct t as [lt1 | rest].
+  match t with | lt1 | rest end.
   - ipso (Disjunction.L (Disjunction.R lt1)).
-  - destruct rest as [e | gt].
+  - match rest with | e | gt end.
     + ipso (Disjunction.L (Disjunction.L e)).
     + ipso (Disjunction.R (Disjunction.R gt)).
 Qed.
@@ -336,18 +336,18 @@ Proof.
   intros A compare lt C m n.
   unfold le in |- *.
   unfold LessOrEqual in |- *.
-  destruct (compare m n) as [| |] eqn:c.
+  match (compare m n) per c with | | | end.
   - divide et impera.
     + intro e.
       apply Disjunction.R.
-      destruct (Comparable.specification m n) as [s _].
+      match (Comparable.specification m n) with | s _ end.
       ipso (modus aequans s, c).
     + intro h.
       reflexivity.
   - divide et impera.
     + intro e.
       apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
+      match (Comparable.specification m n) with | _ s end.
       ipso (modus aequans s, c).
     + intro h.
       reflexivity.
@@ -355,12 +355,12 @@ Proof.
     + intro e.
       discriminate e.
     + intro h.
-      destruct h as [e | lt1].
-      * destruct (Comparable.specification m n) as [_ s].
+      match h with | e | lt1 end.
+      * match (Comparable.specification m n) with | _ s end.
         modus aequans s, e as e'.
         rewrite e' in c.
         discriminate c.
-      * destruct (Comparable.specification m n) as [s _].
+      * match (Comparable.specification m n) with | s _ end.
         modus aequans s, lt1 as e.
         rewrite e in c.
         discriminate c.
@@ -384,22 +384,22 @@ Proof.
   unfold LessOrEqual in |- *.
   divide et impera.
   - intro e.
-    destruct (compare m n) as [| |] eqn:c.
+    match (compare m n) per c with | | | end.
     + apply Disjunction.R.
-      destruct (Comparable.specification m n) as [s _].
+      match (Comparable.specification m n) with | s _ end.
       ipso (modus aequans s, c).
     + apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
+      match (Comparable.specification m n) with | _ s end.
       ipso (modus aequans s, c).
     + apply Disjunction.L.
       ipso (Identity.symmetry e).
   - intro h.
-    destruct (compare m n) as [| |] eqn:c.
+    match (compare m n) per c with | | | end.
     + reflexivity.
     + reflexivity.
-    + destruct h as [e | lt1].
+    + match h with | e | lt1 end.
       * ipso (Identity.symmetry e).
-      * destruct (Comparable.specification m n) as [s _].
+      * match (Comparable.specification m n) with | s _ end.
         modus aequans s, lt1 as e.
         rewrite e in c.
         discriminate c.
@@ -419,7 +419,7 @@ Proof.
   intros A compare lt C l r.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
+  match (compare l r) per c with | | | end.
   - ipso (Disjunction.L (Identity.reflexivity l)).
   - ipso (Disjunction.L (Identity.reflexivity l)).
   - apply Disjunction.R.
@@ -443,12 +443,12 @@ Proof.
   intros A compare lt C l r.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
+  match (compare l r) per c with | | | end.
   - apply Disjunction.R.
-    destruct (Comparable.specification l r) as [s _].
+    match (Comparable.specification l r) with | s _ end.
     ipso (modus aequans s, c).
   - apply Disjunction.L.
-    destruct (Comparable.specification l r) as [_ s].
+    match (Comparable.specification l r) with | _ s end.
     ipso (modus aequans s, c).
   - ipso (Disjunction.L (Identity.reflexivity r)).
 Qed.
@@ -466,7 +466,7 @@ Theorem universality
 Proof.
   intros A c lt C k m n h1 h2.
   unfold min in |- *.
-  destruct (c m n) as [| |].
+  match (c m n) with | | | end.
   - ipso h1.
   - ipso h1.
   - ipso h2.
@@ -570,19 +570,19 @@ Proof.
   unfold LessOrEqual in |- *.
   divide et impera.
   - intro e.
-    destruct (compare m n) as [| |] eqn:c.
+    match (compare m n) per c with | | | end.
     + apply Disjunction.L.
       ipso e.
     + apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
+      match (Comparable.specification m n) with | _ s end.
       modus aequans s, c as e'.
       ipso (Identity.symmetry e').
     + apply Disjunction.R.
       ipso (modus aequans
                (comparison.strict.transposition.specification m n), c).
   - intro h.
-    destruct (compare m n) as [| |] eqn:c.
-    + destruct h as [e | gt].
+    match (compare m n) per c with | | | end.
+    + match h with | e | gt end.
       * ipso e.
       * modus aequans (comparison.strict.transposition.specification m n), gt as e.
         rewrite e in c.
@@ -605,9 +605,9 @@ Proof.
   intros A compare lt C l r.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
+  match (compare l r) per c with | | | end.
   - apply Disjunction.R.
-    destruct (Comparable.specification l r) as [s _].
+    match (Comparable.specification l r) with | s _ end.
     ipso (modus aequans s, c).
   - ipso (Disjunction.L (Identity.reflexivity l)).
   - ipso (Disjunction.L (Identity.reflexivity l)).
@@ -629,10 +629,10 @@ Proof.
   intros A compare lt C l r.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
+  match (compare l r) per c with | | | end.
   - ipso (Disjunction.L (Identity.reflexivity r)).
   - apply Disjunction.L.
-    destruct (Comparable.specification l r) as [_ s].
+    match (Comparable.specification l r) with | _ s end.
     modus aequans s, c as e.
     ipso (Identity.symmetry e).
   - apply Disjunction.R.
@@ -654,7 +654,7 @@ Theorem universality
 Proof.
   intros A c lt C k m n h1 h2.
   unfold max in |- *.
-  destruct (c m n) as [| |].
+  match (c m n) with | | | end.
   - ipso h2.
   - ipso h1.
   - ipso h1.

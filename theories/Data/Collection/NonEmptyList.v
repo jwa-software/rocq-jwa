@@ -264,15 +264,15 @@ Proof.
   - simpl in |- *.
     divide et impera.
     + intro h.
-      destruct h as [e | h'].
+      match h with | e | h' end.
       * ipso (Disjunction.L (Disjunction.L e)).
       * modus aequans IH, h' as d.
-        destruct d as [m | m].
+        match d with | m | m end.
         -- ipso (Disjunction.L (Disjunction.R m)).
         -- ipso (Disjunction.R m).
     + intro h.
-      destruct h as [c | m].
-      * destruct c as [e | m].
+      match h with | c | m end.
+      * match c with | e | m end.
         -- ipso (Disjunction.L e).
         -- modus aequans IH, (Disjunction.L m) as h'.
            ipso (Disjunction.R h').
@@ -374,7 +374,7 @@ Proof.
     reflexivity.
   - simpl in |- *.
     intro h.
-    destruct h as [e | h'].
+    match h with | e | h' end.
     + apply Disjunction.L.
       rewrite e in |- *.
       reflexivity.
@@ -415,13 +415,13 @@ Proof.
   - intros a h.
     simpl in h.
     simpl in |- *.
-    destruct (le b (maximum_of le x')) eqn:s.
-    + destruct h as [e | m].
+    match (le b (maximum_of le x')) per s with end.
+    + match h with | e | m end.
       * rewrite e in |- *.
         ipso s.
       * ipso (IH a m).
     + pose proof (List.comparison.contraposition total s) as ha.
-      destruct h as [e | m].
+      match h with | e | m end.
       * rewrite e in |- *.
         ipso (List.comparison.reflexivity total b).
       * ipso (transitive a (maximum_of le x') b (IH a m) ha).
@@ -437,7 +437,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    destruct (le b (maximum_of le x')) eqn:s.
+    match (le b (maximum_of le x')) per s with end.
     + ipso (Disjunction.R IH).
     + ipso (Disjunction.L (Identity.reflexivity b)).
 Qed.
@@ -465,13 +465,13 @@ Proof.
   - intros a h.
     simpl in h.
     simpl in |- *.
-    destruct (le b (minimum_of le x')) eqn:s.
-    + destruct h as [e | m].
+    match (le b (minimum_of le x')) per s with end.
+    + match h with | e | m end.
       * rewrite e in |- *.
         ipso (List.comparison.reflexivity total b).
       * ipso (transitive b (minimum_of le x') a s (IH a m)).
     + pose proof (List.comparison.contraposition total s) as ha.
-      destruct h as [e | m].
+      match h with | e | m end.
       * rewrite e in |- *.
         ipso ha.
       * ipso (IH a m).
@@ -487,7 +487,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    destruct (le b (minimum_of le x')) eqn:s.
+    match (le b (minimum_of le x')) per s with end.
     + ipso (Disjunction.L (Identity.reflexivity b)).
     + ipso (Disjunction.R IH).
 Qed.
@@ -549,18 +549,18 @@ Proof.
     + intro e.
       ipso (Disjunction.L e).
     + intro h.
-      destruct h as [e | f].
+      match h with | e | f end.
       * ipso e.
       * ex f quodlibet.
   - simpl in |- *.
     divide et impera.
     + intro h.
-      destruct h as [e | m].
+      match h with | e | m end.
       * ipso (Disjunction.L e).
       * modus aequans IH, m as m'.
         ipso (Disjunction.R m').
     + intro h.
-      destruct h as [e | m].
+      match h with | e | m end.
       * ipso (Disjunction.L e).
       * modus aequans IH, m as m'.
         ipso (Disjunction.R m').
@@ -581,7 +581,7 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    destruct (le a (maximum_of le x')) eqn:s; reflexivity.
+    match (le a (maximum_of le x')) per s with end; reflexivity.
 Qed.
 
 (* conversion.minimum *)
@@ -595,7 +595,7 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    destruct (le a (minimum_of le x')) eqn:s; reflexivity.
+    match (le a (minimum_of le x')) per s with end; reflexivity.
 Qed.
 
 End conversion. (* conversion *)

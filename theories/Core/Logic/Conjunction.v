@@ -23,7 +23,7 @@ Theorem commutativity
 Proof.
   intros A B.
   intro h.
-  destruct h as [a b].
+  match h with | a b end.
   (* [Conjunction] has one ctor with two fields,
    * so the goal splits into two goals: [|- B] and [|- A].
    *)
@@ -38,16 +38,16 @@ Proof.
   intros A B C.
   divide et impera.
   - intro h.
-    destruct h  as [ab c].
-    destruct ab as [a b].
+    match h  with | ab c end.
+    match ab with | a b end.
     divide et impera.
     + ipso a.
     + divide et impera.
       * ipso b.
       * ipso c.
   - intro h.
-    destruct h  as [a bc].
-    destruct bc as [b c].
+    match h  with | a bc end.
+    match bc with | b c end.
     divide et impera.
     + divide et impera.
       * ipso a.
@@ -72,7 +72,7 @@ Proof.
     + ipso b.
   - intro f.
     intro h.
-    destruct h as [a b].
+    match h with | a b end.
     apply f.
     + ipso a.
     + ipso b.
@@ -88,11 +88,11 @@ Proof.
   intros A B C.
   divide et impera.
   - intro f.
-    divide et impera; intro a; destruct (f a) as [b c].
+    divide et impera; intro a; match (f a) with | b c end.
     + ipso b.
     + ipso c.
   - intro h.
-    destruct h as [ab ac].
+    match h with | ab ac end.
     intro a.
     divide et impera.
     + apply ab.
@@ -107,15 +107,15 @@ Theorem congruence
 Proof.
   intros A1 A2 B1 B2.
   intros a b.
-  destruct a as [a12 a21].
-  destruct b as [b12 b21].
+  match a with | a12 a21 end.
+  match b with | b12 b21 end.
   (* [Biconditional] has one ctor with two fields, so the goal splits into two
    * goals: [|- A1 /\ B1 -> A2 /\ B2] and [|- A2 /\ B2 -> A1 /\ B1].
    *)
   divide et impera.
   - (* [h : A1 /\ B1]: [|- A2 /\ B2] *)
     intro h.
-    destruct h as [a1 b1].
+    match h with | a1 b1 end.
     (* The goal splits into [|- A2] and [|- B2]. *)
     divide et impera.
     + apply a12.
@@ -124,7 +124,7 @@ Proof.
       ipso b1.
   - (* [h : A2 /\ B2]: [|- A1 /\ B1] *)
     intro h.
-    destruct h as [a2 b2].
+    match h with | a2 b2 end.
     (* The goal splits into [|- A1] and [|- B1]. *)
     divide et impera.
     + apply a21.

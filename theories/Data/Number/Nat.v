@@ -178,7 +178,7 @@ Theorem monotonicity
 Proof.
   intros m n h.
   unfold LessThan in h.
-  destruct h as [k e].
+  match h with | k e end.
   unfold LessThan in |- *.
   apply (Exists_introduction k).
   simpl in |- *.
@@ -194,7 +194,7 @@ Lemma inversion
 Proof.
   intros m n h.
   unfold LessThan in h.
-  destruct h as [k e].
+  match h with | k e end.
   simpl in e.
   pose proof (successor.injectivity e)
           as e'.
@@ -373,7 +373,7 @@ Theorem monotonicity
 Proof.
   intros k m n h.
   unfold LessThan in h.
-  destruct h as [d e].
+  match h with | d e end.
   unfold LessThan in |- *.
   apply (Exists_introduction d).
   rewrite (addition.associativity k m d)
@@ -398,7 +398,7 @@ Proof.
   unfold Negation in |- *.
   intro h.
   unfold LessThan in h.
-  destruct h as [k e].
+  match h with | k e end.
   rewrite (addition.commutativity n k)
           in e.
   pose proof (addition.identity.absence k n)
@@ -416,8 +416,8 @@ Proof.
   intros l m n h1 h2.
   unfold LessThan in h1.
   unfold LessThan in h2.
-  destruct h1 as [k1 e1].
-  destruct h2 as [k2 e2].
+  match h1 with | k1 e1 end.
+  match h2 with | k2 e2 end.
   unfold LessThan in |- *.
   apply (Exists_introduction (k1 + k2)).
   pose proof (Identity.symmetry (addition.associativity l k1 k2))
@@ -439,7 +439,7 @@ Proof.
   intro m.
   induction m as [| m' IH]
       using Nat.induction;
-  intro n; destruct n as [| n'].
+  intro n; match n with | | n' end.
   -
     pose proof (Identity.reflexivity 1)
             as id.
@@ -459,12 +459,12 @@ Proof.
     reflexivity.
   -
     pose proof (IH n') as t.
-    destruct t as [lt | rest].
+    match t with | lt | rest end.
     +
       apply Disjunction.L.
       ipso (successor.order.monotonicity lt).
     +
-      destruct rest as [eq | gt].
+      match rest with | eq | gt end.
       *
         apply Disjunction.R.
         apply Disjunction.L.
@@ -486,17 +486,17 @@ Proof.
   induction n as [| n' IH] using Nat.induction.
   - apply Accessible_introduction.
     intros y h.
-    destruct h as [k e].
-    destruct y as [| y'].
+    match h with | k e end.
+    match y with | | y' end.
     + simpl in e.
       discriminate e.
     + simpl in e.
       discriminate e.
   - apply Accessible_introduction.
     intros y h.
-    destruct h as [k e].
+    match h with | k e end.
     rewrite (addition.commutativity y k) in e.
-    destruct k as [| k'].
+    match k with | | k' end.
     + simpl in e.
       pose proof (successor.injectivity e) as e'.
       rewrite e' in |- *.
@@ -599,7 +599,7 @@ Theorem monotonicity
 Proof.
   intros k m n h.
   unfold LessThan in h.
-  destruct h as [d e].
+  match h with | d e end.
   unfold LessThan in |- *.
   apply (Exists_introduction (k * d)).
   pose proof (Identity.symmetry
@@ -618,7 +618,7 @@ Theorem cancellation
 Proof.
   intros m n k e.
   pose proof (order.strict.trichotomy n k) as t.
-  destruct t as [lt | rest].
+  match t with | lt | rest end.
   - pose proof (multiplication.left.order.monotonicity m n k lt)
             as lt'.
     rewrite e
@@ -628,7 +628,7 @@ Proof.
     unfold Negation in i.
     modus ponens i, lt' as f.
     ex f quodlibet.
-  - destruct rest as [eq | gt].
+  - match rest with | eq | gt end.
     + ipso eq.
     + pose proof (multiplication.left.order.monotonicity m k n gt)
               as gt'.
@@ -728,13 +728,13 @@ Theorem factorization
   : forall {k : Nat} {j : Nat} . k * j = 1 -> k = 1 /\ j = 1.
 Proof.
   intros k j e.
-  destruct k as [| k']; simpl in e.
+  match k with | | k' end; simpl in e.
   -
     divide et impera.
     + reflexivity.
     + ipso e.
   -
-    destruct j as [| j'].
+    match j with | | j' end.
     + simpl in e.
       discriminate e.
     + simpl in e.
@@ -881,7 +881,7 @@ Proof.
   induction m as [| m' IH]
       using Nat.induction;
       intro n;
-  destruct n as [| n'];
+  match n with | | n' end;
       simpl in |- *;
       intro e.
   -
@@ -909,7 +909,7 @@ Proof.
   induction m as [| m' IH]
       using Nat.induction;
       intro n;
-  destruct n as [| n'];
+  match n with | | n' end;
       intro h;
       simpl in |- *.
   +
@@ -921,7 +921,7 @@ Proof.
     reflexivity.
   +
     unfold LessThan in h.
-    destruct h as [k e].
+    match h with | k e end.
     simpl in e.
     discriminate e.
   +
@@ -944,7 +944,7 @@ Proof.
   induction m as [| m' IH]
       using Nat.induction;
       intro n;
-  destruct n as [| n'];
+  match n with | | n' end;
       intro e;
       simpl in |- *.
   + reflexivity.
@@ -995,7 +995,7 @@ Proof.
   induction m as [| m' IH]
       using Nat.induction;
       intros n;
-  destruct n as [| n'];
+  match n with | | n' end;
       simpl in |- *.
   - reflexivity.
   - reflexivity.
@@ -1012,12 +1012,12 @@ Lemma identity : forall (n : Nat) . max n 1 = n.
 Proof.
   intros n.
   unfold Comparable.max in |- *.
-  destruct (compare n 1) as [| |] eqn:c.
+  match (compare n 1) per c with | | | end.
   - pose proof (comparison.strict.forward.specification c)
             as lt.
     unfold LessThan in lt.
-    destruct lt as [k e].
-    destruct n as [| n'];
+    match lt with | k e end.
+    match n with | | n' end;
         simpl in e;
         discriminate e.
   - reflexivity.
@@ -1033,7 +1033,7 @@ Lemma identity : forall (n : Nat) . max 1 n = n.
 Proof.
   intros n.
   unfold Comparable.max in |- *.
-  destruct n as [| n']; simpl in |- *; reflexivity.
+  match n with | | n' end; simpl in |- *; reflexivity.
 Qed.
 
 End left. (* comparison.maximum.left *)
@@ -1062,7 +1062,7 @@ Theorem decidability
   : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n).
 Proof.
   intros m n.
-  destruct (compare m n) as [| |] eqn:e.
+  match (compare m n) per e with | | | end.
   - apply Disjunction.R.
     unfold Negation in |- *.
     intro h.
@@ -1100,7 +1100,7 @@ Theorem truncation
 Proof.
   intros m n h.
   unfold LessOrEqual in h.
-  destruct h as [e | lt].
+  match h with | e | lt end.
   -
     rewrite e in |- *.
     clear e.
@@ -1111,7 +1111,7 @@ Proof.
     + ipso IH.
   -
     unfold LessThan in lt.
-    destruct lt as [k e].
+    match lt with | k e end.
     pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
     clear e e'.
@@ -1169,7 +1169,7 @@ Proof.
     discriminate e.
   -
     intros n k.
-    destruct n as [| n'];
+    match n with | | n' end;
         simpl in |- *;
         intro e.
     +
@@ -1246,7 +1246,7 @@ Theorem specification
 Proof.
   intros m n h.
   unfold LessThan in h.
-  destruct h as [k e].
+  match h with | k e end.
   unfold saturating_sub in |- *.
   rewrite (subtraction.backward.specification e) in |- *.
   simpl in |- *.

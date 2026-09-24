@@ -157,12 +157,12 @@ Theorem extensionality
       -> x = y.
 Proof.
   intros x y.
-  destruct x as [n1 d1 h1].
-  destruct y as [n2 d2 h2].
+  match x with | n1 d1 h1 end.
+  match y with | n2 d2 h2 end.
   simpl numerator, denominator in |- *.
   intros e1 e2.
-  destruct e1.
-  destruct e2.
+  match e1 with end.
+  match e2 with end.
   rewrite (Nat.equality.uniqueness
              (NatWithZero.gcd.nat (Integer.abs n1) d1) Nat.One h1 h2) in |- *.
   reflexivity.
@@ -174,7 +174,7 @@ Theorem irreducibility
       = Nat.One.
 Proof.
   intro x.
-  destruct x as [n d h].
+  match x with | n d h end.
   simpl numerator, denominator in |- *.
   ipso h.
 Qed.
@@ -187,7 +187,7 @@ Theorem retraction
   : forall (x : Rational) . make (numerator x) (denominator x) = x.
 Proof.
   intro x.
-  destruct x as [n d h].
+  match x with | n d h end.
   simpl numerator, denominator in |- *.
 
   assert (whole : Integer.divide n Nat.One = n).
@@ -431,8 +431,8 @@ Proof.
   (* The third field is the irreducibility of each pair, handed over by the
    * case analysis rather than proved after it.
    *)
-  destruct (make a b) as [p q I1] eqn:E1.
-  destruct (make c d) as [r s I2] eqn:E2.
+  match (make a b) per E1 with | p q I1 end.
+  match (make c d) per E2 with | r s I2 end.
   simpl numerator, denominator in P1, P2.
 
   assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
@@ -659,8 +659,8 @@ Proof.
   pose proof (proportionality a b) as P1.
   pose proof (proportionality c d) as P2.
 
-  destruct (make a b) as [p q I1] eqn:E1.
-  destruct (make c d) as [r s I2] eqn:E2.
+  match (make a b) per E1 with | p q I1 end.
+  match (make c d) per E2 with | r s I2 end.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
@@ -738,8 +738,8 @@ Proof.
   pose proof (proportionality a b) as P1.
   pose proof (proportionality c d) as P2.
 
-  destruct (make a b) as [p q I1] eqn:E1.
-  destruct (make c d) as [r s I2] eqn:E2.
+  match (make a b) per E1 with | p q I1 end.
+  match (make c d) per E2 with | r s I2 end.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
@@ -783,7 +783,7 @@ Proof.
 
   pose proof (proportionality a b) as P1.
 
-  destruct (make a b) as [p q I1] eqn:E1.
+  match (make a b) per E1 with | p q I1 end.
   simpl numerator, denominator in P1.
   simpl numerator, denominator in |- *.
 
@@ -1000,7 +1000,7 @@ Proof.
   rewrite (Integer.multiplication.right.identity (numerator x)) in |- *.
   rewrite (Integer.multiplication.left.annihilation (Integer.from_nat (denominator x))) in |- *.
   rewrite (Integer.addition.right.identity (numerator x)) in |- *.
-  destruct (Nat.multiplication.identity (denominator x)) as [_ unit].
+  match (Nat.multiplication.identity (denominator x)) with | _ unit end.
   rewrite unit in |- *.
   ipso (make.retraction x).
 Qed.
@@ -1360,7 +1360,7 @@ Proof.
 
   pose proof (make.retraction x) as r.
   simpl inverse in e.
-  destruct (numerator x) as [p | | p] eqn:E.
+  match (numerator x) per E with | p | | p end.
 
   - pose proof (Option.some.injectivity e) as hy.
     symmetry in r.
@@ -1530,27 +1530,29 @@ Proof.
 
   pose proof (Integer.order.strict.transitivity S1 S2) as chain.
 
-  destruct (Comparable.order.strict.trichotomy
-              (Integer.mul a (Integer.Positive f))
-              (Integer.mul e (Integer.Positive b)))
-        as [lt | [eq | gt]].
+  match (Comparable.order.strict.trichotomy
+           (Integer.mul a (Integer.Positive f))
+           (Integer.mul e (Integer.Positive b)))
+        with | lt | rest end.
 
   - ipso lt.
 
-  - rewrite eq in chain.
-    pose proof (Integer.order.strict.irreflexivity
-                  (Integer.mul (Integer.Positive d)
-                         (Integer.mul e (Integer.Positive b)))) as ir.
-    ex (ir chain) quodlibet.
+  - match rest with | eq | gt end.
 
-  - pose proof (Integer.multiplication.left.order.strict.monotonicity
-                  d (Integer.mul e (Integer.Positive b))
-                    (Integer.mul a (Integer.Positive f)) gt) as back.
-    pose proof (Integer.order.strict.transitivity chain back) as loop.
-    pose proof (Integer.order.strict.irreflexivity
-                  (Integer.mul (Integer.Positive d)
-                         (Integer.mul a (Integer.Positive f)))) as ir.
-    ex (ir loop) quodlibet.
+    + rewrite eq in chain.
+      pose proof (Integer.order.strict.irreflexivity
+                    (Integer.mul (Integer.Positive d)
+                           (Integer.mul e (Integer.Positive b)))) as ir.
+      ex (ir chain) quodlibet.
+
+    + pose proof (Integer.multiplication.left.order.strict.monotonicity
+                    d (Integer.mul e (Integer.Positive b))
+                      (Integer.mul a (Integer.Positive f)) gt) as back.
+      pose proof (Integer.order.strict.transitivity chain back) as loop.
+      pose proof (Integer.order.strict.irreflexivity
+                    (Integer.mul (Integer.Positive d)
+                           (Integer.mul a (Integer.Positive f)))) as ir.
+      ex (ir loop) quodlibet.
 Qed.
 
 End strict. (* order.strict *)
@@ -1567,10 +1569,10 @@ Theorem specification
 Proof.
   intros x y.
 
-  destruct (Integer.comparison.specification
+  match (Integer.comparison.specification
               (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
               (Integer.mul (numerator y) (Integer.from_nat (denominator x))))
-        as [below equal].
+        with | below equal end.
 
   divide et impera.
   - ipso below.
@@ -1670,23 +1672,24 @@ Proof.
                  (Integer.Positive k) q) in s.
       ipso s.
     - intro h.
-      destruct (Comparable.order.strict.trichotomy p q)
-            as [below | [equal | above]].
+      match (Comparable.order.strict.trichotomy p q)
+            with | below | rest end.
       + ipso below.
-      + rewrite equal in h.
-        pose proof (Integer.order.strict.irreflexivity
-                      (Integer.mul q (Integer.Positive k))) as ir.
-        ex (ir h) quodlibet.
-      + pose proof (Integer.multiplication.left.order.strict.monotonicity
-                      k q p above) as s.
-        rewrite (Integer.multiplication.commutativity
-                   (Integer.Positive k) q) in s.
-        rewrite (Integer.multiplication.commutativity
-                   (Integer.Positive k) p) in s.
-        pose proof (Integer.order.strict.transitivity h s) as loop.
-        pose proof (Integer.order.strict.irreflexivity
-                      (Integer.mul p (Integer.Positive k))) as ir.
-        ex (ir loop) quodlibet.
+      + match rest with | equal | above end.
+        * rewrite equal in h.
+          pose proof (Integer.order.strict.irreflexivity
+                        (Integer.mul q (Integer.Positive k))) as ir.
+          ex (ir h) quodlibet.
+        * pose proof (Integer.multiplication.left.order.strict.monotonicity
+                        k q p above) as s.
+          rewrite (Integer.multiplication.commutativity
+                     (Integer.Positive k) q) in s.
+          rewrite (Integer.multiplication.commutativity
+                     (Integer.Positive k) p) in s.
+          pose proof (Integer.order.strict.transitivity h s) as loop.
+          pose proof (Integer.order.strict.irreflexivity
+                        (Integer.mul p (Integer.Positive k))) as ir.
+          ex (ir loop) quodlibet.
   }
 
   pose proof (make.proportionality m Nat.One) as P1.

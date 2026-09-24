@@ -111,7 +111,7 @@ Module negation. (* negation *)
 Theorem involution : forall (b : Bool) . ! ! b = b.
 Proof.
   intros b.
-  destruct b as [|]; simpl in |- *; reflexivity.
+  match b with | | end; simpl in |- *; reflexivity.
 Qed.
 
 End negation. (* negation *)
@@ -124,7 +124,7 @@ Theorem associativity
       (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
 Qed.
 
 (* conjunction.commutativity *)
@@ -132,7 +132,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 && b2 = b2 && b1.
 Proof.
   intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; reflexivity.
 Qed.
 
 (* conjunction.identity *)
@@ -160,7 +160,7 @@ Theorem sejunction
       b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
 Qed.
 
 End over. (* conjunction.left.distributivity.over *)
@@ -181,7 +181,7 @@ Theorem sejunction
       (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
 Qed.
 
 End over. (* conjunction.right.distributivity.over *)
@@ -220,14 +220,14 @@ Theorem associativity
       (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
 Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity : forall (b1 : Bool) (b2 : Bool) . b1 || b2 = b2 || b1.
 Proof.
   intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; reflexivity.
 Qed.
 
 (* disjunction.identity *)
@@ -253,7 +253,7 @@ Theorem associativity
       (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
 Qed.
 
 (* sejunction.commutativity *)
@@ -261,7 +261,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 ^^ b2 = b2 ^^ b1.
 Proof.
   intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; reflexivity.
 Qed.
 
 (* sejunction.identity *)
@@ -281,7 +281,7 @@ Qed.
 Theorem irreflexivity : forall (b : Bool) . b ^^ b = false.
 Proof.
   intros b.
-  destruct b as [|]; reflexivity.
+  match b with | | end; reflexivity.
 Qed.
 
 (* sejunction.inverse *)

@@ -696,7 +696,7 @@ Proof.
     ipso g.
   - simpl in |- *.
     intro h.
-    destruct h as [e | h'].
+    match h with | e | h' end.
     + apply Disjunction.L.
       rewrite e in |- *.
       reflexivity.
@@ -742,16 +742,16 @@ Proof.
       ex g quodlibet.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
+      match h with | e | h' end.
       * ipso (Exists_introduction
                  a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
       * pose proof (IH h') as w.
-        destruct w as [a' c].
-        destruct c as [m e].
+        match w with | a' c end.
+        match c with | m e end.
         ipso (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
   - intro w.
-    destruct w as [a c].
-    destruct c as [m e].
+    match w with | a c end.
+    match c with | m e end.
     rewrite e in |- *.
     ipso (preservation.of.membership f a l m).
 Qed.
@@ -818,9 +818,9 @@ Proof.
     ipso (Disjunction.R h).
   - simpl in |- *.
     intro h.
-    destruct h as [e | h'].
+    match h with | e | h' end.
     + ipso (Disjunction.L (Disjunction.L e)).
-    + destruct (IH h') as [h1 | h2].
+    + match (IH h') with | h1 | h2 end.
       * ipso (Disjunction.L (Disjunction.R h1)).
       * ipso (Disjunction.R h2).
 Qed.
@@ -846,13 +846,13 @@ Proof.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [f | h2].
+    match h with | f | h2 end.
     + ex f quodlibet.
     + ipso h2.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 | h2].
-    + destruct h1 as [e | h1'].
+    match h with | h1 | h2 end.
+    + match h1 with | e | h1' end.
       * ipso (Disjunction.L e).
       * apply Disjunction.R.
         apply IH.
@@ -965,12 +965,12 @@ Proof.
     ipso f.
   - simpl in |- *.
     intro h.
-    destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
+    match (membership.forward.distributivity.over.concatenation h) with | h1 | h2 end.
     + apply Disjunction.R.
       apply IH.
       ipso h1.
     + simpl in h2.
-      destruct h2 as [e | f].
+      match h2 with | e | f end.
       * ipso (Disjunction.L e).
       * ex f quodlibet.
 Qed.
@@ -1000,7 +1000,7 @@ Proof.
   - simpl in |- *.
     intro h.
     apply membership.backward.distributivity.over.concatenation.
-    destruct h as [e | h'].
+    match h with | e | h' end.
     + apply Disjunction.R.
       simpl in |- *.
       ipso (Disjunction.L e).
@@ -1069,15 +1069,15 @@ Proof.
   rewrite (appending.specification l a) in |- *.
   divide et impera.
   - intro h.
-    destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
+    match (membership.forward.distributivity.over.concatenation h) with | h1 | h2 end.
     + ipso (Disjunction.R h1).
     + simpl in h2.
-      destruct h2 as [e | f].
+      match h2 with | e | f end.
       * ipso (Disjunction.L e).
       * ex f quodlibet.
   - intro h.
     apply membership.backward.distributivity.over.concatenation.
-    destruct h as [e | h'].
+    match h with | e | h' end.
     + apply Disjunction.R.
       simpl in |- *.
       ipso (Disjunction.L e).
@@ -1116,7 +1116,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    destruct (p b) as [|].
+    match (p b) with | | end.
     + simpl in |- *.
       rewrite IH in |- *.
       reflexivity.
@@ -1163,21 +1163,21 @@ Proof.
     intro f.
     ex f quodlibet.
   - simpl in |- *.
-    destruct (p b) as [|] eqn:pb.
+    match (p b) per pb with | | end.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
+      match h with | e | h' end.
       * divide et impera.
         -- ipso (Disjunction.L e).
         -- rewrite e in |- *.
            ipso pb.
-      * destruct (IH h') as [hl pa].
+      * match (IH h') with | hl pa end.
         divide et impera.
         -- ipso (Disjunction.R hl).
         -- ipso pa.
     + simpl in |- *.
       intro h'.
-      destruct (IH h') as [hl pa].
+      match (IH h') with | hl pa end.
       divide et impera.
       * ipso (Disjunction.R hl).
       * ipso pa.
@@ -1196,17 +1196,17 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [f _].
+    match h with | f _ end.
     ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 pa].
-    destruct h1 as [e | h'].
+    match h with | h1 pa end.
+    match h1 with | e | h' end.
     + rewrite e in pa.
       rewrite pa in |- *.
       simpl in |- *.
       ipso (Disjunction.L e).
-    + destruct (p b) as [|].
+    + match (p b) with | | end.
       * simpl in |- *.
         apply Disjunction.R.
         apply IH.
@@ -1260,8 +1260,8 @@ Proof.
     + ipso h.
   - simpl in |- *.
     intro h.
-    destruct h as [pb h'].
-    destruct (IH h') as [h1 h2].
+    match h with | pb h' end.
+    match (IH h') with | h1 h2 end.
     divide et impera.
     + divide et impera.
       * ipso pb.
@@ -1285,9 +1285,9 @@ Proof.
     ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [pb h'].
+    match h with | pb h' end.
     intros a ha.
-    destruct ha as [e | ha'].
+    match ha with | e | ha' end.
     + rewrite e in |- *.
       ipso pb.
     + apply (IH h').
@@ -1311,12 +1311,12 @@ Proof.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [_ h2].
+    match h with | _ h2 end.
     ipso h2.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 h2].
-    destruct h1 as [pb h1'].
+    match h with | h1 h2 end.
+    match h1 with | pb h1' end.
     divide et impera.
     + ipso pb.
     + apply IH.
@@ -1394,7 +1394,7 @@ Proof.
     ipso v.
   - simpl in |- *.
     intro c.
-    destruct c as [pb all'].
+    match c with | pb all' end.
     ipso (Conjunction_introduction (h b pb) (IH all')).
 Qed.
 
@@ -1435,9 +1435,9 @@ Proof.
     ipso (Disjunction.R h).
   - simpl in |- *.
     intro h.
-    destruct h as [pb | h'].
+    match h with | pb | h' end.
     + ipso (Disjunction.L (Disjunction.L pb)).
-    + destruct (IH h') as [h1 | h2].
+    + match (IH h') with | h1 | h2 end.
       * ipso (Disjunction.L (Disjunction.R h1)).
       * ipso (Disjunction.R h2).
 Qed.
@@ -1458,13 +1458,13 @@ Proof.
     ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [pb | h'].
+    match h with | pb | h' end.
     + apply (Exists_introduction b).
       divide et impera.
       * ipso (Disjunction.L (Identity.reflexivity b)).
       * ipso pb.
-    + destruct (IH h') as [a ha].
-      destruct ha as [ha' pa].
+    + match (IH h') with | a ha end.
+      match ha with | ha' pa end.
       apply (Exists_introduction a).
       divide et impera.
       * ipso (Disjunction.R ha').
@@ -1488,13 +1488,13 @@ Proof.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [f | h2].
+    match h with | f | h2 end.
     + ex f quodlibet.
     + ipso h2.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 | h2].
-    + destruct h1 as [pb | h1'].
+    match h with | h1 | h2 end.
+    + match h1 with | pb | h1' end.
       * ipso (Disjunction.L pb).
       * apply Disjunction.R.
         apply IH.
@@ -1517,14 +1517,14 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [a ha].
-    destruct ha as [f _].
+    match h with | a ha end.
+    match ha with | f _ end.
     ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [a ha].
-    destruct ha as [ha' pa].
-    destruct ha' as [e | ha''].
+    match h with | a ha end.
+    match ha with | ha' pa end.
+    match ha' with | e | ha'' end.
     + rewrite e in pa.
       ipso (Disjunction.L pa).
     + apply Disjunction.R.
@@ -1595,7 +1595,7 @@ Lemma specification
       head l = Some a -> exists (l' : List A) . l = a :: l'.
 Proof.
   intros A a l.
-  destruct l as [| b rest].
+  match l with | | b rest end.
   - simpl in |- *.
     intro e.
     discriminate e.
@@ -1618,7 +1618,7 @@ Lemma specification
 Proof.
   intros A a l.
   intro h.
-  destruct h as [l' e].
+  match h with | l' e end.
   rewrite e in |- *.
   simpl in |- *.
   reflexivity.
@@ -1649,7 +1649,7 @@ Lemma specification
       tail l = Some l' -> exists (a : A) . l = a :: l'.
 Proof.
   intros A l l'.
-  destruct l as [| b rest].
+  match l with | | b rest end.
   - simpl in |- *.
     intro e.
     discriminate e.
@@ -1672,7 +1672,7 @@ Lemma specification
 Proof.
   intros A l l'.
   intro h.
-  destruct h as [a e].
+  match h with | a e end.
   rewrite e in |- *.
   simpl in |- *.
   reflexivity.
@@ -1705,7 +1705,7 @@ Proof.
   intros A a l.
   unfold last in |- *.
   intro h.
-  destruct (head.forward.specification h) as [r e].
+  match (head.forward.specification h) with | r e end.
   apply (Exists_introduction (reverse r)).
   pose proof (Identity.congruence reverse e) as e'.
   rewrite reversal.involution in e'.
@@ -1724,7 +1724,7 @@ Lemma specification
 Proof.
   intros A a l.
   intro h.
-  destruct h as [l' e].
+  match h with | l' e end.
   unfold last in |- *.
   rewrite e in |- *.
   rewrite appending.reversal in |- *.
@@ -1758,7 +1758,7 @@ Lemma specification
 Proof.
   intros A l l'.
   unfold initial in |- *.
-  destruct (reverse l) as [| b r] eqn:er.
+  match (reverse l) per er with | | b r end.
   - simpl in |- *.
     intro h.
     discriminate h.
@@ -1784,7 +1784,7 @@ Lemma specification
 Proof.
   intros A l l'.
   intro h.
-  destruct h as [a e].
+  match h with | a e end.
   unfold initial in |- *.
   rewrite e in |- *.
   rewrite appending.reversal in |- *.
@@ -1818,7 +1818,7 @@ Lemma specification
       pop l = Some (a, l') -> l = a :: l'.
 Proof.
   intros A a l' l.
-  destruct l as [| b rest].
+  match l with | | b rest end.
   - simpl in |- *.
     intro e.
     discriminate e.
@@ -1826,7 +1826,7 @@ Proof.
     intro e.
     pose proof (Option.some.injectivity e) as e'.
     pose proof (Product.introduction.injectivity e') as e''.
-    destruct e'' as [eb erest].
+    match e'' with | eb erest end.
     rewrite eb, erest in |- *.
     reflexivity.
 Qed.
@@ -1869,7 +1869,7 @@ Theorem projection
   : forall {A : Type} (l : List A) . Option.map Product.first (pop l) = head l.
 Proof.
   intros A l.
-  destruct l as [| a l']; simpl in |- *; reflexivity.
+  match l with | | a l' end; simpl in |- *; reflexivity.
 Qed.
 
 End head. (* popping.head *)
@@ -1881,7 +1881,7 @@ Theorem projection
   : forall {A : Type} (l : List A) . Option.map Product.second (pop l) = tail l.
 Proof.
   intros A l.
-  destruct l as [| a l']; simpl in |- *; reflexivity.
+  match l with | | a l' end; simpl in |- *; reflexivity.
 Qed.
 
 End tail. (* popping.tail *)
@@ -1929,14 +1929,14 @@ Proof.
   intros A B l1.
   induction l1 as [| a l1' IH] using List.induction.
   - intros l2.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
       rewrite (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
       reflexivity.
   - intros l2.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + simpl in |- *.
       rewrite (NatWithZero.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
       reflexivity.
@@ -1974,7 +1974,7 @@ Proof.
   intros A B l1.
   induction l1 as [| a l1' IH] using List.induction.
   - intros l2 e.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + unfold unzip in |- *.
       simpl in |- *.
       reflexivity.
@@ -1987,7 +1987,7 @@ Proof.
       modus ponens h, e' as f.
       ex f quodlibet.
   - intros l2 e.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
@@ -2002,7 +2002,7 @@ Proof.
       pose proof (IH l2' e') as IH'.
       unfold unzip in IH'.
       pose proof (Product.introduction.injectivity IH') as e''.
-      destruct e'' as [e1 e2].
+      match e'' with | e1 e2 end.
       unfold unzip in |- *.
       simpl in |- *.
       rewrite e1 in |- *.
@@ -2030,7 +2030,7 @@ Proof.
     reflexivity.
   - simpl in |- *.
     rewrite IH in |- *.
-    destruct (p a) as [|] eqn:pa; simpl in |- *; reflexivity.
+    match (p a) per pa with | | end; simpl in |- *; reflexivity.
 Qed.
 
 End partitioning. (* partitioning *)
@@ -2055,16 +2055,16 @@ Proof.
   intros A l.
   induction l as [| b l' IH] using List.induction.
   - intros i h.
-    destruct h as [a e].
+    match h with | a e end.
     simpl in e.
     discriminate e.
   - intros i h.
-    destruct i as [| i'].
+    match i with | | i' end.
     + simpl in |- *.
       rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
       ipso (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
-    + destruct i' as [| i''].
+    + match i' with | | i'' end.
       * simpl in h.
         pose proof (IH NatWithZero.Zero h) as lt.
         simpl in |- *.
@@ -2092,17 +2092,17 @@ Proof.
   - intros i h.
     simpl in h.
     unfold NatWithZero.LessThan in h.
-    destruct h as [k e].
+    match h with | k e end.
     pose proof (NatWithZero.addition.right.identity.absence i k) as r.
     unfold Negation in r.
     modus ponens r, e as f.
     ex f quodlibet.
   - intros i h.
-    destruct i as [| i'].
+    match i with | | i' end.
     + simpl in |- *.
       apply (Exists_introduction b).
       reflexivity.
-    + destruct i' as [| i''].
+    + match i' with | | i'' end.
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
         pose proof (NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h)
@@ -2146,10 +2146,10 @@ Proof.
     simpl in |- *.
     reflexivity.
   - intros n.
-    destruct n as [| n'].
+    match n with | | n' end.
     + simpl in |- *.
       reflexivity.
-    + destruct n' as [| n''].
+    + match n' with | | n'' end.
       * simpl in |- *.
         reflexivity.
       * simpl in |- *.
@@ -2176,11 +2176,11 @@ Proof.
     rewrite (NatWithZero.minimum.right.annihilation n) in |- *.
     reflexivity.
   - intros n.
-    destruct n as [| n'].
+    match n with | | n' end.
     + simpl in |- *.
       rewrite (NatWithZero.minimum.left.annihilation (++ (|| l' ||))) in |- *.
       reflexivity.
-    + destruct n' as [| n''].
+    + match n' with | | n'' end.
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
@@ -2221,11 +2221,11 @@ Proof.
     simpl in |- *.
     reflexivity.
   - intros n.
-    destruct n as [| n'].
+    match n with | | n' end.
     + simpl in |- *.
       rewrite (NatWithZero.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
       reflexivity.
-    + destruct n' as [| n''].
+    + match n' with | | n'' end.
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
@@ -2269,7 +2269,7 @@ Theorem length
   : forall {A : Type} (n : NatWithZero) (a : A) . (|| replicate n a ||) = n.
 Proof.
   intros A n a.
-  destruct n as [| k].
+  match n with | | k end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2353,7 +2353,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    destruct (p a) as [|].
+    match (p a) with | | end.
     + simpl in |- *.
       rewrite IH in |- *.
       reflexivity.
@@ -2379,7 +2379,7 @@ Proof.
     + intro v.
       reflexivity.
   - simpl in |- *.
-    destruct (p a) as [|].
+    match (p a) with | | end.
     + simpl in |- *.
       divide et impera.
       * intro e.
@@ -2390,7 +2390,7 @@ Proof.
         modus ponens r, e as f.
         ex f quodlibet.
       * intro c.
-        destruct c as [e f].
+        match c with | e f end.
         discriminate e.
     + simpl in |- *.
       divide et impera.
@@ -2398,7 +2398,7 @@ Proof.
         modus aequans IH, e as all'.
         ipso (Conjunction_introduction (Identity.reflexivity false) all').
       * intro c.
-        destruct c as [e all'].
+        match c with | e all' end.
         ipso (modus aequans IH, all').
 Qed.
 
@@ -2426,8 +2426,8 @@ Proof.
     ipso (Conjunction_introduction pa v).
   - simpl in |- *.
     intro c.
-    destruct c as [pb all'].
-    destruct (le a b) as [|].
+    match c with | pb all' end.
+    match (le a b) with | | end.
     + simpl in |- *.
       ipso (Conjunction_introduction pa (Conjunction_introduction pb all')).
     + simpl in |- *.
@@ -2453,8 +2453,8 @@ Proof.
     ipso (Conjunction_introduction v v).
   - simpl in |- *.
     intro s.
-    destruct s as [below sorted'].
-    destruct (le a b) as [|] eqn:c.
+    match s with | below sorted' end.
+    match (le a b) per c with | | end.
     + simpl in |- *.
       pose proof (quantification.all.monotonicity
                     (fun (x : A) (h : le b x = true) . transitive a b x c h) below)
@@ -2464,7 +2464,7 @@ Proof.
                (Conjunction_introduction below sorted')).
     + simpl in |- *.
       pose proof (total a b) as t.
-      destruct t as [ab | ba].
+      match t with | ab | ba end.
       * rewrite c in ab.
         discriminate ab.
       * ipso (Conjunction_introduction
@@ -2488,16 +2488,16 @@ Proof.
     intro h.
     ipso h.
   - simpl in |- *.
-    destruct (le a c) as [|].
+    match (le a c) with | | end.
     + simpl in |- *.
       intro h.
       ipso h.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
+      match h with | e | h' end.
       * ipso (Disjunction.R (Disjunction.L e)).
       * modus ponens IH, h' as h''.
-        destruct h'' as [e | h'''].
+        match h'' with | e | h''' end.
         { ipso (Disjunction.L e). }
         { ipso (Disjunction.R (Disjunction.R h''')). }
 Qed.
@@ -2517,15 +2517,15 @@ Proof.
     intro h.
     ipso h.
   - simpl in |- *.
-    destruct (le a c) as [|].
+    match (le a c) with | | end.
     + simpl in |- *.
       intro h.
       ipso h.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
+      match h with | e | h' end.
       * ipso (Disjunction.R (IH (Disjunction.L e))).
-      * destruct h' as [e | h''].
+      * match h' with | e | h'' end.
         { ipso (Disjunction.L e). }
         { ipso (Disjunction.R (IH (Disjunction.R h''))). }
 Qed.
@@ -2553,7 +2553,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    destruct (le a b) as [|].
+    match (le a b) with | | end.
     + simpl in |- *.
       reflexivity.
     + simpl in |- *.
@@ -2599,7 +2599,7 @@ Proof.
   - simpl in |- *.
     intro h.
     pose proof (sorting.insertion.forward.membership h) as h'.
-    destruct h' as [e | h''].
+    match h' with | e | h'' end.
     + ipso (Disjunction.L e).
     + ipso (Disjunction.R (IH h'')).
 Qed.
@@ -2629,7 +2629,7 @@ Proof.
   - simpl in |- *.
     intro h.
     apply (sorting.insertion.backward.membership le b a (insertion_sort le l')).
-    destruct h as [e | h'].
+    match h with | e | h' end.
     + ipso (Disjunction.L e).
     + ipso (Disjunction.R (IH h')).
 Qed.
@@ -2706,7 +2706,7 @@ Proof.
   induction p as [| p' IH] using Nat.induction.
   - intros i h.
     simpl in h.
-    destruct h as [e | f].
+    match h with | e | f end.
     + rewrite e in |- *.
       unfold NatWithZero.LessThan in |- *.
       apply (Exists_introduction Nat.One).
@@ -2725,10 +2725,10 @@ Proof.
     assert (below : i <= NatWithZero.Positive p').
     {
       unfold NatWithZero.LessOrEqual in |- *.
-      destruct h' as [h1 | h2].
+      match h' with | h1 | h2 end.
       + ipso (Disjunction.R (IH i h1)).
       + simpl in h2.
-        destruct h2 as [e | f].
+        match h2 with | e | f end.
         * ipso (Disjunction.L e).
         * ex f quodlibet.
     }
@@ -2750,13 +2750,13 @@ Proof.
   induction p as [| p' IH] using Nat.induction.
   - intros i h.
     unfold NatWithZero.LessThan in h.
-    destruct h as [k e].
-    destruct i as [| q].
+    match h with | k e end.
+    match i with | | q end.
     + simpl in |- *.
       ipso (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
     + simpl in e.
       pose proof (NatWithZero.positive.injectivity e) as e'.
-      destruct q as [| q']; simpl in e'; discriminate e'.
+      match q with | | q' end; simpl in e'; discriminate e'.
   - intros i h.
     change (NatWithZero.Positive (Nat.Successor p'))
       with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
@@ -2768,7 +2768,7 @@ Proof.
                    \/ (NatWithZero.Positive p' :: []) contains_member i).
     {
       unfold NatWithZero.LessOrEqual in h'.
-      destruct h' as [e | lt].
+      match h' with | e | lt end.
       + apply Disjunction.R.
         simpl in |- *.
         ipso (Disjunction.L e).
@@ -2790,7 +2790,7 @@ Module from_zero. (* range.from_zero *)
 Theorem length : forall (n : NatWithZero) . (|| range_from_zero n ||) = n.
 Proof.
   intros n.
-  destruct n as [| p].
+  match n with | | p end.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
@@ -2805,14 +2805,14 @@ Theorem specification
       range_from_zero n contains_member i <-> i < n.
 Proof.
   intros n i.
-  destruct n as [| p].
+  match n with | | p end.
   - simpl in |- *.
     divide et impera.
     + intro f.
       ex f quodlibet.
     + intro h.
       unfold NatWithZero.LessThan in h.
-      destruct h as [k e].
+      match h with | k e end.
       pose proof (NatWithZero.addition.right.identity.absence i k) as r.
       unfold Negation in r.
       modus ponens r, e as f.
@@ -2901,7 +2901,7 @@ Theorem specification
 Proof.
   intros start stop i.
   unfold range in |- *.
-  destruct (Comparable.order.totality start stop) as [below | above].
+  match (Comparable.order.totality start stop) with | below | above end.
   - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
     divide et impera.
     + intro h.
@@ -2910,8 +2910,8 @@ Proof.
            (NatWithZero.add start) i
            (range_from_zero (NatWithZero.saturating_sub stop start))),
         h as w.
-      destruct w as [j c].
-      destruct c as [m e].
+      match w with | j c end.
+      match c with | m e end.
       modus aequans
         (from_zero.membership.specification
            (NatWithZero.saturating_sub stop start) j),
@@ -2925,7 +2925,7 @@ Proof.
         ipso (NatWithZero.addition.order.strict.monotonicity
                  start j (NatWithZero.saturating_sub stop start) lt).
     + intro c.
-      destruct c as [low high].
+      match c with | low high end.
       pose proof (NatWithZero.subtraction.saturating.specification low) as step.
       assert (inside : NatWithZero.saturating_sub i start
                        < NatWithZero.saturating_sub stop start).
@@ -2961,9 +2961,9 @@ Proof.
     + intro f.
       ex f quodlibet.
     + intro c.
-      destruct c as [low high].
+      match c with | low high end.
       pose proof (Comparable.order.transitivity stop start i above low) as reached.
-      destruct reached as [e | lt].
+      match reached with | e | lt end.
       * rewrite e in high.
         ipso (NatWithZero.order.strict.irreflexivity i high).
       * ipso (Comparable.order.strict.asymmetry i stop high lt).
@@ -3002,12 +3002,12 @@ Proof.
       (range.membership.specification
          start (stop + NatWithZero.Positive Nat.One) i),
       h as c.
-    destruct c as [low high].
+    match c with | low high end.
     divide et impera.
     + ipso low.
     + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
   - intro c.
-    destruct c as [low high].
+    match c with | low high end.
     assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
     {
       divide et impera.
@@ -3041,7 +3041,7 @@ Lemma reflexivity
       forall (a : A) . le a a = true.
 Proof.
   intros A le total a.
-  destruct (total a a) as [h | h].
+  match (total a a) with | h | h end.
   - ipso h.
   - ipso h.
 Qed.
@@ -3072,12 +3072,12 @@ Proof.
   intros A le l.
   divide et impera.
   - intro e.
-    destruct l as [| a l'].
+    match l with | | a l' end.
     + reflexivity.
     + simpl in e.
-      destruct (maximum_of le l') as [| m].
+      match (maximum_of le l') with | | m end.
       * discriminate e.
-      * destruct (le a m).
+      * match (le a m) with end.
         -- discriminate e.
         -- discriminate e.
   - intro e.
@@ -3104,7 +3104,7 @@ Proof.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (maximum_of le l') as [| m'] eqn:r.
+    match (maximum_of le l') per r with | | m' end.
     + modus aequans (absence.specification le l'), r as en.
       pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
@@ -3113,7 +3113,7 @@ Proof.
       divide et impera.
       * ipso (comparison.reflexivity total a).
       * ipso I.
-    + destruct (le a m') eqn:s.
+    + match (le a m') per s with end.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
@@ -3143,11 +3143,11 @@ Proof.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (maximum_of le l') as [| m'] eqn:r.
+    match (maximum_of le l') per r with | | m' end.
     + pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
       ipso (Disjunction.L (Identity.symmetry e')).
-    + destruct (le a m') eqn:s.
+    + match (le a m') per s with end.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
@@ -3172,12 +3172,12 @@ Proof.
   intros A le l.
   divide et impera.
   - intro e.
-    destruct l as [| a l'].
+    match l with | | a l' end.
     + reflexivity.
     + simpl in e.
-      destruct (minimum_of le l') as [| m].
+      match (minimum_of le l') with | | m end.
       * discriminate e.
-      * destruct (le a m).
+      * match (le a m) with end.
         -- discriminate e.
         -- discriminate e.
   - intro e.
@@ -3204,7 +3204,7 @@ Proof.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (minimum_of le l') as [| m'] eqn:r.
+    match (minimum_of le l') per r with | | m' end.
     + modus aequans (absence.specification le l'), r as en.
       pose proof (Option.some.injectivity e) as e'.
       rewrite en in |- *.
@@ -3213,7 +3213,7 @@ Proof.
       divide et impera.
       * ipso (comparison.reflexivity total a).
       * ipso I.
-    + destruct (le a m') eqn:s.
+    + match (le a m') per s with end.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
@@ -3242,11 +3242,11 @@ Proof.
     discriminate e.
   - intros m e.
     simpl in e.
-    destruct (minimum_of le l') as [| m'] eqn:r.
+    match (minimum_of le l') per r with | | m' end.
     + pose proof (Option.some.injectivity e) as e'.
       simpl in |- *.
       ipso (Disjunction.L (Identity.symmetry e')).
-    + destruct (le a m') eqn:s.
+    + match (le a m') per s with end.
       * pose proof (Option.some.injectivity e) as e'.
         simpl in |- *.
         ipso (Disjunction.L (Identity.symmetry e')).

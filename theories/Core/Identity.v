@@ -56,7 +56,7 @@ Proof.
    * chooses the parameter, which is why [y] becomes [x] and not the other
    * way: [|- P x]
    *)
-  destruct e.
+  match e with end.
   (* [p] is a proof of the goal as it stands. *)
   ipso p.
 Defined.
@@ -76,7 +76,7 @@ Theorem symmetry
   : forall {A : Type} {x : A} {y : A} . x = y -> y = x.
 Proof.
   intros A x y e.
-  destruct e.
+  match e with end.
   quod idem est.
 Defined.
 
@@ -84,7 +84,7 @@ Theorem transitivity
   : forall {A : Type} {x : A} {y : A} {z : A} . x = y -> y = z -> x = z.
 Proof.
   intros A x y z e1 e2.
-  destruct e2.
+  match e2 with end.
   ipso e1.
 Defined.
 
@@ -92,7 +92,7 @@ Theorem congruence
   : forall {A : Type} {B : Type} {x : A} {y : A} (f : A -> B) . x = y -> f x = f y.
 Proof.
   intros A B x y f e.
-  destruct e.
+  match e with end.
   quod idem est.
 Defined.
 
@@ -107,7 +107,7 @@ Proof.
    *       (Identity_introduction x)
    *     = reflexivity x]
    *)
-  destruct r.
+  match r with end.
   change (symmetry (Identity_introduction x))
     with (Identity_introduction x) in |- *.
   change (transitivity (Identity_introduction x) (Identity_introduction x))
@@ -143,7 +143,7 @@ Local Theorem constancy
 Proof.
   intros A decide x y p q.
   unfold decided in |- *.
-  destruct (decide x y) as [r | n].
+  match (decide x y) with | r | n end.
   - quod idem est.
   - unfold Negation in n.
     pose proof (n p) as absurdity.
@@ -161,7 +161,7 @@ Local Theorem retraction
       = e.
 Proof.
   intros A decide x y p.
-  destruct p.
+  match p with end.
   ipso (cancellation (decided decide x x (reflexivity x))).
 Qed.
 
@@ -205,7 +205,7 @@ Definition Identity_rewrite_forward
 Proof.
   intros A x P p.
   intros y e.
-  destruct e.
+  match e with end.
   ipso p.
 Defined.
 
@@ -215,7 +215,7 @@ Definition Identity_rewrite_backward
 Proof.
   intros A x y P p.
   intro e.
-  destruct e.
+  match e with end.
   ipso p.
 Defined.
 

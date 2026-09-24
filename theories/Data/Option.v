@@ -52,7 +52,7 @@ Theorem identity
   : forall {A : Type} (o : Option A) . map (fun (a : A) . a) o = o.
 Proof.
   intros A o.
-  destruct o as [| a];
+  match o with | | a end;
       unfold map in |- *;
       simpl in |- *;
       reflexivity.
@@ -64,7 +64,7 @@ Theorem composition
       map g (map f o) = map (fun (a : A) . g (f a)) o.
 Proof.
   intros A B C f g o.
-  destruct o as [| a];
+  match o with | | a end;
       simpl in |- *;
       reflexivity.
 Qed.

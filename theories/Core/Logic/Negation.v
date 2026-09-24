@@ -42,9 +42,9 @@ Proof.
       apply h.
       ipso (Disjunction.right b).
   - intro h.
-    destruct h as [not_a not_b].
+    match h with | not_a not_b end.
     intro ab.
-    destruct ab as [a | b].
+    match ab with | a | b end.
     + ipso (not_a a).
     + ipso (not_b b).
 Qed.
@@ -61,8 +61,8 @@ Proof.
   unfold Negation in |- *.
   intro h.
   intro ab.
-  destruct ab as [a b].
-  destruct h as [not_a | not_b].
+  match ab with | a b end.
+  match h with | not_a | not_b end.
   - ipso (not_a a).
   - ipso (not_b b).
 Qed.
@@ -84,7 +84,7 @@ Proof.
     ipso (Exists_introduction x p).
   - intro h.
     intro e.
-    destruct e as [x p].
+    match e with | x p end.
     ipso (h x p).
 Qed.
 
@@ -113,7 +113,7 @@ Proof.
   (* The context gains [not_a : A -> Falsum]: [|- B] *)
   intro not_a.
 
-  destruct h as [a | b].
+  match h with | a | b end.
   - pose proof (not_a a) as f.
     ex f quodlibet.
   - ipso b.
@@ -140,7 +140,7 @@ Proof.
 
   intro not_b.
 
-  destruct h as [a | b].
+  match h with | a | b end.
   - ipso a.
   - pose proof (not_b b) as f.
     ex f quodlibet.
@@ -274,7 +274,7 @@ Proof.
   (* [a12 : A1 -> A2]
    * [a21 : A2 -> A1].
    *)
-  destruct ea as [a12 a21].
+  match ea with | a12 a21 end.
 
   (* [|- (A1 -> Falsum) <-> (A2 -> Falsum)] *)
   unfold Negation in |- *.
