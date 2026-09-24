@@ -768,32 +768,44 @@ Theorem additivity
 Proof.
   intros a b c d.
   simpl add in |- *.
-  apply (@difference.nat_with_zero.well_definedness
-           (NatWithZero.add
+  lemma facto
+    : NatWithZero.add
+        (NatWithZero.add (ramp (nat_with_zero_difference &a &b))
+                         (ramp (nat_with_zero_difference &c &d)))
+        (NatWithZero.add &b &d)
+      = NatWithZero.add
+          (NatWithZero.add &a &c)
+          (NatWithZero.add (ramp (negate (nat_with_zero_difference &a &b)))
+                           (ramp (negate (nat_with_zero_difference &c &d)))).
+  {
+    leibniz (NatWithZero.addition.interchange
               (ramp (nat_with_zero_difference a b))
-              (ramp (nat_with_zero_difference c d)))
-           (NatWithZero.add
-              (ramp (negate (nat_with_zero_difference a b)))
-              (ramp (negate (nat_with_zero_difference c d))))
-           (NatWithZero.add a c)
-           (NatWithZero.add b d)).
-  leibniz (NatWithZero.addition.interchange
-            (ramp (nat_with_zero_difference a b))
-            (ramp (nat_with_zero_difference c d))
-            b d) in |- *.
-  leibniz (difference.nat_with_zero.specification a b) in |- *.
-  leibniz (difference.nat_with_zero.specification c d) in |- *.
-  leibniz (NatWithZero.addition.interchange
-             (ramp (negate (nat_with_zero_difference a b))) a
-             (ramp (negate (nat_with_zero_difference c d))) c) in |- *.
-  leibniz (NatWithZero.addition.commutativity
-            (NatWithZero.add
-              (ramp (negate (nat_with_zero_difference a b)))
-              (ramp (negate (nat_with_zero_difference c d))))
-            (NatWithZero.add
-              a
-              c)) in |- *.
-  quod idem est.
+              (ramp (nat_with_zero_difference c d))
+              b d) in |- *.
+    leibniz (difference.nat_with_zero.specification a b) in |- *.
+    leibniz (difference.nat_with_zero.specification c d) in |- *.
+    leibniz (NatWithZero.addition.interchange
+               (ramp (negate (nat_with_zero_difference a b))) a
+               (ramp (negate (nat_with_zero_difference c d))) c) in |- *.
+    leibniz (NatWithZero.addition.commutativity
+              (NatWithZero.add
+                (ramp (negate (nat_with_zero_difference a b)))
+                (ramp (negate (nat_with_zero_difference c d))))
+              (NatWithZero.add
+                a
+                c)) in |- *.
+    quod idem est.
+  }
+  ipso (@difference.nat_with_zero.well_definedness
+          (NatWithZero.add
+             (ramp (nat_with_zero_difference a b))
+             (ramp (nat_with_zero_difference c d)))
+          (NatWithZero.add
+             (ramp (negate (nat_with_zero_difference a b)))
+             (ramp (negate (nat_with_zero_difference c d))))
+          (NatWithZero.add a c)
+          (NatWithZero.add b d)
+          &facto).
 Qed.
 
 (* difference.nat_with_zero.scaling *)
@@ -1594,11 +1606,14 @@ Proof.
   - intro h.
     match h with | k e end.
     modus aequans (difference.nat.negative.specification k m' n'), e |- e'.
-    apply (@Nat.comparison.strict.backward.specification n' m').
-    simpl Nat.LessThan in |- *.
-    exists k.
-    leibniz (Nat.addition.commutativity n' k) in |- *.
-    ipso e'.
+    lemma smaller : Nat.LessThan &n' &m'.
+    {
+      simpl Nat.LessThan in |- *.
+      exists k.
+      leibniz (Nat.addition.commutativity n' k) in |- *.
+      ipso e'.
+    }
+    ipso (@Nat.comparison.strict.backward.specification n' m' &smaller).
   - intro c.
     exists m'.
     ipso (difference.nat.reflexivity m').
@@ -1644,10 +1659,13 @@ Proof.
   - intro h.
     match h with | k e end.
     let proof e' := magnitude.positive.injectivity e.
-    apply (@Nat.comparison.strict.backward.specification m' n').
-    simpl Nat.LessThan in |- *.
-    exists k.
-    ipso e'.
+    lemma smaller : Nat.LessThan &m' &n'.
+    {
+      simpl Nat.LessThan in |- *.
+      exists k.
+      ipso e'.
+    }
+    ipso (@Nat.comparison.strict.backward.specification m' n' &smaller).
 Qed.
 
 End strict. (* comparison.strict *)
@@ -1899,29 +1917,118 @@ Proof.
   intros n.
   match n with | p | | p end.
   - match p with | | p' by IH end per Nat.induction.
-    + apply Disjunction.R.
-      simpl Odd in |- *.
-      exists (- Nat.One).
-      simpl add in |- *.
+    + lemma side : Odd (- Nat.One).
+      {
+        simpl Odd in |- *.
+        exists (- Nat.One).
+        simpl add in |- *.
+        simpl in |- *.
+        quod idem est.
+      }
+      ipso (disjoin _, &side).
+    + match IH with | ev | od end.
+      * lemma side : Odd (- (Nat.Successor &p')).
+        {
+          simpl Even, Divides in ev.
+          match ev with | k e end.
+          simpl Odd in |- *.
+          exists (k + (- Nat.One)).
+          leibniz (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
+            in |- *.
+          lemma facto
+            : (((+ (Nat.Successor Nat.One)) * &k) + (- (Nat.Successor Nat.One))) + (+ Nat.One)
+              = (- (Nat.Successor &p')).
+          {
+            leibniz e in |- *.
+            leibniz (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
+              in |- *.
+            lemma facto : (- &p') + (- Nat.One) = (- (Nat.Successor &p')).
+            {
+              simpl add in |- *.
+              simpl in |- *.
+              leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
+              simpl in |- *.
+              quod idem est.
+            }
+            ipso &facto.
+          }
+          ipso &facto.
+        }
+        ipso (disjoin _, &side).
+      * lemma side : Even (- (Nat.Successor &p')).
+        {
+          simpl Odd in od.
+          match od with | k e end.
+          simpl Even, Divides in |- *.
+          exists k.
+          let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
+          let proof e'
+            : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
+            := e'.
+          leibniz (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
+            in e'.
+          let proof e'
+            : ((+ (Nat.Successor Nat.One)) * k) + 0 = (- p') + (- Nat.One)
+            := &e'.
+          leibniz (addition.right.identity ((+ (Nat.Successor Nat.One)) * k)) in e'.
+          leibniz e' in |- *.
+          simpl add in |- *.
+          simpl in |- *.
+          leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
+          simpl in |- *.
+          quod idem est.
+        }
+        ipso (disjoin &side, _).
+  - lemma side : Even 0.
+    {
+      simpl Even in |- *.
+      simpl Divides in |- *.
+      exists 0.
       simpl in |- *.
       quod idem est.
+    }
+    ipso (disjoin &side, _).
+  - match p with | | p' by IH end per Nat.induction.
+    + lemma side : Odd (+ Nat.One).
+      {
+        simpl Odd, add in |- *.
+        exists 0.
+        simpl in |- *.
+        quod idem est.
+      }
+      ipso (disjoin _, &side).
     + match IH with | ev | od end.
-      * apply Disjunction.R.
-        simpl Even, Divides in ev.
-        match ev with | k e end.
-        simpl Odd in |- *.
-        exists (k + (- Nat.One)).
-        leibniz (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
-          in |- *.
-        lemma facto
-          : (((+ (Nat.Successor Nat.One)) * &k) + (- (Nat.Successor Nat.One))) + (+ Nat.One)
-            = (- (Nat.Successor &p')).
+      * lemma side : Odd (+ (Nat.Successor &p')).
         {
+          simpl Even, Divides in ev.
+          match ev with | k e end.
+          simpl Odd in |- *.
+          exists k.
           leibniz e in |- *.
-          leibniz (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
-            in |- *.
-          lemma facto : (- &p') + (- Nat.One) = (- (Nat.Successor &p')).
+          simpl add in |- *.
+          simpl in |- *.
+          leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
+          simpl in |- *.
+          quod idem est.
+        }
+        ipso (disjoin _, &side).
+      * lemma side : Even (+ (Nat.Successor &p')).
+        {
+          simpl Odd in od.
+          match od with | k e end.
+          simpl Even, Divides in |- *.
+          exists (k + (+ Nat.One)).
+          leibniz (multiplication.left.distributivity.over.addition
+                    (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
+          lemma facto
+            : ((+ (Nat.Successor Nat.One)) * &k) + ((+ Nat.One) + (+ Nat.One))
+              = (+ (Nat.Successor &p')).
           {
+            leibniz <- (addition.associativity
+                          ((+ (Nat.Successor Nat.One)) * k)
+                          (+ Nat.One)
+                          (+ Nat.One)) in |- *.
+            leibniz e in |- *.
             simpl add in |- *.
             simpl in |- *.
             leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
@@ -1930,75 +2037,7 @@ Proof.
           }
           ipso &facto.
         }
-        ipso &facto.
-      * apply Disjunction.L.
-        simpl Odd in od.
-        match od with | k e end.
-        simpl Even, Divides in |- *.
-        exists k.
-        let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
-        let proof e'
-          : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
-          := e'.
-        leibniz (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
-          in e'.
-        let proof e'
-          : ((+ (Nat.Successor Nat.One)) * k) + 0 = (- p') + (- Nat.One)
-          := &e'.
-        leibniz (addition.right.identity ((+ (Nat.Successor Nat.One)) * k)) in e'.
-        leibniz e' in |- *.
-        simpl add in |- *.
-        simpl in |- *.
-        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
-        simpl in |- *.
-        quod idem est.
-  - apply Disjunction.L.
-    simpl Even in |- *.
-    simpl Divides in |- *.
-    exists 0.
-    simpl in |- *.
-    quod idem est.
-  - match p with | | p' by IH end per Nat.induction.
-    + apply Disjunction.R.
-      simpl Odd, add in |- *.
-      exists 0.
-      simpl in |- *.
-      quod idem est.
-    + match IH with | ev | od end.
-      * apply Disjunction.R.
-        simpl Even, Divides in ev.
-        match ev with | k e end.
-        simpl Odd in |- *.
-        exists k.
-        leibniz e in |- *.
-        simpl add in |- *.
-        simpl in |- *.
-        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
-        simpl in |- *.
-        quod idem est.
-      * apply Disjunction.L.
-        simpl Odd in od.
-        match od with | k e end.
-        simpl Even, Divides in |- *.
-        exists (k + (+ Nat.One)).
-        leibniz (multiplication.left.distributivity.over.addition
-                  (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
-        lemma facto
-          : ((+ (Nat.Successor Nat.One)) * &k) + ((+ Nat.One) + (+ Nat.One))
-            = (+ (Nat.Successor &p')).
-        {
-          leibniz <- (addition.associativity
-                        ((+ (Nat.Successor Nat.One)) * k)
-                        (+ Nat.One)
-                        (+ Nat.One)) in |- *.
-          leibniz e in |- *.
-          simpl add in |- *.
-          simpl in |- *.
-          leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
-          simpl in |- *.
-          quod idem est.
-        }
-        ipso &facto.
+        ipso (disjoin &side, _).
 Qed.
 
 Module even. (* parity.even *)
