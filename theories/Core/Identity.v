@@ -7,15 +7,6 @@ From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
-(* Gottfried Leibniz, seventeenth century: two things are the same exactly
- * when no property tells them apart. If everything true of [x] is true of
- * [y], there is nothing left over that could distinguish them, so there is
- * nothing left to mean by "different".
- *)
-(* [forall {A : Type} . A -> A -> Prop] *)
-Definition Leibniz := fun {A : Type} (x : A) (y : A) .
-  forall (P : A -> Prop) . P x -> P y.
-
 (* The identity type, which [=] spells: two terms of one type that are the
  * same term. [x] is a parameter and the second argument an index, so the
  * one ctor can only ever produce [Identity A x x]. A proof that [x] equals
@@ -97,6 +88,17 @@ Proof.
   intros A B x y f e.
   match e with end.
   quod idem est.
+Defined.
+
+(* Gottfried Leibniz's law: whatever holds of [x] holds of anything equal to
+ * [x]. [Defined], so that a term the [leibniz] tactic builds still computes.
+ *)
+Theorem Leibniz
+  : forall {A : Type} {x : A} {y : A} (P : A -> Prop) . x = y -> P x -> P y.
+Proof.
+  intros A x y P e p.
+  match e with end.
+  ipso p.
 Defined.
 
 Local Theorem cancellation
@@ -211,36 +213,11 @@ End hedberg. (* hedberg *)
 
 End Identity.
 
-(* [rewrite] builds its proof term out of these two, which carry a proof
- * along the equation into [Type], forwards and backwards. [Defined] keeps
- * them transparent.
+(* The [leibniz] tactic builds its proofs from [Identity.Leibniz]. Set
+ * outside [Module Identity], where it would hold only while that module is
+ * imported.
  *)
-
-Definition Identity_rewrite_forward
-  : forall (A : Type) (x : A) (P : A -> Type) .
-      P x -> forall (y : A) . x = y -> P y.
-Proof.
-  intros A x P p.
-  intros y e.
-  match e with end.
-  ipso p.
-Defined.
-
-Definition Identity_rewrite_backward
-  : forall (A : Type) (x : A) (y : A) (P : A -> Type) .
-      P y -> x = y -> P x.
-Proof.
-  intros A x y P p.
-  intro e.
-  match e with end.
-  ipso p.
-Defined.
-
-(* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and
- * [rew_r] are Rocq's own, fixed like a registration key.
- *)
-Register Scheme Identity_rewrite_forward  as rew   for Identity.
-Register Scheme Identity_rewrite_backward as rew_r for Identity.
+Ltac2 Set Leibniz.law := fun () => Some constr:(@Identity.Leibniz).
 
 (* [build_eqdata_gen] in rocqlib.ml demands exactly these six; a single
  * missing one surfaces as [No primitive equality found].
