@@ -290,7 +290,7 @@ Proof.
     apply (Exists_introduction k).
     simpl in |- *.
     rewrite e in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End order. (* positive.order *)
@@ -303,7 +303,7 @@ Module increment. (* increment *)
 Lemma specification : forall (n : NatWithZero) . (++ n) = (+ Nat.One) + n.
 Proof.
   intros n.
-  match n with | | p end; simpl in |- *; reflexivity.
+  match n with | | p end; simpl in |- *; quod idem est.
 Qed.
 
 End increment. (* increment *)
@@ -318,16 +318,16 @@ Proof.
   intros l m n.
   match l with | | l' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match m with | | m' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match n with | | n' end.
       * simpl in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite Nat.addition.associativity in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 (* addition.commutativity *)
@@ -337,14 +337,14 @@ Proof.
   intros m n.
   match m with | | m' end; match n with | | n' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite Nat.addition.commutativity in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* addition.identity *)
@@ -354,10 +354,10 @@ Proof.
   intros n.
   divide et impera.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (addition.commutativity n 0) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module left. (* addition.left *)
@@ -374,7 +374,7 @@ Proof.
     ipso e.
   - match m with | | m' end; match k with | | k' end.
     + intro e.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       intro e.
       let proof e' := positive.injectivity e.
@@ -397,7 +397,7 @@ Proof.
       let proof e' := positive.injectivity e.
       let proof e'' := Nat.addition.left.cancellation e'.
       rewrite e'' in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* addition.left.commutativity *)
@@ -409,7 +409,7 @@ Proof.
   rewrite (addition.commutativity l (m + n)) in |- *.
   rewrite (addition.associativity m n l)     in |- *.
   rewrite (addition.commutativity n l)       in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End left. (* addition.left *)
@@ -472,10 +472,10 @@ Proof.
   match n with | | n' end.
   - simpl in |- *.
     apply (Exists_introduction k).
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     apply (Exists_introduction (Nat.add n' k)).
-    reflexivity.
+    quod idem est.
 Qed.
 
 End order. (* addition.right.order *)
@@ -502,7 +502,7 @@ Proof.
   rewrite (addition.associativity a b (c + d)) in |- *.
   rewrite (addition.left.commutativity b c d)  in |- *.
   rewrite (addition.associativity a c (b + d)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module order. (* addition.order *)
@@ -525,7 +525,7 @@ Proof.
   apply (Exists_introduction d).
   rewrite (addition.associativity k m (+ d)) in |- *.
   rewrite e in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* addition.order.strict.cancellation *)
@@ -573,14 +573,14 @@ Proof.
   intros m n.
   match m with | | m' end; match n with | | n' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.multiplication.commutativity m' n') in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* multiplication.associativity *)
@@ -591,16 +591,16 @@ Proof.
   intros l m n.
   match l with | | l' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match m with | | m' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match n with | | n' end.
       * simpl in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 (* multiplication.annihilation *)
@@ -610,10 +610,10 @@ Proof.
   intros n.
   divide et impera.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (multiplication.commutativity n 0) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module left. (* multiplication.left *)
@@ -624,9 +624,9 @@ Proof.
   intros n.
   match n with | | n' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module distributivity. (* multiplication.left.distributivity *)
@@ -641,16 +641,16 @@ Proof.
   intros l m n.
   match l with | | l' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match m with | | m' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match n with | | n' end.
       * simpl in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite (Nat.multiplication.left.distributivity.over.addition l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 End over. (* multiplication.left.distributivity.over *)
@@ -676,12 +676,12 @@ Proof.
   - simpl in e.
     rewrite e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in e.
     rewrite e in |- *.
     simpl in |- *.
     rewrite (Nat.multiplication.left.distributivity.over.addition k m' d) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -698,11 +698,11 @@ Proof.
   intros m.
   match m with | | m' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.multiplication.commutativity m' Nat.One) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module distributivity. (* multiplication.right.distributivity *)
@@ -719,7 +719,7 @@ Proof.
   rewrite (multiplication.left.distributivity.over.addition l m n) in |- *.
   rewrite (multiplication.commutativity l m) in |- *.
   rewrite (multiplication.commutativity l n) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.right.distributivity.over *)
@@ -744,7 +744,7 @@ Proof.
       simpl LessThan in |- *.
       apply (Exists_introduction (Nat.mul k' p)).
       simpl in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End order. (* multiplication.right.order *)
@@ -792,7 +792,7 @@ Lemma absence : forall (m : NatWithZero) . power m 0 = + Nat.One.
 Proof.
   intros m.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* power.exponent.addition *)
@@ -803,21 +803,21 @@ Proof.
   intros m a b.
   match a with | | a' end; match b with | | b' end.
   - simpl in |- *.
-    reflexivity.
-  - match m with | | m' end; simpl in |- *; reflexivity.
+    quod idem est.
+  - match m with | | m' end; simpl in |- *; quod idem est.
   - match m with | | m' end.
     * simpl in |- *.
-      reflexivity.
+      quod idem est.
     * simpl in |- *.
       rewrite (Nat.multiplication.commutativity (Nat.power m' a') Nat.One) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
   - match m with | | m' end.
     * simpl in |- *.
-      reflexivity.
+      quod idem est.
     * simpl in |- *.
       rewrite (Nat.power.exponent.addition m' a' b') in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* power.exponent.multiplication *)
@@ -828,18 +828,18 @@ Proof.
   intros m a b.
   match a with | | a' end; match b with | | b' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.power.annihilation b') in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match m with | | m' end.
     * simpl in |- *.
-      reflexivity.
+      quod idem est.
     * simpl in |- *.
       rewrite (Nat.power.exponent.multiplication m' a' b') in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End exponent. (* power.exponent *)
@@ -856,16 +856,16 @@ Proof.
   intros m n a.
   match a with | | a' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match m with | | m' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match n with | | n' end.
       * simpl in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite (Nat.power.distributivity.over.multiplication m' n' a') in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 End over. (* power.distributivity.over *)
@@ -913,7 +913,7 @@ Proof.
   rewrite e1 in |- *.
   rewrite (addition.associativity l (+ k1) (+ k2)) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module zero. (* order.strict.zero *)
@@ -975,7 +975,7 @@ Proof.
            simpl in |- *.
            rewrite (Nat.addition.commutativity q k') in |- *.
            rewrite e'' in |- *.
-           reflexivity.
+           quod idem est.
 Qed.
 
 End strict. (* order.strict *)
@@ -1014,7 +1014,7 @@ Proof.
     match h with | e | lt end.
     + apply (Exists_introduction Nat.One).
       rewrite e in |- *.
-      reflexivity.
+      quod idem est.
     + simpl LessThan in lt.
       match lt with | k e end.
       apply (Exists_introduction (Nat.Successor k)).
@@ -1027,7 +1027,7 @@ Proof.
               in |- *.
       rewrite e
               in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End order. (* order *)
@@ -1042,11 +1042,11 @@ Proof.
   intros m n.
   match m with | | m' end; match n with | | n' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (Nat.comparison.antisymmetry m' n').
 Qed.
@@ -1073,10 +1073,10 @@ Proof.
       simpl LessThan in |- *.
       apply (Exists_introduction n').
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     * intro h.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
   - divide et impera.
     * simpl in |- *.
       intro e.
@@ -1109,19 +1109,19 @@ Proof.
   divide et impera.
   - intro e.
     match m with | | m' end; match n with | | n' end.
-    + reflexivity.
+    + quod idem est.
     + simpl in e.
       discriminate e.
     + simpl in e.
       discriminate e.
     + simpl in e.
       rewrite (Nat.comparison.equality.forward.specification e) in |- *.
-      reflexivity.
+      quod idem est.
   - intro e.
     rewrite e in |- *.
     match n with | | n' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       ipso (Comparable.comparison.reflexivity n').
 Qed.
@@ -1163,7 +1163,7 @@ Lemma identity : forall (n : NatWithZero) . max 0 n = n.
 Proof.
   intros n.
   simpl Comparable.max in |- *.
-  match n with | | n' end; simpl in |- *; reflexivity.
+  match n with | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 End left. (* maximum.left *)
@@ -1201,7 +1201,7 @@ Lemma annihilation : forall (n : NatWithZero) . min 0 n = 0.
 Proof.
   intros n.
   simpl Comparable.min in |- *.
-  match n with | | n' end; simpl in |- *; reflexivity.
+  match n with | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 Module distributivity. (* minimum.left.distributivity *)
@@ -1221,7 +1221,7 @@ Proof.
     modus aequans (Comparable.minimum.specification (k + m) (k + n)),
                   (addition.order.monotonicity k m n h) as e2.
     rewrite e2 in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (Comparable.minimum.commutativity m n)             in |- *.
     rewrite (Comparable.minimum.commutativity (k + m) (k + n)) in |- *.
     modus aequans (Comparable.minimum.specification n m), h as e1.
@@ -1229,7 +1229,7 @@ Proof.
     modus aequans (Comparable.minimum.specification (k + n) (k + m)),
                   (addition.order.monotonicity k n m h) as e2.
     rewrite e2 in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End of. (* minimum.left.distributivity.of *)
@@ -1277,17 +1277,17 @@ Proof.
   intros m n.
   match n with | | n' end; match m with | | m' end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.subtraction.truncation (Comparable.order.reflexivity n')) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.subtraction.inversion.of.addition m' n') in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End of. (* subtraction.saturating.inversion.of *)
@@ -1304,23 +1304,23 @@ Proof.
   - rewrite e in |- *.
     match n with | | n' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (Nat.subtraction.truncation (Comparable.order.reflexivity n')) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
   - simpl LessThan in lt.
     match lt with | k e end.
     symmetry in e.
     rewrite e in |- *.
     match m with | | m' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (Nat.subtraction.truncation
                 (Disjunction.R (Nat.addition.order.extensivity m' k))) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* subtraction.saturating.specification *)
@@ -1333,7 +1333,7 @@ Proof.
   match h with | e | lt end.
   - rewrite e in |- *.
     rewrite (subtraction.saturating.truncation (Comparable.order.reflexivity m)) in |- *.
-    match m with | | m' end; simpl in |- *; reflexivity.
+    match m with | | m' end; simpl in |- *; quod idem est.
   - simpl LessThan in lt.
     match lt with | k e end.
     symmetry in e.
@@ -1341,7 +1341,7 @@ Proof.
     rewrite (addition.commutativity n (+ k)) in |- *.
     rewrite (subtraction.saturating.inversion.of.addition (+ k) n) in |- *.
     rewrite (addition.commutativity n (+ k)) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module right. (* subtraction.saturating.right *)
@@ -1350,7 +1350,7 @@ Module right. (* subtraction.saturating.right *)
 Theorem identity : forall (n : NatWithZero) . saturating_sub n 0 = n.
 Proof.
   intros n.
-  match n with | | n' end; simpl in |- *; reflexivity.
+  match n with | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 End right. (* subtraction.saturating.right *)
@@ -1362,26 +1362,26 @@ Theorem cancellation
 Proof.
   intros k m n.
   match k with | | k' end.
-  - simpl in |- *. reflexivity.
+  - simpl in |- *. quod idem est.
   - match m with | | m' end; match n with | | n' end.
     + simpl in |- *.
       rewrite (Nat.subtraction.truncation
                 (Comparable.order.reflexivity k')) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (Nat.subtraction.truncation
                  (Disjunction.R (Nat.addition.order.extensivity k' n'))) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (Nat.addition.commutativity k' m') in |- *.
       rewrite (Nat.subtraction.inversion.of.addition m' k') in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (Nat.subtraction.cancellation k' m' n') in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End saturating. (* subtraction.saturating *)
@@ -1405,7 +1405,7 @@ Proof.
       simpl Negation in a.
       modus ponens a, lt as f.
       ex f quodlibet.
-  - reflexivity.
+  - quod idem est.
 Qed.
 
 Module inversion. (* subtraction.inversion *)
@@ -1423,7 +1423,7 @@ Proof.
                 (addition.right.order.extensivity m n) as e.
   rewrite e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End of. (* subtraction.inversion.of *)
@@ -1469,16 +1469,16 @@ Proof.
   simpl divide, modulo, div in |- *.
   induction p as [| p' IH] using Nat.induction.
   - match d with | | d' end; divide et impera; simpl in |- *.
-    * reflexivity.
+    * quod idem est.
     * simpl LessThan in |- *.
       apply (Exists_introduction Nat.One).
       simpl in |- *.
-      reflexivity.
-    * reflexivity.
+      quod idem est.
+    * quod idem est.
     * simpl LessThan in |- *.
       apply (Exists_introduction d').
       simpl in |- *.
-      reflexivity.
+      quod idem est.
   - match IH with | e lt end.
     simpl in |- *.
     match (div.nat p' d) per D with | q r end.
@@ -1502,16 +1502,16 @@ Proof.
       rewrite (addition.left.commutativity (q * ((+ Nat.One) + r)) (+ Nat.One) r) in |- *.
       rewrite e in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     * simpl LessThan in |- *.
       apply (Exists_introduction d).
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     * rewrite (increment.specification r) in |- *.
       rewrite (addition.left.commutativity (q * (+ d)) (+ Nat.One) r) in |- *.
       rewrite e in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     * simpl LessThan in lt.
       match lt with | k ek end.
       rewrite (increment.specification r) in E.
@@ -1619,7 +1619,7 @@ Proof.
   intros n d.
   match n with | | p end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - ipso (division.nat.dividend.reconstruction p d).
 Qed.
 
@@ -1635,7 +1635,7 @@ Proof.
   - simpl LessThan in |- *.
     apply (Exists_introduction d).
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - ipso (division.nat.remainder.boundedness p d).
 Qed.
 
@@ -1760,7 +1760,7 @@ Proof.
                        (+ k) ((n /. d) * (+ d)) (n %. d)).
       rewrite dist  in |- *.
       rewrite recon in |- *.
-      reflexivity.
+      quod idem est.
     - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
       ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
   }
@@ -1789,7 +1789,7 @@ Proof.
     - simpl LessThan in |- *.
       apply (Exists_introduction d).
       simpl in |- *.
-      reflexivity.
+      quod idem est.
   }
 
   match (division.uniqueness n d k 0 witness) with | quotient _ end.
@@ -1831,7 +1831,7 @@ Proof.
     ex f quodlibet.
   - intro n.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* divide.nat.safe.congruence *)
@@ -1881,7 +1881,7 @@ Proof.
                        (+ k) ((n /. d) * (+ d)) (n %. d)).
       rewrite dist  in |- *.
       rewrite recon in |- *.
-      reflexivity.
+      quod idem est.
     - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
       ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
   }
@@ -1955,7 +1955,7 @@ Proof.
   {
     (* [|- a = a] *)
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   (* b destructed as + b' : [|- step (a, + b') f = step (a, + b') g] *)
@@ -2057,7 +2057,7 @@ Proof.
   generalize (division.remainder.boundedness a q).
   match (a %. q) with | | r end.
   - intros b.
-    reflexivity.
+    quod idem est.
   - intros b.
     let s := Induced.introduction
                 (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
@@ -2163,7 +2163,7 @@ Proof.
   apply (Exists_introduction 0).
   rewrite (multiplication.commutativity n 0) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module addition. (* divisibility.addition *)
@@ -2181,7 +2181,7 @@ Proof.
   apply (Exists_introduction (k1 + k2)).
   rewrite (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
   rewrite e1, e2 in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* The quotients are what the subtraction happens on, so the witness is
@@ -2258,7 +2258,7 @@ Proof.
   apply (Exists_introduction (k * n)).
   rewrite <- (multiplication.associativity d k n) in |- *.
   rewrite e in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End multiplication. (* divisibility.multiplication *)
@@ -2276,7 +2276,7 @@ Proof.
   intros a.
   simpl gcd in |- *.
   rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, 0)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* gcd.recurrence *)
@@ -2286,7 +2286,7 @@ Proof.
   intros a q.
   simpl gcd in |- *.
   rewrite (WellFounded.recursion.unfolding euclid.extensionality (a, + q)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* gcd.divisibility *)
@@ -2351,7 +2351,7 @@ Proof.
     + rewrite (gcd.zero a) in |- *.
       change ((+ k) * 0) with (0 : NatWithZero) in |- *.
       rewrite (gcd.zero ((+ k) * a)) in |- *.
-      reflexivity.
+      quod idem est.
     + rewrite (gcd.recurrence a q) in |- *.
       change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in |- *.
       rewrite (gcd.recurrence ((+ k) * a) (Nat.mul k q)) in |- *.
@@ -2476,7 +2476,7 @@ Proof.
   generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* gcd.nat.recurrence *)
@@ -2492,7 +2492,7 @@ Proof.
   generalize (division.remainder.boundedness a q).
   rewrite e in |- *.
   intros b.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* gcd.nat.specification *)
@@ -2509,7 +2509,7 @@ Proof.
     match (a %. c) per e with | | r end.
     + rewrite (gcd.zero (+ c)) in |- *.
       rewrite (gcd.nat.zero a c e) in |- *.
-      reflexivity.
+      quod idem est.
     + rewrite (gcd.nat.recurrence a c r e) in |- *.
       let proof b := division.remainder.boundedness a c.
       rewrite e in b.
@@ -2660,13 +2660,13 @@ Proof.
     simpl Divides in |- *.
     apply (Exists_introduction 0).
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       simpl Odd in |- *.
       apply (Exists_introduction 0).
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match IH with | even | odd end.
       * apply Disjunction.R.
         simpl Even in even.
@@ -2676,7 +2676,7 @@ Proof.
         apply (Exists_introduction k).
         rewrite e in |- *.
         simpl in |- *.
-        reflexivity.
+        quod idem est.
       * apply Disjunction.L.
         simpl Odd in odd.
         match odd with | k e end.
@@ -2691,7 +2691,7 @@ Proof.
                    (+ Nat.One) (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k)) in |- *.
         rewrite e in |- *.
         simpl in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 Module even. (* parity.even *)
@@ -2738,7 +2738,7 @@ Proof.
   rewrite (addition.interchange
             (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k1)
             (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End addition. (* parity.odd.addition *)

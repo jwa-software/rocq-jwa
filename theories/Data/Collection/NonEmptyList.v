@@ -208,10 +208,10 @@ Proof.
   intros A x y z.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End concatenation. (* concatenation *)
@@ -230,10 +230,10 @@ Proof.
   intros A x y.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* length.additivity.over *)
@@ -300,7 +300,7 @@ Proof.
   intros A x y.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
     ipso (concatenation.associativity (reverse y) (reverse x') [a]).
@@ -317,12 +317,12 @@ Proof.
   intros A x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
     simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End reversal. (* reversal *)
@@ -336,10 +336,10 @@ Proof.
   intros A x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -351,10 +351,10 @@ Proof.
   intros A B C f g x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module preservation. (* mapping.preservation *)
@@ -371,13 +371,13 @@ Proof.
   - simpl in |- *.
     intro e.
     rewrite e in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     intro h.
     match h with | e | h' end.
     + apply Disjunction.L.
       rewrite e in |- *.
-      reflexivity.
+      quod idem est.
     + apply Disjunction.R.
       ipso (IH h').
 Qed.
@@ -435,7 +435,7 @@ Proof.
   intros A le x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     match (le b (maximum_of le x')) per s with end.
     + ipso (Disjunction.R IH).
@@ -485,7 +485,7 @@ Proof.
   intros A le x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     match (le b (minimum_of le x')) per s with end.
     + ipso (Disjunction.L (Identity.reflexivity b)).
@@ -513,10 +513,10 @@ Proof.
   intros A x y.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* conversion.distributivity.over *)
@@ -531,10 +531,10 @@ Proof.
   intros A x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* conversion.membership *)
@@ -578,10 +578,10 @@ Proof.
   intros A le x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    match (le a (maximum_of le x')) per s with end; reflexivity.
+    match (le a (maximum_of le x')) per s with end; quod idem est.
 Qed.
 
 (* conversion.minimum *)
@@ -592,10 +592,10 @@ Proof.
   intros A le x.
   induction x as [a | a x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    match (le a (minimum_of le x')) per s with end; reflexivity.
+    match (le a (minimum_of le x')) per s with end; quod idem est.
 Qed.
 
 End conversion. (* conversion *)

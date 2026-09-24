@@ -135,7 +135,7 @@ Proof.
   intros A B p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End introduction. (* introduction *)
@@ -149,7 +149,7 @@ Proof.
   intros A B p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End swap. (* swap *)
@@ -165,7 +165,7 @@ Proof.
   intros A B p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* mapping.first.composition *)
@@ -176,7 +176,7 @@ Proof.
   intros A B C D f g p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End first. (* mapping.first *)
@@ -190,7 +190,7 @@ Proof.
   intros A B p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* mapping.second.composition *)
@@ -201,7 +201,7 @@ Proof.
   intros A B C D f g p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End second. (* mapping.second *)
@@ -214,7 +214,7 @@ Proof.
   intros A B C D f g p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module both. (* mapping.both *)
@@ -227,7 +227,7 @@ Proof.
   intros A B p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* mapping.both.composition *)
@@ -239,7 +239,7 @@ Proof.
   intros A B C D E F f1 f2 g1 g2 p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* mapping.both.decomposition *)
@@ -251,7 +251,7 @@ Proof.
   intros A B C D f g p.
   match p with | a b end.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End both. (* mapping.both *)
@@ -272,7 +272,7 @@ Proof.
   intros A B C f a b.
   simpl curry in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End of. (* currying.inversion.of *)
@@ -296,7 +296,7 @@ Proof.
   match p with | a b end.
   simpl in |- *.
   simpl curry in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End of. (* uncurrying.inversion.of *)
@@ -324,7 +324,7 @@ Proof.
   simpl in |- *.
   rewrite (Semigroup.associativity a1 a2 a3) in |- *.
   rewrite (Semigroup.associativity b1 b2 b3) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module left. (* direct.left *)
@@ -344,7 +344,7 @@ Proof.
   match (Monoid.identity a) with | la _ end.
   match (Monoid.identity b) with | lb _ end.
   rewrite la, lb in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End left. (* direct.left *)
@@ -366,7 +366,7 @@ Proof.
   match (Monoid.identity a) with | _ ra end.
   match (Monoid.identity b) with | _ rb end.
   rewrite ra, rb in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End right. (* direct.right *)
@@ -401,7 +401,7 @@ Proof.
   simpl in |- *.
   rewrite (Commutative.commutativity a1 a2) in |- *.
   rewrite (Commutative.commutativity b1 b2) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End direct. (* direct *)

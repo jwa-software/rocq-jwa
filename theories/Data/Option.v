@@ -55,7 +55,7 @@ Proof.
   match o with | | a end;
       simpl map in |- *;
       simpl in |- *;
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -66,7 +66,7 @@ Proof.
   intros A B C f g o.
   match o with | | a end;
       simpl in |- *;
-      reflexivity.
+      quod idem est.
 Qed.
 
 End mapping. (* mapping *)

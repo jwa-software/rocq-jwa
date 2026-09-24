@@ -165,7 +165,7 @@ Proof.
   match e2 with end.
   rewrite (Nat.equality.uniqueness
              (NatWithZero.gcd.nat (Integer.abs n1) d1) Nat.One h1 h2) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Theorem irreducibility
@@ -218,7 +218,7 @@ Proof.
           = NatWithZero.divide (NatWithZero.Positive d) (Nat.One).
   {
     rewrite h in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   apply extensionality.
@@ -354,7 +354,7 @@ Proof.
     let proof c := Identity.congruence Integer.from_nat bottom.
     symmetry in c.
     rewrite c in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   lemma whole : Integer.mul
@@ -386,7 +386,7 @@ Proof.
                         (Integer.abs a) b)))).
   rewrite assoc in |- *.
   rewrite whole in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* make.characterisation *)
@@ -407,7 +407,7 @@ Proof.
     rewrite (Integer.multiplication.commutativity y z)   in |- *.
     let proof h := Identity.symmetry (Integer.multiplication.associativity x z y).
     rewrite h in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof P1 := proportionality a b.
@@ -450,7 +450,7 @@ Proof.
                                (Integer.from_nat d).
     {
       rewrite P1 in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     lemma Q2 : Integer.mul (Integer.mul r (Integer.from_nat d))
@@ -459,7 +459,7 @@ Proof.
                                (Integer.from_nat b).
     {
       rewrite P2 in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     rewrite (swap r (Integer.from_nat b) (Integer.from_nat d)) in Q1.
@@ -508,7 +508,7 @@ Proof.
       rewrite (Integer.multiplication.interchange
                 r (Integer.from_nat d) (Integer.from_nat q) (Integer.from_nat b)) in |- *.
       rewrite (Integer.multiplication.commutativity (Integer.from_nat d) (Integer.from_nat b)) in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     rewrite (Integer.multiplication.commutativity
@@ -613,7 +613,7 @@ Proof.
   {
     rewrite (Integer.multiplication.left.annihilation (Integer.from_nat Nat.One)) in |- *.
     rewrite (Integer.multiplication.left.annihilation (Integer.from_nat b))     in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof criterion := characterisation Integer.Zero b Integer.Zero Nat.One.
@@ -654,7 +654,7 @@ Proof.
     rewrite P1 in |- *.
     rewrite (Integer.multiplication.commutativity s' d') in |- *.
     rewrite (Integer.multiplication.interchange a q' d' s') in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   lemma second : Integer.mul (Integer.mul r q') (Integer.mul b' d')
@@ -666,7 +666,7 @@ Proof.
     rewrite (Integer.multiplication.commutativity q' b') in |- *.
     rewrite (Integer.multiplication.interchange c s' b' q') in |- *.
     rewrite (Integer.multiplication.commutativity s' q') in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   lemma cross : Integer.mul (Integer.add (Integer.mul p s') (Integer.mul r q'))
@@ -686,7 +686,7 @@ Proof.
               (Integer.mul q' s') (Integer.mul a d') (Integer.mul c b')) in |- *.
     rewrite first  in |- *.
     rewrite second in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof criterion := characterisation
@@ -733,7 +733,7 @@ Proof.
     rewrite P2 in |- *.
     rewrite (Integer.multiplication.interchange
               a (Integer.from_nat q) c (Integer.from_nat s)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof criterion := characterisation
@@ -767,7 +767,7 @@ Proof.
     rewrite (Integer.multiplication.left.negation p (Integer.from_nat b)) in |- *.
     rewrite (Integer.multiplication.left.negation a (Integer.from_nat q)) in |- *.
     rewrite P1 in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof criterion := characterisation
@@ -854,12 +854,12 @@ Proof.
       rewrite (Integer.multiplication.associativity e d' b') in |- *.
       rewrite (Integer.multiplication.commutativity b' f') in |- *.
       rewrite (Integer.multiplication.commutativity b' d') in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     rewrite tops in |- *.
     rewrite (Nat.multiplication.associativity b d f) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof g := general
@@ -882,7 +882,7 @@ Proof.
             (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
             (Integer.mul (numerator y) (Integer.from_nat (denominator x)))) in |- *.
   rewrite (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module left. (* addition.left *)
@@ -1067,7 +1067,7 @@ Proof.
   simpl mul in |- *.
   rewrite (Integer.multiplication.commutativity (numerator   x) (numerator   y)) in |- *.
   rewrite (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* multiplication.associativity *)
@@ -1090,7 +1090,7 @@ Proof.
               a b (Integer.mul c e) (Nat.mul d f)) in |- *.
     rewrite (Integer.multiplication.associativity a c e) in |- *.
     rewrite (Nat.multiplication.associativity b d f) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof g := general
@@ -1190,7 +1190,7 @@ Proof.
                 b' a (Integer.mul c f')) in |- *.
       rewrite (Integer.multiplication.associativity
                 b' a (Integer.mul e d')) in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     lemma bots : Nat.mul
@@ -1204,7 +1204,7 @@ Proof.
       rewrite (Nat.multiplication.commutativity d (Nat.mul b f)) in |- *.
       rewrite (Nat.multiplication.associativity b f d) in |- *.
       rewrite (Nat.multiplication.commutativity f d) in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     rewrite tops in |- *.
@@ -1264,7 +1264,7 @@ Proof.
   rewrite (left.distributivity.over.addition x y z) in |- *.
   rewrite (commutativity x y) in |- *.
   rewrite (commutativity x z) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.right.distributivity.over *)
@@ -1353,7 +1353,7 @@ Proof.
       rewrite (Integer.multiplication.left.identity
                 (Integer.Positive (Nat.mul d p))) in |- *.
       rewrite (Nat.multiplication.commutativity p d) in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     let proof criterion := make.characterisation
@@ -1389,7 +1389,7 @@ Proof.
       rewrite (Integer.multiplication.right.identity (Integer.Positive (Nat.mul p d))) in |- *.
       rewrite (Integer.multiplication.left.identity (Integer.Positive (Nat.mul d p))) in |- *.
       rewrite (Nat.multiplication.commutativity p d) in |- *.
-      reflexivity.
+      quod idem est.
     }
 
     let proof criterion := make.characterisation
@@ -1437,7 +1437,7 @@ Proof.
     rewrite (Integer.multiplication.commutativity
                (Integer.mul c (Integer.Positive f))
                (Integer.Positive b)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   lemma leftward : Integer.mul (Integer.Positive f)
@@ -1455,7 +1455,7 @@ Proof.
     rewrite (Integer.multiplication.commutativity
               (Integer.mul a (Integer.Positive f))
               (Integer.Positive d)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   lemma rightward : Integer.mul (Integer.Positive b)
@@ -1473,7 +1473,7 @@ Proof.
     rewrite (Integer.multiplication.commutativity
                (Integer.mul e (Integer.Positive b))
                (Integer.Positive d)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
   let proof S1 := Integer.multiplication.left.order.strict.monotonicity
@@ -1590,7 +1590,7 @@ Proof.
   rewrite (Integer.multiplication.right.identity m) in |- *.
   rewrite (Integer.multiplication.right.identity n) in |- *.
   change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* embedding.multiplication *)
@@ -1603,7 +1603,7 @@ Proof.
   simpl from_integer in |- *.
   rewrite (make.multiplication.homomorphism m Nat.One n Nat.One) in |- *.
   change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* embedding.order *)

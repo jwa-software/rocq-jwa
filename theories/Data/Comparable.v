@@ -134,7 +134,7 @@ Proof.
     modus aequans s, h as e.
     rewrite e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End transposition. (* comparison.strict.transposition *)
@@ -179,7 +179,7 @@ Proof.
     match (Comparable.specification m n) with | _ s end.
     modus aequans s, h as e.
     rewrite e in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End equality. (* comparison.equality *)
@@ -343,14 +343,14 @@ Proof.
       match (Comparable.specification m n) with | s _ end.
       ipso (modus aequans s, c).
     + intro h.
-      reflexivity.
+      quod idem est.
   - divide et impera.
     + intro e.
       apply Disjunction.L.
       match (Comparable.specification m n) with | _ s end.
       ipso (modus aequans s, c).
     + intro h.
-      reflexivity.
+      quod idem est.
   - divide et impera.
     + intro e.
       discriminate e.
@@ -395,8 +395,8 @@ Proof.
       ipso (Identity.symmetry e).
   - intro h.
     match (compare m n) per c with | | | end.
-    + reflexivity.
-    + reflexivity.
+    + quod idem est.
+    + quod idem est.
     + match h with | e | lt1 end.
       * ipso (Identity.symmetry e).
       * match (Comparable.specification m n) with | s _ end.
@@ -549,7 +549,7 @@ Proof.
   intros A c lt C n.
   simpl min in |- *.
   rewrite (comparison.reflexivity n) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End minimum. (* minimum *)
@@ -587,8 +587,8 @@ Proof.
       * modus aequans (comparison.strict.transposition.specification m n), gt as e.
         rewrite e in c.
         discriminate c.
-    + reflexivity.
-    + reflexivity.
+    + quod idem est.
+    + quod idem est.
 Qed.
 
 Module left. (* maximum.left *)
@@ -738,7 +738,7 @@ Proof.
   intros A c lt C n.
   simpl max in |- *.
   rewrite (comparison.reflexivity n) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End maximum. (* maximum *)

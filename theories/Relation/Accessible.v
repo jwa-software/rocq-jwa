@@ -84,7 +84,7 @@ Proof.
   simpl in |- *.
 
   (* The two sides are the same term. *)
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* recursion.independence *)

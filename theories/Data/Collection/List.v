@@ -498,10 +498,10 @@ Proof.
   intros A l1 l2 l3.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module left. (* concatenation.left *)
@@ -511,7 +511,7 @@ Lemma identity : forall {A : Type} (l : List A) . [] ++ l = l.
 Proof.
   intros A l.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End left. (* concatenation.left *)
@@ -524,10 +524,10 @@ Proof.
   intros A l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End right. (* concatenation.right *)
@@ -550,10 +550,10 @@ Proof.
   intros A l1 l2.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End concatenation. (* concatenation *)
@@ -573,7 +573,7 @@ Proof.
   intros A l1 l2.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.increment.specification ((|| l1' ||) + (|| l2 ||)))
@@ -582,7 +582,7 @@ Proof.
       in |- *.
     rewrite (NatWithZero.addition.associativity (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2 ||))
       in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* length.additivity.over *)
@@ -600,10 +600,10 @@ Proof.
   intros A l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End length. (* length *)
@@ -617,10 +617,10 @@ Proof.
   intros A l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -632,10 +632,10 @@ Proof.
   intros A B C f g l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module distributivity. (* mapping.distributivity *)
@@ -650,10 +650,10 @@ Proof.
   intros A B f l1 l2.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* mapping.distributivity.over *)
@@ -671,10 +671,10 @@ Proof.
   intros A B f l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module preservation. (* mapping.preservation *)
@@ -699,7 +699,7 @@ Proof.
     match h with | e | h' end.
     + apply Disjunction.L.
       rewrite e in |- *.
-      reflexivity.
+      quod idem est.
     + apply Disjunction.R.
       apply IH.
       ipso h'.
@@ -713,10 +713,10 @@ Proof.
   intros A B f l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End of. (* mapping.preservation.of *)
@@ -774,10 +774,10 @@ Proof.
   intros A B f z l1 l2.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* folding.composition.over *)
@@ -896,10 +896,10 @@ Proof.
   intros A a l.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End membership. (* membership *)
@@ -919,12 +919,12 @@ Proof.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     rewrite concatenation.right.identity in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     simpl append in |- *.
     rewrite IH in |- *.
     rewrite concatenation.associativity in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* reversal.antidistributivity.over *)
@@ -938,13 +938,13 @@ Proof.
   intros A l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     simpl append in |- *.
     rewrite reversal.antidistributivity.over.concatenation in |- *.
     simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module forward. (* reversal.forward *)
@@ -1044,7 +1044,7 @@ Theorem specification
 Proof.
   intros A l a.
   simpl append in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* appending.length *)
@@ -1057,7 +1057,7 @@ Proof.
   simpl in |- *.
   rewrite (NatWithZero.increment.specification (|| l ||)) in |- *.
   rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l ||)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* appending.membership *)
@@ -1095,7 +1095,7 @@ Proof.
   rewrite (appending.specification l a) in |- *.
   rewrite (reversal.antidistributivity.over.concatenation l (a :: [])) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End appending. (* appending *)
@@ -1114,12 +1114,12 @@ Proof.
   intros A p l1 l2.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     match (p b) with | | end.
     + simpl in |- *.
       rewrite IH in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       ipso IH.
 Qed.
@@ -1144,10 +1144,10 @@ Proof.
   intros A p l.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module forward. (* filtering.forward *)
@@ -1406,10 +1406,10 @@ Proof.
   intros A P l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End all. (* quantification.all *)
@@ -1575,10 +1575,10 @@ Proof.
   intros A P l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End any. (* quantification.any *)
@@ -1604,7 +1604,7 @@ Proof.
     let proof e' := Option.some.injectivity e.
     apply (Exists_introduction rest).
     rewrite e' in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End forward. (* head.forward *)
@@ -1621,7 +1621,7 @@ Proof.
   match h with | l' e end.
   rewrite e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* head.backward *)
@@ -1658,7 +1658,7 @@ Proof.
     let proof e' := Option.some.injectivity e.
     apply (Exists_introduction b).
     rewrite e' in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End forward. (* tail.forward *)
@@ -1675,7 +1675,7 @@ Proof.
   match h with | a e end.
   rewrite e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* tail.backward *)
@@ -1729,7 +1729,7 @@ Proof.
   rewrite e in |- *.
   rewrite appending.reversal in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* last.backward *)
@@ -1790,7 +1790,7 @@ Proof.
   rewrite appending.reversal in |- *.
   simpl in |- *.
   rewrite reversal.involution in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* initial.backward *)
@@ -1828,7 +1828,7 @@ Proof.
     let proof e'' := Product.introduction.injectivity e'.
     match e'' with | eb erest end.
     rewrite eb, erest in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End forward. (* popping.forward *)
@@ -1843,7 +1843,7 @@ Proof.
   intros A a l' l e.
   rewrite e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* popping.backward *)
@@ -1869,7 +1869,7 @@ Theorem projection
   : forall {A : Type} (l : List A) . Option.map Product.first (pop l) = head l.
 Proof.
   intros A l.
-  match l with | | a l' end; simpl in |- *; reflexivity.
+  match l with | | a l' end; simpl in |- *; quod idem est.
 Qed.
 
 End head. (* popping.head *)
@@ -1881,7 +1881,7 @@ Theorem projection
   : forall {A : Type} (l : List A) . Option.map Product.second (pop l) = tail l.
 Proof.
   intros A l.
-  match l with | | a l' end; simpl in |- *; reflexivity.
+  match l with | | a l' end; simpl in |- *; quod idem est.
 Qed.
 
 End tail. (* popping.tail *)
@@ -1905,13 +1905,13 @@ Proof.
   intros A B l.
   induction l as [| p l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     simpl unzip in IH.
     simpl in IH.
     rewrite IH in |- *.
     rewrite <- (Product.introduction.surjectivity p) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End of. (* zipping.inversion.of *)
@@ -1931,15 +1931,15 @@ Proof.
   - intros l2.
     match l2 with | | b l2' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
-      reflexivity.
+      quod idem est.
   - intros l2.
     match l2 with | | b l2' end.
     + simpl in |- *.
       rewrite (NatWithZero.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite (IH l2') in |- *.
       rewrite (NatWithZero.increment.specification
@@ -1948,7 +1948,7 @@ Proof.
                  (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2' ||)) in |- *.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in |- *.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End zipping. (* zipping *)
@@ -1977,7 +1977,7 @@ Proof.
     match l2 with | | b l2' end.
     + simpl unzip in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in e.
       let proof e' := Identity.symmetry e.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
@@ -2007,7 +2007,7 @@ Proof.
       simpl in |- *.
       rewrite e1 in |- *.
       rewrite e2 in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End of. (* unzipping.inversion.of *)
@@ -2027,10 +2027,10 @@ Proof.
   intros A p l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
-    match (p a) per pa with | | end; simpl in |- *; reflexivity.
+    match (p a) per pa with | | end; simpl in |- *; quod idem est.
 Qed.
 
 End partitioning. (* partitioning *)
@@ -2101,7 +2101,7 @@ Proof.
     match i with | | i' end.
     + simpl in |- *.
       apply (Exists_introduction b).
-      reflexivity.
+      quod idem est.
     + match i' with | | i'' end.
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
@@ -2143,17 +2143,17 @@ Proof.
   induction l as [| a l' IH] using List.induction.
   - intros n.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - intros n.
     match n with | | n' end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match n' with | | n'' end.
       * simpl in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite (IH (NatWithZero.Positive n'')) in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 End splitting. (* splitting *)
@@ -2173,12 +2173,12 @@ Proof.
   - intros n.
     simpl in |- *.
     rewrite (NatWithZero.minimum.right.annihilation n) in |- *.
-    reflexivity.
+    quod idem est.
   - intros n.
     match n with | | n' end.
     + simpl in |- *.
       rewrite (NatWithZero.minimum.left.annihilation (++ (|| l' ||))) in |- *.
-      reflexivity.
+      quod idem est.
     + match n' with | | n'' end.
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
@@ -2189,7 +2189,7 @@ Proof.
           (NatWithZero.addition.right.order.extensivity
              (|| l' ||) (NatWithZero.Positive Nat.One)) as e.
         rewrite e in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite (IH (NatWithZero.Positive n'')) in |- *.
         rewrite (NatWithZero.increment.specification
@@ -2199,7 +2199,7 @@ Proof.
         change (NatWithZero.Positive Nat.One + NatWithZero.Positive n'')
           with (NatWithZero.Positive (Nat.Successor n'')) in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 End taking. (* taking *)
@@ -2218,19 +2218,19 @@ Proof.
   induction l as [| a l' IH] using List.induction.
   - intros n.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - intros n.
     match n with | | n' end.
     + simpl in |- *.
       rewrite (NatWithZero.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
-      reflexivity.
+      quod idem est.
     + match n' with | | n'' end.
       * simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         rewrite (NatWithZero.subtraction.saturating.inversion.of.addition
                    (|| l' ||) (NatWithZero.Positive Nat.One)) in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
         rewrite (IH (NatWithZero.Positive n'')) in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
@@ -2238,7 +2238,7 @@ Proof.
           with (NatWithZero.Positive Nat.One + NatWithZero.Positive n'') in |- *.
         rewrite (NatWithZero.subtraction.saturating.cancellation
                    (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 End dropping. (* dropping *)
@@ -2254,11 +2254,11 @@ Proof.
   intros A k a.
   induction k as [| k' IH] using Nat.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End positive. (* replication.positive *)
@@ -2270,7 +2270,7 @@ Proof.
   intros A n a.
   match n with | | k end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (replication.positive.length k a).
 Qed.
@@ -2292,13 +2292,13 @@ Proof.
   simpl sum in |- *.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.addition.associativity
                a (fold_right NatWithZero.add NatWithZero.Zero l1') (fold_right NatWithZero.add NatWithZero.Zero l2))
       in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* sum.additivity.over *)
@@ -2326,13 +2326,13 @@ Proof.
     rewrite (NatWithZero.multiplication.left.identity
                (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
       in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite IH in |- *.
     rewrite (NatWithZero.multiplication.associativity
                a (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l1')
                (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2)) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* product.multiplicativity.over *)
@@ -2350,12 +2350,12 @@ Proof.
   intros A p l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     match (p a) with | | end.
     + simpl in |- *.
       rewrite IH in |- *.
-      reflexivity.
+      quod idem est.
     + ipso IH.
 Qed.
 
@@ -2376,7 +2376,7 @@ Proof.
     + intro e.
       ipso I.
     + intro v.
-      reflexivity.
+      quod idem est.
   - simpl in |- *.
     match (p a) with | | end.
     + simpl in |- *.
@@ -2549,14 +2549,14 @@ Proof.
   intros A le a l.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     match (le a b) with | | end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
       rewrite IH in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End insertion. (* sorting.insertion *)
@@ -2661,11 +2661,11 @@ Proof.
   intros A le l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (sorting.insertion.length le a (insertion_sort le l')) in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End of. (* sorting.preservation.of *)
@@ -2685,12 +2685,12 @@ Proof.
   intros p.
   induction p as [| p' IH] using Nat.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (appending.length (range_positive p') (NatWithZero.Positive p')) in |- *.
     rewrite IH in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module forward. (* range.positive.forward *)
@@ -2709,7 +2709,7 @@ Proof.
       simpl NatWithZero.LessThan in |- *.
       apply (Exists_introduction Nat.One).
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + ex f quodlibet.
   - intros i h.
     simpl in h.
@@ -2790,7 +2790,7 @@ Proof.
   intros n.
   match n with | | p end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (range.positive.length p).
 Qed.
@@ -2843,7 +2843,7 @@ Proof.
   induction p as [| p' IH] using Nat.induction.
   - simpl sum in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - change (range_from_zero (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
       with (append (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
               (NatWithZero.Positive (Nat.Successor p')))
@@ -2870,7 +2870,7 @@ Proof.
     change (Nat.add (Nat.Successor Nat.One) p') with (Nat.Successor (Nat.Successor p')) in |- *.
     rewrite (NatWithZero.multiplication.commutativity
                (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End sum. (* range.from_zero.sum *)
@@ -3071,7 +3071,7 @@ Proof.
   divide et impera.
   - intro e.
     match l with | | a l' end.
-    + reflexivity.
+    + quod idem est.
     + simpl in e.
       match (maximum_of le l') with | | m end.
       * discriminate e.
@@ -3081,7 +3081,7 @@ Proof.
   - intro e.
     rewrite e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End absence. (* maximum.absence *)
@@ -3171,7 +3171,7 @@ Proof.
   divide et impera.
   - intro e.
     match l with | | a l' end.
-    + reflexivity.
+    + quod idem est.
     + simpl in e.
       match (minimum_of le l') with | | m end.
       * discriminate e.
@@ -3181,7 +3181,7 @@ Proof.
   - intro e.
     rewrite e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End absence. (* minimum.absence *)

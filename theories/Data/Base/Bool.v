@@ -111,7 +111,7 @@ Module negation. (* negation *)
 Theorem involution : forall (b : Bool) . ! ! b = b.
 Proof.
   intros b.
-  match b with | | end; simpl in |- *; reflexivity.
+  match b with | | end; simpl in |- *; quod idem est.
 Qed.
 
 End negation. (* negation *)
@@ -124,7 +124,7 @@ Theorem associativity
       (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
 Qed.
 
 (* conjunction.commutativity *)
@@ -132,7 +132,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 && b2 = b2 && b1.
 Proof.
   intros b1 b2.
-  match b1 with | | end; match b2 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; quod idem est.
 Qed.
 
 (* conjunction.identity *)
@@ -142,10 +142,10 @@ Proof.
   intros b.
   divide et impera.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (conjunction.commutativity b true) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module left. (* conjunction.left *)
@@ -160,7 +160,7 @@ Theorem sejunction
       b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
 Qed.
 
 End over. (* conjunction.left.distributivity.over *)
@@ -181,7 +181,7 @@ Theorem sejunction
       (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
 Qed.
 
 End over. (* conjunction.right.distributivity.over *)
@@ -220,14 +220,14 @@ Theorem associativity
       (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
 Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity : forall (b1 : Bool) (b2 : Bool) . b1 || b2 = b2 || b1.
 Proof.
   intros b1 b2.
-  match b1 with | | end; match b2 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; quod idem est.
 Qed.
 
 (* disjunction.identity *)
@@ -237,10 +237,10 @@ Proof.
   intros b.
   divide et impera.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (disjunction.commutativity b false) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End disjunction. (* disjunction *)
@@ -253,7 +253,7 @@ Theorem associativity
       (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
 Qed.
 
 (* sejunction.commutativity *)
@@ -261,7 +261,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 ^^ b2 = b2 ^^ b1.
 Proof.
   intros b1 b2.
-  match b1 with | | end; match b2 with | | end; reflexivity.
+  match b1 with | | end; match b2 with | | end; quod idem est.
 Qed.
 
 (* sejunction.identity *)
@@ -271,17 +271,17 @@ Proof.
   intros b.
   divide et impera.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (sejunction.commutativity b false) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* sejunction.irreflexivity *)
 Theorem irreflexivity : forall (b : Bool) . b ^^ b = false.
 Proof.
   intros b.
-  match b with | | end; reflexivity.
+  match b with | | end; quod idem est.
 Qed.
 
 (* sejunction.inverse *)

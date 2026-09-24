@@ -118,7 +118,7 @@ Theorem specification : forall (b : Bool) . Assert b <-> b = true.
 Proof.
   intros b.
   match b with | | end; simpl in |- *; divide et impera; intro h.
-  - reflexivity.
+  - quod idem est.
   - ipso I.
   - ex h quodlibet.
   - discriminate h.

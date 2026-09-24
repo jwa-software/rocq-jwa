@@ -295,7 +295,7 @@ Theorem injectivity
 Proof.
   intros m n e.
   match m with | | p end; match n with | | q end.
-  - reflexivity.
+  - quod idem est.
   - simpl in e.
     discriminate e.
   - simpl in e.
@@ -303,7 +303,7 @@ Proof.
   - simpl in e.
     let proof e' := magnitude.positive.injectivity e.
     rewrite e' in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End embedding. (* embedding *)
@@ -318,7 +318,7 @@ Proof.
   intros n.
   induction n as [| n' IH] using Nat.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso IH.
 Qed.
@@ -337,7 +337,7 @@ Proof.
   induction p as [| p' IH] using Nat.induction.
   - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
     rewrite (Nat.addition.commutativity p' k) in |- *.
@@ -364,7 +364,7 @@ Proof.
   induction p as [| p' IH] using Nat.induction.
   - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
     rewrite (Nat.addition.commutativity p' k) in |- *.
@@ -399,7 +399,7 @@ Proof.
     rewrite e'' in |- *.
     rewrite (Nat.addition.commutativity r k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k r) in |- *.
-    reflexivity.
+    quod idem est.
   - match rest with | eq | gt end.
     + rewrite eq in h |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
@@ -407,7 +407,7 @@ Proof.
       let proof e := Nat.addition.left.cancellation h.
       rewrite e in |- *.
       rewrite (difference.nat.reflexivity r) in |- *.
-      reflexivity.
+      quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
       symmetry in e.
@@ -420,7 +420,7 @@ Proof.
       symmetry in e''.
       rewrite e'' in |- *.
       rewrite (difference.nat.left.inversion.of.addition k s) in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* difference.nat.negation *)
@@ -438,12 +438,12 @@ Proof.
     rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
     rewrite (difference.nat.left.inversion.of.addition  k p) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match rest with | eq | gt end.
     + rewrite eq in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
       symmetry in e.
@@ -452,7 +452,7 @@ Proof.
       rewrite (difference.nat.left.inversion.of.addition  k q) in |- *.
       rewrite (difference.nat.right.inversion.of.addition k q) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* difference.nat.specification *)
@@ -471,12 +471,12 @@ Proof.
     rewrite (Nat.addition.commutativity p k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match rest with | eq | gt end.
     + rewrite eq in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
       symmetry in e.
@@ -484,7 +484,7 @@ Proof.
       rewrite (Nat.addition.commutativity q k) in |- *.
       rewrite (difference.nat.left.inversion.of.addition k q) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 Module negative. (* difference.nat.negative *)
@@ -574,13 +574,13 @@ Proof.
     rewrite (Nat.multiplication.left.distributivity.over.addition k j p) in |- *.
     rewrite (difference.nat.right.inversion.of.addition
               (Nat.mul k j) (Nat.mul k p)) in |- *.
-    reflexivity.
+    quod idem est.
   - match rest with | eq | gt end.
     + rewrite eq in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       rewrite (difference.nat.reflexivity (Nat.mul k q)) in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | j e end.
       symmetry in e.
@@ -591,7 +591,7 @@ Proof.
       rewrite (Nat.multiplication.left.distributivity.over.addition k j q) in |- *.
       rewrite (difference.nat.left.inversion.of.addition
                 (Nat.mul k j) (Nat.mul k q)) in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End nat. (* difference.nat *)
@@ -603,7 +603,7 @@ Lemma canonicity
   : forall (x : Integer) . nat_with_zero_difference (ramp x) (ramp (negate x)) = x.
 Proof.
   intros x.
-  match x with | p | | p end; simpl in |- *; reflexivity.
+  match x with | p | | p end; simpl in |- *; quod idem est.
 Qed.
 
 (* difference.nat_with_zero.reflexivity *)
@@ -613,7 +613,7 @@ Proof.
   intros n.
   match n with | | p end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (difference.nat.reflexivity p).
 Qed.
@@ -632,7 +632,7 @@ Proof.
   intros k a.
   match a with | | q end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (difference.nat.left.inversion.of.addition k q).
 Qed.
@@ -657,7 +657,7 @@ Proof.
   intros k a.
   match a with | | q end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (difference.nat.right.inversion.of.addition k q).
 Qed.
@@ -677,11 +677,11 @@ Proof.
   intros a b.
   match a with | | p end; match b with | | q end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (difference.nat.specification p q).
 Qed.
@@ -700,27 +700,27 @@ Proof.
     rewrite h in |- *.
     rewrite (difference.nat_with_zero.reflexivity c) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in h.
     rewrite h in |- *.
     rewrite (NatWithZero.addition.commutativity c (NatWithZero.Positive q)) in |- *.
     rewrite (difference.nat_with_zero.right.inversion.of.addition q c) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     change (NatWithZero.add NatWithZero.Zero c) with c in h.
     symmetry in h.
     rewrite h in |- *.
     rewrite (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - match c with | | r end; match d with | | s end.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
       symmetry in e.
@@ -728,13 +728,13 @@ Proof.
       simpl in |- *.
       rewrite (Nat.addition.commutativity p s) in |- *.
       rewrite (difference.nat.right.inversion.of.addition s p) in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (difference.nat.left.inversion.of.addition r q) in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
       simpl in |- *.
@@ -749,11 +749,11 @@ Proof.
   intros a b.
   match a with | | p end; match b with | | q end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (difference.nat.negation p q).
 Qed.
@@ -791,7 +791,7 @@ Proof.
             (NatWithZero.add
               a
               c)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* difference.nat_with_zero.scaling *)
@@ -805,11 +805,11 @@ Proof.
   intros k a b.
   match a with | | p end; match b with | | q end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - change (nat_with_zero_difference
               (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
               (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive q)))
@@ -835,7 +835,7 @@ Lemma scaling
       ramp ((+ k) * x) = NatWithZero.mul (NatWithZero.Positive k) (ramp x).
 Proof.
   intros k x.
-  match x with | x' | | x' end; simpl in |- *; reflexivity.
+  match x with | x' | | x' end; simpl in |- *; quod idem est.
 Qed.
 
 End ramp. (* ramp *)
@@ -846,7 +846,7 @@ Module negation. (* negation *)
 Theorem involution : forall (x : Integer) . negate (negate x) = x.
 Proof.
   intros x.
-  match x with | p | | n end; simpl in |- *; reflexivity.
+  match x with | p | | n end; simpl in |- *; quod idem est.
 Qed.
 
 (* negation.additivity *)
@@ -864,7 +864,7 @@ Proof.
               (ramp (negate n)))) in |- *.
   rewrite (negation.involution m) in |- *.
   rewrite (negation.involution n) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End negation. (* negation *)
@@ -913,7 +913,7 @@ Proof.
             (ramp (negate l))
             (ramp (negate m))
             (ramp (negate n))) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* addition.commutativity *)
@@ -928,7 +928,7 @@ Proof.
   rewrite (NatWithZero.addition.commutativity
             (ramp (negate m))
             (ramp (negate n))) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module left. (* addition.left *)
@@ -937,7 +937,7 @@ Module left. (* addition.left *)
 Theorem identity : forall (n : Integer) . 0 + n = n.
 Proof.
   intros n.
-  match n with | n' | | n' end; simpl add in |- *; simpl in |- *; reflexivity.
+  match n with | n' | | n' end; simpl add in |- *; simpl in |- *; quod idem est.
 Qed.
 
 (* addition.left.commutativity *)
@@ -948,7 +948,7 @@ Proof.
   rewrite (addition.commutativity l (m + n)) in |- *.
   rewrite (addition.associativity m n l)     in |- *.
   rewrite (addition.commutativity n l)       in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* addition.left.inverse *)
@@ -961,7 +961,7 @@ Proof.
     ipso (difference.nat.reflexivity p).
   - simpl add in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl add in |- *.
     simpl in |- *.
     ipso (difference.nat.reflexivity p).
@@ -1024,7 +1024,7 @@ Proof.
   rewrite (addition.associativity a b (c + d)) in |- *.
   rewrite (addition.left.commutativity b c d)  in |- *.
   rewrite (addition.associativity a c (b + d)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* addition.identity *)
@@ -1074,7 +1074,7 @@ Proof.
   apply (Exists_introduction d).
   rewrite (addition.associativity k m (+ d)) in |- *.
   rewrite e in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End strict. (* addition.order.strict *)
@@ -1116,26 +1116,26 @@ Proof.
   match m with | m' | | m' end; match n with | n' | | n' end.
   - simpl in |- *.
     rewrite (Nat.multiplication.commutativity m' n') in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
-  - simpl in |- *.
-    rewrite (Nat.multiplication.commutativity m' n') in |- *.
-    reflexivity.
-  - simpl in |- *.
-    reflexivity.
-  - simpl in |- *.
-    reflexivity.
-  - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.multiplication.commutativity m' n') in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
   - simpl in |- *.
     rewrite (Nat.multiplication.commutativity m' n') in |- *.
-    reflexivity.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    rewrite (Nat.multiplication.commutativity m' n') in |- *.
+    quod idem est.
 Qed.
 
 (* multiplication.associativity *)
@@ -1149,51 +1149,51 @@ Proof.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
       *
         simpl in |- *.
-        reflexivity.
+        quod idem est.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
-    + simpl in |- *. reflexivity.
+        quod idem est.
+    + simpl in |- *. quod idem est.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
       *
-        simpl in |- *. reflexivity.
+        simpl in |- *. quod idem est.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
-  - simpl in |- *. reflexivity.
+        quod idem est.
+  - simpl in |- *. quod idem est.
   - match m with | m' | | m' end.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
       *
-        simpl in |- *. reflexivity.
+        simpl in |- *. quod idem est.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
-    + simpl in |- *. reflexivity.
+        quod idem est.
+    + simpl in |- *. quod idem est.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
       *
-        simpl in |- *. reflexivity.
+        simpl in |- *. quod idem est.
       *
         simpl in |- *.
         rewrite (Nat.multiplication.associativity l' m' n') in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 Module left. (* multiplication.left *)
@@ -1202,7 +1202,7 @@ Module left. (* multiplication.left *)
 Theorem identity : forall (n : Integer) . (+ Nat.One) * n = n.
 Proof.
   intros n.
-  match n with | n' | | n' end; simpl in |- *; reflexivity.
+  match n with | n' | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 (* multiplication.left.annihilation *)
@@ -1210,7 +1210,7 @@ Theorem annihilation : forall (n : Integer) . 0 * n = 0.
 Proof.
   intros n.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* Negating a factor negates the product: the signs say so under every
@@ -1222,9 +1222,9 @@ Theorem negation
 Proof.
   intros m n.
   match m with | m' | | m' end.
-  - match n with | n' | | n' end; simpl in |- *; reflexivity.
-  - simpl in |- *. reflexivity.
-  - match n with | n' | | n' end; simpl in |- *; reflexivity.
+  - match n with | n' | | n' end; simpl in |- *; quod idem est.
+  - simpl in |- *. quod idem est.
+  - match n with | n' | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 Module positive. (* multiplication.left.positive *)
@@ -1276,7 +1276,7 @@ Proof.
   rewrite <- nn in |- *.
   rewrite (ramp.scaling k (negate m)) in |- *.
   rewrite (ramp.scaling k (negate n)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.left.positive.distributivity.over *)
@@ -1307,10 +1307,10 @@ Proof.
             in |- *.
     rewrite -> (multiplication.left.positive.distributivity.over.addition p m n)
             in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     rewrite (addition.left.identity 0) in |- *.
-    reflexivity.
+    quod idem est.
   - ipso (multiplication.left.positive.distributivity.over.addition p m n).
 Qed.
 
@@ -1337,7 +1337,7 @@ Proof.
           in |- *.
   rewrite -> e
           in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -1372,7 +1372,7 @@ Proof.
   rewrite (multiplication.commutativity m (negate n)) in |- *.
   rewrite (multiplication.left.negation n m) in |- *.
   rewrite (multiplication.commutativity n m) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module distributivity. (* multiplication.right.distributivity *)
@@ -1389,7 +1389,7 @@ Proof.
   rewrite (multiplication.left.distributivity.over.addition l m n) in |- *.
   rewrite (multiplication.commutativity l m) in |- *.
   rewrite (multiplication.commutativity l n) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.right.distributivity.over *)
@@ -1441,7 +1441,7 @@ Proof.
   rewrite (multiplication.associativity c b d) in |- *.
   let proof outer := Identity.symmetry (multiplication.associativity a c (b * d)).
   rewrite outer in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* multiplication.cancellation *)
@@ -1454,34 +1454,34 @@ Proof.
   - match m with | a | | a end; match n with | b | | b end; simpl in e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
-      reflexivity.
+      quod idem est.
     + discriminate e.
     + discriminate e.
     + discriminate e.
-    + reflexivity.
+    + quod idem est.
     + discriminate e.
     + discriminate e.
     + discriminate e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
-      reflexivity.
+      quod idem est.
   - simpl Negation in nonzero.
     modus ponens nonzero, (Identity.reflexivity 0) as f.
     ex f quodlibet.
   - match m with | a | | a end; match n with | b | | b end; simpl in e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
-      reflexivity.
+      quod idem est.
     + discriminate e.
     + discriminate e.
     + discriminate e.
-    + reflexivity.
+    + quod idem est.
     + discriminate e.
     + discriminate e.
     + discriminate e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* multiplication.magnitude *)
@@ -1490,7 +1490,7 @@ Theorem magnitude
       (| m * n |) = NatWithZero.mul (| m |) (| n |).
 Proof.
   intros m n.
-  match m with | m' | | m' end; match n with | n' | | n' end; simpl in |- *; reflexivity.
+  match m with | m' | | m' end; match n with | n' | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 End multiplication. (* multiplication *)
@@ -1546,19 +1546,19 @@ Proof.
   - simpl in |- *.
     ipso (Nat.comparison.antisymmetry n' m').
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
     ipso (Nat.comparison.antisymmetry m' n').
 Qed.
@@ -1592,12 +1592,12 @@ Proof.
     apply (Exists_introduction m').
     ipso (difference.nat.reflexivity m').
   - intro h.
-    reflexivity.
+    quod idem est.
   - intro c.
     apply (Exists_introduction (Nat.add n' m')).
     ipso (difference.nat.left.inversion.of.addition n' m').
   - intro h.
-    reflexivity.
+    quod idem est.
   - intro c.
     discriminate c.
   - intro h.
@@ -1610,9 +1610,9 @@ Proof.
     discriminate e.
   - intro c.
     apply (Exists_introduction n').
-    reflexivity.
+    quod idem est.
   - intro h.
-    reflexivity.
+    quod idem est.
   - intro c.
     discriminate c.
   - intro h.
@@ -1629,7 +1629,7 @@ Proof.
     match lt with | k e end.
     apply (Exists_introduction k).
     rewrite e in |- *.
-    reflexivity.
+    quod idem est.
   - intro h.
     match h with | k e end.
     let proof e' := magnitude.positive.injectivity e.
@@ -1652,7 +1652,7 @@ Proof.
   - intro c.
     let proof e := Nat.comparison.equality.forward.specification c.
     rewrite e in |- *.
-    reflexivity.
+    quod idem est.
   - intro e.
     let proof e' := magnitude.negative.injectivity e.
     rewrite e' in |- *.
@@ -1670,9 +1670,9 @@ Proof.
   - intro e.
     discriminate e.
   - intro c.
-    reflexivity.
+    quod idem est.
   - intro e.
-    reflexivity.
+    quod idem est.
   - intro c.
     discriminate c.
   - intro e.
@@ -1688,7 +1688,7 @@ Proof.
   - intro c.
     let proof e := Nat.comparison.equality.forward.specification c.
     rewrite e in |- *.
-    reflexivity.
+    quod idem est.
   - intro e.
     let proof e' := magnitude.positive.injectivity e.
     rewrite e' in |- *.
@@ -1720,10 +1720,10 @@ Proof.
   intros x d.
   match x with | p | | p end.
   - simpl divide, abs in |- *.
-    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; reflexivity.
-  - reflexivity.
+    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; quod idem est.
+  - quod idem est.
   - simpl divide, abs in |- *.
-    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; reflexivity.
+    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; quod idem est.
 Qed.
 
 (* division.exactness *)
@@ -1742,9 +1742,9 @@ Proof.
       discriminate e.
     + simpl in |- *.
       rewrite (NatWithZero.positive.injectivity e) in |- *.
-      reflexivity.
+      quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl divide in |- *.
     let proof e := NatWithZero.division.exactness
                   (NatWithZero.Positive x') d h.
@@ -1753,7 +1753,7 @@ Proof.
       discriminate e.
     + simpl in |- *.
       rewrite (NatWithZero.positive.injectivity e) in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 (* division.exhaustiveness *)
@@ -1785,9 +1785,9 @@ Proof.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
       with (NatWithZero.Positive (Nat.mul k p)) in h.
     rewrite h in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - change ((+ k) * (+ p)) with (+ (Nat.mul k p)) in |- *.
     simpl divide in |- *.
     let proof h := NatWithZero.division.invariance
@@ -1795,7 +1795,7 @@ Proof.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
       with (NatWithZero.Positive (Nat.mul k p)) in h.
     rewrite h in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End division. (* division *)
@@ -1844,7 +1844,7 @@ Proof.
   apply (Exists_introduction (k1 + k2)).
   rewrite (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
   rewrite e1, e2 in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End addition. (* divisibility.addition *)
@@ -1862,7 +1862,7 @@ Proof.
   apply (Exists_introduction (k * n)).
   rewrite <- (multiplication.associativity d k n) in |- *.
   rewrite e in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End multiplication. (* divisibility.multiplication *)
@@ -1882,7 +1882,7 @@ Proof.
       apply (Exists_introduction (- Nat.One)).
       simpl add in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match IH with | ev | od end.
       * apply Disjunction.R.
         simpl Even, Divides in ev.
@@ -1904,7 +1904,7 @@ Proof.
         simpl in |- *.
         rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
-        reflexivity.
+        quod idem est.
       * apply Disjunction.L.
         simpl Odd in od.
         match od with | k e end.
@@ -1925,19 +1925,19 @@ Proof.
         simpl in |- *.
         rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
-        reflexivity.
+        quod idem est.
   - apply Disjunction.L.
     simpl Even in |- *.
     simpl Divides in |- *.
     apply (Exists_introduction 0).
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       simpl Odd, add in |- *.
       apply (Exists_introduction 0).
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + match IH with | ev | od end.
       * apply Disjunction.R.
         simpl Even, Divides in ev.
@@ -1949,7 +1949,7 @@ Proof.
         simpl in |- *.
         rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
-        reflexivity.
+        quod idem est.
       * apply Disjunction.L.
         simpl Odd in od.
         match od with | k e end.
@@ -1969,7 +1969,7 @@ Proof.
         simpl in |- *.
         rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
-        reflexivity.
+        quod idem est.
 Qed.
 
 Module even. (* parity.even *)
@@ -2017,7 +2017,7 @@ Proof.
   rewrite (addition.interchange
             ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
             ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End addition. (* parity.odd.addition *)

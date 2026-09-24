@@ -331,7 +331,7 @@ Proof.
   Fail lazymatch goal with
   | _ := Nat.add m m |- _ => idtac
   end.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Theorem tactics_all_delivers_let_proof_dropping_a_body
@@ -378,7 +378,7 @@ Proof.
   intro m.
   let k := Nat.add m m.
   lemma q : k = k.
-  - reflexivity.
+  - quod idem est.
   - let proof k := k.
     Fail lazymatch goal with
     | _ := _ |- _ => idtac
@@ -668,7 +668,7 @@ Theorem tactics_all_delivers_simpl_reduction_goal
 Proof.
   intro m.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Theorem tactics_all_delivers_barbara

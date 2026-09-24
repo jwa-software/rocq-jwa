@@ -45,7 +45,7 @@ Proof.
   simpl is_empty in |- *.
   match (cardinality x) per c with | | p end; divide et impera; simpl in |- *.
   - intro h.
-    reflexivity.
+    quod idem est.
   - intro e.
     ipso I.
   - intro h.

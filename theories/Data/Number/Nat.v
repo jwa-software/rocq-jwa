@@ -183,7 +183,7 @@ Proof.
   apply (Exists_introduction k).
   simpl in |- *.
   rewrite e in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module monotonicity. (* successor.order.monotonicity *)
@@ -217,11 +217,11 @@ Proof.
   induction l as [| l' IH] using Nat.induction.
   -
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   -
     simpl in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* addition.commutativity *)
@@ -236,12 +236,12 @@ Proof.
         using Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
       let proof IH2' := Identity.symmetry IH2.
       rewrite IH2'
               in |- *.
-      reflexivity.
+      quod idem est.
   -
     rewrite IH in |- *.
     rm IH.
@@ -249,11 +249,11 @@ Proof.
         using Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
       symmetry in IH2.
       rewrite IH2 in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 Module identity. (* addition.identity *)
@@ -310,7 +310,7 @@ Proof.
   rewrite (addition.commutativity l (m + n)) in |- *.
   rewrite (addition.associativity m n l)     in |- *.
   rewrite (addition.commutativity n l)       in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End left. (* addition.left *)
@@ -335,7 +335,7 @@ Proof.
   rewrite (addition.associativity l m n) in |- *.
   rewrite (addition.associativity l n m) in |- *.
   rewrite (addition.commutativity m n)   in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End right. (* addition.right *)
@@ -359,7 +359,7 @@ Proof.
   intros m k.
   simpl LessThan in |- *.
   apply (Exists_introduction k).
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* addition.order.monotonicity *)
@@ -376,7 +376,7 @@ Proof.
           in |- *.
   rewrite e
           in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End order. (* addition.order *)
@@ -442,14 +442,14 @@ Proof.
     simpl LessThan in |- *.
     apply (Exists_introduction n').
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   -
     apply Disjunction.R.
     apply Disjunction.R.
     simpl LessThan in |- *.
     apply (Exists_introduction m').
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   -
     let proof t := IH n'.
     match t with | lt | rest end.
@@ -462,7 +462,7 @@ Proof.
         apply Disjunction.R.
         apply Disjunction.L.
         rewrite eq in |- *.
-        reflexivity.
+        quod idem est.
       *
         apply Disjunction.R.
         apply Disjunction.R.
@@ -520,12 +520,12 @@ Proof.
         using Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
       let proof IH2' := Identity.symmetry IH2.
       rewrite IH2'
               in |- *.
-      reflexivity.
+      quod idem est.
   -
     rewrite IH in |- *.
     rm IH.
@@ -533,14 +533,14 @@ Proof.
         using Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
       symmetry in IH2.
       rewrite IH2
            in |- *.
       rewrite (addition.left.commutativity n' m' (n' * m'))
            in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 Module left. (* multiplication.left *)
@@ -557,13 +557,13 @@ Proof.
   intros l m n.
   induction l as [| l' IH] using Nat.induction; simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
     rewrite IH in |- *.
     rewrite (addition.associativity m n ((l' * m) + (l' * n))) in |- *.
     rewrite (addition.left.commutativity n (l' * m) (l' * n))  in |- *.
     rewrite (addition.associativity m (l' * m) (n + (l' * n))) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* multiplication.left.distributivity.over *)
@@ -576,10 +576,10 @@ Lemma commutativity
 Proof.
   intros l m n.
   induction l as [| l' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
+  - quod idem est.
   - rewrite IH in |- *.
     rewrite (multiplication.left.distributivity.over.addition m n (l' * n)) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module order. (* multiplication.left.order *)
@@ -598,7 +598,7 @@ Proof.
                 (multiplication.left.distributivity.over.addition k m d).
   rewrite dist in |- *.
   rewrite e    in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End order. (* multiplication.left.order *)
@@ -646,7 +646,7 @@ Proof.
   rewrite (multiplication.left.distributivity.over.addition l m n) in |- *.
   rewrite (multiplication.commutativity l m)                       in |- *.
   rewrite (multiplication.commutativity l n)                       in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.right.distributivity.over *)
@@ -673,7 +673,7 @@ Proof.
   rewrite (multiplication.left.commutativity n l m) in |- *.
   rewrite (multiplication.left.commutativity m l n) in |- *.
   rewrite (multiplication.commutativity n m)        in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End right. (* multiplication.right *)
@@ -686,13 +686,13 @@ Proof.
   intros l m n.
   induction l as [| l' IH] using Nat.induction; simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
     rewrite (multiplication.right.distributivity.over.addition n m (l' * m))
             in |- *.
     rewrite IH
             in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* multiplication.identity *)
@@ -702,10 +702,10 @@ Proof.
   intros n.
   divide et impera.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (multiplication.commutativity n 1) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module identity. (* multiplication.identity *)
@@ -718,7 +718,7 @@ Proof.
   match k with | | k' end; simpl in e.
   -
     divide et impera.
-    + reflexivity.
+    + quod idem est.
     + ipso e.
   -
     match j with | | j' end.
@@ -743,7 +743,7 @@ Proof.
   rewrite (multiplication.right.distributivity.over.addition (c + d) a b) in |- *.
   rewrite (multiplication.left.distributivity.over.addition a c d)        in |- *.
   rewrite (multiplication.left.distributivity.over.addition b c d)        in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.distributivity.over *)
@@ -769,7 +769,7 @@ Module power. (* power *)
 (* power.identity *)
 Lemma identity : forall (m : Nat) . power m 1 = m.
 Proof.
-  intros m. simpl in |- *. reflexivity.
+  intros m. simpl in |- *. quod idem est.
 Qed.
 
 (* power.annihilation *)
@@ -777,7 +777,7 @@ Lemma annihilation : forall (n : Nat) . power 1 n = 1.
 Proof.
   intros n.
   induction n as [| n' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
+  - quod idem est.
   - ipso IH.
 Qed.
 
@@ -793,11 +793,11 @@ Proof.
       using Nat.induction;
       simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
     rewrite (multiplication.associativity m (power m a') (power m b)) in |- *.
     rewrite IH in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* power.exponent.multiplication *)
@@ -811,7 +811,7 @@ Proof.
     rewrite -> (multiplication.commutativity a 1)
             in |- *.
     simpl   in |- *.
-    reflexivity.
+    quod idem est.
   -
     rewrite -> (multiplication.commutativity a (S b'))
             in |- *.
@@ -822,7 +822,7 @@ Proof.
             in |- *.
     rewrite -> IH
             in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End exponent. (* power.exponent *)
@@ -839,13 +839,13 @@ Proof.
   intros m n a.
   induction a as [| a' IH] using Nat.induction; simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
     rewrite IH in |- *.
     rewrite (multiplication.associativity m n (power m a' * power n a'))    in |- *.
     rewrite (multiplication.left.commutativity n (power m a') (power n a')) in |- *.
     rewrite (multiplication.associativity m (power m a') (n * power n a'))  in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* power.distributivity.over *)
@@ -877,7 +877,7 @@ Proof.
     simpl LessThan in |- *.
     apply (Exists_introduction n').
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   -
     discriminate e.
   -
@@ -905,7 +905,7 @@ Proof.
     modus ponens i, h as f.
     ex f quodlibet.
   +
-    reflexivity.
+    quod idem est.
   +
     simpl LessThan in h.
     match h with | k e end.
@@ -934,11 +934,11 @@ Proof.
   match n with | | n' end;
       intro e;
       simpl in |- *.
-  + reflexivity.
+  + quod idem est.
   + discriminate e.
   + discriminate e.
   + rewrite (IH n' e) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End forward. (* comparison.equality.forward *)
@@ -953,7 +953,7 @@ Proof.
   rewrite e in |- *.
   rm e.
   induction n as [| n' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
+  - quod idem est.
   - ipso IH.
 Qed.
 
@@ -984,9 +984,9 @@ Proof.
       intros n;
   match n with | | n' end;
       simpl in |- *.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
+  - quod idem est.
+  - quod idem est.
+  - quod idem est.
   - ipso (IH n').
 Qed.
 
@@ -1006,8 +1006,8 @@ Proof.
     match n with | | n' end;
         simpl in e;
         discriminate e.
-  - reflexivity.
-  - reflexivity.
+  - quod idem est.
+  - quod idem est.
 Qed.
 
 End right. (* comparison.maximum.right *)
@@ -1019,7 +1019,7 @@ Lemma identity : forall (n : Nat) . max 1 n = n.
 Proof.
   intros n.
   simpl Comparable.max in |- *.
-  match n with | | n' end; simpl in |- *; reflexivity.
+  match n with | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 End left. (* comparison.maximum.left *)
@@ -1093,7 +1093,7 @@ Proof.
     induction n as [| n' IH]
         using Nat.induction;
         simpl in |- *.
-    + reflexivity.
+    + quod idem est.
     + ipso IH.
   -
     simpl LessThan in lt.
@@ -1104,7 +1104,7 @@ Proof.
     induction m as [| m' IH]
         using Nat.induction;
         simpl in |- *.
-    + reflexivity.
+    + quod idem est.
     + ipso IH.
 Qed.
 
@@ -1120,7 +1120,7 @@ Proof.
   induction n as [| n' IH] using Nat.induction.
   - rewrite (addition.commutativity m 1) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - rewrite (addition.commutativity m (S n')) in |- *.
     simpl in |- *.
     rewrite (addition.commutativity n' m) in |- *.
@@ -1137,7 +1137,7 @@ Theorem cancellation
 Proof.
   intros k m n.
   induction k as [| k' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
+  - quod idem est.
   - ipso IH.
 Qed.
 
@@ -1161,10 +1161,10 @@ Proof.
     +
       let proof e' := Option.some.injectivity e.
       rewrite e' in |- *.
-      reflexivity.
+      quod idem est.
     +
       rewrite (IH n' k e) in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 End forward. (* subtraction.forward *)
@@ -1204,7 +1204,7 @@ Proof.
   simpl saturating_sub in |- *.
   rewrite (subtraction.truncation h) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module inversion. (* subtraction.saturating.inversion *)
@@ -1219,7 +1219,7 @@ Proof.
   simpl saturating_sub in |- *.
   rewrite (subtraction.inversion.of.addition m n) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End of. (* subtraction.saturating.inversion.of *)
