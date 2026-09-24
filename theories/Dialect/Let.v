@@ -2,17 +2,25 @@
 
 From jwa Require Export Dialect.Ltac.
 From jwa Require Import Dialect.Local.
-From Ltac2 Require Constr Control Fresh Std.
+From jwa Require Import Dialect.Place.
+From Ltac2 Require Constr Control Fresh Ident List Message Std.
 
-(* let <x> := <e>                pose (<x> := <e>)
- * let <x> : <T> := <e>          pose (<x> : <T> := <e>)
- * let proof <p> := <e>          pose proof (<e>) as <p>
- * let proof <p> : <T> := <e>    pose proof (<e> : <T>) as <p>
+(* let <x> := <e>                           pose (<x> := <e>)
+ * let <x> : <T> := <e>                     pose (<x> : <T> := <e>)
+ * let <x> := <e> in <places>               set (<x> := <e>) in <places>
+ * let <x> : <T> := <e> in <places>         set (<x> : <T> := <e>) in <places>
+ * let proof <p> := <e>                     pose proof (<e>) as <p>
+ * let proof <p> : <T> := <e>               pose proof (<e> : <T>) as <p>
  *
  * [:=] reads "is defined as", as in [Definition]: the binding is neither an
  * equation to be proved nor an assignment. [let] names <e> as a local
  * definition <x>, whose body stays visible; [let proof] adds <e> as a
  * hypothesis, its type alone, named by <p> or destructured by it.
+ *
+ * With [in], [let] also writes <x> for each occurrence of <e> in the places
+ * named, the four of [simpl]: [in &h1, &h2], [in &h1 |- *], [in |- *],
+ * [in *]. It fails when <e> does not occur in a hypothesis named, in the
+ * goal when [|- *] is named, or anywhere under [in *].
  *
  * A name already in the context is shadowed, not refused:
  *
@@ -117,6 +125,138 @@ Ltac2 typed_proof (who : string) (t : unit -> constr) (e : unit -> constr) : con
   let e := Local.checked who e in
   constr:($e : $t).
 
+Ltac2 let_refuse (parts : message list) :=
+  Control.zero
+    (Tactic_failure
+       (Some (List.fold_right Message.concat parts (Message.of_string "")))).
+
+(* The body and the type of a name of the context, [None] when it is not
+ * there.
+ *)
+Ltac2 entry (x : ident) : (constr option * constr) option :=
+  match List.find_opt (fun h => match h with (y, _, _) => Ident.equal x y end)
+          (Control.hyps ()) with
+  | Some h => match h with (_, body, type) => Some (body, type) end
+  | None => None
+  end.
+
+Ltac2 same_body (a : constr option) (b : constr option) : bool :=
+  match a with
+  | Some a => match b with Some b => Constr.equal a b | None => false end
+  | None => match b with Some _ => false | None => true end
+  end.
+
+Ltac2 same_entry (a : (constr option * constr) option) (b : (constr option * constr) option)
+  : bool :=
+  match a with
+  | Some (body_a, type_a) =>
+      match b with
+      | Some (body_b, type_b) =>
+          if same_body body_a body_b then Constr.equal type_a type_b else false
+      | None => false
+      end
+  | None => match b with Some _ => false | None => true end
+  end.
+
+(* The places of [let ... in], from the pieces the notation reads: the
+ * hypotheses named, whether the goal is named, whether [*] is.
+ *)
+Ltac2 let_places
+  (hypotheses : (bool * ident) list option) (goal : unit option) (everywhere : unit option)
+  : ident list * bool * bool :=
+  let hs :=
+    match hypotheses with
+    | Some hs => Local.context_idents "let" hs
+    | None => []
+    end in
+  let goal := match goal with Some _ => true | None => false end in
+  match everywhere with
+  | Some _ =>
+      match hs with
+      | [] =>
+          if goal
+          then let_refuse [Message.of_string "let: in * stands alone, with no hypothesis and no |- *"]
+          else ([], false, true)
+      | _ => let_refuse [Message.of_string "let: in * stands alone, with no hypothesis and no |- *"]
+      end
+  | None =>
+      match hs with
+      | [] =>
+          if goal
+          then ([], true, false)
+          else let_refuse [Message.of_string "let: a place must follow in, such as in |- * for the goal"]
+      | _ => (hs, goal, false)
+      end
+  end.
+
+(* [set] under the name [y], and [x] shadowed by it as [let] does. *)
+Ltac2 set_definition (x : ident) (e : constr) (place : Std.clause) (typed : constr option) :=
+  let bind y :=
+    (Std.set false (fun () => (Some y, e)) place;
+     match typed with Some t => retype y t | None => () end) in
+  if is_in_context x
+  then (let y := Fresh.in_goal x in bind y; shadow_with x y)
+  else bind x.
+
+(* The places are compared before and after, and one left unchanged is
+ * refused.
+ *)
+Ltac2 let_in
+  (x : ident) (e : constr) (typed : constr option) (places : ident list * bool * bool) :=
+  match places with
+  | (hs, goal, everywhere) =>
+      (List.iter
+        (fun h =>
+          match entry h with
+          | None =>
+              let_refuse [Message.of_string "let: "; Message.of_ident h;
+                          Message.of_string " is not in the context"]
+          | Some _ => ()
+          end)
+        hs;
+      let place :=
+        if everywhere
+        then Place.everywhere
+        else if goal
+        then (match hs with [] => Place.goal | _ => Place.hypotheses_and_goal hs end)
+        else Place.hypotheses hs in
+      let before := List.map (fun h => (h, entry h)) hs in
+      let context_before := Control.hyps () in
+      let goal_before := Control.goal () in
+      set_definition x e place typed;
+      let does_not_occur place_name :=
+        let_refuse [Message.of_string "let: "; Message.of_constr e;
+                    Message.of_string " does not occur in "; place_name] in
+      if everywhere
+      then
+        (if Constr.equal goal_before (Control.goal ())
+         then
+           if List.for_all
+                (fun h => match h with (y, body, type) => same_entry (Some (body, type)) (entry y) end)
+                context_before
+           then
+             let_refuse [Message.of_string "let: "; Message.of_constr e;
+                         Message.of_string " occurs nowhere, neither in the context nor in the goal"]
+           else ()
+         else ())
+      else
+        (List.iter
+           (fun p =>
+             match p with
+             | (h, entry_before) =>
+                 if same_entry entry_before (entry h)
+                 then does_not_occur (Message.of_ident h)
+                 else ()
+             end)
+           before;
+         if goal
+         then
+           (if Constr.equal goal_before (Control.goal ())
+            then does_not_occur (Message.of_string "the goal")
+            else ())
+         else ()))
+  end.
+
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
  * must reach the helpers that know how to shadow.
@@ -135,6 +275,19 @@ Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr)) : 5 :=
 Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
   Control.enter (fun () =>
     let_definition_typed x (Local.checked "let" t) (Local.checked "let" e)).
+
+Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr))
+  "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
+  : 5 :=
+  Control.enter (fun () =>
+    let_in x (Local.checked "let" e) None (let_places hypotheses goal everywhere)).
+
+Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr))
+  "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
+  : 5 :=
+  Control.enter (fun () =>
+    let_in x (Local.checked "let" e) (Some (Local.checked "let" t))
+      (let_places hypotheses goal everywhere)).
 
 Ltac2 Notation "let" "proof" h(ident) ":=" e(thunk(lconstr)) : 5 :=
   Control.enter (fun () => let_proof h (Local.checked "let proof" e)).
