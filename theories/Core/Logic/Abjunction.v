@@ -59,17 +59,12 @@ Proof.
     unfold Negation in h |- *.
     intro a.
     intro nb.
-    apply h.
-    divide et impera.
-    + ipso a.
-    + ipso nb.
+    ipso (h (Abjunction_introduction a nb)).
   - unfold Negation in |- *.
     intro f.
     intro h.
     match h with | a nb end.
-    apply f.
-    + ipso a.
-    + ipso nb.
+    ipso (f a nb).
 Qed.
 
 End negation. (* negation *)

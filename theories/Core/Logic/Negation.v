@@ -226,9 +226,19 @@ Proof.
   unfold Negation in |- *.
   intro not_not_not_a.
   intro a.
-  apply not_not_not_a.
-  intro not_a.
-  ipso (not_a a).
+  (* not_a                         : A -> Falsum          (= ~ A)
+   * a                             : A
+   * not_a a                       : Falsum               (body)
+   * fun (not_a : ~ A) . not_a a   : (A -> Falsum) -> Falsum
+   *                               = ~ (A -> Falsum)
+   *                               = ~ (~ A)
+   *                               = ~ ~ A
+   *
+   * [let proof] keeps the type alone, [not_not_a : ~ ~ A].
+   * [let] works here too, but keeps the body as well, [not_not_a := fun (not_a : ~ A) . not_a a : ~ ~ A].
+   *)
+  let proof not_not_a : ~ ~ A := fun (not_a : ~ A) . not_a a.
+  ipso (not_not_not_a not_not_a).
 Qed.
 
 End triple. (* triple *)

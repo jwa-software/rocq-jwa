@@ -66,16 +66,11 @@ Proof.
   - intro f.
     intro a.
     intro b.
-    apply f.
-    divide et impera.
-    + ipso a.
-    + ipso b.
+    ipso (f (Conjunction_introduction a b)).
   - intro f.
     intro h.
     match h with | a b end.
-    apply f.
-    + ipso a.
-    + ipso b.
+    ipso (f a b).
 Qed.
 
 (* The universal property of [/\] as a product: a proof of [B /\ C] from [A]

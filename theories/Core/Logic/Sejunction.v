@@ -68,14 +68,8 @@ Proof.
   divide et impera.
   - intro h.
     match h with | a nb | na b end.
-    + apply Disjunction.left.
-      divide et impera.
-      * ipso a.
-      * ipso nb.
-    + apply Disjunction.right.
-      divide et impera.
-      * ipso b.
-      * ipso na.
+    + ipso (Disjunction.left (Abjunction_introduction a nb)).
+    + ipso (Disjunction.right (Abjunction_introduction b na)).
   - intro h.
     match h with | ab | ba end.
     + match ab with | a nb end.
@@ -112,22 +106,10 @@ Proof.
     match h with | ab nab end.
     unfold Negation in nab.
     match ab with | a | b end.
-    + apply Sejunction.left.
-      * ipso a.
-      * unfold Negation in |- *.
-        intro b.
-        apply nab.
-        divide et impera.
-        { ipso a. }
-        { ipso b. }
-    + apply Sejunction.right.
-      * unfold Negation in |- *.
-        intro a.
-        apply nab.
-        divide et impera.
-        { ipso a. }
-        { ipso b. }
-      * ipso b.
+    + let proof nb : ~ B := fun (b : B) . nab (Conjunction_introduction a b).
+      ipso (Sejunction.left a nb).
+    + let proof na : ~ A := fun (a : A) . nab (Conjunction_introduction a b).
+      ipso (Sejunction.right na b).
 Qed.
 
 Theorem congruence
@@ -141,35 +123,15 @@ Proof.
   match eb with | b12 b21 end.
   divide et impera; intro h.
   - match h with | a1 nb1 | na1 b1 end.
-    + apply Sejunction.left.
-      * ipso (a12 a1).
-      * unfold Negation in nb1 |- *.
-        intro b2.
-        let proof b1 := b21 b2.
-        let proof facto := nb1 b1.
-        ipso facto.
-    + apply Sejunction.right.
-      * unfold Negation in na1 |- *.
-        intro a2.
-        let proof a1 := a21 a2.
-        let proof facto := na1 a1.
-        ipso facto.
-      * ipso (b12 b1).
+    + let proof nb2 : ~ B2 := fun (b2 : B2) . nb1 (b21 b2).
+      ipso (Sejunction.left (a12 a1) nb2).
+    + let proof na2 : ~ A2 := fun (a2 : A2) . na1 (a21 a2).
+      ipso (Sejunction.right na2 (b12 b1)).
   - match h with | a2 nb2 | na2 b2 end.
-    + apply Sejunction.left.
-      * ipso (a21 a2).
-      * unfold Negation in nb2 |- *.
-        intro b1.
-        let proof b2 := b12 b1.
-        let proof facto := nb2 b2.
-        ipso facto.
-    + apply Sejunction.right.
-      * unfold Negation in na2 |- *.
-        intro a1.
-        let proof a2 := a12 a1.
-        let proof facto := na2 a2.
-        ipso facto.
-      * ipso (b21 b2).
+    + let proof nb1 : ~ B1 := fun (b1 : B1) . nb2 (b12 b1).
+      ipso (Sejunction.left (a21 a2) nb1).
+    + let proof na1 : ~ A1 := fun (a1 : A1) . na2 (a12 a1).
+      ipso (Sejunction.right na1 (b21 b2)).
 Qed.
 
 Module weakening. (* weakening *)

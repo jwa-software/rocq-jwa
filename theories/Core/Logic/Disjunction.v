@@ -92,10 +92,7 @@ Proof.
     + ipso (Disjunction.left a).
     + match ac with | a | c end.
       * ipso (Disjunction.left a).
-      * apply Disjunction.right.
-        divide et impera.
-        { ipso b. }
-        { ipso c. }
+      * ipso (Disjunction.right (Conjunction_introduction b c)).
 Qed.
 
 End over. (* distributivity.over *)
@@ -172,16 +169,8 @@ Proof.
   - intro h.
     match h with | a bc end.
     match bc with | b | c end.
-    + (* [|- A /\ B] *)
-      apply Disjunction.left.
-      divide et impera.
-      * ipso a.
-      * ipso b.
-    + (* [|- A /\ C] *)
-      apply Disjunction.right.
-      divide et impera.
-      * ipso a.
-      * ipso c.
+    + ipso (Disjunction.left (Conjunction_introduction a b)).
+    + ipso (Disjunction.right (Conjunction_introduction a c)).
   - intro h.
     match h with | ab | ac end.
     + match ab with | a b end.
