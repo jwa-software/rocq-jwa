@@ -49,7 +49,7 @@ Ltac2 Notation "hs" hab(preterm) "," hbc(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
     Local.check_preterms "hs" [hab; hbc];
     Std.specialize
-      (open_constr:(Conditional.transitivity $preterm:hab $preterm:hbc), Std.NoBindings)
+      (Local.elaborate preterm:(Conditional.transitivity $preterm:hab $preterm:hbc), Std.NoBindings)
       (Some p)).
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
@@ -62,7 +62,7 @@ Ltac2 Notation "hypothetical" "syllogism" hab(preterm) "," hbc(preterm)
   Control.enter (fun () =>
     Local.check_preterms "hypothetical syllogism" [hab; hbc];
     Std.specialize
-      (open_constr:(Conditional.transitivity $preterm:hab $preterm:hbc), Std.NoBindings)
+      (Local.elaborate preterm:(Conditional.transitivity $preterm:hab $preterm:hbc), Std.NoBindings)
       (Some p)).
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
@@ -73,5 +73,5 @@ Ltac2 Notation "barbara" hmp(preterm) "," hsm(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
     Local.check_preterms "barbara" [hmp; hsm];
     Std.specialize
-      (open_constr:(Syllogism.Barbara $preterm:hmp $preterm:hsm), Std.NoBindings)
+      (Local.elaborate preterm:(Syllogism.Barbara $preterm:hmp $preterm:hsm), Std.NoBindings)
       (Some p)).

@@ -153,3 +153,16 @@ Ltac2 check_preterm (who : string) (p : preterm) :=
 
 Ltac2 check_preterms (who : string) (ps : preterm list) :=
   List.iter (check_preterm who) ps.
+
+(* A term built from the preterms of a tactic, as [open_constr:] reads it:
+ * the whole application typed at once, so one premise may fix another's
+ * implicit arguments. Typeclass inference then runs as well, which
+ * [open_constr:] leaves out; without it an instance argument such as
+ * [{C : Comparable compare lt}] stays a hole, and every argument it fixes
+ * with it.
+ *)
+Ltac2 elaborate (p : preterm) : constr :=
+  Constr.Pretype.pretype
+    Constr.Pretype.Flags.open_constr_flags_with_tc
+    Constr.Pretype.expected_without_type_constraint
+    p.

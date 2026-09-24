@@ -32,13 +32,13 @@ Ltac2 Notation "dni" h(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
     Local.check_preterm "dni" h;
     Std.specialize
-      (open_constr:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
+      (Local.elaborate preterm:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
 
 Ltac2 Notation "dni" h(preterm) "|-" p(intropattern) :=
   Control.enter (fun () =>
     Local.check_preterm "dni" h;
     Std.specialize
-      (open_constr:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
+      (Local.elaborate preterm:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
 
 (* In place, adding nothing; <hypotheses> is a comma-separated list of names,
  * one or more:
@@ -91,13 +91,13 @@ Ltac2 Notation "dne" h(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
     Local.check_preterm "dne" h;
     Std.specialize
-      (open_constr:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
+      (Local.elaborate preterm:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
 
 Ltac2 Notation "dne" h(preterm) "|-" p(intropattern) :=
   Control.enter (fun () =>
     Local.check_preterm "dne" h;
     Std.specialize
-      (open_constr:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
+      (Local.elaborate preterm:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
 
 (* In place, adding nothing:
  *

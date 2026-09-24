@@ -58,12 +58,12 @@ Notation "'modus' 'ponens' H1 , H2" := (H1 H2)
 Ltac2 Notation "modus" "ponens" h1(preterm) "," h2(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
     (Local.check_preterms "modus ponens" [h1; h2];
-     Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
+     Std.specialize (Local.elaborate preterm:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
 
 Ltac2 Notation "modus" "ponens" h1(preterm) "," h2(preterm) "|-" p(intropattern) :=
   Control.enter (fun () =>
     (Local.check_preterms "modus ponens" [h1; h2];
-     Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
+     Std.specialize (Local.elaborate preterm:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
 
 Notation "'modus' 'ponendo' 'ponens' H1 , H2" := (H1 H2)
   (only parsing).
@@ -72,13 +72,13 @@ Ltac2 Notation "modus" "ponendo" "ponens" h1(preterm) "," h2(preterm)
     "as" p(intropattern) :=
   Control.enter (fun () =>
     (Local.check_preterms "modus ponendo ponens" [h1; h2];
-     Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
+     Std.specialize (Local.elaborate preterm:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
 
 Ltac2 Notation "modus" "ponendo" "ponens" h1(preterm) "," h2(preterm)
     "|-" p(intropattern) :=
   Control.enter (fun () =>
     (Local.check_preterms "modus ponendo ponens" [h1; h2];
-     Std.specialize (open_constr:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
+     Std.specialize (Local.elaborate preterm:($preterm:h1 $preterm:h2), Std.NoBindings) (Some p))).
 
 Notation "'modus' 'tollens' H1 , H2" := (Negation.contraposition H1 H2)
   (only parsing).
@@ -87,14 +87,14 @@ Ltac2 Notation "modus" "tollens" h1(preterm) "," h2(preterm) "as" p(intropattern
   Control.enter (fun () =>
     (Local.check_preterms "modus tollens" [h1; h2];
      Std.specialize
-       (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+       (Local.elaborate preterm:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
        (Some p))).
 
 Ltac2 Notation "modus" "tollens" h1(preterm) "," h2(preterm) "|-" p(intropattern) :=
   Control.enter (fun () =>
     (Local.check_preterms "modus tollens" [h1; h2];
      Std.specialize
-       (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+       (Local.elaborate preterm:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
        (Some p))).
 
 Notation "'modus' 'tollendo' 'tollens' H1 , H2"
@@ -106,7 +106,7 @@ Ltac2 Notation "modus" "tollendo" "tollens" h1(preterm) "," h2(preterm)
   Control.enter (fun () =>
     (Local.check_preterms "modus tollendo tollens" [h1; h2];
      Std.specialize
-       (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+       (Local.elaborate preterm:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
        (Some p))).
 
 Ltac2 Notation "modus" "tollendo" "tollens" h1(preterm) "," h2(preterm)
@@ -114,7 +114,7 @@ Ltac2 Notation "modus" "tollendo" "tollens" h1(preterm) "," h2(preterm)
   Control.enter (fun () =>
     (Local.check_preterms "modus tollendo tollens" [h1; h2];
      Std.specialize
-       (open_constr:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
+       (Local.elaborate preterm:(Negation.contraposition $preterm:h1 $preterm:h2), Std.NoBindings)
        (Some p))).
 
 Notation "'modus' 'tollendo' 'ponens' H1 , H2"
@@ -132,10 +132,10 @@ Ltac2 modus_tollendo_ponens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern
     Local.check_preterms "modus tollendo ponens" [h1; h2];
     first_branch
       [ (fun () => Std.specialize
-           (open_constr:(Negation.elimination.left.of.disjunction
+           (Local.elaborate preterm:(Negation.elimination.left.of.disjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (open_constr:(Negation.elimination.right.of.disjunction
+           (Local.elaborate preterm:(Negation.elimination.right.of.disjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p)) ]).
 
 Ltac2 Notation "modus" "tollendo" "ponens" h1(preterm) "," h2(preterm)
@@ -169,17 +169,17 @@ Ltac2 modus_ponendo_tollens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern
     Local.check_preterms "modus ponendo tollens" [h1; h2];
     first_branch
       [ (fun () => Std.specialize
-           (open_constr:(Negation.exclusion.left.of.conjunction
+           (Local.elaborate preterm:(Negation.exclusion.left.of.conjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (open_constr:(Negation.exclusion.right.of.conjunction
+           (Local.elaborate preterm:(Negation.exclusion.right.of.conjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (open_constr:(Negation.exclusion.left.of.conjunction
+           (Local.elaborate preterm:(Negation.exclusion.left.of.conjunction
                       (Sejunction.exclusion.of.conjunction $preterm:h1)
                       $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (open_constr:(Negation.exclusion.right.of.conjunction
+           (Local.elaborate preterm:(Negation.exclusion.right.of.conjunction
                       (Sejunction.exclusion.of.conjunction $preterm:h1)
                       $preterm:h2), Std.NoBindings) (Some p)) ]).
 
@@ -206,10 +206,10 @@ Ltac2 modus_aequans (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern) :=
     Local.check_preterms "modus aequans" [h1; h2];
     first_branch
       [ (fun () => Std.specialize
-           (open_constr:(Biconditional.forward.elimination
+           (Local.elaborate preterm:(Biconditional.forward.elimination
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (open_constr:(Biconditional.backward.elimination
+           (Local.elaborate preterm:(Biconditional.backward.elimination
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p)) ]).
 
 Ltac2 Notation "modus" "aequans" h1(preterm) "," h2(preterm) "as" p(intropattern) :=
