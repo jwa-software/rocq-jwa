@@ -65,8 +65,8 @@ Proof.
    * - one with [na : ~ A] and [b : B].
    *)
   match h with | a nb | na b end.
-  - ipso (Sejunction.right nb  a).
-  - ipso (Sejunction.left   b na).
+  - ipso (sejoin nb, a).
+  - ipso (sejoin b, na).
 Qed.
 
 Module decomposition. (* decomposition *)
@@ -89,9 +89,9 @@ Proof.
   - intro h.
     match h with | ab | ba end.
     + match ab with | a nb end.
-      ipso (Sejunction.left a nb).
+      ipso (sejoin a, nb).
     + match ba with | b na end.
-      ipso (Sejunction.right na b).
+      ipso (sejoin na, b).
 Qed.
 
 End into. (* decomposition.into *)
@@ -123,9 +123,9 @@ Proof.
     simpl (~ _) in nab.
     match ab with | a | b end.
     + let proof nb : ~ B := fun (b : B) . nab (conjoin a, b).
-      ipso (Sejunction.left a nb).
+      ipso (sejoin a, nb).
     + let proof na : ~ A := fun (a : A) . nab (conjoin a, b).
-      ipso (Sejunction.right na b).
+      ipso (sejoin na, b).
 Qed.
 
 Theorem congruence
@@ -140,14 +140,14 @@ Proof.
   divide et impera; intro h.
   - match h with | a1 nb1 | na1 b1 end.
     + let proof nb2 : ~ B2 := fun (b2 : B2) . nb1 (b21 b2).
-      ipso (Sejunction.left (a12 a1) nb2).
+      ipso (sejoin (a12 a1), nb2).
     + let proof na2 : ~ A2 := fun (a2 : A2) . na1 (a21 a2).
-      ipso (Sejunction.right na2 (b12 b1)).
+      ipso (sejoin na2, (b12 b1)).
   - match h with | a2 nb2 | na2 b2 end.
     + let proof nb1 : ~ B1 := fun (b1 : B1) . nb2 (b12 b1).
-      ipso (Sejunction.left (a21 a2) nb1).
+      ipso (sejoin (a21 a2), nb1).
     + let proof na1 : ~ A1 := fun (a1 : A1) . na2 (a12 a1).
-      ipso (Sejunction.right na1 (b21 b2)).
+      ipso (sejoin na1, (b21 b2)).
 Qed.
 
 Module weakening. (* weakening *)

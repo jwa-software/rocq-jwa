@@ -88,9 +88,9 @@ Proof.
               intro h.
   - ex h quodlibet.
   - match h with | t nt | nt t end; ipso (modus ponens nt, t).
-  - ipso (Sejunction.left  I (fun (f : Falsum) . f)).
+  - ipso (sejoin I, (fun (f : Falsum) . f)).
   - ipso I.
-  - ipso (Sejunction.right (fun (f : Falsum) . f) I).
+  - ipso (sejoin (fun (f : Falsum) . f), I).
   - ipso I.
   - ex h quodlibet.
   - match h with | f _ | _ f end; ipso f.
