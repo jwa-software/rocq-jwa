@@ -6,13 +6,13 @@ From Ltac2 Require Control List Message Std.
 
 (* match <H> with end                          destruct <H>
  * match <H> with | <b1> | ... | <bn> end      destruct <H> as [<b1> | ... | <bn>]
- * match <H> per <E> with end                  destruct <H> eqn:<E>
- * match <H> per <E> with | <b1> | ... end     destruct <H> as [...] eqn:<E>
+ * match <H> with end |- <E>                   destruct <H> eqn:<E>
+ * match <H> with | <b1> | ... end |- <E>      destruct <H> as [...] eqn:<E>
  *
  * Case analysis on <H>, one goal per constructor of its type; the proof term
  * built is a [match] on <H>. The branch <bi> names the arguments of the i-th
  * constructor in order, each a name or [_], and may be empty; [with end]
- * leaves the names to Rocq. [per <E>] adds to each goal the equation <E>
+ * leaves the names to Rocq. [|- <E>] adds to each goal the equation <E>
  * between <H> and that goal's constructor. A branch takes one constructor
  * apart and no more: an argument to be taken apart in turn is named, then
  * matched again.
@@ -60,6 +60,6 @@ Ltac2 match_destruct
          Std.indcl_in := None }]
       None).
 
-Ltac2 Notation "match" h(thunk(constr)) e(opt(seq("per", ident))) "with"
-  branches(list0(seq("|", list0(intropattern)))) "end" : 5 :=
+Ltac2 Notation "match" h(thunk(constr)) "with"
+  branches(list0(seq("|", list0(intropattern)))) "end" e(opt(seq("|-", ident))) : 5 :=
   match_destruct h e branches.
