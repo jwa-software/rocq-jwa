@@ -222,12 +222,16 @@ Proof.
     quod idem est.
   }
 
-  apply extensionality.
-  - simpl make      in |- *.
+  lemma top : numerator (make &n &d) = numerator (Rational_introduction &n &d &h).
+  {
+    simpl make      in |- *.
     simpl numerator in |- *.
     leibniz h in |- *.
     ipso whole.
-  - simpl make        in |- *.
+  }
+  lemma bottom : denominator (make &n &d) = denominator (Rational_introduction &n &d &h).
+  {
+    simpl make        in |- *.
     simpl denominator in |- *.
     let proof c := NatWithZero.divide.nat.safe.congruence
                   d (NatWithZero.gcd.nat (Integer.abs n) d)
@@ -241,6 +245,8 @@ Proof.
     leibniz undivided in s.
     let proof inj := NatWithZero.positive.injectivity s.
     ipso (Identity.transitivity c inj).
+  }
+  ipso (extensionality _ _ &top &bottom).
 Qed.
 
 (* make.invariance *)
@@ -294,27 +300,33 @@ Proof.
                 (NatWithZero.gcd.nat (Integer.abs n) d)
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d).
   {
-    apply NatWithZero.divide.nat.safe.congruence.
-    leibniz common in |- *.
-    let proof inv := NatWithZero.division.invariance
-                  (NatWithZero.Positive d)
-                  (NatWithZero.gcd.nat (Integer.abs n) d) k.
-    let proof inv
+    lemma quotients
       : NatWithZero.divide
-          (NatWithZero.Positive (Nat.mul k d))
-          (Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d))
-        = NatWithZero.divide (NatWithZero.Positive d) (NatWithZero.gcd.nat (Integer.abs n) d)
-      := &inv.
-    ipso inv.
+          (NatWithZero.Positive (Nat.mul &k &d))
+          (NatWithZero.gcd.nat (Integer.abs (Integer.mul (Integer.Positive &k) &n)) (Nat.mul &k &d))
+        = NatWithZero.divide
+            (NatWithZero.Positive &d)
+            (NatWithZero.gcd.nat (Integer.abs &n) &d).
+    {
+      leibniz common in |- *.
+      let proof inv := NatWithZero.division.invariance
+                    (NatWithZero.Positive d)
+                    (NatWithZero.gcd.nat (Integer.abs n) d) k.
+      let proof inv
+        : NatWithZero.divide
+            (NatWithZero.Positive (Nat.mul k d))
+            (Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d))
+          = NatWithZero.divide (NatWithZero.Positive d) (NatWithZero.gcd.nat (Integer.abs n) d)
+        := &inv.
+      ipso inv.
+    }
+    ipso (NatWithZero.divide.nat.safe.congruence _ _ _ _ _ _ &quotients).
   }
 
-  apply extensionality.
-  - simpl make      in |- *.
-    simpl numerator in |- *.
-    ipso top.
-  - simpl make        in |- *.
-    simpl denominator in |- *.
-    ipso bottom.
+  ipso (extensionality
+          (make (Integer.mul (Integer.Positive &k) &n) (Nat.mul &k &d))
+          (make &n &d)
+          &top &bottom).
 Qed.
 
 (* make.proportionality *)
@@ -593,11 +605,9 @@ Proof.
     leibniz (Integer.multiplication.commutativity p (Integer.from_nat s)) in cross.
     leibniz (Integer.multiplication.commutativity r (Integer.from_nat s)) in cross.
     let proof hp := Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross.
-    apply extensionality.
-    + simpl numerator in |- *.
-      ipso hp.
-    + simpl denominator in |- *.
-      ipso hq.
+    ipso (extensionality
+            (Rational_introduction &p &q &I1) (Rational_introduction &r &s &I2)
+            &hp &hq).
 Qed.
 
 (* make.annihilation *)
