@@ -375,11 +375,13 @@ Proof.
   - simpl in |- *.
     intro h.
     match h with | e | h' end.
-    + apply Disjunction.L.
-      leibniz e in |- *.
-      quod idem est.
-    + apply Disjunction.R.
-      ipso (IH h').
+    + lemma facto : &f &a = &f &b.
+      {
+        leibniz e in |- *.
+        quod idem est.
+      }
+      ipso (disjoin &facto, _).
+    + ipso (disjoin _, (IH h')).
 Qed.
 
 End of. (* mapping.preservation.of *)
