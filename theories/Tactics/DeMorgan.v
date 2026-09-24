@@ -12,14 +12,14 @@ From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std String.
 
-(* De Morgan, unfolding a negated disjunction or a negated [exists].
+(* De Morgan, unfolding a negated disjunction or a negated [forsome].
  *
  *   de morgan <H>    ~ (A \/ B) |- ~ A /\ ~ B
- *                    ~ (exists x . P x) |- forall x . ~ P x
+ *                    ~ (forsome x . P x) |- forall x . ~ P x
  *
  * Only these two unfold. [~ (A /\ B)] and [~ (forall x . P x)] are refused
  * with an error saying why: [~ A \/ ~ B] would have to name which of [A] and
- * [B] fails, and [exists x . ~ P x] which [x] fails, and neither premise
+ * [B] fails, and [forsome x . ~ P x] which [x] fails, and neither premise
  * says, so those directions are not constructive. Any other shape is
  * refused as well.
  *
@@ -35,7 +35,7 @@ From Ltac2 Require Constr Control List Message Std String.
  * the targets themselves and add nothing. On the goal the same two shapes
  * are rewritten, each an equivalence, so a provable goal stays provable.
  * [~ (A /\ B)] and [~ (forall x . P x)] are refused there too: [~ A \/ ~ B]
- * and [exists x . ~ P x] would prove them, but may not be provable where the
+ * and [forsome x . ~ P x] would prove them, but may not be provable where the
  * original is, as [~ (A /\ ~ A)] shows.
  *
  * [Ltac2.Notations] is imported for [apply] and [lazy_match!] inside this
@@ -56,12 +56,12 @@ Ltac2 de_morgan_refuse (t : constr) :=
       refuse (String.app "de morgan: ~ (A /\ B) does not split constructively,"
                          " since it does not say which of A and B fails")
   | ~ (?_a -> ?_b) =>
-      refuse "de morgan: expects a hypothesis of the shape ~ (A \/ B) or ~ (exists x . P x)"
+      refuse "de morgan: expects a hypothesis of the shape ~ (A \/ B) or ~ (forsome x . P x)"
   | ~ (forall _, _) =>
       refuse (String.app "de morgan: ~ (forall x . P x) does not split constructively,"
                          " since it does not say which x fails")
   | _ =>
-      refuse "de morgan: expects a hypothesis of the shape ~ (A \/ B) or ~ (exists x . P x)"
+      refuse "de morgan: expects a hypothesis of the shape ~ (A \/ B) or ~ (forsome x . P x)"
   end.
 
 (* The unfolded proof of what <h> proves. *)
@@ -114,12 +114,12 @@ Ltac2 de_morgan_in_goal () :=
       refuse (String.app "de morgan: a goal ~ (A /\ B) is left alone,"
                          " since ~ A \/ ~ B may not be provable where it is")
   | [ |- ~ (?_a -> ?_b) ] =>
-      refuse "de morgan: expects a goal of the shape ~ (A \/ B) or ~ (exists x . P x)"
+      refuse "de morgan: expects a goal of the shape ~ (A \/ B) or ~ (forsome x . P x)"
   | [ |- ~ (forall _, _) ] =>
       refuse (String.app "de morgan: a goal ~ (forall x . P x) is left alone,"
-                         " since exists x . ~ P x may not be provable where it is")
+                         " since forsome x . ~ P x may not be provable where it is")
   | [ |- _ ] =>
-      refuse "de morgan: expects a goal of the shape ~ (A \/ B) or ~ (exists x . P x)"
+      refuse "de morgan: expects a goal of the shape ~ (A \/ B) or ~ (forsome x . P x)"
   end.
 
 Ltac2 Notation "de" "morgan" "in" hypotheses(list1(context_name, ",")) :=

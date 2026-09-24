@@ -59,7 +59,7 @@ Declare Scope jwa_rational_scope.
 Delimit Scope jwa_rational_scope with rational.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
-   [exists] beyond them, so a formula reads without parentheses; [_\/_] sits
+   [forsome] beyond them, so a formula reads without parentheses; [_\/_] sits
    between [/\] and [\/] as [^^] sits between [&&] and [||], and [!] is to
    that boolean row what [~] is to this one, below all of it. The quotes
    make [contains_member] a keyword rather than a variable. *)
@@ -191,8 +191,8 @@ Reserved Notation "'abjoin' A , B"
   (at level 10, A at next level, B at next level).
 
 (* [x binder] is what lets [x] be written with or without its type, and the
-   [..] is what lets one [exists] carry several of them. *)
-Reserved Notation "'exists' x .. y '.' p"
+   [..] is what lets one [forsome] carry several of them. *)
+Reserved Notation "'forsome' x .. y '.' p"
   (at level 200, x binder, y binder, right associativity).
 
 (* The lambda as it is written on paper, [fun x . body], beside the
@@ -206,7 +206,7 @@ Notation "'fun' x .. y '.' body" := (fun x => .. (fun y => body) ..)
   (at level 200, x binder, y binder, right associativity).
 
 (* The quantifier written the same way, [forall x . p] beside the kernel's
- * [forall x, p]. [exists] gets its dotted spelling in [Core.Logic.Exists],
+ * [forall x, p]. [forsome] gets its dotted spelling in [Core.Logic.Exists],
  * where its meaning is.
  *)
 Notation "'forall' x .. y '.' p" := (forall x, .. (forall y, p) ..)

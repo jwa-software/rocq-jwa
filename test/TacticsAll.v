@@ -36,14 +36,14 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_de_morgan_existential
-  : forall (A : Type) (P : A -> Prop) . ~ (exists (x : A) . P x) -> forall (x : A) . ~ P x.
+  : forall (A : Type) (P : A -> Prop) . ~ (forsome (x : A) . P x) -> forall (x : A) . ~ P x.
 Proof.
   intros A P h.
   ipso (de morgan h).
 Qed.
 
 Theorem tactics_all_delivers_de_morgan_existential_as
-  : forall (A : Type) (P : A -> Prop) (a : A) . ~ (exists (x : A) . P x) -> ~ P a.
+  : forall (A : Type) (P : A -> Prop) (a : A) . ~ (forsome (x : A) . P x) -> ~ P a.
 Proof.
   intros A P a h.
   de morgan h as facto.
@@ -71,7 +71,7 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_de_morgan_in_goal
-  : forall (A : Type) (P : A -> Prop) . (forall (x : A) . ~ P x) -> ~ (exists (x : A) . P x).
+  : forall (A : Type) (P : A -> Prop) . (forall (x : A) . ~ P x) -> ~ (forsome (x : A) . P x).
 Proof.
   intros A P h.
   de morgan in |- *.

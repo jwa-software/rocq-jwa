@@ -732,7 +732,7 @@ Module membership. (* mapping.membership *)
 Theorem specification
   : forall {A : Type} {B : Type} (f : A -> B) (b : B) (l : List A) .
       map f l contains_member b
-      <-> exists (a : A) . l contains_member a /\ b = f a.
+      <-> forsome (a : A) . l contains_member a /\ b = f a.
 Proof.
   intros A B f b l.
   divide et impera.
@@ -1449,7 +1449,7 @@ End distributivity. (* quantification.any.forward.distributivity *)
 (* quantification.any.forward.specification *)
 Lemma specification
   : forall {A : Type} {P : A -> Prop} {l : List A} .
-      Any P l -> exists (a : A) . l contains_member a /\ P a.
+      Any P l -> forsome (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
   induction l as [| b l' IH] using List.induction.
@@ -1511,7 +1511,7 @@ End distributivity. (* quantification.any.backward.distributivity *)
 (* quantification.any.backward.specification *)
 Lemma specification
   : forall {A : Type} {P : A -> Prop} {l : List A} .
-      (exists (a : A) . l contains_member a /\ P a) -> Any P l.
+      (forsome (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
   induction l as [| b l' IH] using List.induction.
@@ -1559,7 +1559,7 @@ End distributivity. (* quantification.any.distributivity *)
 (* quantification.any.specification *)
 Theorem specification
   : forall {A : Type} (P : A -> Prop) (l : List A) .
-      Any P l <-> (exists (a : A) . l contains_member a /\ P a).
+      Any P l <-> (forsome (a : A) . l contains_member a /\ P a).
 Proof.
   intros A P l.
   divide et impera.
@@ -1592,7 +1592,7 @@ Module forward. (* head.forward *)
 (* head.forward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      head l = Some a -> exists (l' : List A) . l = a :: l'.
+      head l = Some a -> forsome (l' : List A) . l = a :: l'.
 Proof.
   intros A a l.
   match l with | | b rest end.
@@ -1614,7 +1614,7 @@ Module backward. (* head.backward *)
 (* head.backward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      (exists (l' : List A) . l = a :: l') -> head l = Some a.
+      (forsome (l' : List A) . l = a :: l') -> head l = Some a.
 Proof.
   intros A a l.
   intro h.
@@ -1629,7 +1629,7 @@ End backward. (* head.backward *)
 (* head.specification *)
 Theorem specification
   : forall {A : Type} (a : A) (l : List A) .
-      head l = Some a <-> (exists (l' : List A) . l = a :: l').
+      head l = Some a <-> (forsome (l' : List A) . l = a :: l').
 Proof.
   intros A a l.
   divide et impera.
@@ -1646,7 +1646,7 @@ Module forward. (* tail.forward *)
 (* tail.forward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      tail l = Some l' -> exists (a : A) . l = a :: l'.
+      tail l = Some l' -> forsome (a : A) . l = a :: l'.
 Proof.
   intros A l l'.
   match l with | | b rest end.
@@ -1668,7 +1668,7 @@ Module backward. (* tail.backward *)
 (* tail.backward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      (exists (a : A) . l = a :: l') -> tail l = Some l'.
+      (forsome (a : A) . l = a :: l') -> tail l = Some l'.
 Proof.
   intros A l l'.
   intro h.
@@ -1683,7 +1683,7 @@ End backward. (* tail.backward *)
 (* tail.specification *)
 Theorem specification
   : forall {A : Type} (l : List A) (l' : List A) .
-      tail l = Some l' <-> (exists (a : A) . l = a :: l').
+      tail l = Some l' <-> (forsome (a : A) . l = a :: l').
 Proof.
   intros A l l'.
   divide et impera.
@@ -1700,7 +1700,7 @@ Module forward. (* last.forward *)
 (* last.forward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      last l = Some a -> exists (l' : List A) . l = append l' a.
+      last l = Some a -> forsome (l' : List A) . l = append l' a.
 Proof.
   intros A a l.
   simpl last in |- *.
@@ -1720,7 +1720,7 @@ Module backward. (* last.backward *)
 (* last.backward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      (exists (l' : List A) . l = append l' a) -> last l = Some a.
+      (forsome (l' : List A) . l = append l' a) -> last l = Some a.
 Proof.
   intros A a l.
   intro h.
@@ -1737,7 +1737,7 @@ End backward. (* last.backward *)
 (* last.specification *)
 Theorem specification
   : forall {A : Type} (a : A) (l : List A) .
-      last l = Some a <-> (exists (l' : List A) . l = append l' a).
+      last l = Some a <-> (forsome (l' : List A) . l = append l' a).
 Proof.
   intros A a l.
   divide et impera.
@@ -1754,7 +1754,7 @@ Module forward. (* initial.forward *)
 (* initial.forward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      initial l = Some l' -> exists (a : A) . l = append l' a.
+      initial l = Some l' -> forsome (a : A) . l = append l' a.
 Proof.
   intros A l l'.
   simpl initial in |- *.
@@ -1780,7 +1780,7 @@ Module backward. (* initial.backward *)
 (* initial.backward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      (exists (a : A) . l = append l' a) -> initial l = Some l'.
+      (forsome (a : A) . l = append l' a) -> initial l = Some l'.
 Proof.
   intros A l l'.
   intro h.
@@ -1798,7 +1798,7 @@ End backward. (* initial.backward *)
 (* initial.specification *)
 Theorem specification
   : forall {A : Type} (l : List A) (l' : List A) .
-      initial l = Some l' <-> (exists (a : A) . l = append l' a).
+      initial l = Some l' <-> (forsome (a : A) . l = append l' a).
 Proof.
   intros A l l'.
   divide et impera.
@@ -2051,7 +2051,7 @@ Module forward. (* indexing.forward *)
 (* indexing.forward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {i : NatWithZero} .
-      (exists (a : A) . nth l i = Some a) -> i < (|| l ||).
+      (forsome (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
   induction l as [| b l' IH] using List.induction.
@@ -2086,7 +2086,7 @@ Module backward. (* indexing.backward *)
 (* indexing.backward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {i : NatWithZero} .
-      i < (|| l ||) -> exists (a : A) . nth l i = Some a.
+      i < (|| l ||) -> forsome (a : A) . nth l i = Some a.
 Proof.
   intros A l.
   induction l as [| b l' IH] using List.induction.
@@ -2122,7 +2122,7 @@ End backward. (* indexing.backward *)
 (* indexing.specification *)
 Theorem specification
   : forall {A : Type} (l : List A) (i : NatWithZero) .
-      (exists (a : A) . nth l i = Some a) <-> i < (|| l ||).
+      (forsome (a : A) . nth l i = Some a) <-> i < (|| l ||).
 Proof.
   intros A l i.
   divide et impera.
@@ -2932,7 +2932,7 @@ Proof.
         leibniz reach in |- *.
         ipso high.
       }
-      lemma witness : exists (j : NatWithZero) .
+      lemma witness : forsome (j : NatWithZero) .
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
                 /\ i = NatWithZero.add start j.
       {

@@ -185,7 +185,7 @@ Notation "m /. n" := (divide m n) (only parsing)
 
 (* [Integer -> Integer -> Prop] *)
 Definition LessThan := fun (m : Integer) (n : Integer) .
-  exists (k : Nat) . m + (+ k) = n.
+  forsome (k : Nat) . m + (+ k) = n.
 
 (* [Integer -> Integer -> Prop] *)
 Definition LessOrEqual := fun (m : Integer) (n : Integer) . m = n \/ LessThan m n.
@@ -230,14 +230,14 @@ Definition compare := fun (m : Integer) (n : Integer) .
 Abbreviation eq := (Comparable.eq compare).
 
 (* [Integer -> Integer -> Prop] *)
-Definition Divides := fun (d : Integer) (n : Integer) . exists (k : Integer) . d * k = n.
+Definition Divides := fun (d : Integer) (n : Integer) . forsome (k : Integer) . d * k = n.
 
 (* [Integer -> Prop] *)
 Definition Even := fun (n : Integer) . Divides (+ (Nat.Successor Nat.One)) n.
 
 (* [Integer -> Prop] *)
 Definition Odd := fun (n : Integer) .
-  exists (k : Integer) . ((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One) = n.
+  forsome (k : Integer) . ((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One) = n.
 
 Module magnitude. (* magnitude *)
 

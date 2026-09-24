@@ -65,12 +65,12 @@ Proof.
   - ipso (not_b b).
 Qed.
 
-(* De Morgan for [exists], the disjunction over every [x]: no [x] satisfies
+(* De Morgan for [forsome], the disjunction over every [x]: no [x] satisfies
  * [P] exactly when each [x] fails it, in both directions.
  *)
 (* de_morgan.existential *)
 Theorem existential
-  : forall (A : Type) (P : A -> Prop) . ~ (exists (x : A) . P x) <-> forall (x : A) . ~ P x.
+  : forall (A : Type) (P : A -> Prop) . ~ (forsome (x : A) . P x) <-> forall (x : A) . ~ P x.
 Proof.
   intros A P.
   simpl (~ _) in |- *.

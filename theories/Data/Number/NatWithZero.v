@@ -108,7 +108,7 @@ Definition power := fun (m : NatWithZero) (n : NatWithZero) .
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) .
-  exists (k : Nat) . m + (+ k) = n.
+  forsome (k : Nat) . m + (+ k) = n.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) .
@@ -244,14 +244,14 @@ Local Close Scope jwa_product_scope.
  *)
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition Divides := fun (d : NatWithZero) (n : NatWithZero) .
-  exists (k : NatWithZero) . d * k = n.
+  forsome (k : NatWithZero) . d * k = n.
 
 (* [NatWithZero -> Prop] *)
 Definition Even := fun (n : NatWithZero) . Divides (+ (Nat.Successor Nat.One)) n.
 
 (* [NatWithZero -> Prop] *)
 Definition Odd := fun (n : NatWithZero) .
-  exists (k : NatWithZero) . (+ Nat.One) + ((+ (Nat.Successor Nat.One)) * k) = n.
+  forsome (k : NatWithZero) . (+ Nat.One) + ((+ (Nat.Successor Nat.One)) * k) = n.
 
 Module positive. (* positive *)
 

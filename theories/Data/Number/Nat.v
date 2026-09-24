@@ -90,7 +90,7 @@ Notation "++ n" := (inc n) (only parsing)
   : jwa_nat_scope.
 
 (* [Nat -> Nat -> Prop] *)
-Definition LessThan := fun (m : Nat) (n : Nat) . exists (k : Nat) . m + k = n.
+Definition LessThan := fun (m : Nat) (n : Nat) . forsome (k : Nat) . m + k = n.
 
 (* [Nat -> Nat -> Prop] *)
 Definition LessOrEqual := fun (m : Nat) (n : Nat) . m = n \/ LessThan m n.
