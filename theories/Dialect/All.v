@@ -14,6 +14,7 @@ From jwa Require Export Dialect.ExFalso.
 From jwa Require Export Dialect.Idem.
 From jwa Require Export Dialect.Ipso.
 From jwa Require Export Dialect.Leibniz.
+From jwa Require Export Dialect.Lemma.
 From jwa Require Export Dialect.Let.
 From jwa Require Export Dialect.Loanword.
 From jwa Require Export Dialect.Local.
