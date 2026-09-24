@@ -144,7 +144,7 @@ Proof.
   divide et impera.
   - simpl in |- *.
     quod idem est.
-  - rewrite (conjunction.commutativity b true) in |- *.
+  - leibniz (conjunction.commutativity b true) in |- *.
     simpl in |- *.
     quod idem est.
 Qed.
@@ -242,7 +242,7 @@ Proof.
   divide et impera.
   - simpl in |- *.
     quod idem est.
-  - rewrite (disjunction.commutativity b false) in |- *.
+  - leibniz (disjunction.commutativity b false) in |- *.
     simpl in |- *.
     quod idem est.
 Qed.
@@ -277,7 +277,7 @@ Proof.
   divide et impera.
   - simpl in |- *.
     quod idem est.
-  - rewrite (sejunction.commutativity b false) in |- *.
+  - leibniz (sejunction.commutativity b false) in |- *.
     simpl in |- *.
     quod idem est.
 Qed.

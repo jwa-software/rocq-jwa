@@ -119,7 +119,7 @@ Theorem specification
     compare m n = Comparison.Gt <-> lt n m.
 Proof.
   intros A compare lt C m n.
-  rewrite (Comparable.antisymmetry m n) in |- *.
+  leibniz (Comparable.antisymmetry m n) in |- *.
   divide et impera.
   - intro e.
     match (compare n m) per c with | | | end.
@@ -132,7 +132,7 @@ Proof.
   - intro h.
     match (Comparable.specification n m) with | s _ end.
     modus aequans s, h as e.
-    rewrite e in |- *.
+    leibniz e in |- *.
     simpl in |- *.
     quod idem est.
 Qed.
@@ -178,7 +178,7 @@ Proof.
   - intro h.
     match (Comparable.specification m n) with | _ s end.
     modus aequans s, h as e.
-    rewrite e in |- *.
+    leibniz e in |- *.
     quod idem est.
 Qed.
 
@@ -203,7 +203,7 @@ Proof.
   simpl (~ _) in |- *.
   intro h.
   modus aequans (comparison.strict.specification n n), h as c.
-  rewrite (comparison.reflexivity n) in c.
+  leibniz (comparison.reflexivity n) in c.
   ex c quodlibet.
 Qed.
 
@@ -297,10 +297,10 @@ Proof.
   intros A compare lt C l m n h1 h2.
   simpl LessOrEqual in h1, h2 |- *.
   match h1 with | e1 | lt1 end.
-  - rewrite e1 in |- *.
+  - leibniz e1 in |- *.
     ipso h2.
   - match h2 with | e2 | lt2 end.
-    + rewrite e2 in lt1.
+    + leibniz e2 in lt1.
       ipso (Disjunction.R lt1).
     + ipso (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
 Qed.
@@ -358,11 +358,11 @@ Proof.
       match h with | e | lt1 end.
       * match (Comparable.specification m n) with | _ s end.
         modus aequans s, e as e'.
-        rewrite e' in c.
+        leibniz e' in c.
         ex c quodlibet.
       * match (Comparable.specification m n) with | s _ end.
         modus aequans s, lt1 as e.
-        rewrite e in c.
+        leibniz e in c.
         ex c quodlibet.
 Qed.
 
@@ -401,7 +401,7 @@ Proof.
       * ipso (Identity.symmetry e).
       * match (Comparable.specification m n) with | s _ end.
         modus aequans s, lt1 as e.
-        rewrite e in c.
+        leibniz e in c.
         ex c quodlibet.
 Qed.
 
@@ -548,7 +548,7 @@ Theorem idempotence
 Proof.
   intros A c lt C n.
   simpl min in |- *.
-  rewrite (comparison.reflexivity n) in |- *.
+  leibniz (comparison.reflexivity n) in |- *.
   quod idem est.
 Qed.
 
@@ -585,7 +585,7 @@ Proof.
     + match h with | e | gt end.
       * ipso e.
       * modus aequans (comparison.strict.transposition.specification m n), gt as e.
-        rewrite e in c.
+        leibniz e in c.
         ex c quodlibet.
     + quod idem est.
     + quod idem est.
@@ -737,7 +737,7 @@ Theorem idempotence
 Proof.
   intros A c lt C n.
   simpl max in |- *.
-  rewrite (comparison.reflexivity n) in |- *.
+  leibniz (comparison.reflexivity n) in |- *.
   quod idem est.
 Qed.
 

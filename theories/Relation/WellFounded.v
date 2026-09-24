@@ -39,7 +39,7 @@ Theorem unfolding
 Proof.
   intros A R P W step extensional x.
   simpl recursion in |- *.
-  rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
+  leibniz (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
   apply extensional.
   intros y r.
   ipso (Accessible.recursion.independence

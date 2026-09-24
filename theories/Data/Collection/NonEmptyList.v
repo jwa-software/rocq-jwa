@@ -210,7 +210,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -232,7 +232,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -302,7 +302,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     ipso (concatenation.associativity (reverse y) (reverse x') [a]).
 Qed.
 
@@ -319,9 +319,9 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
+    leibniz (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
     simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -338,7 +338,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -353,7 +353,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -370,13 +370,13 @@ Proof.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - simpl in |- *.
     intro e.
-    rewrite e in |- *.
+    leibniz e in |- *.
     quod idem est.
   - simpl in |- *.
     intro h.
     match h with | e | h' end.
     + apply Disjunction.L.
-      rewrite e in |- *.
+      leibniz e in |- *.
       quod idem est.
     + apply Disjunction.R.
       ipso (IH h').
@@ -410,19 +410,19 @@ Proof.
   - intros a h.
     simpl in |- *.
     simpl in h.
-    rewrite h in |- *.
+    leibniz h in |- *.
     ipso (List.comparison.reflexivity total b).
   - intros a h.
     simpl in h.
     simpl in |- *.
     match (le b (maximum_of le x')) per s with end.
     + match h with | e | m end.
-      * rewrite e in |- *.
+      * leibniz e in |- *.
         ipso s.
       * ipso (IH a m).
     + let proof ha := List.comparison.contraposition total s.
       match h with | e | m end.
-      * rewrite e in |- *.
+      * leibniz e in |- *.
         ipso (List.comparison.reflexivity total b).
       * ipso (transitive a (maximum_of le x') b (IH a m) ha).
 Qed.
@@ -460,19 +460,19 @@ Proof.
   - intros a h.
     simpl in |- *.
     simpl in h.
-    rewrite h in |- *.
+    leibniz h in |- *.
     ipso (List.comparison.reflexivity total b).
   - intros a h.
     simpl in h.
     simpl in |- *.
     match (le b (minimum_of le x')) per s with end.
     + match h with | e | m end.
-      * rewrite e in |- *.
+      * leibniz e in |- *.
         ipso (List.comparison.reflexivity total b).
       * ipso (transitive b (minimum_of le x') a s (IH a m)).
     + let proof ha := List.comparison.contraposition total s.
       match h with | e | m end.
-      * rewrite e in |- *.
+      * leibniz e in |- *.
         ipso ha.
       * ipso (IH a m).
 Qed.
@@ -515,7 +515,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -533,7 +533,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     quod idem est.
 Qed.
 
@@ -580,7 +580,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     match (le a (maximum_of le x')) per s with end; quod idem est.
 Qed.
 
@@ -594,7 +594,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     match (le a (minimum_of le x')) per s with end; quod idem est.
 Qed.
 

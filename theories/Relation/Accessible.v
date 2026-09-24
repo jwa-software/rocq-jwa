@@ -161,12 +161,12 @@ Proof.
     (* [|- step x (fun (y : A) (r : R y x) . recursion step y (descend a r))
      *  = recursion step x b]
      *)
-    rewrite (unfolding step x a) in |- *.
+    leibniz (unfolding step x a) in |- *.
 
     (* [|- step x (fun (y : A) (r : R y x) . recursion step y (descend a r))
      *  = step x (fun (y : A) (r : R y x) . recursion step y (descend b r))]
      *)
-    rewrite (unfolding step x b) in |- *.
+    leibniz (unfolding step x b) in |- *.
 
     (* [f := fun (y : A) (r : R y x) . recursion step y (descend a r)]
      * :

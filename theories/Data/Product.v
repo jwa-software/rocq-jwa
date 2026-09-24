@@ -322,8 +322,8 @@ Proof.
   match p2 with | a2 b2 end.
   match p3 with | a3 b3 end.
   simpl in |- *.
-  rewrite (Semigroup.associativity a1 a2 a3) in |- *.
-  rewrite (Semigroup.associativity b1 b2 b3) in |- *.
+  leibniz (Semigroup.associativity a1 a2 a3) in |- *.
+  leibniz (Semigroup.associativity b1 b2 b3) in |- *.
   quod idem est.
 Qed.
 
@@ -343,7 +343,8 @@ Proof.
   simpl in |- *.
   match (Monoid.identity a) with | la _ end.
   match (Monoid.identity b) with | lb _ end.
-  rewrite la, lb in |- *.
+  leibniz la in |- *.
+  leibniz lb in |- *.
   quod idem est.
 Qed.
 
@@ -365,7 +366,8 @@ Proof.
   simpl in |- *.
   match (Monoid.identity a) with | _ ra end.
   match (Monoid.identity b) with | _ rb end.
-  rewrite ra, rb in |- *.
+  leibniz ra in |- *.
+  leibniz rb in |- *.
   quod idem est.
 Qed.
 
@@ -399,8 +401,8 @@ Proof.
   match p1 with | a1 b1 end.
   match p2 with | a2 b2 end.
   simpl in |- *.
-  rewrite (Commutative.commutativity a1 a2) in |- *.
-  rewrite (Commutative.commutativity b1 b2) in |- *.
+  leibniz (Commutative.commutativity a1 a2) in |- *.
+  leibniz (Commutative.commutativity b1 b2) in |- *.
   quod idem est.
 Qed.
 

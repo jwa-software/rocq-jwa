@@ -302,7 +302,7 @@ Proof.
     ex e quodlibet.
   - simpl in e.
     let proof e' := magnitude.positive.injectivity e.
-    rewrite e' in |- *.
+    leibniz e' in |- *.
     quod idem est.
 Qed.
 
@@ -335,12 +335,12 @@ Lemma addition
 Proof.
   intros k p.
   induction p as [| p' IH] using Nat.induction.
-  - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
+  - leibniz (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     quod idem est.
-  - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
+  - leibniz (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
-    rewrite (Nat.addition.commutativity p' k) in |- *.
+    leibniz (Nat.addition.commutativity p' k) in |- *.
     ipso IH.
 Qed.
 
@@ -362,12 +362,12 @@ Lemma addition
 Proof.
   intros k p.
   induction p as [| p' IH] using Nat.induction.
-  - rewrite (Nat.addition.commutativity k Nat.One) in |- *.
+  - leibniz (Nat.addition.commutativity k Nat.One) in |- *.
     simpl in |- *.
     quod idem est.
-  - rewrite (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
+  - leibniz (Nat.addition.commutativity k (Nat.Successor p')) in |- *.
     simpl in |- *.
-    rewrite (Nat.addition.commutativity p' k) in |- *.
+    leibniz (Nat.addition.commutativity p' k) in |- *.
     ipso IH.
 Qed.
 
@@ -391,35 +391,35 @@ Proof.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
     symmetry in e.
-    rewrite e in h |- *.
-    rewrite (Nat.addition.commutativity p k) in |- *.
-    rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
-    rewrite (Nat.addition.left.commutativity r p k) in h.
+    leibniz e in h |- *.
+    leibniz (Nat.addition.commutativity p k) in |- *.
+    leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
+    leibniz (Nat.addition.left.commutativity r p k) in h.
     let proof e'' := Nat.addition.left.cancellation h.
-    rewrite e'' in |- *.
-    rewrite (Nat.addition.commutativity r k) in |- *.
-    rewrite (difference.nat.right.inversion.of.addition k r) in |- *.
+    leibniz e'' in |- *.
+    leibniz (Nat.addition.commutativity r k) in |- *.
+    leibniz (difference.nat.right.inversion.of.addition k r) in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + rewrite eq in h |- *.
-      rewrite (difference.nat.reflexivity q) in |- *.
-      rewrite (Nat.addition.commutativity r q) in h.
+    + leibniz eq in h |- *.
+      leibniz (difference.nat.reflexivity q) in |- *.
+      leibniz (Nat.addition.commutativity r q) in h.
       let proof e := Nat.addition.left.cancellation h.
-      rewrite e in |- *.
-      rewrite (difference.nat.reflexivity r) in |- *.
+      leibniz e in |- *.
+      leibniz (difference.nat.reflexivity r) in |- *.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
       symmetry in e.
-      rewrite e in h |- *.
-      rewrite (Nat.addition.commutativity q k) in |- *.
-      rewrite (difference.nat.left.inversion.of.addition k q) in |- *.
-      rewrite (Nat.addition.associativity q k s) in h.
-      rewrite (Nat.addition.commutativity r q) in h.
+      leibniz e in h |- *.
+      leibniz (Nat.addition.commutativity q k) in |- *.
+      leibniz (difference.nat.left.inversion.of.addition k q) in |- *.
+      leibniz (Nat.addition.associativity q k s) in h.
+      leibniz (Nat.addition.commutativity r q) in h.
       let proof e'' := Nat.addition.left.cancellation h.
       symmetry in e''.
-      rewrite e'' in |- *.
-      rewrite (difference.nat.left.inversion.of.addition k s) in |- *.
+      leibniz e'' in |- *.
+      leibniz (difference.nat.left.inversion.of.addition k s) in |- *.
       quod idem est.
 Qed.
 
@@ -433,24 +433,24 @@ Proof.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
     symmetry in e.
-    rewrite e in |- *.
-    rewrite (Nat.addition.commutativity p k) in |- *.
-    rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
-    rewrite (difference.nat.left.inversion.of.addition  k p) in |- *.
+    leibniz e in |- *.
+    leibniz (Nat.addition.commutativity p k) in |- *.
+    leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
+    leibniz (difference.nat.left.inversion.of.addition  k p) in |- *.
     simpl in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + rewrite eq in |- *.
-      rewrite (difference.nat.reflexivity q) in |- *.
+    + leibniz eq in |- *.
+      leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
       symmetry in e.
-      rewrite e in |- *.
-      rewrite (Nat.addition.commutativity q k) in |- *.
-      rewrite (difference.nat.left.inversion.of.addition  k q) in |- *.
-      rewrite (difference.nat.right.inversion.of.addition k q) in |- *.
+      leibniz e in |- *.
+      leibniz (Nat.addition.commutativity q k) in |- *.
+      leibniz (difference.nat.left.inversion.of.addition  k q) in |- *.
+      leibniz (difference.nat.right.inversion.of.addition k q) in |- *.
       simpl in |- *.
       quod idem est.
 Qed.
@@ -467,22 +467,22 @@ Proof.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
     symmetry in e.
-    rewrite e in |- *.
-    rewrite (Nat.addition.commutativity p k) in |- *.
-    rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
+    leibniz e in |- *.
+    leibniz (Nat.addition.commutativity p k) in |- *.
+    leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
     simpl in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + rewrite eq in |- *.
-      rewrite (difference.nat.reflexivity q) in |- *.
+    + leibniz eq in |- *.
+      leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
       symmetry in e.
-      rewrite e in |- *.
-      rewrite (Nat.addition.commutativity q k) in |- *.
-      rewrite (difference.nat.left.inversion.of.addition k q) in |- *.
+      leibniz e in |- *.
+      leibniz (Nat.addition.commutativity q k) in |- *.
+      leibniz (difference.nat.left.inversion.of.addition k q) in |- *.
       simpl in |- *.
       quod idem est.
 Qed.
@@ -497,15 +497,15 @@ Proof.
   divide et impera.
   - intro e.
     let proof s := difference.nat.specification p q.
-    rewrite e in s.
+    leibniz e in s.
     simpl in s.
     let proof e' := NatWithZero.positive.injectivity s.
-    rewrite (Nat.addition.commutativity p k) in |- *.
+    leibniz (Nat.addition.commutativity p k) in |- *.
     ipso (Identity.symmetry e').
   - intro e.
     symmetry in e.
-    rewrite e in |- *.
-    rewrite (Nat.addition.commutativity p k) in |- *.
+    leibniz e in |- *.
+    leibniz (Nat.addition.commutativity p k) in |- *.
     ipso (difference.nat.right.inversion.of.addition k p).
 Qed.
 
@@ -521,12 +521,12 @@ Proof.
   divide et impera.
   - intro e.
     let proof s := difference.nat.specification p q.
-    rewrite e in s.
+    leibniz e in s.
     simpl in s.
     let proof e' := NatWithZero.positive.injectivity s.
     ipso (Identity.symmetry e').
   - intro e.
-    rewrite e in |- *.
+    leibniz e in |- *.
     ipso (difference.nat.reflexivity q).
 Qed.
 
@@ -542,15 +542,15 @@ Proof.
   divide et impera.
   - intro e.
     let proof s := difference.nat.specification p q.
-    rewrite e in s.
+    leibniz e in s.
     simpl in s.
     let proof e' := NatWithZero.positive.injectivity s.
-    rewrite (Nat.addition.commutativity q k) in |- *.
+    leibniz (Nat.addition.commutativity q k) in |- *.
     ipso e'.
   - intro e.
     symmetry in e.
-    rewrite e in |- *.
-    rewrite (Nat.addition.commutativity q k) in |- *.
+    leibniz e in |- *.
+    leibniz (Nat.addition.commutativity q k) in |- *.
     ipso (difference.nat.left.inversion.of.addition k q).
 Qed.
 
@@ -567,29 +567,29 @@ Proof.
   - simpl Nat.LessThan in lt.
     match lt with | j e end.
     symmetry in e.
-    rewrite e in |- *.
-    rewrite (Nat.addition.commutativity p j) in |- *.
-    rewrite (difference.nat.right.inversion.of.addition j p) in |- *.
+    leibniz e in |- *.
+    leibniz (Nat.addition.commutativity p j) in |- *.
+    leibniz (difference.nat.right.inversion.of.addition j p) in |- *.
     simpl in |- *.
-    rewrite (Nat.multiplication.left.distributivity.over.addition k j p) in |- *.
-    rewrite (difference.nat.right.inversion.of.addition
+    leibniz (Nat.multiplication.left.distributivity.over.addition k j p) in |- *.
+    leibniz (difference.nat.right.inversion.of.addition
               (Nat.mul k j) (Nat.mul k p)) in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + rewrite eq in |- *.
-      rewrite (difference.nat.reflexivity q) in |- *.
-      rewrite (difference.nat.reflexivity (Nat.mul k q)) in |- *.
+    + leibniz eq in |- *.
+      leibniz (difference.nat.reflexivity q) in |- *.
+      leibniz (difference.nat.reflexivity (Nat.mul k q)) in |- *.
       simpl in |- *.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | j e end.
       symmetry in e.
-      rewrite e in |- *.
-      rewrite (Nat.addition.commutativity q j) in |- *.
-      rewrite (difference.nat.left.inversion.of.addition j q) in |- *.
+      leibniz e in |- *.
+      leibniz (Nat.addition.commutativity q j) in |- *.
+      leibniz (difference.nat.left.inversion.of.addition j q) in |- *.
       simpl in |- *.
-      rewrite (Nat.multiplication.left.distributivity.over.addition k j q) in |- *.
-      rewrite (difference.nat.left.inversion.of.addition
+      leibniz (Nat.multiplication.left.distributivity.over.addition k j q) in |- *.
+      leibniz (difference.nat.left.inversion.of.addition
                 (Nat.mul k j) (Nat.mul k q)) in |- *.
       quod idem est.
 Qed.
@@ -695,45 +695,45 @@ Proof.
   intros a b c d h.
   match a with | | p end; match b with | | q end.
   - simpl in h.
-    rewrite (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
+    leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     simpl in h.
-    rewrite h in |- *.
-    rewrite (difference.nat_with_zero.reflexivity c) in |- *.
+    leibniz h in |- *.
+    leibniz (difference.nat_with_zero.reflexivity c) in |- *.
     simpl in |- *.
     quod idem est.
   - simpl in h.
-    rewrite h in |- *.
-    rewrite (NatWithZero.addition.commutativity c (NatWithZero.Positive q)) in |- *.
-    rewrite (difference.nat_with_zero.right.inversion.of.addition q c) in |- *.
+    leibniz h in |- *.
+    leibniz (NatWithZero.addition.commutativity c (NatWithZero.Positive q)) in |- *.
+    leibniz (difference.nat_with_zero.right.inversion.of.addition q c) in |- *.
     simpl in |- *.
     quod idem est.
-  - rewrite (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
+  - leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     change (NatWithZero.add NatWithZero.Zero c) with c in h.
     symmetry in h.
-    rewrite h in |- *.
-    rewrite (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
+    leibniz h in |- *.
+    leibniz (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
     simpl in |- *.
     quod idem est.
   - match c with | | r end; match d with | | s end.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
-      rewrite e in |- *.
+      leibniz e in |- *.
       simpl in |- *.
-      rewrite (difference.nat.reflexivity q) in |- *.
+      leibniz (difference.nat.reflexivity q) in |- *.
       quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
       symmetry in e.
-      rewrite e in |- *.
+      leibniz e in |- *.
       simpl in |- *.
-      rewrite (Nat.addition.commutativity p s) in |- *.
-      rewrite (difference.nat.right.inversion.of.addition s p) in |- *.
+      leibniz (Nat.addition.commutativity p s) in |- *.
+      leibniz (difference.nat.right.inversion.of.addition s p) in |- *.
       quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
-      rewrite e in |- *.
+      leibniz e in |- *.
       simpl in |- *.
-      rewrite (difference.nat.left.inversion.of.addition r q) in |- *.
+      leibniz (difference.nat.left.inversion.of.addition r q) in |- *.
       quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
@@ -775,16 +775,16 @@ Proof.
               (ramp (negate (nat_with_zero_difference c d))))
            (NatWithZero.add a c)
            (NatWithZero.add b d)).
-  rewrite (NatWithZero.addition.interchange
+  leibniz (NatWithZero.addition.interchange
             (ramp (nat_with_zero_difference a b))
             (ramp (nat_with_zero_difference c d))
             b d) in |- *.
-  rewrite (difference.nat_with_zero.specification a b) in |- *.
-  rewrite (difference.nat_with_zero.specification c d) in |- *.
-  rewrite (NatWithZero.addition.interchange
+  leibniz (difference.nat_with_zero.specification a b) in |- *.
+  leibniz (difference.nat_with_zero.specification c d) in |- *.
+  leibniz (NatWithZero.addition.interchange
              (ramp (negate (nat_with_zero_difference a b))) a
              (ramp (negate (nat_with_zero_difference c d))) c) in |- *.
-  rewrite (NatWithZero.addition.commutativity
+  leibniz (NatWithZero.addition.commutativity
             (NatWithZero.add
               (ramp (negate (nat_with_zero_difference a b)))
               (ramp (negate (nat_with_zero_difference c d))))
@@ -855,15 +855,15 @@ Theorem additivity
 Proof.
   intros m n.
   simpl add in |- *.
-  rewrite (difference.nat_with_zero.negation
+  leibniz (difference.nat_with_zero.negation
             (NatWithZero.add
               (ramp m)
               (ramp n))
             (NatWithZero.add
               (ramp (negate m))
               (ramp (negate n)))) in |- *.
-  rewrite (negation.involution m) in |- *.
-  rewrite (negation.involution n) in |- *.
+  leibniz (negation.involution m) in |- *.
+  leibniz (negation.involution n) in |- *.
   quod idem est.
 Qed.
 
@@ -880,23 +880,25 @@ Proof.
   let proof el := Identity.symmetry (difference.nat_with_zero.canonicity l).
   let proof em := Identity.symmetry (difference.nat_with_zero.canonicity m).
   let proof en := Identity.symmetry (difference.nat_with_zero.canonicity n).
-  rewrite el, em, en in |- *.
-  rewrite (difference.nat_with_zero.additivity
+  leibniz el in |- *.
+  leibniz em in |- *.
+  leibniz en in |- *.
+  leibniz (difference.nat_with_zero.additivity
             (ramp l)
             (ramp (negate l))
             (ramp m)
             (ramp (negate m))) in |- *.
-  rewrite (difference.nat_with_zero.additivity
+  leibniz (difference.nat_with_zero.additivity
             (NatWithZero.add (ramp l) (ramp m))
             (NatWithZero.add (ramp (negate l)) (ramp (negate m)))
             (ramp n)
             (ramp (negate n))) in |- *.
-  rewrite (difference.nat_with_zero.additivity
+  leibniz (difference.nat_with_zero.additivity
             (ramp m)
             (ramp (negate m))
             (ramp n)
             (ramp (negate n))) in |- *.
-  rewrite (difference.nat_with_zero.additivity
+  leibniz (difference.nat_with_zero.additivity
             (ramp l)
             (ramp (negate l))
             (NatWithZero.add
@@ -905,11 +907,11 @@ Proof.
             (NatWithZero.add
               (ramp (negate m))
               (ramp (negate n)))) in |- *.
-  rewrite (NatWithZero.addition.associativity
+  leibniz (NatWithZero.addition.associativity
             (ramp l)
             (ramp m)
             (ramp n)) in |- *.
-  rewrite (NatWithZero.addition.associativity
+  leibniz (NatWithZero.addition.associativity
             (ramp (negate l))
             (ramp (negate m))
             (ramp (negate n))) in |- *.
@@ -922,10 +924,10 @@ Theorem commutativity
 Proof.
   intros m n.
   simpl add in |- *.
-  rewrite (NatWithZero.addition.commutativity
+  leibniz (NatWithZero.addition.commutativity
             (ramp m)
             (ramp n)) in |- *.
-  rewrite (NatWithZero.addition.commutativity
+  leibniz (NatWithZero.addition.commutativity
             (ramp (negate m))
             (ramp (negate n))) in |- *.
   quod idem est.
@@ -945,9 +947,9 @@ Lemma commutativity
   : forall (l : Integer) (m : Integer) (n : Integer) . l + (m + n) = m + (l + n).
 Proof.
   intros l m n.
-  rewrite (addition.commutativity l (m + n)) in |- *.
-  rewrite (addition.associativity m n l)     in |- *.
-  rewrite (addition.commutativity n l)       in |- *.
+  leibniz (addition.commutativity l (m + n)) in |- *.
+  leibniz (addition.associativity m n l)     in |- *.
+  leibniz (addition.commutativity n l)       in |- *.
   quod idem est.
 Qed.
 
@@ -973,13 +975,13 @@ Theorem cancellation
 Proof.
   intros k m n h.
   let proof h' := Identity.congruence (add (negate k)) h.
-  rewrite <- (addition.associativity (negate k) k m)
+  leibniz <- (addition.associativity (negate k) k m)
           in h'.
-  rewrite <- (addition.associativity (negate k) k n)
+  leibniz <- (addition.associativity (negate k) k n)
           in h'.
-  rewrite (addition.left.inverse k)  in h'.
-  rewrite (addition.left.identity m) in h'.
-  rewrite (addition.left.identity n) in h'.
+  leibniz (addition.left.inverse k)  in h'.
+  leibniz (addition.left.identity m) in h'.
+  leibniz (addition.left.identity n) in h'.
   ipso h'.
 Qed.
 
@@ -991,7 +993,7 @@ Module right. (* addition.right *)
 Theorem identity : forall (n : Integer) . n + 0 = n.
 Proof.
   intros n.
-  rewrite (addition.commutativity n 0) in |- *.
+  leibniz (addition.commutativity n 0) in |- *.
   ipso (addition.left.identity n).
 Qed.
 
@@ -999,7 +1001,7 @@ Qed.
 Theorem inverse : forall (n : Integer) . n + negate n = 0.
 Proof.
   intros n.
-  rewrite (addition.commutativity n (negate n)) in |- *.
+  leibniz (addition.commutativity n (negate n)) in |- *.
   ipso (addition.left.inverse n).
 Qed.
 
@@ -1008,8 +1010,8 @@ Theorem cancellation
   : forall {m : Integer} {n : Integer} {k : Integer} . m + k = n + k -> m = n.
 Proof.
   intros m n k h.
-  rewrite (addition.commutativity m k) in h.
-  rewrite (addition.commutativity n k) in h.
+  leibniz (addition.commutativity m k) in h.
+  leibniz (addition.commutativity n k) in h.
   ipso (addition.left.cancellation h).
 Qed.
 
@@ -1021,9 +1023,9 @@ Theorem interchange
       (a + b) + (c + d) = (a + c) + (b + d).
 Proof.
   intros a b c d.
-  rewrite (addition.associativity a b (c + d)) in |- *.
-  rewrite (addition.left.commutativity b c d)  in |- *.
-  rewrite (addition.associativity a c (b + d)) in |- *.
+  leibniz (addition.associativity a b (c + d)) in |- *.
+  leibniz (addition.left.commutativity b c d)  in |- *.
+  leibniz (addition.associativity a c (b + d)) in |- *.
   quod idem est.
 Qed.
 
@@ -1072,8 +1074,8 @@ Proof.
   match h with | d e end.
   simpl LessThan in |- *.
   apply (Exists_introduction d).
-  rewrite (addition.associativity k m (+ d)) in |- *.
-  rewrite e in |- *.
+  leibniz (addition.associativity k m (+ d)) in |- *.
+  leibniz e in |- *.
   quod idem est.
 Qed.
 
@@ -1095,8 +1097,8 @@ Theorem addition
 Proof.
   intros m n.
   simpl sub in |- *.
-  rewrite (addition.associativity m n (negate n)) in |- *.
-  rewrite (addition.right.inverse n) in |- *.
+  leibniz (addition.associativity m n (negate n)) in |- *.
+  leibniz (addition.right.inverse n) in |- *.
   ipso (addition.right.identity m).
 Qed.
 
@@ -1115,12 +1117,12 @@ Proof.
   intros m n.
   match m with | m' | | m' end; match n with | n' | | n' end.
   - simpl in |- *.
-    rewrite (Nat.multiplication.commutativity m' n') in |- *.
+    leibniz (Nat.multiplication.commutativity m' n') in |- *.
     quod idem est.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite (Nat.multiplication.commutativity m' n') in |- *.
+    leibniz (Nat.multiplication.commutativity m' n') in |- *.
     quod idem est.
   - simpl in |- *.
     quod idem est.
@@ -1129,12 +1131,12 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite (Nat.multiplication.commutativity m' n') in |- *.
+    leibniz (Nat.multiplication.commutativity m' n') in |- *.
     quod idem est.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite (Nat.multiplication.commutativity m' n') in |- *.
+    leibniz (Nat.multiplication.commutativity m' n') in |- *.
     quod idem est.
 Qed.
 
@@ -1148,51 +1150,51 @@ Proof.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
       *
         simpl in |- *.
         quod idem est.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
     + simpl in |- *. quod idem est.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
       *
         simpl in |- *. quod idem est.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
   - simpl in |- *. quod idem est.
   - match m with | m' | | m' end.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
       *
         simpl in |- *. quod idem est.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
     + simpl in |- *. quod idem est.
     + match n with | n' | | n' end.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
       *
         simpl in |- *. quod idem est.
       *
         simpl in |- *.
-        rewrite (Nat.multiplication.associativity l' m' n') in |- *.
+        leibniz (Nat.multiplication.associativity l' m' n') in |- *.
         quod idem est.
 Qed.
 
@@ -1245,23 +1247,23 @@ Lemma addition
 Proof.
   intros k m n.
   simpl add in |- *.
-  rewrite (difference.nat_with_zero.scaling k
+  leibniz (difference.nat_with_zero.scaling k
             (NatWithZero.add
               (ramp m)
               (ramp n))
             (NatWithZero.add
               (ramp (negate m))
               (ramp (negate n)))) in |- *.
-  rewrite (NatWithZero.multiplication.left.distributivity.over.addition
+  leibniz (NatWithZero.multiplication.left.distributivity.over.addition
             (NatWithZero.Positive k)
             (ramp m)
             (ramp n)) in |- *.
-  rewrite (NatWithZero.multiplication.left.distributivity.over.addition
+  leibniz (NatWithZero.multiplication.left.distributivity.over.addition
             (NatWithZero.Positive k)
             (ramp (negate m))
             (ramp (negate n))) in |- *.
-  rewrite (ramp.scaling k m) in |- *.
-  rewrite (ramp.scaling k n) in |- *.
+  leibniz (ramp.scaling k m) in |- *.
+  leibniz (ramp.scaling k n) in |- *.
   let proof nm := Identity.transitivity
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate m))
@@ -1272,10 +1274,10 @@ Proof.
                   (multiplication.commutativity (+ k) (negate n))
                   (multiplication.left.negation n (+ k)))
                 (Identity.congruence negate (multiplication.commutativity n (+ k))).
-  rewrite <- nm in |- *.
-  rewrite <- nn in |- *.
-  rewrite (ramp.scaling k (negate m)) in |- *.
-  rewrite (ramp.scaling k (negate n)) in |- *.
+  leibniz <- nm in |- *.
+  leibniz <- nn in |- *.
+  leibniz (ramp.scaling k (negate m)) in |- *.
+  leibniz (ramp.scaling k (negate n)) in |- *.
   quod idem est.
 Qed.
 
@@ -1297,19 +1299,19 @@ Proof.
   intros l m n.
   match l with | p | | p end.
   - change (- p) with (negate (+ p)) in |- *.
-    rewrite -> (multiplication.left.negation (+ p) (m + n))
+    leibniz -> (multiplication.left.negation (+ p) (m + n))
             in |- *.
-    rewrite -> (multiplication.left.negation (+ p) m)
+    leibniz -> (multiplication.left.negation (+ p) m)
             in |- *.
-    rewrite -> (multiplication.left.negation (+ p) n)
+    leibniz -> (multiplication.left.negation (+ p) n)
             in |- *.
-    rewrite <- (negation.additivity ((+ p) * m) ((+ p) * n))
+    leibniz <- (negation.additivity ((+ p) * m) ((+ p) * n))
             in |- *.
-    rewrite -> (multiplication.left.positive.distributivity.over.addition p m n)
+    leibniz -> (multiplication.left.positive.distributivity.over.addition p m n)
             in |- *.
     quod idem est.
   - simpl in |- *.
-    rewrite (addition.left.identity 0) in |- *.
+    leibniz (addition.left.identity 0) in |- *.
     quod idem est.
   - ipso (multiplication.left.positive.distributivity.over.addition p m n).
 Qed.
@@ -1333,9 +1335,9 @@ Proof.
   simpl LessThan in |- *.
   apply (Exists_introduction (Nat.mul p d)).
   change (+ (Nat.mul p d)) with ((+ p) * (+ d)) in |- *.
-  rewrite <- (multiplication.left.distributivity.over.addition (+ p) m (+ d))
+  leibniz <- (multiplication.left.distributivity.over.addition (+ p) m (+ d))
           in |- *.
-  rewrite -> e
+  leibniz -> e
           in |- *.
   quod idem est.
 Qed.
@@ -1352,7 +1354,7 @@ Module right. (* multiplication.right *)
 Theorem identity : forall (n : Integer) . n * (+ Nat.One) = n.
 Proof.
   intros n.
-  rewrite (multiplication.commutativity n (+ Nat.One)) in |- *.
+  leibniz (multiplication.commutativity n (+ Nat.One)) in |- *.
   ipso (multiplication.left.identity n).
 Qed.
 
@@ -1360,7 +1362,7 @@ Qed.
 Theorem annihilation : forall (n : Integer) . n * 0 = 0.
 Proof.
   intros n.
-  rewrite (multiplication.commutativity n 0) in |- *.
+  leibniz (multiplication.commutativity n 0) in |- *.
   ipso (multiplication.left.annihilation n).
 Qed.
 
@@ -1369,9 +1371,9 @@ Theorem negation
   : forall (m : Integer) (n : Integer) . m * negate n = negate (m * n).
 Proof.
   intros m n.
-  rewrite (multiplication.commutativity m (negate n)) in |- *.
-  rewrite (multiplication.left.negation n m) in |- *.
-  rewrite (multiplication.commutativity n m) in |- *.
+  leibniz (multiplication.commutativity m (negate n)) in |- *.
+  leibniz (multiplication.left.negation n m) in |- *.
+  leibniz (multiplication.commutativity n m) in |- *.
   quod idem est.
 Qed.
 
@@ -1385,10 +1387,10 @@ Theorem addition
       (m + n) * l = (m * l) + (n * l).
 Proof.
   intros l m n.
-  rewrite (multiplication.commutativity (m + n) l) in |- *.
-  rewrite (multiplication.left.distributivity.over.addition l m n) in |- *.
-  rewrite (multiplication.commutativity l m) in |- *.
-  rewrite (multiplication.commutativity l n) in |- *.
+  leibniz (multiplication.commutativity (m + n) l) in |- *.
+  leibniz (multiplication.left.distributivity.over.addition l m n) in |- *.
+  leibniz (multiplication.commutativity l m) in |- *.
+  leibniz (multiplication.commutativity l n) in |- *.
   quod idem est.
 Qed.
 
@@ -1434,13 +1436,13 @@ Theorem interchange
       (a * b) * (c * d) = (a * c) * (b * d).
 Proof.
   intros a b c d.
-  rewrite (multiplication.associativity a b (c * d)) in |- *.
+  leibniz (multiplication.associativity a b (c * d)) in |- *.
   let proof inner := Identity.symmetry (multiplication.associativity b c d).
-  rewrite inner in |- *.
-  rewrite (multiplication.commutativity b c) in |- *.
-  rewrite (multiplication.associativity c b d) in |- *.
+  leibniz inner in |- *.
+  leibniz (multiplication.commutativity b c) in |- *.
+  leibniz (multiplication.associativity c b d) in |- *.
   let proof outer := Identity.symmetry (multiplication.associativity a c (b * d)).
-  rewrite outer in |- *.
+  leibniz outer in |- *.
   quod idem est.
 Qed.
 
@@ -1453,7 +1455,7 @@ Proof.
   match k with | p | | p end.
   - match m with | a | | a end; match n with | b | | b end; simpl in e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
-      rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
+      leibniz (cancel (magnitude.positive.injectivity e)) in |- *.
       quod idem est.
     + ex e quodlibet.
     + ex e quodlibet.
@@ -1463,14 +1465,14 @@ Proof.
     + ex e quodlibet.
     + ex e quodlibet.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
-      rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
+      leibniz (cancel (magnitude.negative.injectivity e)) in |- *.
       quod idem est.
   - simpl (~ _) in nonzero.
     modus ponens nonzero, (Identity.reflexivity 0) as f.
     ex f quodlibet.
   - match m with | a | | a end; match n with | b | | b end; simpl in e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
-      rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
+      leibniz (cancel (magnitude.negative.injectivity e)) in |- *.
       quod idem est.
     + ex e quodlibet.
     + ex e quodlibet.
@@ -1480,7 +1482,7 @@ Proof.
     + ex e quodlibet.
     + ex e quodlibet.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
-      rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
+      leibniz (cancel (magnitude.positive.injectivity e)) in |- *.
       quod idem est.
 Qed.
 
@@ -1526,8 +1528,8 @@ Proof.
   change (+ (Nat.add k1 k2))
     with ((+ k1) + (+ k2))
     in |- *.
-  rewrite <- (addition.associativity l (+ k1) (+ k2)) in |- *.
-  rewrite e1 in |- *.
+  leibniz <- (addition.associativity l (+ k1) (+ k2)) in |- *.
+  leibniz e1 in |- *.
   ipso e2.
 Qed.
 
@@ -1578,7 +1580,7 @@ Proof.
     simpl Nat.LessThan in lt.
     match lt with | k e end.
     apply (Exists_introduction k).
-    rewrite (Nat.addition.commutativity n' k) in e.
+    leibniz (Nat.addition.commutativity n' k) in e.
     ipso (modus aequans (difference.nat.negative.specification k m' n'), e).
   - intro h.
     match h with | k e end.
@@ -1586,7 +1588,7 @@ Proof.
     apply (@Nat.comparison.strict.backward.specification n' m').
     simpl Nat.LessThan in |- *.
     apply (Exists_introduction k).
-    rewrite (Nat.addition.commutativity n' k) in |- *.
+    leibniz (Nat.addition.commutativity n' k) in |- *.
     ipso e'.
   - intro c.
     apply (Exists_introduction m').
@@ -1628,7 +1630,7 @@ Proof.
     simpl Nat.LessThan in lt.
     match lt with | k e end.
     apply (Exists_introduction k).
-    rewrite e in |- *.
+    leibniz e in |- *.
     quod idem est.
   - intro h.
     match h with | k e end.
@@ -1651,11 +1653,11 @@ Proof.
   match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
     let proof e := Nat.comparison.equality.forward.specification c.
-    rewrite e in |- *.
+    leibniz e in |- *.
     quod idem est.
   - intro e.
     let proof e' := magnitude.negative.injectivity e.
-    rewrite e' in |- *.
+    leibniz e' in |- *.
     ipso (Comparable.comparison.reflexivity n').
   - intro c.
     ex c quodlibet.
@@ -1687,11 +1689,11 @@ Proof.
     ex e quodlibet.
   - intro c.
     let proof e := Nat.comparison.equality.forward.specification c.
-    rewrite e in |- *.
+    leibniz e in |- *.
     quod idem est.
   - intro e.
     let proof e' := magnitude.positive.injectivity e.
-    rewrite e' in |- *.
+    leibniz e' in |- *.
     ipso (Comparable.comparison.reflexivity n').
 Qed.
 
@@ -1741,7 +1743,7 @@ Proof.
     + simpl in e.
       ex e quodlibet.
     + simpl in |- *.
-      rewrite (NatWithZero.positive.injectivity e) in |- *.
+      leibniz (NatWithZero.positive.injectivity e) in |- *.
       quod idem est.
   - simpl in |- *.
     quod idem est.
@@ -1752,7 +1754,7 @@ Proof.
     + simpl in e.
       ex e quodlibet.
     + simpl in |- *.
-      rewrite (NatWithZero.positive.injectivity e) in |- *.
+      leibniz (NatWithZero.positive.injectivity e) in |- *.
       quod idem est.
 Qed.
 
@@ -1767,7 +1769,7 @@ Theorem exhaustiveness
       = Nat.One.
 Proof.
   intros x d.
-  rewrite (division.magnitude x (NatWithZero.gcd.nat (| x |) d)) in |- *.
+  leibniz (division.magnitude x (NatWithZero.gcd.nat (| x |) d)) in |- *.
   ipso (NatWithZero.gcd.nat.exhaustiveness (| x |) d).
 Qed.
 
@@ -1784,7 +1786,7 @@ Proof.
                   (NatWithZero.Positive p) d k.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
       with (NatWithZero.Positive (Nat.mul k p)) in h.
-    rewrite h in |- *.
+    leibniz h in |- *.
     quod idem est.
   - simpl in |- *.
     quod idem est.
@@ -1794,7 +1796,7 @@ Proof.
                   (NatWithZero.Positive p) d k.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
       with (NatWithZero.Positive (Nat.mul k p)) in h.
-    rewrite h in |- *.
+    leibniz h in |- *.
     quod idem est.
 Qed.
 
@@ -1822,9 +1824,9 @@ Proof.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
   apply (Exists_introduction (k1 * k2)).
-  rewrite <- (multiplication.associativity l k1 k2)
+  leibniz <- (multiplication.associativity l k1 k2)
           in |- *.
-  rewrite -> e1
+  leibniz -> e1
           in |- *.
   ipso e2.
 Qed.
@@ -1842,8 +1844,9 @@ Proof.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
   apply (Exists_introduction (k1 + k2)).
-  rewrite (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
-  rewrite e1, e2 in |- *.
+  leibniz (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
+  leibniz e1 in |- *.
+  leibniz e2 in |- *.
   quod idem est.
 Qed.
 
@@ -1860,8 +1863,8 @@ Proof.
   match h with | k e end.
   simpl Divides in |- *.
   apply (Exists_introduction (k * n)).
-  rewrite <- (multiplication.associativity d k n) in |- *.
-  rewrite e in |- *.
+  leibniz <- (multiplication.associativity d k n) in |- *.
+  leibniz e in |- *.
   quod idem est.
 Qed.
 
@@ -1889,20 +1892,20 @@ Proof.
         match ev with | k e end.
         simpl Odd in |- *.
         apply (Exists_introduction (k + (- Nat.One))).
-        rewrite (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
+        leibniz (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
           in |- *.
         change ((+ (Nat.Successor Nat.One)) * (- Nat.One))
           with (- (Nat.Successor Nat.One))
           in |- *.
-        rewrite e in |- *.
-        rewrite (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
+        leibniz e in |- *.
+        leibniz (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
           in |- *.
         change ((- (Nat.Successor Nat.One)) + (+ Nat.One))
           with (- Nat.One)
           in |- *.
         simpl add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         quod idem est.
       * apply Disjunction.L.
@@ -1914,16 +1917,16 @@ Proof.
         let proof e'
           : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
           := e'.
-        rewrite (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
+        leibniz (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
           in e'.
         change ((+ Nat.One) + (- Nat.One))
           with 0
           in e'.
-        rewrite (addition.right.identity ((+ (Nat.Successor Nat.One)) * k)) in e'.
-        rewrite e' in |- *.
+        leibniz (addition.right.identity ((+ (Nat.Successor Nat.One)) * k)) in e'.
+        leibniz e' in |- *.
         simpl add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         quod idem est.
   - apply Disjunction.L.
@@ -1944,10 +1947,10 @@ Proof.
         match ev with | k e end.
         simpl Odd in |- *.
         apply (Exists_introduction k).
-        rewrite e in |- *.
+        leibniz e in |- *.
         simpl add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         quod idem est.
       * apply Disjunction.L.
@@ -1955,19 +1958,19 @@ Proof.
         match od with | k e end.
         simpl Even, Divides in |- *.
         apply (Exists_introduction (k + (+ Nat.One))).
-        rewrite (multiplication.left.distributivity.over.addition
+        leibniz (multiplication.left.distributivity.over.addition
                   (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
         change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
           with ((+ Nat.One) + (+ Nat.One))
           in |- *.
-        rewrite <- (addition.associativity
+        leibniz <- (addition.associativity
                       ((+ (Nat.Successor Nat.One)) * k)
                       (+ Nat.One)
                       (+ Nat.One)) in |- *.
-        rewrite e in |- *.
+        leibniz e in |- *.
         simpl add in |- *.
         simpl in |- *.
-        rewrite (Nat.addition.commutativity p' Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
         simpl in |- *.
         quod idem est.
 Qed.
@@ -2006,15 +2009,16 @@ Proof.
   simpl Even, Divides in |- *.
   apply (Exists_introduction ((k1 + k2) + (+ Nat.One))).
   symmetry in e1, e2.
-  rewrite e1, e2 in |- *.
-  rewrite (multiplication.left.distributivity.over.addition
+  leibniz e1 in |- *.
+  leibniz e2 in |- *.
+  leibniz (multiplication.left.distributivity.over.addition
             (+ (Nat.Successor Nat.One)) (k1 + k2) (+ Nat.One)) in |- *.
-  rewrite (multiplication.left.distributivity.over.addition
+  leibniz (multiplication.left.distributivity.over.addition
             (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
   change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
     with ((+ Nat.One) + (+ Nat.One))
     in |- *.
-  rewrite (addition.interchange
+  leibniz (addition.interchange
             ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
             ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
   quod idem est.
