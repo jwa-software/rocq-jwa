@@ -2722,7 +2722,7 @@ Proof.
     change (NatWithZero.Positive (Nat.Successor p'))
       with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
     rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
-    assert (below : i <= NatWithZero.Positive p').
+    lemma below : i <= NatWithZero.Positive p'.
     {
       simpl NatWithZero.LessOrEqual in |- *.
       match h' with | h1 | h2 end.
@@ -2764,8 +2764,8 @@ Proof.
     rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
     modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h as h'.
     simpl in |- *.
-    assert (side : range_positive p' contains_member i
-                   \/ (NatWithZero.Positive p' :: []) contains_member i).
+    lemma side : range_positive p' contains_member i
+                   \/ (NatWithZero.Positive p' :: []) contains_member i.
     {
       simpl NatWithZero.LessOrEqual in h'.
       match h' with | e | lt end.
@@ -2927,17 +2927,17 @@ Proof.
     + intro c.
       match c with | low high end.
       pose proof (NatWithZero.subtraction.saturating.specification low) as step.
-      assert (inside : NatWithZero.saturating_sub i start
-                       < NatWithZero.saturating_sub stop start).
+      lemma inside : NatWithZero.saturating_sub i start
+                       < NatWithZero.saturating_sub stop start.
       {
         apply (NatWithZero.addition.order.strict.cancellation start).
         rewrite step in |- *.
         rewrite reach in |- *.
         ipso high.
       }
-      assert (witness : exists (j : NatWithZero) .
+      lemma witness : exists (j : NatWithZero) .
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
-                /\ i = NatWithZero.add start j).
+                /\ i = NatWithZero.add start j.
       {
         apply (Exists_introduction (NatWithZero.saturating_sub i start)).
         divide et impera.
@@ -3008,7 +3008,7 @@ Proof.
     + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
   - intro c.
     match c with | low high end.
-    assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
+    lemma bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One.
     {
       divide et impera.
       + ipso low.

@@ -190,7 +190,7 @@ Proof.
   match x with | n d h end.
   simpl numerator, denominator in |- *.
 
-  assert (whole : Integer.divide n Nat.One = n).
+  lemma whole : Integer.divide n Nat.One = n.
   {
     pose proof (Integer.division.exactness
                   n Nat.One
@@ -201,9 +201,8 @@ Proof.
     ipso (Identity.transitivity i e).
   }
 
-  assert (undivided
-          : NatWithZero.divide (NatWithZero.Positive d) (Nat.One)
-          = NatWithZero.Positive d).
+  lemma undivided : NatWithZero.divide (NatWithZero.Positive d) (Nat.One)
+          = NatWithZero.Positive d.
   {
     pose proof (NatWithZero.division.exactness
                   (NatWithZero.Positive d) (Nat.One)
@@ -215,10 +214,9 @@ Proof.
     ipso (Identity.transitivity i e).
   }
 
-  assert (same
-          : NatWithZero.divide (NatWithZero.Positive d)
+  lemma same : NatWithZero.divide (NatWithZero.Positive d)
               (NatWithZero.gcd.nat (Integer.abs n) d)
-          = NatWithZero.divide (NatWithZero.Positive d) (Nat.One)).
+          = NatWithZero.divide (NatWithZero.Positive d) (Nat.One).
   {
     rewrite h in |- *.
     reflexivity.
@@ -254,11 +252,10 @@ Theorem invariance
 Proof.
   intros n d k.
 
-  assert (common
-          : NatWithZero.gcd.nat
+  lemma common : NatWithZero.gcd.nat
               (Integer.abs (Integer.mul (Integer.Positive k) n))
               (Nat.mul k d)
-          = Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d)).
+          = Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d).
   {
     pose proof (Integer.multiplication.magnitude (Integer.Positive k) n) as am.
     change (Integer.abs (Integer.Positive k))
@@ -273,21 +270,19 @@ Proof.
 
   simpl make in |- *.
 
-  assert (top
-          : Integer.divide
+  lemma top : Integer.divide
               (Integer.mul (Integer.Positive k) n)
               (NatWithZero.gcd.nat
                 (Integer.abs (Integer.mul (Integer.Positive k) n))
                 (Nat.mul k d))
-          = Integer.divide n (NatWithZero.gcd.nat (Integer.abs n) d)).
+          = Integer.divide n (NatWithZero.gcd.nat (Integer.abs n) d).
   {
     rewrite common in |- *.
     ipso (Integer.division.invariance
              n (NatWithZero.gcd.nat (Integer.abs n) d) k).
   }
 
-  assert (bottom
-          : NatWithZero.divide.nat.safe
+  lemma bottom : NatWithZero.divide.nat.safe
                 (Nat.mul k d)
                 (NatWithZero.gcd.nat
                   (Integer.abs (Integer.mul (Integer.Positive k) n))
@@ -298,7 +293,7 @@ Proof.
           = NatWithZero.divide.nat.safe
                 d
                 (NatWithZero.gcd.nat (Integer.abs n) d)
-                (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)).
+                (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d).
   {
     apply NatWithZero.divide.nat.safe.congruence.
     rewrite common in |- *.
@@ -331,13 +326,12 @@ Proof.
   simpl make in |- *.
   simpl numerator, denominator in |- *.
 
-  assert (bottom
-          : Nat.mul
+  lemma bottom : Nat.mul
               (NatWithZero.divide.nat.safe
                 b (NatWithZero.gcd.nat (Integer.abs a) b)
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b))
               (NatWithZero.gcd.nat (Integer.abs a) b)
-          = b).
+          = b.
   {
     pose proof (NatWithZero.divide.nat.safe.specification
                   b (NatWithZero.gcd.nat (Integer.abs a) b)
@@ -353,15 +347,14 @@ Proof.
     ipso (NatWithZero.positive.injectivity e).
   }
 
-  assert (lifted
-          : Integer.from_nat b
+  lemma lifted : Integer.from_nat b
           = Integer.mul
               (Integer.from_nat
                 (NatWithZero.divide.nat.safe
                     b (NatWithZero.gcd.nat (Integer.abs a) b)
                     (NatWithZero.gcd.nat.right.divisibility
                       (Integer.abs a) b)))
-              (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))).
+              (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)).
   {
     pose proof (Identity.congruence Integer.from_nat bottom) as c.
     symmetry in c.
@@ -369,11 +362,10 @@ Proof.
     reflexivity.
   }
 
-  assert (whole
-          : Integer.mul
+  lemma whole : Integer.mul
               (Integer.divide a (NatWithZero.gcd.nat (Integer.abs a) b))
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))
-          = a).
+          = a.
   {
     ipso (Integer.division.exactness
             a (NatWithZero.gcd.nat (Integer.abs a) b)
@@ -412,10 +404,9 @@ Theorem characterisation
 Proof.
   intros a b c d.
 
-  assert (swap
-          : forall (x : Integer) (y : Integer) (z : Integer) .
+  lemma swap : forall (x : Integer) (y : Integer) (z : Integer) .
               Integer.mul (Integer.mul x y) z
-              = Integer.mul (Integer.mul x z) y).
+              = Integer.mul (Integer.mul x z) y.
   {
     intros x y z.
     rewrite (Integer.multiplication.associativity x y z) in |- *.
@@ -435,14 +426,14 @@ Proof.
   match (make c d) per E2 with | r s I2 end.
   simpl numerator, denominator in P1, P2.
 
-  assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
+  lemma nzq : ~ (Integer.from_nat q = Integer.Zero).
   {
     simpl Negation in |- *.
     intro z.
     discriminate z.
   }
 
-  assert (nzs : ~ (Integer.from_nat s = Integer.Zero)).
+  lemma nzs : ~ (Integer.from_nat s = Integer.Zero).
   {
     simpl Negation in |- *.
     intro z.
@@ -459,19 +450,19 @@ Proof.
     rewrite hp in P1.
     rewrite hq in P1.
 
-    assert (Q1 : Integer.mul (Integer.mul r (Integer.from_nat b))
+    lemma Q1 : Integer.mul (Integer.mul r (Integer.from_nat b))
                              (Integer.from_nat d)
                  = Integer.mul (Integer.mul a (Integer.from_nat s))
-                               (Integer.from_nat d)).
+                               (Integer.from_nat d).
     {
       rewrite P1 in |- *.
       reflexivity.
     }
 
-    assert (Q2 : Integer.mul (Integer.mul r (Integer.from_nat d))
+    lemma Q2 : Integer.mul (Integer.mul r (Integer.from_nat d))
                              (Integer.from_nat b)
                  = Integer.mul (Integer.mul c (Integer.from_nat s))
-                               (Integer.from_nat b)).
+                               (Integer.from_nat b).
     {
       rewrite P2 in |- *.
       reflexivity.
@@ -494,20 +485,18 @@ Proof.
 
   - intro e.
 
-    assert (nzbd
-            : ~ (Integer.mul (Integer.from_nat b) (Integer.from_nat d)
-            = Integer.Zero)).
+    lemma nzbd : ~ (Integer.mul (Integer.from_nat b) (Integer.from_nat d)
+            = Integer.Zero).
     {
       simpl Negation in |- *.
       intro z.
       discriminate z.
     }
 
-    assert (widened
-            : Integer.mul (Integer.mul p (Integer.from_nat s))
+    lemma widened : Integer.mul (Integer.mul p (Integer.from_nat s))
                 (Integer.mul (Integer.from_nat b) (Integer.from_nat d))
             = Integer.mul (Integer.mul r (Integer.from_nat q))
-                (Integer.mul (Integer.from_nat b) (Integer.from_nat d))).
+                (Integer.mul (Integer.from_nat b) (Integer.from_nat d)).
     {
       rewrite (Integer.multiplication.interchange
                 p (Integer.from_nat s) (Integer.from_nat b) (Integer.from_nat d)) in |- *.
@@ -550,9 +539,8 @@ Proof.
     change (Integer.abs (Integer.from_nat q))
       with (NatWithZero.Positive q) in m.
 
-    assert (coprime1
-            : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
-            = NatWithZero.Positive Nat.One).
+    lemma coprime1 : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
+            = NatWithZero.Positive Nat.One.
     {
       pose proof (NatWithZero.gcd.nat.specification q (Integer.abs p)) as g.
       rewrite I1 in g.
@@ -561,9 +549,8 @@ Proof.
       ipso g.
     }
 
-    assert (coprime2
-            : NatWithZero.gcd (NatWithZero.Positive s) (Integer.abs r)
-            = NatWithZero.Positive Nat.One).
+    lemma coprime2 : NatWithZero.gcd (NatWithZero.Positive s) (Integer.abs r)
+            = NatWithZero.Positive Nat.One.
     {
       pose proof (NatWithZero.gcd.nat.specification s (Integer.abs r)) as g.
       rewrite I2 in g.
@@ -572,7 +559,7 @@ Proof.
       ipso g.
     }
 
-    assert (qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s)).
+    lemma qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s).
     {
       pose proof (NatWithZero.divisibility.multiplication.closure
                     (NatWithZero.Positive q) (NatWithZero.Positive q)
@@ -588,7 +575,7 @@ Proof.
               (NatWithZero.Positive s) h coprime1).
     }
 
-    assert (sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q)).
+    lemma sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q).
     {
       pose proof (NatWithZero.divisibility.multiplication.closure
                     (NatWithZero.Positive s) (NatWithZero.Positive s)
@@ -621,7 +608,7 @@ Theorem annihilation
 Proof.
   intro b.
 
-  assert (unit : make Integer.Zero Nat.One = Zero).
+  lemma unit : make Integer.Zero Nat.One = Zero.
   {
     pose proof (retraction Zero) as r.
     change (numerator   Zero) with Integer.Zero in r.
@@ -629,9 +616,8 @@ Proof.
     ipso r.
   }
 
-  assert (cross
-          : Integer.mul Integer.Zero (Integer.from_nat Nat.One)
-          = Integer.mul Integer.Zero (Integer.from_nat b)).
+  lemma cross : Integer.mul Integer.Zero (Integer.from_nat Nat.One)
+          = Integer.mul Integer.Zero (Integer.from_nat b).
   {
     rewrite (Integer.multiplication.left.annihilation (Integer.from_nat Nat.One)) in |- *.
     rewrite (Integer.multiplication.left.annihilation (Integer.from_nat b))     in |- *.
@@ -669,9 +655,8 @@ Proof.
   set (q' := Integer.from_nat q) in *.
   set (s' := Integer.from_nat s) in *.
 
-  assert (first
-          : Integer.mul (Integer.mul p s') (Integer.mul b' d')
-          = Integer.mul (Integer.mul a d') (Integer.mul q' s')).
+  lemma first : Integer.mul (Integer.mul p s') (Integer.mul b' d')
+          = Integer.mul (Integer.mul a d') (Integer.mul q' s').
   {
     rewrite (Integer.multiplication.interchange p s' b' d') in |- *.
     rewrite P1 in |- *.
@@ -680,9 +665,8 @@ Proof.
     reflexivity.
   }
 
-  assert (second
-          : Integer.mul (Integer.mul r q') (Integer.mul b' d')
-          = Integer.mul (Integer.mul c b') (Integer.mul q' s')).
+  lemma second : Integer.mul (Integer.mul r q') (Integer.mul b' d')
+          = Integer.mul (Integer.mul c b') (Integer.mul q' s').
   {
     rewrite (Integer.multiplication.commutativity b' d') in |- *.
     rewrite (Integer.multiplication.interchange r q' d' b') in |- *.
@@ -693,11 +677,10 @@ Proof.
     reflexivity.
   }
 
-  assert (cross
-          : Integer.mul (Integer.add (Integer.mul p s') (Integer.mul r q'))
+  lemma cross : Integer.mul (Integer.add (Integer.mul p s') (Integer.mul r q'))
                   (Integer.from_nat (Nat.mul b d))
           = Integer.mul (Integer.add (Integer.mul a d') (Integer.mul c b'))
-                  (Integer.from_nat (Nat.mul q s))).
+                  (Integer.from_nat (Nat.mul q s)).
   {
     change (Integer.from_nat (Nat.mul b d))
       with (Integer.mul b' d')
@@ -743,9 +726,8 @@ Proof.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
-  assert (cross
-          : Integer.mul (Integer.mul p r) (Integer.from_nat (Nat.mul b d))
-          = Integer.mul (Integer.mul a c) (Integer.from_nat (Nat.mul q s))).
+  lemma cross : Integer.mul (Integer.mul p r) (Integer.from_nat (Nat.mul b d))
+          = Integer.mul (Integer.mul a c) (Integer.from_nat (Nat.mul q s)).
   {
     change (Integer.from_nat (Nat.mul b d))
       with (Integer.mul (Integer.from_nat b) (Integer.from_nat d))
@@ -787,9 +769,8 @@ Proof.
   simpl numerator, denominator in P1.
   simpl numerator, denominator in |- *.
 
-  assert (cross
-          : Integer.mul (Integer.negate p) (Integer.from_nat b)
-          = Integer.mul (Integer.negate a) (Integer.from_nat q)).
+  lemma cross : Integer.mul (Integer.negate p) (Integer.from_nat b)
+          = Integer.mul (Integer.negate a) (Integer.from_nat q).
   {
     rewrite (Integer.multiplication.left.negation p (Integer.from_nat b)) in |- *.
     rewrite (Integer.multiplication.left.negation a (Integer.from_nat q)) in |- *.
@@ -831,10 +812,9 @@ Theorem associativity
 Proof.
   intros x y z.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
+  lemma general : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
               ((make a b) + (make c d)) + (make e f)
-            = (make a b) + ((make c d) + (make e f))).
+            = (make a b) + ((make c d) + (make e f)).
   {
     intros a b c d e f.
     rewrite (make.addition.homomorphism a b c d) in |- *.
@@ -861,13 +841,12 @@ Proof.
       with (Integer.mul d' f')
         in |- *.
 
-    assert (tops
-            : Integer.add
+    lemma tops : Integer.add
                 (Integer.mul (Integer.add (Integer.mul a d') (Integer.mul c b')) (f'))
                 (Integer.mul (e) (Integer.mul b' d'))
             = Integer.add
                 (Integer.mul (a) (Integer.mul d' f'))
-                (Integer.mul (Integer.add (Integer.mul c f') (Integer.mul e d')) (b'))).
+                (Integer.mul (Integer.add (Integer.mul c f') (Integer.mul e d')) (b')).
     {
       rewrite (Integer.multiplication.right.distributivity.over.addition
                 f' (Integer.mul a d') (Integer.mul c b')) in |- *.
@@ -945,8 +924,7 @@ Theorem inverse : forall (x : Rational) . (negate x) + x = Zero.
 Proof.
   intro x.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) . (negate (make a b)) + (make a b) = Zero).
+  lemma general : forall (a : Integer) (b : Nat) . (negate (make a b)) + (make a b) = Zero.
   {
     intros a b.
     rewrite (make.negation.homomorphism a b) in |- *.
@@ -1010,9 +988,8 @@ Theorem inverse : forall (x : Rational) . x + (negate x) = Zero.
 Proof.
   intro x.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) .
-              add (make a b) (negate (make a b)) = Zero).
+  lemma general : forall (a : Integer) (b : Nat) .
+              add (make a b) (negate (make a b)) = Zero.
   {
     intros a b.
     rewrite (make.negation.homomorphism a b) in |- *.
@@ -1109,10 +1086,9 @@ Theorem associativity
 Proof.
   intros x y z.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
+  lemma general : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
               ((make a b) * (make c d)) * (make e f)
-            = (make a b) * ((make c d) * (make e f))).
+            = (make a b) * ((make c d) * (make e f)).
   {
     intros a b c d e f.
     rewrite (make.multiplication.homomorphism a b c d) in |- *.
@@ -1173,11 +1149,10 @@ Theorem addition
 Proof.
   intros x y z.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat)
+  lemma general : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat)
               (e : Integer) (f : Nat) .
               (make a b) * ((make c d) + (make e f))
-            = ((make a b) * (make c d)) + ((make a b) * (make e f))).
+            = ((make a b) * (make c d)) + ((make a b) * (make e f)).
   {
     intros a b c d e f.
     rewrite (make.addition.homomorphism c d e f) in |- *.
@@ -1203,14 +1178,13 @@ Proof.
       with (Integer.mul b' d')
         in |- *.
 
-    assert (tops
-            : Integer.add
+    lemma tops : Integer.add
                 (Integer.mul (Integer.mul a c) (Integer.mul b' f'))
                 (Integer.mul (Integer.mul a e) (Integer.mul b' d'))
             = Integer.mul b'
                 (Integer.mul
                   (a)
-                  (Integer.add (Integer.mul c f') (Integer.mul e d')))).
+                  (Integer.add (Integer.mul c f') (Integer.mul e d'))).
     {
       rewrite (Integer.multiplication.left.distributivity.over.addition
                 a (Integer.mul c f') (Integer.mul e d')) in |- *.
@@ -1228,13 +1202,12 @@ Proof.
       reflexivity.
     }
 
-    assert (bots
-            : Nat.mul
+    lemma bots : Nat.mul
                 (Nat.mul b d)
                 (Nat.mul b f)
             = Nat.mul
                 (b)
-                (Nat.mul b (Nat.mul d f))).
+                (Nat.mul b (Nat.mul d f)).
     {
       rewrite (Nat.multiplication.associativity b d (Nat.mul b f)) in |- *.
       rewrite (Nat.multiplication.commutativity d (Nat.mul b f)) in |- *.
@@ -1350,7 +1323,7 @@ Theorem specification
 Proof.
   intros x y e.
 
-  assert (unit : make (Integer.Positive Nat.One) Nat.One = One).
+  lemma unit : make (Integer.Positive Nat.One) Nat.One = One.
   {
     pose proof (make.retraction One) as r.
     change (numerator   One) with (Integer.Positive Nat.One) in r.
@@ -1373,11 +1346,10 @@ Proof.
       with (Integer.Positive (Nat.mul p d))
         in |- *.
 
-    assert (cross
-            : Integer.mul (Integer.Positive (Nat.mul p d))
+    lemma cross : Integer.mul (Integer.Positive (Nat.mul p d))
                     (Integer.from_nat Nat.One)
             = Integer.mul (Integer.Positive Nat.One)
-                    (Integer.from_nat (Nat.mul d p))).
+                    (Integer.from_nat (Nat.mul d p)).
     {
       change (Integer.from_nat Nat.One)
         with (Integer.Positive Nat.One)
@@ -1416,11 +1388,10 @@ Proof.
       with (Integer.Positive (Nat.mul p d))
         in |- *.
 
-    assert (cross
-            : Integer.mul (Integer.Positive (Nat.mul p d))
+    lemma cross : Integer.mul (Integer.Positive (Nat.mul p d))
                     (Integer.from_nat Nat.One)
             = Integer.mul (Integer.Positive Nat.One)
-                    (Integer.from_nat (Nat.mul d p))).
+                    (Integer.from_nat (Nat.mul d p)).
     {
       change (Integer.from_nat Nat.One) with (Integer.Positive Nat.One) in |- *.
       change (Integer.from_nat (Nat.mul d p)) with (Integer.Positive (Nat.mul d p)) in |- *.
@@ -1461,11 +1432,10 @@ Proof.
   set (e := numerator   z) in *.
   set (f := denominator z) in *.
 
-  assert (bridge
-          : Integer.mul (Integer.Positive f)
+  lemma bridge : Integer.mul (Integer.Positive f)
                         (Integer.mul c (Integer.Positive b))
           = Integer.mul (Integer.Positive b)
-                        (Integer.mul c (Integer.Positive f))).
+                        (Integer.mul c (Integer.Positive f)).
   {
     pose proof (Identity.symmetry
                   (Integer.multiplication.associativity
@@ -1479,11 +1449,10 @@ Proof.
     reflexivity.
   }
 
-  assert (leftward
-          : Integer.mul (Integer.Positive f)
+  lemma leftward : Integer.mul (Integer.Positive f)
                   (Integer.mul a (Integer.Positive d))
           = Integer.mul (Integer.Positive d)
-                  (Integer.mul a (Integer.Positive f))).
+                  (Integer.mul a (Integer.Positive f)).
   {
     pose proof (Identity.symmetry
                   (Integer.multiplication.associativity
@@ -1498,11 +1467,10 @@ Proof.
     reflexivity.
   }
 
-  assert (rightward
-          : Integer.mul (Integer.Positive b)
+  lemma rightward : Integer.mul (Integer.Positive b)
                   (Integer.mul e (Integer.Positive d))
           = Integer.mul (Integer.Positive d)
-                  (Integer.mul e (Integer.Positive b))).
+                  (Integer.mul e (Integer.Positive b)).
   {
     pose proof (Identity.symmetry
                   (Integer.multiplication.associativity
@@ -1655,11 +1623,10 @@ Theorem order
 Proof.
   intros m n.
 
-  assert (scaling
-          : forall (p : Integer) (q : Integer) (k : Nat) .
+  lemma scaling : forall (p : Integer) (q : Integer) (k : Nat) .
               Integer.LessThan p q
               <-> Integer.LessThan (Integer.mul p (Integer.Positive k))
-                                   (Integer.mul q (Integer.Positive k))).
+                                   (Integer.mul q (Integer.Positive k)).
   {
     intros p q k.
     divide et impera.

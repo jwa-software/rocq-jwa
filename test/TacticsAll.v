@@ -377,7 +377,7 @@ Theorem tactics_all_delivers_let_proof_dropping_a_body_others_mention
 Proof.
   intro m.
   let k := Nat.add m m.
-  assert (q : k = k).
+  lemma q : k = k.
   - reflexivity.
   - let proof k := k.
     Fail lazymatch goal with

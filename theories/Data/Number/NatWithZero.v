@@ -1662,7 +1662,7 @@ Proof.
   match h with | e b end.
   pose proof (division.dividend.reconstruction n d) as recon.
   pose proof (division.remainder.boundedness n d) as bound.
-  assert (quotient : (n /. d) = m).
+  lemma quotient : (n /. d) = m.
   { pose proof (Comparable.order.strict.trichotomy (n /. d) m) as t.
     match t with | below | rest end.
     - simpl LessThan in below.
@@ -1747,9 +1747,8 @@ Proof.
   pose proof (division.dividend.reconstruction n d) as recon.
   pose proof (division.remainder.boundedness n d) as bound.
 
-  assert (witness
-          : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
-          /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
+  lemma witness : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
+          /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
   {
     divide et impera.
     - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
@@ -1780,7 +1779,7 @@ Proof.
   simpl Divides in h.
   match h with | k hk end.
 
-  assert (witness : ((k * (+ d)) + 0 = n) /\ 0 < (+ d)).
+  lemma witness : ((k * (+ d)) + 0 = n) /\ 0 < (+ d).
   {
     divide et impera.
     - match (addition.identity (k * (+ d))) with | _ vanishing end.
@@ -1869,9 +1868,8 @@ Proof.
   pose proof (division.dividend.reconstruction n d) as recon.
   pose proof (division.remainder.boundedness n d) as bound.
 
-  assert (witness
-          : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
-            /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
+  lemma witness : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
+            /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
   {
     divide et impera.
     - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
@@ -2401,7 +2399,7 @@ Proof.
     + rewrite (gcd.zero a) in |- *.
       ipso h1.
     + rewrite (gcd.recurrence a q) in |- *.
-      assert (remainder : Divides d (a %. q)).
+      lemma remainder : Divides d (a %. q).
       {
         match (division.specification a q) with | s1 s2 end.
         rewrite <- s1 in h1.
@@ -2442,7 +2440,7 @@ Proof.
   intros p q r h coprime.
   match r with | | s end.
   - ipso (divisibility.top p).
-  - assert (scaled : gcd ((+ s) * p) ((+ s) * q) = (+ s)).
+  - lemma scaled : gcd ((+ s) * p) ((+ s) * q) = (+ s).
     {
       pose proof (gcd.left.distributivity.of.multiplication s q p) as dist.
       rewrite coprime in dist.
@@ -2598,7 +2596,7 @@ Theorem exhaustiveness
       = Nat.One.
 Proof.
   intros a q.
-  assert (top : (+ (gcd.nat a q)) * (a /. (gcd.nat a q)) = a).
+  lemma top : (+ (gcd.nat a q)) * (a /. (gcd.nat a q)) = a.
   {
     pose proof (division.exactness a (gcd.nat a q)
                   (gcd.nat.left.divisibility a q)) as e.
@@ -2606,11 +2604,10 @@ Proof.
                (+ (gcd.nat a q)) (a /. (gcd.nat a q))) in |- *.
     ipso e.
   }
-  assert (bottom
-          : Nat.mul
+  lemma bottom : Nat.mul
               (gcd.nat a q)
               (divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))
-          = q).
+          = q.
   {
     pose proof (divide.nat.safe.specification
                   q (gcd.nat a q)

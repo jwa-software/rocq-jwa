@@ -193,7 +193,7 @@ Proof.
      *)
     pose proof (H f g) as H'.
 
-    assert (pointwise : forall (y : A) (r : R y x) . f y r = g y r).
+    lemma pointwise : forall (y : A) (r : R y x) . f y r = g y r.
     {
       intros y r.
 
