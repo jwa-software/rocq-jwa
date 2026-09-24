@@ -45,15 +45,6 @@ Notation "'sejoin' a , b"
  *)
 Module Sejunction. (* Sejunction *)
 
-(* The two ctors under the names a proof writes: [Sejunction.left a nb] and
- * [Sejunction.right na b]. An abbreviation is the ctor itself, so it also
- * serves as a pattern; Rocq prints the ctor's own name.
- *)
-Abbreviation left  := Sejunction_introduction_left.
-Abbreviation right := Sejunction_introduction_right.
-Abbreviation L     := Sejunction_introduction_left  (only parsing).
-Abbreviation R     := Sejunction_introduction_right (only parsing).
-
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A _\/_ B -> B _\/_ A.
 Proof.
