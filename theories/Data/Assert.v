@@ -101,7 +101,7 @@ Theorem negation
   : forall (b : Bool) . Assert (! b) <-> ~ Assert b.
 Proof.
   intros b.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   match b with | | end;
       simpl in |- *;
           divide et impera;

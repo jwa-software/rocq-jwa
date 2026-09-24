@@ -42,7 +42,7 @@ Theorem reflection
       Assert (is_empty x) <-> cardinality x = NatWithZero.Zero.
 Proof.
   intros F S A x.
-  unfold is_empty in |- *.
+  simpl is_empty in |- *.
   match (cardinality x) per c with | | p end; divide et impera; simpl in |- *.
   - intro h.
     reflexivity.
@@ -64,7 +64,7 @@ Theorem reflection
       Assert (is_not_empty x) <-> ~ (cardinality x = NatWithZero.Zero).
 Proof.
   intros F S A x.
-  unfold is_not_empty in |- *.
+  simpl is_not_empty in |- *.
   pose proof (Assert.negation (is_empty x)) as n.
   pose proof (Negation.congruence (emptiness.reflection x)) as c.
   ipso (Biconditional.transitivity n c).

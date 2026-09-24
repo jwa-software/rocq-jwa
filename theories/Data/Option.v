@@ -53,7 +53,7 @@ Theorem identity
 Proof.
   intros A o.
   match o with | | a end;
-      unfold map in |- *;
+      simpl map in |- *;
       simpl in |- *;
       reflexivity.
 Qed.

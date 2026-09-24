@@ -167,7 +167,7 @@ Theorem reflection
     eq compare m n = true <-> m = n.
 Proof.
   intros A compare lt C m n.
-  unfold eq in |- *.
+  simpl eq in |- *.
   divide et impera.
   - intro e.
     match (compare m n) per c with | | | end.
@@ -200,7 +200,7 @@ Theorem irreflexivity
     ~ (lt n n).
 Proof.
   intros A compare lt C n.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro h.
   modus aequans (comparison.strict.specification n n), h as c.
   rewrite (comparison.reflexivity n) in c.
@@ -217,11 +217,11 @@ Theorem asymmetry
     lt m n -> ~ (lt n m).
 Proof.
   intros A compare lt C m n h1.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro h2.
   pose proof (Comparable.transitivity m n m h1 h2) as h.
   pose proof (order.strict.irreflexivity m) as i.
-  unfold Negation in i.
+  simpl Negation in i.
   modus ponens i, h as f.
   ex f quodlibet.
 Qed.
@@ -259,7 +259,7 @@ Theorem reflexivity
     LessOrEqual lt n n.
 Proof.
   intros A compare lt C n.
-  unfold LessOrEqual in |- *.
+  simpl LessOrEqual in |- *.
   ipso (Disjunction.L (Identity.reflexivity n)).
 Qed.
 
@@ -273,14 +273,14 @@ Theorem antisymmetry
     LessOrEqual lt m n -> LessOrEqual lt n m -> m = n.
 Proof.
   intros A compare lt C m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
+  simpl LessOrEqual in h1.
+  simpl LessOrEqual in h2.
   match h1 with | e1 | lt1 end.
   - ipso e1.
   - match h2 with | e2 | lt2 end.
     + ipso (Identity.symmetry e2).
     + pose proof (order.strict.asymmetry m n lt1) as a.
-      unfold Negation in a.
+      simpl Negation in a.
       modus ponens a, lt2 as f.
       ex f quodlibet.
 Qed.
@@ -295,7 +295,7 @@ Theorem transitivity
     LessOrEqual lt l m -> LessOrEqual lt m n -> LessOrEqual lt l n.
 Proof.
   intros A compare lt C l m n h1 h2.
-  unfold LessOrEqual in h1, h2 |- *.
+  simpl LessOrEqual in h1, h2 |- *.
   match h1 with | e1 | lt1 end.
   - rewrite e1 in |- *.
     ipso h2.
@@ -316,7 +316,7 @@ Theorem totality
 Proof.
   intros A c lt C m n.
   pose proof (order.strict.trichotomy m n) as t.
-  unfold LessOrEqual in |- *.
+  simpl LessOrEqual in |- *.
   match t with | lt1 | rest end.
   - ipso (Disjunction.L (Disjunction.R lt1)).
   - match rest with | e | gt end.
@@ -334,8 +334,8 @@ Theorem reflection
     le compare m n = true <-> LessOrEqual lt m n.
 Proof.
   intros A compare lt C m n.
-  unfold le in |- *.
-  unfold LessOrEqual in |- *.
+  simpl le in |- *.
+  simpl LessOrEqual in |- *.
   match (compare m n) per c with | | | end.
   - divide et impera.
     + intro e.
@@ -380,8 +380,8 @@ Theorem specification
     min compare m n = m <-> LessOrEqual lt m n.
 Proof.
   intros A compare lt C m n.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
+  simpl min in |- *.
+  simpl LessOrEqual in |- *.
   divide et impera.
   - intro e.
     match (compare m n) per c with | | | end.
@@ -417,8 +417,8 @@ Lemma projection
     LessOrEqual lt (min compare l r) l.
 Proof.
   intros A compare lt C l r.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
+  simpl min in |- *.
+  simpl LessOrEqual in |- *.
   match (compare l r) per c with | | | end.
   - ipso (Disjunction.L (Identity.reflexivity l)).
   - ipso (Disjunction.L (Identity.reflexivity l)).
@@ -441,8 +441,8 @@ Lemma projection
     LessOrEqual lt (min compare l r) r.
 Proof.
   intros A compare lt C l r.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
+  simpl min in |- *.
+  simpl LessOrEqual in |- *.
   match (compare l r) per c with | | | end.
   - apply Disjunction.R.
     match (Comparable.specification l r) with | s _ end.
@@ -465,7 +465,7 @@ Theorem universality
     LessOrEqual lt k m -> LessOrEqual lt k n -> LessOrEqual lt k (min compare m n).
 Proof.
   intros A c lt C k m n h1 h2.
-  unfold min in |- *.
+  simpl min in |- *.
   match (c m n) with | | | end.
   - ipso h1.
   - ipso h1.
@@ -547,7 +547,7 @@ Theorem idempotence
     min compare n n = n.
 Proof.
   intros A c lt C n.
-  unfold min in |- *.
+  simpl min in |- *.
   rewrite (comparison.reflexivity n) in |- *.
   reflexivity.
 Qed.
@@ -566,8 +566,8 @@ Theorem specification
     max compare m n = m <-> LessOrEqual lt n m.
 Proof.
   intros A compare lt C m n.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
+  simpl max in |- *.
+  simpl LessOrEqual in |- *.
   divide et impera.
   - intro e.
     match (compare m n) per c with | | | end.
@@ -603,8 +603,8 @@ Lemma injection
     LessOrEqual lt l (max compare l r).
 Proof.
   intros A compare lt C l r.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
+  simpl max in |- *.
+  simpl LessOrEqual in |- *.
   match (compare l r) per c with | | | end.
   - apply Disjunction.R.
     match (Comparable.specification l r) with | s _ end.
@@ -627,8 +627,8 @@ Lemma injection
     LessOrEqual lt r (max compare l r).
 Proof.
   intros A compare lt C l r.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
+  simpl max in |- *.
+  simpl LessOrEqual in |- *.
   match (compare l r) per c with | | | end.
   - ipso (Disjunction.L (Identity.reflexivity r)).
   - apply Disjunction.L.
@@ -653,7 +653,7 @@ Theorem universality
     LessOrEqual lt m k -> LessOrEqual lt n k -> LessOrEqual lt (max compare m n) k.
 Proof.
   intros A c lt C k m n h1 h2.
-  unfold max in |- *.
+  simpl max in |- *.
   match (c m n) with | | | end.
   - ipso h2.
   - ipso h1.
@@ -736,7 +736,7 @@ Theorem idempotence
     max compare n n = n.
 Proof.
   intros A c lt C n.
-  unfold max in |- *.
+  simpl max in |- *.
   rewrite (comparison.reflexivity n) in |- *.
   reflexivity.
 Qed.

@@ -36,7 +36,7 @@ Proof.
   intros A B.
   intro h.
   match h with | a nb end.
-  unfold Negation in nb |- *.
+  simpl Negation in nb |- *.
   intro ab.
   let proof b := ab a.
   let proof facto := nb b.
@@ -56,11 +56,11 @@ Proof.
   intros A B.
   divide et impera.
   - intro h.
-    unfold Negation in h |- *.
+    simpl Negation in h |- *.
     intro a.
     intro nb.
     ipso (h (Abjunction_introduction a nb)).
-  - unfold Negation in |- *.
+  - simpl Negation in |- *.
     intro f.
     intro h.
     match h with | a nb end.
@@ -82,7 +82,7 @@ Proof.
   - match h with | a1 nb1 end.
     divide et impera.
     + ipso (a12 a1).
-    + unfold Negation in nb1 |- *.
+    + simpl Negation in nb1 |- *.
       intro b2.
       let proof b1 := b21 b2.
       let proof facto := nb1 b1.
@@ -90,7 +90,7 @@ Proof.
   - match h with | a2 nb2 end.
     divide et impera.
     + ipso (a21 a2).
-    + unfold Negation in nb2 |- *.
+    + simpl Negation in nb2 |- *.
       intro b1.
       let proof b2 := b12 b1.
       let proof facto := nb2 b2.
@@ -116,10 +116,10 @@ Theorem abjunction
 Proof.
   intros A B.
   intro ab.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro h.
   match h with | a nb end.
-  unfold Negation in nb.
+  simpl Negation in nb.
   let proof b := ab a.
   let proof facto := nb b.
   ipso facto.

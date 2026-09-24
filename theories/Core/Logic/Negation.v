@@ -31,7 +31,7 @@ Theorem disjunction
   : forall (A : Prop) (B : Prop) . ~ (A \/ B) <-> ~ A /\ ~ B.
 Proof.
   intros A B.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   divide et impera.
   - intro h.
     divide et impera.
@@ -56,7 +56,7 @@ Theorem conjunction
   : forall {A : Prop} {B : Prop} . ~ A \/ ~ B -> ~ (A /\ B).
 Proof.
   intros A B.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro h.
   intro ab.
   match ab with | a b end.
@@ -73,7 +73,7 @@ Theorem existential
   : forall (A : Type) (P : A -> Prop) . ~ (exists (x : A) . P x) <-> forall (x : A) . ~ P x.
 Proof.
   intros A P.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   divide et impera.
   - intro h.
     intro x.
@@ -105,7 +105,7 @@ Proof.
   intro h.
 
   (* [|- (A -> Falsum) -> B] *)
-  unfold Negation in |- *.
+  simpl Negation in |- *.
 
   (* The context gains [not_a : A -> Falsum]: [|- B] *)
   intro not_a.
@@ -133,7 +133,7 @@ Proof.
   intro h.
 
   (* [|- (B -> Falsum) -> A] *)
-  unfold Negation in |- *.
+  simpl Negation in |- *.
 
   intro not_b.
 
@@ -163,7 +163,7 @@ Proof.
   intro B.
 
   (* [|- (A /\ B -> Falsum) -> A -> B -> Falsum] *)
-  unfold Negation in |- *.
+  simpl Negation in |- *.
 
   intro h.
   intro a.
@@ -188,7 +188,7 @@ Proof.
   intro B.
 
   (* [|- (A /\ B -> Falsum) -> B -> A -> Falsum] *)
-  unfold Negation in |- *.
+  simpl Negation in |- *.
 
   intro h.
   intro b.
@@ -210,7 +210,7 @@ Theorem introduction : forall {A : Prop} . A -> ~ ~ A.
 Proof.
   intro A.
   intro a.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro not_a.
   ipso (not_a a).
 Qed.
@@ -223,7 +223,7 @@ Module triple. (* triple *)
 Theorem reduction : forall {A : Prop} . ~ ~ ~ A -> ~ A.
 Proof.
   intro A.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro not_not_not_a.
   intro a.
   (* not_a                         : A -> Falsum          (= ~ A)
@@ -249,7 +249,7 @@ Proof.
   intros A B.
 
   (* [|- (A -> B) -> (B -> Falsum) -> (A -> Falsum)] *)
-  unfold Negation in |- *.
+  simpl Negation in |- *.
 
   (* The context gains [ab : A -> B]: [|- (B -> Falsum) -> A -> Falsum] *)
   intro ab.
@@ -278,7 +278,7 @@ Proof.
   match ea with | a12 a21 end.
 
   (* [|- (A1 -> Falsum) <-> (A2 -> Falsum)] *)
-  unfold Negation in |- *.
+  simpl Negation in |- *.
 
   (* [Biconditional] has one ctor with two fields,
    * so the goal splits into two goals:

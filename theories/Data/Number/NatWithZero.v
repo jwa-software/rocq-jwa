@@ -277,16 +277,16 @@ Proof.
   intros m n.
   divide et impera.
   - intro h.
-    unfold LessThan in h.
+    simpl LessThan in h.
     match h with | k e end.
     simpl in e.
     pose proof (positive.injectivity e) as e'.
-    unfold Nat.LessThan in |- *.
+    simpl Nat.LessThan in |- *.
     ipso (Exists_introduction k e').
   - intro h.
-    unfold Nat.LessThan in h.
+    simpl Nat.LessThan in h.
     match h with | k e end.
-    unfold LessThan in |- *.
+    simpl LessThan in |- *.
     apply (Exists_introduction k).
     simpl in |- *.
     rewrite e in |- *.
@@ -381,7 +381,7 @@ Proof.
       symmetry in e'.
       rewrite (Nat.addition.commutativity n' k') in e'.
       pose proof (Nat.addition.identity.absence k' n') as h.
-      unfold Negation in h.
+      simpl Negation in h.
       modus ponens h, e' as f.
       ex f quodlibet.
     + simpl in |- *.
@@ -389,7 +389,7 @@ Proof.
       pose proof (positive.injectivity e) as e'.
       rewrite (Nat.addition.commutativity n' m') in e'.
       pose proof (Nat.addition.identity.absence m' n') as h.
-      unfold Negation in h.
+      simpl Negation in h.
       modus ponens h, e' as f.
       ex f quodlibet.
     + simpl in |- *.
@@ -434,7 +434,7 @@ Lemma absence
   : forall (m : NatWithZero) (n : Nat) . ~ (m + (+ n) = 0).
 Proof.
   intros m n.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   match m with | | m' end.
   - simpl in |- *.
     intro e.
@@ -453,12 +453,12 @@ Theorem extensivity
   : forall (m : NatWithZero) (n : NatWithZero) . n <= m + n.
 Proof.
   intros m n.
-  unfold LessOrEqual in |- *.
+  simpl LessOrEqual in |- *.
   match m with | | m' end.
   - simpl in |- *.
     ipso (Disjunction.L (Identity.reflexivity n)).
   - apply Disjunction.R.
-    unfold LessThan in |- *.
+    simpl LessThan in |- *.
     apply (Exists_introduction m').
     ipso (addition.commutativity n (+ m')).
 Qed.
@@ -468,7 +468,7 @@ Theorem positivity
   : forall (n : NatWithZero) (k : Nat) . 0 < n + (+ k).
 Proof.
   intros n k.
-  unfold LessThan in |- *.
+  simpl LessThan in |- *.
   match n with | | n' end.
   - simpl in |- *.
     apply (Exists_introduction k).
@@ -519,9 +519,9 @@ Theorem monotonicity
       m < n -> k + m < k + n.
 Proof.
   intros k m n h.
-  unfold LessThan in h.
+  simpl LessThan in h.
   match h with | d e end.
-  unfold LessThan in |- *.
+  simpl LessThan in |- *.
   apply (Exists_introduction d).
   rewrite (addition.associativity k m (+ d)) in |- *.
   rewrite e in |- *.
@@ -534,10 +534,10 @@ Theorem cancellation
       k + m < k + n -> m < n.
 Proof.
   intros k m n h.
-  unfold LessThan in h.
+  simpl LessThan in h.
   match h with | d e end.
   rewrite (addition.associativity k m (+ d)) in e.
-  unfold LessThan in |- *.
+  simpl LessThan in |- *.
   apply (Exists_introduction d).
   ipso (addition.left.cancellation e).
 Qed.
@@ -550,12 +550,12 @@ Theorem monotonicity
       m <= n -> k + m <= k + n.
 Proof.
   intros k m n h.
-  unfold LessOrEqual in h.
+  simpl LessOrEqual in h.
   match h with | e | lt end.
   - rewrite e in |- *.
-    unfold LessOrEqual in |- *.
+    simpl LessOrEqual in |- *.
     ipso (Disjunction.L (Identity.reflexivity (k + n))).
-  - unfold LessOrEqual in |- *.
+  - simpl LessOrEqual in |- *.
     apply Disjunction.R.
     ipso (addition.order.strict.monotonicity k m n lt).
 Qed.
@@ -667,10 +667,10 @@ Theorem monotonicity
       m < n -> (+ k) * m < (+ k) * n.
 Proof.
   intros k m n h.
-  unfold LessThan in h.
+  simpl LessThan in h.
   match h with | d e end.
   symmetry in e.
-  unfold LessThan in |- *.
+  simpl LessThan in |- *.
   apply (Exists_introduction (Nat.mul k d)).
   match m with | | m' end.
   - simpl in e.
@@ -733,7 +733,7 @@ Theorem extensivity
   : forall (k : Nat) (n : NatWithZero) . n <= (+ k) * n.
 Proof.
   intros k n.
-  unfold LessOrEqual in |- *.
+  simpl LessOrEqual in |- *.
   match n with | | p end.
   - simpl in |- *.
     ipso (Disjunction.L (Identity.reflexivity 0)).
@@ -741,7 +741,7 @@ Proof.
     + simpl in |- *.
       ipso (Disjunction.L (Identity.reflexivity (+ p))).
     + apply Disjunction.R.
-      unfold LessThan in |- *.
+      simpl LessThan in |- *.
       apply (Exists_introduction (Nat.mul k' p)).
       simpl in |- *.
       reflexivity.
@@ -882,9 +882,9 @@ Module strict. (* order.strict *)
 Theorem irreflexivity : forall (n : NatWithZero) . ~ (n < n).
 Proof.
   intros n.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro h.
-  unfold LessThan in h.
+  simpl LessThan in h.
   match h with | k e end.
   simpl in e.
   match n with | | n' end.
@@ -892,7 +892,7 @@ Proof.
   - pose proof (positive.injectivity e) as e'.
     rewrite (Nat.addition.commutativity n' k) in e'.
     pose proof (Nat.addition.identity.absence k n') as i.
-    unfold Negation in i.
+    simpl Negation in i.
     modus ponens i, e' as f.
     ex f quodlibet.
 Qed.
@@ -903,10 +903,10 @@ Theorem transitivity
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
-  unfold LessThan in h1, h2.
+  simpl LessThan in h1, h2.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
-  unfold LessThan in |- *.
+  simpl LessThan in |- *.
   apply (Exists_introduction (Nat.add k1 k2)).
   symmetry in e1, e2.
   rewrite e2 in |- *.
@@ -991,14 +991,14 @@ Proof.
   intros m n.
   divide et impera.
   - intro h.
-    unfold LessThan    in h.
-    unfold LessOrEqual in |- *.
+    simpl LessThan    in h.
+    simpl LessOrEqual in |- *.
     match h with | k e end.
     match k with | | k' end.
     + apply Disjunction.L.
       ipso (addition.right.cancellation e).
     + apply Disjunction.R.
-      unfold LessThan in |- *.
+      simpl LessThan in |- *.
       apply (Exists_introduction k').
       change (+ (Nat.Successor k'))
         with ((+ Nat.One) + (+ k'))
@@ -1009,13 +1009,13 @@ Proof.
               in e.
       ipso (addition.right.cancellation e).
   - intro h.
-    unfold LessOrEqual in h.
-    unfold LessThan    in |- *.
+    simpl LessOrEqual in h.
+    simpl LessThan    in |- *.
     match h with | e | lt end.
     + apply (Exists_introduction Nat.One).
       rewrite e in |- *.
       reflexivity.
-    + unfold LessThan in lt.
+    + simpl LessThan in lt.
       match lt with | k e end.
       apply (Exists_introduction (Nat.Successor k)).
       change (+ (Nat.Successor k))
@@ -1065,12 +1065,12 @@ Proof.
       discriminate e.
     * intro h.
       pose proof (order.strict.irreflexivity 0) as i.
-      unfold Negation in i.
+      simpl Negation in i.
       modus ponens i, h as f.
       ex f quodlibet.
   - divide et impera.
     * intro e.
-      unfold LessThan in |- *.
+      simpl LessThan in |- *.
       apply (Exists_introduction n').
       simpl in |- *.
       reflexivity.
@@ -1082,7 +1082,7 @@ Proof.
       intro e.
       discriminate e.
     * intro h.
-      unfold LessThan in h.
+      simpl LessThan in h.
       match h with | k e end.
       simpl in e.
       discriminate e.
@@ -1162,7 +1162,7 @@ Module left. (* maximum.left *)
 Lemma identity : forall (n : NatWithZero) . max 0 n = n.
 Proof.
   intros n.
-  unfold Comparable.max in |- *.
+  simpl Comparable.max in |- *.
   match n with | | n' end; simpl in |- *; reflexivity.
 Qed.
 
@@ -1200,7 +1200,7 @@ Module left. (* minimum.left *)
 Lemma annihilation : forall (n : NatWithZero) . min 0 n = 0.
 Proof.
   intros n.
-  unfold Comparable.min in |- *.
+  simpl Comparable.min in |- *.
   match n with | | n' end; simpl in |- *; reflexivity.
 Qed.
 
@@ -1299,7 +1299,7 @@ Theorem truncation
   : forall {m : NatWithZero} {n : NatWithZero} . m <= n -> saturating_sub m n = 0.
 Proof.
   intros m n h.
-  unfold LessOrEqual in h.
+  simpl LessOrEqual in h.
   match h with | e | lt end.
   - rewrite e in |- *.
     match n with | | n' end.
@@ -1309,7 +1309,7 @@ Proof.
       rewrite (Nat.subtraction.truncation (Comparable.order.reflexivity n')) in |- *.
       simpl in |- *.
       reflexivity.
-  - unfold LessThan in lt.
+  - simpl LessThan in lt.
     match lt with | k e end.
     symmetry in e.
     rewrite e in |- *.
@@ -1329,12 +1329,12 @@ Theorem specification
       n <= m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
-  unfold LessOrEqual in h.
+  simpl LessOrEqual in h.
   match h with | e | lt end.
   - rewrite e in |- *.
     rewrite (subtraction.saturating.truncation (Comparable.order.reflexivity m)) in |- *.
     match m with | | m' end; simpl in |- *; reflexivity.
-  - unfold LessThan in lt.
+  - simpl LessThan in lt.
     match lt with | k e end.
     symmetry in e.
     rewrite e in |- *.
@@ -1391,18 +1391,18 @@ Theorem truncation
   : forall {m : NatWithZero} {n : NatWithZero} . m < n -> sub m n = None.
 Proof.
   intros m n h.
-  unfold sub in |- *.
+  simpl sub in |- *.
   match (le n m) per c with | | end.
   - modus aequans (Comparable.order.reflection n m), c as order.
-    unfold Comparable.LessOrEqual in order.
+    simpl Comparable.LessOrEqual in order.
     match order with | e | lt end.
     + rewrite e in h.
       pose proof (order.strict.irreflexivity m) as i.
-      unfold Negation in i.
+      simpl Negation in i.
       modus ponens i, h as f.
       ex f quodlibet.
     + pose proof (Comparable.order.strict.asymmetry m n h) as a.
-      unfold Negation in a.
+      simpl Negation in a.
       modus ponens a, lt as f.
       ex f quodlibet.
   - reflexivity.
@@ -1417,7 +1417,7 @@ Theorem addition
   : forall (m : NatWithZero) (n : NatWithZero) . sub (m + n) n = Some m.
 Proof.
   intros m n.
-  unfold sub in |- *.
+  simpl sub in |- *.
   rewrite (subtraction.saturating.inversion.of.addition m n) in |- *.
   modus aequans (Comparable.order.reflection n (m + n)),
                 (addition.right.order.extensivity m n) as e.
@@ -1438,7 +1438,7 @@ Proof.
   intros m n k.
   divide et impera.
   - intro e.
-    unfold sub in e.
+    simpl sub in e.
     match (le n m) per c with | | end.
     + pose proof (Option.some.injectivity e) as e'.
       modus aequans (Comparable.order.reflection n m), c as order.
@@ -1470,12 +1470,12 @@ Proof.
   induction p as [| p' IH] using Nat.induction.
   - match d with | | d' end; divide et impera; simpl in |- *.
     * reflexivity.
-    * unfold LessThan in |- *.
+    * simpl LessThan in |- *.
       apply (Exists_introduction Nat.One).
       simpl in |- *.
       reflexivity.
     * reflexivity.
-    * unfold LessThan in |- *.
+    * simpl LessThan in |- *.
       apply (Exists_introduction d').
       simpl in |- *.
       reflexivity.
@@ -1503,7 +1503,7 @@ Proof.
       rewrite e in |- *.
       simpl in |- *.
       reflexivity.
-    * unfold LessThan in |- *.
+    * simpl LessThan in |- *.
       apply (Exists_introduction d).
       simpl in |- *.
       reflexivity.
@@ -1512,7 +1512,7 @@ Proof.
       rewrite e in |- *.
       simpl in |- *.
       reflexivity.
-    * unfold LessThan in lt.
+    * simpl LessThan in lt.
       match lt with | k ek end.
       rewrite (increment.specification r) in E.
       rewrite (addition.commutativity (+ Nat.One) r) in E.
@@ -1522,7 +1522,7 @@ Proof.
       { modus aequans (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)), ek as full.
         rewrite full in E.
         discriminate E. }
-      { unfold LessThan in |- *.
+      { simpl LessThan in |- *.
         apply (Exists_introduction k').
         rewrite (addition.associativity r (+ Nat.One) (+ k')) in |- *.
         simpl in |- *.
@@ -1685,8 +1685,8 @@ Proof.
                     (+ d) ((+ k) * (+ d)) (r + ((+ k) * (+ d)))
                     reach grow) as span.
       pose proof (order.strict.irreflexivity (+ d)) as i.
-      unfold Negation    in i.
-      unfold LessOrEqual in span.
+      simpl Negation    in i.
+      simpl LessOrEqual in span.
       match span with | s1 | s2 end.
       + symmetry in s1.
         rewrite s1 in bound.
@@ -1718,8 +1718,8 @@ Proof.
                       (+ d) ((+ k) * (+ d)) ((n %. d) + ((+ k) * (+ d)))
                       reach grow) as span.
         pose proof (order.strict.irreflexivity (+ d)) as i.
-        unfold Negation    in i.
-        unfold LessOrEqual in span.
+        simpl Negation    in i.
+        simpl LessOrEqual in span.
         match span with | s1 | s2 end.
         * symmetry in s1.
           rewrite s1 in b.
@@ -2094,7 +2094,7 @@ Module divisibility. (* divisibility *)
 Theorem reflexivity : forall (n : NatWithZero) . Divides n n.
 Proof.
   intros n.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction (+ Nat.One)).
   ipso (multiplication.right.identity n).
 Qed.
@@ -2105,10 +2105,10 @@ Theorem transitivity
       Divides l m -> Divides m n -> Divides l n.
 Proof.
   intros l m n h1 h2.
-  unfold Divides in h1, h2.
+  simpl Divides in h1, h2.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction (k1 * k2)).
   rewrite <- (multiplication.associativity l k1 k2) in |- *.
   rewrite -> e1 in |- *.
@@ -2120,7 +2120,7 @@ Theorem antisymmetry
   : forall {m : NatWithZero} {n : NatWithZero} . Divides m n -> Divides n m -> m = n.
 Proof.
   intros m n h1 h2.
-  unfold Divides in h1, h2.
+  simpl Divides in h1, h2.
   match h1 with | k e1 end.
   match h2 with | j e2 end.
   match m with | | p end.
@@ -2155,7 +2155,7 @@ Qed.
 Theorem bottom : forall (n : NatWithZero) . Divides (+ Nat.One) n.
 Proof.
   intros n.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction n).
   ipso (multiplication.left.identity n).
 Qed.
@@ -2164,7 +2164,7 @@ Qed.
 Theorem top : forall (n : NatWithZero) . Divides n 0.
 Proof.
   intros n.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction 0).
   rewrite (multiplication.commutativity n 0) in |- *.
   simpl in |- *.
@@ -2179,10 +2179,10 @@ Theorem closure
       Divides d m -> Divides d n -> Divides d (m + n).
 Proof.
   intros d m n h1 h2.
-  unfold Divides in h1, h2.
+  simpl Divides in h1, h2.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction (k1 + k2)).
   rewrite (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
   rewrite e1, e2 in |- *.
@@ -2257,9 +2257,9 @@ Theorem closure
       Divides d m -> Divides d (m * n).
 Proof.
   intros d m n h.
-  unfold Divides in h.
+  simpl Divides in h.
   match h with | k e end.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction (k * n)).
   rewrite <- (multiplication.associativity d k n) in |- *.
   rewrite e in |- *.
@@ -2664,32 +2664,32 @@ Proof.
   intros n.
   match n with | | p end.
   - apply Disjunction.L.
-    unfold Even in |- *.
-    unfold Divides in |- *.
+    simpl Even in |- *.
+    simpl Divides in |- *.
     apply (Exists_introduction 0).
     simpl in |- *.
     reflexivity.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
-      unfold Odd in |- *.
+      simpl Odd in |- *.
       apply (Exists_introduction 0).
       simpl in |- *.
       reflexivity.
     + match IH with | even | odd end.
       * apply Disjunction.R.
-        unfold Even in even.
-        unfold Divides in even.
+        simpl Even in even.
+        simpl Divides in even.
         match even with | k e end.
-        unfold Odd in |- *.
+        simpl Odd in |- *.
         apply (Exists_introduction k).
         rewrite e in |- *.
         simpl in |- *.
         reflexivity.
       * apply Disjunction.L.
-        unfold Odd in odd.
+        simpl Odd in odd.
         match odd with | k e end.
-        unfold Even in |- *.
-        unfold Divides in |- *.
+        simpl Even in |- *.
+        simpl Divides in |- *.
         apply (Exists_introduction ((+ Nat.One) + k)).
         rewrite (multiplication.left.distributivity.over.addition
                    (+ (Nat.Successor Nat.One)) (+ Nat.One) k) in |- *.
@@ -2711,7 +2711,7 @@ Theorem closure
   : forall {m : NatWithZero} {n : NatWithZero} . Even m -> Even n -> Even (m + n).
 Proof.
   intros m n h1 h2.
-  unfold Even in h1, h2 |- *.
+  simpl Even in h1, h2 |- *.
   ipso (divisibility.addition.closure h1 h2).
 Qed.
 
@@ -2728,11 +2728,11 @@ Theorem evenness
   : forall {m : NatWithZero} {n : NatWithZero} . Odd m -> Odd n -> Even (m + n).
 Proof.
   intros m n h1 h2.
-  unfold Odd in h1, h2.
-  unfold Even in |- *.
+  simpl Odd in h1, h2.
+  simpl Even in |- *.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
-  unfold Divides in |- *.
+  simpl Divides in |- *.
   apply (Exists_introduction ((+ Nat.One) + (k1 + k2))).
   symmetry in e1, e2.
   rewrite e1, e2 in |- *.

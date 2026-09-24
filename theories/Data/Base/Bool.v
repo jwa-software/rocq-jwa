@@ -82,7 +82,7 @@ Module distinctness. (* distinctness *)
 (* distinctness.forward *)
 Theorem forward : ~ (true = false).
 Proof.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro e.
   discriminate e.
 Qed.
@@ -90,7 +90,7 @@ Qed.
 (* distinctness.backward *)
 Theorem backward : ~ (false = true).
 Proof.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro e.
   discriminate e.
 Qed.

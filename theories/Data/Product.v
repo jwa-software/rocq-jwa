@@ -270,7 +270,7 @@ Theorem uncurrying
       curry (uncurry f) a b = f a b.
 Proof.
   intros A B C f a b.
-  unfold curry in |- *.
+  simpl curry in |- *.
   simpl in |- *.
   reflexivity.
 Qed.
@@ -295,7 +295,7 @@ Proof.
   intros A B C f p.
   match p with | a b end.
   simpl in |- *.
-  unfold curry in |- *.
+  simpl curry in |- *.
   reflexivity.
 Qed.
 

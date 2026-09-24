@@ -483,7 +483,7 @@ Theorem distinctness
   : forall {A : Type} (a : A) (l : List A) . ~ (a :: l = []).
 Proof.
   intros A a l.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   intro e.
   discriminate e.
 Qed.
@@ -794,7 +794,7 @@ Theorem vacuity
   : forall {A : Type} (a : A) . [] does_not_contain_member a.
 Proof.
   intros A a.
-  unfold Negation in |- *.
+  simpl Negation in |- *.
   simpl in |- *.
   intro f.
   ipso f.
@@ -921,7 +921,7 @@ Proof.
     rewrite concatenation.right.identity in |- *.
     reflexivity.
   - simpl in |- *.
-    unfold append in |- *.
+    simpl append in |- *.
     rewrite IH in |- *.
     rewrite concatenation.associativity in |- *.
     reflexivity.
@@ -940,7 +940,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    unfold append in |- *.
+    simpl append in |- *.
     rewrite reversal.antidistributivity.over.concatenation in |- *.
     simpl in |- *.
     rewrite IH in |- *.
@@ -1043,7 +1043,7 @@ Theorem specification
   : forall {A : Type} (l : List A) (a : A) . append l a = l ++ (a :: []).
 Proof.
   intros A l a.
-  unfold append in |- *.
+  simpl append in |- *.
   reflexivity.
 Qed.
 
@@ -1703,7 +1703,7 @@ Lemma specification
       last l = Some a -> exists (l' : List A) . l = append l' a.
 Proof.
   intros A a l.
-  unfold last in |- *.
+  simpl last in |- *.
   intro h.
   match (head.forward.specification h) with | r e end.
   apply (Exists_introduction (reverse r)).
@@ -1725,7 +1725,7 @@ Proof.
   intros A a l.
   intro h.
   match h with | l' e end.
-  unfold last in |- *.
+  simpl last in |- *.
   rewrite e in |- *.
   rewrite appending.reversal in |- *.
   simpl in |- *.
@@ -1757,7 +1757,7 @@ Lemma specification
       initial l = Some l' -> exists (a : A) . l = append l' a.
 Proof.
   intros A l l'.
-  unfold initial in |- *.
+  simpl initial in |- *.
   match (reverse l) per er with | | b r end.
   - simpl in |- *.
     intro h.
@@ -1785,7 +1785,7 @@ Proof.
   intros A l l'.
   intro h.
   match h with | a e end.
-  unfold initial in |- *.
+  simpl initial in |- *.
   rewrite e in |- *.
   rewrite appending.reversal in |- *.
   simpl in |- *.
@@ -1907,7 +1907,7 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl in |- *.
-    unfold unzip in IH.
+    simpl unzip in IH.
     simpl in IH.
     rewrite IH in |- *.
     rewrite <- (Product.introduction.surjectivity p) in |- *.
@@ -1975,7 +1975,7 @@ Proof.
   induction l1 as [| a l1' IH] using List.induction.
   - intros l2 e.
     match l2 with | | b l2' end.
-    + unfold unzip in |- *.
+    + simpl unzip in |- *.
       simpl in |- *.
       reflexivity.
     + simpl in e.
@@ -1983,7 +1983,7 @@ Proof.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
       pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One) as h.
-      unfold Negation in h.
+      simpl Negation in h.
       modus ponens h, e' as f.
       ex f quodlibet.
   - intros l2 e.
@@ -1992,7 +1992,7 @@ Proof.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
       pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One) as h.
-      unfold Negation in h.
+      simpl Negation in h.
       modus ponens h, e as f.
       ex f quodlibet.
     + simpl in e.
@@ -2000,10 +2000,10 @@ Proof.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e.
       pose proof (NatWithZero.addition.left.cancellation e) as e'.
       pose proof (IH l2' e') as IH'.
-      unfold unzip in IH'.
+      simpl unzip in IH'.
       pose proof (Product.introduction.injectivity IH') as e''.
       match e'' with | e1 e2 end.
-      unfold unzip in |- *.
+      simpl unzip in |- *.
       simpl in |- *.
       rewrite e1 in |- *.
       rewrite e2 in |- *.
@@ -2091,10 +2091,10 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - intros i h.
     simpl in h.
-    unfold NatWithZero.LessThan in h.
+    simpl NatWithZero.LessThan in h.
     match h with | k e end.
     pose proof (NatWithZero.addition.right.identity.absence i k) as r.
-    unfold Negation in r.
+    simpl Negation in r.
     modus ponens r, e as f.
     ex f quodlibet.
   - intros i h.
@@ -2290,7 +2290,7 @@ Theorem concatenation
       sum (l1 ++ l2) = sum l1 + sum l2.
 Proof.
   intros l1 l2.
-  unfold sum in |- *.
+  simpl sum in |- *.
   induction l1 as [| a l1' IH] using List.induction.
   - simpl in |- *.
     reflexivity.
@@ -2320,7 +2320,7 @@ Theorem concatenation
       product (l1 ++ l2) = product l1 * product l2.
 Proof.
   intros l1 l2.
-  unfold product in |- *.
+  simpl product in |- *.
   induction l1 as [| a l1' IH] using List.induction.
   - rewrite (concatenation.left.identity l2) in |- *.
     change (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) []) with (NatWithZero.Positive Nat.One) in |- *.
@@ -2386,7 +2386,7 @@ Proof.
         rewrite (NatWithZero.increment.specification (count p l')) in e.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
         pose proof (NatWithZero.addition.right.identity.absence (count p l') Nat.One) as r.
-        unfold Negation in r.
+        simpl Negation in r.
         modus ponens r, e as f.
         ex f quodlibet.
       * intro c.
@@ -2708,7 +2708,7 @@ Proof.
     simpl in h.
     match h with | e | f end.
     + rewrite e in |- *.
-      unfold NatWithZero.LessThan in |- *.
+      simpl NatWithZero.LessThan in |- *.
       apply (Exists_introduction Nat.One).
       simpl in |- *.
       reflexivity.
@@ -2724,7 +2724,7 @@ Proof.
     rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
     assert (below : i <= NatWithZero.Positive p').
     {
-      unfold NatWithZero.LessOrEqual in |- *.
+      simpl NatWithZero.LessOrEqual in |- *.
       match h' with | h1 | h2 end.
       + ipso (Disjunction.R (IH i h1)).
       + simpl in h2.
@@ -2749,7 +2749,7 @@ Proof.
   intros p.
   induction p as [| p' IH] using Nat.induction.
   - intros i h.
-    unfold NatWithZero.LessThan in h.
+    simpl NatWithZero.LessThan in h.
     match h with | k e end.
     match i with | | q end.
     + simpl in |- *.
@@ -2767,7 +2767,7 @@ Proof.
     assert (side : range_positive p' contains_member i
                    \/ (NatWithZero.Positive p' :: []) contains_member i).
     {
-      unfold NatWithZero.LessOrEqual in h'.
+      simpl NatWithZero.LessOrEqual in h'.
       match h' with | e | lt end.
       + apply Disjunction.R.
         simpl in |- *.
@@ -2811,10 +2811,10 @@ Proof.
     + intro f.
       ex f quodlibet.
     + intro h.
-      unfold NatWithZero.LessThan in h.
+      simpl NatWithZero.LessThan in h.
       match h with | k e end.
       pose proof (NatWithZero.addition.right.identity.absence i k) as r.
-      unfold Negation in r.
+      simpl Negation in r.
       modus ponens r, e as f.
       ex f quodlibet.
   - simpl in |- *.
@@ -2843,7 +2843,7 @@ Theorem closed_form
 Proof.
   intros p.
   induction p as [| p' IH] using Nat.induction.
-  - unfold sum in |- *.
+  - simpl sum in |- *.
     simpl in |- *.
     reflexivity.
   - change (range_from_zero (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
@@ -2885,7 +2885,7 @@ Theorem length
       (|| range start stop ||) = NatWithZero.saturating_sub stop start.
 Proof.
   intros start stop.
-  unfold range in |- *.
+  simpl range in |- *.
   rewrite (mapping.preservation.of.length
              (NatWithZero.add start)
              (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
@@ -2900,7 +2900,7 @@ Theorem specification
       range start stop contains_member i <-> start <= i /\ i < stop.
 Proof.
   intros start stop i.
-  unfold range in |- *.
+  simpl range in |- *.
   match (Comparable.order.totality start stop) with | below | above end.
   - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
     divide et impera.
@@ -2980,7 +2980,7 @@ Theorem length
       = NatWithZero.saturating_sub (NatWithZero.inc stop) start.
 Proof.
   intros start stop.
-  unfold range_inclusive in |- *.
+  simpl range_inclusive in |- *.
   ipso (range.length start (NatWithZero.inc stop)).
 Qed.
 
@@ -2992,7 +2992,7 @@ Theorem specification
       range_inclusive start stop contains_member i <-> start <= i /\ i <= stop.
 Proof.
   intros start stop i.
-  unfold range_inclusive in |- *.
+  simpl range_inclusive in |- *.
   rewrite (NatWithZero.increment.specification stop) in |- *.
   rewrite (NatWithZero.addition.commutativity
              (NatWithZero.Positive Nat.One) stop) in |- *.

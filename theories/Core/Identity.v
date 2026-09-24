@@ -142,10 +142,10 @@ Local Theorem constancy
       decided decide x y p = decided decide x y q.
 Proof.
   intros A decide x y p q.
-  unfold decided in |- *.
+  simpl decided in |- *.
   match (decide x y) with | r | n end.
   - quod idem est.
-  - unfold Negation in n.
+  - simpl Negation in n.
     pose proof (n p) as absurdity.
     ex absurdity quodlibet.
 Qed.

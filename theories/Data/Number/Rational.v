@@ -437,14 +437,14 @@ Proof.
 
   assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
   {
-    unfold Negation in |- *.
+    simpl Negation in |- *.
     intro z.
     discriminate z.
   }
 
   assert (nzs : ~ (Integer.from_nat s = Integer.Zero)).
   {
-    unfold Negation in |- *.
+    simpl Negation in |- *.
     intro z.
     discriminate z.
   }
@@ -498,7 +498,7 @@ Proof.
             : ~ (Integer.mul (Integer.from_nat b) (Integer.from_nat d)
             = Integer.Zero)).
     {
-      unfold Negation in |- *.
+      simpl Negation in |- *.
       intro z.
       discriminate z.
     }
@@ -1451,8 +1451,8 @@ Theorem transitivity
       LessThan x y -> LessThan y z -> LessThan x z.
 Proof.
   intros x y z H1 H2.
-  unfold LessThan in H1, H2 |- *.
-  unfold Integer.from_nat in H1, H2 |- *.
+  simpl LessThan in H1, H2 |- *.
+  simpl Integer.from_nat in H1, H2 |- *.
 
   set (a := numerator   x) in *.
   set (b := denominator x) in *.
@@ -1608,7 +1608,7 @@ Theorem injectivity
       from_integer m = from_integer n -> m = n.
 Proof.
   intros m n e.
-  unfold from_integer in e.
+  simpl from_integer in e.
   modus aequans (make.characterisation m Nat.One n Nat.One), e as cross.
   change (Integer.from_nat Nat.One)
     with (Integer.Positive Nat.One) in cross.
@@ -1624,7 +1624,7 @@ Theorem addition
     = (from_integer m) + (from_integer n).
 Proof.
   intros m n.
-  unfold from_integer in |- *.
+  simpl from_integer in |- *.
   rewrite (make.addition.homomorphism m Nat.One n Nat.One) in |- *.
   change (Integer.from_nat Nat.One)
     with (Integer.Positive Nat.One) in |- *.
@@ -1641,7 +1641,7 @@ Theorem multiplication
     = (from_integer m) * (from_integer n).
 Proof.
   intros m n.
-  unfold from_integer in |- *.
+  simpl from_integer in |- *.
   rewrite (make.multiplication.homomorphism m Nat.One n Nat.One) in |- *.
   change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
   reflexivity.
@@ -1701,8 +1701,8 @@ Proof.
   rewrite (Integer.multiplication.right.identity
              (numerator (make n Nat.One))) in P2.
 
-  unfold LessThan   in |- *.
-  unfold from_integer in |- *.
+  simpl LessThan   in |- *.
+  simpl from_integer in |- *.
   rewrite P1 in |- *.
   rewrite P2 in |- *.
 

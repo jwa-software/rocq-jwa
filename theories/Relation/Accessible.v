@@ -127,7 +127,7 @@ Proof.
    *             forall (a : Accessible R x) (b : Accessible R x) .
    *               recursion step x a = recursion step x b]
    *)
-  unfold P at 2 in recursor.
+  simpl &P at 2 in recursor.
 
   (* [|- Descent.Step R P]
    * [|- Accessible R x]
