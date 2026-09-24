@@ -1853,13 +1853,13 @@ Proof.
   intros d g h.
   simpl divide.nat.safe in |- *.
   let n := division.nat.quotient.positivity d g h in |- *.
-  generalize dependent n.
+  let proof n := &n.
+  extro &n.
   match ((+ d) /. g) with | | q' end.
   - intro n.
     modus ponens n, (Identity.reflexivity 0) |- f.
     ex f quodlibet.
   - intro n.
-    simpl in |- *.
     quod idem est.
 Qed.
 
@@ -2090,7 +2090,9 @@ Proof.
   intros p f g h.
   match p with | a q end.
   simpl step in |- *.
-  generalize (division.remainder.boundedness a q).
+  let b := division.remainder.boundedness a q in |- *.
+  let proof b := &b.
+  extro &b.
   match (a %. q) with | | r end.
   - intros b.
     quod idem est.
@@ -2527,9 +2529,12 @@ Proof.
   leibniz (WellFounded.recursion.unfolding
              euclid.nat.extensionality (a, q)) in |- *.
   simpl euclid.nat.step in |- *.
-  generalize (division.remainder.boundedness a q).
+  let b := division.remainder.boundedness a q in |- *.
+  let proof b := &b.
+  extro &b.
   leibniz e in |- *.
   intros b.
+  simpl in |- *.
   quod idem est.
 Qed.
 
@@ -2543,9 +2548,12 @@ Proof.
   leibniz (WellFounded.recursion.unfolding
              euclid.nat.extensionality (a, q)) in |- *.
   simpl euclid.nat.step in |- *.
-  generalize (division.remainder.boundedness a q).
+  let b := division.remainder.boundedness a q in |- *.
+  let proof b := &b.
+  extro &b.
   leibniz e in |- *.
   intros b.
+  simpl in |- *.
   quod idem est.
 Qed.
 
