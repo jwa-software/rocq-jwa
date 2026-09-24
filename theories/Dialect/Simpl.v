@@ -40,7 +40,9 @@ From Ltac2 Require Constr Control Env Ident List Message RedFlags Std.
  * An unfolding that would change nothing fails and says where: each
  * definition must occur in each hypothesis named, in the goal when [|- *]
  * is named, and somewhere when [*] is; each hypothesis named must be in the
- * context.
+ * context. A reduction that would change nothing fails the same way: each
+ * hypothesis named must change, the goal when [|- *] is named, and
+ * something when [*] is.
  *)
 
 (* A global definition is named as in a term, [Negation] or [Nat.add], and a
@@ -296,8 +298,59 @@ Ltac2 simpl_definitions
       end
   end.
 
-Ltac2 reduce (place : Std.clause) :=
-  Control.enter (fun () => Std.simpl RedFlags.all None place).
+(* Each hypothesis named, and the goal when [|- *] is, is compared before
+ * and after, and one [simpl] leaves unchanged is refused.
+ *)
+Ltac2 reduce (hypotheses : ident list) (goal : bool) :=
+  Control.enter (fun () =>
+    let before :=
+      List.map
+        (fun h =>
+          match entry h with
+          | Some e => (h, e)
+          | None =>
+              refuse [simpl_says "simpl: "; Message.of_ident h;
+                      simpl_says " is not in the context"]
+          end)
+        hypotheses in
+    let goal_before := Control.goal () in
+    let place :=
+      if goal
+      then (match hypotheses with [] => Place.goal | _ => Place.hypotheses_and_goal hypotheses end)
+      else Place.hypotheses hypotheses in
+    Std.simpl RedFlags.all None place;
+    List.iter
+      (fun p =>
+        match p with
+        | (h, e) =>
+            match entry h with
+            | Some after =>
+                if same_entry e after
+                then refuse [simpl_says "simpl: "; Message.of_ident h;
+                             simpl_says " has nothing to reduce"]
+                else ()
+            | None => ()
+            end
+        end)
+      before;
+    if goal
+    then
+      (if Constr.equal goal_before (Control.goal ())
+       then refuse [simpl_says "simpl: the goal has nothing to reduce"]
+       else ())
+    else ()).
+
+Ltac2 reduce_everywhere () :=
+  Control.enter (fun () =>
+    let hypotheses_before := Control.hyps () in
+    let goal_before := Control.goal () in
+    Std.simpl RedFlags.all None Place.everywhere;
+    if same_context hypotheses_before (Control.hyps ())
+    then
+      if Constr.equal goal_before (Control.goal ())
+      then refuse [simpl_says "simpl: nothing to reduce, neither in the context nor in the goal"]
+      else ()
+    else ()).
 
 Ltac2 Notation "simpl" ds(list1(seq(opt("&"), thunk(open_constr)), ","))
   n(opt(seq("at", tactic(0)))) "in"
@@ -305,13 +358,13 @@ Ltac2 Notation "simpl" ds(list1(seq(opt("&"), thunk(open_constr)), ","))
   simpl_definitions ds n hypotheses goal everywhere.
 
 Ltac2 Notation "simpl" "in" hypotheses(list1(context_name, ",")) :=
-  reduce (Place.hypotheses (Local.context_idents "simpl" hypotheses)).
+  reduce (Local.context_idents "simpl" hypotheses) false.
 
 Ltac2 Notation "simpl" "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
-  reduce (Place.hypotheses_and_goal (Local.context_idents "simpl" hypotheses)).
+  reduce (Local.context_idents "simpl" hypotheses) true.
 
 Ltac2 Notation "simpl" "in" "|-" "*" :=
-  reduce Place.goal.
+  reduce [] true.
 
 Ltac2 Notation "simpl" "in" "*" :=
-  reduce Place.everywhere.
+  reduce_everywhere ().

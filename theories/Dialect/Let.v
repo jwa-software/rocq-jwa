@@ -68,8 +68,23 @@ Ltac2 value_of (x : ident) : Std.clause :=
   { Std.on_hyps := Some [(x, Std.AllOccurrences, Std.InHypValueOnly)];
     Std.on_concl := Std.NoOccurrences }.
 
-Ltac2 retype (x : ident) (t : constr) :=
-  Std.change None (fun _ => t) (type_of x).
+Ltac2 let_refuse (parts : message list) :=
+  Control.zero
+    (Tactic_failure
+       (Some (List.fold_right Message.concat parts (Message.of_string "")))).
+
+(* Rocq's own [Not convertible.] names neither the value nor the types, so
+ * it is replaced. <e> is the value as the step wrote it; <x> holds it, under
+ * a fresh name when the step shadows one.
+ *)
+Ltac2 retype (who : string) (e : constr) (x : ident) (t : constr) :=
+  let before := Constr.type (Control.hyp x) in
+  Control.once_plus
+    (fun () => Std.change None (fun _ => t) (type_of x))
+    (fun _ =>
+      let_refuse [Message.of_string who; Message.of_string ": "; Message.of_constr e;
+                  Message.of_string " has type "; Message.of_constr before;
+                  Message.of_string ", which is not convertible with "; Message.of_constr t]).
 
 Ltac2 drop_body (x : ident) :=
   Control.once_plus (fun () => Std.clearbody [x]) (fun _ => ()).
@@ -99,9 +114,9 @@ Ltac2 let_definition_typed (x : ident) (t : constr) (e : constr) :=
   if is_in_context x
   then
     if Constr.equal e (Control.hyp x)
-    then retype x t
-    else (let y := Fresh.in_goal x in Std.pose (Some y) e; retype y t; shadow_with x y)
-  else (Std.pose (Some x) e; retype x t).
+    then retype "let" e x t
+    else (let y := Fresh.in_goal x in Std.pose (Some y) e; retype "let" e y t; shadow_with x y)
+  else (Std.pose (Some x) e; retype "let" e x t).
 
 (* [let proof h := h] keeps the name and drops the body: [clearbody] leaves
  * every hypothesis that mentions [h] valid, where a replacement would have
@@ -119,7 +134,7 @@ Ltac2 let_proof_typed (h : ident) (t : constr) (e : constr) :=
   if is_in_context h
   then
     if Constr.equal e (Control.hyp h)
-    then (retype h t; drop_body h)
+    then (retype "let proof" e h t; drop_body h)
     else (let y := Fresh.in_goal h in pose_proof constr:($e : $t) y; shadow_with h y)
   else pose_proof constr:($e : $t) h.
 
@@ -128,11 +143,6 @@ Ltac2 typed_proof (who : string) (t : unit -> constr) (e : unit -> constr) : con
   let t := Local.checked who t in
   let e := Local.checked who e in
   constr:($e : $t).
-
-Ltac2 let_refuse (parts : message list) :=
-  Control.zero
-    (Tactic_failure
-       (Some (List.fold_right Message.concat parts (Message.of_string "")))).
 
 (* The body and the type of a name of the context, [None] when it is not
  * there.
@@ -193,13 +203,14 @@ Ltac2 let_places
       end
   end.
 
-(* [set_under y] sets the value under the name [y]; [x] is shadowed by it as
- * [let] does.
+(* [set_under y] sets the value <e> under the name [y]; [x] is shadowed by
+ * it as [let] does.
  *)
-Ltac2 set_definition (x : ident) (set_under : ident -> unit) (typed : constr option) :=
+Ltac2 set_definition
+  (x : ident) (e : constr) (set_under : ident -> unit) (typed : constr option) :=
   let bind y :=
     (set_under y;
-     match typed with Some t => retype y t | None => () end) in
+     match typed with Some t => retype "let" e y t | None => () end) in
   if is_in_context x
   then (let y := Fresh.in_goal x in bind y; shadow_with x y)
   else bind x.
@@ -229,7 +240,7 @@ Ltac2 let_in
       let before := List.map (fun h => (h, entry h)) hs in
       let context_before := Control.hyps () in
       let goal_before := Control.goal () in
-      set_definition x (fun y => Std.set false (fun () => (Some y, e)) place) typed;
+      set_definition x e (fun y => Std.set false (fun () => (Some y, e)) place) typed;
       let does_not_occur place_name :=
         let_refuse [Message.of_string "let: "; Message.of_constr e;
                     Message.of_string " does not occur in "; place_name] in
@@ -307,14 +318,14 @@ Ltac2 let_at
                     let_refuse [Message.of_string "let: "; Message.of_ident h;
                                 Message.of_string " is not in the context"]
                 | Some before =>
-                    (set_definition x (set_at (hypothesis_at h n) (Message.of_ident h)) typed;
+                    (set_definition x e (set_at (hypothesis_at h n) (Message.of_ident h)) typed;
                      if same_entry (Some before) (entry h)
                      then no_occurrence (Message.of_ident h)
                      else ())
                 end
           | [] =>
               let before := Control.goal () in
-              (set_definition x (set_at (goal_at n) (Message.of_string "the goal")) typed;
+              (set_definition x e (set_at (goal_at n) (Message.of_string "the goal")) typed;
                if Constr.equal before (Control.goal ())
                then no_occurrence (Message.of_string "the goal")
                else ())

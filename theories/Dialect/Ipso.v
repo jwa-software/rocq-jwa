@@ -7,7 +7,7 @@ From Ltac2 Require Constr Control Std.
 (* ipso <H>    closes the goal with <H>, as Rocq's [exact <H>] does
  *
  * Latin for "by itself": the proof given is the whole of it. The preferred
- * use names the closing proof [facto], so the step reads [ipso facto], "by
+ * use names the closing proof [facto], so the step reads [ipso &facto], "by
  * the fact itself". A tactic notation, not a term notation, so [ipso] stays
  * free as a name.
  *

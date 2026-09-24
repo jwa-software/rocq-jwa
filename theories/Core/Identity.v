@@ -131,7 +131,7 @@ Proof.
       = reflexivity &x
     := &facto.
 
-  ipso facto.
+  ipso &facto.
 Qed.
 
 Module hedberg. (* hedberg *)
