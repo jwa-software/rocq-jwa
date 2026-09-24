@@ -134,7 +134,7 @@ Proof.
    *)
   apply recursor.
 
-  - clear a b x.
+  - rm a b x.
 
     (* [|- forall (x : A) . (forall (y : A) . R y x -> P y) -> P x] *)
     simpl Descent.Step in |- *.

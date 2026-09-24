@@ -246,7 +246,7 @@ Proof.
       reflexivity.
   -
     rewrite IH in |- *.
-    clear IH.
+    rm IH.
     induction n as [| n' IH2]
         using Nat.induction;
         simpl in |- *.
@@ -536,7 +536,7 @@ Proof.
       reflexivity.
   -
     rewrite IH in |- *.
-    clear IH.
+    rm IH.
     induction n as [| n' IH2]
         using Nat.induction;
         simpl in |- *.
@@ -964,7 +964,7 @@ Lemma specification
 Proof.
   intros m n e.
   rewrite e in |- *.
-  clear e.
+  rm e.
   induction n as [| n' IH] using Nat.induction; simpl in |- *.
   - reflexivity.
   - ipso IH.
@@ -1103,7 +1103,7 @@ Proof.
   match h with | e | lt end.
   -
     rewrite e in |- *.
-    clear e.
+    rm e.
     induction n as [| n' IH]
         using Nat.induction;
         simpl in |- *.
@@ -1114,7 +1114,7 @@ Proof.
     match lt with | k e end.
     pose proof (Identity.symmetry e) as e'.
     rewrite e' in |- *.
-    clear e e'.
+    rm e e'.
     induction m as [| m' IH]
         using Nat.induction;
         simpl in |- *.
