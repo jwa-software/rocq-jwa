@@ -811,17 +811,16 @@ Proof.
     quod idem est.
   - simpl in |- *.
     quod idem est.
-  - change (nat_with_zero_difference
-              (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
-              (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive q)))
-      with (nat_difference (Nat.mul k p) (Nat.mul k q))
-      in |- *.
-    change (nat_with_zero_difference
-              (NatWithZero.Positive p)
-              (NatWithZero.Positive q))
-      with (nat_difference p q)
-      in |- *.
-    ipso (difference.nat.scaling k p q).
+  - lemma facto
+      : (+ &k) * nat_difference &p &q = nat_difference (Nat.mul &k &p) (Nat.mul &k &q).
+    {
+      ipso (difference.nat.scaling k p q).
+    }
+    let proof facto
+      : (+ &k) * nat_with_zero_difference (NatWithZero.Positive &p) (NatWithZero.Positive &q)
+        = nat_difference (Nat.mul &k &p) (Nat.mul &k &q)
+      := &facto.
+    ipso &facto.
 Qed.
 
 End nat_with_zero. (* difference.nat_with_zero *)
@@ -1299,18 +1298,22 @@ Theorem addition
 Proof.
   intros l m n.
   match l with | p | | p end.
-  - change (- p) with (negate (+ p)) in |- *.
-    leibniz -> (multiplication.left.negation (+ p) (m + n))
-            in |- *.
-    leibniz -> (multiplication.left.negation (+ p) m)
-            in |- *.
-    leibniz -> (multiplication.left.negation (+ p) n)
-            in |- *.
-    leibniz <- (negation.additivity ((+ p) * m) ((+ p) * n))
-            in |- *.
-    leibniz -> (multiplication.left.positive.distributivity.over.addition p m n)
-            in |- *.
-    quod idem est.
+  - lemma facto
+      : negate (+ &p) * (&m + &n) = (negate (+ &p) * &m) + (negate (+ &p) * &n).
+    {
+      leibniz -> (multiplication.left.negation (+ p) (m + n))
+              in |- *.
+      leibniz -> (multiplication.left.negation (+ p) m)
+              in |- *.
+      leibniz -> (multiplication.left.negation (+ p) n)
+              in |- *.
+      leibniz <- (negation.additivity ((+ p) * m) ((+ p) * n))
+              in |- *.
+      leibniz -> (multiplication.left.positive.distributivity.over.addition p m n)
+              in |- *.
+      quod idem est.
+    }
+    ipso &facto.
   - simpl in |- *.
     leibniz (addition.left.identity 0) in |- *.
     quod idem est.
@@ -1335,12 +1338,15 @@ Proof.
   match h with | d e end.
   simpl LessThan in |- *.
   exists (Nat.mul p d).
-  change (+ (Nat.mul p d)) with ((+ p) * (+ d)) in |- *.
-  leibniz <- (multiplication.left.distributivity.over.addition (+ p) m (+ d))
-          in |- *.
-  leibniz -> e
-          in |- *.
-  quod idem est.
+  lemma facto : ((+ &p) * &m) + ((+ &p) * (+ &d)) = (+ &p) * &n.
+  {
+    leibniz <- (multiplication.left.distributivity.over.addition (+ p) m (+ d))
+            in |- *.
+    leibniz -> e
+            in |- *.
+    quod idem est.
+  }
+  ipso &facto.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -1526,12 +1532,13 @@ Proof.
   match h2 with | k2 e2 end.
   simpl LessThan in |- *.
   exists (Nat.add k1 k2).
-  change (+ (Nat.add k1 k2))
-    with ((+ k1) + (+ k2))
-    in |- *.
-  leibniz <- (addition.associativity l (+ k1) (+ k2)) in |- *.
-  leibniz e1 in |- *.
-  ipso e2.
+  lemma facto : &l + ((+ &k1) + (+ &k2)) = &n.
+  {
+    leibniz <- (addition.associativity l (+ k1) (+ k2)) in |- *.
+    leibniz e1 in |- *.
+    ipso e2.
+  }
+  ipso &facto.
 Qed.
 
 End strict. (* order.strict *)
@@ -1781,28 +1788,34 @@ Theorem invariance
 Proof.
   intros x d k.
   match x with | p | | p end.
-  - change ((+ k) * (- p)) with (- (Nat.mul k p)) in |- *.
-    simpl divide in |- *.
-    let proof h := NatWithZero.division.invariance
-                  (NatWithZero.Positive p) d k.
-    let proof h
-      : NatWithZero.divide (NatWithZero.Positive (Nat.mul k p)) (Nat.mul k d)
-        = NatWithZero.divide (NatWithZero.Positive p) d
-      := &h.
-    leibniz h in |- *.
-    quod idem est.
+  - lemma facto : (- (Nat.mul &k &p)) /. (Nat.mul &k &d) = (- &p) /. &d.
+    {
+      simpl divide in |- *.
+      let proof h := NatWithZero.division.invariance
+                    (NatWithZero.Positive p) d k.
+      let proof h
+        : NatWithZero.divide (NatWithZero.Positive (Nat.mul k p)) (Nat.mul k d)
+          = NatWithZero.divide (NatWithZero.Positive p) d
+        := &h.
+      leibniz h in |- *.
+      quod idem est.
+    }
+    ipso &facto.
   - simpl in |- *.
     quod idem est.
-  - change ((+ k) * (+ p)) with (+ (Nat.mul k p)) in |- *.
-    simpl divide in |- *.
-    let proof h := NatWithZero.division.invariance
-                  (NatWithZero.Positive p) d k.
-    let proof h
-      : NatWithZero.divide (NatWithZero.Positive (Nat.mul k p)) (Nat.mul k d)
-        = NatWithZero.divide (NatWithZero.Positive p) d
-      := &h.
-    leibniz h in |- *.
-    quod idem est.
+  - lemma facto : (+ (Nat.mul &k &p)) /. (Nat.mul &k &d) = (+ &p) /. &d.
+    {
+      simpl divide in |- *.
+      let proof h := NatWithZero.division.invariance
+                    (NatWithZero.Positive p) d k.
+      let proof h
+        : NatWithZero.divide (NatWithZero.Positive (Nat.mul k p)) (Nat.mul k d)
+          = NatWithZero.divide (NatWithZero.Positive p) d
+        := &h.
+      leibniz h in |- *.
+      quod idem est.
+    }
+    ipso &facto.
 Qed.
 
 End division. (* division *)
@@ -1899,20 +1912,24 @@ Proof.
         exists (k + (- Nat.One)).
         leibniz (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
           in |- *.
-        change ((+ (Nat.Successor Nat.One)) * (- Nat.One))
-          with (- (Nat.Successor Nat.One))
-          in |- *.
-        leibniz e in |- *.
-        leibniz (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
-          in |- *.
-        change ((- (Nat.Successor Nat.One)) + (+ Nat.One))
-          with (- Nat.One)
-          in |- *.
-        simpl add in |- *.
-        simpl in |- *.
-        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
-        simpl in |- *.
-        quod idem est.
+        lemma facto
+          : (((+ (Nat.Successor Nat.One)) * &k) + (- (Nat.Successor Nat.One))) + (+ Nat.One)
+            = (- (Nat.Successor &p')).
+        {
+          leibniz e in |- *.
+          leibniz (addition.associativity (- p') (- (Nat.Successor Nat.One)) (+ Nat.One))
+            in |- *.
+          lemma facto : (- &p') + (- Nat.One) = (- (Nat.Successor &p')).
+          {
+            simpl add in |- *.
+            simpl in |- *.
+            leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
+            simpl in |- *.
+            quod idem est.
+          }
+          ipso &facto.
+        }
+        ipso &facto.
       * apply Disjunction.L.
         simpl Odd in od.
         match od with | k e end.
@@ -1965,19 +1982,22 @@ Proof.
         exists (k + (+ Nat.One)).
         leibniz (multiplication.left.distributivity.over.addition
                   (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
-        change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
-          with ((+ Nat.One) + (+ Nat.One))
-          in |- *.
-        leibniz <- (addition.associativity
-                      ((+ (Nat.Successor Nat.One)) * k)
-                      (+ Nat.One)
-                      (+ Nat.One)) in |- *.
-        leibniz e in |- *.
-        simpl add in |- *.
-        simpl in |- *.
-        leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
-        simpl in |- *.
-        quod idem est.
+        lemma facto
+          : ((+ (Nat.Successor Nat.One)) * &k) + ((+ Nat.One) + (+ Nat.One))
+            = (+ (Nat.Successor &p')).
+        {
+          leibniz <- (addition.associativity
+                        ((+ (Nat.Successor Nat.One)) * k)
+                        (+ Nat.One)
+                        (+ Nat.One)) in |- *.
+          leibniz e in |- *.
+          simpl add in |- *.
+          simpl in |- *.
+          leibniz (Nat.addition.commutativity p' Nat.One) in |- *.
+          simpl in |- *.
+          quod idem est.
+        }
+        ipso &facto.
 Qed.
 
 Module even. (* parity.even *)
@@ -2020,13 +2040,18 @@ Proof.
             (+ (Nat.Successor Nat.One)) (k1 + k2) (+ Nat.One)) in |- *.
   leibniz (multiplication.left.distributivity.over.addition
             (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
-  change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
-    with ((+ Nat.One) + (+ Nat.One))
-    in |- *.
-  leibniz (addition.interchange
-            ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
-            ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
-  quod idem est.
+  lemma facto
+    : (((+ (Nat.Successor Nat.One)) * &k1) + ((+ (Nat.Successor Nat.One)) * &k2))
+        + ((+ Nat.One) + (+ Nat.One))
+      = (((+ (Nat.Successor Nat.One)) * &k1) + (+ Nat.One))
+        + (((+ (Nat.Successor Nat.One)) * &k2) + (+ Nat.One)).
+  {
+    leibniz (addition.interchange
+              ((+ (Nat.Successor Nat.One)) * k1) (+ Nat.One)
+              ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
+    quod idem est.
+  }
+  ipso &facto.
 Qed.
 
 End addition. (* parity.odd.addition *)
