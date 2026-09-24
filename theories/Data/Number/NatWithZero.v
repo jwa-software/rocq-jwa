@@ -1823,7 +1823,7 @@ Theorem specification
 Proof.
   intros d g h.
   simpl divide.nat.safe in |- *.
-  set (n := division.nat.quotient.positivity d g h).
+  let n := division.nat.quotient.positivity d g h in |- *.
   generalize dependent n.
   match ((+ d) /. g) with | | q' end.
   - intro n.
@@ -1971,31 +1971,31 @@ Proof.
      * [|- f ((+ b'), (a %. b')) (Induced.introduction bound)
      *  = g ((+ b'), (a %. b')) (Induced.introduction bound)]
      *)
-    set (bound := division.remainder.boundedness a b'
-                : (a %. b') < + b').
+    let bound := division.remainder.boundedness a b'
+                : (a %. b') < + b' in |- *.
 
     (* The context gains [y := ((+ b'), (a %. b'))]
      * :
      * [|- f y (Induced.introduction bound)
      *  = g y (Induced.introduction bound)]
      *)
-    set (y := ((+ b'), (a %. b'))
-            : NatWithZero * NatWithZero).
+    let y := ((+ b'), (a %. b'))
+            : NatWithZero * NatWithZero in |- *.
 
     (* The context gains [x := (a, + b')], and [f], [g] and [h] fold to it:
      * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
      * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
      * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
      *)
-    set (x := (a, + b')) in *.
+    let x := (a, + b') in *.
 
     (* The context gains [r := Induced.introduction bound],
      * of type [Induced (<) pi_2 y x]
      * :
      * [|- f y r = g y r]
      *)
-    set (r := Induced.introduction bound
-            : Induced (<) pi_2 y x).
+    let r := Induced.introduction bound
+            : Induced (<) pi_2 y x in |- *.
 
     (* [H : forall (r : Induced (<) pi_2 y x) . f y r = g y r] *)
     let proof H := h y.
@@ -2059,10 +2059,10 @@ Proof.
   - intros b.
     reflexivity.
   - intros b.
-    set (s := Induced.introduction
+    let s := Induced.introduction
                 (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
                 (Biconditional.forward.elimination (positive.order.embedding r q) b)
-            : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q)).
+            : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q) in |- *.
     let proof H := h ((+ q), r).
     ipso (modus ponens H, s).
 Qed.

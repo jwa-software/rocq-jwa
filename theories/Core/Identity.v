@@ -175,14 +175,12 @@ Proof.
 
   let proof rp := retraction decide x y p.
   let proof rq := retraction decide x y q.
-  let proof c := constancy  decide x y p q.
+  let proof c  := constancy  decide x y p q.
 
-  set (base
-        := decided decide x x (reflexivity x))
+  let base := decided decide x x (reflexivity x)
   in *.
 
-  set (shift
-        := fun (e : x = y) . transitivity (symmetry base) e)
+  let shift := fun (e : x = y) . transitivity (symmetry base) e
   in |- *.
 
   let proof step := congruence shift c.

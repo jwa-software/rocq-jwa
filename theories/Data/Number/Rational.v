@@ -642,10 +642,10 @@ Proof.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
-  set (b' := Integer.from_nat b) in *.
-  set (d' := Integer.from_nat d) in *.
-  set (q' := Integer.from_nat q) in *.
-  set (s' := Integer.from_nat s) in *.
+  let b' := Integer.from_nat b in *.
+  let d' := Integer.from_nat d in *.
+  let q' := Integer.from_nat q in *.
+  let s' := Integer.from_nat s in *.
 
   lemma first : Integer.mul (Integer.mul p s') (Integer.mul b' d')
           = Integer.mul (Integer.mul a d') (Integer.mul q' s').
@@ -822,9 +822,9 @@ Proof.
                       (Integer.mul e (Integer.from_nat d)))
                (Nat.mul d f)) in |- *.
 
-    set (b' := Integer.from_nat b) in *.
-    set (d' := Integer.from_nat d) in *.
-    set (f' := Integer.from_nat f) in *.
+    let b' := Integer.from_nat b in *.
+    let d' := Integer.from_nat d in *.
+    let f' := Integer.from_nat f in *.
 
     change (Integer.from_nat (Nat.mul b d))
       with (Integer.mul b' d')
@@ -1158,9 +1158,9 @@ Proof.
               (Integer.mul a c) (Nat.mul b d)
               (Integer.mul a e) (Nat.mul b f)) in |- *.
 
-    set (b' := Integer.from_nat b) in *.
-    set (d' := Integer.from_nat d) in *.
-    set (f' := Integer.from_nat f) in *.
+    let b' := Integer.from_nat b in *.
+    let d' := Integer.from_nat d in *.
+    let f' := Integer.from_nat f in *.
 
     change (Integer.from_nat (Nat.mul b f))
       with (Integer.mul b' f')
@@ -1331,7 +1331,7 @@ Proof.
     rewrite r in |- *.
     symmetry in hy.
     rewrite hy in |- *.
-    set (d := denominator x) in *.
+    let d := denominator x in *.
     rewrite (make.multiplication.homomorphism (Integer.Negative p) (d) (Integer.Negative d) (p)) in |- *.
     change (Integer.mul (Integer.Negative p) (Integer.Negative d))
       with (Integer.Positive (Nat.mul p d))
@@ -1371,7 +1371,7 @@ Proof.
     rewrite r in |- *.
     symmetry in hy.
     rewrite hy in |- *.
-    set (d := denominator x) in *.
+    let d := denominator x in *.
     rewrite (make.multiplication.homomorphism
               (Integer.Positive p) (d)
               (Integer.Positive d) (p)) in |- *.
@@ -1416,12 +1416,12 @@ Proof.
   simpl LessThan in H1, H2 |- *.
   simpl Integer.from_nat in H1, H2 |- *.
 
-  set (a := numerator   x) in *.
-  set (b := denominator x) in *.
-  set (c := numerator   y) in *.
-  set (d := denominator y) in *.
-  set (e := numerator   z) in *.
-  set (f := denominator z) in *.
+  let a := numerator   x in *.
+  let b := denominator x in *.
+  let c := numerator   y in *.
+  let d := denominator y in *.
+  let e := numerator   z in *.
+  let f := denominator z in *.
 
   lemma bridge : Integer.mul (Integer.Positive f)
                         (Integer.mul c (Integer.Positive b))
@@ -1664,8 +1664,8 @@ Proof.
   rewrite P1 in |- *.
   rewrite P2 in |- *.
 
-  set (dm := Integer.from_nat (denominator (make m Nat.One))) in *.
-  set (dn := Integer.from_nat (denominator (make n Nat.One))) in *.
+  let dm := Integer.from_nat (denominator (make m Nat.One)) in *.
+  let dn := Integer.from_nat (denominator (make n Nat.One)) in *.
 
   rewrite (Integer.multiplication.associativity m dm dn) in |- *.
   rewrite (Integer.multiplication.associativity n dn dm) in |- *.

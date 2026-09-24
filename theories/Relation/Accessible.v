@@ -111,9 +111,9 @@ Proof.
    *       forall (a : Accessible R x) (b : Accessible R x) .
    *         recursion step x a = recursion step x b]
    *)
-  set (P := fun (x : A) .
+  let P := fun (x : A) .
             forall (a : Accessible R x) (b : Accessible R x) .
-              recursion step x a = recursion step x b).
+              recursion step x a = recursion step x b in |- *.
 
   (* The context gains
    * [recursor : Descent.Step R P -> forall (x : A) . Accessible R x -> P x]
@@ -173,13 +173,13 @@ Proof.
      * [|- step x f
      *  = step x (fun (y : A) (r : R y x) . recursion step y (descend b r))]
      *)
-    set (f := fun (y : A) (r : R y x) . recursion step y (descend a r)).
+    let f := fun (y : A) (r : R y x) . recursion step y (descend a r) in |- *.
 
     (* [g := fun (y : A) (r : R y x) . recursion step y (descend b r)]
      * :
      * [|- step x f = step x g]
      *)
-    set (g := fun (y : A) (r : R y x) . recursion step y (descend b r)).
+    let g := fun (y : A) (r : R y x) . recursion step y (descend b r) in |- *.
 
     (* The context gains
      * [H : forall (f : forall (y : A) . R y x -> _P y)
@@ -205,8 +205,8 @@ Proof.
       (* [|- recursion step y a'
        *  = recursion step y b' ]
        *)
-      set (a' := descend a r).
-      set (b' := descend b r).
+      let a' := descend a r in |- *.
+      let b' := descend b r in |- *.
 
       (* The context gains [h : P y] *)
       let proof h := recurse y r.
