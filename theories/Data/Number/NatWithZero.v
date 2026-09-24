@@ -23,6 +23,7 @@ From jwa Require Import Relation.Order.PartialOrder.
 From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
@@ -379,7 +380,7 @@ Proof.
     + simpl in |- *.
       intro e.
       let proof e' := positive.injectivity e.
-      symmetry in e'.
+      symm in e'.
       leibniz (Nat.addition.commutativity n' k') in e'.
       let proof h := Nat.addition.identity.absence k' n'.
       simpl (~ _) in h.
@@ -670,7 +671,7 @@ Proof.
   intros k m n h.
   simpl LessThan in h.
   match h with | d e end.
-  symmetry in e.
+  symm in e.
   simpl LessThan in |- *.
   exists (Nat.mul k d).
   match m with | | m' end.
@@ -909,7 +910,7 @@ Proof.
   match h2 with | k2 e2 end.
   simpl LessThan in |- *.
   exists (Nat.add k1 k2).
-  symmetry in e1, e2.
+  symm in e1, e2.
   leibniz e2 in |- *.
   leibniz e1 in |- *.
   leibniz (addition.associativity l (+ k1) (+ k2)) in |- *.
@@ -1311,7 +1312,7 @@ Proof.
       quod idem est.
   - simpl LessThan in lt.
     match lt with | k e end.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     match m with | | m' end.
     + simpl in |- *.
@@ -1336,7 +1337,7 @@ Proof.
     match m with | | m' end; simpl in |- *; quod idem est.
   - simpl LessThan in lt.
     match lt with | k e end.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     leibniz (addition.commutativity n (+ k)) in |- *.
     leibniz (subtraction.saturating.inversion.of.addition (+ k) n) in |- *.
@@ -1497,7 +1498,7 @@ Proof.
       leibniz (addition.commutativity ((q * (+ d)) + (+ d)) 0)
           in |- *.
       simpl in |- *.
-      symmetry in full.
+      symm in full.
       leibniz full in e |- *.
       leibniz (addition.left.commutativity (q * ((+ Nat.One) + r)) (+ Nat.One) r) in |- *.
       leibniz e in |- *.
@@ -1667,16 +1668,16 @@ Proof.
     match t with | below | rest end.
     - simpl LessThan in below.
       match below with | k hk end.
-      symmetry in hk.
+      symm in hk.
       leibniz hk in e.
       leibniz (multiplication.right.distributivity.over.addition
                  (+ d) (n /. d) (+ k)) in e.
       leibniz (addition.associativity
                  ((n /. d) * (+ d)) ((+ k) * (+ d)) r) in e.
-      symmetry in recon.
+      symm in recon.
       let proof chain := Identity.transitivity e recon.
       let proof excess := addition.left.cancellation chain.
-      symmetry in excess.
+      symm in excess.
       leibniz excess in bound.
       leibniz (addition.commutativity ((+ k) * (+ d)) r) in bound.
       let proof reach := multiplication.right.order.extensivity k (+ d).
@@ -1688,7 +1689,7 @@ Proof.
       simpl (~ _)    in i.
       simpl LessOrEqual in span.
       match span with | s1 | s2 end.
-      + symmetry in s1.
+      + symm in s1.
         leibniz s1 in bound.
         modus ponens i, bound |- f.
         ex f quodlibet.
@@ -1699,16 +1700,16 @@ Proof.
       + ipso equal.
       + simpl LessThan in above.
         match above with | k hk end.
-        symmetry in hk.
+        symm in hk.
         leibniz hk in recon.
         leibniz (multiplication.right.distributivity.over.addition
                    (+ d) m (+ k)) in recon.
         leibniz (addition.associativity
                    (m * (+ d)) ((+ k) * (+ d)) (n %. d)) in recon.
-        symmetry in e.
+        symm in e.
         let proof chain := Identity.transitivity recon e.
         let proof excess := addition.left.cancellation chain.
-        symmetry in excess.
+        symm in excess.
         leibniz excess in b.
         leibniz (addition.commutativity ((+ k) * (+ d)) (n %. d)) in b.
         let proof reach := multiplication.right.order.extensivity k (+ d).
@@ -1721,7 +1722,7 @@ Proof.
         simpl (~ _)    in i.
         simpl LessOrEqual in span.
         match span with | s1 | s2 end.
-        * symmetry in s1.
+        * symm in s1.
           leibniz s1 in b.
           modus ponens i, b |- f.
           ex f quodlibet.
@@ -1732,7 +1733,7 @@ Proof.
   divide et impera.
   - ipso quotient.
   - leibniz quotient in recon.
-    symmetry in e.
+    symm in e.
     let proof chain := Identity.transitivity recon e.
     ipso (addition.left.cancellation chain).
 Qed.
@@ -1852,7 +1853,7 @@ Proof.
   let proof s1 := divide.nat.safe.specification d1 g1 h1.
   let proof s2 := divide.nat.safe.specification d2 g2 h2.
   leibniz e in s1.
-  symmetry in s2.
+  symm in s2.
   let proof full := Identity.transitivity s1 s2.
   ipso (positive.injectivity full).
 Qed.
@@ -2230,7 +2231,7 @@ Proof.
       leibniz s in dist.
       leibniz e1 in dist.
       leibniz e2 in dist.
-      symmetry in dist.
+      symm in dist.
       ipso (addition.left.cancellation dist).
     + simpl LessOrEqual in ge.
       match ge with | eq | lt end.
@@ -2248,7 +2249,7 @@ Proof.
         match mono with | j ej end.
         leibniz (addition.associativity m n (+ j)) in ej.
         match (addition.identity m) with | i1 i2 end.
-        symmetry in i2.
+        symm in i2.
         let proof e3 := Identity.transitivity ej i2.
         let proof e4 := addition.left.cancellation e3.
         let proof pos := addition.right.order.positivity n j.
@@ -2467,7 +2468,7 @@ Proof.
       let proof dist := gcd.left.distributivity.of.multiplication s q p.
       leibniz coprime in dist.
       leibniz (multiplication.right.identity (+ s)) in dist.
-      symmetry in dist.
+      symm in dist.
       ipso dist.
     }
     let proof hp := divisibility.multiplication.closure
@@ -2635,7 +2636,7 @@ Proof.
     let proof e := division.exactness
                   (+ q) (gcd.nat a q)
                   (gcd.nat.right.divisibility a q).
-    symmetry in s.
+    symm in s.
     leibniz s in e.
     let proof e' := positive.injectivity e.
     leibniz (Nat.multiplication.commutativity
@@ -2653,7 +2654,7 @@ Proof.
   leibniz top    in dist.
   leibniz bottom in dist.
   match (Nat.multiplication.identity (gcd.nat a q)) with | _ unit end.
-  symmetry in unit.
+  symm in unit.
   let proof chain := Identity.transitivity dist unit.
   match (Nat.multiplication.cancellation
               (gcd.nat a q)
@@ -2755,7 +2756,7 @@ Proof.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
   exists ((+ Nat.One) + (k1 + k2)).
-  symmetry in e1, e2.
+  symm in e1, e2.
   leibniz e1 in |- *.
   leibniz e2 in |- *.
   leibniz (multiplication.left.distributivity.over.addition

@@ -12,6 +12,7 @@ From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
@@ -252,7 +253,7 @@ Proof.
     +
       quod idem est.
     +
-      symmetry in IH2.
+      symm in IH2.
       leibniz IH2 in |- *.
       quod idem est.
 Qed.
@@ -536,7 +537,7 @@ Proof.
     +
       quod idem est.
     +
-      symmetry in IH2.
+      symm in IH2.
       leibniz IH2
            in |- *.
       leibniz (addition.left.commutativity n' m' (n' * m'))
@@ -1177,7 +1178,7 @@ Lemma specification
   : forall {m : Nat} {n : Nat} {k : Nat} . n + k = m -> sub m n = Some k.
 Proof.
   intros m n k e.
-  symmetry in e.
+  symm in e.
   leibniz e in |- *.
   leibniz (addition.commutativity n k) in |- *.
   ipso (subtraction.inversion.of.addition k n).

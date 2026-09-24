@@ -17,6 +17,7 @@ From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
@@ -391,7 +392,7 @@ Proof.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
-    symmetry in e.
+    symm in e.
     leibniz e in h |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
     leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
@@ -411,14 +412,14 @@ Proof.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
-      symmetry in e.
+      symm in e.
       leibniz e in h |- *.
       leibniz (Nat.addition.commutativity q k) in |- *.
       leibniz (difference.nat.left.inversion.of.addition k q) in |- *.
       leibniz (Nat.addition.associativity q k s) in h.
       leibniz (Nat.addition.commutativity r q) in h.
       let proof e'' := Nat.addition.left.cancellation h.
-      symmetry in e''.
+      symm in e''.
       leibniz e'' in |- *.
       leibniz (difference.nat.left.inversion.of.addition k s) in |- *.
       quod idem est.
@@ -433,7 +434,7 @@ Proof.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
     leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
@@ -447,7 +448,7 @@ Proof.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
-      symmetry in e.
+      symm in e.
       leibniz e in |- *.
       leibniz (Nat.addition.commutativity q k) in |- *.
       leibniz (difference.nat.left.inversion.of.addition  k q) in |- *.
@@ -467,7 +468,7 @@ Proof.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
     leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
@@ -480,7 +481,7 @@ Proof.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | k e end.
-      symmetry in e.
+      symm in e.
       leibniz e in |- *.
       leibniz (Nat.addition.commutativity q k) in |- *.
       leibniz (difference.nat.left.inversion.of.addition k q) in |- *.
@@ -504,7 +505,7 @@ Proof.
     leibniz (Nat.addition.commutativity p k) in |- *.
     ipso (Identity.symmetry e').
   - intro e.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
     ipso (difference.nat.right.inversion.of.addition k p).
@@ -549,7 +550,7 @@ Proof.
     leibniz (Nat.addition.commutativity q k) in |- *.
     ipso e'.
   - intro e.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity q k) in |- *.
     ipso (difference.nat.left.inversion.of.addition k q).
@@ -567,7 +568,7 @@ Proof.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | j e end.
-    symmetry in e.
+    symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p j) in |- *.
     leibniz (difference.nat.right.inversion.of.addition j p) in |- *.
@@ -584,7 +585,7 @@ Proof.
       quod idem est.
     + simpl Nat.LessThan in gt.
       match gt with | j e end.
-      symmetry in e.
+      symm in e.
       leibniz e in |- *.
       leibniz (Nat.addition.commutativity q j) in |- *.
       leibniz (difference.nat.left.inversion.of.addition j q) in |- *.
@@ -710,7 +711,7 @@ Proof.
     quod idem est.
   - leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
     let proof h : NatWithZero.add (NatWithZero.Positive p) d = c := &h.
-    symmetry in h.
+    symm in h.
     leibniz h in |- *.
     leibniz (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
     simpl in |- *.
@@ -724,7 +725,7 @@ Proof.
       quod idem est.
     + simpl in h.
       let proof e := NatWithZero.positive.injectivity h.
-      symmetry in e.
+      symm in e.
       leibniz e in |- *.
       simpl in |- *.
       leibniz (Nat.addition.commutativity p s) in |- *.
@@ -2033,7 +2034,7 @@ Proof.
   match h2 with | k2 e2 end.
   simpl Even, Divides in |- *.
   exists ((k1 + k2) + (+ Nat.One)).
-  symmetry in e1, e2.
+  symm in e1, e2.
   leibniz e1 in |- *.
   leibniz e2 in |- *.
   leibniz (multiplication.left.distributivity.over.addition

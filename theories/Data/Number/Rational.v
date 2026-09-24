@@ -16,6 +16,7 @@ From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 
 Module Rational. (* Rational *)
@@ -197,7 +198,7 @@ Proof.
                   (NatWithZero.divisibility.bottom (Integer.abs n)).
     let proof i := Integer.multiplication.right.identity
                   (Integer.divide n Nat.One).
-    symmetry in i.
+    symm in i.
     ipso (Identity.transitivity i e).
   }
 
@@ -209,7 +210,7 @@ Proof.
                   (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
     let proof i := NatWithZero.multiplication.right.identity
                   (NatWithZero.divide (NatWithZero.Positive d) (Nat.One)).
-    symmetry in i.
+    symm in i.
     ipso (Identity.transitivity i e).
   }
 
@@ -262,7 +263,7 @@ Proof.
     leibniz am in |- *.
     let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
                   k d (Integer.abs n).
-    symmetry in gd.
+    symm in gd.
     ipso gd.
   }
 
@@ -342,7 +343,7 @@ Proof.
                   (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.gcd.nat.right.divisibility
                     (Integer.abs a) b).
-    symmetry in s.
+    symm in s.
     leibniz s in e.
     ipso (NatWithZero.positive.injectivity e).
   }
@@ -357,7 +358,7 @@ Proof.
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)).
   {
     let proof c := Identity.congruence Integer.from_nat bottom.
-    symmetry in c.
+    symm in c.
     leibniz c in |- *.
     quod idem est.
   }
@@ -468,7 +469,7 @@ Proof.
     }
 
     leibniz (swap r (Integer.from_nat b) (Integer.from_nat d)) in Q1.
-    symmetry in Q1.
+    symm in Q1.
     let proof Q := Identity.transitivity Q1 Q2.
     leibniz (swap a (Integer.from_nat s) (Integer.from_nat d)) in Q.
     leibniz (swap c (Integer.from_nat s) (Integer.from_nat b)) in Q.
@@ -993,7 +994,7 @@ Proof.
                 (e).
   simpl in h.
 
-  symmetry in an.
+  symm in an.
   ipso (Identity.transitivity am (Identity.transitivity h an)).
 Qed.
 
@@ -1075,7 +1076,7 @@ Proof.
   let proof h := Identity.congruence (fun (t : Rational) . add t (negate k)) e.
   simpl in h.
 
-  symmetry in am.
+  symm in am.
   ipso (Identity.transitivity am (Identity.transitivity h an)).
 Qed.
 
@@ -1290,7 +1291,7 @@ Proof.
 
       leibniz tops in |- *.
       leibniz bots in |- *.
-      symmetry in |- *.
+      symm in |- *.
       ipso (make.invariance
               (Integer.mul (a) (Integer.add (Integer.mul c f') (Integer.mul e d')))
               (Nat.mul (b) (Nat.mul d f))
@@ -1416,9 +1417,9 @@ Proof.
   match (numerator x) with | p | | p end |- E.
 
   - let proof hy := Option.some.injectivity e.
-    symmetry in r.
+    symm in r.
     leibniz r in |- *.
-    symmetry in hy.
+    symm in hy.
     leibniz hy in |- *.
     let d := denominator x in *.
     leibniz (make.multiplication.homomorphism (Integer.Negative p) (d) (Integer.Negative d) (p)) in |- *.
@@ -1460,9 +1461,9 @@ Proof.
   - ex e quodlibet.
 
   - let proof hy := Option.some.injectivity e.
-    symmetry in r.
+    symm in r.
     leibniz r in |- *.
-    symmetry in hy.
+    symm in hy.
     leibniz hy in |- *.
     let d := denominator x in *.
     leibniz (make.multiplication.homomorphism

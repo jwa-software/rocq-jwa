@@ -13,6 +13,7 @@ From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Dialect.ExFalso.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Syllogism.
 From jwa Require Import Tactics.Witness.
@@ -2984,7 +2985,7 @@ Proof.
                       (NatWithZero.saturating_sub stop start)
                       (NatWithZero.saturating_sub i start)),
                  inside).
-        * symmetry in step.
+        * symm in step.
           ipso step.
       }
       ipso (modus aequans
@@ -3091,7 +3092,7 @@ Lemma contraposition
       forall {a : A} {b : A} . le a b = false -> le b a = true.
 Proof.
   intros A le total a b s.
-  symmetry in s.
+  symm in s.
   hs (Identity.transitivity s), Bool.distinctness.backward as n.
   ipso (modus tollendo ponens (total a b), n).
 Qed.
