@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From jwa Require Import Dialect.Place.
 From Ltac2 Require Constr Control Env Ident List Message RedFlags Std.
 
@@ -274,7 +275,12 @@ Ltac2 targets
  *)
 Ltac2 simpl_definitions
   (ds : (unit option * (unit -> constr)) list) (n : int option)
-  (hypotheses : ident list option) (goal : unit option) (everywhere : unit option) :=
+  (hypotheses : (bool * ident) list option) (goal : unit option) (everywhere : unit option) :=
+  let hypotheses :=
+    match hypotheses with
+    | Some hs => Some (Local.context_idents "simpl" hs)
+    | None => None
+    end in
   let places := targets hypotheses goal everywhere in
   match n with
   | None => unfold_all ds Std.AllOccurrences places
@@ -295,14 +301,14 @@ Ltac2 reduce (place : Std.clause) :=
 
 Ltac2 Notation "simpl" ds(list1(seq(opt("&"), thunk(open_constr)), ","))
   n(opt(seq("at", tactic(0)))) "in"
-  hypotheses(opt(list1(ident, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*")) :=
+  hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*")) :=
   simpl_definitions ds n hypotheses goal everywhere.
 
-Ltac2 Notation "simpl" "in" hypotheses(list1(ident, ",")) :=
-  reduce (Place.hypotheses hypotheses).
+Ltac2 Notation "simpl" "in" hypotheses(list1(context_name, ",")) :=
+  reduce (Place.hypotheses (Local.context_idents "simpl" hypotheses)).
 
-Ltac2 Notation "simpl" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
-  reduce (Place.hypotheses_and_goal hypotheses).
+Ltac2 Notation "simpl" "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
+  reduce (Place.hypotheses_and_goal (Local.context_idents "simpl" hypotheses)).
 
 Ltac2 Notation "simpl" "in" "|-" "*" :=
   reduce Place.goal.

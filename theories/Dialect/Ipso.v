@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From Ltac2 Require Constr Control Std.
 
 (* ipso <H>    closes the goal with <H>, as Rocq's [exact <H>] does
@@ -16,10 +17,11 @@ From Ltac2 Require Constr Control Std.
 Ltac2 exact_preterm (c : preterm) :=
   Control.enter (fun () =>
     let c :=
-      Constr.Pretype.pretype
-        Constr.Pretype.Flags.constr_flags
-        (Constr.Pretype.expected_oftype (Control.goal ()))
-        c in
+      Local.checked "ipso" (fun () =>
+        Constr.Pretype.pretype
+          Constr.Pretype.Flags.constr_flags
+          (Constr.Pretype.expected_oftype (Control.goal ()))
+          c) in
     Std.exact_no_check c).
 
 Ltac2 Notation "ipso" c(preterm) :=

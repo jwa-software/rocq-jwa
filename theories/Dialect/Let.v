@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From Ltac2 Require Constr Control Fresh Std.
 
 (* let <x> := <e>                pose (<x> := <e>)
@@ -110,24 +111,34 @@ Ltac2 let_proof_typed (h : ident) (t : constr) (e : constr) :=
     else (let y := Fresh.in_goal h in pose_proof constr:($e : $t) y; shadow_with h y)
   else pose_proof constr:($e : $t) h.
 
+(* <T> and <e> arrive unread, so that [Local.checked] can read them twice. *)
+Ltac2 typed_proof (who : string) (t : unit -> constr) (e : unit -> constr) : constr :=
+  let t := Local.checked who t in
+  let e := Local.checked who e in
+  constr:($e : $t).
+
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
  * must reach the helpers that know how to shadow.
  *)
-Ltac2 Notation "let" "proof" p(intropattern) ":=" e(lconstr) : 5 :=
-  Control.enter (fun () => Std.specialize (e, Std.NoBindings) (Some p)).
+Ltac2 Notation "let" "proof" p(intropattern) ":=" e(thunk(lconstr)) : 5 :=
+  Control.enter (fun () =>
+    Std.specialize (Local.checked "let proof" e, Std.NoBindings) (Some p)).
 
-Ltac2 Notation "let" "proof" p(intropattern) ":" t(lconstr) ":=" e(lconstr) : 5 :=
-  Control.enter (fun () => Std.specialize (constr:($e : $t), Std.NoBindings) (Some p)).
+Ltac2 Notation "let" "proof" p(intropattern) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
+  Control.enter (fun () =>
+    Std.specialize (typed_proof "let proof" t e, Std.NoBindings) (Some p)).
 
-Ltac2 Notation "let" x(ident) ":=" e(lconstr) : 5 :=
-  Control.enter (fun () => let_definition x e).
+Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr)) : 5 :=
+  Control.enter (fun () => let_definition x (Local.checked "let" e)).
 
-Ltac2 Notation "let" x(ident) ":" t(lconstr) ":=" e(lconstr) : 5 :=
-  Control.enter (fun () => let_definition_typed x t e).
+Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
+  Control.enter (fun () =>
+    let_definition_typed x (Local.checked "let" t) (Local.checked "let" e)).
 
-Ltac2 Notation "let" "proof" h(ident) ":=" e(lconstr) : 5 :=
-  Control.enter (fun () => let_proof h e).
+Ltac2 Notation "let" "proof" h(ident) ":=" e(thunk(lconstr)) : 5 :=
+  Control.enter (fun () => let_proof h (Local.checked "let proof" e)).
 
-Ltac2 Notation "let" "proof" h(ident) ":" t(lconstr) ":=" e(lconstr) : 5 :=
-  Control.enter (fun () => let_proof_typed h t e).
+Ltac2 Notation "let" "proof" h(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
+  Control.enter (fun () =>
+    let_proof_typed h (Local.checked "let proof" t) (Local.checked "let proof" e)).

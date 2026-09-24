@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From Ltac2 Require Constr Control Ident Int List Message Ref Std.
 
 (* Tidying the context:
@@ -114,14 +115,14 @@ Ltac2 remove_recursive (hypotheses : ident list) :=
      | None => Std.clear gathered
      end)).
 
-Ltac2 Notation "mv" h(ident) name(ident) :=
-  rename h name.
+Ltac2 Notation "mv" h(context_name) name(ident) :=
+  rename (Local.context_ident "mv" h) name.
 
-Ltac2 Notation "rm" hypotheses(list1(ident)) :=
-  remove hypotheses.
+Ltac2 Notation "rm" hypotheses(list1(context_name)) :=
+  remove (Local.context_idents "rm" hypotheses).
 
-Ltac2 Notation "rm" "-" "f" hypotheses(list1(ident)) :=
-  remove_force hypotheses.
+Ltac2 Notation "rm" "-" "f" hypotheses(list1(context_name)) :=
+  remove_force (Local.context_idents "rm -f" hypotheses).
 
-Ltac2 Notation "rm" "-" "r" hypotheses(list1(ident)) :=
-  remove_recursive hypotheses.
+Ltac2 Notation "rm" "-" "r" hypotheses(list1(context_name)) :=
+  remove_recursive (Local.context_idents "rm -r" hypotheses).

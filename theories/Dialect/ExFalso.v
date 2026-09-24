@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From Ltac2 Require Constr Control Ind Int Message Std.
 
 (* Ex falso quodlibet: from what cannot exist, anything.
@@ -28,8 +29,9 @@ Ltac2 has_no_constructor (t : constr) : bool :=
   | _ => false
   end.
 
-Ltac2 ex_quodlibet (h : constr) :=
+Ltac2 ex_quodlibet (h : unit -> constr) :=
   Control.enter (fun () =>
+    let h := Local.checked "ex quodlibet" h in
     let t := Constr.type h in
     if has_no_constructor t
     then
@@ -45,5 +47,5 @@ Ltac2 ex_quodlibet (h : constr) :=
                  (Message.concat (Message.of_constr t)
                                  (Message.of_string ", which is not empty")))))))).
 
-Ltac2 Notation "ex" h(constr) "quodlibet" :=
+Ltac2 Notation "ex" h(thunk(constr)) "quodlibet" :=
   ex_quodlibet h.

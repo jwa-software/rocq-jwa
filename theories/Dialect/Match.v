@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From Ltac2 Require Control List Message Std.
 
 (* match <H> with end                          destruct <H>
@@ -51,7 +52,7 @@ Ltac2 match_destruct
     | None => None
     end in
   Control.enter (fun () =>
-    let h := h () in
+    let h := Local.checked "match" h in
     Std.destruct false
       [{ Std.indcl_arg := Std.ElimOnConstr (fun () => (h, Std.NoBindings));
          Std.indcl_eqn := equation;

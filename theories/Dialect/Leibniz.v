@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
+From jwa Require Import Dialect.Local.
 From jwa Require Import Dialect.Place.
 From Ltac2 Require Control Std.
 
@@ -23,19 +24,21 @@ From Ltac2 Require Control Std.
  *)
 Ltac2 leibniz_rewrite (orientation : Std.orientation option) (e : preterm) (place : Std.clause) :=
   Control.enter (fun () =>
-    Std.rewrite
-      false
-      [ { Std.rew_orient := orientation;
-          Std.rew_repeat := Std.Precisely 1;
-          Std.rew_equatn := (fun () => (open_constr:($preterm:e), Std.NoBindings)) } ]
-      place
-      None).
+    (Local.check_preterm "leibniz" e;
+     Std.rewrite
+       false
+       [ { Std.rew_orient := orientation;
+           Std.rew_repeat := Std.Precisely 1;
+           Std.rew_equatn := (fun () => (open_constr:($preterm:e), Std.NoBindings)) } ]
+       place
+       None)).
 
-Ltac2 Notation "leibniz" o(orient) e(preterm) "in" hypotheses(list1(ident, ",")) :=
-  leibniz_rewrite o e (Place.hypotheses hypotheses).
+Ltac2 Notation "leibniz" o(orient) e(preterm) "in" hypotheses(list1(context_name, ",")) :=
+  leibniz_rewrite o e (Place.hypotheses (Local.context_idents "leibniz" hypotheses)).
 
-Ltac2 Notation "leibniz" o(orient) e(preterm) "in" hypotheses(list1(ident, ",")) "|-" "*" :=
-  leibniz_rewrite o e (Place.hypotheses_and_goal hypotheses).
+Ltac2 Notation "leibniz" o(orient) e(preterm)
+  "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
+  leibniz_rewrite o e (Place.hypotheses_and_goal (Local.context_idents "leibniz" hypotheses)).
 
 Ltac2 Notation "leibniz" o(orient) e(preterm) "in" "|-" "*" :=
   leibniz_rewrite o e Place.goal.
