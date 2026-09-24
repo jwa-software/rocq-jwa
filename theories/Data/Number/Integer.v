@@ -1911,8 +1911,9 @@ Proof.
         simpl Even, Divides in |- *.
         apply (Exists_introduction k).
         let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
-        change ((((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One))
-          in e'.
+        let proof e'
+          : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
+          := e'.
         rewrite (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
           in e'.
         change ((+ Nat.One) + (- Nat.One))
