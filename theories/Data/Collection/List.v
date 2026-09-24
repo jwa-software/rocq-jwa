@@ -1164,7 +1164,7 @@ Proof.
     intro f.
     ex f quodlibet.
   - simpl in |- *.
-    match (p b) per pb with | | end.
+    match (p b) with | | end |- pb.
     + simpl in |- *.
       intro h.
       match h with | e | h' end.
@@ -1759,7 +1759,7 @@ Lemma specification
 Proof.
   intros A l l'.
   simpl initial in |- *.
-  match (reverse l) per er with | | b r end.
+  match (reverse l) with | | b r end |- er.
   - simpl in |- *.
     intro h.
     ex h quodlibet.
@@ -2032,7 +2032,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
-    match (p a) per pa with | | end; simpl in |- *; quod idem est.
+    match (p a) with | | end |- pa; simpl in |- *; quod idem est.
 Qed.
 
 End partitioning. (* partitioning *)
@@ -2467,7 +2467,7 @@ Proof.
   - simpl in |- *.
     intro s.
     match s with | below sorted' end.
-    match (le a b) per c with | | end.
+    match (le a b) with | | end |- c.
     + simpl in |- *.
       let proof below_a := quantification.all.monotonicity
                     (fun (x : A) (h : le b x = true) . transitive a b x c h) below.
@@ -3142,7 +3142,7 @@ Proof.
     ex e quodlibet.
   - intros m e.
     simpl in e.
-    match (maximum_of le l') per r with | | m' end.
+    match (maximum_of le l') with | | m' end |- r.
     + modus aequans (absence.specification le l'), r |- en.
       let proof e' := Option.some.injectivity e.
       leibniz en in |- *.
@@ -3151,7 +3151,7 @@ Proof.
       divide et impera.
       * ipso (comparison.reflexivity total a).
       * ipso I.
-    + match (le a m') per s with end.
+    + match (le a m') with end |- s.
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
         simpl in |- *.
@@ -3181,11 +3181,11 @@ Proof.
     ex e quodlibet.
   - intros m e.
     simpl in e.
-    match (maximum_of le l') per r with | | m' end.
+    match (maximum_of le l') with | | m' end |- r.
     + let proof e' := Option.some.injectivity e.
       simpl in |- *.
       ipso (Disjunction.L (Identity.symmetry e')).
-    + match (le a m') per s with end.
+    + match (le a m') with end |- s.
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
         simpl in |- *.
@@ -3242,7 +3242,7 @@ Proof.
     ex e quodlibet.
   - intros m e.
     simpl in e.
-    match (minimum_of le l') per r with | | m' end.
+    match (minimum_of le l') with | | m' end |- r.
     + modus aequans (absence.specification le l'), r |- en.
       let proof e' := Option.some.injectivity e.
       leibniz en in |- *.
@@ -3251,7 +3251,7 @@ Proof.
       divide et impera.
       * ipso (comparison.reflexivity total a).
       * ipso I.
-    + match (le a m') per s with end.
+    + match (le a m') with end |- s.
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
         simpl in |- *.
@@ -3280,11 +3280,11 @@ Proof.
     ex e quodlibet.
   - intros m e.
     simpl in e.
-    match (minimum_of le l') per r with | | m' end.
+    match (minimum_of le l') with | | m' end |- r.
     + let proof e' := Option.some.injectivity e.
       simpl in |- *.
       ipso (Disjunction.L (Identity.symmetry e')).
-    + match (le a m') per s with end.
+    + match (le a m') with end |- s.
       * let proof e' := Option.some.injectivity e.
         simpl in |- *.
         ipso (Disjunction.L (Identity.symmetry e')).

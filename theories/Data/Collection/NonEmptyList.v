@@ -415,7 +415,7 @@ Proof.
   - intros a h.
     simpl in h.
     simpl in |- *.
-    match (le b (maximum_of le x')) per s with end.
+    match (le b (maximum_of le x')) with end |- s.
     + match h with | e | m end.
       * leibniz e in |- *.
         ipso s.
@@ -437,7 +437,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    match (le b (maximum_of le x')) per s with end.
+    match (le b (maximum_of le x')) with end |- s.
     + ipso (Disjunction.R IH).
     + ipso (Disjunction.L (Identity.reflexivity b)).
 Qed.
@@ -465,7 +465,7 @@ Proof.
   - intros a h.
     simpl in h.
     simpl in |- *.
-    match (le b (minimum_of le x')) per s with end.
+    match (le b (minimum_of le x')) with end |- s.
     + match h with | e | m end.
       * leibniz e in |- *.
         ipso (List.comparison.reflexivity total b).
@@ -487,7 +487,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    match (le b (minimum_of le x')) per s with end.
+    match (le b (minimum_of le x')) with end |- s.
     + ipso (Disjunction.L (Identity.reflexivity b)).
     + ipso (Disjunction.R IH).
 Qed.
@@ -581,7 +581,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
-    match (le a (maximum_of le x')) per s with end; quod idem est.
+    match (le a (maximum_of le x')) with end |- s; quod idem est.
 Qed.
 
 (* conversion.minimum *)
@@ -595,7 +595,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
-    match (le a (minimum_of le x')) per s with end; quod idem est.
+    match (le a (minimum_of le x')) with end |- s; quod idem est.
 Qed.
 
 End conversion. (* conversion *)

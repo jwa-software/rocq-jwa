@@ -1000,7 +1000,7 @@ Lemma identity : forall (n : Nat) . max n 1 = n.
 Proof.
   intros n.
   simpl Comparable.max in |- *.
-  match (compare n 1) per c with | | | end.
+  match (compare n 1) with | | | end |- c.
   - let proof lt := comparison.strict.forward.specification c.
     simpl LessThan in lt.
     match lt with | k e end.
@@ -1049,7 +1049,7 @@ Theorem decidability
   : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n).
 Proof.
   intros m n.
-  match (compare m n) per e with | | | end.
+  match (compare m n) with | | | end |- e.
   - apply Disjunction.R.
     simpl (~ _) in |- *.
     intro h.

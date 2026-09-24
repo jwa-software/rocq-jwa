@@ -122,7 +122,7 @@ Proof.
   leibniz (Comparable.antisymmetry m n) in |- *.
   divide et impera.
   - intro e.
-    match (compare n m) per c with | | | end.
+    match (compare n m) with | | | end |- c.
     + match (Comparable.specification n m) with | s _ end.
       ipso (modus aequans s, c).
     + simpl in e.
@@ -170,7 +170,7 @@ Proof.
   simpl eq in |- *.
   divide et impera.
   - intro e.
-    match (compare m n) per c with | | | end.
+    match (compare m n) with | | | end |- c.
     + ex e quodlibet.
     + match (Comparable.specification m n) with | _ s end.
       ipso (modus aequans s, c).
@@ -236,7 +236,7 @@ Theorem trichotomy
     lt m n \/ m = n \/ lt n m.
 Proof.
   intros A compare lt C m n.
-  match (compare m n) per c with | | | end.
+  match (compare m n) with | | | end |- c.
   - match (Comparable.specification m n) with | s _ end.
     modus aequans s, c |- h.
     ipso (Disjunction.L h).
@@ -336,7 +336,7 @@ Proof.
   intros A compare lt C m n.
   simpl le in |- *.
   simpl LessOrEqual in |- *.
-  match (compare m n) per c with | | | end.
+  match (compare m n) with | | | end |- c.
   - divide et impera.
     + intro e.
       match (Comparable.specification m n) with | s _ end.
@@ -382,14 +382,14 @@ Proof.
   simpl LessOrEqual in |- *.
   divide et impera.
   - intro e.
-    match (compare m n) per c with | | | end.
+    match (compare m n) with | | | end |- c.
     + match (Comparable.specification m n) with | s _ end.
       ipso (disjoin _, (modus aequans s, c)).
     + match (Comparable.specification m n) with | _ s end.
       ipso (disjoin (modus aequans s, c), _).
     + ipso (disjoin (Identity.symmetry e), _).
   - intro h.
-    match (compare m n) per c with | | | end.
+    match (compare m n) with | | | end |- c.
     + quod idem est.
     + quod idem est.
     + match h with | e | lt1 end.
@@ -414,7 +414,7 @@ Proof.
   intros A compare lt C l r.
   simpl min in |- *.
   simpl LessOrEqual in |- *.
-  match (compare l r) per c with | | | end.
+  match (compare l r) with | | | end |- c.
   - ipso (Disjunction.L (Identity.reflexivity l)).
   - ipso (Disjunction.L (Identity.reflexivity l)).
   - ipso (disjoin _, (modus aequans
@@ -437,7 +437,7 @@ Proof.
   intros A compare lt C l r.
   simpl min in |- *.
   simpl LessOrEqual in |- *.
-  match (compare l r) per c with | | | end.
+  match (compare l r) with | | | end |- c.
   - match (Comparable.specification l r) with | s _ end.
     ipso (disjoin _, (modus aequans s, c)).
   - match (Comparable.specification l r) with | _ s end.
@@ -570,7 +570,7 @@ Proof.
   simpl LessOrEqual in |- *.
   divide et impera.
   - intro e.
-    match (compare m n) per c with | | | end.
+    match (compare m n) with | | | end |- c.
     + ipso (disjoin e, _).
     + match (Comparable.specification m n) with | _ s end.
       modus aequans s, c |- e'.
@@ -578,7 +578,7 @@ Proof.
     + ipso (disjoin _, (modus aequans
                            (comparison.strict.transposition.specification m n), c)).
   - intro h.
-    match (compare m n) per c with | | | end.
+    match (compare m n) with | | | end |- c.
     + match h with | e | gt end.
       * ipso e.
       * modus aequans (comparison.strict.transposition.specification m n), gt |- e.
@@ -602,7 +602,7 @@ Proof.
   intros A compare lt C l r.
   simpl max in |- *.
   simpl LessOrEqual in |- *.
-  match (compare l r) per c with | | | end.
+  match (compare l r) with | | | end |- c.
   - match (Comparable.specification l r) with | s _ end.
     ipso (disjoin _, (modus aequans s, c)).
   - ipso (Disjunction.L (Identity.reflexivity l)).
@@ -625,7 +625,7 @@ Proof.
   intros A compare lt C l r.
   simpl max in |- *.
   simpl LessOrEqual in |- *.
-  match (compare l r) per c with | | | end.
+  match (compare l r) with | | | end |- c.
   - ipso (Disjunction.L (Identity.reflexivity r)).
   - match (Comparable.specification l r) with | _ s end.
     modus aequans s, c |- e.

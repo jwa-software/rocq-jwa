@@ -421,8 +421,8 @@ Proof.
   (* The third field is the irreducibility of each pair, handed over by the
    * case analysis rather than proved after it.
    *)
-  match (make a b) per E1 with | p q I1 end.
-  match (make c d) per E2 with | r s I2 end.
+  match (make a b) with | p q I1 end |- E1.
+  match (make c d) with | r s I2 end |- E2.
   simpl numerator, denominator in P1, P2.
 
   lemma nzq : ~ (Integer.from_nat q = Integer.Zero).
@@ -641,8 +641,8 @@ Proof.
   let proof P1 := proportionality a b.
   let proof P2 := proportionality c d.
 
-  match (make a b) per E1 with | p q I1 end.
-  match (make c d) per E2 with | r s I2 end.
+  match (make a b) with | p q I1 end |- E1.
+  match (make c d) with | r s I2 end |- E2.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
@@ -722,8 +722,8 @@ Proof.
   let proof P1 := proportionality a b.
   let proof P2 := proportionality c d.
 
-  match (make a b) per E1 with | p q I1 end.
-  match (make c d) per E2 with | r s I2 end.
+  match (make a b) with | p q I1 end |- E1.
+  match (make c d) with | r s I2 end |- E2.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
@@ -770,7 +770,7 @@ Proof.
 
   let proof P1 := proportionality a b.
 
-  match (make a b) per E1 with | p q I1 end.
+  match (make a b) with | p q I1 end |- E1.
   simpl numerator, denominator in P1.
   simpl numerator, denominator in |- *.
 
@@ -1413,7 +1413,7 @@ Proof.
 
   let proof r := make.retraction x.
   simpl inverse in e.
-  match (numerator x) per E with | p | | p end.
+  match (numerator x) with | p | | p end |- E.
 
   - let proof hy := Option.some.injectivity e.
     symmetry in r.

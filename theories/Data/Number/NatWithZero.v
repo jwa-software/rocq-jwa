@@ -1392,7 +1392,7 @@ Theorem truncation
 Proof.
   intros m n h.
   simpl sub in |- *.
-  match (le n m) per c with | | end.
+  match (le n m) with | | end |- c.
   - modus aequans (Comparable.order.reflection n m), c |- order.
     simpl Comparable.LessOrEqual in order.
     match order with | e | lt end.
@@ -1439,7 +1439,7 @@ Proof.
   divide et impera.
   - intro e.
     simpl sub in e.
-    match (le n m) per c with | | end.
+    match (le n m) with | | end |- c.
     + let proof e' := Option.some.injectivity e.
       modus aequans (Comparable.order.reflection n m), c |- order.
       leibniz <- e' in |- *.
@@ -1481,10 +1481,10 @@ Proof.
       quod idem est.
   - match IH with | e lt end.
     simpl in |- *.
-    match (div.nat p' d) per D with | q r end.
+    match (div.nat p' d) with | q r end |- D.
     simpl in e.
     simpl in lt.
-    match (eq (++ r) (+ d)) per E with | | end; divide et impera; simpl in |- *.
+    match (eq (++ r) (+ d)) with | | end |- E; divide et impera; simpl in |- *.
     * modus aequans (Comparable.comparison.equality.reflection (++ r) (+ d)), E |- full.
       leibniz (increment.specification r) in full.
       leibniz (increment.specification q) in |- *.
@@ -2532,7 +2532,7 @@ Proof.
                  forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c))).
   - intros c recurse a.
     leibniz (gcd.recurrence a c) in |- *.
-    match (a %. c) per e with | | r end.
+    match (a %. c) with | | r end |- e.
     + leibniz (gcd.zero (+ c)) in |- *.
       leibniz (gcd.nat.zero a c e) in |- *.
       quod idem est.

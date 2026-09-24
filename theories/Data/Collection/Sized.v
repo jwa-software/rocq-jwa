@@ -43,7 +43,7 @@ Theorem reflection
 Proof.
   intros F S A x.
   simpl is_empty in |- *.
-  match (cardinality x) per c with | | p end; divide et impera; simpl in |- *.
+  match (cardinality x) with | | p end |- c; divide et impera; simpl in |- *.
   - intro h.
     quod idem est.
   - intro e.
