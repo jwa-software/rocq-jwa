@@ -1468,7 +1468,7 @@ Proof.
       leibniz (cancel (magnitude.negative.injectivity e)) in |- *.
       quod idem est.
   - simpl (~ _) in nonzero.
-    modus ponens nonzero, (Identity.reflexivity 0) as f.
+    modus ponens nonzero, (Identity.reflexivity 0) |- f.
     ex f quodlibet.
   - match m with | a | | a end; match n with | b | | b end; simpl in e.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
@@ -1584,7 +1584,7 @@ Proof.
     ipso (modus aequans (difference.nat.negative.specification k m' n'), e).
   - intro h.
     match h with | k e end.
-    modus aequans (difference.nat.negative.specification k m' n'), e as e'.
+    modus aequans (difference.nat.negative.specification k m' n'), e |- e'.
     apply (@Nat.comparison.strict.backward.specification n' m').
     simpl Nat.LessThan in |- *.
     apply (Exists_introduction k).

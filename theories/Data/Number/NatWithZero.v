@@ -382,7 +382,7 @@ Proof.
       leibniz (Nat.addition.commutativity n' k') in e'.
       let proof h := Nat.addition.identity.absence k' n'.
       simpl (~ _) in h.
-      modus ponens h, e' as f.
+      modus ponens h, e' |- f.
       ex f quodlibet.
     + simpl in |- *.
       intro e.
@@ -390,7 +390,7 @@ Proof.
       leibniz (Nat.addition.commutativity n' m') in e'.
       let proof h := Nat.addition.identity.absence m' n'.
       simpl (~ _) in h.
-      modus ponens h, e' as f.
+      modus ponens h, e' |- f.
       ex f quodlibet.
     + simpl in |- *.
       intro e.
@@ -893,7 +893,7 @@ Proof.
     leibniz (Nat.addition.commutativity n' k) in e'.
     let proof i := Nat.addition.identity.absence k n'.
     simpl (~ _) in i.
-    modus ponens i, e' as f.
+    modus ponens i, e' |- f.
     ex f quodlibet.
 Qed.
 
@@ -1064,7 +1064,7 @@ Proof.
     * intro h.
       let proof i := order.strict.irreflexivity 0.
       simpl (~ _) in i.
-      modus ponens i, h as f.
+      modus ponens i, h |- f.
       ex f quodlibet.
   - divide et impera.
     * intro e.
@@ -1091,7 +1091,7 @@ Proof.
                            (Nat.comparison.strict.forward.specification e)).
     * intro h.
       simpl in |- *.
-      modus aequans (positive.order.embedding m' n'), h as lt.
+      modus aequans (positive.order.embedding m' n'), h |- lt.
       ipso (Nat.comparison.strict.backward.specification lt).
 Qed.
 
@@ -1214,18 +1214,18 @@ Proof.
   intros k m n.
   let proof t := Comparable.order.totality m n.
   match t with | h | h end.
-  - modus aequans (Comparable.minimum.specification m n), h as e1.
+  - modus aequans (Comparable.minimum.specification m n), h |- e1.
     leibniz e1 in |- *.
     modus aequans (Comparable.minimum.specification (k + m) (k + n)),
-                  (addition.order.monotonicity k m n h) as e2.
+                  (addition.order.monotonicity k m n h) |- e2.
     leibniz e2 in |- *.
     quod idem est.
   - leibniz (Comparable.minimum.commutativity m n)             in |- *.
     leibniz (Comparable.minimum.commutativity (k + m) (k + n)) in |- *.
-    modus aequans (Comparable.minimum.specification n m), h as e1.
+    modus aequans (Comparable.minimum.specification n m), h |- e1.
     leibniz e1 in |- *.
     modus aequans (Comparable.minimum.specification (k + n) (k + m)),
-                  (addition.order.monotonicity k n m h) as e2.
+                  (addition.order.monotonicity k n m h) |- e2.
     leibniz e2 in |- *.
     quod idem est.
 Qed.
@@ -1391,17 +1391,17 @@ Proof.
   intros m n h.
   simpl sub in |- *.
   match (le n m) per c with | | end.
-  - modus aequans (Comparable.order.reflection n m), c as order.
+  - modus aequans (Comparable.order.reflection n m), c |- order.
     simpl Comparable.LessOrEqual in order.
     match order with | e | lt end.
     + leibniz e in h.
       let proof i := order.strict.irreflexivity m.
       simpl (~ _) in i.
-      modus ponens i, h as f.
+      modus ponens i, h |- f.
       ex f quodlibet.
     + let proof a := Comparable.order.strict.asymmetry m n h.
       simpl (~ _) in a.
-      modus ponens a, lt as f.
+      modus ponens a, lt |- f.
       ex f quodlibet.
   - quod idem est.
 Qed.
@@ -1418,7 +1418,7 @@ Proof.
   simpl sub in |- *.
   leibniz (subtraction.saturating.inversion.of.addition m n) in |- *.
   modus aequans (Comparable.order.reflection n (m + n)),
-                (addition.right.order.extensivity m n) as e.
+                (addition.right.order.extensivity m n) |- e.
   leibniz e in |- *.
   simpl in |- *.
   quod idem est.
@@ -1439,7 +1439,7 @@ Proof.
     simpl sub in e.
     match (le n m) per c with | | end.
     + let proof e' := Option.some.injectivity e.
-      modus aequans (Comparable.order.reflection n m), c as order.
+      modus aequans (Comparable.order.reflection n m), c |- order.
       leibniz <- e' in |- *.
       ipso (subtraction.saturating.specification order).
     + ex e quodlibet.
@@ -1483,7 +1483,7 @@ Proof.
     simpl in e.
     simpl in lt.
     match (eq (++ r) (+ d)) per E with | | end; divide et impera; simpl in |- *.
-    * modus aequans (Comparable.comparison.equality.reflection (++ r) (+ d)), E as full.
+    * modus aequans (Comparable.comparison.equality.reflection (++ r) (+ d)), E |- full.
       leibniz (increment.specification r) in full.
       leibniz (increment.specification q) in |- *.
       leibniz (multiplication.right.distributivity.over.addition (+ d) (+ Nat.One) q)
@@ -1517,7 +1517,7 @@ Proof.
       leibniz (increment.specification r) in |- *.
       leibniz (addition.commutativity (+ Nat.One) r) in |- *.
       match k with | | k' end.
-      { modus aequans (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)), ek as full.
+      { modus aequans (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)), ek |- full.
         leibniz full in E.
         ex E quodlibet. }
       { simpl LessThan in |- *.
@@ -1580,7 +1580,7 @@ Proof.
       leibniz hk in bound.
       let proof irreflexivity := order.strict.irreflexivity (+ d).
       simpl (~ _) in irreflexivity.
-      modus ponens irreflexivity, bound as f.
+      modus ponens irreflexivity, bound |- f.
       ex f quodlibet.
     + change (+ (Nat.Successor k'')) with ((+ Nat.One) + (+ k'')) in hk.
       leibniz (multiplication.left.distributivity.over.addition (+ g) (+ Nat.One) (+ k'')) in hk.
@@ -1593,12 +1593,12 @@ Proof.
       * leibniz equal in bound.
         let proof irreflexivity := order.strict.irreflexivity (+ d).
         simpl (~ _) in irreflexivity.
-        modus ponens irreflexivity, bound as f.
+        modus ponens irreflexivity, bound |- f.
         ex f quodlibet.
       * let proof circular := order.strict.transitivity bound less.
         let proof irreflexivity := order.strict.irreflexivity (+ d).
         simpl (~ _) in irreflexivity.
-        modus ponens irreflexivity, circular as f.
+        modus ponens irreflexivity, circular |- f.
         ex f quodlibet.
 Qed.
 
@@ -1688,10 +1688,10 @@ Proof.
       match span with | s1 | s2 end.
       + symmetry in s1.
         leibniz s1 in bound.
-        modus ponens i, bound as f.
+        modus ponens i, bound |- f.
         ex f quodlibet.
       + let proof loop := order.strict.transitivity s2 bound.
-        modus ponens i, loop as f.
+        modus ponens i, loop |- f.
         ex f quodlibet.
     - match rest with | equal | above end.
       + ipso equal.
@@ -1721,10 +1721,10 @@ Proof.
         match span with | s1 | s2 end.
         * symmetry in s1.
           leibniz s1 in b.
-          modus ponens i, b as f.
+          modus ponens i, b |- f.
           ex f quodlibet.
         * let proof loop := order.strict.transitivity s2 b.
-          modus ponens i, loop as f.
+          modus ponens i, loop |- f.
           ex f quodlibet.
   }
   divide et impera.
@@ -1825,7 +1825,7 @@ Proof.
   generalize dependent n.
   match ((+ d) /. g) with | | q' end.
   - intro n.
-    modus ponens n, (Identity.reflexivity 0) as f.
+    modus ponens n, (Identity.reflexivity 0) |- f.
     ex f quodlibet.
   - intro n.
     simpl in |- *.
@@ -2512,7 +2512,7 @@ Proof.
     + leibniz (gcd.nat.recurrence a c r e) in |- *.
       let proof b := division.remainder.boundedness a c.
       leibniz e in b.
-      modus aequans (positive.order.embedding r c), b as lt.
+      modus aequans (positive.order.embedding r c), b |- lt.
       ipso (recurse r lt (+ c)).
   - ipso (accessibility q).
 Qed.

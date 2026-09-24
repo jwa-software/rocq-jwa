@@ -131,7 +131,7 @@ Proof.
       ex e quodlibet.
   - intro h.
     match (Comparable.specification n m) with | s _ end.
-    modus aequans s, h as e.
+    modus aequans s, h |- e.
     leibniz e in |- *.
     simpl in |- *.
     quod idem est.
@@ -177,7 +177,7 @@ Proof.
     + ex e quodlibet.
   - intro h.
     match (Comparable.specification m n) with | _ s end.
-    modus aequans s, h as e.
+    modus aequans s, h |- e.
     leibniz e in |- *.
     quod idem est.
 Qed.
@@ -202,7 +202,7 @@ Proof.
   intros A compare lt C n.
   simpl (~ _) in |- *.
   intro h.
-  modus aequans (comparison.strict.specification n n), h as c.
+  modus aequans (comparison.strict.specification n n), h |- c.
   leibniz (comparison.reflexivity n) in c.
   ex c quodlibet.
 Qed.
@@ -222,7 +222,7 @@ Proof.
   let proof h := Comparable.transitivity m n m h1 h2.
   let proof i := order.strict.irreflexivity m.
   simpl (~ _) in i.
-  modus ponens i, h as f.
+  modus ponens i, h |- f.
   ex f quodlibet.
 Qed.
 
@@ -238,12 +238,12 @@ Proof.
   intros A compare lt C m n.
   match (compare m n) per c with | | | end.
   - match (Comparable.specification m n) with | s _ end.
-    modus aequans s, c as h.
+    modus aequans s, c |- h.
     ipso (Disjunction.L h).
   - match (Comparable.specification m n) with | _ s end.
-    modus aequans s, c as h.
+    modus aequans s, c |- h.
     ipso (Disjunction.R (Disjunction.L h)).
-  - modus aequans (comparison.strict.transposition.specification m n), c as h.
+  - modus aequans (comparison.strict.transposition.specification m n), c |- h.
     ipso (Disjunction.R (Disjunction.R h)).
 Qed.
 
@@ -281,7 +281,7 @@ Proof.
     + ipso (Identity.symmetry e2).
     + let proof a := order.strict.asymmetry m n lt1.
       simpl (~ _) in a.
-      modus ponens a, lt2 as f.
+      modus ponens a, lt2 |- f.
       ex f quodlibet.
 Qed.
 
@@ -357,11 +357,11 @@ Proof.
     + intro h.
       match h with | e | lt1 end.
       * match (Comparable.specification m n) with | _ s end.
-        modus aequans s, e as e'.
+        modus aequans s, e |- e'.
         leibniz e' in c.
         ex c quodlibet.
       * match (Comparable.specification m n) with | s _ end.
-        modus aequans s, lt1 as e.
+        modus aequans s, lt1 |- e.
         leibniz e in c.
         ex c quodlibet.
 Qed.
@@ -400,7 +400,7 @@ Proof.
     + match h with | e | lt1 end.
       * ipso (Identity.symmetry e).
       * match (Comparable.specification m n) with | s _ end.
-        modus aequans s, lt1 as e.
+        modus aequans s, lt1 |- e.
         leibniz e in c.
         ex c quodlibet.
 Qed.
@@ -575,7 +575,7 @@ Proof.
       ipso e.
     + apply Disjunction.L.
       match (Comparable.specification m n) with | _ s end.
-      modus aequans s, c as e'.
+      modus aequans s, c |- e'.
       ipso (Identity.symmetry e').
     + apply Disjunction.R.
       ipso (modus aequans
@@ -584,7 +584,7 @@ Proof.
     match (compare m n) per c with | | | end.
     + match h with | e | gt end.
       * ipso e.
-      * modus aequans (comparison.strict.transposition.specification m n), gt as e.
+      * modus aequans (comparison.strict.transposition.specification m n), gt |- e.
         leibniz e in c.
         ex c quodlibet.
     + quod idem est.
@@ -633,7 +633,7 @@ Proof.
   - ipso (Disjunction.L (Identity.reflexivity r)).
   - apply Disjunction.L.
     match (Comparable.specification l r) with | _ s end.
-    modus aequans s, c as e.
+    modus aequans s, c |- e.
     ipso (Identity.symmetry e).
   - apply Disjunction.R.
     ipso (modus aequans

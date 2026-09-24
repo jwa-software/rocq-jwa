@@ -266,7 +266,7 @@ Proof.
     + intro h.
       match h with | e | h' end.
       * ipso (Disjunction.L (Disjunction.L e)).
-      * modus aequans IH, h' as d.
+      * modus aequans IH, h' |- d.
         match d with | m | m end.
         -- ipso (Disjunction.L (Disjunction.R m)).
         -- ipso (Disjunction.R m).
@@ -274,9 +274,9 @@ Proof.
       match h with | c | m end.
       * match c with | e | m end.
         -- ipso (Disjunction.L e).
-        -- modus aequans IH, (Disjunction.L m) as h'.
+        -- modus aequans IH, (Disjunction.L m) |- h'.
            ipso (Disjunction.R h').
-      * modus aequans IH, (Disjunction.R m) as h'.
+      * modus aequans IH, (Disjunction.R m) |- h'.
         ipso (Disjunction.R h').
 Qed.
 
@@ -557,12 +557,12 @@ Proof.
     + intro h.
       match h with | e | m end.
       * ipso (Disjunction.L e).
-      * modus aequans IH, m as m'.
+      * modus aequans IH, m |- m'.
         ipso (Disjunction.R m').
     + intro h.
       match h with | e | m end.
       * ipso (Disjunction.L e).
-      * modus aequans IH, m as m'.
+      * modus aequans IH, m |- m'.
         ipso (Disjunction.R m').
 Qed.
 

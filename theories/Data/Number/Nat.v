@@ -399,7 +399,7 @@ Proof.
           in e.
   let proof i := addition.identity.absence k n.
   simpl (~ _) in i.
-  modus ponens i, e as f.
+  modus ponens i, e |- f.
   ex f quodlibet.
 Qed.
 
@@ -615,7 +615,7 @@ Proof.
             in lt'.
     let proof i := order.strict.irreflexivity (m * k).
     simpl (~ _) in i.
-    modus ponens i, lt' as f.
+    modus ponens i, lt' |- f.
     ex f quodlibet.
   - match rest with | eq | gt end.
     + ipso eq.
@@ -624,7 +624,7 @@ Proof.
               in gt'.
       let proof i := order.strict.irreflexivity (m * k).
       simpl (~ _) in i.
-      modus ponens i, gt' as f.
+      modus ponens i, gt' |- f.
       ex f quodlibet.
 Qed.
 
@@ -902,7 +902,7 @@ Proof.
   +
     let proof i := order.strict.irreflexivity 1.
     simpl (~ _) in i.
-    modus ponens i, h as f.
+    modus ponens i, h |- f.
     ex f quodlibet.
   +
     quod idem est.

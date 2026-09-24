@@ -621,7 +621,7 @@ Proof.
   }
 
   let proof criterion := characterisation Integer.Zero b Integer.Zero Nat.One.
-  modus aequans criterion, cross as joined.
+  modus aequans criterion, cross |- joined.
   ipso (Identity.transitivity joined unit).
 Qed.
 
@@ -698,7 +698,7 @@ Proof.
                 (Nat.mul q s)
                 (Integer.add (Integer.mul a d') (Integer.mul c b'))
                 (Nat.mul b d).
-  modus aequans criterion, cross as joined.
+  modus aequans criterion, cross |- joined.
   ipso joined.
 Qed.
 
@@ -743,7 +743,7 @@ Proof.
   let proof criterion := characterisation
                 (Integer.mul p r) (Nat.mul q s)
                 (Integer.mul a c) (Nat.mul b d).
-  modus aequans criterion, cross as joined.
+  modus aequans criterion, cross |- joined.
   ipso joined.
 Qed.
 
@@ -776,7 +776,7 @@ Proof.
 
   let proof criterion := characterisation
                 (Integer.negate p) q (Integer.negate a) b.
-  modus aequans criterion, cross as joined.
+  modus aequans criterion, cross |- joined.
   ipso joined.
 Qed.
 
@@ -1364,7 +1364,7 @@ Proof.
                   (Nat.mul d p)
                   (Integer.Positive Nat.One)
                   (Nat.One).
-    modus aequans criterion, cross as joined.
+    modus aequans criterion, cross |- joined.
     ipso (Identity.transitivity joined unit).
 
   - ex e quodlibet.
@@ -1400,7 +1400,7 @@ Proof.
                   (Nat.mul d p)
                   (Integer.Positive Nat.One)
                   (Nat.One).
-    modus aequans criterion, cross as joined.
+    modus aequans criterion, cross |- joined.
     ipso (Identity.transitivity joined unit).
 Qed.
 
@@ -1540,12 +1540,12 @@ Proof.
   - ipso below.
   - divide et impera.
     + intro h.
-      modus aequans equal, h as cross.
-      modus aequans (characterisation x y), cross as same.
+      modus aequans equal, h |- cross.
+      modus aequans (characterisation x y), cross |- same.
       ipso same.
     + intro h.
-      modus aequans (characterisation x y), h as cross.
-      modus aequans equal, cross as answer.
+      modus aequans (characterisation x y), h |- cross.
+      modus aequans equal, cross |- answer.
       ipso answer.
 Qed.
 
@@ -1571,7 +1571,7 @@ Theorem injectivity
 Proof.
   intros m n e.
   simpl from_integer in e.
-  modus aequans (make.characterisation m Nat.One n Nat.One), e as cross.
+  modus aequans (make.characterisation m Nat.One n Nat.One), e |- cross.
   let proof cross
     : Integer.mul m (Integer.Positive Nat.One) = Integer.mul n (Integer.Positive Nat.One)
     := &cross.

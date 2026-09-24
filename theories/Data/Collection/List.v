@@ -1985,7 +1985,7 @@ Proof.
       leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
       let proof h := NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One.
       simpl (~ _) in h.
-      modus ponens h, e' as f.
+      modus ponens h, e' |- f.
       ex f quodlibet.
   - intros l2 e.
     match l2 with | | b l2' end.
@@ -1994,7 +1994,7 @@ Proof.
       leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
       let proof h := NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One.
       simpl (~ _) in h.
-      modus ponens h, e as f.
+      modus ponens h, e |- f.
       ex f quodlibet.
     + simpl in e.
       leibniz (NatWithZero.increment.specification (|| l1' ||)) in e.
@@ -2096,7 +2096,7 @@ Proof.
     match h with | k e end.
     let proof r := NatWithZero.addition.right.identity.absence i k.
     simpl (~ _) in r.
-    modus ponens r, e as f.
+    modus ponens r, e |- f.
     ex f quodlibet.
   - intros i h.
     match i with | | i' end.
@@ -2188,7 +2188,7 @@ Proof.
           (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
              ((|| l' ||) + NatWithZero.Positive Nat.One)),
           (NatWithZero.addition.right.order.extensivity
-             (|| l' ||) (NatWithZero.Positive Nat.One)) as e.
+             (|| l' ||) (NatWithZero.Positive Nat.One)) |- e.
         leibniz e in |- *.
         quod idem est.
       * simpl in |- *.
@@ -2387,7 +2387,7 @@ Proof.
         leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
         let proof r := NatWithZero.addition.right.identity.absence (count p l') Nat.One.
         simpl (~ _) in r.
-        modus ponens r, e as f.
+        modus ponens r, e |- f.
         ex f quodlibet.
       * intro c.
         match c with | e f end.
@@ -2395,7 +2395,7 @@ Proof.
     + simpl in |- *.
       divide et impera.
       * intro e.
-        modus aequans IH, e as all'.
+        modus aequans IH, e |- all'.
         ipso (Conjunction_introduction (Identity.reflexivity false) all').
       * intro c.
         match c with | e all' end.
@@ -2495,7 +2495,7 @@ Proof.
       intro h.
       match h with | e | h' end.
       * ipso (Disjunction.R (Disjunction.L e)).
-      * modus ponens IH, h' as h''.
+      * modus ponens IH, h' |- h''.
         match h'' with | e | h''' end.
         { ipso (Disjunction.L e). }
         { ipso (Disjunction.R (Disjunction.R h''')). }
@@ -2717,7 +2717,7 @@ Proof.
     modus aequans
       (membership.distributivity.over.concatenation
          i (range_positive p') (NatWithZero.Positive p' :: [])),
-      h as h'.
+      h |- h'.
     change (NatWithZero.Positive (Nat.Successor p'))
       with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
     leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
@@ -2759,7 +2759,7 @@ Proof.
   - intros i h.
     let proof h : i < NatWithZero.Positive Nat.One + NatWithZero.Positive p' := &h.
     leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
-    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h as h'.
+    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h |- h'.
     simpl in |- *.
     lemma side : range_positive p' contains_member i
                    \/ (NatWithZero.Positive p' :: []) contains_member i.
@@ -2812,7 +2812,7 @@ Proof.
       match h with | k e end.
       let proof r := NatWithZero.addition.right.identity.absence i k.
       simpl (~ _) in r.
-      modus ponens r, e as f.
+      modus ponens r, e |- f.
       ex f quodlibet.
   - simpl in |- *.
     divide et impera.
@@ -2906,13 +2906,13 @@ Proof.
         (mapping.membership.specification
            (NatWithZero.add start) i
            (range_from_zero (NatWithZero.saturating_sub stop start))),
-        h as w.
+        h |- w.
       match w with | j c end.
       match c with | m e end.
       modus aequans
         (from_zero.membership.specification
            (NatWithZero.saturating_sub stop start) j),
-        m as lt.
+        m |- lt.
       divide et impera.
       * leibniz e in |- *.
         leibniz (NatWithZero.addition.commutativity start j) in |- *.
@@ -2998,7 +2998,7 @@ Proof.
     modus aequans
       (range.membership.specification
          start (stop + NatWithZero.Positive Nat.One) i),
-      h as c.
+      h |- c.
     match c with | low high end.
     divide et impera.
     + ipso low.
@@ -3102,7 +3102,7 @@ Proof.
   - intros m e.
     simpl in e.
     match (maximum_of le l') per r with | | m' end.
-    + modus aequans (absence.specification le l'), r as en.
+    + modus aequans (absence.specification le l'), r |- en.
       let proof e' := Option.some.injectivity e.
       leibniz en in |- *.
       leibniz <- e' in |- *.
@@ -3202,7 +3202,7 @@ Proof.
   - intros m e.
     simpl in e.
     match (minimum_of le l') per r with | | m' end.
-    + modus aequans (absence.specification le l'), r as en.
+    + modus aequans (absence.specification le l'), r |- en.
       let proof e' := Option.some.injectivity e.
       leibniz en in |- *.
       leibniz <- e' in |- *.
