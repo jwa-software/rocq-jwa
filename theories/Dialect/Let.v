@@ -52,8 +52,9 @@ From Ltac2 Require Constr Control Fresh Ident Int List Message Std.
  * Declared at level 5 beside Ltac2's own [let <x> := <v> in <e>], which is
  * part of the language and which these notations shadow: in a proof, and in
  * any file importing this one, Ltac2's [let ... in] no longer parses. <T>
- * and <e> are [lconstr]s, terms at level 200, so that neither an application
- * nor an operator needs parentheses.
+ * and <e> are terms at level 200, so that neither an application nor an
+ * operator needs parentheses. When <T> is given, <e> is read against it, so
+ * [let proof h : A \/ B := disjoin a, _] finds the side left open.
  *)
 
 (* The helpers come first: they use Ltac2's [let ... in], which the
@@ -145,10 +146,20 @@ Ltac2 let_proof_typed (h : ident) (t : constr) (e : constr) :=
     else (let y := Fresh.in_goal h in pose_proof constr:($e : $t) y; shadow_with h y)
   else pose_proof constr:($e : $t) h.
 
-(* <T> and <e> arrive unread, so that [Local.checked] can read them twice. *)
-Ltac2 typed_proof (who : string) (t : unit -> constr) (e : unit -> constr) : constr :=
+(* <e> read with <T> as its expected type, so that what only <T> decides,
+ * such as the side [disjoin a, _] leaves open, is inferred.
+ *)
+Ltac2 read_as (t : constr) (e : preterm) : unit -> constr :=
+  fun () =>
+    Constr.Pretype.pretype
+      Constr.Pretype.Flags.constr_flags (Constr.Pretype.expected_oftype t) e.
+
+(* <T> and <e> arrive unread, so that [Local.checked] can read them twice;
+ * <T> is read first, and <e> against it.
+ *)
+Ltac2 typed_proof (who : string) (t : unit -> constr) (e : preterm) : constr :=
   let t := Local.checked who t in
-  let e := Local.checked who e in
+  let e := Local.checked who (read_as t e) in
   constr:($e : $t).
 
 (* The body and the type of a name of the context, [None] when it is not
@@ -460,6 +471,26 @@ Ltac2 let_fold (x : ident) (places : ident list * bool * bool) :=
          else ())
   end.
 
+(* The typed forms read <T> first and <e> against it, through [read_as]. *)
+Ltac2 let_typed (x : ident) (t : unit -> constr) (e : preterm) :=
+  let t := Local.checked "let" t in
+  let_definition_typed x t (Local.checked "let" (read_as t e)).
+
+Ltac2 let_in_typed
+  (x : ident) (t : unit -> constr) (e : preterm) (places : ident list * bool * bool) :=
+  let t := Local.checked "let" t in
+  let_in x (Local.checked "let" (read_as t e)) (Some t) places.
+
+Ltac2 let_at_typed
+  (x : ident) (t : unit -> constr) (e : preterm) (n : int)
+  (places : ident list * bool * bool) :=
+  let t := Local.checked "let" t in
+  let_at x (Local.checked "let" (read_as t e)) (Some t) n places.
+
+Ltac2 let_proof_typed_read (h : ident) (t : unit -> constr) (e : preterm) :=
+  let t := Local.checked "let proof" t in
+  let_proof_typed h t (Local.checked "let proof" (read_as t e)).
+
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
  * must reach the helpers that know how to shadow.
@@ -468,16 +499,15 @@ Ltac2 Notation "let" "proof" p(intropattern) ":=" e(thunk(lconstr)) : 5 :=
   Control.enter (fun () =>
     Std.specialize (Local.checked "let proof" e, Std.NoBindings) (Some p)).
 
-Ltac2 Notation "let" "proof" p(intropattern) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
+Ltac2 Notation "let" "proof" p(intropattern) ":" t(thunk(lconstr)) ":=" e(lpreterm) : 5 :=
   Control.enter (fun () =>
     Std.specialize (typed_proof "let proof" t e, Std.NoBindings) (Some p)).
 
 Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr)) : 5 :=
   Control.enter (fun () => let_definition x (Local.checked "let" e)).
 
-Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
-  Control.enter (fun () =>
-    let_definition_typed x (Local.checked "let" t) (Local.checked "let" e)).
+Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(lpreterm) : 5 :=
+  Control.enter (fun () => let_typed x t e).
 
 Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr))
   "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
@@ -485,12 +515,10 @@ Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr))
   Control.enter (fun () =>
     let_in x (Local.checked "let" e) None (let_places hypotheses goal everywhere)).
 
-Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr))
+Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(lpreterm)
   "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
   : 5 :=
-  Control.enter (fun () =>
-    let_in x (Local.checked "let" e) (Some (Local.checked "let" t))
-      (let_places hypotheses goal everywhere)).
+  Control.enter (fun () => let_in_typed x t e (let_places hypotheses goal everywhere)).
 
 Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr)) "at" n(tactic(0))
   "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
@@ -498,12 +526,10 @@ Ltac2 Notation "let" x(ident) ":=" e(thunk(lconstr)) "at" n(tactic(0))
   Control.enter (fun () =>
     let_at x (Local.checked "let" e) None n (let_places hypotheses goal everywhere)).
 
-Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) "at" n(tactic(0))
+Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(lpreterm) "at" n(tactic(0))
   "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
   : 5 :=
-  Control.enter (fun () =>
-    let_at x (Local.checked "let" e) (Some (Local.checked "let" t)) n
-      (let_places hypotheses goal everywhere)).
+  Control.enter (fun () => let_at_typed x t e n (let_places hypotheses goal everywhere)).
 
 Ltac2 Notation "let" "&" x(ident)
   "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
@@ -513,6 +539,5 @@ Ltac2 Notation "let" "&" x(ident)
 Ltac2 Notation "let" "proof" h(ident) ":=" e(thunk(lconstr)) : 5 :=
   Control.enter (fun () => let_proof h (Local.checked "let proof" e)).
 
-Ltac2 Notation "let" "proof" h(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) : 5 :=
-  Control.enter (fun () =>
-    let_proof_typed h (Local.checked "let proof" t) (Local.checked "let proof" e)).
+Ltac2 Notation "let" "proof" h(ident) ":" t(thunk(lconstr)) ":=" e(lpreterm) : 5 :=
+  Control.enter (fun () => let_proof_typed_read h t e).
