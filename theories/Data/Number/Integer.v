@@ -1073,7 +1073,7 @@ Proof.
   simpl LessThan in h.
   match h with | d e end.
   simpl LessThan in |- *.
-  apply (Exists_introduction d).
+  exists d.
   leibniz (addition.associativity k m (+ d)) in |- *.
   leibniz e in |- *.
   quod idem est.
@@ -1333,7 +1333,7 @@ Proof.
   simpl LessThan in h.
   match h with | d e end.
   simpl LessThan in |- *.
-  apply (Exists_introduction (Nat.mul p d)).
+  exists (Nat.mul p d).
   change (+ (Nat.mul p d)) with ((+ p) * (+ d)) in |- *.
   leibniz <- (multiplication.left.distributivity.over.addition (+ p) m (+ d))
           in |- *.
@@ -1524,7 +1524,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl LessThan in |- *.
-  apply (Exists_introduction (Nat.add k1 k2)).
+  exists (Nat.add k1 k2).
   change (+ (Nat.add k1 k2))
     with ((+ k1) + (+ k2))
     in |- *.
@@ -1579,7 +1579,7 @@ Proof.
     let proof lt := Nat.comparison.strict.forward.specification c.
     simpl Nat.LessThan in lt.
     match lt with | k e end.
-    apply (Exists_introduction k).
+    exists k.
     leibniz (Nat.addition.commutativity n' k) in e.
     ipso (modus aequans (difference.nat.negative.specification k m' n'), e).
   - intro h.
@@ -1587,16 +1587,16 @@ Proof.
     modus aequans (difference.nat.negative.specification k m' n'), e |- e'.
     apply (@Nat.comparison.strict.backward.specification n' m').
     simpl Nat.LessThan in |- *.
-    apply (Exists_introduction k).
+    exists k.
     leibniz (Nat.addition.commutativity n' k) in |- *.
     ipso e'.
   - intro c.
-    apply (Exists_introduction m').
+    exists m'.
     ipso (difference.nat.reflexivity m').
   - intro h.
     quod idem est.
   - intro c.
-    apply (Exists_introduction (Nat.add n' m')).
+    exists (Nat.add n' m').
     ipso (difference.nat.left.inversion.of.addition n' m').
   - intro h.
     quod idem est.
@@ -1611,7 +1611,7 @@ Proof.
     match h with | k e end.
     ex e quodlibet.
   - intro c.
-    apply (Exists_introduction n').
+    exists n'.
     quod idem est.
   - intro h.
     quod idem est.
@@ -1629,7 +1629,7 @@ Proof.
     let proof lt := Nat.comparison.strict.forward.specification c.
     simpl Nat.LessThan in lt.
     match lt with | k e end.
-    apply (Exists_introduction k).
+    exists k.
     leibniz e in |- *.
     quod idem est.
   - intro h.
@@ -1637,7 +1637,7 @@ Proof.
     let proof e' := magnitude.positive.injectivity e.
     apply (@Nat.comparison.strict.backward.specification m' n').
     simpl Nat.LessThan in |- *.
-    apply (Exists_introduction k).
+    exists k.
     ipso e'.
 Qed.
 
@@ -1813,7 +1813,7 @@ Theorem reflexivity : forall (n : Integer) . Divides n n.
 Proof.
   intros n.
   simpl Divides in |- *.
-  apply (Exists_introduction (+ Nat.One)).
+  exists (+ Nat.One).
   ipso (multiplication.right.identity n).
 Qed.
 
@@ -1827,7 +1827,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
-  apply (Exists_introduction (k1 * k2)).
+  exists (k1 * k2).
   leibniz <- (multiplication.associativity l k1 k2)
           in |- *.
   leibniz -> e1
@@ -1847,7 +1847,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
-  apply (Exists_introduction (k1 + k2)).
+  exists (k1 + k2).
   leibniz (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
   leibniz e1 in |- *.
   leibniz e2 in |- *.
@@ -1866,7 +1866,7 @@ Proof.
   simpl Divides in h.
   match h with | k e end.
   simpl Divides in |- *.
-  apply (Exists_introduction (k * n)).
+  exists (k * n).
   leibniz <- (multiplication.associativity d k n) in |- *.
   leibniz e in |- *.
   quod idem est.
@@ -1886,7 +1886,7 @@ Proof.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       simpl Odd in |- *.
-      apply (Exists_introduction (- Nat.One)).
+      exists (- Nat.One).
       simpl add in |- *.
       simpl in |- *.
       quod idem est.
@@ -1895,7 +1895,7 @@ Proof.
         simpl Even, Divides in ev.
         match ev with | k e end.
         simpl Odd in |- *.
-        apply (Exists_introduction (k + (- Nat.One))).
+        exists (k + (- Nat.One)).
         leibniz (multiplication.left.distributivity.over.addition (+ (Nat.Successor Nat.One)) k (- Nat.One))
           in |- *.
         change ((+ (Nat.Successor Nat.One)) * (- Nat.One))
@@ -1916,7 +1916,7 @@ Proof.
         simpl Odd in od.
         match od with | k e end.
         simpl Even, Divides in |- *.
-        apply (Exists_introduction k).
+        exists k.
         let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
         let proof e'
           : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
@@ -1936,13 +1936,13 @@ Proof.
   - apply Disjunction.L.
     simpl Even in |- *.
     simpl Divides in |- *.
-    apply (Exists_introduction 0).
+    exists 0.
     simpl in |- *.
     quod idem est.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       simpl Odd, add in |- *.
-      apply (Exists_introduction 0).
+      exists 0.
       simpl in |- *.
       quod idem est.
     + match IH with | ev | od end.
@@ -1950,7 +1950,7 @@ Proof.
         simpl Even, Divides in ev.
         match ev with | k e end.
         simpl Odd in |- *.
-        apply (Exists_introduction k).
+        exists k.
         leibniz e in |- *.
         simpl add in |- *.
         simpl in |- *.
@@ -1961,7 +1961,7 @@ Proof.
         simpl Odd in od.
         match od with | k e end.
         simpl Even, Divides in |- *.
-        apply (Exists_introduction (k + (+ Nat.One))).
+        exists (k + (+ Nat.One)).
         leibniz (multiplication.left.distributivity.over.addition
                   (+ (Nat.Successor Nat.One)) k (+ Nat.One)) in |- *.
         change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
@@ -2011,7 +2011,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl Even, Divides in |- *.
-  apply (Exists_introduction ((k1 + k2) + (+ Nat.One))).
+  exists ((k1 + k2) + (+ Nat.One)).
   symmetry in e1, e2.
   leibniz e1 in |- *.
   leibniz e2 in |- *.

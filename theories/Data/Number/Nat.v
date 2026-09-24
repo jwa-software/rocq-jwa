@@ -180,7 +180,7 @@ Proof.
   simpl LessThan in h.
   match h with | k e end.
   simpl LessThan in |- *.
-  apply (Exists_introduction k).
+  exists k.
   simpl in |- *.
   leibniz e in |- *.
   quod idem est.
@@ -358,7 +358,7 @@ Theorem extensivity : forall (m : Nat) (k : Nat) . m < m + k.
 Proof.
   intros m k.
   simpl LessThan in |- *.
-  apply (Exists_introduction k).
+  exists k.
   quod idem est.
 Qed.
 
@@ -371,7 +371,7 @@ Proof.
   simpl LessThan in h.
   match h with | d e end.
   simpl LessThan in |- *.
-  apply (Exists_introduction d).
+  exists d.
   leibniz (addition.associativity k m d)
           in |- *.
   leibniz e
@@ -414,7 +414,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl LessThan in |- *.
-  apply (Exists_introduction (k1 + k2)).
+  exists (k1 + k2).
   let proof a := Identity.symmetry (addition.associativity l k1 k2).
   leibniz a  in |- *.
   leibniz e1 in |- *.
@@ -440,14 +440,14 @@ Proof.
   -
     apply Disjunction.L.
     simpl LessThan in |- *.
-    apply (Exists_introduction n').
+    exists n'.
     simpl in |- *.
     quod idem est.
   -
     apply Disjunction.R.
     apply Disjunction.R.
     simpl LessThan in |- *.
-    apply (Exists_introduction m').
+    exists m'.
     simpl in |- *.
     quod idem est.
   -
@@ -497,7 +497,7 @@ Proof.
     + simpl in e.
       let proof e' := successor.injectivity e.
       apply (Accessible.descend IH).
-      apply (Exists_introduction k').
+      exists k'.
       leibniz (addition.commutativity y k') in |- *.
       ipso e'.
 Qed.
@@ -593,7 +593,7 @@ Proof.
   simpl LessThan in h.
   match h with | d e end.
   simpl LessThan in |- *.
-  apply (Exists_introduction (k * d)).
+  exists (k * d).
   let proof dist := Identity.symmetry
                 (multiplication.left.distributivity.over.addition k m d).
   leibniz dist in |- *.
@@ -875,7 +875,7 @@ Proof.
     ex e quodlibet.
   -
     simpl LessThan in |- *.
-    apply (Exists_introduction n').
+    exists n'.
     simpl in |- *.
     quod idem est.
   -

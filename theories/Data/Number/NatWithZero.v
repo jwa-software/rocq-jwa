@@ -287,7 +287,7 @@ Proof.
     simpl Nat.LessThan in h.
     match h with | k e end.
     simpl LessThan in |- *.
-    apply (Exists_introduction k).
+    exists k.
     simpl in |- *.
     leibniz e in |- *.
     quod idem est.
@@ -459,7 +459,7 @@ Proof.
     ipso (Disjunction.L (Identity.reflexivity n)).
   - apply Disjunction.R.
     simpl LessThan in |- *.
-    apply (Exists_introduction m').
+    exists m'.
     ipso (addition.commutativity n (+ m')).
 Qed.
 
@@ -471,10 +471,10 @@ Proof.
   simpl LessThan in |- *.
   match n with | | n' end.
   - simpl in |- *.
-    apply (Exists_introduction k).
+    exists k.
     quod idem est.
   - simpl in |- *.
-    apply (Exists_introduction (Nat.add n' k)).
+    exists (Nat.add n' k).
     quod idem est.
 Qed.
 
@@ -522,7 +522,7 @@ Proof.
   simpl LessThan in h.
   match h with | d e end.
   simpl LessThan in |- *.
-  apply (Exists_introduction d).
+  exists d.
   leibniz (addition.associativity k m (+ d)) in |- *.
   leibniz e in |- *.
   quod idem est.
@@ -538,7 +538,7 @@ Proof.
   match h with | d e end.
   leibniz (addition.associativity k m (+ d)) in e.
   simpl LessThan in |- *.
-  apply (Exists_introduction d).
+  exists d.
   ipso (addition.left.cancellation e).
 Qed.
 
@@ -671,7 +671,7 @@ Proof.
   match h with | d e end.
   symmetry in e.
   simpl LessThan in |- *.
-  apply (Exists_introduction (Nat.mul k d)).
+  exists (Nat.mul k d).
   match m with | | m' end.
   - simpl in e.
     leibniz e in |- *.
@@ -742,7 +742,7 @@ Proof.
       ipso (Disjunction.L (Identity.reflexivity (+ p))).
     + apply Disjunction.R.
       simpl LessThan in |- *.
-      apply (Exists_introduction (Nat.mul k' p)).
+      exists (Nat.mul k' p).
       simpl in |- *.
       quod idem est.
 Qed.
@@ -907,7 +907,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl LessThan in |- *.
-  apply (Exists_introduction (Nat.add k1 k2)).
+  exists (Nat.add k1 k2).
   symmetry in e1, e2.
   leibniz e2 in |- *.
   leibniz e1 in |- *.
@@ -971,7 +971,7 @@ Proof.
         -- simpl in e'.
            let proof e'' := Nat.successor.injectivity e'.
            apply (Accessible.descend IH).
-           apply (Exists_introduction k').
+           exists k'.
            simpl in |- *.
            leibniz (Nat.addition.commutativity q k') in |- *.
            leibniz e'' in |- *.
@@ -999,7 +999,7 @@ Proof.
       ipso (addition.right.cancellation e).
     + apply Disjunction.R.
       simpl LessThan in |- *.
-      apply (Exists_introduction k').
+      exists k'.
       let proof e : m + ((+ Nat.One) + (+ k')) = n + (+ Nat.One) := &e.
       leibniz -> (addition.commutativity (+ Nat.One) (+ k'))
               in e.
@@ -1010,12 +1010,12 @@ Proof.
     simpl LessOrEqual in h.
     simpl LessThan    in |- *.
     match h with | e | lt end.
-    + apply (Exists_introduction Nat.One).
+    + exists Nat.One.
       leibniz e in |- *.
       quod idem est.
     + simpl LessThan in lt.
       match lt with | k e end.
-      apply (Exists_introduction (Nat.Successor k)).
+      exists (Nat.Successor k).
       change (+ (Nat.Successor k))
         with ((+ Nat.One) + (+ k))
         in |- *.
@@ -1069,7 +1069,7 @@ Proof.
   - divide et impera.
     * intro e.
       simpl LessThan in |- *.
-      apply (Exists_introduction n').
+      exists n'.
       simpl in |- *.
       quod idem est.
     * intro h.
@@ -1469,12 +1469,12 @@ Proof.
   - match d with | | d' end; divide et impera; simpl in |- *.
     * quod idem est.
     * simpl LessThan in |- *.
-      apply (Exists_introduction Nat.One).
+      exists Nat.One.
       simpl in |- *.
       quod idem est.
     * quod idem est.
     * simpl LessThan in |- *.
-      apply (Exists_introduction d').
+      exists d'.
       simpl in |- *.
       quod idem est.
   - match IH with | e lt end.
@@ -1502,7 +1502,7 @@ Proof.
       simpl in |- *.
       quod idem est.
     * simpl LessThan in |- *.
-      apply (Exists_introduction d).
+      exists d.
       simpl in |- *.
       quod idem est.
     * leibniz (increment.specification r) in |- *.
@@ -1521,7 +1521,7 @@ Proof.
         leibniz full in E.
         ex E quodlibet. }
       { simpl LessThan in |- *.
-        apply (Exists_introduction k').
+        exists k'.
         leibniz (addition.associativity r (+ Nat.One) (+ k')) in |- *.
         simpl in |- *.
         ipso ek. }
@@ -1631,7 +1631,7 @@ Proof.
   intros n d.
   match n with | | p end.
   - simpl LessThan in |- *.
-    apply (Exists_introduction d).
+    exists d.
     simpl in |- *.
     quod idem est.
   - ipso (division.nat.remainder.boundedness p d).
@@ -1785,7 +1785,7 @@ Proof.
       leibniz (multiplication.commutativity k (+ d)) in |- *.
       ipso hk.
     - simpl LessThan in |- *.
-      apply (Exists_introduction d).
+      exists d.
       simpl in |- *.
       quod idem est.
   }
@@ -2091,7 +2091,7 @@ Theorem reflexivity : forall (n : NatWithZero) . Divides n n.
 Proof.
   intros n.
   simpl Divides in |- *.
-  apply (Exists_introduction (+ Nat.One)).
+  exists (+ Nat.One).
   ipso (multiplication.right.identity n).
 Qed.
 
@@ -2105,7 +2105,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
-  apply (Exists_introduction (k1 * k2)).
+  exists (k1 * k2).
   leibniz <- (multiplication.associativity l k1 k2) in |- *.
   leibniz -> e1 in |- *.
   ipso e2.
@@ -2149,7 +2149,7 @@ Theorem bottom : forall (n : NatWithZero) . Divides (+ Nat.One) n.
 Proof.
   intros n.
   simpl Divides in |- *.
-  apply (Exists_introduction n).
+  exists n.
   ipso (multiplication.left.identity n).
 Qed.
 
@@ -2158,7 +2158,7 @@ Theorem top : forall (n : NatWithZero) . Divides n 0.
 Proof.
   intros n.
   simpl Divides in |- *.
-  apply (Exists_introduction 0).
+  exists 0.
   leibniz (multiplication.commutativity n 0) in |- *.
   simpl in |- *.
   quod idem est.
@@ -2176,7 +2176,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
-  apply (Exists_introduction (k1 + k2)).
+  exists (k1 + k2).
   leibniz (multiplication.left.distributivity.over.addition d k1 k2) in |- *.
   leibniz e1 in |- *.
   leibniz e2 in |- *.
@@ -2207,7 +2207,7 @@ Proof.
     ipso (divisibility.top 0).
   - match (Comparable.order.totality k1 k2) with | le | ge end.
     + simpl Divides in |- *.
-      apply (Exists_introduction (saturating_sub k2 k1)).
+      exists (saturating_sub k2 k1).
       let proof s := subtraction.saturating.specification le.
       let proof dist := multiplication.left.distributivity.over.addition
                     (+ c) k1 (saturating_sub k2 k1).
@@ -2254,7 +2254,7 @@ Proof.
   simpl Divides in h.
   match h with | k e end.
   simpl Divides in |- *.
-  apply (Exists_introduction (k * n)).
+  exists (k * n).
   leibniz <- (multiplication.associativity d k n) in |- *.
   leibniz e in |- *.
   quod idem est.
@@ -2656,13 +2656,13 @@ Proof.
   - apply Disjunction.L.
     simpl Even in |- *.
     simpl Divides in |- *.
-    apply (Exists_introduction 0).
+    exists 0.
     simpl in |- *.
     quod idem est.
   - induction p as [| p' IH] using Nat.induction.
     + apply Disjunction.R.
       simpl Odd in |- *.
-      apply (Exists_introduction 0).
+      exists 0.
       simpl in |- *.
       quod idem est.
     + match IH with | even | odd end.
@@ -2671,7 +2671,7 @@ Proof.
         simpl Divides in even.
         match even with | k e end.
         simpl Odd in |- *.
-        apply (Exists_introduction k).
+        exists k.
         leibniz e in |- *.
         simpl in |- *.
         quod idem est.
@@ -2680,7 +2680,7 @@ Proof.
         match odd with | k e end.
         simpl Even in |- *.
         simpl Divides in |- *.
-        apply (Exists_introduction ((+ Nat.One) + k)).
+        exists ((+ Nat.One) + k).
         leibniz (multiplication.left.distributivity.over.addition
                    (+ (Nat.Successor Nat.One)) (+ Nat.One) k) in |- *.
         change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
@@ -2723,7 +2723,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl Divides in |- *.
-  apply (Exists_introduction ((+ Nat.One) + (k1 + k2))).
+  exists ((+ Nat.One) + (k1 + k2)).
   symmetry in e1, e2.
   leibniz e1 in |- *.
   leibniz e2 in |- *.

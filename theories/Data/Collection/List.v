@@ -1459,13 +1459,13 @@ Proof.
   - simpl in |- *.
     intro h.
     match h with | pb | h' end.
-    + apply (Exists_introduction b).
+    + exists b.
       divide et impera.
       * ipso (Disjunction.L (Identity.reflexivity b)).
       * ipso pb.
     + match (IH h') with | a ha end.
       match ha with | ha' pa end.
-      apply (Exists_introduction a).
+      exists a.
       divide et impera.
       * ipso (Disjunction.R ha').
       * ipso pa.
@@ -1529,7 +1529,7 @@ Proof.
       ipso (Disjunction.L pa).
     + apply Disjunction.R.
       apply IH.
-      apply (Exists_introduction a).
+      exists a.
       divide et impera.
       * ipso ha''.
       * ipso pa.
@@ -1602,7 +1602,7 @@ Proof.
   - simpl in |- *.
     intro e.
     let proof e' := Option.some.injectivity e.
-    apply (Exists_introduction rest).
+    exists rest.
     leibniz e' in |- *.
     quod idem est.
 Qed.
@@ -1656,7 +1656,7 @@ Proof.
   - simpl in |- *.
     intro e.
     let proof e' := Option.some.injectivity e.
-    apply (Exists_introduction b).
+    exists b.
     leibniz e' in |- *.
     quod idem est.
 Qed.
@@ -1706,7 +1706,7 @@ Proof.
   simpl last in |- *.
   intro h.
   match (head.forward.specification h) with | r e end.
-  apply (Exists_introduction (reverse r)).
+  exists (reverse r).
   let proof e' := Identity.congruence reverse e.
   leibniz reversal.involution in e'.
   simpl in e'.
@@ -1765,7 +1765,7 @@ Proof.
   - simpl in |- *.
     intro h.
     let proof e' := Option.some.injectivity h.
-    apply (Exists_introduction b).
+    exists b.
     let proof er' := Identity.congruence reverse er.
     leibniz reversal.involution in er'.
     simpl in er'.
@@ -2101,7 +2101,7 @@ Proof.
   - intros i h.
     match i with | | i' end.
     + simpl in |- *.
-      apply (Exists_introduction b).
+      exists b.
       quod idem est.
     + match i' with | | i'' end.
       * simpl in h.
@@ -2708,7 +2708,7 @@ Proof.
     match h with | e | f end.
     + leibniz e in |- *.
       simpl NatWithZero.LessThan in |- *.
-      apply (Exists_introduction Nat.One).
+      exists Nat.One.
       simpl in |- *.
       quod idem est.
     + ex f quodlibet.
@@ -2936,7 +2936,7 @@ Proof.
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
                 /\ i = NatWithZero.add start j.
       {
-        apply (Exists_introduction (NatWithZero.saturating_sub i start)).
+        exists (NatWithZero.saturating_sub i start).
         divide et impera.
         * ipso (modus aequans
                    (from_zero.membership.specification
