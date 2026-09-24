@@ -163,8 +163,8 @@ Proof.
   match (decide x y) with | r | n end.
   - quod idem est.
   - simpl Negation in n.
-    let proof absurdity := n p.
-    ex absurdity quodlibet.
+    let proof falso := n p.
+    ex falso quodlibet.
 Qed.
 
 (* hedberg.retraction *)
