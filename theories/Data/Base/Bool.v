@@ -124,7 +124,8 @@ Theorem associativity
       (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 (* conjunction.commutativity *)
