@@ -45,13 +45,13 @@ Proof.
   match hqr with | qr rq end.
   divide et impera.
   - intro p.
-    apply qr.
-    apply pq.
-    ipso p.
+    let proof q := pq p.
+    let proof facto := qr q.
+    ipso facto.
   - intro r.
-    apply qp.
-    apply rq.
-    ipso r.
+    let proof q := rq r.
+    let proof facto := qp q.
+    ipso facto.
 Qed.
 
 Module forward. (* forward *)
@@ -94,28 +94,28 @@ Proof.
   divide et impera; intro e; match e with | pq qp end; divide et impera.
   +
     intro p2.
-    apply q12.
-    apply pq.
-    apply p21.
-    ipso p2.
+    let proof p1 := p21 p2.
+    let proof q1 := pq p1.
+    let proof facto := q12 q1.
+    ipso facto.
   +
     intro q2.
-    apply p12.
-    apply qp.
-    apply q21.
-    ipso q2.
+    let proof q1 := q21 q2.
+    let proof p1 := qp q1.
+    let proof facto := p12 p1.
+    ipso facto.
   +
     intro p1.
-    apply q21.
-    apply pq.
-    apply p12.
-    ipso p1.
+    let proof p2 := p12 p1.
+    let proof q2 := pq p2.
+    let proof facto := q21 q2.
+    ipso facto.
   +
     intro q1.
-    apply p21.
-    apply qp.
-    apply q12.
-    ipso q1.
+    let proof q2 := q12 q1.
+    let proof p2 := qp q2.
+    let proof facto := p21 p2.
+    ipso facto.
 Qed.
 
 (* [Biconditional.exclusion.of.sejunction] is stated in
@@ -142,15 +142,15 @@ Proof.
   match b with | q12 q21 end.
   divide et impera; intro f.
   - intro p2.
-    apply q12.
-    apply f.
-    apply p21.
-    ipso p2.
+    let proof p1 := p21 p2.
+    let proof q1 := f p1.
+    let proof facto := q12 q1.
+    ipso facto.
   - intro p1.
-    apply q21.
-    apply f.
-    apply p12.
-    ipso p1.
+    let proof p2 := p12 p1.
+    let proof q2 := f p2.
+    let proof facto := q21 q2.
+    ipso facto.
 Qed.
 
 End Conditional. (* Conditional *)
