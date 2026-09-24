@@ -158,7 +158,7 @@ Lemma injectivity
   : forall {m : Nat} {n : Nat} . S m = S n -> m = n.
 Proof.
   intros m n e.
-  pose (f := (fun (x : Nat) . match x with | 1 => m | S y => y end)).
+  let f := fun (x : Nat) . match x with | 1 => m | S y => y end.
   let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.

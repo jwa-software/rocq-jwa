@@ -113,7 +113,7 @@ Proof.
    *)
   let P := fun (x : A) .
             forall (a : Accessible R x) (b : Accessible R x) .
-              recursion step x a = recursion step x b in |- *.
+              recursion step x a = recursion step x b.
 
   (* The context gains
    * [recursor : Descent.Step R P -> forall (x : A) . Accessible R x -> P x]

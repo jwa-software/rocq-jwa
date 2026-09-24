@@ -107,8 +107,8 @@ Theorem injectivity
       (@Coproduct.left A B a1 = @Coproduct.left A B a2) -> (a1 = a2).
 Proof.
   intros A B a1 a2 e.
-  pose (f := fun (cp : Coproduct A B) .
-             match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end).
+  let f := fun (cp : Coproduct A B) .
+              match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end.
   let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.
@@ -124,8 +124,8 @@ Theorem injectivity
       @Coproduct.right A B b1 = @Coproduct.right A B b2 -> b1 = b2.
 Proof.
   intros A B b1 b2 e.
-  pose (f := fun (cp : Coproduct A B) .
-             match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end).
+  let f := fun (cp : Coproduct A B) .
+             match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end.
   let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.
