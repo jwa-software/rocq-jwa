@@ -260,9 +260,9 @@ Theorem injectivity
   : forall {m : Nat} {n : Nat} . (+ m) = + n -> m = n.
 Proof.
   intros m n e.
-  pose proof (Identity.congruence
+  let proof e' := Identity.congruence
                 (fun (x : NatWithZero) . match x with | 0 => m | + y => y end)
-                e) as e'.
+                e.
   simpl in e'.
   ipso e'.
 Qed.
@@ -280,7 +280,7 @@ Proof.
     simpl LessThan in h.
     match h with | k e end.
     simpl in e.
-    pose proof (positive.injectivity e) as e'.
+    let proof e' := positive.injectivity e.
     simpl Nat.LessThan in |- *.
     ipso (Exists_introduction k e').
   - intro h.
@@ -377,25 +377,25 @@ Proof.
       reflexivity.
     + simpl in |- *.
       intro e.
-      pose proof (positive.injectivity e) as e'.
+      let proof e' := positive.injectivity e.
       symmetry in e'.
       rewrite (Nat.addition.commutativity n' k') in e'.
-      pose proof (Nat.addition.identity.absence k' n') as h.
+      let proof h := Nat.addition.identity.absence k' n'.
       simpl Negation in h.
       modus ponens h, e' as f.
       ex f quodlibet.
     + simpl in |- *.
       intro e.
-      pose proof (positive.injectivity e) as e'.
+      let proof e' := positive.injectivity e.
       rewrite (Nat.addition.commutativity n' m') in e'.
-      pose proof (Nat.addition.identity.absence m' n') as h.
+      let proof h := Nat.addition.identity.absence m' n'.
       simpl Negation in h.
       modus ponens h, e' as f.
       ex f quodlibet.
     + simpl in |- *.
       intro e.
-      pose proof (positive.injectivity e) as e'.
-      pose proof (Nat.addition.left.cancellation e') as e''.
+      let proof e' := positive.injectivity e.
+      let proof e'' := Nat.addition.left.cancellation e'.
       rewrite e'' in |- *.
       reflexivity.
 Qed.
@@ -889,9 +889,9 @@ Proof.
   simpl in e.
   match n with | | n' end.
   - discriminate e.
-  - pose proof (positive.injectivity e) as e'.
+  - let proof e' := positive.injectivity e.
     rewrite (Nat.addition.commutativity n' k) in e'.
-    pose proof (Nat.addition.identity.absence k n') as i.
+    let proof i := Nat.addition.identity.absence k n'.
     simpl Negation in i.
     modus ponens i, e' as f.
     ex f quodlibet.
@@ -949,7 +949,7 @@ Proof.
       match y with | | q end.
       * ipso zero.accessibility.
       * simpl in e.
-        pose proof (positive.injectivity e) as e'.
+        let proof e' := positive.injectivity e.
         match q with | | q' end.
         -- simpl in e'.
            discriminate e'.
@@ -961,15 +961,15 @@ Proof.
       match y with | | q end.
       * ipso zero.accessibility.
       * simpl in e.
-        pose proof (positive.injectivity e) as e'.
+        let proof e' := positive.injectivity e.
         rewrite (Nat.addition.commutativity q k) in e'.
         match k with | | k' end.
         -- simpl in e'.
-           pose proof (Nat.successor.injectivity e') as e''.
+           let proof e'' := Nat.successor.injectivity e'.
            rewrite e'' in |- *.
            ipso IH.
         -- simpl in e'.
-           pose proof (Nat.successor.injectivity e') as e''.
+           let proof e'' := Nat.successor.injectivity e'.
            apply (Accessible.descend IH).
            apply (Exists_introduction k').
            simpl in |- *.
@@ -1064,7 +1064,7 @@ Proof.
       intro e.
       discriminate e.
     * intro h.
-      pose proof (order.strict.irreflexivity 0) as i.
+      let proof i := order.strict.irreflexivity 0.
       simpl Negation in i.
       modus ponens i, h as f.
       ex f quodlibet.
@@ -1214,7 +1214,7 @@ Theorem addition
       k + min m n = min (k + m) (k + n).
 Proof.
   intros k m n.
-  pose proof (Comparable.order.totality m n) as t.
+  let proof t := Comparable.order.totality m n.
   match t with | h | h end.
   - modus aequans (Comparable.minimum.specification m n), h as e1.
     rewrite e1 in |- *.
@@ -1397,11 +1397,11 @@ Proof.
     simpl Comparable.LessOrEqual in order.
     match order with | e | lt end.
     + rewrite e in h.
-      pose proof (order.strict.irreflexivity m) as i.
+      let proof i := order.strict.irreflexivity m.
       simpl Negation in i.
       modus ponens i, h as f.
       ex f quodlibet.
-    + pose proof (Comparable.order.strict.asymmetry m n h) as a.
+    + let proof a := Comparable.order.strict.asymmetry m n h.
       simpl Negation in a.
       modus ponens a, lt as f.
       ex f quodlibet.
@@ -1440,7 +1440,7 @@ Proof.
   - intro e.
     simpl sub in e.
     match (le n m) per c with | | end.
-    + pose proof (Option.some.injectivity e) as e'.
+    + let proof e' := Option.some.injectivity e.
       modus aequans (Comparable.order.reflection n m), c as order.
       rewrite <- e' in |- *.
       ipso (subtraction.saturating.specification order).
@@ -1564,13 +1564,13 @@ Proof.
   intros d g h.
   simpl Negation in |- *.
   intro e.
-  pose proof (division.nat.dividend.reconstruction d g) as reconstruction.
+  let proof reconstruction := division.nat.dividend.reconstruction d g.
   rewrite e in reconstruction.
   match (multiplication.annihilation (+ g)) with | annihilation _ end.
   rewrite annihilation in reconstruction.
   match (addition.identity ((+ d) %. g)) with | identity _ end.
   rewrite identity in reconstruction.
-  pose proof (division.nat.remainder.boundedness d g) as bound.
+  let proof bound := division.nat.remainder.boundedness d g.
   rewrite reconstruction in bound.
   match h with | k hk end.
   match k with | | k' end.
@@ -1580,7 +1580,7 @@ Proof.
   - match k' with | | k'' end.
     + rewrite (multiplication.right.identity (+ g)) in hk.
       rewrite hk in bound.
-      pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
+      let proof irreflexivity := order.strict.irreflexivity (+ d).
       simpl Negation in irreflexivity.
       modus ponens irreflexivity, bound as f.
       ex f quodlibet.
@@ -1588,17 +1588,17 @@ Proof.
       rewrite (multiplication.left.distributivity.over.addition (+ g) (+ Nat.One) (+ k'')) in hk.
       rewrite (multiplication.right.identity (+ g)) in hk.
       rewrite (addition.commutativity (+ g) ((+ g) * (+ k''))) in hk.
-      pose proof (addition.right.order.extensivity ((+ g) * (+ k'')) (+ g)) as extensivity.
+      let proof extensivity := addition.right.order.extensivity ((+ g) * (+ k'')) (+ g).
       rewrite hk in extensivity.
       simpl LessOrEqual in extensivity.
       match extensivity with | equal | less end.
       * rewrite equal in bound.
-        pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
+        let proof irreflexivity := order.strict.irreflexivity (+ d).
         simpl Negation in irreflexivity.
         modus ponens irreflexivity, bound as f.
         ex f quodlibet.
-      * pose proof (order.strict.transitivity bound less) as circular.
-        pose proof (order.strict.irreflexivity (+ d)) as irreflexivity.
+      * let proof circular := order.strict.transitivity bound less.
+        let proof irreflexivity := order.strict.irreflexivity (+ d).
         simpl Negation in irreflexivity.
         modus ponens irreflexivity, circular as f.
         ex f quodlibet.
@@ -1660,10 +1660,10 @@ Theorem uniqueness
 Proof.
   intros n d m r h.
   match h with | e b end.
-  pose proof (division.dividend.reconstruction n d) as recon.
-  pose proof (division.remainder.boundedness n d) as bound.
+  let proof recon := division.dividend.reconstruction n d.
+  let proof bound := division.remainder.boundedness n d.
   lemma quotient : (n /. d) = m.
-  { pose proof (Comparable.order.strict.trichotomy (n /. d) m) as t.
+  { let proof t := Comparable.order.strict.trichotomy (n /. d) m.
     match t with | below | rest end.
     - simpl LessThan in below.
       match below with | k hk end.
@@ -1674,17 +1674,17 @@ Proof.
       rewrite (addition.associativity
                  ((n /. d) * (+ d)) ((+ k) * (+ d)) r) in e.
       symmetry in recon.
-      pose proof (Identity.transitivity e recon) as chain.
-      pose proof (addition.left.cancellation chain) as excess.
+      let proof chain := Identity.transitivity e recon.
+      let proof excess := addition.left.cancellation chain.
       symmetry in excess.
       rewrite excess in bound.
       rewrite (addition.commutativity ((+ k) * (+ d)) r) in bound.
-      pose proof (multiplication.right.order.extensivity k (+ d)) as reach.
-      pose proof (addition.right.order.extensivity r ((+ k) * (+ d))) as grow.
-      pose proof (Comparable.order.transitivity
+      let proof reach := multiplication.right.order.extensivity k (+ d).
+      let proof grow := addition.right.order.extensivity r ((+ k) * (+ d)).
+      let proof span := Comparable.order.transitivity
                     (+ d) ((+ k) * (+ d)) (r + ((+ k) * (+ d)))
-                    reach grow) as span.
-      pose proof (order.strict.irreflexivity (+ d)) as i.
+                    reach grow.
+      let proof i := order.strict.irreflexivity (+ d).
       simpl Negation    in i.
       simpl LessOrEqual in span.
       match span with | s1 | s2 end.
@@ -1692,7 +1692,7 @@ Proof.
         rewrite s1 in bound.
         modus ponens i, bound as f.
         ex f quodlibet.
-      + pose proof (order.strict.transitivity s2 bound) as loop.
+      + let proof loop := order.strict.transitivity s2 bound.
         modus ponens i, loop as f.
         ex f quodlibet.
     - match rest with | equal | above end.
@@ -1706,18 +1706,18 @@ Proof.
         rewrite (addition.associativity
                    (m * (+ d)) ((+ k) * (+ d)) (n %. d)) in recon.
         symmetry in e.
-        pose proof (Identity.transitivity recon e) as chain.
-        pose proof (addition.left.cancellation chain) as excess.
+        let proof chain := Identity.transitivity recon e.
+        let proof excess := addition.left.cancellation chain.
         symmetry in excess.
         rewrite excess in b.
         rewrite (addition.commutativity ((+ k) * (+ d)) (n %. d)) in b.
-        pose proof (multiplication.right.order.extensivity k (+ d)) as reach.
-        pose proof (addition.right.order.extensivity
-                      (n %. d) ((+ k) * (+ d))) as grow.
-        pose proof (Comparable.order.transitivity
+        let proof reach := multiplication.right.order.extensivity k (+ d).
+        let proof grow := addition.right.order.extensivity
+                      (n %. d) ((+ k) * (+ d)).
+        let proof span := Comparable.order.transitivity
                       (+ d) ((+ k) * (+ d)) ((n %. d) + ((+ k) * (+ d)))
-                      reach grow) as span.
-        pose proof (order.strict.irreflexivity (+ d)) as i.
+                      reach grow.
+        let proof i := order.strict.irreflexivity (+ d).
         simpl Negation    in i.
         simpl LessOrEqual in span.
         match span with | s1 | s2 end.
@@ -1725,7 +1725,7 @@ Proof.
           rewrite s1 in b.
           modus ponens i, b as f.
           ex f quodlibet.
-        * pose proof (order.strict.transitivity s2 b) as loop.
+        * let proof loop := order.strict.transitivity s2 b.
           modus ponens i, loop as f.
           ex f quodlibet.
   }
@@ -1733,7 +1733,7 @@ Proof.
   - ipso quotient.
   - rewrite quotient in recon.
     symmetry in e.
-    pose proof (Identity.transitivity recon e) as chain.
+    let proof chain := Identity.transitivity recon e.
     ipso (addition.left.cancellation chain).
 Qed.
 
@@ -1744,8 +1744,8 @@ Theorem invariance
 Proof.
   intros n d k.
 
-  pose proof (division.dividend.reconstruction n d) as recon.
-  pose proof (division.remainder.boundedness n d) as bound.
+  let proof recon := division.dividend.reconstruction n d.
+  let proof bound := division.remainder.boundedness n d.
 
   lemma witness : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
           /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
@@ -1755,9 +1755,9 @@ Proof.
       rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
       rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
       rewrite (multiplication.commutativity (+ d) (n /. d))           in |- *.
-      pose proof (Identity.symmetry
+      let proof dist := Identity.symmetry
                     (multiplication.left.distributivity.over.addition
-                       (+ k) ((n /. d) * (+ d)) (n %. d))) as dist.
+                       (+ k) ((n /. d) * (+ d)) (n %. d)).
       rewrite dist  in |- *.
       rewrite recon in |- *.
       reflexivity.
@@ -1842,11 +1842,11 @@ Theorem congruence
       -> divide.nat.safe d1 g1 h1 = divide.nat.safe d2 g2 h2.
 Proof.
   intros d1 g1 h1 d2 g2 h2 e.
-  pose proof (divide.nat.safe.specification d1 g1 h1) as s1.
-  pose proof (divide.nat.safe.specification d2 g2 h2) as s2.
+  let proof s1 := divide.nat.safe.specification d1 g1 h1.
+  let proof s2 := divide.nat.safe.specification d2 g2 h2.
   rewrite e in s1.
   symmetry in s2.
-  pose proof (Identity.transitivity s1 s2) as full.
+  let proof full := Identity.transitivity s1 s2.
   ipso (positive.injectivity full).
 Qed.
 
@@ -1865,8 +1865,8 @@ Theorem homogeneity
 Proof.
   intros n d k.
 
-  pose proof (division.dividend.reconstruction n d) as recon.
-  pose proof (division.remainder.boundedness n d) as bound.
+  let proof recon := division.dividend.reconstruction n d.
+  let proof bound := division.remainder.boundedness n d.
 
   lemma witness : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
             /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
@@ -1876,9 +1876,9 @@ Proof.
       rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
       rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
       rewrite (multiplication.commutativity (+ d) (n /. d))           in |- *.
-      pose proof (Identity.symmetry
+      let proof dist := Identity.symmetry
                     (multiplication.left.distributivity.over.addition
-                       (+ k) ((n /. d) * (+ d)) (n %. d))) as dist.
+                       (+ k) ((n /. d) * (+ d)) (n %. d)).
       rewrite dist  in |- *.
       rewrite recon in |- *.
       reflexivity.
@@ -1998,7 +1998,7 @@ Proof.
             : Induced (<) pi_2 y x).
 
     (* [H : forall (r : Induced (<) pi_2 y x) . f y r = g y r] *)
-    pose proof (h y) as H.
+    let proof H := h y.
 
     ipso (modus ponens H, r).
   }
@@ -2063,7 +2063,7 @@ Proof.
                 (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
                 (Biconditional.forward.elimination (positive.order.embedding r q) b)
             : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q)).
-    pose proof (h ((+ q), r)) as H.
+    let proof H := h ((+ q), r).
     ipso (modus ponens H, s).
 Qed.
 
@@ -2124,7 +2124,7 @@ Proof.
   match m with | | p end.
   - simpl in e1.
     ipso e1.
-  - pose proof (Identity.symmetry e1) as e1'.
+  - let proof e1' := Identity.symmetry e1.
     rewrite e1' in e2.
     match k with | | k' end.
     + simpl in e2.
@@ -2133,16 +2133,13 @@ Proof.
       * simpl in e2.
         discriminate e2.
       * simpl in e2.
-        pose proof (positive.injectivity e2) as e3.
+        let proof e3 := positive.injectivity e2.
         rewrite (Nat.multiplication.associativity p k' j') in e3.
-        pose proof (Nat.multiplication.commutativity Nat.One p) as c.
+        let proof c := Nat.multiplication.commutativity Nat.One p.
         simpl in c.
-        pose proof (Identity.transitivity e3 c)
-                as e4.
-        pose proof (Nat.multiplication.left.cancellation e4)
-                as e5.
-        pose proof (Nat.multiplication.identity.factorization e5)
-                as f.
+        let proof e4 := Identity.transitivity e3 c.
+        let proof e5 := Nat.multiplication.left.cancellation e4.
+        let proof f := Nat.multiplication.identity.factorization e5.
         match f with | ek ej end.
         rewrite ek in e1.
         rewrite (multiplication.right.identity (+ p)) in e1.
@@ -2212,9 +2209,9 @@ Proof.
   - match (Comparable.order.totality k1 k2) with | le | ge end.
     + simpl Divides in |- *.
       apply (Exists_introduction (saturating_sub k2 k1)).
-      pose proof (subtraction.saturating.specification le) as s.
-      pose proof (multiplication.left.distributivity.over.addition
-                    (+ c) k1 (saturating_sub k2 k1)) as dist.
+      let proof s := subtraction.saturating.specification le.
+      let proof dist := multiplication.left.distributivity.over.addition
+                    (+ c) k1 (saturating_sub k2 k1).
       rewrite s in dist.
       rewrite e1 in dist.
       rewrite e2 in dist.
@@ -2225,11 +2222,11 @@ Proof.
       * rewrite eq in e2.
         rewrite e1 in e2.
         match (addition.identity m) with | i1 i2 end.
-        pose proof (Identity.transitivity i2 e2) as e3.
-        pose proof (addition.left.cancellation e3) as e4.
+        let proof e3 := Identity.transitivity i2 e2.
+        let proof e4 := addition.left.cancellation e3.
         rewrite <- e4 in |- *.
         ipso (divisibility.top (+ c)).
-      * pose proof (multiplication.left.order.strict.monotonicity c k2 k1 lt) as mono.
+      * let proof mono := multiplication.left.order.strict.monotonicity c k2 k1 lt.
         rewrite e1 in mono.
         rewrite e2 in mono.
         simpl LessThan in mono.
@@ -2237,9 +2234,9 @@ Proof.
         rewrite (addition.associativity m n (+ j)) in ej.
         match (addition.identity m) with | i1 i2 end.
         symmetry in i2.
-        pose proof (Identity.transitivity ej i2) as e3.
-        pose proof (addition.left.cancellation e3) as e4.
-        pose proof (addition.right.order.positivity n j) as pos.
+        let proof e3 := Identity.transitivity ej i2.
+        let proof e4 := addition.left.cancellation e3.
+        let proof pos := addition.right.order.positivity n j.
         rewrite e4 in pos.
         ipso (Falsum.elimination (Divides (+ c) n)
                                   (order.strict.irreflexivity 0 pos)).
@@ -2313,10 +2310,10 @@ Proof.
       match (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)) with | d1 d2 end.
       divide et impera.
       * match (division.specification a q) with | s1 s2 end.
-        pose proof (divisibility.multiplication.closure
-                      (gcd (+ q) ((a %. q))) (+ q) ((a /. q)) d1) as hm.
+        let proof hm := divisibility.multiplication.closure
+                      (gcd (+ q) ((a %. q))) (+ q) ((a /. q)) d1.
         rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
-        pose proof (divisibility.addition.closure hm d2) as ha.
+        let proof ha := divisibility.addition.closure hm d2.
         rewrite s1 in ha.
         ipso ha.
       * ipso d1.
@@ -2403,13 +2400,12 @@ Proof.
       {
         match (division.specification a q) with | s1 s2 end.
         rewrite <- s1 in h1.
-        pose proof (divisibility.multiplication.closure
-                      d (+ q) ((a /. q)) h2) as hm.
+        let proof hm := divisibility.multiplication.closure
+                      d (+ q) ((a /. q)) h2.
         rewrite (multiplication.commutativity (+ q) ((a /. q))) in hm.
         ipso (divisibility.addition.cancellation hm h1).
       }
-      pose proof (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2)
-        as below.
+      let proof below := recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2.
       ipso (modus ponens below, remainder).
   - ipso (order.strict.wellfoundedness b).
 Qed.
@@ -2442,19 +2438,18 @@ Proof.
   - ipso (divisibility.top p).
   - lemma scaled : gcd ((+ s) * p) ((+ s) * q) = (+ s).
     {
-      pose proof (gcd.left.distributivity.of.multiplication s q p) as dist.
+      let proof dist := gcd.left.distributivity.of.multiplication s q p.
       rewrite coprime in dist.
       rewrite (multiplication.right.identity (+ s)) in dist.
       symmetry in dist.
       ipso dist.
     }
-    pose proof (divisibility.multiplication.closure
+    let proof hp := divisibility.multiplication.closure
                   p p (+ s)
-                  (divisibility.reflexivity p))
-            as hp.
+                  (divisibility.reflexivity p).
     rewrite (multiplication.commutativity p (+ s)) in hp.
     rewrite (multiplication.commutativity q (+ s)) in h.
-    pose proof (gcd.universality ((+ s) * q) ((+ s) * p) p hp h) as u.
+    let proof u := gcd.universality ((+ s) * q) ((+ s) * p) p hp h.
     rewrite scaled in u.
     ipso u.
 Qed.
@@ -2516,7 +2511,7 @@ Proof.
       rewrite (gcd.nat.zero a c e) in |- *.
       reflexivity.
     + rewrite (gcd.nat.recurrence a c r e) in |- *.
-      pose proof (division.remainder.boundedness a c) as b.
+      let proof b := division.remainder.boundedness a c.
       rewrite e in b.
       modus aequans (positive.order.embedding r c), b as lt.
       ipso (recurse r lt (+ c)).
@@ -2530,7 +2525,7 @@ Theorem divisibility
   : forall (a : NatWithZero) (q : Nat) . Divides (+ (gcd.nat a q)) a.
 Proof.
   intros a q.
-  pose proof (gcd.left.divisibility a (+ q)) as h.
+  let proof h := gcd.left.divisibility a (+ q).
   rewrite (gcd.nat.specification q a) in h.
   ipso h.
 Qed.
@@ -2545,7 +2540,7 @@ Theorem multiplication
       Nat.mul k (gcd.nat a q) = gcd.nat ((+ k) * a) (Nat.mul k q).
 Proof.
   intros k q a.
-  pose proof (gcd.left.distributivity.of.multiplication k (+ q) a) as h.
+  let proof h := gcd.left.distributivity.of.multiplication k (+ q) a.
   rewrite (gcd.nat.specification q a) in h.
   change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in h.
   rewrite (gcd.nat.specification (Nat.mul k q) ((+ k) * a)) in h.
@@ -2567,7 +2562,7 @@ Theorem divisibility
   : forall (a : NatWithZero) (q : Nat) . Divides (+ (gcd.nat a q)) (+ q).
 Proof.
   intros a q.
-  pose proof (gcd.right.divisibility a (+ q)) as h.
+  let proof h := gcd.right.divisibility a (+ q).
   rewrite (gcd.nat.specification q a) in h.
   ipso h.
 Qed.
@@ -2598,8 +2593,8 @@ Proof.
   intros a q.
   lemma top : (+ (gcd.nat a q)) * (a /. (gcd.nat a q)) = a.
   {
-    pose proof (division.exactness a (gcd.nat a q)
-                  (gcd.nat.left.divisibility a q)) as e.
+    let proof e := division.exactness a (gcd.nat a q)
+                  (gcd.nat.left.divisibility a q).
     rewrite (multiplication.commutativity
                (+ (gcd.nat a q)) (a /. (gcd.nat a q))) in |- *.
     ipso e.
@@ -2609,32 +2604,32 @@ Proof.
               (divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))
           = q.
   {
-    pose proof (divide.nat.safe.specification
+    let proof s := divide.nat.safe.specification
                   q (gcd.nat a q)
-                  (gcd.nat.right.divisibility a q)) as s.
-    pose proof (division.exactness
+                  (gcd.nat.right.divisibility a q).
+    let proof e := division.exactness
                   (+ q) (gcd.nat a q)
-                  (gcd.nat.right.divisibility a q)) as e.
+                  (gcd.nat.right.divisibility a q).
     symmetry in s.
     rewrite s in e.
-    pose proof (positive.injectivity e) as e'.
+    let proof e' := positive.injectivity e.
     rewrite (Nat.multiplication.commutativity
                (gcd.nat a q)
                (divide.nat.safe q (gcd.nat a q)
                   (gcd.nat.right.divisibility a q))) in |- *.
     ipso e'.
   }
-  pose proof (gcd.nat.left.distributivity.of.multiplication
+  let proof dist := gcd.nat.left.distributivity.of.multiplication
                 (gcd.nat a q)
                 (divide.nat.safe
                   q (gcd.nat a q)
                   (gcd.nat.right.divisibility a q))
-                (a /. (gcd.nat a q))) as dist.
+                (a /. (gcd.nat a q)).
   rewrite top    in dist.
   rewrite bottom in dist.
   match (Nat.multiplication.identity (gcd.nat a q)) with | _ unit end.
   symmetry in unit.
-  pose proof (Identity.transitivity dist unit) as chain.
+  let proof chain := Identity.transitivity dist unit.
   match (Nat.multiplication.cancellation
               (gcd.nat a q)
               (gcd.nat

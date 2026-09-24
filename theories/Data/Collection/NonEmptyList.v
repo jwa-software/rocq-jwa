@@ -420,7 +420,7 @@ Proof.
       * rewrite e in |- *.
         ipso s.
       * ipso (IH a m).
-    + pose proof (List.comparison.contraposition total s) as ha.
+    + let proof ha := List.comparison.contraposition total s.
       match h with | e | m end.
       * rewrite e in |- *.
         ipso (List.comparison.reflexivity total b).
@@ -470,7 +470,7 @@ Proof.
       * rewrite e in |- *.
         ipso (List.comparison.reflexivity total b).
       * ipso (transitive b (minimum_of le x') a s (IH a m)).
-    + pose proof (List.comparison.contraposition total s) as ha.
+    + let proof ha := List.comparison.contraposition total s.
       match h with | e | m end.
       * rewrite e in |- *.
         ipso ha.

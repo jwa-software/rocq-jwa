@@ -118,7 +118,7 @@ Proof.
   (* The context gains
    * [recursor : Descent.Step R P -> forall (x : A) . Accessible R x -> P x]
    *)
-  pose proof (recursion (R := R) (P := P)) as recursor.
+  let proof recursor := recursion (R := R) (P := P).
 
   (* [at 2] is the occurrence of [P] in the conclusion; the one in the
    * premise stays folded.
@@ -186,12 +186,12 @@ Proof.
      *             (g : forall (y : A) . R y x -> _P y) .
      *        (forall (y : A) (r : R y x) . f y r = g y r) -> step x f = step x g]
      *)
-    pose proof (extensional x) as H.
+    let proof H := extensional x.
 
     (* The context gains
      * [H' : (forall (y : A) (r : R y x) . f y r = g y r) -> step x f = step x g]
      *)
-    pose proof (H f g) as H'.
+    let proof H' := H f g.
 
     lemma pointwise : forall (y : A) (r : R y x) . f y r = g y r.
     {
@@ -209,7 +209,7 @@ Proof.
       set (b' := descend b r).
 
       (* The context gains [h : P y] *)
-      pose proof (recurse y r) as h.
+      let proof h := recurse y r.
 
       (* [h : forall (a : Accessible R y) (b : Accessible R y) .
        *      recursion step y a = recursion step y b]

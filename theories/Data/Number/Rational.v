@@ -192,11 +192,11 @@ Proof.
 
   lemma whole : Integer.divide n Nat.One = n.
   {
-    pose proof (Integer.division.exactness
+    let proof e := Integer.division.exactness
                   n Nat.One
-                  (NatWithZero.divisibility.bottom (Integer.abs n))) as e.
-    pose proof (Integer.multiplication.right.identity
-                  (Integer.divide n Nat.One)) as i.
+                  (NatWithZero.divisibility.bottom (Integer.abs n)).
+    let proof i := Integer.multiplication.right.identity
+                  (Integer.divide n Nat.One).
     symmetry in i.
     ipso (Identity.transitivity i e).
   }
@@ -204,12 +204,11 @@ Proof.
   lemma undivided : NatWithZero.divide (NatWithZero.Positive d) (Nat.One)
           = NatWithZero.Positive d.
   {
-    pose proof (NatWithZero.division.exactness
+    let proof e := NatWithZero.division.exactness
                   (NatWithZero.Positive d) (Nat.One)
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)))
-            as e.
-    pose proof (NatWithZero.multiplication.right.identity
-                  (NatWithZero.divide (NatWithZero.Positive d) (Nat.One))) as i.
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
+    let proof i := NatWithZero.multiplication.right.identity
+                  (NatWithZero.divide (NatWithZero.Positive d) (Nat.One)).
     symmetry in i.
     ipso (Identity.transitivity i e).
   }
@@ -229,19 +228,17 @@ Proof.
     ipso whole.
   - simpl make        in |- *.
     simpl denominator in |- *.
-    pose proof (NatWithZero.divide.nat.safe.congruence
+    let proof c := NatWithZero.divide.nat.safe.congruence
                   d (NatWithZero.gcd.nat (Integer.abs n) d)
                   (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)
                   d Nat.One
                   (NatWithZero.divisibility.bottom (NatWithZero.Positive d))
-                  same)
-            as c.
-    pose proof (NatWithZero.divide.nat.safe.specification
+                  same.
+    let proof s := NatWithZero.divide.nat.safe.specification
                   d Nat.One
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)))
-            as s.
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
     rewrite undivided in s.
-    pose proof (NatWithZero.positive.injectivity s) as inj.
+    let proof inj := NatWithZero.positive.injectivity s.
     ipso (Identity.transitivity c inj).
 Qed.
 
@@ -257,13 +254,12 @@ Proof.
               (Nat.mul k d)
           = Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d).
   {
-    pose proof (Integer.multiplication.magnitude (Integer.Positive k) n) as am.
+    let proof am := Integer.multiplication.magnitude (Integer.Positive k) n.
     change (Integer.abs (Integer.Positive k))
       with (NatWithZero.Positive k) in am.
     rewrite am in |- *.
-    pose proof (NatWithZero.gcd.nat.left.distributivity.of.multiplication
-                  k d (Integer.abs n))
-            as gd.
+    let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
+                  k d (Integer.abs n).
     symmetry in gd.
     ipso gd.
   }
@@ -297,10 +293,9 @@ Proof.
   {
     apply NatWithZero.divide.nat.safe.congruence.
     rewrite common in |- *.
-    pose proof (NatWithZero.division.invariance
+    let proof inv := NatWithZero.division.invariance
                   (NatWithZero.Positive d)
-                  (NatWithZero.gcd.nat (Integer.abs n) d) k)
-            as inv.
+                  (NatWithZero.gcd.nat (Integer.abs n) d) k.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive d))
       with (NatWithZero.Positive (Nat.mul k d))
         in inv.
@@ -333,15 +328,15 @@ Proof.
               (NatWithZero.gcd.nat (Integer.abs a) b)
           = b.
   {
-    pose proof (NatWithZero.divide.nat.safe.specification
+    let proof s := NatWithZero.divide.nat.safe.specification
                   b (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.gcd.nat.right.divisibility
-                    (Integer.abs a) b)) as s.
-    pose proof (NatWithZero.division.exactness
+                    (Integer.abs a) b).
+    let proof e := NatWithZero.division.exactness
                   (NatWithZero.Positive b)
                   (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.gcd.nat.right.divisibility
-                    (Integer.abs a) b)) as e.
+                    (Integer.abs a) b).
     symmetry in s.
     rewrite s in e.
     ipso (NatWithZero.positive.injectivity e).
@@ -356,7 +351,7 @@ Proof.
                       (Integer.abs a) b)))
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)).
   {
-    pose proof (Identity.congruence Integer.from_nat bottom) as c.
+    let proof c := Identity.congruence Integer.from_nat bottom.
     symmetry in c.
     rewrite c in |- *.
     reflexivity.
@@ -380,7 +375,7 @@ Proof.
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b)))
             (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)))
     in |- *.
-  pose proof (Identity.symmetry
+  let proof assoc := Identity.symmetry
                 (Integer.multiplication.associativity
                   (Integer.divide a (NatWithZero.gcd.nat (Integer.abs a) b))
                   (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))
@@ -388,8 +383,7 @@ Proof.
                     (NatWithZero.divide.nat.safe
                       b (NatWithZero.gcd.nat (Integer.abs a) b)
                       (NatWithZero.gcd.nat.right.divisibility
-                        (Integer.abs a) b)))))
-          as assoc.
+                        (Integer.abs a) b)))).
   rewrite assoc in |- *.
   rewrite whole in |- *.
   reflexivity.
@@ -411,13 +405,13 @@ Proof.
     intros x y z.
     rewrite (Integer.multiplication.associativity x y z) in |- *.
     rewrite (Integer.multiplication.commutativity y z)   in |- *.
-    pose proof (Identity.symmetry (Integer.multiplication.associativity x z y)) as h.
+    let proof h := Identity.symmetry (Integer.multiplication.associativity x z y).
     rewrite h in |- *.
     reflexivity.
   }
 
-  pose proof (proportionality a b) as P1.
-  pose proof (proportionality c d) as P2.
+  let proof P1 := proportionality a b.
+  let proof P2 := proportionality c d.
 
   (* The third field is the irreducibility of each pair, handed over by the
    * case analysis rather than proved after it.
@@ -443,8 +437,8 @@ Proof.
   divide et impera.
 
   - intro e.
-    pose proof (Identity.congruence numerator   e) as hp.
-    pose proof (Identity.congruence denominator e) as hq.
+    let proof hp := Identity.congruence numerator   e.
+    let proof hq := Identity.congruence denominator e.
     simpl numerator   in hp.
     simpl denominator in hq.
     rewrite hp in P1.
@@ -470,7 +464,7 @@ Proof.
 
     rewrite (swap r (Integer.from_nat b) (Integer.from_nat d)) in Q1.
     symmetry in Q1.
-    pose proof (Identity.transitivity Q1 Q2) as Q.
+    let proof Q := Identity.transitivity Q1 Q2.
     rewrite (swap a (Integer.from_nat s) (Integer.from_nat d)) in Q.
     rewrite (swap c (Integer.from_nat s) (Integer.from_nat b)) in Q.
     rewrite (Integer.multiplication.commutativity
@@ -508,7 +502,7 @@ Proof.
       rewrite (Integer.multiplication.commutativity (Integer.from_nat q) (Integer.from_nat s)) in |- *.
       rewrite (Integer.multiplication.interchange
                 c (Integer.from_nat b) (Integer.from_nat s) (Integer.from_nat q)) in |- *.
-      pose proof (Identity.symmetry P2) as P2'.
+      let proof P2' := Identity.symmetry P2.
       rewrite P2' in |- *.
       rewrite (Integer.multiplication.commutativity (Integer.from_nat b) (Integer.from_nat q)) in |- *.
       rewrite (Integer.multiplication.interchange
@@ -525,13 +519,13 @@ Proof.
               (Integer.mul r (Integer.from_nat q))
               (Integer.mul (Integer.from_nat b)
                            (Integer.from_nat d))) in widened.
-    pose proof (Integer.multiplication.cancellation
+    let proof cross := Integer.multiplication.cancellation
                   (Integer.mul (Integer.from_nat b) (Integer.from_nat d))
                   (Integer.mul p (Integer.from_nat s))
                   (Integer.mul r (Integer.from_nat q))
-                  nzbd widened) as cross.
+                  nzbd widened.
 
-    pose proof (Identity.congruence Integer.abs cross) as m.
+    let proof m := Identity.congruence Integer.abs cross.
     rewrite (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
     rewrite (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
     change (Integer.abs (Integer.from_nat s))
@@ -542,7 +536,7 @@ Proof.
     lemma coprime1 : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
             = NatWithZero.Positive Nat.One.
     {
-      pose proof (NatWithZero.gcd.nat.specification q (Integer.abs p)) as g.
+      let proof g := NatWithZero.gcd.nat.specification q (Integer.abs p).
       rewrite I1 in g.
       rewrite (NatWithZero.gcd.commutativity
                 (Integer.abs p) (NatWithZero.Positive q)) in g.
@@ -552,7 +546,7 @@ Proof.
     lemma coprime2 : NatWithZero.gcd (NatWithZero.Positive s) (Integer.abs r)
             = NatWithZero.Positive Nat.One.
     {
-      pose proof (NatWithZero.gcd.nat.specification s (Integer.abs r)) as g.
+      let proof g := NatWithZero.gcd.nat.specification s (Integer.abs r).
       rewrite I2 in g.
       rewrite (NatWithZero.gcd.commutativity (Integer.abs r)
                  (NatWithZero.Positive s)) in g.
@@ -561,14 +555,13 @@ Proof.
 
     lemma qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s).
     {
-      pose proof (NatWithZero.divisibility.multiplication.closure
+      let proof h := NatWithZero.divisibility.multiplication.closure
                     (NatWithZero.Positive q) (NatWithZero.Positive q)
                     (Integer.abs r)
-                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive q)))
-              as h.
+                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive q)).
       rewrite (NatWithZero.multiplication.commutativity
                 (NatWithZero.Positive q) (Integer.abs r)) in h.
-      pose proof (Identity.symmetry m) as m'.
+      let proof m' := Identity.symmetry m.
       rewrite m' in h.
       ipso (NatWithZero.gcd.multiplication.cancellation
               (NatWithZero.Positive q) (Integer.abs p)
@@ -577,10 +570,10 @@ Proof.
 
     lemma sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q).
     {
-      pose proof (NatWithZero.divisibility.multiplication.closure
+      let proof h := NatWithZero.divisibility.multiplication.closure
                     (NatWithZero.Positive s) (NatWithZero.Positive s)
                     (Integer.abs p)
-                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive s))) as h.
+                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive s)).
       rewrite (NatWithZero.multiplication.commutativity
                  (NatWithZero.Positive s) (Integer.abs p)) in h.
       rewrite m in h.
@@ -589,12 +582,11 @@ Proof.
                (NatWithZero.Positive q) h coprime2).
     }
 
-    pose proof (NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq)) as hq.
+    let proof hq := NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq).
     rewrite hq in cross.
     rewrite (Integer.multiplication.commutativity p (Integer.from_nat s)) in cross.
     rewrite (Integer.multiplication.commutativity r (Integer.from_nat s)) in cross.
-    pose proof (Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross)
-            as hp.
+    let proof hp := Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross.
     apply extensionality.
     + simpl numerator in |- *.
       ipso hp.
@@ -610,7 +602,7 @@ Proof.
 
   lemma unit : make Integer.Zero Nat.One = Zero.
   {
-    pose proof (retraction Zero) as r.
+    let proof r := retraction Zero.
     change (numerator   Zero) with Integer.Zero in r.
     change (denominator Zero) with Nat.One  in r.
     ipso r.
@@ -624,7 +616,7 @@ Proof.
     reflexivity.
   }
 
-  pose proof (characterisation Integer.Zero b Integer.Zero Nat.One) as criterion.
+  let proof criterion := characterisation Integer.Zero b Integer.Zero Nat.One.
   modus aequans criterion, cross as joined.
   ipso (Identity.transitivity joined unit).
 Qed.
@@ -642,8 +634,8 @@ Proof.
   intros a b c d.
   simpl add in |- *.
 
-  pose proof (proportionality a b) as P1.
-  pose proof (proportionality c d) as P2.
+  let proof P1 := proportionality a b.
+  let proof P2 := proportionality c d.
 
   match (make a b) per E1 with | p q I1 end.
   match (make c d) per E2 with | r s I2 end.
@@ -697,11 +689,11 @@ Proof.
     reflexivity.
   }
 
-  pose proof (characterisation
+  let proof criterion := characterisation
                 (Integer.add (Integer.mul p s') (Integer.mul r q'))
                 (Nat.mul q s)
                 (Integer.add (Integer.mul a d') (Integer.mul c b'))
-                (Nat.mul b d)) as criterion.
+                (Nat.mul b d).
   modus aequans criterion, cross as joined.
   ipso joined.
 Qed.
@@ -718,8 +710,8 @@ Proof.
   intros a b c d.
   simpl mul in |- *.
 
-  pose proof (proportionality a b) as P1.
-  pose proof (proportionality c d) as P2.
+  let proof P1 := proportionality a b.
+  let proof P2 := proportionality c d.
 
   match (make a b) per E1 with | p q I1 end.
   match (make c d) per E2 with | r s I2 end.
@@ -744,9 +736,9 @@ Proof.
     reflexivity.
   }
 
-  pose proof (characterisation
+  let proof criterion := characterisation
                 (Integer.mul p r) (Nat.mul q s)
-                (Integer.mul a c) (Nat.mul b d)) as criterion.
+                (Integer.mul a c) (Nat.mul b d).
   modus aequans criterion, cross as joined.
   ipso joined.
 Qed.
@@ -763,7 +755,7 @@ Proof.
   intros a b.
   simpl negate in |- *.
 
-  pose proof (proportionality a b) as P1.
+  let proof P1 := proportionality a b.
 
   match (make a b) per E1 with | p q I1 end.
   simpl numerator, denominator in P1.
@@ -778,8 +770,8 @@ Proof.
     reflexivity.
   }
 
-  pose proof (characterisation
-                (Integer.negate p) q (Integer.negate a) b) as criterion.
+  let proof criterion := characterisation
+                (Integer.negate p) q (Integer.negate a) b.
   modus aequans criterion, cross as joined.
   ipso joined.
 Qed.
@@ -795,9 +787,9 @@ Theorem characterisation
         = Integer.mul (numerator y) (Integer.from_nat (denominator x)).
 Proof.
   intros x y.
-  pose proof (make.characterisation
+  let proof c := make.characterisation
                 (numerator x) (denominator x)
-                (numerator y) (denominator y)) as c.
+                (numerator y) (denominator y).
   rewrite (make.retraction x) in c.
   rewrite (make.retraction y) in c.
   ipso c.
@@ -870,10 +862,10 @@ Proof.
     reflexivity.
   }
 
-  pose proof (general
+  let proof g := general
                 (numerator x) (denominator x)
                 (numerator y) (denominator y)
-                (numerator z) (denominator z)) as g.
+                (numerator z) (denominator z).
   rewrite (make.retraction x) in g.
   rewrite (make.retraction y) in g.
   rewrite (make.retraction z) in g.
@@ -934,7 +926,7 @@ Proof.
     ipso (make.annihilation (Nat.mul b b)).
   }
 
-  pose proof (general (numerator x) (denominator x)) as g.
+  let proof g := general (numerator x) (denominator x).
   rewrite (make.retraction x) in g.
   ipso g.
 Qed.
@@ -946,17 +938,17 @@ Theorem cancellation
 Proof.
   intros k m n e.
 
-  pose proof (associativity (negate k) k m) as am.
+  let proof am := associativity (negate k) k m.
   rewrite (inverse k)  in am.
   rewrite (identity m) in am.
 
-  pose proof (associativity (negate k) k n) as an.
+  let proof an := associativity (negate k) k n.
   rewrite (inverse k)  in an.
   rewrite (identity n) in an.
 
-  pose proof (Identity.congruence
+  let proof h := Identity.congruence
                 (fun (t : Rational) . add (negate k) t)
-                (e)) as h.
+                (e).
   simpl in h.
 
   symmetry in an.
@@ -1001,7 +993,7 @@ Proof.
     ipso (make.annihilation (Nat.mul b b)).
   }
 
-  pose proof (general (numerator x) (denominator x)) as g.
+  let proof g := general (numerator x) (denominator x).
   rewrite (make.retraction x) in g.
   ipso g.
 Qed.
@@ -1013,16 +1005,15 @@ Theorem cancellation
 Proof.
   intros k m n e.
 
-  pose proof (associativity m k (negate k)) as am.
+  let proof am := associativity m k (negate k).
   rewrite (inverse k)  in am.
   rewrite (identity m) in am.
 
-  pose proof (associativity n k (negate k)) as an.
+  let proof an := associativity n k (negate k).
   rewrite (inverse k)  in an.
   rewrite (identity n) in an.
 
-  pose proof (Identity.congruence (fun (t : Rational) . add t (negate k)) e)
-          as h.
+  let proof h := Identity.congruence (fun (t : Rational) . add t (negate k)) e.
   simpl in h.
 
   symmetry in am.
@@ -1102,10 +1093,10 @@ Proof.
     reflexivity.
   }
 
-  pose proof (general
+  let proof g := general
                 (numerator x) (denominator x)
                 (numerator y) (denominator y)
-                (numerator z) (denominator z)) as g.
+                (numerator z) (denominator z).
   rewrite (make.retraction x) in g.
   rewrite (make.retraction y) in g.
   rewrite (make.retraction z) in g.
@@ -1225,10 +1216,10 @@ Proof.
             (b)).
   }
 
-  pose proof (general
+  let proof g := general
                 (numerator x) (denominator x)
                 (numerator y) (denominator y)
-                (numerator z) (denominator z)) as g.
+                (numerator z) (denominator z).
   rewrite (make.retraction x) in g.
   rewrite (make.retraction y) in g.
   rewrite (make.retraction z) in g.
@@ -1325,17 +1316,17 @@ Proof.
 
   lemma unit : make (Integer.Positive Nat.One) Nat.One = One.
   {
-    pose proof (make.retraction One) as r.
+    let proof r := make.retraction One.
     change (numerator   One) with (Integer.Positive Nat.One) in r.
     change (denominator One) with Nat.One              in r.
     ipso r.
   }
 
-  pose proof (make.retraction x) as r.
+  let proof r := make.retraction x.
   simpl inverse in e.
   match (numerator x) per E with | p | | p end.
 
-  - pose proof (Option.some.injectivity e) as hy.
+  - let proof hy := Option.some.injectivity e.
     symmetry in r.
     rewrite r in |- *.
     symmetry in hy.
@@ -1365,17 +1356,17 @@ Proof.
       reflexivity.
     }
 
-    pose proof (make.characterisation
+    let proof criterion := make.characterisation
                   (Integer.Positive (Nat.mul p d))
                   (Nat.mul d p)
                   (Integer.Positive Nat.One)
-                  (Nat.One)) as criterion.
+                  (Nat.One).
     modus aequans criterion, cross as joined.
     ipso (Identity.transitivity joined unit).
 
   - discriminate e.
 
-  - pose proof (Option.some.injectivity e) as hy.
+  - let proof hy := Option.some.injectivity e.
     symmetry in r.
     rewrite r in |- *.
     symmetry in hy.
@@ -1401,11 +1392,11 @@ Proof.
       reflexivity.
     }
 
-    pose proof (make.characterisation
+    let proof criterion := make.characterisation
                   (Integer.Positive (Nat.mul p d))
                   (Nat.mul d p)
                   (Integer.Positive Nat.One)
-                  (Nat.One)) as criterion.
+                  (Nat.One).
     modus aequans criterion, cross as joined.
     ipso (Identity.transitivity joined unit).
 Qed.
@@ -1437,9 +1428,9 @@ Proof.
           = Integer.mul (Integer.Positive b)
                         (Integer.mul c (Integer.Positive f)).
   {
-    pose proof (Identity.symmetry
+    let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
-                    (Integer.Positive f) c (Integer.Positive b))) as h.
+                    (Integer.Positive f) c (Integer.Positive b)).
     rewrite h in |- *.
     rewrite (Integer.multiplication.commutativity
                (Integer.Positive f) c) in |- *.
@@ -1454,9 +1445,9 @@ Proof.
           = Integer.mul (Integer.Positive d)
                   (Integer.mul a (Integer.Positive f)).
   {
-    pose proof (Identity.symmetry
+    let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
-                    (Integer.Positive f) a (Integer.Positive d))) as h.
+                    (Integer.Positive f) a (Integer.Positive d)).
     rewrite h in |- *.
     rewrite (Integer.multiplication.commutativity
               (Integer.Positive f)
@@ -1472,11 +1463,11 @@ Proof.
           = Integer.mul (Integer.Positive d)
                   (Integer.mul e (Integer.Positive b)).
   {
-    pose proof (Identity.symmetry
+    let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
                     (Integer.Positive b)
                     (e)
-                    (Integer.Positive d))) as h.
+                    (Integer.Positive d)).
     rewrite h in |- *.
     rewrite (Integer.multiplication.commutativity (Integer.Positive b) e) in |- *.
     rewrite (Integer.multiplication.commutativity
@@ -1485,18 +1476,18 @@ Proof.
     reflexivity.
   }
 
-  pose proof (Integer.multiplication.left.order.strict.monotonicity
+  let proof S1 := Integer.multiplication.left.order.strict.monotonicity
                 f (Integer.mul a (Integer.Positive d))
-                  (Integer.mul c (Integer.Positive b)) H1) as S1.
-  pose proof (Integer.multiplication.left.order.strict.monotonicity
+                  (Integer.mul c (Integer.Positive b)) H1.
+  let proof S2 := Integer.multiplication.left.order.strict.monotonicity
                 b (Integer.mul c (Integer.Positive f))
-                  (Integer.mul e (Integer.Positive d)) H2) as S2.
+                  (Integer.mul e (Integer.Positive d)) H2.
 
   rewrite bridge    in S1.
   rewrite leftward  in S1.
   rewrite rightward in S2.
 
-  pose proof (Integer.order.strict.transitivity S1 S2) as chain.
+  let proof chain := Integer.order.strict.transitivity S1 S2.
 
   match (Comparable.order.strict.trichotomy
            (Integer.mul a (Integer.Positive f))
@@ -1508,18 +1499,18 @@ Proof.
   - match rest with | eq | gt end.
 
     + rewrite eq in chain.
-      pose proof (Integer.order.strict.irreflexivity
+      let proof ir := Integer.order.strict.irreflexivity
                     (Integer.mul (Integer.Positive d)
-                           (Integer.mul e (Integer.Positive b)))) as ir.
+                           (Integer.mul e (Integer.Positive b))).
       ex (ir chain) quodlibet.
 
-    + pose proof (Integer.multiplication.left.order.strict.monotonicity
+    + let proof back := Integer.multiplication.left.order.strict.monotonicity
                     d (Integer.mul e (Integer.Positive b))
-                      (Integer.mul a (Integer.Positive f)) gt) as back.
-      pose proof (Integer.order.strict.transitivity chain back) as loop.
-      pose proof (Integer.order.strict.irreflexivity
+                      (Integer.mul a (Integer.Positive f)) gt.
+      let proof loop := Integer.order.strict.transitivity chain back.
+      let proof ir := Integer.order.strict.irreflexivity
                     (Integer.mul (Integer.Positive d)
-                           (Integer.mul a (Integer.Positive f)))) as ir.
+                           (Integer.mul a (Integer.Positive f))).
       ex (ir loop) quodlibet.
 Qed.
 
@@ -1631,8 +1622,8 @@ Proof.
     intros p q k.
     divide et impera.
     - intro h.
-      pose proof (Integer.multiplication.left.order.strict.monotonicity
-                    k p q h) as s.
+      let proof s := Integer.multiplication.left.order.strict.monotonicity
+                    k p q h.
       rewrite (Integer.multiplication.commutativity
                  (Integer.Positive k) p) in s.
       rewrite (Integer.multiplication.commutativity
@@ -1644,23 +1635,23 @@ Proof.
       + ipso below.
       + match rest with | equal | above end.
         * rewrite equal in h.
-          pose proof (Integer.order.strict.irreflexivity
-                        (Integer.mul q (Integer.Positive k))) as ir.
+          let proof ir := Integer.order.strict.irreflexivity
+                        (Integer.mul q (Integer.Positive k)).
           ex (ir h) quodlibet.
-        * pose proof (Integer.multiplication.left.order.strict.monotonicity
-                        k q p above) as s.
+        * let proof s := Integer.multiplication.left.order.strict.monotonicity
+                        k q p above.
           rewrite (Integer.multiplication.commutativity
                      (Integer.Positive k) q) in s.
           rewrite (Integer.multiplication.commutativity
                      (Integer.Positive k) p) in s.
-          pose proof (Integer.order.strict.transitivity h s) as loop.
-          pose proof (Integer.order.strict.irreflexivity
-                        (Integer.mul p (Integer.Positive k))) as ir.
+          let proof loop := Integer.order.strict.transitivity h s.
+          let proof ir := Integer.order.strict.irreflexivity
+                        (Integer.mul p (Integer.Positive k)).
           ex (ir loop) quodlibet.
   }
 
-  pose proof (make.proportionality m Nat.One) as P1.
-  pose proof (make.proportionality n Nat.One) as P2.
+  let proof P1 := make.proportionality m Nat.One.
+  let proof P2 := make.proportionality n Nat.One.
   change (Integer.from_nat Nat.One)
     with (Integer.Positive Nat.One) in P1, P2.
   rewrite (Integer.multiplication.right.identity

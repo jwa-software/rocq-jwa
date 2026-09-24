@@ -65,8 +65,8 @@ Theorem reflection
 Proof.
   intros F S A x.
   simpl is_not_empty in |- *.
-  pose proof (Assert.negation (is_empty x)) as n.
-  pose proof (Negation.congruence (emptiness.reflection x)) as c.
+  let proof n := Assert.negation (is_empty x).
+  let proof c := Negation.congruence (emptiness.reflection x).
   ipso (Biconditional.transitivity n c).
 Qed.
 

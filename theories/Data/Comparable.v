@@ -219,8 +219,8 @@ Proof.
   intros A compare lt C m n h1.
   simpl Negation in |- *.
   intro h2.
-  pose proof (Comparable.transitivity m n m h1 h2) as h.
-  pose proof (order.strict.irreflexivity m) as i.
+  let proof h := Comparable.transitivity m n m h1 h2.
+  let proof i := order.strict.irreflexivity m.
   simpl Negation in i.
   modus ponens i, h as f.
   ex f quodlibet.
@@ -279,7 +279,7 @@ Proof.
   - ipso e1.
   - match h2 with | e2 | lt2 end.
     + ipso (Identity.symmetry e2).
-    + pose proof (order.strict.asymmetry m n lt1) as a.
+    + let proof a := order.strict.asymmetry m n lt1.
       simpl Negation in a.
       modus ponens a, lt2 as f.
       ex f quodlibet.
@@ -315,7 +315,7 @@ Theorem totality
     LessOrEqual lt m n \/ LessOrEqual lt n m.
 Proof.
   intros A c lt C m n.
-  pose proof (order.strict.trichotomy m n) as t.
+  let proof t := order.strict.trichotomy m n.
   simpl LessOrEqual in |- *.
   match t with | lt1 | rest end.
   - ipso (Disjunction.L (Disjunction.R lt1)).

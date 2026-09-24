@@ -31,7 +31,7 @@ Theorem tactics_all_delivers_de_morgan_refusing_a_conjunction
 Proof.
   intros A B h.
   Fail de morgan h as x.
-  Fail pose proof (de morgan h) as x.
+  Fail let proof x := de morgan h.
   ipso h.
 Qed.
 
@@ -55,7 +55,7 @@ Theorem tactics_all_delivers_de_morgan_refusing_a_universal
 Proof.
   intros A P h.
   Fail de morgan h as x.
-  Fail pose proof (de morgan h) as x.
+  Fail let proof x := de morgan h.
   ipso h.
 Qed.
 

@@ -248,9 +248,9 @@ Lemma injectivity
   : forall {p : Nat} {q : Nat} . (- p) = - q -> p = q.
 Proof.
   intros p q e.
-  pose proof (Identity.congruence
+  let proof e' := Identity.congruence
                 (fun (x : Integer) . match x with | - r => r | 0 => p | + _ => p end)
-                e) as e'.
+                e.
   simpl in e'.
   ipso e'.
 Qed.
@@ -264,9 +264,9 @@ Lemma injectivity
   : forall {p : Nat} {q : Nat} . (+ p) = + q -> p = q.
 Proof.
   intros p q e.
-  pose proof (Identity.congruence
+  let proof e' := Identity.congruence
                 (fun (x : Integer) . match x with | - _ => p | 0 => p | + r => r end)
-                e) as e'.
+                e.
   simpl in e'.
   ipso e'.
 Qed.
@@ -301,7 +301,7 @@ Proof.
   - simpl in e.
     discriminate e.
   - simpl in e.
-    pose proof (magnitude.positive.injectivity e) as e'.
+    let proof e' := magnitude.positive.injectivity e.
     rewrite e' in |- *.
     reflexivity.
 Qed.
@@ -386,7 +386,7 @@ Lemma well_definedness
       Nat.add p s = Nat.add r q -> nat_difference p q = nat_difference r s.
 Proof.
   intros p q r s h.
-  pose proof (Nat.order.strict.trichotomy p q) as t.
+  let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
@@ -395,7 +395,7 @@ Proof.
     rewrite (Nat.addition.commutativity p k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k p) in |- *.
     rewrite (Nat.addition.left.commutativity r p k) in h.
-    pose proof (Nat.addition.left.cancellation h) as e''.
+    let proof e'' := Nat.addition.left.cancellation h.
     rewrite e'' in |- *.
     rewrite (Nat.addition.commutativity r k) in |- *.
     rewrite (difference.nat.right.inversion.of.addition k r) in |- *.
@@ -404,7 +404,7 @@ Proof.
     + rewrite eq in h |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       rewrite (Nat.addition.commutativity r q) in h.
-      pose proof (Nat.addition.left.cancellation h) as e.
+      let proof e := Nat.addition.left.cancellation h.
       rewrite e in |- *.
       rewrite (difference.nat.reflexivity r) in |- *.
       reflexivity.
@@ -416,7 +416,7 @@ Proof.
       rewrite (difference.nat.left.inversion.of.addition k q) in |- *.
       rewrite (Nat.addition.associativity q k s) in h.
       rewrite (Nat.addition.commutativity r q) in h.
-      pose proof (Nat.addition.left.cancellation h) as e''.
+      let proof e'' := Nat.addition.left.cancellation h.
       symmetry in e''.
       rewrite e'' in |- *.
       rewrite (difference.nat.left.inversion.of.addition k s) in |- *.
@@ -428,7 +428,7 @@ Lemma negation
   : forall (p : Nat) (q : Nat) . negate (nat_difference p q) = nat_difference q p.
 Proof.
   intros p q.
-  pose proof (Nat.order.strict.trichotomy p q) as t.
+  let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
@@ -462,7 +462,7 @@ Lemma specification
     = NatWithZero.add (ramp (negate (nat_difference p q))) (NatWithZero.Positive p).
 Proof.
   intros p q.
-  pose proof (Nat.order.strict.trichotomy p q) as t.
+  let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | k e end.
@@ -496,10 +496,10 @@ Proof.
   intros p q k.
   divide et impera.
   - intro e.
-    pose proof (difference.nat.specification p q) as s.
+    let proof s := difference.nat.specification p q.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive.injectivity s) as e'.
+    let proof e' := NatWithZero.positive.injectivity s.
     rewrite (Nat.addition.commutativity p k) in |- *.
     ipso (Identity.symmetry e').
   - intro e.
@@ -520,10 +520,10 @@ Proof.
   intros p q.
   divide et impera.
   - intro e.
-    pose proof (difference.nat.specification p q) as s.
+    let proof s := difference.nat.specification p q.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive.injectivity s) as e'.
+    let proof e' := NatWithZero.positive.injectivity s.
     ipso (Identity.symmetry e').
   - intro e.
     rewrite e in |- *.
@@ -541,10 +541,10 @@ Proof.
   intros p q k.
   divide et impera.
   - intro e.
-    pose proof (difference.nat.specification p q) as s.
+    let proof s := difference.nat.specification p q.
     rewrite e in s.
     simpl in s.
-    pose proof (NatWithZero.positive.injectivity s) as e'.
+    let proof e' := NatWithZero.positive.injectivity s.
     rewrite (Nat.addition.commutativity q k) in |- *.
     ipso e'.
   - intro e.
@@ -562,7 +562,7 @@ Lemma scaling
       (+ k) * nat_difference p q = nat_difference (Nat.mul k p) (Nat.mul k q).
 Proof.
   intros k p q.
-  pose proof (Nat.order.strict.trichotomy p q) as t.
+  let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
   - simpl Nat.LessThan in lt.
     match lt with | j e end.
@@ -716,13 +716,13 @@ Proof.
     reflexivity.
   - match c with | | r end; match d with | | s end.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity h) as e.
+      let proof e := NatWithZero.positive.injectivity h.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (difference.nat.reflexivity q) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity h) as e.
+      let proof e := NatWithZero.positive.injectivity h.
       symmetry in e.
       rewrite e in |- *.
       simpl in |- *.
@@ -730,13 +730,13 @@ Proof.
       rewrite (difference.nat.right.inversion.of.addition s p) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity h) as e.
+      let proof e := NatWithZero.positive.injectivity h.
       rewrite e in |- *.
       simpl in |- *.
       rewrite (difference.nat.left.inversion.of.addition r q) in |- *.
       reflexivity.
     + simpl in h.
-      pose proof (NatWithZero.positive.injectivity h) as e.
+      let proof e := NatWithZero.positive.injectivity h.
       simpl in |- *.
       ipso (difference.nat.well_definedness e).
 Qed.
@@ -877,9 +877,9 @@ Theorem associativity
       (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  pose proof (Identity.symmetry (difference.nat_with_zero.canonicity l)) as el.
-  pose proof (Identity.symmetry (difference.nat_with_zero.canonicity m)) as em.
-  pose proof (Identity.symmetry (difference.nat_with_zero.canonicity n)) as en.
+  let proof el := Identity.symmetry (difference.nat_with_zero.canonicity l).
+  let proof em := Identity.symmetry (difference.nat_with_zero.canonicity m).
+  let proof en := Identity.symmetry (difference.nat_with_zero.canonicity n).
   rewrite el, em, en in |- *.
   rewrite (difference.nat_with_zero.additivity
             (ramp l)
@@ -972,8 +972,7 @@ Theorem cancellation
   : forall {k : Integer} {m : Integer} {n : Integer} . k + m = k + n -> m = n.
 Proof.
   intros k m n h.
-  pose proof (Identity.congruence (add (negate k)) h)
-          as h'.
+  let proof h' := Identity.congruence (add (negate k)) h.
   rewrite <- (addition.associativity (negate k) k m)
           in h'.
   rewrite <- (addition.associativity (negate k) k n)
@@ -1263,18 +1262,16 @@ Proof.
             (ramp (negate n))) in |- *.
   rewrite (ramp.scaling k m) in |- *.
   rewrite (ramp.scaling k n) in |- *.
-  pose proof (Identity.transitivity
+  let proof nm := Identity.transitivity
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate m))
                   (multiplication.left.negation m (+ k)))
-                (Identity.congruence negate (multiplication.commutativity m (+ k))))
-    as nm.
-  pose proof (Identity.transitivity
+                (Identity.congruence negate (multiplication.commutativity m (+ k))).
+  let proof nn := Identity.transitivity
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate n))
                   (multiplication.left.negation n (+ k)))
-                (Identity.congruence negate (multiplication.commutativity n (+ k))))
-    as nn.
+                (Identity.congruence negate (multiplication.commutativity n (+ k))).
   rewrite <- nm in |- *.
   rewrite <- nn in |- *.
   rewrite (ramp.scaling k (negate m)) in |- *.
@@ -1438,11 +1435,11 @@ Theorem interchange
 Proof.
   intros a b c d.
   rewrite (multiplication.associativity a b (c * d)) in |- *.
-  pose proof (Identity.symmetry (multiplication.associativity b c d)) as inner.
+  let proof inner := Identity.symmetry (multiplication.associativity b c d).
   rewrite inner in |- *.
   rewrite (multiplication.commutativity b c) in |- *.
   rewrite (multiplication.associativity c b d) in |- *.
-  pose proof (Identity.symmetry (multiplication.associativity a c (b * d))) as outer.
+  let proof outer := Identity.symmetry (multiplication.associativity a c (b * d)).
   rewrite outer in |- *.
   reflexivity.
 Qed.
@@ -1510,10 +1507,8 @@ Proof.
   intro h.
   simpl LessThan in h.
   match h with | k e end.
-  pose proof (Identity.transitivity e (Identity.symmetry (addition.right.identity n)))
-          as e'.
-  pose proof (addition.left.cancellation e')
-          as f.
+  let proof e' := Identity.transitivity e (Identity.symmetry (addition.right.identity n)).
+  let proof f := addition.left.cancellation e'.
   discriminate f.
 Qed.
 
@@ -1579,7 +1574,7 @@ Proof.
   simpl add in |- *.
   match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
-    pose proof (Nat.comparison.strict.forward.specification c) as lt.
+    let proof lt := Nat.comparison.strict.forward.specification c.
     simpl Nat.LessThan in lt.
     match lt with | k e end.
     apply (Exists_introduction k).
@@ -1629,7 +1624,7 @@ Proof.
     match h with | k e end.
     discriminate e.
   - intro c.
-    pose proof (Nat.comparison.strict.forward.specification c) as lt.
+    let proof lt := Nat.comparison.strict.forward.specification c.
     simpl Nat.LessThan in lt.
     match lt with | k e end.
     apply (Exists_introduction k).
@@ -1637,7 +1632,7 @@ Proof.
     reflexivity.
   - intro h.
     match h with | k e end.
-    pose proof (magnitude.positive.injectivity e) as e'.
+    let proof e' := magnitude.positive.injectivity e.
     apply (@Nat.comparison.strict.backward.specification m' n').
     simpl Nat.LessThan in |- *.
     apply (Exists_introduction k).
@@ -1655,11 +1650,11 @@ Proof.
   intros m n.
   match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
-    pose proof (Nat.comparison.equality.forward.specification c) as e.
+    let proof e := Nat.comparison.equality.forward.specification c.
     rewrite e in |- *.
     reflexivity.
   - intro e.
-    pose proof (magnitude.negative.injectivity e) as e'.
+    let proof e' := magnitude.negative.injectivity e.
     rewrite e' in |- *.
     ipso (Comparable.comparison.reflexivity n').
   - intro c.
@@ -1691,11 +1686,11 @@ Proof.
   - intro e.
     discriminate e.
   - intro c.
-    pose proof (Nat.comparison.equality.forward.specification c) as e.
+    let proof e := Nat.comparison.equality.forward.specification c.
     rewrite e in |- *.
     reflexivity.
   - intro e.
-    pose proof (magnitude.positive.injectivity e) as e'.
+    let proof e' := magnitude.positive.injectivity e.
     rewrite e' in |- *.
     ipso (Comparable.comparison.reflexivity n').
 Qed.
@@ -1740,8 +1735,8 @@ Proof.
   intros x d h.
   match x with | x' | | x' end.
   - simpl divide in |- *.
-    pose proof (NatWithZero.division.exactness
-                  (NatWithZero.Positive x') d h) as e.
+    let proof e := NatWithZero.division.exactness
+                  (NatWithZero.Positive x') d h.
     match (NatWithZero.divide (NatWithZero.Positive x') d) with | | m end.
     + simpl in e.
       discriminate e.
@@ -1751,8 +1746,8 @@ Proof.
   - simpl in |- *.
     reflexivity.
   - simpl divide in |- *.
-    pose proof (NatWithZero.division.exactness
-                  (NatWithZero.Positive x') d h) as e.
+    let proof e := NatWithZero.division.exactness
+                  (NatWithZero.Positive x') d h.
     match (NatWithZero.divide (NatWithZero.Positive x') d) with | | m end.
     + simpl in e.
       discriminate e.
@@ -1785,8 +1780,8 @@ Proof.
   match x with | p | | p end.
   - change ((+ k) * (- p)) with (- (Nat.mul k p)) in |- *.
     simpl divide in |- *.
-    pose proof (NatWithZero.division.invariance
-                  (NatWithZero.Positive p) d k) as h.
+    let proof h := NatWithZero.division.invariance
+                  (NatWithZero.Positive p) d k.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
       with (NatWithZero.Positive (Nat.mul k p)) in h.
     rewrite h in |- *.
@@ -1795,8 +1790,8 @@ Proof.
     reflexivity.
   - change ((+ k) * (+ p)) with (+ (Nat.mul k p)) in |- *.
     simpl divide in |- *.
-    pose proof (NatWithZero.division.invariance
-                  (NatWithZero.Positive p) d k) as h.
+    let proof h := NatWithZero.division.invariance
+                  (NatWithZero.Positive p) d k.
     change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
       with (NatWithZero.Positive (Nat.mul k p)) in h.
     rewrite h in |- *.
@@ -1915,8 +1910,7 @@ Proof.
         match od with | k e end.
         simpl Even, Divides in |- *.
         apply (Exists_introduction k).
-        pose proof (Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e)
-                as e'.
+        let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
         change ((((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One))
           in e'.
         rewrite (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))

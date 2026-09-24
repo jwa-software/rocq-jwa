@@ -159,7 +159,7 @@ Lemma injectivity
 Proof.
   intros m n e.
   pose (f := (fun (x : Nat) . match x with | 1 => m | S y => y end)).
-  pose proof (Identity.congruence f e) as e'.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.
 Qed.
@@ -196,8 +196,7 @@ Proof.
   simpl LessThan in h.
   match h with | k e end.
   simpl in e.
-  pose proof (successor.injectivity e)
-          as e'.
+  let proof e' := successor.injectivity e.
   simpl LessThan in |- *.
   ipso (Exists_introduction k e').
 Qed.
@@ -239,8 +238,7 @@ Proof.
     +
       reflexivity.
     +
-      pose proof (Identity.symmetry IH2)
-              as IH2'.
+      let proof IH2' := Identity.symmetry IH2.
       rewrite IH2'
               in |- *.
       reflexivity.
@@ -278,8 +276,7 @@ Proof.
     rewrite (addition.commutativity k (S n'))
             in e.
     simpl in e.
-    pose proof (successor.injectivity e)
-            as e'.
+    let proof e' := successor.injectivity e.
     rewrite (addition.commutativity n' k)
             in e'.
     simpl Negation in IH.
@@ -301,8 +298,7 @@ Proof.
     ipso (successor.injectivity e).
   - simpl in |- *.
     intro e.
-    pose proof (successor.injectivity e)
-            as e'.
+    let proof e' := successor.injectivity e.
     ipso (modus ponens IH, e').
 Qed.
 
@@ -401,8 +397,7 @@ Proof.
   match h with | k e end.
   rewrite (addition.commutativity n k)
           in e.
-  pose proof (addition.identity.absence k n)
-          as i.
+  let proof i := addition.identity.absence k n.
   simpl Negation in i.
   modus ponens i, e as f.
   ex f quodlibet.
@@ -420,8 +415,7 @@ Proof.
   match h2 with | k2 e2 end.
   simpl LessThan in |- *.
   apply (Exists_introduction (k1 + k2)).
-  pose proof (Identity.symmetry (addition.associativity l k1 k2))
-          as a.
+  let proof a := Identity.symmetry (addition.associativity l k1 k2).
   rewrite a  in |- *.
   rewrite e1 in |- *.
   ipso e2.
@@ -441,8 +435,7 @@ Proof.
       using Nat.induction;
   intro n; match n with | | n' end.
   -
-    pose proof (Identity.reflexivity 1)
-            as id.
+    let proof id := Identity.reflexivity 1.
     ipso (Disjunction.R (Disjunction.L id)).
   -
     apply Disjunction.L.
@@ -458,7 +451,7 @@ Proof.
     simpl in |- *.
     reflexivity.
   -
-    pose proof (IH n') as t.
+    let proof t := IH n'.
     match t with | lt | rest end.
     +
       apply Disjunction.L.
@@ -498,11 +491,11 @@ Proof.
     rewrite (addition.commutativity y k) in e.
     match k with | | k' end.
     + simpl in e.
-      pose proof (successor.injectivity e) as e'.
+      let proof e' := successor.injectivity e.
       rewrite e' in |- *.
       ipso IH.
     + simpl in e.
-      pose proof (successor.injectivity e) as e'.
+      let proof e' := successor.injectivity e.
       apply (Accessible.descend IH).
       apply (Exists_introduction k').
       rewrite (addition.commutativity y k') in |- *.
@@ -529,8 +522,7 @@ Proof.
     +
       reflexivity.
     +
-      pose proof (Identity.symmetry IH2)
-              as IH2'.
+      let proof IH2' := Identity.symmetry IH2.
       rewrite IH2'
               in |- *.
       reflexivity.
@@ -602,9 +594,8 @@ Proof.
   match h with | d e end.
   simpl LessThan in |- *.
   apply (Exists_introduction (k * d)).
-  pose proof (Identity.symmetry
-                (multiplication.left.distributivity.over.addition k m d))
-          as dist.
+  let proof dist := Identity.symmetry
+                (multiplication.left.distributivity.over.addition k m d).
   rewrite dist in |- *.
   rewrite e    in |- *.
   reflexivity.
@@ -617,25 +608,21 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m * n = m * k -> n = k.
 Proof.
   intros m n k e.
-  pose proof (order.strict.trichotomy n k) as t.
+  let proof t := order.strict.trichotomy n k.
   match t with | lt | rest end.
-  - pose proof (multiplication.left.order.monotonicity m n k lt)
-            as lt'.
+  - let proof lt' := multiplication.left.order.monotonicity m n k lt.
     rewrite e
             in lt'.
-    pose proof (order.strict.irreflexivity (m * k))
-            as i.
+    let proof i := order.strict.irreflexivity (m * k).
     simpl Negation in i.
     modus ponens i, lt' as f.
     ex f quodlibet.
   - match rest with | eq | gt end.
     + ipso eq.
-    + pose proof (multiplication.left.order.monotonicity m k n gt)
-              as gt'.
+    + let proof gt' := multiplication.left.order.monotonicity m k n gt.
       rewrite e
               in gt'.
-      pose proof (order.strict.irreflexivity (m * k))
-              as i.
+      let proof i := order.strict.irreflexivity (m * k).
       simpl Negation in i.
       modus ponens i, gt' as f.
       ex f quodlibet.
@@ -913,7 +900,7 @@ Proof.
       intro h;
       simpl in |- *.
   +
-    pose proof (order.strict.irreflexivity 1) as i.
+    let proof i := order.strict.irreflexivity 1.
     simpl Negation in i.
     modus ponens i, h as f.
     ex f quodlibet.
@@ -1013,8 +1000,7 @@ Proof.
   intros n.
   simpl Comparable.max in |- *.
   match (compare n 1) per c with | | | end.
-  - pose proof (comparison.strict.forward.specification c)
-            as lt.
+  - let proof lt := comparison.strict.forward.specification c.
     simpl LessThan in lt.
     match lt with | k e end.
     match n with | | n' end;
@@ -1066,7 +1052,7 @@ Proof.
   - apply Disjunction.R.
     simpl Negation in |- *.
     intro h.
-    pose proof (comparison.equality.backward.specification h) as b.
+    let proof b := comparison.equality.backward.specification h.
     rewrite e in b.
     discriminate b.
   - apply Disjunction.L.
@@ -1074,7 +1060,7 @@ Proof.
   - apply Disjunction.R.
     simpl Negation in |- *.
     intro h.
-    pose proof (comparison.equality.backward.specification h) as b.
+    let proof b := comparison.equality.backward.specification h.
     rewrite e in b.
     discriminate b.
 Qed.
@@ -1112,7 +1098,7 @@ Proof.
   -
     simpl LessThan in lt.
     match lt with | k e end.
-    pose proof (Identity.symmetry e) as e'.
+    let proof e' := Identity.symmetry e.
     rewrite e' in |- *.
     rm e e'.
     induction m as [| m' IH]
@@ -1173,7 +1159,7 @@ Proof.
         simpl in |- *;
         intro e.
     +
-      pose proof (Option.some.injectivity e) as e'.
+      let proof e' := Option.some.injectivity e.
       rewrite e' in |- *.
       reflexivity.
     +

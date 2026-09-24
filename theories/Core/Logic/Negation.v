@@ -111,7 +111,7 @@ Proof.
   intro not_a.
 
   match h with | a | b end.
-  - pose proof (not_a a) as f.
+  - let proof f := not_a a.
     ex f quodlibet.
   - ipso b.
 Qed.
@@ -139,7 +139,7 @@ Proof.
 
   match h with | a | b end.
   - ipso a.
-  - pose proof (not_b b) as f.
+  - let proof f := not_b b.
     ex f quodlibet.
 Qed.
 

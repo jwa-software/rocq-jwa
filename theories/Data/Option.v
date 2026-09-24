@@ -38,7 +38,7 @@ Theorem injectivity
 Proof.
   intros A a b e.
   pose (f := fun (o : Option A) . match o with | Some x => x | None => a end).
-  pose proof (Identity.congruence f e) as e'.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.
 Qed.

@@ -745,7 +745,7 @@ Proof.
       match h with | e | h' end.
       * ipso (Exists_introduction
                  a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
-      * pose proof (IH h') as w.
+      * let proof w := IH h'.
         match w with | a' c end.
         match c with | m e end.
         ipso (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
@@ -1601,7 +1601,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity e) as e'.
+    let proof e' := Option.some.injectivity e.
     apply (Exists_introduction rest).
     rewrite e' in |- *.
     reflexivity.
@@ -1655,7 +1655,7 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity e) as e'.
+    let proof e' := Option.some.injectivity e.
     apply (Exists_introduction b).
     rewrite e' in |- *.
     reflexivity.
@@ -1707,7 +1707,7 @@ Proof.
   intro h.
   match (head.forward.specification h) with | r e end.
   apply (Exists_introduction (reverse r)).
-  pose proof (Identity.congruence reverse e) as e'.
+  let proof e' := Identity.congruence reverse e.
   rewrite reversal.involution in e'.
   simpl in e'.
   ipso e'.
@@ -1764,9 +1764,9 @@ Proof.
     discriminate h.
   - simpl in |- *.
     intro h.
-    pose proof (Option.some.injectivity h) as e'.
+    let proof e' := Option.some.injectivity h.
     apply (Exists_introduction b).
-    pose proof (Identity.congruence reverse er) as er'.
+    let proof er' := Identity.congruence reverse er.
     rewrite reversal.involution in er'.
     simpl in er'.
     rewrite e' in er'.
@@ -1824,8 +1824,8 @@ Proof.
     discriminate e.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity e) as e'.
-    pose proof (Product.introduction.injectivity e') as e''.
+    let proof e' := Option.some.injectivity e.
+    let proof e'' := Product.introduction.injectivity e'.
     match e'' with | eb erest end.
     rewrite eb, erest in |- *.
     reflexivity.
@@ -1979,10 +1979,10 @@ Proof.
       simpl in |- *.
       reflexivity.
     + simpl in e.
-      pose proof (Identity.symmetry e) as e'.
+      let proof e' := Identity.symmetry e.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One) as h.
+      let proof h := NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One.
       simpl Negation in h.
       modus ponens h, e' as f.
       ex f quodlibet.
@@ -1991,17 +1991,17 @@ Proof.
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One) as h.
+      let proof h := NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One.
       simpl Negation in h.
       modus ponens h, e as f.
       ex f quodlibet.
     + simpl in e.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e.
-      pose proof (NatWithZero.addition.left.cancellation e) as e'.
-      pose proof (IH l2' e') as IH'.
+      let proof e' := NatWithZero.addition.left.cancellation e.
+      let proof IH' := IH l2' e'.
       simpl unzip in IH'.
-      pose proof (Product.introduction.injectivity IH') as e''.
+      let proof e'' := Product.introduction.injectivity IH'.
       match e'' with | e1 e2 end.
       simpl unzip in |- *.
       simpl in |- *.
@@ -2066,12 +2066,12 @@ Proof.
       ipso (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
     + match i' with | | i'' end.
       * simpl in h.
-        pose proof (IH NatWithZero.Zero h) as lt.
+        let proof lt := IH NatWithZero.Zero h.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         ipso (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
       * simpl in h.
-        pose proof (IH (NatWithZero.Positive i'') h) as lt.
+        let proof lt := IH (NatWithZero.Positive i'') h.
         simpl in |- *.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
         ipso (NatWithZero.addition.order.strict.monotonicity
@@ -2093,7 +2093,7 @@ Proof.
     simpl in h.
     simpl NatWithZero.LessThan in h.
     match h with | k e end.
-    pose proof (NatWithZero.addition.right.identity.absence i k) as r.
+    let proof r := NatWithZero.addition.right.identity.absence i k.
     simpl Negation in r.
     modus ponens r, e as f.
     ex f quodlibet.
@@ -2105,14 +2105,13 @@ Proof.
     + match i' with | | i'' end.
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h)
-          as lt.
+        let proof lt := NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h.
         simpl in |- *.
         ipso (IH NatWithZero.Zero lt).
       * simpl in h.
         rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition.order.strict.cancellation
-                      (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h) as lt.
+        let proof lt := NatWithZero.addition.order.strict.cancellation
+                      (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h.
         simpl in |- *.
         ipso (IH (NatWithZero.Positive i'') lt).
 Qed.
@@ -2385,7 +2384,7 @@ Proof.
       * intro e.
         rewrite (NatWithZero.increment.specification (count p l')) in e.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
-        pose proof (NatWithZero.addition.right.identity.absence (count p l') Nat.One) as r.
+        let proof r := NatWithZero.addition.right.identity.absence (count p l') Nat.One.
         simpl Negation in r.
         modus ponens r, e as f.
         ex f quodlibet.
@@ -2456,14 +2455,13 @@ Proof.
     match s with | below sorted' end.
     match (le a b) per c with | | end.
     + simpl in |- *.
-      pose proof (quantification.all.monotonicity
-                    (fun (x : A) (h : le b x = true) . transitive a b x c h) below)
-        as below_a.
+      let proof below_a := quantification.all.monotonicity
+                    (fun (x : A) (h : le b x = true) . transitive a b x c h) below.
       ipso (Conjunction_introduction
                (Conjunction_introduction c below_a)
                (Conjunction_introduction below sorted')).
     + simpl in |- *.
-      pose proof (total a b) as t.
+      let proof t := total a b.
       match t with | ab | ba end.
       * rewrite c in ab.
         discriminate ab.
@@ -2598,7 +2596,7 @@ Proof.
     ipso h.
   - simpl in |- *.
     intro h.
-    pose proof (sorting.insertion.forward.membership h) as h'.
+    let proof h' := sorting.insertion.forward.membership h.
     match h' with | e | h'' end.
     + ipso (Disjunction.L e).
     + ipso (Disjunction.R (IH h'')).
@@ -2755,7 +2753,7 @@ Proof.
     + simpl in |- *.
       ipso (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
     + simpl in e.
-      pose proof (NatWithZero.positive.injectivity e) as e'.
+      let proof e' := NatWithZero.positive.injectivity e.
       match q with | | q' end; simpl in e'; discriminate e'.
   - intros i h.
     change (NatWithZero.Positive (Nat.Successor p'))
@@ -2813,7 +2811,7 @@ Proof.
     + intro h.
       simpl NatWithZero.LessThan in h.
       match h with | k e end.
-      pose proof (NatWithZero.addition.right.identity.absence i k) as r.
+      let proof r := NatWithZero.addition.right.identity.absence i k.
       simpl Negation in r.
       modus ponens r, e as f.
       ex f quodlibet.
@@ -2902,7 +2900,7 @@ Proof.
   intros start stop i.
   simpl range in |- *.
   match (Comparable.order.totality start stop) with | below | above end.
-  - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
+  - let proof reach := NatWithZero.subtraction.saturating.specification below.
     divide et impera.
     + intro h.
       modus aequans
@@ -2926,7 +2924,7 @@ Proof.
                  start j (NatWithZero.saturating_sub stop start) lt).
     + intro c.
       match c with | low high end.
-      pose proof (NatWithZero.subtraction.saturating.specification low) as step.
+      let proof step := NatWithZero.subtraction.saturating.specification low.
       lemma inside : NatWithZero.saturating_sub i start
                        < NatWithZero.saturating_sub stop start.
       {
@@ -2954,7 +2952,7 @@ Proof.
                   (NatWithZero.add start) i
                   (range_from_zero (NatWithZero.saturating_sub stop start))),
              witness).
-  - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
+  - let proof empty := NatWithZero.subtraction.saturating.truncation above.
     rewrite empty in |- *.
     simpl in |- *.
     divide et impera.
@@ -2962,7 +2960,7 @@ Proof.
       ex f quodlibet.
     + intro c.
       match c with | low high end.
-      pose proof (Comparable.order.transitivity stop start i above low) as reached.
+      let proof reached := Comparable.order.transitivity stop start i above low.
       match reached with | e | lt end.
       * rewrite e in high.
         ipso (NatWithZero.order.strict.irreflexivity i high).
@@ -3106,7 +3104,7 @@ Proof.
     simpl in e.
     match (maximum_of le l') per r with | | m' end.
     + modus aequans (absence.specification le l'), r as en.
-      pose proof (Option.some.injectivity e) as e'.
+      let proof e' := Option.some.injectivity e.
       rewrite en in |- *.
       rewrite <- e' in |- *.
       simpl in |- *.
@@ -3114,16 +3112,16 @@ Proof.
       * ipso (comparison.reflexivity total a).
       * ipso I.
     + match (le a m') per s with end.
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         rewrite <- e' in |- *.
         simpl in |- *.
         divide et impera.
         -- ipso s.
         -- ipso (IH m' (Identity.reflexivity (Some m'))).
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         rewrite <- e' in |- *.
         simpl in |- *.
-        pose proof (comparison.contraposition total s) as ha.
+        let proof ha := comparison.contraposition total s.
         divide et impera.
         -- ipso (comparison.reflexivity total a).
         -- ipso (quantification.all.monotonicity
@@ -3144,16 +3142,16 @@ Proof.
   - intros m e.
     simpl in e.
     match (maximum_of le l') per r with | | m' end.
-    + pose proof (Option.some.injectivity e) as e'.
+    + let proof e' := Option.some.injectivity e.
       simpl in |- *.
       ipso (Disjunction.L (Identity.symmetry e')).
     + match (le a m') per s with end.
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         rewrite <- e' in |- *.
         simpl in |- *.
         apply Disjunction.R.
         ipso (IH m' (Identity.reflexivity (Some m'))).
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         simpl in |- *.
         ipso (Disjunction.L (Identity.symmetry e')).
 Qed.
@@ -3206,7 +3204,7 @@ Proof.
     simpl in e.
     match (minimum_of le l') per r with | | m' end.
     + modus aequans (absence.specification le l'), r as en.
-      pose proof (Option.some.injectivity e) as e'.
+      let proof e' := Option.some.injectivity e.
       rewrite en in |- *.
       rewrite <- e' in |- *.
       simpl in |- *.
@@ -3214,7 +3212,7 @@ Proof.
       * ipso (comparison.reflexivity total a).
       * ipso I.
     + match (le a m') per s with end.
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         rewrite <- e' in |- *.
         simpl in |- *.
         divide et impera.
@@ -3222,7 +3220,7 @@ Proof.
         -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le m' x = true) . transitive a m' x s h)
                     (IH m' (Identity.reflexivity (Some m')))).
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         rewrite <- e' in |- *.
         simpl in |- *.
         divide et impera.
@@ -3243,14 +3241,14 @@ Proof.
   - intros m e.
     simpl in e.
     match (minimum_of le l') per r with | | m' end.
-    + pose proof (Option.some.injectivity e) as e'.
+    + let proof e' := Option.some.injectivity e.
       simpl in |- *.
       ipso (Disjunction.L (Identity.symmetry e')).
     + match (le a m') per s with end.
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         simpl in |- *.
         ipso (Disjunction.L (Identity.symmetry e')).
-      * pose proof (Option.some.injectivity e) as e'.
+      * let proof e' := Option.some.injectivity e.
         rewrite <- e' in |- *.
         simpl in |- *.
         apply Disjunction.R.

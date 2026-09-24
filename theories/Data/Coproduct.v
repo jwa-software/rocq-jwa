@@ -109,7 +109,7 @@ Proof.
   intros A B a1 a2 e.
   pose (f := fun (cp : Coproduct A B) .
              match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end).
-  pose proof (Identity.congruence f e) as e'.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.
 Qed.
@@ -126,7 +126,7 @@ Proof.
   intros A B b1 b2 e.
   pose (f := fun (cp : Coproduct A B) .
              match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end).
-  pose proof (Identity.congruence f e) as e'.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
   ipso e'.
 Qed.

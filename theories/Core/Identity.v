@@ -146,7 +146,7 @@ Proof.
   match (decide x y) with | r | n end.
   - quod idem est.
   - simpl Negation in n.
-    pose proof (n p) as absurdity.
+    let proof absurdity := n p.
     ex absurdity quodlibet.
 Qed.
 
@@ -173,9 +173,9 @@ Theorem uniqueness
 Proof.
   intros A decide x y p q.
 
-  pose proof (retraction decide x y p)   as rp.
-  pose proof (retraction decide x y q)   as rq.
-  pose proof (constancy  decide x y p q) as c.
+  let proof rp := retraction decide x y p.
+  let proof rq := retraction decide x y q.
+  let proof c := constancy  decide x y p q.
 
   set (base
         := decided decide x x (reflexivity x))
@@ -185,8 +185,8 @@ Proof.
         := fun (e : x = y) . transitivity (symmetry base) e)
   in |- *.
 
-  pose proof (congruence shift c) as step.
-  pose proof (symmetry rp) as rp'.
+  let proof step := congruence shift c.
+  let proof rp' := symmetry rp.
   ipso (transitivity rp' (transitivity step rq)).
 Qed.
 
