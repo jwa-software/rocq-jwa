@@ -7,6 +7,8 @@ From Ltac2 Require Constr Control Ind Int Message Std.
 (* Ex falso quodlibet: from what cannot exist, anything.
  *
  *   ex <H> quodlibet    <H> : Falsum |- any goal
+ *   ex <H> quodlibet    <H> : C1 ... = C2 ... |- any goal, C1 and C2 two
+ *                       different constructors, as [discriminate <H>]
  *
  * Closes the goal outright, whatever its sort, [Prop] or [Type]; <H> is a
  * hypothesis or any term, parenthesised when it is an application. Rocq's
@@ -16,8 +18,9 @@ From Ltac2 Require Constr Control Ind Int Message Std.
  * <H> must have an empty type: an inductive with no constructor, once its
  * type is reduced to head normal form, so [Assert false] passes. That is
  * [Falsum] for a proposition and [Empty] for a type, the same principle at
- * two sorts; this layer sits below both and names neither. Anything else is
- * refused with an error naming what <H> proves instead.
+ * two sorts; this layer sits below both and names neither. Or <H> equates
+ * two different constructors of one type, which no proof can do. Anything
+ * else is refused with an error naming what <H> proves instead.
  *
  * The goal is closed by [match <H> return <goal> with end], which has no
  * branch to write since the type has no constructor.
@@ -39,13 +42,19 @@ Ltac2 ex_quodlibet (h : unit -> constr) :=
         let goal := Control.goal () in
         constr:(match $h return $goal with end))
     else
-      Control.zero
-        (Tactic_failure
-           (Some (Message.concat (Message.of_string "ex quodlibet: ")
-                 (Message.concat (Message.of_constr h)
-                 (Message.concat (Message.of_string " proves ")
-                 (Message.concat (Message.of_constr t)
-                                 (Message.of_string ", which is not empty")))))))).
+      Control.once_plus
+        (fun () =>
+          Std.discriminate false (Some (Std.ElimOnConstr (fun () => (h, Std.NoBindings)))))
+        (fun _ =>
+          Control.zero
+            (Tactic_failure
+               (Some (Message.concat (Message.of_string "ex quodlibet: ")
+                     (Message.concat (Message.of_constr h)
+                     (Message.concat (Message.of_string " proves ")
+                     (Message.concat (Message.of_constr t)
+                     (Message.concat (Message.of_string ", which is neither empty")
+                     (Message.of_string
+                        " nor an equation between different constructors")))))))))).
 
 Ltac2 Notation "ex" h(thunk(constr)) "quodlibet" :=
   ex_quodlibet h.
