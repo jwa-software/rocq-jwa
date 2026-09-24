@@ -11,6 +11,7 @@ From Ltac2 Require Constr Control Fresh Ident Int List Message Std.
  * let <x> : <T> := <e> in <places>         set (<x> : <T> := <e>) in <places>
  * let <x> := <e> at <n> in <H>             set (<x> := <e>) in <H> at <n>
  * let <x> := <e> at <n> in |- *            set (<x> := <e>) in |- * at <n>
+ * let &<x> in <places>                     fold <x> in <places>
  * let proof <p> := <e>                     pose proof (<e>) as <p>
  * let proof <p> : <T> := <e>               pose proof (<e> : <T>) as <p>
  *
@@ -25,6 +26,12 @@ From Ltac2 Require Constr Control Fresh Ident Int List Message Std.
  * goal when [|- *] is named, or anywhere under [in *]. With [at <n>], typed
  * or not, only the <n>th occurrence of <e>, counting from one, is written
  * <x>, in one hypothesis or in the goal; it fails when there is none.
+ *
+ * [let &<x> in <places>] does the same for a local definition <x> already
+ * in the context: its body, as written, becomes <x> in the places named,
+ * a hypothesis's body included. Refused: an <x> that is no definition, a
+ * place where the body does not occur, <x> itself, and a hypothesis that
+ * stands before <x>, which cannot name it; [in *] passes over those two.
  *
  * A name already in the context is shadowed, not refused:
  *
@@ -333,6 +340,126 @@ Ltac2 let_at
           end
     end.
 
+(* <c> with every <body> in it written <name>. <body> is closed, so no
+ * occurrence of it mentions a variable bound inside <c>.
+ *)
+Ltac2 rec fold_occurrences (body : constr) (name : constr) (c : constr) : constr :=
+  if Constr.equal c body
+  then name
+  else Constr.Unsafe.map (fold_occurrences body name) c.
+
+(* Whether [h] stands before [x] in the context. *)
+Ltac2 before (h : ident) (x : ident) : bool :=
+  let rec scan hyps :=
+    match hyps with
+    | [] => false
+    | y :: rest =>
+        match y with
+        | (y, _, _) =>
+            if Ident.equal y h then true
+            else if Ident.equal y x then false
+            else scan rest
+        end
+    end in
+  scan (Control.hyps ()).
+
+(* The body of [x], as [let &x in ...] folds it. *)
+Ltac2 fold_body (x : ident) : constr :=
+  match entry x with
+  | Some (Some body, _) => body
+  | Some (None, _) =>
+      let_refuse [Message.of_string "let: "; Message.of_ident x;
+                  Message.of_string " is a hypothesis, not a definition; it has nothing to fold"]
+  | None =>
+      let_refuse [Message.of_string "let: "; Message.of_ident x;
+                  Message.of_string " is not in the context"]
+  end.
+
+(* The folding in [h], type and body; [false] when the body of [x] occurs
+ * in neither.
+ *)
+Ltac2 fold_in_hypothesis (x : ident) (body : constr) (h : ident) : bool :=
+  match entry h with
+  | Some (value, type) =>
+      let name := Control.hyp x in
+      let new_type := fold_occurrences body name type in
+      let type_changed := if Constr.equal new_type type then false else true in
+      let value_changed :=
+        match value with
+        | Some v =>
+            let new_value := fold_occurrences body name v in
+            if Constr.equal new_value v
+            then false
+            else (Std.change None (fun _ => new_value) (value_of h); true)
+        | None => false
+        end in
+      if type_changed
+      then (Std.change None (fun _ => new_type) (type_of h); true)
+      else value_changed
+  | None => false
+  end.
+
+Ltac2 fold_in_goal (x : ident) (body : constr) : bool :=
+  let goal := Control.goal () in
+  let new_goal := fold_occurrences body (Control.hyp x) goal in
+  if Constr.equal new_goal goal
+  then false
+  else (Std.change None (fun _ => new_goal) Place.goal; true).
+
+Ltac2 let_fold (x : ident) (places : ident list * bool * bool) :=
+  let body := fold_body x in
+  let does_not_occur place_name :=
+    let_refuse [Message.of_string "let: "; Message.of_constr body;
+                Message.of_string " does not occur in "; place_name] in
+  match places with
+  | (hs, goal, everywhere) =>
+      if everywhere
+      then
+        let hypotheses_changed :=
+          List.fold_left
+            (fun acc y =>
+              match y with
+              | (h, _, _) =>
+                  if Ident.equal h x then acc
+                  else if before h x then acc
+                  else if fold_in_hypothesis x body h then true
+                  else acc
+              end)
+            false (Control.hyps ()) in
+        let goal_changed := fold_in_goal x body in
+        if hypotheses_changed then ()
+        else if goal_changed then ()
+        else
+          let_refuse [Message.of_string "let: "; Message.of_constr body;
+                      Message.of_string " occurs neither in the goal nor in a hypothesis after ";
+                      Message.of_ident x]
+      else
+        (List.iter
+           (fun h =>
+             match entry h with
+             | None =>
+                 let_refuse [Message.of_string "let: "; Message.of_ident h;
+                             Message.of_string " is not in the context"]
+             | Some _ =>
+                 if Ident.equal h x
+                 then
+                   let_refuse [Message.of_string "let: "; Message.of_ident x;
+                               Message.of_string " cannot be folded into itself"]
+                 else if before h x
+                 then
+                   let_refuse [Message.of_string "let: "; Message.of_ident h;
+                               Message.of_string " stands before "; Message.of_ident x;
+                               Message.of_string " in the context, so it cannot name it"]
+                 else if fold_in_hypothesis x body h
+                 then ()
+                 else does_not_occur (Message.of_ident h)
+             end)
+           hs;
+         if goal
+         then (if fold_in_goal x body then () else does_not_occur (Message.of_string "the goal"))
+         else ())
+  end.
+
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
  * must reach the helpers that know how to shadow.
@@ -377,6 +504,11 @@ Ltac2 Notation "let" x(ident) ":" t(thunk(lconstr)) ":=" e(thunk(lconstr)) "at" 
   Control.enter (fun () =>
     let_at x (Local.checked "let" e) (Some (Local.checked "let" t)) n
       (let_places hypotheses goal everywhere)).
+
+Ltac2 Notation "let" "&" x(ident)
+  "in" hypotheses(opt(list1(context_name, ","))) goal(opt(seq("|-", "*"))) everywhere(opt("*"))
+  : 5 :=
+  Control.enter (fun () => let_fold x (let_places hypotheses goal everywhere)).
 
 Ltac2 Notation "let" "proof" h(ident) ":=" e(thunk(lconstr)) : 5 :=
   Control.enter (fun () => let_proof h (Local.checked "let proof" e)).
