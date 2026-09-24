@@ -108,13 +108,30 @@ Proof.
    *     = reflexivity x]
    *)
   match r with end.
-  change (symmetry (Identity_introduction x))
-    with (Identity_introduction x) in |- *.
-  change (transitivity (Identity_introduction x) (Identity_introduction x))
-    with (Identity_introduction x) in |- *.
-  change (reflexivity x) with (Identity_introduction x) in |- *.
-  (* [|- Identity_introduction x = Identity_introduction x] *)
-  quod idem est.
+  lemma facto : Identity_introduction &x = Identity_introduction &x.
+  {
+    quod idem est.
+  }
+
+  let proof facto
+    : Identity_introduction &x = reflexivity &x
+    := &facto.
+
+  let proof facto
+    : transitivity
+        (Identity_introduction &x)
+        (Identity_introduction &x)
+      = reflexivity &x
+    := &facto.
+
+  let proof facto
+    : transitivity
+        (symmetry (Identity_introduction &x))
+        (Identity_introduction &x)
+      = reflexivity &x
+    := &facto.
+
+  ipso facto.
 Qed.
 
 Module hedberg. (* hedberg *)
