@@ -459,10 +459,13 @@ Proof.
   match m with | | m' end.
   - simpl in |- *.
     ipso (Disjunction.L (Identity.reflexivity n)).
-  - apply Disjunction.R.
-    simpl LessThan in |- *.
-    exists m'.
-    ipso (addition.commutativity n (+ m')).
+  - lemma facto : &n < (+ &m') + &n.
+    {
+      simpl LessThan in |- *.
+      exists m'.
+      ipso (addition.commutativity n (+ m')).
+    }
+    ipso (disjoin _, &facto).
 Qed.
 
 (* addition.right.order.positivity *)
@@ -558,8 +561,7 @@ Proof.
     simpl LessOrEqual in |- *.
     ipso (Disjunction.L (Identity.reflexivity (k + n))).
   - simpl LessOrEqual in |- *.
-    apply Disjunction.R.
-    ipso (addition.order.strict.monotonicity k m n lt).
+    ipso (disjoin _, (addition.order.strict.monotonicity k m n lt)).
 Qed.
 
 End order. (* addition.order *)
@@ -742,11 +744,14 @@ Proof.
   - match k with | | k' end.
     + simpl in |- *.
       ipso (Disjunction.L (Identity.reflexivity (+ p))).
-    + apply Disjunction.R.
-      simpl LessThan in |- *.
-      exists (Nat.mul k' p).
-      simpl in |- *.
-      quod idem est.
+    + lemma facto : (+ &p) < (+ Nat.Successor &k') * (+ &p).
+      {
+        simpl LessThan in |- *.
+        exists (Nat.mul k' p).
+        simpl in |- *.
+        quod idem est.
+      }
+      ipso (disjoin _, &facto).
 Qed.
 
 End order. (* multiplication.right.order *)
@@ -923,14 +928,17 @@ Module zero. (* order.strict.zero *)
 (* order.strict.zero.accessibility *)
 Lemma accessibility : Accessible LessThan 0.
 Proof.
-  apply Accessible_introduction.
-  intros y h.
-  match h with | k e end.
-  match y with | | q end.
-  - simpl in e.
-    ex e quodlibet.
-  - simpl in e.
-    ex e quodlibet.
+  lemma below : forall (y : NatWithZero) . y < 0 -> Accessible LessThan y.
+  {
+    intros y h.
+    match h with | k e end.
+    match y with | | q end.
+    - simpl in e.
+      ex e quodlibet.
+    - simpl in e.
+      ex e quodlibet.
+  }
+  ipso (Accessible_introduction &below).
 Qed.
 
 End zero. (* order.strict.zero *)
@@ -945,39 +953,50 @@ Proof.
   match n with | | p end.
   - ipso zero.accessibility.
   - match p with | | p' by IH end per Nat.induction.
-    + apply Accessible_introduction.
-      intros y h.
-      match h with | k e end.
-      match y with | | q end.
-      * ipso zero.accessibility.
-      * simpl in e.
-        let proof e' := positive.injectivity e.
-        match q with | | q' end.
-        -- simpl in e'.
-           ex e' quodlibet.
-        -- simpl in e'.
-           ex e' quodlibet.
-    + apply Accessible_introduction.
-      intros y h.
-      match h with | k e end.
-      match y with | | q end.
-      * ipso zero.accessibility.
-      * simpl in e.
-        let proof e' := positive.injectivity e.
-        leibniz (Nat.addition.commutativity q k) in e'.
-        match k with | | k' end.
-        -- simpl in e'.
-           let proof e'' := Nat.successor.injectivity e'.
-           leibniz e'' in |- *.
-           ipso IH.
-        -- simpl in e'.
-           let proof e'' := Nat.successor.injectivity e'.
-           apply (Accessible.descend IH).
-           exists k'.
-           simpl in |- *.
-           leibniz (Nat.addition.commutativity q k') in |- *.
-           leibniz e'' in |- *.
-           quod idem est.
+    + lemma below : forall (y : NatWithZero) . y < (+ Nat.One) -> Accessible LessThan y.
+      {
+        intros y h.
+        match h with | k e end.
+        match y with | | q end.
+        * ipso zero.accessibility.
+        * simpl in e.
+          let proof e' := positive.injectivity e.
+          match q with | | q' end.
+          -- simpl in e'.
+             ex e' quodlibet.
+          -- simpl in e'.
+             ex e' quodlibet.
+      }
+      ipso (Accessible_introduction &below).
+    + lemma below
+        : forall (y : NatWithZero) . y < (+ Nat.Successor &p') -> Accessible LessThan y.
+      {
+        intros y h.
+        match h with | k e end.
+        match y with | | q end.
+        * ipso zero.accessibility.
+        * simpl in e.
+          let proof e' := positive.injectivity e.
+          leibniz (Nat.addition.commutativity q k) in e'.
+          match k with | | k' end.
+          -- simpl in e'.
+             let proof e'' := Nat.successor.injectivity e'.
+             leibniz e'' in |- *.
+             ipso IH.
+          -- simpl in e'.
+             let proof e'' := Nat.successor.injectivity e'.
+             lemma smaller : (+ &q) < (+ &p').
+             {
+               simpl LessThan in |- *.
+               exists k'.
+               simpl in |- *.
+               leibniz (Nat.addition.commutativity q k') in |- *.
+               leibniz e'' in |- *.
+               quod idem est.
+             }
+             ipso (Accessible.descend &IH &smaller).
+      }
+      ipso (Accessible_introduction &below).
 Qed.
 
 End strict. (* order.strict *)
@@ -997,17 +1016,19 @@ Proof.
     simpl LessOrEqual in |- *.
     match h with | k e end.
     match k with | | k' end.
-    + apply Disjunction.L.
-      ipso (addition.right.cancellation e).
-    + apply Disjunction.R.
-      simpl LessThan in |- *.
-      exists k'.
-      let proof e : m + ((+ Nat.One) + (+ k')) = n + (+ Nat.One) := &e.
-      leibniz -> (addition.commutativity (+ Nat.One) (+ k'))
-              in e.
-      leibniz <- (addition.associativity m (+ k') (+ Nat.One))
-              in e.
-      ipso (addition.right.cancellation e).
+    + ipso (disjoin (addition.right.cancellation e), _).
+    + lemma facto : &m < &n.
+      {
+        simpl LessThan in |- *.
+        exists k'.
+        let proof e : m + ((+ Nat.One) + (+ k')) = n + (+ Nat.One) := &e.
+        leibniz -> (addition.commutativity (+ Nat.One) (+ k'))
+                in e.
+        leibniz <- (addition.associativity m (+ k') (+ Nat.One))
+                in e.
+        ipso (addition.right.cancellation e).
+      }
+      ipso (disjoin _, &facto).
   - intro h.
     simpl LessOrEqual in h.
     simpl LessThan    in |- *.
@@ -2311,12 +2332,13 @@ Theorem divisibility
       Divides (gcd a b) a /\ Divides (gcd a b) b.
 Proof.
   intros b.
-  apply (Accessible.recursion
-           (R := LessThan)
-           (P := fun (c : NatWithZero) .
-                 forall (a : NatWithZero) .
-                   Divides (gcd a c) a /\ Divides (gcd a c) c)).
-  - intros c recurse a.
+  lemma descent
+    : Descent.Step LessThan
+        (fun (c : NatWithZero) .
+           forall (a : NatWithZero) .
+             Divides (gcd a c) a /\ Divides (gcd a c) c).
+  {
+    intros c recurse a.
     match c with | | q end.
     + leibniz (gcd.zero a) in |- *.
       divide et impera.
@@ -2333,7 +2355,8 @@ Proof.
         leibniz s1 in ha.
         ipso ha.
       * ipso d1.
-  - ipso (order.strict.wellfoundedness b).
+  }
+  ipso (Accessible.recursion &descent &b (order.strict.wellfoundedness &b)).
 Qed.
 
 Module left. (* gcd.left *)
@@ -2357,12 +2380,13 @@ Theorem multiplication
       (+ k) * gcd a b = gcd ((+ k) * a) ((+ k) * b).
 Proof.
   intros k b.
-  apply (Accessible.recursion
-           (R := LessThan)
-           (P := fun (c : NatWithZero) .
-                 forall (a : NatWithZero) .
-                   (+ k) * gcd a c = gcd ((+ k) * a) ((+ k) * c))).
-  - intros c recurse a.
+  lemma descent
+    : Descent.Step LessThan
+        (fun (c : NatWithZero) .
+           forall (a : NatWithZero) .
+             (+ &k) * gcd a c = gcd ((+ &k) * a) ((+ &k) * c)).
+  {
+    intros c recurse a.
     match c with | | q end.
     + leibniz (gcd.zero a) in |- *.
       lemma facto : (+ &k) * &a = gcd ((+ &k) * &a) 0.
@@ -2385,7 +2409,8 @@ Proof.
         ipso &facto.
       }
       ipso &facto.
-  - ipso (order.strict.wellfoundedness b).
+  }
+  ipso (Accessible.recursion &descent &b (order.strict.wellfoundedness &b)).
 Qed.
 
 End of. (* gcd.left.distributivity.of *)
@@ -2413,12 +2438,13 @@ Theorem universality
       Divides d a -> Divides d b -> Divides d (gcd a b).
 Proof.
   intros b.
-  apply (Accessible.recursion
-           (R := LessThan)
-           (P := fun (c : NatWithZero) .
-                 forall (a : NatWithZero) (d : NatWithZero) .
-                   Divides d a -> Divides d c -> Divides d (gcd a c))).
-  - intros c recurse a d h1 h2.
+  lemma descent
+    : Descent.Step LessThan
+        (fun (c : NatWithZero) .
+           forall (a : NatWithZero) (d : NatWithZero) .
+             Divides d a -> Divides d c -> Divides d (gcd a c)).
+  {
+    intros c recurse a d h1 h2.
     match c with | | q end.
     + leibniz (gcd.zero a) in |- *.
       ipso h1.
@@ -2434,7 +2460,8 @@ Proof.
       }
       let proof below := recurse ((a %. q)) (division.remainder.boundedness a q) (+ q) d h2.
       ipso (modus ponens below, remainder).
-  - ipso (order.strict.wellfoundedness b).
+  }
+  ipso (Accessible.recursion &descent &b (order.strict.wellfoundedness &b)).
 Qed.
 
 (* gcd.commutativity *)
@@ -2442,15 +2469,15 @@ Theorem commutativity
   : forall (a : NatWithZero) (b : NatWithZero) . gcd a b = gcd b a.
 Proof.
   intros a b.
-  apply divisibility.antisymmetry.
-  - ipso (gcd.universality
-            a b (gcd a b)
-            (gcd.right.divisibility a b)
-            (gcd.left.divisibility  a b)).
-  - ipso (gcd.universality
-            b a (gcd b a)
-            (gcd.right.divisibility b a)
-            (gcd.left.divisibility  b a)).
+  ipso (divisibility.antisymmetry
+          (gcd.universality
+             a b (gcd a b)
+             (gcd.right.divisibility a b)
+             (gcd.left.divisibility  a b))
+          (gcd.universality
+             b a (gcd b a)
+             (gcd.right.divisibility b a)
+             (gcd.left.divisibility  b a))).
 Qed.
 
 Module multiplication. (* gcd.multiplication *)
@@ -2527,11 +2554,12 @@ Theorem specification
   : forall (q : Nat) (a : NatWithZero) . gcd a (+ q) = + (gcd.nat a q).
 Proof.
   intros q.
-  apply (Accessible.recursion
-           (R := Nat.LessThan)
-           (P := fun (c : Nat) .
-                 forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c))).
-  - intros c recurse a.
+  lemma descent
+    : Descent.Step Nat.LessThan
+        (fun (c : Nat) .
+           forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c)).
+  {
+    intros c recurse a.
     leibniz (gcd.recurrence a c) in |- *.
     match (a %. c) with | | r end |- e.
     + leibniz (gcd.zero (+ c)) in |- *.
@@ -2542,7 +2570,8 @@ Proof.
       leibniz e in b.
       modus aequans (positive.order.embedding r c), b |- lt.
       ipso (recurse r lt (+ c)).
-  - ipso (accessibility q).
+  }
+  ipso (Accessible.recursion &descent &q (accessibility &q)).
 Qed.
 
 Module left. (* gcd.nat.left *)
@@ -2681,47 +2710,59 @@ Theorem totality : forall (n : NatWithZero) . Even n \/ Odd n.
 Proof.
   intros n.
   match n with | | p end.
-  - apply Disjunction.L.
-    simpl Even in |- *.
-    simpl Divides in |- *.
-    exists 0.
-    simpl in |- *.
-    quod idem est.
-  - match p with | | p' by IH end per Nat.induction.
-    + apply Disjunction.R.
-      simpl Odd in |- *.
+  - lemma side : Even 0.
+    {
+      simpl Even in |- *.
+      simpl Divides in |- *.
       exists 0.
       simpl in |- *.
       quod idem est.
-    + match IH with | even | odd end.
-      * apply Disjunction.R.
-        simpl Even in even.
-        simpl Divides in even.
-        match even with | k e end.
+    }
+    ipso (disjoin &side, _).
+  - match p with | | p' by IH end per Nat.induction.
+    + lemma side : Odd (+ Nat.One).
+      {
         simpl Odd in |- *.
-        exists k.
-        leibniz e in |- *.
+        exists 0.
         simpl in |- *.
         quod idem est.
-      * apply Disjunction.L.
-        simpl Odd in odd.
-        match odd with | k e end.
-        simpl Even in |- *.
-        simpl Divides in |- *.
-        exists ((+ Nat.One) + k).
-        leibniz (multiplication.left.distributivity.over.addition
-                   (+ (Nat.Successor Nat.One)) (+ Nat.One) k) in |- *.
-        lemma facto
-          : ((+ Nat.One) + (+ Nat.One)) + ((+ (Nat.Successor Nat.One)) * &k)
-            = (+ (Nat.Successor &p')).
+      }
+      ipso (disjoin _, &side).
+    + match IH with | even | odd end.
+      * lemma side : Odd (+ Nat.Successor &p').
         {
-          leibniz (addition.associativity
-                     (+ Nat.One) (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k)) in |- *.
+          simpl Even in even.
+          simpl Divides in even.
+          match even with | k e end.
+          simpl Odd in |- *.
+          exists k.
           leibniz e in |- *.
           simpl in |- *.
           quod idem est.
         }
-        ipso &facto.
+        ipso (disjoin _, &side).
+      * lemma side : Even (+ Nat.Successor &p').
+        {
+          simpl Odd in odd.
+          match odd with | k e end.
+          simpl Even in |- *.
+          simpl Divides in |- *.
+          exists ((+ Nat.One) + k).
+          leibniz (multiplication.left.distributivity.over.addition
+                     (+ (Nat.Successor Nat.One)) (+ Nat.One) k) in |- *.
+          lemma facto
+            : ((+ Nat.One) + (+ Nat.One)) + ((+ (Nat.Successor Nat.One)) * &k)
+              = (+ (Nat.Successor &p')).
+          {
+            leibniz (addition.associativity
+                       (+ Nat.One) (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k)) in |- *.
+            leibniz e in |- *.
+            simpl in |- *.
+            quod idem est.
+          }
+          ipso &facto.
+        }
+        ipso (disjoin &side, _).
 Qed.
 
 Module even. (* parity.even *)
