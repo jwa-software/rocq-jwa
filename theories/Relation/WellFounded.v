@@ -40,13 +40,19 @@ Proof.
   intros A R P W step extensional x.
   simpl recursion in |- *.
   leibniz (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
-  apply extensional.
-  intros y r.
-  ipso (Accessible.recursion.independence
-          extensional
-          y
-          (Accessible.descend (accessibility x) r)
-          (accessibility y)).
+  lemma pointwise
+    : forall (y : &A) (r : &R y &x) .
+        Accessible.recursion &step y (Accessible.descend (accessibility &x) r)
+        = Accessible.recursion &step y (accessibility y).
+  {
+    intros y r.
+    ipso (Accessible.recursion.independence
+            extensional
+            y
+            (Accessible.descend (accessibility x) r)
+            (accessibility y)).
+  }
+  ipso (extensional &x _ _ &pointwise).
 Qed.
 
 End recursion. (* recursion *)
@@ -67,15 +73,15 @@ Theorem accessibility
       (forall (x : A) . R (f x) b -> Accessible (Induced R f) x).
 Proof.
   intros A B R f b a.
-  apply (Accessible.recursion
-           (R := R)
-           (P := fun (c : B) .
-                 forall (x : A) . R (f x) c -> Accessible (Induced R f) x)).
-  - intros c recurse x r.
-    apply Accessible_introduction.
-    intros y s.
-    ipso (recurse (f x) r y (Induced.elimination s)).
-  - ipso a.
+  lemma descent
+    : Descent.Step &R
+        (fun (c : &B) . forall (x : &A) . &R (&f x) c -> Accessible (Induced &R &f) x).
+  {
+    intros c recurse x r.
+    ipso (Accessible_introduction
+            (fun (y : A) (s : Induced R f y x) . recurse (f x) r y (Induced.elimination s))).
+  }
+  ipso (Accessible.recursion &descent &b &a).
 Qed.
 
 End induced. (* induced *)
