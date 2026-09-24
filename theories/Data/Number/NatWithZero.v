@@ -1017,16 +1017,17 @@ Proof.
     + simpl LessThan in lt.
       match lt with | k e end.
       exists (Nat.Successor k).
-      change (+ (Nat.Successor k))
-        with ((+ Nat.One) + (+ k))
-        in |- *.
-      leibniz -> (addition.commutativity (+ Nat.One) (+ k))
-              in |- *.
-      leibniz <- (addition.associativity m (+ k) (+ Nat.One))
-              in |- *.
-      leibniz e
-              in |- *.
-      quod idem est.
+      lemma facto : &m + ((+ Nat.One) + (+ &k)) = &n + (+ Nat.One).
+      {
+        leibniz -> (addition.commutativity (+ Nat.One) (+ k))
+                in |- *.
+        leibniz <- (addition.associativity m (+ k) (+ Nat.One))
+                in |- *.
+        leibniz e
+                in |- *.
+        quod idem est.
+      }
+      ipso &facto.
 Qed.
 
 End order. (* order *)
@@ -1583,7 +1584,7 @@ Proof.
       simpl (~ _) in irreflexivity.
       modus ponens irreflexivity, bound |- f.
       ex f quodlibet.
-    + change (+ (Nat.Successor k'')) with ((+ Nat.One) + (+ k'')) in hk.
+    + let proof hk : (+ &g) * ((+ Nat.One) + (+ &k'')) = (+ &d) := &hk.
       leibniz (multiplication.left.distributivity.over.addition (+ g) (+ Nat.One) (+ k'')) in hk.
       leibniz (multiplication.right.identity (+ g)) in hk.
       leibniz (addition.commutativity (+ g) ((+ g) * (+ k''))) in hk.
@@ -1750,18 +1751,25 @@ Proof.
           /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
   {
     divide et impera.
-    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
-      leibniz (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
-      leibniz (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
-      leibniz (multiplication.commutativity (+ d) (n /. d))           in |- *.
-      let proof dist := Identity.symmetry
-                    (multiplication.left.distributivity.over.addition
-                       (+ k) ((n /. d) * (+ d)) (n %. d)).
-      leibniz dist  in |- *.
-      leibniz recon in |- *.
-      quod idem est.
-    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
-      ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+    - lemma facto
+        : ((&n /. &d) * ((+ &k) * (+ &d))) + ((+ &k) * (&n %. &d)) = (+ &k) * &n.
+      {
+        leibniz (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
+        leibniz (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
+        leibniz (multiplication.commutativity (+ d) (n /. d))           in |- *.
+        let proof dist := Identity.symmetry
+                      (multiplication.left.distributivity.over.addition
+                         (+ k) ((n /. d) * (+ d)) (n %. d)).
+        leibniz dist  in |- *.
+        leibniz recon in |- *.
+        quod idem est.
+      }
+      ipso &facto.
+    - lemma facto : ((+ &k) * (&n %. &d)) < (+ &k) * (+ &d).
+      {
+        ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+      }
+      ipso &facto.
   }
 
   match (division.uniqueness ((+ k) * n) (Nat.mul k d)
@@ -1871,18 +1879,25 @@ Proof.
             /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
   {
     divide et impera.
-    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
-      leibniz (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
-      leibniz (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
-      leibniz (multiplication.commutativity (+ d) (n /. d))           in |- *.
-      let proof dist := Identity.symmetry
-                    (multiplication.left.distributivity.over.addition
-                       (+ k) ((n /. d) * (+ d)) (n %. d)).
-      leibniz dist  in |- *.
-      leibniz recon in |- *.
-      quod idem est.
-    - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
-      ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+    - lemma facto
+        : ((&n /. &d) * ((+ &k) * (+ &d))) + ((+ &k) * (&n %. &d)) = (+ &k) * &n.
+      {
+        leibniz (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
+        leibniz (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
+        leibniz (multiplication.commutativity (+ d) (n /. d))           in |- *.
+        let proof dist := Identity.symmetry
+                      (multiplication.left.distributivity.over.addition
+                         (+ k) ((n /. d) * (+ d)) (n %. d)).
+        leibniz dist  in |- *.
+        leibniz recon in |- *.
+        quod idem est.
+      }
+      ipso &facto.
+    - lemma facto : ((+ &k) * (&n %. &d)) < (+ &k) * (+ &d).
+      {
+        ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
+      }
+      ipso &facto.
   }
 
   match (division.uniqueness ((+ k) * n) (Nat.mul k d)
@@ -2349,15 +2364,26 @@ Proof.
   - intros c recurse a.
     match c with | | q end.
     + leibniz (gcd.zero a) in |- *.
-      change ((+ k) * 0) with (0 : NatWithZero) in |- *.
-      leibniz (gcd.zero ((+ k) * a)) in |- *.
-      quod idem est.
+      lemma facto : (+ &k) * &a = gcd ((+ &k) * &a) 0.
+      {
+        leibniz (gcd.zero ((+ k) * a)) in |- *.
+        quod idem est.
+      }
+      ipso &facto.
     + leibniz (gcd.recurrence a q) in |- *.
-      change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in |- *.
-      leibniz (gcd.recurrence ((+ k) * a) (Nat.mul k q)) in |- *.
-      leibniz (modulo.homogeneity a q k) in |- *.
-      change (+ (Nat.mul k q)) with ((+ k) * (+ q)) in |- *.
-      ipso (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)).
+      lemma facto
+        : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * &a) (+ (Nat.mul &k &q)).
+      {
+        leibniz (gcd.recurrence ((+ k) * a) (Nat.mul k q)) in |- *.
+        leibniz (modulo.homogeneity a q k) in |- *.
+        lemma facto
+          : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * (+ &q)) ((+ &k) * (&a %. &q)).
+        {
+          ipso (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)).
+        }
+        ipso &facto.
+      }
+      ipso &facto.
   - ipso (order.strict.wellfoundedness b).
 Qed.
 
@@ -2684,13 +2710,17 @@ Proof.
         exists ((+ Nat.One) + k).
         leibniz (multiplication.left.distributivity.over.addition
                    (+ (Nat.Successor Nat.One)) (+ Nat.One) k) in |- *.
-        change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
-          with ((+ Nat.One) + (+ Nat.One)) in |- *.
-        leibniz (addition.associativity
-                   (+ Nat.One) (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k)) in |- *.
-        leibniz e in |- *.
-        simpl in |- *.
-        quod idem est.
+        lemma facto
+          : ((+ Nat.One) + (+ Nat.One)) + ((+ (Nat.Successor Nat.One)) * &k)
+            = (+ (Nat.Successor &p')).
+        {
+          leibniz (addition.associativity
+                     (+ Nat.One) (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k)) in |- *.
+          leibniz e in |- *.
+          simpl in |- *.
+          quod idem est.
+        }
+        ipso &facto.
 Qed.
 
 Module even. (* parity.even *)
@@ -2732,13 +2762,18 @@ Proof.
             (+ (Nat.Successor Nat.One)) (+ Nat.One) (k1 + k2)) in |- *.
   leibniz (multiplication.left.distributivity.over.addition
             (+ (Nat.Successor Nat.One)) k1 k2) in |- *.
-  change ((+ (Nat.Successor Nat.One)) * (+ Nat.One))
-    with ((+ Nat.One) + (+ Nat.One))
-      in |- *.
-  leibniz (addition.interchange
-            (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k1)
-            (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
-  quod idem est.
+  lemma facto
+    : ((+ Nat.One) + (+ Nat.One))
+        + (((+ (Nat.Successor Nat.One)) * &k1) + ((+ (Nat.Successor Nat.One)) * &k2))
+      = ((+ Nat.One) + ((+ (Nat.Successor Nat.One)) * &k1))
+        + ((+ Nat.One) + ((+ (Nat.Successor Nat.One)) * &k2)).
+  {
+    leibniz (addition.interchange
+              (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k1)
+              (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
+    quod idem est.
+  }
+  ipso &facto.
 Qed.
 
 End addition. (* parity.odd.addition *)
