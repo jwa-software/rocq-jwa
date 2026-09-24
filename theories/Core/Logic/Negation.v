@@ -169,7 +169,7 @@ Proof.
   intro a.
   intro b.
 
-  ipso (h (Conjunction_introduction a b)).
+  ipso (h (conjoin a, b)).
 Qed.
 
 End of. (* exclusion.left.of *)
@@ -194,7 +194,7 @@ Proof.
   intro b.
   intro a.
 
-  ipso (h (Conjunction_introduction a b)).
+  ipso (h (conjoin a, b)).
 Qed.
 
 End of. (* exclusion.right.of *)

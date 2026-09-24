@@ -124,7 +124,7 @@ Proof.
   intros A B a1 b1 a2 b2 e.
   let proof a := Identity.congruence first  e. simpl in a.
   let proof b := Identity.congruence second e. simpl in b.
-  ipso (Conjunction_introduction a b).
+  ipso (conjoin a, b).
 Qed.
 
 (* introduction.surjectivity *)

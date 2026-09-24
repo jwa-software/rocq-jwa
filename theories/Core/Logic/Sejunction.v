@@ -122,9 +122,9 @@ Proof.
     match h with | ab nab end.
     simpl (~ _) in nab.
     match ab with | a | b end.
-    + let proof nb : ~ B := fun (b : B) . nab (Conjunction_introduction a b).
+    + let proof nb : ~ B := fun (b : B) . nab (conjoin a, b).
       ipso (Sejunction.left a nb).
-    + let proof na : ~ A := fun (a : A) . nab (Conjunction_introduction a b).
+    + let proof na : ~ A := fun (a : A) . nab (conjoin a, b).
       ipso (Sejunction.right na b).
 Qed.
 

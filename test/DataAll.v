@@ -201,8 +201,8 @@ Definition data_all_delivers_comparable_specifications
       (Nat.compare m n = Comparison.Lt <-> Nat.LessThan m n)
     /\ (Nat.compare m n = Comparison.Gt <-> Nat.LessThan n m)
   := fun (m : Nat) (n : Nat) .
-       Conjunction_introduction
-         (Comparable.comparison.strict.specification m n)
+       conjoin
+         (Comparable.comparison.strict.specification m n),
          (Comparable.comparison.strict.transposition.specification m n).
 
 Definition data_all_delivers_comparable

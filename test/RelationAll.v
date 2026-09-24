@@ -44,7 +44,7 @@ Definition relation_all_delivers_induced_rules
   : forall (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) (y : A) (x : A) .
       (R (f y) (f x) -> Induced R f y x) /\ (Induced R f y x -> R (f y) (f x))
   := fun (A : Type) (B : Type) (f : A -> B) (R : B -> B -> Prop) (y : A) (x : A) .
-       Conjunction_introduction Induced.introduction Induced.elimination.
+       conjoin Induced.introduction, Induced.elimination.
 
 Definition relation_all_delivers_extensional
   : forall (A : Type) (R : A -> A -> Prop) (P : A -> Type) (step : Descent.Step R P) .

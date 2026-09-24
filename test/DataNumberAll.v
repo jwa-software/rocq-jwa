@@ -52,8 +52,8 @@ Definition data_number_all_delivers_gcd_left_right_divisibility
       NatWithZero.Divides (NatWithZero.gcd a b) a
       /\ NatWithZero.Divides (NatWithZero.gcd a b) b
   := fun (a : NatWithZero) (b : NatWithZero) .
-       Conjunction_introduction
-         (NatWithZero.gcd.left.divisibility a b) (NatWithZero.gcd.right.divisibility a b).
+       conjoin
+         (NatWithZero.gcd.left.divisibility a b), (NatWithZero.gcd.right.divisibility a b).
 
 Definition data_number_all_delivers_gcd_universality
   : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .

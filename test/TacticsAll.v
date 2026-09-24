@@ -448,7 +448,7 @@ Theorem tactics_all_delivers_leibniz_hypotheses
 Proof.
   intros A P Q x y e p q.
   leibniz e in p, q.
-  ipso (Conjunction_introduction p q).
+  ipso (conjoin p, q).
 Qed.
 
 Theorem tactics_all_delivers_leibniz_hypotheses_and_goal

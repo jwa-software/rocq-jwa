@@ -98,7 +98,7 @@ Proof.
     + ipso (Disjunction.left a).
     + match ac with | a | c end.
       * ipso (Disjunction.left a).
-      * ipso (Disjunction.right (Conjunction_introduction b c)).
+      * ipso (Disjunction.right (conjoin b, c)).
 Qed.
 
 End over. (* distributivity.over *)
@@ -175,8 +175,8 @@ Proof.
   - intro h.
     match h with | a bc end.
     match bc with | b | c end.
-    + ipso (Disjunction.left (Conjunction_introduction a b)).
-    + ipso (Disjunction.right (Conjunction_introduction a c)).
+    + ipso (Disjunction.left (conjoin a, b)).
+    + ipso (Disjunction.right (conjoin a, c)).
   - intro h.
     match h with | ab | ac end.
     + match ab with | a b end.

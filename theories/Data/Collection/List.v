@@ -744,11 +744,11 @@ Proof.
       intro h.
       match h with | e | h' end.
       * ipso (Exists_introduction
-                 a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
+                 a (conjoin (Disjunction.L (Identity.reflexivity a)), e)).
       * let proof w := IH h'.
         match w with | a' c end.
         match c with | m e end.
-        ipso (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
+        ipso (Exists_introduction a' (conjoin (Disjunction.R m), e)).
   - intro w.
     match w with | a c end.
     match c with | m e end.
@@ -1395,7 +1395,7 @@ Proof.
   - simpl in |- *.
     intro c.
     match c with | pb all' end.
-    ipso (Conjunction_introduction (h b pb) (IH all')).
+    ipso (conjoin (h b pb), (IH all')).
 Qed.
 
 (* quantification.all.catamorphism *)
@@ -2396,7 +2396,7 @@ Proof.
       divide et impera.
       * intro e.
         modus aequans IH, e |- all'.
-        ipso (Conjunction_introduction (Identity.reflexivity false) all').
+        ipso (conjoin (Identity.reflexivity false), all').
       * intro c.
         match c with | e all' end.
         ipso (modus aequans IH, all').
@@ -2423,15 +2423,15 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
-    ipso (Conjunction_introduction pa v).
+    ipso (conjoin pa, v).
   - simpl in |- *.
     intro c.
     match c with | pb all' end.
     match (le a b) with | | end.
     + simpl in |- *.
-      ipso (Conjunction_introduction pa (Conjunction_introduction pb all')).
+      ipso (conjoin pa, (conjoin pb, all')).
     + simpl in |- *.
-      ipso (Conjunction_introduction pb (IH all')).
+      ipso (conjoin pb, (IH all')).
 Qed.
 
 End of. (* sorting.insertion.preservation.of *)
@@ -2450,7 +2450,7 @@ Proof.
   induction l as [| b l' IH] using List.induction.
   - simpl in |- *.
     intro v.
-    ipso (Conjunction_introduction v v).
+    ipso (conjoin v, v).
   - simpl in |- *.
     intro s.
     match s with | below sorted' end.
@@ -2458,17 +2458,17 @@ Proof.
     + simpl in |- *.
       let proof below_a := quantification.all.monotonicity
                     (fun (x : A) (h : le b x = true) . transitive a b x c h) below.
-      ipso (Conjunction_introduction
-               (Conjunction_introduction c below_a)
-               (Conjunction_introduction below sorted')).
+      ipso (conjoin
+               (conjoin c, below_a),
+               (conjoin below, sorted')).
     + simpl in |- *.
       let proof t := total a b.
       match t with | ab | ba end.
       * leibniz c in ab.
         ex ab quodlibet.
-      * ipso (Conjunction_introduction
+      * ipso (conjoin
                  (sorting.insertion.preservation.of.all
-                    le (fun (x : A) . le b x = true) a l' ba below)
+                    le (fun (x : A) . le b x = true) a l' ba below),
                  (IH sorted')).
 Qed.
 

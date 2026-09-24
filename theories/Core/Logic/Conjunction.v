@@ -69,7 +69,7 @@ Proof.
   - intro f.
     intro a.
     intro b.
-    ipso (f (Conjunction_introduction a b)).
+    ipso (f (conjoin a, b)).
   - intro f.
     intro h.
     match h with | a b end.
