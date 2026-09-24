@@ -65,15 +65,15 @@ Theorem abjunction
   : forall (A : Prop) (B : Prop) . A _\/_ B <-> (A -/> B) \/ (B -/> A).
 Proof.
   intros A B.
-  split.
+  divide et impera.
   - intro h.
     destruct h as [a nb | na b].
     + apply Disjunction.left.
-      split.
+      divide et impera.
       * ipso a.
       * ipso nb.
     + apply Disjunction.right.
-      split.
+      divide et impera.
       * ipso b.
       * ipso na.
   - intro h.
@@ -95,9 +95,9 @@ Theorem specification
   : forall (A : Prop) (B : Prop) . A _\/_ B <-> (A \/ B) /\ ~ (A /\ B).
 Proof.
   intros A B.
-  split.
+  divide et impera.
   - intro h.
-    destruct h as [a nb | na b]; split.
+    destruct h as [a nb | na b]; divide et impera.
     + ipso (Disjunction.left a).
     + unfold Negation in nb |- *.
       intro ab.
@@ -117,14 +117,14 @@ Proof.
       * unfold Negation in |- *.
         intro b.
         apply nab.
-        split.
+        divide et impera.
         { ipso a. }
         { ipso b. }
     + apply Sejunction.right.
       * unfold Negation in |- *.
         intro a.
         apply nab.
-        split.
+        divide et impera.
         { ipso a. }
         { ipso b. }
       * ipso b.
@@ -139,7 +139,7 @@ Proof.
   intro eb.
   destruct ea as [a12 a21].
   destruct eb as [b12 b21].
-  split; intro h.
+  divide et impera; intro h.
   - destruct h as [a1 nb1 | na1 b1].
     + apply Sejunction.left.
       * apply a12.

@@ -40,8 +40,8 @@ Proof.
   intros b1 b2.
   destruct b1 as [|];
       destruct b2 as [|]; simpl in |- *;
-          split; intro h.
-  - split; ipso I.
+          divide et impera; intro h.
+  - divide et impera; ipso I.
   - ipso I.
   - ex h quodlibet.
   - destruct h as [_ h].
@@ -62,7 +62,7 @@ Proof.
   intros b1 b2.
   destruct b1 as [|];
       destruct b2 as [|]; simpl in |- *;
-          split; intro h.
+          divide et impera; intro h.
   - ipso (Disjunction.left I).
   - ipso I.
   - ipso (Disjunction.left I).
@@ -84,7 +84,7 @@ Proof.
   destruct b1 as [|];
       destruct b2 as [|];
           simpl in |- *;
-            split;
+            divide et impera;
               intro h.
   - ex h quodlibet.
   - destruct h as [t nt | nt t]; ipso (modus ponens nt, t).
@@ -104,7 +104,7 @@ Proof.
   unfold Negation in |- *.
   destruct b as [|];
       simpl in |- *;
-          split;
+          divide et impera;
             intro h.
   - ex h quodlibet.
   - ipso (modus ponens h, I).
@@ -117,7 +117,7 @@ Qed.
 Theorem specification : forall (b : Bool) . Assert b <-> b = true.
 Proof.
   intros b.
-  destruct b as [|]; simpl in |- *; split; intro h.
+  destruct b as [|]; simpl in |- *; divide et impera; intro h.
   - reflexivity.
   - ipso I.
   - ex h quodlibet.

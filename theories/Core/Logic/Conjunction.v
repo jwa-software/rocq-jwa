@@ -27,7 +27,7 @@ Proof.
   (* [Conjunction] has one ctor with two fields,
    * so the goal splits into two goals: [|- B] and [|- A].
    *)
-  split.
+  divide et impera.
   - ipso b.
   - ipso a.
 Qed.
@@ -36,20 +36,20 @@ Theorem associativity
   : forall (A : Prop) (B : Prop) (C : Prop) . (A /\ B) /\ C <-> A /\ (B /\ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
     destruct h  as [ab c].
     destruct ab as [a b].
-    split.
+    divide et impera.
     + ipso a.
-    + split.
+    + divide et impera.
       * ipso b.
       * ipso c.
   - intro h.
     destruct h  as [a bc].
     destruct bc as [b c].
-    split.
-    + split.
+    divide et impera.
+    + divide et impera.
       * ipso a.
       * ipso b.
     + ipso c.
@@ -62,12 +62,12 @@ Theorem currying
   : forall (A : Prop) (B : Prop) (C : Prop) . (A /\ B -> C) <-> (A -> B -> C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro f.
     intro a.
     intro b.
     apply f.
-    split.
+    divide et impera.
     + ipso a.
     + ipso b.
   - intro f.
@@ -86,15 +86,15 @@ Theorem universality
       (A -> B /\ C) <-> (A -> B) /\ (A -> C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro f.
-    split; intro a; destruct (f a) as [b c].
+    divide et impera; intro a; destruct (f a) as [b c].
     + ipso b.
     + ipso c.
   - intro h.
     destruct h as [ab ac].
     intro a.
-    split.
+    divide et impera.
     + apply ab.
       ipso a.
     + apply ac.
@@ -112,12 +112,12 @@ Proof.
   (* [Biconditional] has one ctor with two fields, so the goal splits into two
    * goals: [|- A1 /\ B1 -> A2 /\ B2] and [|- A2 /\ B2 -> A1 /\ B1].
    *)
-  split.
+  divide et impera.
   - (* [h : A1 /\ B1]: [|- A2 /\ B2] *)
     intro h.
     destruct h as [a1 b1].
     (* The goal splits into [|- A2] and [|- B2]. *)
-    split.
+    divide et impera.
     + apply a12.
       ipso a1.
     + apply b12.
@@ -126,7 +126,7 @@ Proof.
     intro h.
     destruct h as [a2 b2].
     (* The goal splits into [|- A1] and [|- B1]. *)
-    split.
+    divide et impera.
     + apply a21.
       ipso a2.
     + apply b21.

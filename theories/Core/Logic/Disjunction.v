@@ -52,7 +52,7 @@ Theorem associativity
   : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B) \/ C <-> A \/ (B \/ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
     destruct h as [ab | c].
     + destruct ab as [a | b].
@@ -76,14 +76,14 @@ Theorem conjunction
   : forall (A : Prop) (B : Prop) (C : Prop) . A \/ (B /\ C) <-> (A \/ B) /\ (A \/ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
     destruct h as [a | bc].
-    + split.
+    + divide et impera.
       * ipso (Disjunction.left a).
       * ipso (Disjunction.left a).
     + destruct bc as [b c].
-      split.
+      divide et impera.
       * ipso (Disjunction.right b).
       * ipso (Disjunction.right c).
   - intro h.
@@ -93,7 +93,7 @@ Proof.
     + destruct ac as [a | c].
       * ipso (Disjunction.left a).
       * apply Disjunction.right.
-        split.
+        divide et impera.
         { ipso b. }
         { ipso c. }
 Qed.
@@ -110,9 +110,9 @@ Theorem universality
   : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B -> C) <-> (A -> C) /\ (B -> C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro f.
-    split.
+    divide et impera.
     + intro a.
       apply f.
       ipso (Disjunction.left a).
@@ -138,7 +138,7 @@ Proof.
   intro b.
   destruct a as [a12 a21].
   destruct b as [b12 b21].
-  split; intro h.
+  divide et impera; intro h.
   - (* [h : A1 \/ B1]: [|- A2 \/ B2] *)
     destruct h as [a1 | b1].
     + (* [|- A2] *)
@@ -180,28 +180,28 @@ Theorem disjunction
   : forall (A : Prop) (B : Prop) (C : Prop) . A /\ (B \/ C) <-> (A /\ B) \/ (A /\ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
     destruct h as [a bc].
     destruct bc as [b | c].
     + (* [|- A /\ B] *)
       apply Disjunction.left.
-      split.
+      divide et impera.
       * ipso a.
       * ipso b.
     + (* [|- A /\ C] *)
       apply Disjunction.right.
-      split.
+      divide et impera.
       * ipso a.
       * ipso c.
   - intro h.
     destruct h as [ab | ac].
     + destruct ab as [a b].
-      split.
+      divide et impera.
       * ipso a.
       * ipso (Disjunction.left b).
     + destruct ac as [a c].
-      split.
+      divide et impera.
       * ipso a.
       * ipso (Disjunction.right c).
 Qed.

@@ -100,7 +100,7 @@ End distinctness. (* distinctness *)
 (* distinctness *)
 Theorem distinctness : ~ (true = false) /\ ~ (false = true).
 Proof.
-  split.
+  divide et impera.
   - ipso distinctness.forward.
   - ipso distinctness.backward.
 Qed.
@@ -140,7 +140,7 @@ Theorem identity
   : forall (b : Bool) . (true && b = b) /\ (b && true = b).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - simpl in |- *.
     reflexivity.
   - rewrite (conjunction.commutativity b true) in |- *.
@@ -201,7 +201,7 @@ Theorem sejunction
     /\ ((b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1)).
 Proof.
   intros b1 b2 b3.
-  split.
+  divide et impera.
   - ipso (conjunction.left.distributivity.over.sejunction  b1 b2 b3).
   - ipso (conjunction.right.distributivity.over.sejunction b1 b2 b3).
 Qed.
@@ -235,7 +235,7 @@ Theorem identity
   : forall (b : Bool) . (false || b = b) /\ (b || false = b).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - simpl in |- *.
     reflexivity.
   - rewrite (disjunction.commutativity b false) in |- *.
@@ -269,7 +269,7 @@ Theorem identity
   : forall (b : Bool) . (false ^^ b = b) /\ (b ^^ false = b).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - simpl in |- *.
     reflexivity.
   - rewrite (sejunction.commutativity b false) in |- *.
@@ -289,7 +289,7 @@ Theorem inverse
   : forall (b : Bool) . (b ^^ b = false) /\ (b ^^ b = false).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - ipso (sejunction.irreflexivity b).
   - ipso (sejunction.irreflexivity b).
 Qed.

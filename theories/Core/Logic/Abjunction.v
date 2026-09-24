@@ -54,13 +54,13 @@ Theorem specification
   : forall (A : Prop) (B : Prop) . ~ (A -/> B) <-> (A -> ~ ~ B).
 Proof.
   intros A B.
-  split.
+  divide et impera.
   - intro h.
     unfold Negation in h |- *.
     intro a.
     intro nb.
     apply h.
-    split.
+    divide et impera.
     + ipso a.
     + ipso nb.
   - unfold Negation in |- *.
@@ -83,9 +83,9 @@ Proof.
   intro eb.
   destruct ea as [a12 a21].
   destruct eb as [b12 b21].
-  split; intro h.
+  divide et impera; intro h.
   - destruct h as [a1 nb1].
-    split.
+    divide et impera.
     + apply a12.
       ipso a1.
     + unfold Negation in nb1 |- *.
@@ -94,7 +94,7 @@ Proof.
       apply b21.
       ipso b2.
   - destruct h as [a2 nb2].
-    split.
+    divide et impera.
     + apply a21.
       ipso a2.
     + unfold Negation in nb2 |- *.

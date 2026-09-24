@@ -32,9 +32,9 @@ Theorem disjunction
 Proof.
   intros A B.
   unfold Negation in |- *.
-  split.
+  divide et impera.
   - intro h.
-    split.
+    divide et impera.
     + intro a.
       apply h.
       ipso (Disjunction.left a).
@@ -76,7 +76,7 @@ Theorem existential
 Proof.
   intros A P.
   unfold Negation in |- *.
-  split.
+  divide et impera.
   - intro h.
     intro x.
     intro p.
@@ -284,7 +284,7 @@ Proof.
    * [|- (A1 -> Falsum) -> (A2 -> Falsum)]
    * [|- (A2 -> Falsum) -> (A1 -> Falsum)].
    *)
-  split.
+  divide et impera.
 
   - intro not_a1.
     intro a2.

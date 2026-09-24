@@ -382,7 +382,7 @@ Theorem identity
       /\ (direct_product f1 f2 p (eA, eB) = p).
 Proof.
   intros A B f1 eA f2 eB MA MB p.
-  split.
+  divide et impera.
   - ipso (direct.left.identity  MA MB p).
   - ipso (direct.right.identity MA MB p).
 Qed.

@@ -43,7 +43,7 @@ Theorem reflection
 Proof.
   intros F S A x.
   unfold is_empty in |- *.
-  destruct (cardinality x) as [| p] eqn:c; split; simpl in |- *.
+  destruct (cardinality x) as [| p] eqn:c; divide et impera; simpl in |- *.
   - intro h.
     reflexivity.
   - intro e.

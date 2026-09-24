@@ -20,7 +20,7 @@ Module Biconditional. (* Biconditional *)
 Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
   intro P.
-  split; intro p; ipso p.
+  divide et impera; intro p; ipso p.
 Qed.
 
 Theorem symmetry
@@ -29,7 +29,7 @@ Proof.
   intros P Q.
   intro h.
   destruct h as [pq qp].
-  split.
+  divide et impera.
   - ipso qp.
   - ipso pq.
 Qed.
@@ -43,7 +43,7 @@ Proof.
   intro hqr.
   destruct hpq as [pq qp].
   destruct hqr as [qr rq].
-  split.
+  divide et impera.
   - intro p.
     apply qr.
     apply pq.
@@ -91,7 +91,7 @@ Proof.
   intro b.
   destruct a as [p12 p21].
   destruct b as [q12 q21].
-  split; intro e; destruct e as [pq qp]; split.
+  divide et impera; intro e; destruct e as [pq qp]; divide et impera.
   +
     intro p2.
     apply q12.
@@ -140,7 +140,7 @@ Proof.
   intro b.
   destruct a as [p12 p21].
   destruct b as [q12 q21].
-  split; intro f.
+  divide et impera; intro f.
   - intro p2.
     apply q12.
     apply f.

@@ -537,7 +537,7 @@ Theorem identity
   : forall {A : Type} (l : List A) . ([] ++ l = l) /\ (l ++ [] = l).
 Proof.
   intros A l.
-  split.
+  divide et impera.
   - ipso (concatenation.left.identity  l).
   - ipso (concatenation.right.identity l).
 Qed.
@@ -735,7 +735,7 @@ Theorem specification
       <-> exists (a : A) . l contains_member a /\ b = f a.
 Proof.
   intros A B f b l.
-  split.
+  divide et impera.
   - induction l as [| a l' IH] using List.induction.
     + simpl in |- *.
       intro g.
@@ -878,7 +878,7 @@ Theorem concatenation
       l1 ++ l2 contains_member a <-> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  split.
+  divide et impera.
   - ipso (@membership.forward.distributivity.over.concatenation  A a l1 l2).
   - ipso (@membership.backward.distributivity.over.concatenation A a l1 l2).
 Qed.
@@ -1025,7 +1025,7 @@ Theorem membership
       reverse l contains_member a <-> l contains_member a.
 Proof.
   intros A a l.
-  split.
+  divide et impera.
   - ipso (@reversal.forward.preservation.of.membership  A a l).
   - ipso (@reversal.backward.preservation.of.membership A a l).
 Qed.
@@ -1067,7 +1067,7 @@ Theorem membership
 Proof.
   intros A l a b.
   rewrite (appending.specification l a) in |- *.
-  split.
+  divide et impera.
   - intro h.
     destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
     + ipso (Disjunction.R h1).
@@ -1167,18 +1167,18 @@ Proof.
     + simpl in |- *.
       intro h.
       destruct h as [e | h'].
-      * split.
+      * divide et impera.
         -- ipso (Disjunction.L e).
         -- rewrite e in |- *.
            ipso pb.
       * destruct (IH h') as [hl pa].
-        split.
+        divide et impera.
         -- ipso (Disjunction.R hl).
         -- ipso pa.
     + simpl in |- *.
       intro h'.
       destruct (IH h') as [hl pa].
-      split.
+      divide et impera.
       * ipso (Disjunction.R hl).
       * ipso pa.
 Qed.
@@ -1210,12 +1210,12 @@ Proof.
       * simpl in |- *.
         apply Disjunction.R.
         apply IH.
-        split.
+        divide et impera.
         -- ipso h'.
         -- ipso pa.
       * simpl in |- *.
         apply IH.
-        split.
+        divide et impera.
         -- ipso h'.
         -- ipso pa.
 Qed.
@@ -1228,7 +1228,7 @@ Theorem specification
       filter p l contains_member a <-> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
-  split.
+  divide et impera.
   - ipso (@filtering.forward.specification  A p a l).
   - ipso (@filtering.backward.specification A p a l).
 Qed.
@@ -1255,15 +1255,15 @@ Proof.
   induction l1 as [| b l1' IH] using List.induction.
   - simpl in |- *.
     intro h.
-    split.
+    divide et impera.
     + ipso I.
     + ipso h.
   - simpl in |- *.
     intro h.
     destruct h as [pb h'].
     destruct (IH h') as [h1 h2].
-    split.
-    + split.
+    divide et impera.
+    + divide et impera.
       * ipso pb.
       * ipso h1.
     + ipso h2.
@@ -1317,10 +1317,10 @@ Proof.
     intro h.
     destruct h as [h1 h2].
     destruct h1 as [pb h1'].
-    split.
+    divide et impera.
     + ipso pb.
     + apply IH.
-      split.
+      divide et impera.
       * ipso h1'.
       * ipso h2.
 Qed.
@@ -1341,7 +1341,7 @@ Proof.
     ipso I.
   - simpl in |- *.
     intro h.
-    split.
+    divide et impera.
     + apply (h b).
       ipso (Disjunction.L (Identity.reflexivity b)).
     + apply IH.
@@ -1362,7 +1362,7 @@ Theorem concatenation
       All P (l1 ++ l2) <-> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
-  split.
+  divide et impera.
   - ipso (@quantification.all.forward.distributivity.over.concatenation  A P l1 l2).
   - ipso (@quantification.all.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
@@ -1377,7 +1377,7 @@ Theorem specification
       All P l <-> (forall (a : A) . l contains_member a -> P a).
 Proof.
   intros A P l.
-  split.
+  divide et impera.
   - ipso (@quantification.all.forward.specification  A P l).
   - ipso (@quantification.all.backward.specification A P l).
 Qed.
@@ -1460,13 +1460,13 @@ Proof.
     intro h.
     destruct h as [pb | h'].
     + apply (Exists_introduction b).
-      split.
+      divide et impera.
       * ipso (Disjunction.L (Identity.reflexivity b)).
       * ipso pb.
     + destruct (IH h') as [a ha].
       destruct ha as [ha' pa].
       apply (Exists_introduction a).
-      split.
+      divide et impera.
       * ipso (Disjunction.R ha').
       * ipso pa.
 Qed.
@@ -1530,7 +1530,7 @@ Proof.
     + apply Disjunction.R.
       apply IH.
       apply (Exists_introduction a).
-      split.
+      divide et impera.
       * ipso ha''.
       * ipso pa.
 Qed.
@@ -1547,7 +1547,7 @@ Theorem concatenation
       Any P (l1 ++ l2) <-> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
-  split.
+  divide et impera.
   - ipso (@quantification.any.forward.distributivity.over.concatenation  A P l1 l2).
   - ipso (@quantification.any.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
@@ -1562,7 +1562,7 @@ Theorem specification
       Any P l <-> (exists (a : A) . l contains_member a /\ P a).
 Proof.
   intros A P l.
-  split.
+  divide et impera.
   - ipso (@quantification.any.forward.specification  A P l).
   - ipso (@quantification.any.backward.specification A P l).
 Qed.
@@ -1632,7 +1632,7 @@ Theorem specification
       head l = Some a <-> (exists (l' : List A) . l = a :: l').
 Proof.
   intros A a l.
-  split.
+  divide et impera.
   - ipso (@head.forward.specification  A a l).
   - ipso (@head.backward.specification A a l).
 Qed.
@@ -1686,7 +1686,7 @@ Theorem specification
       tail l = Some l' <-> (exists (a : A) . l = a :: l').
 Proof.
   intros A l l'.
-  split.
+  divide et impera.
   - ipso (@tail.forward.specification  A l l').
   - ipso (@tail.backward.specification A l l').
 Qed.
@@ -1740,7 +1740,7 @@ Theorem specification
       last l = Some a <-> (exists (l' : List A) . l = append l' a).
 Proof.
   intros A a l.
-  split.
+  divide et impera.
   - ipso (@last.forward.specification  A a l).
   - ipso (@last.backward.specification A a l).
 Qed.
@@ -1801,7 +1801,7 @@ Theorem specification
       initial l = Some l' <-> (exists (a : A) . l = append l' a).
 Proof.
   intros A l l'.
-  split.
+  divide et impera.
   - ipso (@initial.forward.specification  A l l').
   - ipso (@initial.backward.specification A l l').
 Qed.
@@ -1855,7 +1855,7 @@ Theorem specification
       pop l = Some (a, l') <-> l = a :: l'.
 Proof.
   intros A a l' l.
-  split.
+  divide et impera.
   - ipso (@popping.forward.specification  A a l' l).
   - ipso (@popping.backward.specification A a l' l).
 Qed.
@@ -2125,7 +2125,7 @@ Theorem specification
       (exists (a : A) . nth l i = Some a) <-> i < (|| l ||).
 Proof.
   intros A l i.
-  split.
+  divide et impera.
   - ipso (@indexing.forward.specification  A l i).
   - ipso (@indexing.backward.specification A l i).
 Qed.
@@ -2373,7 +2373,7 @@ Proof.
   intros A p l.
   induction l as [| a l' IH] using List.induction.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro e.
       ipso I.
     + intro v.
@@ -2381,7 +2381,7 @@ Proof.
   - simpl in |- *.
     destruct (p a) as [|].
     + simpl in |- *.
-      split.
+      divide et impera.
       * intro e.
         rewrite (NatWithZero.increment.specification (count p l')) in e.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
@@ -2393,7 +2393,7 @@ Proof.
         destruct c as [e f].
         discriminate e.
     + simpl in |- *.
-      split.
+      divide et impera.
       * intro e.
         modus aequans IH, e as all'.
         ipso (Conjunction_introduction (Identity.reflexivity false) all').
@@ -2538,7 +2538,7 @@ Theorem membership
       insert le a l contains_member b <-> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
-  split.
+  divide et impera.
   - ipso (@sorting.insertion.forward.membership  A le a b l).
   - ipso (sorting.insertion.backward.membership le a b l).
 Qed.
@@ -2650,7 +2650,7 @@ Theorem membership
       insertion_sort le l contains_member a <-> l contains_member a.
 Proof.
   intros A le a l.
-  split.
+  divide et impera.
   - ipso (@sorting.forward.preservation.of.membership  A le a l).
   - ipso (sorting.backward.preservation.of.membership le a l).
 Qed.
@@ -2807,7 +2807,7 @@ Proof.
   intros n i.
   destruct n as [| p].
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro f.
       ex f quodlibet.
     + intro h.
@@ -2818,7 +2818,7 @@ Proof.
       modus ponens r, e as f.
       ex f quodlibet.
   - simpl in |- *.
-    split.
+    divide et impera.
     + ipso (@range.positive.forward.membership  p i).
     + ipso (@range.positive.backward.membership p i).
 Qed.
@@ -2903,7 +2903,7 @@ Proof.
   unfold range in |- *.
   destruct (Comparable.order.totality start stop) as [below | above].
   - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
-    split.
+    divide et impera.
     + intro h.
       modus aequans
         (mapping.membership.specification
@@ -2916,7 +2916,7 @@ Proof.
         (from_zero.membership.specification
            (NatWithZero.saturating_sub stop start) j),
         m as lt.
-      split.
+      divide et impera.
       * rewrite e in |- *.
         rewrite (NatWithZero.addition.commutativity start j) in |- *.
         ipso (NatWithZero.addition.right.order.extensivity j start).
@@ -2940,7 +2940,7 @@ Proof.
                 /\ i = NatWithZero.add start j).
       {
         apply (Exists_introduction (NatWithZero.saturating_sub i start)).
-        split.
+        divide et impera.
         * ipso (modus aequans
                    (from_zero.membership.specification
                       (NatWithZero.saturating_sub stop start)
@@ -2957,7 +2957,7 @@ Proof.
   - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
     rewrite empty in |- *.
     simpl in |- *.
-    split.
+    divide et impera.
     + intro f.
       ex f quodlibet.
     + intro c.
@@ -2996,21 +2996,21 @@ Proof.
   rewrite (NatWithZero.increment.specification stop) in |- *.
   rewrite (NatWithZero.addition.commutativity
              (NatWithZero.Positive Nat.One) stop) in |- *.
-  split.
+  divide et impera.
   - intro h.
     modus aequans
       (range.membership.specification
          start (stop + NatWithZero.Positive Nat.One) i),
       h as c.
     destruct c as [low high].
-    split.
+    divide et impera.
     + ipso low.
     + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
   - intro c.
     destruct c as [low high].
     assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
     {
-      split.
+      divide et impera.
       + ipso low.
       + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
     }
@@ -3070,7 +3070,7 @@ Lemma specification
       maximum_of le l = None <-> l = [].
 Proof.
   intros A le l.
-  split.
+  divide et impera.
   - intro e.
     destruct l as [| a l'].
     + reflexivity.
@@ -3110,21 +3110,21 @@ Proof.
       rewrite en in |- *.
       rewrite <- e' in |- *.
       simpl in |- *.
-      split.
+      divide et impera.
       * ipso (comparison.reflexivity total a).
       * ipso I.
     + destruct (le a m') eqn:s.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
-        split.
+        divide et impera.
         -- ipso s.
         -- ipso (IH m' (Identity.reflexivity (Some m'))).
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
         pose proof (comparison.contraposition total s) as ha.
-        split.
+        divide et impera.
         -- ipso (comparison.reflexivity total a).
         -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le x m' = true) . transitive x m' a h ha)
@@ -3170,7 +3170,7 @@ Lemma specification
       minimum_of le l = None <-> l = [].
 Proof.
   intros A le l.
-  split.
+  divide et impera.
   - intro e.
     destruct l as [| a l'].
     + reflexivity.
@@ -3210,14 +3210,14 @@ Proof.
       rewrite en in |- *.
       rewrite <- e' in |- *.
       simpl in |- *.
-      split.
+      divide et impera.
       * ipso (comparison.reflexivity total a).
       * ipso I.
     + destruct (le a m') eqn:s.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
-        split.
+        divide et impera.
         -- ipso (comparison.reflexivity total a).
         -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le m' x = true) . transitive a m' x s h)
@@ -3225,7 +3225,7 @@ Proof.
       * pose proof (Option.some.injectivity e) as e'.
         rewrite <- e' in |- *.
         simpl in |- *.
-        split.
+        divide et impera.
         -- ipso (comparison.contraposition total s).
         -- ipso (IH m' (Identity.reflexivity (Some m'))).
 Qed.

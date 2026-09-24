@@ -275,7 +275,7 @@ Lemma embedding
       (+ m) < + n <-> Nat.LessThan m n.
 Proof.
   intros m n.
-  split.
+  divide et impera.
   - intro h.
     unfold LessThan in h.
     destruct h as [k e].
@@ -352,7 +352,7 @@ Theorem identity
   : forall (n : NatWithZero) . (0 + n = n) /\ (n + 0 = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - simpl in |- *.
     reflexivity.
   - rewrite (addition.commutativity n 0) in |- *.
@@ -488,7 +488,7 @@ Theorem cancellation
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - ipso (@addition.left.cancellation m n k).
   - ipso (@addition.right.cancellation m k n).
 Qed.
@@ -608,7 +608,7 @@ Theorem annihilation
   : forall (n : NatWithZero) . (0 * n = 0) /\ (n * 0 = 0).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - simpl in |- *.
     reflexivity.
   - rewrite (multiplication.commutativity n 0) in |- *.
@@ -756,7 +756,7 @@ Theorem identity
   : forall (n : NatWithZero) . ((+ Nat.One) * n = n) /\ (n * (+ Nat.One) = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (multiplication.left.identity  n).
   - ipso (multiplication.right.identity n).
 Qed.
@@ -772,7 +772,7 @@ Theorem addition
     /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
-  split.
+  divide et impera.
   - ipso (multiplication.left.distributivity.over.addition  x y z).
   - ipso (multiplication.right.distributivity.over.addition x y z).
 Qed.
@@ -989,7 +989,7 @@ Theorem discreteness
       m < n + (+ Nat.One) <-> m <= n.
 Proof.
   intros m n.
-  split.
+  divide et impera.
   - intro h.
     unfold LessThan    in h.
     unfold LessOrEqual in |- *.
@@ -1059,7 +1059,7 @@ Lemma specification
 Proof.
   intros m n.
   destruct m as [| m']; destruct n as [| n'].
-  - split.
+  - divide et impera.
     * simpl in |- *.
       intro e.
       discriminate e.
@@ -1068,7 +1068,7 @@ Proof.
       unfold Negation in i.
       modus ponens i, h as f.
       ex f quodlibet.
-  - split.
+  - divide et impera.
     * intro e.
       unfold LessThan in |- *.
       apply (Exists_introduction n').
@@ -1077,7 +1077,7 @@ Proof.
     * intro h.
       simpl in |- *.
       reflexivity.
-  - split.
+  - divide et impera.
     * simpl in |- *.
       intro e.
       discriminate e.
@@ -1086,7 +1086,7 @@ Proof.
       destruct h as [k e].
       simpl in e.
       discriminate e.
-  - split.
+  - divide et impera.
     * simpl in |- *.
       intro e.
       ipso (modus aequans (positive.order.embedding m' n'),
@@ -1106,7 +1106,7 @@ Lemma specification
   : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros m n.
-  split.
+  divide et impera.
   - intro e.
     destruct m as [| m']; destruct n as [| n'].
     + reflexivity.
@@ -1134,7 +1134,7 @@ Theorem specification
       (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
-  split.
+  divide et impera.
   - ipso (comparison.strict.specification
             m n).
   - ipso (comparison.equality.specification
@@ -1185,7 +1185,7 @@ Theorem identity
   : forall (n : NatWithZero) . (max 0 n = n) /\ (max n 0 = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (maximum.left.identity  n).
   - ipso (maximum.right.identity n).
 Qed.
@@ -1255,7 +1255,7 @@ Theorem annihilation
   : forall (n : NatWithZero) . (min 0 n = 0) /\ (min n 0 = 0).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (minimum.left.annihilation  n).
   - ipso (minimum.right.annihilation n).
 Qed.
@@ -1436,7 +1436,7 @@ Theorem specification
       sub m n = Some k <-> n + k = m.
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - intro e.
     unfold sub in e.
     destruct (le n m) as [|] eqn:c.
@@ -1468,7 +1468,7 @@ Proof.
   intros p d.
   simpl divide, modulo, div in |- *.
   induction p as [| p' IH] using Nat.induction.
-  - destruct d as [| d']; split; simpl in |- *.
+  - destruct d as [| d']; divide et impera; simpl in |- *.
     * reflexivity.
     * unfold LessThan in |- *.
       apply (Exists_introduction Nat.One).
@@ -1484,7 +1484,7 @@ Proof.
     destruct (div.nat p' d) as [q r] eqn:D.
     simpl in e.
     simpl in lt.
-    destruct (eq (++ r) (+ d)) as [|] eqn:E; split; simpl in |- *.
+    destruct (eq (++ r) (+ d)) as [|] eqn:E; divide et impera; simpl in |- *.
     * modus aequans (Comparable.comparison.equality.reflection (++ r) (+ d)), E as full.
       rewrite (increment.specification r) in full.
       rewrite (increment.specification q) in |- *.
@@ -1648,7 +1648,7 @@ Theorem specification
       /\ (n %. d) < + d.
 Proof.
   intros n d.
-  split.
+  divide et impera.
   - ipso (division.dividend.reconstruction n d).
   - ipso (division.remainder.boundedness n d).
 Qed.
@@ -1728,7 +1728,7 @@ Proof.
         modus ponens i, loop as f.
         ex f quodlibet.
   }
-  split.
+  divide et impera.
   - ipso quotient.
   - rewrite quotient in recon.
     symmetry in e.
@@ -1750,7 +1750,7 @@ Proof.
           : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
           /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
   {
-    split.
+    divide et impera.
     - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
       rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
       rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
@@ -1781,7 +1781,7 @@ Proof.
 
   assert (witness : ((k * (+ d)) + 0 = n) /\ 0 < (+ d)).
   {
-    split.
+    divide et impera.
     - destruct (addition.identity (k * (+ d))) as [_ vanishing].
       rewrite vanishing in |- *.
       rewrite (multiplication.commutativity k (+ d)) in |- *.
@@ -1872,7 +1872,7 @@ Proof.
           : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
             /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d))).
   {
-    split.
+    divide et impera.
     - change (+ (Nat.mul k d)) with ((+ k) * (+ d)) in |- *.
       rewrite (multiplication.commutativity (n /. d) ((+ k) * (+ d))) in |- *.
       rewrite (multiplication.associativity (+ k) (+ d) (n /. d))     in |- *.
@@ -2307,12 +2307,12 @@ Proof.
   - intros c recurse a.
     destruct c as [| q].
     + rewrite (gcd.zero a) in |- *.
-      split.
+      divide et impera.
       * ipso (divisibility.reflexivity a).
       * ipso (divisibility.top a).
     + rewrite (gcd.recurrence a q) in |- *.
       destruct (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)) as [d1 d2].
-      split.
+      divide et impera.
       * destruct (division.specification a q) as [s1 s2].
         pose proof (divisibility.multiplication.closure
                       (gcd (+ q) ((a %. q))) (+ q) ((a /. q)) d1) as hm.
@@ -2581,7 +2581,7 @@ Theorem divisibility
       Divides (+ (gcd.nat a q)) a /\ Divides (+ (gcd.nat a q)) (+ q).
 Proof.
   intros a q.
-  split.
+  divide et impera.
   - ipso (gcd.nat.left.divisibility  a q).
   - ipso (gcd.nat.right.divisibility a q).
 Qed.

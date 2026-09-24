@@ -350,7 +350,7 @@ Theorem cancellation
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - ipso (@addition.left.cancellation  m n k).
   - ipso (@addition.right.cancellation m n k).
 Qed.
@@ -713,7 +713,7 @@ Theorem identity
   : forall (n : Nat) . (1 * n = n) /\ (n * 1 = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - simpl in |- *.
     reflexivity.
   - rewrite (multiplication.commutativity n 1) in |- *.
@@ -730,7 +730,7 @@ Proof.
   intros k j e.
   destruct k as [| k']; simpl in e.
   -
-    split.
+    divide et impera.
     + reflexivity.
     + ipso e.
   -
@@ -770,7 +770,7 @@ Theorem cancellation
     /\ (m * n = k * n -> m = k).
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - ipso (@multiplication.left.cancellation  m n k).
   - ipso (@multiplication.right.cancellation m n k).
 Qed.
@@ -980,7 +980,7 @@ Theorem specification
       (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
-  split; split.
+  divide et impera; divide et impera.
   - ipso (@comparison.strict.forward.specification    m n).
   - ipso (@comparison.strict.backward.specification   m n).
   - ipso (@comparison.equality.forward.specification  m n).
@@ -1043,7 +1043,7 @@ Theorem identity
   : forall (n : Nat) . (max 1 n = n) /\ (max n 1 = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (comparison.maximum.left.identity  n).
   - ipso (comparison.maximum.right.identity n).
 Qed.
@@ -1203,7 +1203,7 @@ Theorem specification
   : forall (m : Nat) (n : Nat) (k : Nat) . sub m n = Some k <-> n + k = m.
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - ipso (@subtraction.forward.specification  m n k).
   - ipso (@subtraction.backward.specification m n k).
 Qed.

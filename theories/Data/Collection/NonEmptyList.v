@@ -256,13 +256,13 @@ Proof.
   intros A a x y.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro h.
       ipso h.
     + intro h.
       ipso h.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro h.
       destruct h as [e | h'].
       * ipso (Disjunction.L (Disjunction.L e)).
@@ -545,7 +545,7 @@ Proof.
   intros A a x.
   induction x as [b | b x' IH] using NonEmptyList.induction.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro e.
       ipso (Disjunction.L e).
     + intro h.
@@ -553,7 +553,7 @@ Proof.
       * ipso e.
       * ex f quodlibet.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro h.
       destruct h as [e | m].
       * ipso (Disjunction.L e).

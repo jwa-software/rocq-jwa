@@ -449,7 +449,7 @@ Proof.
     discriminate z.
   }
 
-  split.
+  divide et impera.
 
   - intro e.
     pose proof (Identity.congruence numerator   e) as hp.
@@ -1059,7 +1059,7 @@ Theorem identity
   : forall (x : Rational) . (Zero + x = x) /\ (x + Zero = x).
 Proof.
   intro x.
-  split.
+  divide et impera.
   - ipso (left.identity  x).
   - ipso (right.identity x).
 Qed.
@@ -1070,7 +1070,7 @@ Theorem inverse
       ((negate x) + x = Zero) /\ (x + (negate x) = Zero).
 Proof.
   intro x.
-  split.
+  divide et impera.
   - ipso (left.inverse  x).
   - ipso (right.inverse x).
 Qed.
@@ -1081,7 +1081,7 @@ Theorem cancellation
       (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - ipso (left.cancellation  m n k).
   - ipso (right.cancellation n m k).
 Qed.
@@ -1314,7 +1314,7 @@ Theorem identity
   : forall (x : Rational) . (One * x = x) /\ (x * One = x).
 Proof.
   intro x.
-  split.
+  divide et impera.
   - ipso (left.identity  x).
   - ipso (right.identity x).
 Qed.
@@ -1330,7 +1330,7 @@ Theorem addition
     /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
-  split.
+  divide et impera.
   - ipso (left.distributivity.over.addition  x y z).
   - ipso (right.distributivity.over.addition x y z).
 Qed.
@@ -1572,9 +1572,9 @@ Proof.
               (Integer.mul (numerator y) (Integer.from_nat (denominator x))))
         as [below equal].
 
-  split.
+  divide et impera.
   - ipso below.
-  - split.
+  - divide et impera.
     + intro h.
       modus aequans equal, h as cross.
       modus aequans (characterisation x y), cross as same.
@@ -1660,7 +1660,7 @@ Proof.
                                    (Integer.mul q (Integer.Positive k))).
   {
     intros p q k.
-    split.
+    divide et impera.
     - intro h.
       pose proof (Integer.multiplication.left.order.strict.monotonicity
                     k p q h) as s.

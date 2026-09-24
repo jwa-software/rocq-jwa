@@ -279,7 +279,7 @@ Theorem injectivity
       (- p = - q -> p = q) /\ (+ p = + q -> p = q).
 Proof.
   intros p q.
-  split.
+  divide et impera.
   - ipso (@magnitude.negative.injectivity p q).
   - ipso (@magnitude.positive.injectivity p q).
 Qed.
@@ -494,7 +494,7 @@ Lemma specification
   : forall (p : Nat) (q : Nat) (k : Nat) . nat_difference p q = - k <-> Nat.add p k = q.
 Proof.
   intros p q k.
-  split.
+  divide et impera.
   - intro e.
     pose proof (difference.nat.specification p q) as s.
     rewrite e in s.
@@ -518,7 +518,7 @@ Lemma specification
   : forall (p : Nat) (q : Nat) . nat_difference p q = 0 <-> p = q.
 Proof.
   intros p q.
-  split.
+  divide et impera.
   - intro e.
     pose proof (difference.nat.specification p q) as s.
     rewrite e in s.
@@ -539,7 +539,7 @@ Lemma specification
   : forall (p : Nat) (q : Nat) (k : Nat) . nat_difference p q = + k <-> Nat.add q k = p.
 Proof.
   intros p q k.
-  split.
+  divide et impera.
   - intro e.
     pose proof (difference.nat.specification p q) as s.
     rewrite e in s.
@@ -1033,7 +1033,7 @@ Theorem identity
   : forall (n : Integer) . (0 + n = n) /\ (n + 0 = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (addition.left.identity  n).
   - ipso (addition.right.identity n).
 Qed.
@@ -1043,7 +1043,7 @@ Theorem inverse
   : forall (n : Integer) . (negate n + n = 0) /\ (n + negate n = 0).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (addition.left.inverse  n).
   - ipso (addition.right.inverse n).
 Qed.
@@ -1054,7 +1054,7 @@ Theorem cancellation
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  split.
+  divide et impera.
   - ipso (@addition.left.cancellation  m n k).
   - ipso (@addition.right.cancellation m k n).
 Qed.
@@ -1406,7 +1406,7 @@ Theorem identity
   : forall (n : Integer) . ((+ Nat.One) * n = n) /\ (n * (+ Nat.One) = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - ipso (multiplication.left.identity  n).
   - ipso (multiplication.right.identity n).
 Qed.
@@ -1422,7 +1422,7 @@ Theorem addition
     /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
-  split.
+  divide et impera.
   - ipso (multiplication.left.distributivity.over.addition  x y z).
   - ipso (multiplication.right.distributivity.over.addition x y z).
 Qed.
@@ -1577,7 +1577,7 @@ Proof.
   intros m n.
   unfold LessThan in |- *.
   unfold add in |- *.
-  destruct m as [m' | | m']; destruct n as [n' | | n']; split; simpl in |- *.
+  destruct m as [m' | | m']; destruct n as [n' | | n']; divide et impera; simpl in |- *.
   - intro c.
     pose proof (Nat.comparison.strict.forward.specification c) as lt.
     unfold Nat.LessThan in lt.
@@ -1653,7 +1653,7 @@ Lemma specification
   : forall (m : Integer) (n : Integer) . compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros m n.
-  destruct m as [m' | | m']; destruct n as [n' | | n']; split; simpl in |- *.
+  destruct m as [m' | | m']; destruct n as [n' | | n']; divide et impera; simpl in |- *.
   - intro c.
     pose proof (Nat.comparison.equality.forward.specification c) as e.
     rewrite e in |- *.
@@ -1708,7 +1708,7 @@ Theorem specification
       (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
-  split.
+  divide et impera.
   - ipso (comparison.strict.specification m n).
   - ipso (comparison.equality.specification m n).
 Qed.

@@ -120,7 +120,7 @@ Theorem specification
 Proof.
   intros A compare lt C m n.
   rewrite (Comparable.antisymmetry m n) in |- *.
-  split.
+  divide et impera.
   - intro e.
     destruct (compare n m) as [| |] eqn:c.
     + destruct (Comparable.specification n m) as [s _].
@@ -168,7 +168,7 @@ Theorem reflection
 Proof.
   intros A compare lt C m n.
   unfold eq in |- *.
-  split.
+  divide et impera.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
     + discriminate e.
@@ -337,21 +337,21 @@ Proof.
   unfold le in |- *.
   unfold LessOrEqual in |- *.
   destruct (compare m n) as [| |] eqn:c.
-  - split.
+  - divide et impera.
     + intro e.
       apply Disjunction.R.
       destruct (Comparable.specification m n) as [s _].
       ipso (modus aequans s, c).
     + intro h.
       reflexivity.
-  - split.
+  - divide et impera.
     + intro e.
       apply Disjunction.L.
       destruct (Comparable.specification m n) as [_ s].
       ipso (modus aequans s, c).
     + intro h.
       reflexivity.
-  - split.
+  - divide et impera.
     + intro e.
       discriminate e.
     + intro h.
@@ -382,7 +382,7 @@ Proof.
   intros A compare lt C m n.
   unfold min in |- *.
   unfold LessOrEqual in |- *.
-  split.
+  divide et impera.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
     + apply Disjunction.R.
@@ -568,7 +568,7 @@ Proof.
   intros A compare lt C m n.
   unfold max in |- *.
   unfold LessOrEqual in |- *.
-  split.
+  divide et impera.
   - intro e.
     destruct (compare m n) as [| |] eqn:c.
     + apply Disjunction.L.
