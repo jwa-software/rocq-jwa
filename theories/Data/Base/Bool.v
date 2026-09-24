@@ -84,7 +84,7 @@ Theorem forward : ~ (true = false).
 Proof.
   simpl Negation in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 (* distinctness.backward *)
@@ -92,7 +92,7 @@ Theorem backward : ~ (false = true).
 Proof.
   simpl Negation in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 End distinctness. (* distinctness *)

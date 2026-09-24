@@ -51,7 +51,7 @@ Proof.
   - intro h.
     ex h quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
 Qed.
 
 End emptiness. (* emptiness *)

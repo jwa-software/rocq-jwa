@@ -96,7 +96,7 @@ Proof.
   intros A B a b.
   simpl Negation in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 Module left. (* left *)

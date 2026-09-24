@@ -297,9 +297,9 @@ Proof.
   match m with | | p end; match n with | | q end.
   - quod idem est.
   - simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in e.
     let proof e' := magnitude.positive.injectivity e.
     rewrite e' in |- *.
@@ -1455,13 +1455,13 @@ Proof.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
       quod idem est.
-    + discriminate e.
-    + discriminate e.
-    + discriminate e.
+    + ex e quodlibet.
+    + ex e quodlibet.
+    + ex e quodlibet.
     + quod idem est.
-    + discriminate e.
-    + discriminate e.
-    + discriminate e.
+    + ex e quodlibet.
+    + ex e quodlibet.
+    + ex e quodlibet.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
       quod idem est.
@@ -1472,13 +1472,13 @@ Proof.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
       quod idem est.
-    + discriminate e.
-    + discriminate e.
-    + discriminate e.
+    + ex e quodlibet.
+    + ex e quodlibet.
+    + ex e quodlibet.
     + quod idem est.
-    + discriminate e.
-    + discriminate e.
-    + discriminate e.
+    + ex e quodlibet.
+    + ex e quodlibet.
+    + ex e quodlibet.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.positive.injectivity e)) in |- *.
       quod idem est.
@@ -1509,7 +1509,7 @@ Proof.
   match h with | k e end.
   let proof e' := Identity.transitivity e (Identity.symmetry (addition.right.identity n)).
   let proof f := addition.left.cancellation e'.
-  discriminate f.
+  ex f quodlibet.
 Qed.
 
 (* order.strict.transitivity *)
@@ -1599,30 +1599,30 @@ Proof.
   - intro h.
     quod idem est.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro h.
     match h with | k e end.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro h.
     match h with | k e end.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
     apply (Exists_introduction n').
     quod idem est.
   - intro h.
     quod idem est.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro h.
     match h with | k e end.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro h.
     match h with | k e end.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
     let proof lt := Nat.comparison.strict.forward.specification c.
     simpl Nat.LessThan in lt.
@@ -1658,33 +1658,33 @@ Proof.
     rewrite e' in |- *.
     ipso (Comparable.comparison.reflexivity n').
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
     quod idem est.
   - intro e.
     quod idem est.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
-    discriminate c.
+    ex c quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
   - intro c.
     let proof e := Nat.comparison.equality.forward.specification c.
     rewrite e in |- *.
@@ -1739,7 +1739,7 @@ Proof.
                   (NatWithZero.Positive x') d h.
     match (NatWithZero.divide (NatWithZero.Positive x') d) with | | m end.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in |- *.
       rewrite (NatWithZero.positive.injectivity e) in |- *.
       quod idem est.
@@ -1750,7 +1750,7 @@ Proof.
                   (NatWithZero.Positive x') d h.
     match (NatWithZero.divide (NatWithZero.Positive x') d) with | | m end.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in |- *.
       rewrite (NatWithZero.positive.injectivity e) in |- *.
       quod idem est.

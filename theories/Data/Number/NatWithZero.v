@@ -438,10 +438,10 @@ Proof.
   match m with | | m' end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
 Qed.
 
 End identity. (* addition.right.identity *)
@@ -888,7 +888,7 @@ Proof.
   match h with | k e end.
   simpl in e.
   match n with | | n' end.
-  - discriminate e.
+  - ex e quodlibet.
   - let proof e' := positive.injectivity e.
     rewrite (Nat.addition.commutativity n' k) in e'.
     let proof i := Nat.addition.identity.absence k n'.
@@ -926,9 +926,9 @@ Proof.
   match h with | k e end.
   match y with | | q end.
   - simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in e.
-    discriminate e.
+    ex e quodlibet.
 Qed.
 
 End zero. (* order.strict.zero *)
@@ -952,9 +952,9 @@ Proof.
         let proof e' := positive.injectivity e.
         match q with | | q' end.
         -- simpl in e'.
-           discriminate e'.
+           ex e' quodlibet.
         -- simpl in e'.
-           discriminate e'.
+           ex e' quodlibet.
     + apply Accessible_introduction.
       intros y h.
       match h with | k e end.
@@ -1062,7 +1062,7 @@ Proof.
   - divide et impera.
     * simpl in |- *.
       intro e.
-      discriminate e.
+      ex e quodlibet.
     * intro h.
       let proof i := order.strict.irreflexivity 0.
       simpl Negation in i.
@@ -1080,12 +1080,12 @@ Proof.
   - divide et impera.
     * simpl in |- *.
       intro e.
-      discriminate e.
+      ex e quodlibet.
     * intro h.
       simpl LessThan in h.
       match h with | k e end.
       simpl in e.
-      discriminate e.
+      ex e quodlibet.
   - divide et impera.
     * simpl in |- *.
       intro e.
@@ -1111,9 +1111,9 @@ Proof.
     match m with | | m' end; match n with | | n' end.
     + quod idem est.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
       rewrite (Nat.comparison.equality.forward.specification e) in |- *.
       quod idem est.
@@ -1444,7 +1444,7 @@ Proof.
       modus aequans (Comparable.order.reflection n m), c as order.
       rewrite <- e' in |- *.
       ipso (subtraction.saturating.specification order).
-    + discriminate e.
+    + ex e quodlibet.
   - intro e.
     rewrite <- e in |- *.
     rewrite (addition.commutativity n k) in |- *.
@@ -1521,7 +1521,7 @@ Proof.
       match k with | | k' end.
       { modus aequans (Comparable.comparison.equality.reflection (r + (+ Nat.One)) (+ d)), ek as full.
         rewrite full in E.
-        discriminate E. }
+        ex E quodlibet. }
       { simpl LessThan in |- *.
         apply (Exists_introduction k').
         rewrite (addition.associativity r (+ Nat.One) (+ k')) in |- *.
@@ -1576,7 +1576,7 @@ Proof.
   match k with | | k' end.
   - match (multiplication.annihilation (+ g)) with | _ annihilation' end.
     rewrite annihilation' in hk.
-    discriminate hk.
+    ex hk quodlibet.
   - match k' with | | k'' end.
     + rewrite (multiplication.right.identity (+ g)) in hk.
       rewrite hk in bound.
@@ -2128,10 +2128,10 @@ Proof.
     rewrite e1' in e2.
     match k with | | k' end.
     + simpl in e2.
-      discriminate e2.
+      ex e2 quodlibet.
     + match j with | | j' end.
       * simpl in e2.
-        discriminate e2.
+        ex e2 quodlibet.
       * simpl in e2.
         let proof e3 := positive.injectivity e2.
         rewrite (Nat.multiplication.associativity p k' j') in e3.

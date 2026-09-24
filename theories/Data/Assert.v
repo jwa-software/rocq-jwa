@@ -121,7 +121,7 @@ Proof.
   - quod idem est.
   - ipso I.
   - ex h quodlibet.
-  - discriminate h.
+  - ex h quodlibet.
 Qed.
 
 End Assert. (* Assert *)

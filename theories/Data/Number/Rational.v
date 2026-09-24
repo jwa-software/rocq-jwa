@@ -424,14 +424,14 @@ Proof.
   {
     simpl Negation in |- *.
     intro z.
-    discriminate z.
+    ex z quodlibet.
   }
 
   lemma nzs : ~ (Integer.from_nat s = Integer.Zero).
   {
     simpl Negation in |- *.
     intro z.
-    discriminate z.
+    ex z quodlibet.
   }
 
   divide et impera.
@@ -484,7 +484,7 @@ Proof.
     {
       simpl Negation in |- *.
       intro z.
-      discriminate z.
+      ex z quodlibet.
     }
 
     lemma widened : Integer.mul (Integer.mul p (Integer.from_nat s))
@@ -1364,7 +1364,7 @@ Proof.
     modus aequans criterion, cross as joined.
     ipso (Identity.transitivity joined unit).
 
-  - discriminate e.
+  - ex e quodlibet.
 
   - let proof hy := Option.some.injectivity e.
     symmetry in r.

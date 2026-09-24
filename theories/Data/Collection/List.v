@@ -485,7 +485,7 @@ Proof.
   intros A a l.
   simpl Negation in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 Module concatenation. (* concatenation *)
@@ -1598,7 +1598,7 @@ Proof.
   match l with | | b rest end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
     let proof e' := Option.some.injectivity e.
@@ -1652,7 +1652,7 @@ Proof.
   match l with | | b rest end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
     let proof e' := Option.some.injectivity e.
@@ -1761,7 +1761,7 @@ Proof.
   match (reverse l) per er with | | b r end.
   - simpl in |- *.
     intro h.
-    discriminate h.
+    ex h quodlibet.
   - simpl in |- *.
     intro h.
     let proof e' := Option.some.injectivity h.
@@ -1821,7 +1821,7 @@ Proof.
   match l with | | b rest end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
     let proof e' := Option.some.injectivity e.
@@ -2057,7 +2057,7 @@ Proof.
   - intros i h.
     match h with | a e end.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros i h.
     match i with | | i' end.
     + simpl in |- *.
@@ -2390,7 +2390,7 @@ Proof.
         ex f quodlibet.
       * intro c.
         match c with | e f end.
-        discriminate e.
+        ex e quodlibet.
     + simpl in |- *.
       divide et impera.
       * intro e.
@@ -2464,7 +2464,7 @@ Proof.
       let proof t := total a b.
       match t with | ab | ba end.
       * rewrite c in ab.
-        discriminate ab.
+        ex ab quodlibet.
       * ipso (Conjunction_introduction
                  (sorting.insertion.preservation.of.all
                     le (fun (x : A) . le b x = true) a l' ba below)
@@ -2754,7 +2754,7 @@ Proof.
       ipso (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
     + simpl in e.
       let proof e' := NatWithZero.positive.injectivity e.
-      match q with | | q' end; simpl in e'; discriminate e'.
+      match q with | | q' end; simpl in e'; ex e' quodlibet.
   - intros i h.
     change (NatWithZero.Positive (Nat.Successor p'))
       with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
@@ -3074,10 +3074,10 @@ Proof.
     + quod idem est.
     + simpl in e.
       match (maximum_of le l') with | | m end.
-      * discriminate e.
+      * ex e quodlibet.
       * match (le a m) with end.
-        -- discriminate e.
-        -- discriminate e.
+        -- ex e quodlibet.
+        -- ex e quodlibet.
   - intro e.
     rewrite e in |- *.
     simpl in |- *.
@@ -3099,7 +3099,7 @@ Proof.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
     match (maximum_of le l') per r with | | m' end.
@@ -3138,7 +3138,7 @@ Proof.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
     match (maximum_of le l') per r with | | m' end.
@@ -3174,10 +3174,10 @@ Proof.
     + quod idem est.
     + simpl in e.
       match (minimum_of le l') with | | m end.
-      * discriminate e.
+      * ex e quodlibet.
       * match (le a m) with end.
-        -- discriminate e.
-        -- discriminate e.
+        -- ex e quodlibet.
+        -- ex e quodlibet.
   - intro e.
     rewrite e in |- *.
     simpl in |- *.
@@ -3199,7 +3199,7 @@ Proof.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
     match (minimum_of le l') per r with | | m' end.
@@ -3237,7 +3237,7 @@ Proof.
   induction l as [| a l' IH] using List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
     match (minimum_of le l') per r with | | m' end.

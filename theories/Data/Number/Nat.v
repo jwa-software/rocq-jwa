@@ -269,7 +269,7 @@ Proof.
     rewrite (addition.commutativity k 1)
             in e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   -
     simpl Negation in |- *.
     intro e.
@@ -482,9 +482,9 @@ Proof.
     match h with | k e end.
     match y with | | y' end.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
   - apply Accessible_introduction.
     intros y h.
     match h with | k e end.
@@ -723,9 +723,9 @@ Proof.
   -
     match j with | | j' end.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
 Qed.
 
 End identity. (* multiplication.identity *)
@@ -872,14 +872,14 @@ Proof.
       simpl in |- *;
       intro e.
   -
-    discriminate e.
+    ex e quodlibet.
   -
     simpl LessThan in |- *.
     apply (Exists_introduction n').
     simpl in |- *.
     quod idem est.
   -
-    discriminate e.
+    ex e quodlibet.
   -
     ipso (successor.order.monotonicity (IH n' e)).
 Qed.
@@ -910,7 +910,7 @@ Proof.
     simpl LessThan in h.
     match h with | k e end.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   +
     ipso (IH n' (successor.order.monotonicity.inversion h)).
 Qed.
@@ -935,8 +935,8 @@ Proof.
       intro e;
       simpl in |- *.
   + quod idem est.
-  + discriminate e.
-  + discriminate e.
+  + ex e quodlibet.
+  + ex e quodlibet.
   + rewrite (IH n' e) in |- *.
     quod idem est.
 Qed.
@@ -1005,7 +1005,7 @@ Proof.
     match lt with | k e end.
     match n with | | n' end;
         simpl in e;
-        discriminate e.
+        ex e quodlibet.
   - quod idem est.
   - quod idem est.
 Qed.
@@ -1054,7 +1054,7 @@ Proof.
     intro h.
     let proof b := comparison.equality.backward.specification h.
     rewrite e in b.
-    discriminate b.
+    ex b quodlibet.
   - apply Disjunction.L.
     ipso (comparison.equality.forward.specification e).
   - apply Disjunction.R.
@@ -1062,7 +1062,7 @@ Proof.
     intro h.
     let proof b := comparison.equality.backward.specification h.
     rewrite e in b.
-    discriminate b.
+    ex b quodlibet.
 Qed.
 
 (* What a type carrying an equation as a field needs before two of its
@@ -1152,7 +1152,7 @@ Proof.
   -
     intros n k e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   -
     intros n k.
     match n with | | n' end;

@@ -126,9 +126,9 @@ Proof.
     + match (Comparable.specification n m) with | s _ end.
       ipso (modus aequans s, c).
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
   - intro h.
     match (Comparable.specification n m) with | s _ end.
     modus aequans s, h as e.
@@ -171,10 +171,10 @@ Proof.
   divide et impera.
   - intro e.
     match (compare m n) per c with | | | end.
-    + discriminate e.
+    + ex e quodlibet.
     + match (Comparable.specification m n) with | _ s end.
       ipso (modus aequans s, c).
-    + discriminate e.
+    + ex e quodlibet.
   - intro h.
     match (Comparable.specification m n) with | _ s end.
     modus aequans s, h as e.
@@ -204,7 +204,7 @@ Proof.
   intro h.
   modus aequans (comparison.strict.specification n n), h as c.
   rewrite (comparison.reflexivity n) in c.
-  discriminate c.
+  ex c quodlibet.
 Qed.
 
 (* order.strict.asymmetry *)
@@ -353,17 +353,17 @@ Proof.
       quod idem est.
   - divide et impera.
     + intro e.
-      discriminate e.
+      ex e quodlibet.
     + intro h.
       match h with | e | lt1 end.
       * match (Comparable.specification m n) with | _ s end.
         modus aequans s, e as e'.
         rewrite e' in c.
-        discriminate c.
+        ex c quodlibet.
       * match (Comparable.specification m n) with | s _ end.
         modus aequans s, lt1 as e.
         rewrite e in c.
-        discriminate c.
+        ex c quodlibet.
 Qed.
 
 End order. (* order *)
@@ -402,7 +402,7 @@ Proof.
       * match (Comparable.specification m n) with | s _ end.
         modus aequans s, lt1 as e.
         rewrite e in c.
-        discriminate c.
+        ex c quodlibet.
 Qed.
 
 Module left. (* minimum.left *)
@@ -586,7 +586,7 @@ Proof.
       * ipso e.
       * modus aequans (comparison.strict.transposition.specification m n), gt as e.
         rewrite e in c.
-        discriminate c.
+        ex c quodlibet.
     + quod idem est.
     + quod idem est.
 Qed.
