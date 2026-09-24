@@ -15,6 +15,7 @@ From jwa Require Import Data.Product.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Syllogism.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [List.concat]. The
  * type and its ctors are declared inside it, so the names [Nil] and [Cons]

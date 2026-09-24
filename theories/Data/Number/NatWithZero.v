@@ -24,6 +24,7 @@ From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [NatWithZero.add].
  * The type and its ctors are declared inside it: [Integer] declares [Zero]

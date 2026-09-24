@@ -13,6 +13,7 @@ From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [Nat.add]. The type
  * and its ctors are declared inside it: a ctor at the top level is rebound
