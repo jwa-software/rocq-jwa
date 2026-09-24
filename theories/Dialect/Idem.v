@@ -1,14 +1,47 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Export Dialect.Ltac.
-From Ltac2 Require Std.
+From Ltac2 Require Array Constr Control Int Message Std.
 
-(* quod idem est    closes a goal <a> = <b> whose sides are convertible, as
- *                  Rocq's [reflexivity] does
+(* quod idem est    closes a goal <a> = <b> whose two sides are the same term
  *
- * Latin for "which is the same thing": the two sides reduce to one term. A
- * tactic notation, not a term notation, so [quod], [idem] and [est] stay free
- * as names.
+ * Latin for "which is the same thing". The sides are compared as written,
+ * up to the names of bound variables, and nothing is reduced: a side that
+ * only computes to the other is refused, and the step that computes it is
+ * written before, with [simpl] or [leibniz]. A tactic notation, not a term
+ * notation, so [quod], [idem] and [est] stay free as names.
  *)
+Ltac2 idem_refuse (m : message) :=
+  Control.zero (Tactic_failure (Some (Message.concat (Message.of_string "quod idem est: ") m))).
+
+(* The sides are the last two arguments of the goal's head, [<a> = <b>]
+ * carrying its type argument in front of them.
+ *)
+Ltac2 quod_idem_est () :=
+  Control.enter (fun () =>
+    let goal := Control.goal () in
+    let not_an_equation () :=
+      idem_refuse
+        (Message.concat (Message.of_string "the goal is not an equation: ") (Message.of_constr goal)) in
+    match Constr.Unsafe.kind goal with
+    | Constr.Unsafe.App _ args =>
+        let n := Array.length args in
+        if Int.lt n 2
+        then not_an_equation ()
+        else
+          let a := Array.get args (Int.sub n 2) in
+          let b := Array.get args (Int.sub n 1) in
+          if Constr.equal a b
+          then Control.once_plus (fun () => Std.reflexivity ()) (fun _ => not_an_equation ())
+          else
+            idem_refuse
+              (Message.concat (Message.of_string "the sides differ, ")
+                 (Message.concat (Message.of_constr a)
+                    (Message.concat (Message.of_string " and ")
+                       (Message.concat (Message.of_constr b)
+                          (Message.of_string "; make them the same first")))))
+    | _ => not_an_equation ()
+    end).
+
 Ltac2 Notation "quod" "idem" "est" :=
-  Std.reflexivity ().
+  quod_idem_est ().
