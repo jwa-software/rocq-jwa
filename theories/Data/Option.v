@@ -54,7 +54,6 @@ Proof.
   intros A o.
   match o with | | a end;
       simpl map in |- *;
-      simpl in |- *;
       quod idem est.
 Qed.
 

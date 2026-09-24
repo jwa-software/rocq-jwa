@@ -133,7 +133,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 && b2 = b2 && b1.
 Proof.
   intros b1 b2.
-  match b1 with | | end; match b2 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* conjunction.identity *)
@@ -161,7 +161,8 @@ Theorem sejunction
       b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 End over. (* conjunction.left.distributivity.over *)
@@ -182,7 +183,8 @@ Theorem sejunction
       (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 End over. (* conjunction.right.distributivity.over *)
@@ -221,14 +223,15 @@ Theorem associativity
       (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity : forall (b1 : Bool) (b2 : Bool) . b1 || b2 = b2 || b1.
 Proof.
   intros b1 b2.
-  match b1 with | | end; match b2 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* disjunction.identity *)
@@ -254,7 +257,8 @@ Theorem associativity
       (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 (* sejunction.commutativity *)
@@ -262,7 +266,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 ^^ b2 = b2 ^^ b1.
 Proof.
   intros b1 b2.
-  match b1 with | | end; match b2 with | | end; quod idem est.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* sejunction.identity *)
@@ -282,7 +286,7 @@ Qed.
 Theorem irreflexivity : forall (b : Bool) . b ^^ b = false.
 Proof.
   intros b.
-  match b with | | end; quod idem est.
+  match b with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* sejunction.inverse *)
