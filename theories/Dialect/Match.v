@@ -66,7 +66,7 @@ Ltac2 Notation x(match_name) h(opt(seq("by", match_name))) : match_item(0) := Na
 
 Ltac2 Notation "(" i(match_item) ")" : match_item(0) := i.
 
-Ltac2 Notation "[" l(list0(match_item)) r(list0(seq("|", list0(match_item)))) "]"
+Ltac2 Notation "[" _l(list0(match_item)) _r(list0(seq("|", list0(match_item)))) "]"
   : match_item(0) := Nested.
 
 Ltac2 name_message (x : ident option) : message :=
