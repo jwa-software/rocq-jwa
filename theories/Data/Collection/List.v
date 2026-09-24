@@ -2186,30 +2186,31 @@ Proof.
         leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         modus aequans
           (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
-             ((|| l' ||) + NatWithZero.Positive Nat.One)),
+            ((|| l' ||) + NatWithZero.Positive Nat.One)),
           (NatWithZero.addition.right.order.extensivity
-             (|| l' ||) (NatWithZero.Positive Nat.One)) |- e.
+            (|| l' ||) (NatWithZero.Positive Nat.One)) |- e.
         leibniz e in |- *.
         quod idem est.
       * simpl in |- *.
         leibniz (IH (NatWithZero.Positive n'')) in |- *.
         leibniz (NatWithZero.increment.specification
-                   (NatWithZero.min (NatWithZero.Positive n'') (|| l' ||))) in |- *.
+                  (NatWithZero.min (NatWithZero.Positive n'') (|| l' ||))) in |- *.
         leibniz (NatWithZero.minimum.left.distributivity.of.addition
-                   (NatWithZero.Positive Nat.One) (NatWithZero.Positive n'') (|| l' ||)) in |- *.
-        change (NatWithZero.Positive Nat.One + NatWithZero.Positive n'')
-          with (NatWithZero.Positive (Nat.Successor n'')) in |- *.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        quod idem est.
+                  (NatWithZero.Positive Nat.One) (NatWithZero.Positive n'') (|| l' ||)) in |- *.
+        lemma facto
+          : NatWithZero.min (NatWithZero.Positive (Nat.Successor &n'')) (NatWithZero.Positive Nat.One + (|| &l' ||))
+          = NatWithZero.min (NatWithZero.Positive (Nat.Successor &n'')) (++ (|| &l' ||)).
+        {
+          leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+          quod idem est.
+        }
+        ipso &facto.
 Qed.
 
 End taking. (* taking *)
 
 Module dropping. (* dropping *)
 
-(* The length of a [drop] is the length less the count; each step takes one
- * from both, which truncated subtraction ignores.
- *)
 (* dropping.length *)
 Theorem length
   : forall {A : Type} (l : List A) (n : NatWithZero) .
@@ -2235,11 +2236,16 @@ Proof.
       * simpl in |- *.
         leibniz (IH (NatWithZero.Positive n'')) in |- *.
         leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        change (NatWithZero.Positive (Nat.Successor n''))
-          with (NatWithZero.Positive Nat.One + NatWithZero.Positive n'') in |- *.
-        leibniz (NatWithZero.subtraction.saturating.cancellation
-                   (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
-        quod idem est.
+        lemma facto
+          : NatWithZero.saturating_sub (|| &l' ||) (NatWithZero.Positive &n'')
+            = NatWithZero.saturating_sub (NatWithZero.Positive Nat.One + (|| &l' ||))
+                                         (NatWithZero.Positive Nat.One + NatWithZero.Positive &n'').
+        {
+          leibniz (NatWithZero.subtraction.saturating.cancellation
+                     (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
+          quod idem est.
+        }
+        ipso &facto.
 Qed.
 
 End dropping. (* dropping *)
@@ -2323,11 +2329,17 @@ Proof.
   simpl product in |- *.
   induction l1 as [| a l1' IH] using List.induction.
   - leibniz (concatenation.left.identity l2) in |- *.
-    change (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) []) with (NatWithZero.Positive Nat.One) in |- *.
-    leibniz (NatWithZero.multiplication.left.identity
-               (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
-      in |- *.
-    quod idem est.
+    lemma facto
+      : fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) &l2
+        = NatWithZero.Positive Nat.One
+          * fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) &l2.
+    {
+      leibniz (NatWithZero.multiplication.left.identity
+                 (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
+        in |- *.
+      quod idem est.
+    }
+    ipso &facto.
   - simpl in |- *.
     leibniz IH in |- *.
     leibniz (NatWithZero.multiplication.associativity
@@ -2718,22 +2730,24 @@ Proof.
       (membership.distributivity.over.concatenation
          i (range_positive p') (NatWithZero.Positive p' :: [])),
       h |- h'.
-    change (NatWithZero.Positive (Nat.Successor p'))
-      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
-    leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
-    lemma below : i <= NatWithZero.Positive p'.
+    lemma facto : &i < NatWithZero.Positive Nat.One + NatWithZero.Positive &p'.
     {
-      simpl NatWithZero.LessOrEqual in |- *.
-      match h' with | h1 | h2 end.
-      + ipso (Disjunction.R (IH i h1)).
-      + simpl in h2.
-        match h2 with | e | f end.
-        * ipso (Disjunction.L e).
-        * ex f quodlibet.
+      leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
+      lemma below : i <= NatWithZero.Positive p'.
+      {
+        simpl NatWithZero.LessOrEqual in |- *.
+        match h' with | h1 | h2 end.
+        + ipso (Disjunction.R (IH i h1)).
+        + simpl in h2.
+          match h2 with | e | f end.
+          * ipso (Disjunction.L e).
+          * ex f quodlibet.
+      }
+      ipso (modus aequans
+               (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
+             below).
     }
-    ipso (modus aequans
-             (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
-           below).
+    ipso &facto.
 Qed.
 
 End forward. (* range.positive.forward *)
@@ -2843,33 +2857,59 @@ Proof.
   - simpl sum in |- *.
     simpl in |- *.
     quod idem est.
-  - change (range_from_zero (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
-      with (append (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
-              (NatWithZero.Positive (Nat.Successor p')))
-      in |- *.
-    leibniz (appending.specification
-               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
-               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
-    leibniz (sum.additivity.over.concatenation
-               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
-               (NatWithZero.Positive (Nat.Successor p') :: []))
-      in |- *.
-    change (sum (NatWithZero.Positive (Nat.Successor p') :: [])) with (NatWithZero.Positive (Nat.Successor p')) in |- *.
-    leibniz (NatWithZero.multiplication.left.distributivity.over.addition
-               (NatWithZero.Positive (Nat.Successor Nat.One))
-               (sum (range_from_zero (NatWithZero.Positive (Nat.Successor p'))))
-               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
-    leibniz IH in |- *.
-    leibniz <- (NatWithZero.multiplication.right.distributivity.over.addition
-                  (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
-      in |- *.
-    change (NatWithZero.Positive p' + NatWithZero.Positive (Nat.Successor Nat.One))
-      with (NatWithZero.Positive (Nat.add p' (Nat.Successor Nat.One))) in |- *.
-    leibniz (Nat.addition.commutativity p' (Nat.Successor Nat.One)) in |- *.
-    change (Nat.add (Nat.Successor Nat.One) p') with (Nat.Successor (Nat.Successor p')) in |- *.
-    leibniz (NatWithZero.multiplication.commutativity
-               (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
-    quod idem est.
+  - lemma facto
+      : NatWithZero.Positive (Nat.Successor Nat.One)
+        * sum (append (range_from_zero (NatWithZero.Positive (Nat.Successor &p')))
+                      (NatWithZero.Positive (Nat.Successor &p')))
+        = NatWithZero.Positive (Nat.Successor &p')
+          * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+    {
+      leibniz (appending.specification
+                 (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+                 (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+      leibniz (sum.additivity.over.concatenation
+                 (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+                 (NatWithZero.Positive (Nat.Successor p') :: []))
+        in |- *.
+      lemma facto
+        : NatWithZero.Positive (Nat.Successor Nat.One)
+          * (sum (range_from_zero (NatWithZero.Positive (Nat.Successor &p')))
+             + NatWithZero.Positive (Nat.Successor &p'))
+          = NatWithZero.Positive (Nat.Successor &p')
+            * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+      {
+        leibniz (NatWithZero.multiplication.left.distributivity.over.addition
+                   (NatWithZero.Positive (Nat.Successor Nat.One))
+                   (sum (range_from_zero (NatWithZero.Positive (Nat.Successor p'))))
+                   (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+        leibniz IH in |- *.
+        leibniz <- (NatWithZero.multiplication.right.distributivity.over.addition
+                      (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
+          in |- *.
+        lemma facto
+          : NatWithZero.Positive (Nat.add &p' (Nat.Successor Nat.One))
+            * NatWithZero.Positive (Nat.Successor &p')
+            = NatWithZero.Positive (Nat.Successor &p')
+              * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+        {
+          leibniz (Nat.addition.commutativity p' (Nat.Successor Nat.One)) in |- *.
+          lemma facto
+            : NatWithZero.Positive (Nat.Successor (Nat.Successor &p'))
+              * NatWithZero.Positive (Nat.Successor &p')
+              = NatWithZero.Positive (Nat.Successor &p')
+                * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+          {
+            leibniz (NatWithZero.multiplication.commutativity
+                       (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
+            quod idem est.
+          }
+          ipso &facto.
+        }
+        ipso &facto.
+      }
+      ipso &facto.
+    }
+    ipso &facto.
 Qed.
 
 End sum. (* range.from_zero.sum *)
