@@ -20,6 +20,12 @@ Arguments Disjunction_introduction_right {A} {B} b.
 Notation "A \/ B" := (Disjunction A B)
   : jwa_type_scope.
 
+(* [disjoin a, _] : [A \/ B] from [a : A], and [disjoin _, b] from [b : B];
+ * the side written [_] comes from the expected type.
+ *)
+Notation "'disjoin' a , '_'" := (Disjunction_introduction_left a) (only parsing).
+Notation "'disjoin' '_' , b" := (Disjunction_introduction_right b) (only parsing).
+
 (* A module may carry the type's name; its laws read
  * [Disjunction.commutativity].
  *)

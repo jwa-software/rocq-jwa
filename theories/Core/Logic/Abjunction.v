@@ -17,6 +17,9 @@ Arguments Abjunction_introduction {A} {B} a nb.
 Notation "A -/> B" := (Abjunction A B)
   : jwa_type_scope.
 
+(* [abjoin a, nb] : [A -/> B], from [a : A] and [nb : ~ B]. *)
+Notation "'abjoin' a , nb" := (Abjunction_introduction a nb) (only parsing).
+
 (* A module may carry the type's name; its laws read
  * [Abjunction.congruence].
  *)

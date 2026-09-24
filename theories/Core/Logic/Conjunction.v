@@ -13,6 +13,9 @@ Arguments Conjunction_introduction {A} {B} a b.
 Notation "A /\ B" := (Conjunction A B)
   : jwa_type_scope.
 
+(* [conjoin a, b] : [A /\ B], from [a : A] and [b : B]. *)
+Notation "'conjoin' a , b" := (Conjunction_introduction a b) (only parsing).
+
 (* A module may carry the type's name; its laws read
  * [Conjunction.commutativity].
  *)

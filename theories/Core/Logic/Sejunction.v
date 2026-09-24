@@ -24,6 +24,22 @@ Arguments Sejunction_introduction_right {A} {B} na b.
 Notation "A _\/_ B" := (Sejunction A B)
   : jwa_type_scope.
 
+(* [sejoin a, nb] : [A _\/_ B] from [a : A] and [nb : ~ B], and [sejoin na, b]
+ * from [na : ~ A] and [b : B]: the types of the two decide the side.
+ *)
+Notation "'sejoin' a , b"
+    := (ltac2:(Control.once_plus
+                 (fun () => Control.refine (fun () =>
+                    constr:(Sejunction_introduction_left $preterm:a $preterm:b)))
+                 (fun _ => Control.once_plus
+                    (fun () => Control.refine (fun () =>
+                       constr:(Sejunction_introduction_right $preterm:a $preterm:b)))
+                    (fun _ => Control.zero (Tactic_failure (Some (Message.concat
+                       (Message.of_string
+                          "sejoin: give a proof of one side and a refutation of the other,")
+                       (Message.of_string " as in sejoin a, nb or sejoin na, b"))))))))
+  (only parsing).
+
 (* A module may carry the type's name; its laws read
  * [Sejunction.commutativity].
  *)

@@ -173,6 +173,23 @@ Reserved Notation "'symm' H"
 Reserved Notation "'trans' H1 , H2"
   (at level 10, H1 at next level, H2 at next level).
 
+(* The introduction of each junction written as a term, at the same level.
+ * Their meanings belong beside each connective in [Core.Logic], and the
+ * tactics of the same names to [Tactics.Join]. [_] marks the side of a
+ * disjunction that comes from the expected type.
+ *)
+Reserved Notation "'conjoin' A , B"
+  (at level 10, A at next level, B at next level).
+#[warnings="-closed-notation-not-level-0"]
+Reserved Notation "'disjoin' A , '_'"
+  (at level 10, A at next level).
+Reserved Notation "'disjoin' '_' , B"
+  (at level 10, B at next level).
+Reserved Notation "'sejoin' A , B"
+  (at level 10, A at next level, B at next level).
+Reserved Notation "'abjoin' A , B"
+  (at level 10, A at next level, B at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [exists] carry several of them. *)
 Reserved Notation "'exists' x .. y '.' p"
