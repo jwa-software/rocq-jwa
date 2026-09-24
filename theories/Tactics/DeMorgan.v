@@ -7,6 +7,7 @@ From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Exists.
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.Local.
 From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std String.
@@ -82,11 +83,13 @@ Notation "'de' 'morgan' H" :=
   (ltac2:(Control.refine (fun () => de_morgan_of constr:($preterm:H))))
   (only parsing).
 
-Ltac2 Notation "de" "morgan" h(constr) "as" p(intropattern) :=
-  Control.enter (fun () => Std.specialize (de_morgan_of h, Std.NoBindings) (Some p)).
+Ltac2 Notation "de" "morgan" h(thunk(constr)) "as" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize (de_morgan_of (Local.checked "de morgan" h), Std.NoBindings) (Some p)).
 
-Ltac2 Notation "de" "morgan" h(constr) "|-" p(intropattern) :=
-  Control.enter (fun () => Std.specialize (de_morgan_of h, Std.NoBindings) (Some p)).
+Ltac2 Notation "de" "morgan" h(thunk(constr)) "|-" p(intropattern) :=
+  Control.enter (fun () =>
+    Std.specialize (de_morgan_of (Local.checked "de morgan" h), Std.NoBindings) (Some p)).
 
 Ltac2 de_morgan_in_hypothesis (h : ident) :=
   let t := Constr.type (Control.hyp h) in
@@ -119,12 +122,14 @@ Ltac2 de_morgan_in_goal () :=
       refuse "de morgan: expects a goal of the shape ~ (A \/ B) or ~ (exists x . P x)"
   end.
 
-Ltac2 Notation "de" "morgan" "in" hypotheses(list1(ident, ",")) :=
-  Control.enter (fun () => List.iter de_morgan_in_hypothesis hypotheses).
+Ltac2 Notation "de" "morgan" "in" hypotheses(list1(context_name, ",")) :=
+  Control.enter (fun () =>
+    List.iter de_morgan_in_hypothesis (Local.context_idents "de morgan" hypotheses)).
 
 Ltac2 Notation "de" "morgan" "in" "|-" "*" :=
   Control.enter de_morgan_in_goal.
 
-Ltac2 Notation "de" "morgan" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
+Ltac2 Notation "de" "morgan" "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
   Control.enter (fun () =>
-    List.iter de_morgan_in_hypothesis hypotheses; de_morgan_in_goal ()).
+    List.iter de_morgan_in_hypothesis (Local.context_idents "de morgan" hypotheses);
+    de_morgan_in_goal ()).

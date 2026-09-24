@@ -2,6 +2,7 @@
 
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.Local.
 From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std.
@@ -29,11 +30,13 @@ Notation "'dni' H" := (Negation.double.introduction H)
 
 Ltac2 Notation "dni" h(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterm "dni" h;
     Std.specialize
       (open_constr:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
 
 Ltac2 Notation "dni" h(preterm) "|-" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterm "dni" h;
     Std.specialize
       (open_constr:(Negation.double.introduction $preterm:h), Std.NoBindings) (Some p)).
 
@@ -57,14 +60,16 @@ Ltac2 dni_in_goal () :=
   | [ |- _ ] => refuse "dni: expects a goal of the shape ~ ~ A"
   end.
 
-Ltac2 Notation "dni" "in" hypotheses(list1(ident, ",")) :=
-  Control.enter (fun () => List.iter dni_in_hypothesis hypotheses).
+Ltac2 Notation "dni" "in" hypotheses(list1(context_name, ",")) :=
+  Control.enter (fun () =>
+    List.iter dni_in_hypothesis (Local.context_idents "dni" hypotheses)).
 
 Ltac2 Notation "dni" "in" "|-" "*" :=
   Control.enter dni_in_goal.
 
-Ltac2 Notation "dni" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
-  Control.enter (fun () => List.iter dni_in_hypothesis hypotheses; dni_in_goal ()).
+Ltac2 Notation "dni" "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
+  Control.enter (fun () =>
+    List.iter dni_in_hypothesis (Local.context_idents "dni" hypotheses); dni_in_goal ()).
 
 (* Double negation elimination, only where it holds constructively.
  *
@@ -84,11 +89,13 @@ Notation "'dne' H" := (Negation.triple.reduction H)
 
 Ltac2 Notation "dne" h(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterm "dne" h;
     Std.specialize
       (open_constr:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
 
 Ltac2 Notation "dne" h(preterm) "|-" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterm "dne" h;
     Std.specialize
       (open_constr:(Negation.triple.reduction $preterm:h), Std.NoBindings) (Some p)).
 
@@ -113,11 +120,13 @@ Ltac2 dne_in_goal () :=
   | [ |- _ ] => refuse "dne: expects a goal of the shape ~ A"
   end.
 
-Ltac2 Notation "dne" "in" hypotheses(list1(ident, ",")) :=
-  Control.enter (fun () => List.iter dne_in_hypothesis hypotheses).
+Ltac2 Notation "dne" "in" hypotheses(list1(context_name, ",")) :=
+  Control.enter (fun () =>
+    List.iter dne_in_hypothesis (Local.context_idents "dne" hypotheses)).
 
 Ltac2 Notation "dne" "in" "|-" "*" :=
   Control.enter dne_in_goal.
 
-Ltac2 Notation "dne" "in" hypotheses(list1(ident, ",")) "|-" "*" :=
-  Control.enter (fun () => List.iter dne_in_hypothesis hypotheses; dne_in_goal ()).
+Ltac2 Notation "dne" "in" hypotheses(list1(context_name, ",")) "|-" "*" :=
+  Control.enter (fun () =>
+    List.iter dne_in_hypothesis (Local.context_idents "dne" hypotheses); dne_in_goal ()).

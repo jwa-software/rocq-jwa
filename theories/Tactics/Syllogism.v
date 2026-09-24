@@ -3,6 +3,7 @@
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Syllogism.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.Local.
 From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Control Std.
 
@@ -46,6 +47,7 @@ Notation "'hs' Hab , Hbc" := (Conditional.transitivity Hab Hbc)
 
 Ltac2 Notation "hs" hab(preterm) "," hbc(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterms "hs" [hab; hbc];
     Std.specialize
       (open_constr:(Conditional.transitivity $preterm:hab $preterm:hbc), Std.NoBindings)
       (Some p)).
@@ -58,6 +60,7 @@ Notation "'hypothetical' 'syllogism' Hab , Hbc"
 Ltac2 Notation "hypothetical" "syllogism" hab(preterm) "," hbc(preterm)
     "as" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterms "hypothetical syllogism" [hab; hbc];
     Std.specialize
       (open_constr:(Conditional.transitivity $preterm:hab $preterm:hbc), Std.NoBindings)
       (Some p)).
@@ -68,6 +71,7 @@ Notation "'barbara' Hmp , Hsm" := (Syllogism.Barbara Hmp Hsm)
 
 Ltac2 Notation "barbara" hmp(preterm) "," hsm(preterm) "as" p(intropattern) :=
   Control.enter (fun () =>
+    Local.check_preterms "barbara" [hmp; hsm];
     Std.specialize
       (open_constr:(Syllogism.Barbara $preterm:hmp $preterm:hsm), Std.NoBindings)
       (Some p)).
