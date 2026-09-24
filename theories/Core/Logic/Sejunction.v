@@ -142,38 +142,34 @@ Proof.
   divide et impera; intro h.
   - match h with | a1 nb1 | na1 b1 end.
     + apply Sejunction.left.
-      * apply a12.
-        ipso a1.
+      * ipso (a12 a1).
       * unfold Negation in nb1 |- *.
         intro b2.
-        apply nb1.
-        apply b21.
-        ipso b2.
+        let proof b1 := b21 b2.
+        let proof facto := nb1 b1.
+        ipso facto.
     + apply Sejunction.right.
       * unfold Negation in na1 |- *.
         intro a2.
-        apply na1.
-        apply a21.
-        ipso a2.
-      * apply b12.
-        ipso b1.
+        let proof a1 := a21 a2.
+        let proof facto := na1 a1.
+        ipso facto.
+      * ipso (b12 b1).
   - match h with | a2 nb2 | na2 b2 end.
     + apply Sejunction.left.
-      * apply a21.
-        ipso a2.
+      * ipso (a21 a2).
       * unfold Negation in nb2 |- *.
         intro b1.
-        apply nb2.
-        apply b12.
-        ipso b1.
+        let proof b2 := b12 b1.
+        let proof facto := nb2 b2.
+        ipso facto.
     + apply Sejunction.right.
       * unfold Negation in na2 |- *.
         intro a1.
-        apply na2.
-        apply a12.
-        ipso a1.
-      * apply b21.
-        ipso b2.
+        let proof a2 := a12 a1.
+        let proof facto := na2 a2.
+        ipso facto.
+      * ipso (b21 b2).
 Qed.
 
 Module weakening. (* weakening *)
@@ -230,13 +226,13 @@ Proof.
   match e with | ab ba end.
   match h with | a nb | na b end.
   - unfold Negation in nb.
-    apply nb.
-    apply ab.
-    ipso a.
+    let proof b := ab a.
+    let proof facto := nb b.
+    ipso facto.
   - unfold Negation in na.
-    apply na.
-    apply ba.
-    ipso b.
+    let proof a := ba b.
+    let proof facto := na a.
+    ipso facto.
 Qed.
 
 End of. (* exclusion.of *)
@@ -267,13 +263,13 @@ Proof.
   intro h.
   match h with | a nb | na b end.
   - unfold Negation in nb.
-    apply nb.
-    apply ab.
-    ipso a.
+    let proof b := ab a.
+    let proof facto := nb b.
+    ipso facto.
   - unfold Negation in na.
-    apply na.
-    apply ba.
-    ipso b.
+    let proof a := ba b.
+    let proof facto := na a.
+    ipso facto.
 Qed.
 
 End of. (* exclusion.of *)

@@ -114,19 +114,15 @@ Proof.
   - intro f.
     divide et impera.
     + intro a.
-      apply f.
-      ipso (Disjunction.left a).
+      ipso (f (Disjunction.left a)).
     + intro b.
-      apply f.
-      ipso (Disjunction.right b).
+      ipso (f (Disjunction.right b)).
   - intro h.
     match h with | ac bc end.
     intro ab.
     match ab with | a | b end.
-    + apply ac.
-      ipso a.
-    + apply bc.
-      ipso b.
+    + ipso (ac a).
+    + ipso (bc b).
 Qed.
 
 Theorem congruence
@@ -141,24 +137,16 @@ Proof.
   divide et impera; intro h.
   - (* [h : A1 \/ B1]: [|- A2 \/ B2] *)
     match h with | a1 | b1 end.
-    + (* [|- A2] *)
-      apply Disjunction.left.
-      apply a12.
-      ipso a1.
-    + (* [|- B2] *)
-      apply Disjunction.right.
-      apply b12.
-      ipso b1.
+    + let proof a2 := a12 a1.
+      ipso (Disjunction.left a2).
+    + let proof b2 := b12 b1.
+      ipso (Disjunction.right b2).
   - (* [h : A2 \/ B2]: [|- A1 \/ B1] *)
     match h with | a2 | b2 end.
-    + (* [|- A1] *)
-      apply Disjunction.left.
-      apply a21.
-      ipso a2.
-    + (* [|- B1] *)
-      apply Disjunction.right.
-      apply b21.
-      ipso b2.
+    + let proof a1 := a21 a2.
+      ipso (Disjunction.left a1).
+    + let proof b1 := b21 b2.
+      ipso (Disjunction.right b1).
 Qed.
 
 End Disjunction. (* Disjunction *)

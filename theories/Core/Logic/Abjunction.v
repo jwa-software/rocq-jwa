@@ -38,9 +38,9 @@ Proof.
   match h with | a nb end.
   unfold Negation in nb |- *.
   intro ab.
-  apply nb.
-  apply ab.
-  ipso a.
+  let proof b := ab a.
+  let proof facto := nb b.
+  ipso facto.
 Qed.
 
 End of. (* exclusion.of *)
@@ -86,22 +86,20 @@ Proof.
   divide et impera; intro h.
   - match h with | a1 nb1 end.
     divide et impera.
-    + apply a12.
-      ipso a1.
+    + ipso (a12 a1).
     + unfold Negation in nb1 |- *.
       intro b2.
-      apply nb1.
-      apply b21.
-      ipso b2.
+      let proof b1 := b21 b2.
+      let proof facto := nb1 b1.
+      ipso facto.
   - match h with | a2 nb2 end.
     divide et impera.
-    + apply a21.
-      ipso a2.
+    + ipso (a21 a2).
     + unfold Negation in nb2 |- *.
       intro b1.
-      apply nb2.
-      apply b12.
-      ipso b1.
+      let proof b2 := b12 b1.
+      let proof facto := nb2 b2.
+      ipso facto.
 Qed.
 
 End Abjunction. (* Abjunction *)
@@ -127,9 +125,9 @@ Proof.
   intro h.
   match h with | a nb end.
   unfold Negation in nb.
-  apply nb.
-  apply ab.
-  ipso a.
+  let proof b := ab a.
+  let proof facto := nb b.
+  ipso facto.
 Qed.
 
 End of. (* exclusion.of *)

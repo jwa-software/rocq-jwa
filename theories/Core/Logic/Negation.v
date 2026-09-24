@@ -36,11 +36,9 @@ Proof.
   - intro h.
     divide et impera.
     + intro a.
-      apply h.
-      ipso (Disjunction.left a).
+      ipso (h (Disjunction.left a)).
     + intro b.
-      apply h.
-      ipso (Disjunction.right b).
+      ipso (h (Disjunction.right b)).
   - intro h.
     match h with | not_a not_b end.
     intro ab.
@@ -80,8 +78,7 @@ Proof.
   - intro h.
     intro x.
     intro p.
-    apply h.
-    ipso (Exists_introduction x p).
+    ipso (h (Exists_introduction x p)).
   - intro h.
     intro e.
     match e with | x p end.
@@ -172,10 +169,7 @@ Proof.
   intro a.
   intro b.
 
-  (* [|- A /\ B] *)
-  apply h.
-
-  ipso (Conjunction_introduction a b).
+  ipso (h (Conjunction_introduction a b)).
 Qed.
 
 End of. (* exclusion.left.of *)
@@ -200,10 +194,7 @@ Proof.
   intro b.
   intro a.
 
-  (* [|- A /\ B] *)
-  apply h.
-
-  ipso (Conjunction_introduction a b).
+  ipso (h (Conjunction_introduction a b)).
 Qed.
 
 End of. (* exclusion.right.of *)
@@ -257,12 +248,12 @@ Proof.
   (* The context gains [a : A]: [|- Falsum] *)
   intro a.
 
-  (* [|- B] *)
-  apply not_b.
-  (* [|- A] *)
-  apply ab.
+  (* The context gains [b : B] *)
+  let proof b := ab a.
+  (* The context gains [facto : Falsum] *)
+  let proof facto := not_b b.
 
-  ipso a.
+  ipso facto.
 Qed.
 
 Theorem congruence
@@ -289,22 +280,22 @@ Proof.
   - intro not_a1.
     intro a2.
 
-    (* [|- A1] *)
-    apply not_a1.
-    (* [|- A2] *)
-    apply a21.
+    (* The context gains [a1 : A1] *)
+    let proof a1 := a21 a2.
+    (* The context gains [facto : Falsum] *)
+    let proof facto := not_a1 a1.
 
-    ipso a2.
+    ipso facto.
 
   - intro not_a2.
     intro a1.
 
-    (* [|- A2] *)
-    apply not_a2.
-    (* [|- A1] *)
-    apply a12.
+    (* The context gains [a2 : A2] *)
+    let proof a2 := a12 a1.
+    (* The context gains [facto : Falsum] *)
+    let proof facto := not_a2 a2.
 
-    ipso a1.
+    ipso facto.
 Qed.
 
 End Negation. (* Negation *)

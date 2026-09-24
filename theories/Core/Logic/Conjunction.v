@@ -95,10 +95,8 @@ Proof.
     match h with | ab ac end.
     intro a.
     divide et impera.
-    + apply ab.
-      ipso a.
-    + apply ac.
-      ipso a.
+    + ipso (ab a).
+    + ipso (ac a).
 Qed.
 
 Theorem congruence
@@ -118,19 +116,15 @@ Proof.
     match h with | a1 b1 end.
     (* The goal splits into [|- A2] and [|- B2]. *)
     divide et impera.
-    + apply a12.
-      ipso a1.
-    + apply b12.
-      ipso b1.
+    + ipso (a12 a1).
+    + ipso (b12 b1).
   - (* [h : A2 /\ B2]: [|- A1 /\ B1] *)
     intro h.
     match h with | a2 b2 end.
     (* The goal splits into [|- A1] and [|- B1]. *)
     divide et impera.
-    + apply a21.
-      ipso a2.
-    + apply b21.
-      ipso b2.
+    + ipso (a21 a2).
+    + ipso (b21 b2).
 Qed.
 
 (* [Conjunction.distributivity.over.disjunction] is stated in
