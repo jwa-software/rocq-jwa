@@ -62,7 +62,7 @@ Proof.
     simpl (~ _) in h |- *.
     intro a.
     intro nb.
-    ipso (h (Abjunction_introduction a nb)).
+    ipso (h (abjoin a, nb)).
   - simpl (~ _) in |- *.
     intro f.
     intro h.

@@ -84,8 +84,8 @@ Proof.
   divide et impera.
   - intro h.
     match h with | a nb | na b end.
-    + ipso (Disjunction.left (Abjunction_introduction a nb)).
-    + ipso (Disjunction.right (Abjunction_introduction b na)).
+    + ipso (Disjunction.left (abjoin a, nb)).
+    + ipso (Disjunction.right (abjoin b, na)).
   - intro h.
     match h with | ab | ba end.
     + match ab with | a nb end.
