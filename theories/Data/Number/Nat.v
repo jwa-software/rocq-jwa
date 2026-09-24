@@ -264,14 +264,14 @@ Proof.
   intros k n.
   induction n as [| n' IH] using Nat.induction.
   -
-    simpl Negation in |- *.
+    simpl (~ _) in |- *.
     intro e.
     rewrite (addition.commutativity k 1)
             in e.
     simpl in e.
     ex e quodlibet.
   -
-    simpl Negation in |- *.
+    simpl (~ _) in |- *.
     intro e.
     rewrite (addition.commutativity k (S n'))
             in e.
@@ -279,7 +279,7 @@ Proof.
     let proof e' := successor.injectivity e.
     rewrite (addition.commutativity n' k)
             in e'.
-    simpl Negation in IH.
+    simpl (~ _) in IH.
     ipso (modus ponens IH, e').
 Qed.
 
@@ -391,14 +391,14 @@ Module strict. (* order.strict *)
 Theorem irreflexivity : forall (n : Nat) . ~ (n < n).
 Proof.
   intros n.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
   simpl LessThan in h.
   match h with | k e end.
   rewrite (addition.commutativity n k)
           in e.
   let proof i := addition.identity.absence k n.
-  simpl Negation in i.
+  simpl (~ _) in i.
   modus ponens i, e as f.
   ex f quodlibet.
 Qed.
@@ -614,7 +614,7 @@ Proof.
     rewrite e
             in lt'.
     let proof i := order.strict.irreflexivity (m * k).
-    simpl Negation in i.
+    simpl (~ _) in i.
     modus ponens i, lt' as f.
     ex f quodlibet.
   - match rest with | eq | gt end.
@@ -623,7 +623,7 @@ Proof.
       rewrite e
               in gt'.
       let proof i := order.strict.irreflexivity (m * k).
-      simpl Negation in i.
+      simpl (~ _) in i.
       modus ponens i, gt' as f.
       ex f quodlibet.
 Qed.
@@ -901,7 +901,7 @@ Proof.
       simpl in |- *.
   +
     let proof i := order.strict.irreflexivity 1.
-    simpl Negation in i.
+    simpl (~ _) in i.
     modus ponens i, h as f.
     ex f quodlibet.
   +
@@ -1050,7 +1050,7 @@ Proof.
   intros m n.
   match (compare m n) per e with | | | end.
   - apply Disjunction.R.
-    simpl Negation in |- *.
+    simpl (~ _) in |- *.
     intro h.
     let proof b := comparison.equality.backward.specification h.
     rewrite e in b.
@@ -1058,7 +1058,7 @@ Proof.
   - apply Disjunction.L.
     ipso (comparison.equality.forward.specification e).
   - apply Disjunction.R.
-    simpl Negation in |- *.
+    simpl (~ _) in |- *.
     intro h.
     let proof b := comparison.equality.backward.specification h.
     rewrite e in b.

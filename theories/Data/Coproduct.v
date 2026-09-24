@@ -94,7 +94,7 @@ Theorem distinctness
       ~ (Coproduct.left a = Coproduct.right b).
 Proof.
   intros A B a b.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
   ex e quodlibet.
 Qed.

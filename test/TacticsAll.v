@@ -569,7 +569,7 @@ Theorem tactics_all_delivers_simpl_definition
   : forall (A : Prop) . ~ A -> ~ A -> A -> Falsum.
 Proof.
   intros A na1 na2 a.
-  simpl Negation in na1, na2.
+  simpl (~ _) in na1, na2.
   ipso (na1 a).
 Qed.
 
@@ -577,7 +577,7 @@ Theorem tactics_all_delivers_simpl_definition_and_goal
   : forall (A : Prop) . ~ A -> A -> Falsum.
 Proof.
   intros A na a.
-  simpl Negation in na |- *.
+  simpl (~ _) in na |- *.
   ipso (na a).
 Qed.
 
@@ -585,7 +585,7 @@ Theorem tactics_all_delivers_simpl_goal
   : forall (A : Prop) . A -> ~ ~ A.
 Proof.
   intros A a.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro na.
   ipso (na a).
 Qed.
@@ -594,7 +594,7 @@ Theorem tactics_all_delivers_simpl_first_occurrence
   : forall (A : Prop) . ~ A /\ ~ A -> (A -> Falsum) /\ ~ A.
 Proof.
   intros A h.
-  simpl Negation at 1 in h.
+  simpl (~ _) at 1 in h.
   lazymatch type of h with
   | (A -> Falsum) /\ ~ A => ipso h
   end.
@@ -604,7 +604,7 @@ Theorem tactics_all_delivers_simpl_second_occurrence
   : forall (A : Prop) . ~ A /\ ~ A -> ~ A /\ (A -> Falsum).
 Proof.
   intros A h.
-  simpl Negation at 2 in h.
+  simpl (~ _) at 2 in h.
   lazymatch type of h with
   | ~ A /\ (A -> Falsum) => ipso h
   end.
@@ -614,7 +614,7 @@ Theorem tactics_all_delivers_simpl_occurrence_in_goal
   : forall (A : Prop) . ~ A /\ ~ A -> ~ A /\ ~ A.
 Proof.
   intros A h.
-  simpl Negation at 2 in |- *.
+  simpl (~ _) at 2 in |- *.
   lazymatch goal with
   | |- ~ A /\ (A -> Falsum) => ipso h
   end.
@@ -643,7 +643,7 @@ Theorem tactics_all_delivers_simpl_everywhere
   : forall (A : Prop) . ~ A -> A -> Falsum.
 Proof.
   intros A na a.
-  simpl Negation in *.
+  simpl (~ _) in *.
   ipso (na a).
 Qed.
 

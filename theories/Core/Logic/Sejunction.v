@@ -93,18 +93,18 @@ Proof.
   - intro h.
     match h with | a nb | na b end; divide et impera.
     + ipso (Disjunction.left a).
-    + simpl Negation in nb |- *.
+    + simpl (~ _) in nb |- *.
       intro ab.
       match ab with | _ b end.
       ipso (nb b).
     + ipso (Disjunction.right b).
-    + simpl Negation in na |- *.
+    + simpl (~ _) in na |- *.
       intro ab.
       match ab with | a _ end.
       ipso (na a).
   - intro h.
     match h with | ab nab end.
-    simpl Negation in nab.
+    simpl (~ _) in nab.
     match ab with | a | b end.
     + let proof nb : ~ B := fun (b : B) . nab (Conjunction_introduction a b).
       ipso (Sejunction.left a nb).
@@ -169,7 +169,7 @@ Theorem conjunction
 Proof.
   intros A B.
   intro h.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro ab.
   match ab with | a b end.
   match h  with | _ nb | na _ end.
@@ -183,15 +183,15 @@ Theorem biconditional
 Proof.
   intros A B.
   intro h.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
   match e with | ab ba end.
   match h with | a nb | na b end.
-  - simpl Negation in nb.
+  - simpl (~ _) in nb.
     let proof b := ab a.
     let proof facto := nb b.
     ipso facto.
-  - simpl Negation in na.
+  - simpl (~ _) in na.
     let proof a := ba b.
     let proof facto := na a.
     ipso facto.
@@ -221,14 +221,14 @@ Proof.
   intros A B.
   intro e.
   match e with | ab ba end.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
   match h with | a nb | na b end.
-  - simpl Negation in nb.
+  - simpl (~ _) in nb.
     let proof b := ab a.
     let proof facto := nb b.
     ipso facto.
-  - simpl Negation in na.
+  - simpl (~ _) in na.
     let proof a := ba b.
     let proof facto := na a.
     ipso facto.

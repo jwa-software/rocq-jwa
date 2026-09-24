@@ -483,7 +483,7 @@ Theorem distinctness
   : forall {A : Type} (a : A) (l : List A) . ~ (a :: l = []).
 Proof.
   intros A a l.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
   ex e quodlibet.
 Qed.
@@ -794,7 +794,7 @@ Theorem vacuity
   : forall {A : Type} (a : A) . [] does_not_contain_member a.
 Proof.
   intros A a.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   simpl in |- *.
   intro f.
   ipso f.
@@ -1983,7 +1983,7 @@ Proof.
       rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
       let proof h := NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One.
-      simpl Negation in h.
+      simpl (~ _) in h.
       modus ponens h, e' as f.
       ex f quodlibet.
   - intros l2 e.
@@ -1992,7 +1992,7 @@ Proof.
       rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
       rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
       let proof h := NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One.
-      simpl Negation in h.
+      simpl (~ _) in h.
       modus ponens h, e as f.
       ex f quodlibet.
     + simpl in e.
@@ -2094,7 +2094,7 @@ Proof.
     simpl NatWithZero.LessThan in h.
     match h with | k e end.
     let proof r := NatWithZero.addition.right.identity.absence i k.
-    simpl Negation in r.
+    simpl (~ _) in r.
     modus ponens r, e as f.
     ex f quodlibet.
   - intros i h.
@@ -2385,7 +2385,7 @@ Proof.
         rewrite (NatWithZero.increment.specification (count p l')) in e.
         rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
         let proof r := NatWithZero.addition.right.identity.absence (count p l') Nat.One.
-        simpl Negation in r.
+        simpl (~ _) in r.
         modus ponens r, e as f.
         ex f quodlibet.
       * intro c.
@@ -2812,7 +2812,7 @@ Proof.
       simpl NatWithZero.LessThan in h.
       match h with | k e end.
       let proof r := NatWithZero.addition.right.identity.absence i k.
-      simpl Negation in r.
+      simpl (~ _) in r.
       modus ponens r, e as f.
       ex f quodlibet.
   - simpl in |- *.

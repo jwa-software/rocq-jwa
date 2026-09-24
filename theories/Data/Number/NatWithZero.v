@@ -381,7 +381,7 @@ Proof.
       symmetry in e'.
       rewrite (Nat.addition.commutativity n' k') in e'.
       let proof h := Nat.addition.identity.absence k' n'.
-      simpl Negation in h.
+      simpl (~ _) in h.
       modus ponens h, e' as f.
       ex f quodlibet.
     + simpl in |- *.
@@ -389,7 +389,7 @@ Proof.
       let proof e' := positive.injectivity e.
       rewrite (Nat.addition.commutativity n' m') in e'.
       let proof h := Nat.addition.identity.absence m' n'.
-      simpl Negation in h.
+      simpl (~ _) in h.
       modus ponens h, e' as f.
       ex f quodlibet.
     + simpl in |- *.
@@ -434,7 +434,7 @@ Lemma absence
   : forall (m : NatWithZero) (n : Nat) . ~ (m + (+ n) = 0).
 Proof.
   intros m n.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   match m with | | m' end.
   - simpl in |- *.
     intro e.
@@ -882,7 +882,7 @@ Module strict. (* order.strict *)
 Theorem irreflexivity : forall (n : NatWithZero) . ~ (n < n).
 Proof.
   intros n.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
   simpl LessThan in h.
   match h with | k e end.
@@ -892,7 +892,7 @@ Proof.
   - let proof e' := positive.injectivity e.
     rewrite (Nat.addition.commutativity n' k) in e'.
     let proof i := Nat.addition.identity.absence k n'.
-    simpl Negation in i.
+    simpl (~ _) in i.
     modus ponens i, e' as f.
     ex f quodlibet.
 Qed.
@@ -1065,7 +1065,7 @@ Proof.
       ex e quodlibet.
     * intro h.
       let proof i := order.strict.irreflexivity 0.
-      simpl Negation in i.
+      simpl (~ _) in i.
       modus ponens i, h as f.
       ex f quodlibet.
   - divide et impera.
@@ -1398,11 +1398,11 @@ Proof.
     match order with | e | lt end.
     + rewrite e in h.
       let proof i := order.strict.irreflexivity m.
-      simpl Negation in i.
+      simpl (~ _) in i.
       modus ponens i, h as f.
       ex f quodlibet.
     + let proof a := Comparable.order.strict.asymmetry m n h.
-      simpl Negation in a.
+      simpl (~ _) in a.
       modus ponens a, lt as f.
       ex f quodlibet.
   - quod idem est.
@@ -1562,7 +1562,7 @@ Theorem positivity
   : forall (d : Nat) (g : Nat) . Divides (+ g) (+ d) -> ~ ((+ d) /. g = 0).
 Proof.
   intros d g h.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
   let proof reconstruction := division.nat.dividend.reconstruction d g.
   rewrite e in reconstruction.
@@ -1581,7 +1581,7 @@ Proof.
     + rewrite (multiplication.right.identity (+ g)) in hk.
       rewrite hk in bound.
       let proof irreflexivity := order.strict.irreflexivity (+ d).
-      simpl Negation in irreflexivity.
+      simpl (~ _) in irreflexivity.
       modus ponens irreflexivity, bound as f.
       ex f quodlibet.
     + change (+ (Nat.Successor k'')) with ((+ Nat.One) + (+ k'')) in hk.
@@ -1594,12 +1594,12 @@ Proof.
       match extensivity with | equal | less end.
       * rewrite equal in bound.
         let proof irreflexivity := order.strict.irreflexivity (+ d).
-        simpl Negation in irreflexivity.
+        simpl (~ _) in irreflexivity.
         modus ponens irreflexivity, bound as f.
         ex f quodlibet.
       * let proof circular := order.strict.transitivity bound less.
         let proof irreflexivity := order.strict.irreflexivity (+ d).
-        simpl Negation in irreflexivity.
+        simpl (~ _) in irreflexivity.
         modus ponens irreflexivity, circular as f.
         ex f quodlibet.
 Qed.
@@ -1685,7 +1685,7 @@ Proof.
                     (+ d) ((+ k) * (+ d)) (r + ((+ k) * (+ d)))
                     reach grow.
       let proof i := order.strict.irreflexivity (+ d).
-      simpl Negation    in i.
+      simpl (~ _)    in i.
       simpl LessOrEqual in span.
       match span with | s1 | s2 end.
       + symmetry in s1.
@@ -1718,7 +1718,7 @@ Proof.
                       (+ d) ((+ k) * (+ d)) ((n %. d) + ((+ k) * (+ d)))
                       reach grow.
         let proof i := order.strict.irreflexivity (+ d).
-        simpl Negation    in i.
+        simpl (~ _)    in i.
         simpl LessOrEqual in span.
         match span with | s1 | s2 end.
         * symmetry in s1.

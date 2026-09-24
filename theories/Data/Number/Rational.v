@@ -422,14 +422,14 @@ Proof.
 
   lemma nzq : ~ (Integer.from_nat q = Integer.Zero).
   {
-    simpl Negation in |- *.
+    simpl (~ _) in |- *.
     intro z.
     ex z quodlibet.
   }
 
   lemma nzs : ~ (Integer.from_nat s = Integer.Zero).
   {
-    simpl Negation in |- *.
+    simpl (~ _) in |- *.
     intro z.
     ex z quodlibet.
   }
@@ -482,7 +482,7 @@ Proof.
     lemma nzbd : ~ (Integer.mul (Integer.from_nat b) (Integer.from_nat d)
             = Integer.Zero).
     {
-      simpl Negation in |- *.
+      simpl (~ _) in |- *.
       intro z.
       ex z quodlibet.
     }

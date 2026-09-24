@@ -1465,7 +1465,7 @@ Proof.
     + match (Nat.multiplication.cancellation p a b) with | cancel _ end.
       rewrite (cancel (magnitude.negative.injectivity e)) in |- *.
       quod idem est.
-  - simpl Negation in nonzero.
+  - simpl (~ _) in nonzero.
     modus ponens nonzero, (Identity.reflexivity 0) as f.
     ex f quodlibet.
   - match m with | a | | a end; match n with | b | | b end; simpl in e.
@@ -1503,7 +1503,7 @@ Module strict. (* order.strict *)
 Theorem irreflexivity : forall (n : Integer) . ~ (n < n).
 Proof.
   intros n.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
   simpl LessThan in h.
   match h with | k e end.

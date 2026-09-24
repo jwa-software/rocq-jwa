@@ -200,7 +200,7 @@ Theorem irreflexivity
     ~ (lt n n).
 Proof.
   intros A compare lt C n.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
   modus aequans (comparison.strict.specification n n), h as c.
   rewrite (comparison.reflexivity n) in c.
@@ -217,11 +217,11 @@ Theorem asymmetry
     lt m n -> ~ (lt n m).
 Proof.
   intros A compare lt C m n h1.
-  simpl Negation in |- *.
+  simpl (~ _) in |- *.
   intro h2.
   let proof h := Comparable.transitivity m n m h1 h2.
   let proof i := order.strict.irreflexivity m.
-  simpl Negation in i.
+  simpl (~ _) in i.
   modus ponens i, h as f.
   ex f quodlibet.
 Qed.
@@ -280,7 +280,7 @@ Proof.
   - match h2 with | e2 | lt2 end.
     + ipso (Identity.symmetry e2).
     + let proof a := order.strict.asymmetry m n lt1.
-      simpl Negation in a.
+      simpl (~ _) in a.
       modus ponens a, lt2 as f.
       ex f quodlibet.
 Qed.

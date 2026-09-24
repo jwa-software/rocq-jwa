@@ -165,7 +165,7 @@ Proof.
   simpl decided in |- *.
   match (decide x y) with | r | n end.
   - quod idem est.
-  - simpl Negation in n.
+  - simpl (~ _) in n.
     let proof falso := n p.
     ex falso quodlibet.
 Qed.
