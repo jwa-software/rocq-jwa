@@ -708,7 +708,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   - leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
-    change (NatWithZero.add NatWithZero.Zero c) with c in h.
+    let proof h : NatWithZero.add (NatWithZero.Positive p) d = c := &h.
     symmetry in h.
     leibniz h in |- *.
     leibniz (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
@@ -1784,8 +1784,10 @@ Proof.
     simpl divide in |- *.
     let proof h := NatWithZero.division.invariance
                   (NatWithZero.Positive p) d k.
-    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
-      with (NatWithZero.Positive (Nat.mul k p)) in h.
+    let proof h
+      : NatWithZero.divide (NatWithZero.Positive (Nat.mul k p)) (Nat.mul k d)
+        = NatWithZero.divide (NatWithZero.Positive p) d
+      := &h.
     leibniz h in |- *.
     quod idem est.
   - simpl in |- *.
@@ -1794,8 +1796,10 @@ Proof.
     simpl divide in |- *.
     let proof h := NatWithZero.division.invariance
                   (NatWithZero.Positive p) d k.
-    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive p))
-      with (NatWithZero.Positive (Nat.mul k p)) in h.
+    let proof h
+      : NatWithZero.divide (NatWithZero.Positive (Nat.mul k p)) (Nat.mul k d)
+        = NatWithZero.divide (NatWithZero.Positive p) d
+      := &h.
     leibniz h in |- *.
     quod idem est.
 Qed.
@@ -1919,9 +1923,9 @@ Proof.
           := e'.
         leibniz (addition.associativity ((+ (Nat.Successor Nat.One)) * k) (+ Nat.One) (- Nat.One))
           in e'.
-        change ((+ Nat.One) + (- Nat.One))
-          with 0
-          in e'.
+        let proof e'
+          : ((+ (Nat.Successor Nat.One)) * k) + 0 = (- p') + (- Nat.One)
+          := &e'.
         leibniz (addition.right.identity ((+ (Nat.Successor Nat.One)) * k)) in e'.
         leibniz e' in |- *.
         simpl add in |- *.

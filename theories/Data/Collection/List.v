@@ -2757,9 +2757,7 @@ Proof.
       let proof e' := NatWithZero.positive.injectivity e.
       match q with | | q' end; simpl in e'; ex e' quodlibet.
   - intros i h.
-    change (NatWithZero.Positive (Nat.Successor p'))
-      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
-      in h.
+    let proof h : i < NatWithZero.Positive Nat.One + NatWithZero.Positive p' := &h.
     leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
     modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h as h'.
     simpl in |- *.

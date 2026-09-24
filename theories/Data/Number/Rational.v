@@ -255,8 +255,10 @@ Proof.
           = Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d).
   {
     let proof am := Integer.multiplication.magnitude (Integer.Positive k) n.
-    change (Integer.abs (Integer.Positive k))
-      with (NatWithZero.Positive k) in am.
+    let proof am
+      : Integer.abs (Integer.mul (Integer.Positive k) n)
+        = NatWithZero.mul (NatWithZero.Positive k) (Integer.abs n)
+      := &am.
     leibniz am in |- *.
     let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
                   k d (Integer.abs n).
@@ -296,9 +298,12 @@ Proof.
     let proof inv := NatWithZero.division.invariance
                   (NatWithZero.Positive d)
                   (NatWithZero.gcd.nat (Integer.abs n) d) k.
-    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive d))
-      with (NatWithZero.Positive (Nat.mul k d))
-        in inv.
+    let proof inv
+      : NatWithZero.divide
+          (NatWithZero.Positive (Nat.mul k d))
+          (Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d))
+        = NatWithZero.divide (NatWithZero.Positive d) (NatWithZero.gcd.nat (Integer.abs n) d)
+      := &inv.
     ipso inv.
   }
 
@@ -528,10 +533,10 @@ Proof.
     let proof m := Identity.congruence Integer.abs cross.
     leibniz (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
     leibniz (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
-    change (Integer.abs (Integer.from_nat s))
-      with (NatWithZero.Positive s) in m.
-    change (Integer.abs (Integer.from_nat q))
-      with (NatWithZero.Positive q) in m.
+    let proof m
+      : NatWithZero.mul (Integer.abs p) (NatWithZero.Positive s)
+        = NatWithZero.mul (Integer.abs r) (NatWithZero.Positive q)
+      := &m.
 
     lemma coprime1 : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
             = NatWithZero.Positive Nat.One.
@@ -603,8 +608,7 @@ Proof.
   lemma unit : make Integer.Zero Nat.One = Zero.
   {
     let proof r := retraction Zero.
-    change (numerator   Zero) with Integer.Zero in r.
-    change (denominator Zero) with Nat.One  in r.
+    let proof r : make Integer.Zero Nat.One = Zero := &r.
     ipso r.
   }
 
@@ -1317,8 +1321,7 @@ Proof.
   lemma unit : make (Integer.Positive Nat.One) Nat.One = One.
   {
     let proof r := make.retraction One.
-    change (numerator   One) with (Integer.Positive Nat.One) in r.
-    change (denominator One) with Nat.One              in r.
+    let proof r : make (Integer.Positive Nat.One) Nat.One = One := &r.
     ipso r.
   }
 
@@ -1569,8 +1572,9 @@ Proof.
   intros m n e.
   simpl from_integer in e.
   modus aequans (make.characterisation m Nat.One n Nat.One), e as cross.
-  change (Integer.from_nat Nat.One)
-    with (Integer.Positive Nat.One) in cross.
+  let proof cross
+    : Integer.mul m (Integer.Positive Nat.One) = Integer.mul n (Integer.Positive Nat.One)
+    := &cross.
   leibniz (Integer.multiplication.right.identity m) in cross.
   leibniz (Integer.multiplication.right.identity n) in cross.
   ipso cross.
@@ -1652,8 +1656,14 @@ Proof.
 
   let proof P1 := make.proportionality m Nat.One.
   let proof P2 := make.proportionality n Nat.One.
-  change (Integer.from_nat Nat.One)
-    with (Integer.Positive Nat.One) in P1, P2.
+  let proof P1
+    : Integer.mul (numerator (make m Nat.One)) (Integer.Positive Nat.One)
+      = Integer.mul m (Integer.from_nat (denominator (make m Nat.One)))
+    := &P1.
+  let proof P2
+    : Integer.mul (numerator (make n Nat.One)) (Integer.Positive Nat.One)
+      = Integer.mul n (Integer.from_nat (denominator (make n Nat.One)))
+    := &P2.
   leibniz (Integer.multiplication.right.identity
              (numerator (make m Nat.One))) in P1.
   leibniz (Integer.multiplication.right.identity

@@ -1000,9 +1000,7 @@ Proof.
     + apply Disjunction.R.
       simpl LessThan in |- *.
       apply (Exists_introduction k').
-      change (+ (Nat.Successor k'))
-        with ((+ Nat.One) + (+ k'))
-        in e.
+      let proof e : m + ((+ Nat.One) + (+ k')) = n + (+ Nat.One) := &e.
       leibniz -> (addition.commutativity (+ Nat.One) (+ k'))
               in e.
       leibniz <- (addition.associativity m (+ k') (+ Nat.One))
@@ -2543,10 +2541,9 @@ Proof.
   intros k q a.
   let proof h := gcd.left.distributivity.of.multiplication k (+ q) a.
   leibniz (gcd.nat.specification q a) in h.
-  change ((+ k) * (+ q)) with (+ (Nat.mul k q)) in h.
+  let proof h : (+ k) * (+ (gcd.nat a q)) = gcd ((+ k) * a) (+ (Nat.mul k q)) := &h.
   leibniz (gcd.nat.specification (Nat.mul k q) ((+ k) * a)) in h.
-  change ((+ k) * (+ (gcd.nat a q)))
-    with (+ (Nat.mul k (gcd.nat a q))) in h.
+  let proof h : (+ (Nat.mul k (gcd.nat a q))) = (+ (gcd.nat ((+ k) * a) (Nat.mul k q))) := &h.
   ipso (positive.injectivity h).
 Qed.
 
