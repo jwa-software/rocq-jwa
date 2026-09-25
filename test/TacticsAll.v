@@ -3,6 +3,12 @@
 From jwa Require Import Data.All.
 From jwa Require Import Tactics.All.
 
+Ltac2 Notation "lazy_match!" t(tactic(6)) "with" m(constr_matching) "end" : 0 :=
+  Pattern.lazy_match0 t m.
+
+Ltac2 Notation "lazy_match!" "goal" "with" m(goal_matching) "end" : 0 :=
+  Pattern.lazy_goal_match0 false m.
+
 Theorem tactics_all_delivers_de_morgan
   : forall (A : Prop) (B : Prop) . ~ (A \/ B) -> ~ A /\ ~ B.
 Proof.
@@ -64,8 +70,8 @@ Theorem tactics_all_delivers_de_morgan_in_hypothesis
 Proof.
   intros A B h.
   de morgan in h.
-  lazymatch type of h with
-  | ~ A /\ ~ B => destruct h as [na nb]
+  lazy_match! Constr.type &h with
+  | ~ A /\ ~ B => match h with | na nb end
   end.
   ipso nb.
 Qed.
@@ -75,8 +81,8 @@ Theorem tactics_all_delivers_de_morgan_in_goal
 Proof.
   intros A P h.
   de morgan in |- *.
-  lazymatch goal with
-  | |- forall (x : A) . ~ P x => ipso h
+  lazy_match! goal with
+  | [ |- forall (x : A) . ~ P x ] => ipso h
   end.
 Qed.
 
@@ -162,7 +168,7 @@ Theorem tactics_all_delivers_dni_in_hypothesis
 Proof.
   intros A a.
   dni in a.
-  lazymatch type of a with
+  lazy_match! Constr.type &a with
   | ~ ~ A => ipso a
   end.
 Qed.
@@ -172,8 +178,8 @@ Theorem tactics_all_delivers_dni_in_goal
 Proof.
   intros A a.
   dni in |- *.
-  lazymatch goal with
-  | |- A => ipso a
+  lazy_match! goal with
+  | [ |- A ] => ipso a
   end.
 Qed.
 
@@ -190,7 +196,7 @@ Theorem tactics_all_delivers_dne_in_hypothesis
 Proof.
   intros A nnna.
   dne in nnna.
-  lazymatch type of nnna with
+  lazy_match! Constr.type &nnna with
   | ~ A => ipso nnna
   end.
 Qed.
@@ -200,8 +206,8 @@ Theorem tactics_all_delivers_dne_in_goal
 Proof.
   intros A nnna.
   dne in |- *.
-  lazymatch goal with
-  | |- ~ ~ ~ A => ipso nnna
+  lazy_match! goal with
+  | [ |- ~ ~ ~ A ] => ipso nnna
   end.
 Qed.
 
@@ -226,8 +232,8 @@ Theorem tactics_all_delivers_let
 Proof.
   intro m.
   let k := m.
-  lazymatch goal with
-  | k := m |- _ => reflexivity
+  lazy_match! goal with
+  | [ _ := m |- _ ] => quod idem est
   end.
 Qed.
 
@@ -236,8 +242,8 @@ Theorem tactics_all_delivers_let_of_an_application
 Proof.
   intro m.
   let k := Nat.add m m.
-  lazymatch goal with
-  | k := Nat.add m m |- _ => reflexivity
+  lazy_match! goal with
+  | [ _ := Nat.add m m |- _ ] => quod idem est
   end.
 Qed.
 
@@ -246,8 +252,8 @@ Theorem tactics_all_delivers_let_with_a_type
 Proof.
   intro m.
   let k : Nat := Nat.add m m.
-  lazymatch goal with
-  | k := Nat.add m m : Nat |- _ => reflexivity
+  lazy_match! goal with
+  | [ _ := Nat.add m m : Nat |- _ ] => quod idem est
   end.
 Qed.
 
@@ -273,7 +279,7 @@ Theorem tactics_all_delivers_let_proof_with_a_type
 Proof.
   intros A B hab ha.
   let proof facto : B := hab ha.
-  lazymatch type of facto with
+  lazy_match! Constr.type &facto with
   | B => ipso facto
   end.
 Qed.
@@ -283,8 +289,8 @@ Theorem tactics_all_delivers_let_with_an_arrow_type
 Proof.
   intros A na.
   let k : A -> Falsum := na.
-  lazymatch goal with
-  | k := na : A -> Falsum |- _ => ipso k
+  lazy_match! goal with
+  | [ _ := na : A -> Falsum |- _ ] => ipso k
   end.
 Qed.
 
@@ -293,7 +299,7 @@ Theorem tactics_all_delivers_let_proof_retyping_a_hypothesis
 Proof.
   intros A h.
   let proof h : A -> Falsum := h.
-  lazymatch type of h with
+  lazy_match! Constr.type &h with
   | A -> Falsum => ipso h
   end.
 Qed.
@@ -304,8 +310,8 @@ Proof.
   intros A na.
   let k := na.
   let k : A -> Falsum := k.
-  lazymatch goal with
-  | k := na : A -> Falsum |- _ => ipso k
+  lazy_match! goal with
+  | [ _ := na : A -> Falsum |- _ ] => ipso k
   end.
 Qed.
 
@@ -314,8 +320,8 @@ Theorem tactics_all_delivers_let_proof_shadowing
 Proof.
   intros A B hab h.
   let proof h := hab h.
-  lazymatch goal with
-  | h : B |- _ => ipso h
+  lazy_match! goal with
+  | [ _ : B |- _ ] => ipso h
   end.
 Qed.
 
@@ -325,11 +331,11 @@ Proof.
   intro m.
   let k := Nat.add m m.
   let k := Nat.add k k.
-  lazymatch goal with
-  | k := Nat.add (Nat.add m m) (Nat.add m m) |- _ => idtac
+  lazy_match! goal with
+  | [ _ := Nat.add (Nat.add m m) (Nat.add m m) |- _ ] => ()
   end.
-  Fail lazymatch goal with
-  | _ := Nat.add m m |- _ => idtac
+  Fail lazy_match! goal with
+  | [ _ := Nat.add m m |- _ ] => ()
   end.
   quod idem est.
 Qed.
@@ -341,8 +347,8 @@ Proof.
   intros m n h.
   let H := Nat.addition.order.monotonicity Nat.One m n h.
   let proof H := H.
-  Fail lazymatch goal with
-  | _ := _ |- _ => idtac
+  Fail lazy_match! goal with
+  | [ _ := _ |- _ ] => ()
   end.
   ipso H.
 Qed.
@@ -354,8 +360,8 @@ Proof.
   intros m n h.
   let H := Nat.addition.order.monotonicity Nat.One m n h.
   let proof H : Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n) := H.
-  Fail lazymatch goal with
-  | _ := _ |- _ => idtac
+  Fail lazy_match! goal with
+  | [ _ := _ |- _ ] => ()
   end.
   ipso H.
 Qed.
@@ -367,8 +373,8 @@ Proof.
   intros m n h.
   let H := Nat.addition.order.monotonicity Nat.One m n h.
   let proof facto := H.
-  lazymatch goal with
-  | H := _ |- _ => ipso facto
+  lazy_match! goal with
+  | [ _ := _ |- _ ] => ipso facto
   end.
 Qed.
 
@@ -380,11 +386,11 @@ Proof.
   lemma q : k = k.
   - quod idem est.
   - let proof k := k.
-    Fail lazymatch goal with
-    | _ := _ |- _ => idtac
+    Fail lazy_match! goal with
+    | [ _ := _ |- _ ] => ()
     end.
-    lazymatch goal with
-    | q : k = k |- _ => ipso I
+    lazy_match! goal with
+    | [ _ : k = k |- _ ] => ipso I
     end.
 Qed.
 
@@ -574,11 +580,11 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_simpl_definition_and_goal
-  : forall (A : Prop) . ~ A -> A -> Falsum.
+  : forall (A : Prop) . ~ A -> ~ A.
 Proof.
-  intros A na a.
+  intros A na.
   simpl (~ _) in na |- *.
-  ipso (na a).
+  ipso na.
 Qed.
 
 Theorem tactics_all_delivers_simpl_goal
@@ -595,7 +601,7 @@ Theorem tactics_all_delivers_simpl_first_occurrence
 Proof.
   intros A h.
   simpl (~ _) at 1 in h.
-  lazymatch type of h with
+  lazy_match! Constr.type &h with
   | (A -> Falsum) /\ ~ A => ipso h
   end.
 Qed.
@@ -605,7 +611,7 @@ Theorem tactics_all_delivers_simpl_second_occurrence
 Proof.
   intros A h.
   simpl (~ _) at 2 in h.
-  lazymatch type of h with
+  lazy_match! Constr.type &h with
   | ~ A /\ (A -> Falsum) => ipso h
   end.
 Qed.
@@ -615,24 +621,36 @@ Theorem tactics_all_delivers_simpl_occurrence_in_goal
 Proof.
   intros A h.
   simpl (~ _) at 2 in |- *.
-  lazymatch goal with
-  | |- ~ A /\ (A -> Falsum) => ipso h
+  lazy_match! goal with
+  | [ |- ~ A /\ (A -> Falsum) ] => ipso h
   end.
 Qed.
 
 Theorem tactics_all_delivers_simpl_four_definitions
-  : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
+  : forall (m : NatWithZero) (n : NatWithZero) .
+      NatWithZero.Even m /\ NatWithZero.Odd n
+      /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n
+      -> NatWithZero.Even m /\ NatWithZero.Odd n
+         /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n.
 Proof.
-  intros m e.
+  intros m n e.
   simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
       NatWithZero.LessThan in e.
   ipso e.
 Qed.
 
 Theorem tactics_all_delivers_simpl_ten_definitions
-  : forall (m : NatWithZero) . NatWithZero.Even m -> NatWithZero.Even m.
+  : forall (m : NatWithZero) (n : NatWithZero) .
+      NatWithZero.Even m /\ NatWithZero.Odd n
+      /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n
+      /\ NatWithZero.LessOrEqual m n /\ NatWithZero.add m n = NatWithZero.mul m n
+      /\ NatWithZero.sub m n = None /\ NatWithZero.le m n = true /\ NatWithZero.min m n = m
+      -> NatWithZero.Even m /\ NatWithZero.Odd n
+         /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n
+         /\ NatWithZero.LessOrEqual m n /\ NatWithZero.add m n = NatWithZero.mul m n
+         /\ NatWithZero.sub m n = None /\ NatWithZero.le m n = true /\ NatWithZero.min m n = m.
 Proof.
-  intros m e.
+  intros m n e.
   simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
       NatWithZero.LessThan, NatWithZero.LessOrEqual, NatWithZero.add,
       NatWithZero.mul, NatWithZero.sub, NatWithZero.le, NatWithZero.min in e.
