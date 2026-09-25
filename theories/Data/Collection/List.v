@@ -699,12 +699,13 @@ Proof.
   - simpl in |- *.
     intro h.
     match h with | e | h' end.
-    + apply Disjunction.L.
-      leibniz e in |- *.
-      quod idem est.
-    + apply Disjunction.R.
-      apply IH.
-      ipso h'.
+    + lemma side : &f &a = &f &b.
+      {
+        leibniz e in |- *.
+        quod idem est.
+      }
+      ipso (disjoin &side, _).
+    + ipso (disjoin _, (&IH &h')).
 Qed.
 
 (* mapping.preservation.of.length *)
@@ -856,12 +857,8 @@ Proof.
     match h with | h1 | h2 end.
     + match h1 with | e | h1' end.
       * ipso (Disjunction.L e).
-      * apply Disjunction.R.
-        apply IH.
-        ipso (Disjunction.L h1').
-    + apply Disjunction.R.
-      apply IH.
-      ipso (Disjunction.R h2).
+      * ipso (disjoin _, (&IH (disjoin &h1', _))).
+    + ipso (disjoin _, (&IH (disjoin _, &h2))).
 Qed.
 
 End over. (* membership.backward.distributivity.over *)
@@ -920,12 +917,12 @@ Proof.
   intros A l1 l2.
   match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    leibniz concatenation.right.identity in |- *.
+    leibniz (concatenation.right.identity (reverse &l2)) in |- *.
     quod idem est.
   - simpl in |- *.
     simpl append in |- *.
     leibniz IH in |- *.
-    leibniz concatenation.associativity in |- *.
+    leibniz (concatenation.associativity (reverse &l2) (reverse &l1') (&a :: [])) in |- *.
     quod idem est.
 Qed.
 
@@ -943,7 +940,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     simpl append in |- *.
-    leibniz reversal.antidistributivity.over.concatenation in |- *.
+    leibniz (reversal.antidistributivity.over.concatenation (reverse &l') (&a :: [])) in |- *.
     simpl in |- *.
     leibniz IH in |- *.
     quod idem est.
@@ -968,9 +965,7 @@ Proof.
   - simpl in |- *.
     intro h.
     match (membership.forward.distributivity.over.concatenation h) with | h1 | h2 end.
-    + apply Disjunction.R.
-      apply IH.
-      ipso h1.
+    + ipso (disjoin _, (&IH &h1)).
     + simpl in h2.
       match h2 with | e | f end.
       * ipso (Disjunction.L e).
@@ -1001,14 +996,18 @@ Proof.
     ipso f.
   - simpl in |- *.
     intro h.
-    apply membership.backward.distributivity.over.concatenation.
-    match h with | e | h' end.
-    + apply Disjunction.R.
-      simpl in |- *.
-      ipso (Disjunction.L e).
-    + apply Disjunction.L.
-      apply IH.
-      ipso h'.
+    lemma facto : reverse &l' contains_member &a \/ (&b :: []) contains_member &a.
+    {
+      match h with | e | h' end.
+      + lemma singleton : (&b :: []) contains_member &a.
+        {
+          simpl in |- *.
+          ipso (Disjunction.L e).
+        }
+        ipso (disjoin _, &singleton).
+      + ipso (disjoin (&IH &h'), _).
+    }
+    ipso (membership.backward.distributivity.over.concatenation &facto).
 Qed.
 
 End of. (* reversal.backward.preservation.of *)
@@ -1078,17 +1077,20 @@ Proof.
       * ipso (Disjunction.L e).
       * ex f quodlibet.
   - intro h.
-    apply membership.backward.distributivity.over.concatenation.
-    match h with | e | h' end.
-    + apply Disjunction.R.
-      simpl in |- *.
-      ipso (Disjunction.L e).
-    + ipso (Disjunction.L h').
+    lemma facto : &l contains_member &b \/ (&a :: []) contains_member &b.
+    {
+      match h with | e | h' end.
+      + lemma singleton : (&a :: []) contains_member &b.
+        {
+          simpl in |- *.
+          ipso (Disjunction.L e).
+        }
+        ipso (disjoin _, &singleton).
+      + ipso (Disjunction.L h').
+    }
+    ipso (membership.backward.distributivity.over.concatenation &facto).
 Qed.
 
-(* The mirror of [reverse]'s own step: its definition turns a [Cons] into
- * an [append], and this turns an [append] back into a [Cons].
- *)
 (* appending.reversal *)
 Theorem reversal
   : forall {A : Type} (l : List A) (a : A) . reverse (append l a) = a :: reverse l.
@@ -1122,15 +1124,13 @@ Proof.
     + simpl in |- *.
       leibniz IH in |- *.
       quod idem est.
-    + simpl in |- *.
-      ipso IH.
+    + ipso IH.
 Qed.
 
 End over. (* filtering.distributivity.over *)
 
 End distributivity. (* filtering.distributivity *)
 
-(* [filter] is a catamorphism too: [Cons] becomes a conditional [Cons]. *)
 (* filtering.catamorphism *)
 Theorem catamorphism
   : forall {A : Type} (p : A -> Bool) (l : List A) .
@@ -1177,8 +1177,7 @@ Proof.
         divide et impera.
         -- ipso (Disjunction.R hl).
         -- ipso pa.
-    + simpl in |- *.
-      intro h'.
+    + intro h'.
       match (IH h') with | hl pa end.
       divide et impera.
       * ipso (Disjunction.R hl).
@@ -1210,16 +1209,8 @@ Proof.
       ipso (Disjunction.L e).
     + match (p b) with | | end.
       * simpl in |- *.
-        apply Disjunction.R.
-        apply IH.
-        divide et impera.
-        -- ipso h'.
-        -- ipso pa.
-      * simpl in |- *.
-        apply IH.
-        divide et impera.
-        -- ipso h'.
-        -- ipso pa.
+        ipso (disjoin _, (&IH (conjoin &h', &pa))).
+      * ipso (&IH (conjoin &h', &pa)).
 Qed.
 
 End backward. (* filtering.backward *)
@@ -1247,7 +1238,6 @@ Module distributivity. (* quantification.all.forward.distributivity *)
 
 Module over. (* quantification.all.forward.distributivity.over *)
 
-(* [All] over a concatenation is [All] over each half. *)
 (* quantification.all.forward.distributivity.over.concatenation *)
 Lemma concatenation
   : forall {A : Type} {P : A -> Prop} {l1 : List A} {l2 : List A} .
@@ -1292,8 +1282,7 @@ Proof.
     match ha with | e | ha' end.
     + leibniz e in |- *.
       ipso pb.
-    + apply (IH h').
-      ipso ha'.
+    + ipso (&IH &h' &a &ha').
 Qed.
 
 End forward. (* quantification.all.forward *)
@@ -1321,10 +1310,7 @@ Proof.
     match h1 with | pb h1' end.
     divide et impera.
     + ipso pb.
-    + apply IH.
-      divide et impera.
-      * ipso h1'.
-      * ipso h2.
+    + ipso (&IH (conjoin &h1', &h2)).
 Qed.
 
 End over. (* quantification.all.backward.distributivity.over *)
@@ -1344,12 +1330,13 @@ Proof.
   - simpl in |- *.
     intro h.
     divide et impera.
-    + apply (h b).
-      ipso (Disjunction.L (Identity.reflexivity b)).
-    + apply IH.
-      intros a ha.
-      apply (h a).
-      ipso (Disjunction.R ha).
+    + ipso (&h &b (disjoin (Identity.reflexivity &b), _)).
+    + lemma members : forall (a : &A) . &l' contains_member a -> &P a.
+      {
+        intros a ha.
+        ipso (&h &a (disjoin _, &ha)).
+      }
+      ipso (&IH &members).
 Qed.
 
 End backward. (* quantification.all.backward *)
@@ -1498,12 +1485,8 @@ Proof.
     match h with | h1 | h2 end.
     + match h1 with | pb | h1' end.
       * ipso (Disjunction.L pb).
-      * apply Disjunction.R.
-        apply IH.
-        ipso (Disjunction.L h1').
-    + apply Disjunction.R.
-      apply IH.
-      ipso (Disjunction.R h2).
+      * ipso (disjoin _, (&IH (disjoin &h1', _))).
+    + ipso (disjoin _, (&IH (disjoin _, &h2))).
 Qed.
 
 End over. (* quantification.any.backward.distributivity.over *)
@@ -1529,12 +1512,12 @@ Proof.
     match ha' with | e | ha'' end.
     + leibniz e in pa.
       ipso (Disjunction.L pa).
-    + apply Disjunction.R.
-      apply IH.
-      exists a.
-      divide et impera.
-      * ipso ha''.
-      * ipso pa.
+    + lemma witness : forsome (x : &A) . &l' contains_member x /\ &P x.
+      {
+        exists &a.
+        ipso (conjoin &ha'', &pa).
+      }
+      ipso (disjoin _, (&IH &witness)).
 Qed.
 
 End backward. (* quantification.any.backward *)
@@ -1710,7 +1693,7 @@ Proof.
   match (head.forward.specification h) with | r e end.
   exists (reverse r).
   let proof e' := Identity.congruence reverse e.
-  leibniz reversal.involution in e'.
+  leibniz (reversal.involution &l) in e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -1729,7 +1712,7 @@ Proof.
   match h with | l' e end.
   simpl last in |- *.
   leibniz e in |- *.
-  leibniz appending.reversal in |- *.
+  leibniz (appending.reversal &l' &a) in |- *.
   simpl in |- *.
   quod idem est.
 Qed.
@@ -1769,7 +1752,7 @@ Proof.
     let proof e' := Option.some.injectivity h.
     exists b.
     let proof er' := Identity.congruence reverse er.
-    leibniz reversal.involution in er'.
+    leibniz (reversal.involution &l) in er'.
     simpl in er'.
     leibniz e' in er'.
     ipso er'.
@@ -1789,9 +1772,9 @@ Proof.
   match h with | a e end.
   simpl initial in |- *.
   leibniz e in |- *.
-  leibniz appending.reversal in |- *.
+  leibniz (appending.reversal &l' &a) in |- *.
   simpl in |- *.
-  leibniz reversal.involution in |- *.
+  leibniz (reversal.involution &l') in |- *.
   quod idem est.
 Qed.
 
@@ -1934,6 +1917,7 @@ Proof.
   - intros l2.
     match l2 with | | b l2' end.
     + simpl in |- *.
+      simpl Comparable.min, NatWithZero.compare in |- *.
       quod idem est.
     + simpl in |- *.
       leibniz (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
@@ -2136,7 +2120,6 @@ End indexing. (* indexing *)
 
 Module splitting. (* splitting *)
 
-(* The two parts put back together give the list. *)
 (* splitting.decomposition *)
 Theorem decomposition
   : forall {A : Type} (l : List A) (n : NatWithZero) .
@@ -2163,9 +2146,6 @@ End splitting. (* splitting *)
 
 Module taking. (* taking *)
 
-(* The length of a [take] is the smaller of the count and the length; each
- * step adds one to both candidates, and addition distributes over [min].
- *)
 (* taking.length *)
 Theorem length
   : forall {A : Type} (l : List A) (n : NatWithZero) .
@@ -2267,6 +2247,7 @@ Proof.
   - simpl in |- *.
     leibniz IH in |- *.
     simpl in |- *.
+    simpl Nat.inc in |- *.
     quod idem est.
 Qed.
 
@@ -2376,9 +2357,6 @@ Qed.
 
 Module zero. (* counting.zero *)
 
-(* [count] answers [NatWithZero.Zero] exactly when [p] answers [false] on every
- * member.
- *)
 (* counting.zero.specification *)
 Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
@@ -2394,8 +2372,7 @@ Proof.
       quod idem est.
   - simpl in |- *.
     match (p a) with | | end.
-    + simpl in |- *.
-      divide et impera.
+    + divide et impera.
       * intro e.
         leibniz (NatWithZero.increment.specification (count p l')) in e.
         leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
@@ -2406,8 +2383,7 @@ Proof.
       * intro c.
         match c with | e f end.
         ex e quodlibet.
-    + simpl in |- *.
-      divide et impera.
+    + divide et impera.
       * intro e.
         modus aequans IH, e |- all'.
         ipso (conjoin (Identity.reflexivity false), all').
@@ -2641,10 +2617,13 @@ Proof.
     ipso h.
   - simpl in |- *.
     intro h.
-    apply (sorting.insertion.backward.membership le b a (insertion_sort le l')).
-    match h with | e | h' end.
-    + ipso (Disjunction.L e).
-    + ipso (Disjunction.R (IH h')).
+    lemma facto : &a = &b \/ insertion_sort &le &l' contains_member &a.
+    {
+      match h with | e | h' end.
+      + ipso (Disjunction.L e).
+      + ipso (Disjunction.R (IH h')).
+    }
+    ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') &facto).
 Qed.
 
 End of. (* sorting.backward.preservation.of *)
@@ -2705,6 +2684,7 @@ Proof.
     leibniz (appending.length (range_positive p') (NatWithZero.Positive p')) in |- *.
     leibniz IH in |- *.
     simpl in |- *.
+    simpl Nat.inc in |- *.
     quod idem est.
 Qed.
 
@@ -2729,8 +2709,11 @@ Proof.
   - intros i h.
     simpl in h.
     modus aequans
-      (membership.distributivity.over.concatenation
-         i (range_positive p') (NatWithZero.Positive p' :: [])),
+      (membership
+        .distributivity
+        .over
+        .concatenation
+          (i) (range_positive p') (NatWithZero.Positive p' :: [])),
       h |- h'.
     lemma facto : &i < NatWithZero.Positive Nat.One + NatWithZero.Positive &p'.
     {
@@ -2746,8 +2729,8 @@ Proof.
           * ex f quodlibet.
       }
       ipso (modus aequans
-               (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
-             below).
+            (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
+            below).
     }
     ipso &facto.
 Qed.
@@ -2782,9 +2765,12 @@ Proof.
     {
       simpl NatWithZero.LessOrEqual in h'.
       match h' with | e | lt end.
-      + apply Disjunction.R.
-        simpl in |- *.
-        ipso (Disjunction.L e).
+      + lemma singleton : (NatWithZero.Positive &p' :: []) contains_member &i.
+        {
+          simpl in |- *.
+          ipso (Disjunction.L e).
+        }
+        ipso (disjoin _, &singleton).
       + ipso (Disjunction.L (IH i lt)).
     }
     ipso (modus aequans
@@ -2969,10 +2955,14 @@ Proof.
       lemma inside : NatWithZero.saturating_sub i start
                        < NatWithZero.saturating_sub stop start.
       {
-        apply (NatWithZero.addition.order.strict.cancellation start).
-        leibniz step in |- *.
-        leibniz reach in |- *.
-        ipso high.
+        lemma shifted : &start + NatWithZero.saturating_sub &i &start
+                          < &start + NatWithZero.saturating_sub &stop &start.
+        {
+          leibniz step in |- *.
+          leibniz reach in |- *.
+          ipso high.
+        }
+        ipso (NatWithZero.addition.order.strict.cancellation &start _ _ &shifted).
       }
       lemma witness : forsome (j : NatWithZero) .
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
@@ -3190,8 +3180,7 @@ Proof.
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
         simpl in |- *.
-        apply Disjunction.R.
-        ipso (IH m' (Identity.reflexivity (Some m'))).
+        ipso (disjoin _, (&IH &m' (Identity.reflexivity (Some &m')))).
       * let proof e' := Option.some.injectivity e.
         simpl in |- *.
         ipso (Disjunction.L (Identity.symmetry e')).
@@ -3292,8 +3281,7 @@ Proof.
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
         simpl in |- *.
-        apply Disjunction.R.
-        ipso (IH m' (Identity.reflexivity (Some m'))).
+        ipso (disjoin _, (&IH &m' (Identity.reflexivity (Some &m')))).
 Qed.
 
 End minimum. (* minimum *)
