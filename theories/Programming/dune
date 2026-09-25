@@ -6,4 +6,11 @@
 (rocq.theory
  (name jwa.Programming)
  (package rocq-jwa)
- (theories Ltac2 jwa.Dialect jwa.Core jwa.Tactics jwa.Algebra jwa.Relation jwa.Data))
+ (theories
+  Ltac2
+  jwa.Dialect
+  jwa.Core
+  jwa.Tactics
+  jwa.Algebra
+  jwa.Relation
+  jwa.Data))
