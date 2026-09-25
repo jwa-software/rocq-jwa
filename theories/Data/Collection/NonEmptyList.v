@@ -380,7 +380,7 @@ Proof.
         leibniz e in |- *.
         quod idem est.
       }
-      ipso (disjoin &facto, _).
+      ipso (disjoin facto, _).
     + ipso (disjoin _, (IH h')).
 Qed.
 

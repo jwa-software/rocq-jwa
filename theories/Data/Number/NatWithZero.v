@@ -467,7 +467,7 @@ Proof.
       exists m'.
       ipso (addition.commutativity n (+ m')).
     }
-    ipso (disjoin _, &facto).
+    ipso (disjoin _, facto).
 Qed.
 
 (* addition.right.order.positivity *)
@@ -753,7 +753,7 @@ Proof.
         simpl in |- *.
         quod idem est.
       }
-      ipso (disjoin _, &facto).
+      ipso (disjoin _, facto).
 Qed.
 
 End order. (* multiplication.right.order *)
@@ -1029,7 +1029,7 @@ Proof.
                 in e.
         ipso (addition.right.cancellation e).
       }
-      ipso (disjoin _, &facto).
+      ipso (disjoin _, facto).
   - intro h.
     simpl LessOrEqual in h.
     simpl LessThan    in |- *.
@@ -1050,7 +1050,7 @@ Proof.
                 in |- *.
         quod idem est.
       }
-      ipso &facto.
+      ipso facto.
 Qed.
 
 End order. (* order *)
@@ -1788,12 +1788,12 @@ Proof.
         leibniz recon in |- *.
         quod idem est.
       }
-      ipso &facto.
+      ipso facto.
     - lemma facto : ((+ &k) * (&n %. &d)) < (+ &k) * (+ &d).
       {
         ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
       }
-      ipso &facto.
+      ipso facto.
   }
 
   match (division.uniqueness ((+ k) * n) (Nat.mul k d)
@@ -1916,12 +1916,12 @@ Proof.
         leibniz recon in |- *.
         quod idem est.
       }
-      ipso &facto.
+      ipso facto.
     - lemma facto : ((+ &k) * (&n %. &d)) < (+ &k) * (+ &d).
       {
         ipso (multiplication.left.order.strict.monotonicity k (n %. d) (+ d) bound).
       }
-      ipso &facto.
+      ipso facto.
   }
 
   match (division.uniqueness ((+ k) * n) (Nat.mul k d)
@@ -2400,7 +2400,7 @@ Proof.
         leibniz (gcd.zero ((+ k) * a)) in |- *.
         quod idem est.
       }
-      ipso &facto.
+      ipso facto.
     + leibniz (gcd.recurrence a q) in |- *.
       lemma facto
         : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * &a) (+ (Nat.mul &k &q)).
@@ -2412,9 +2412,9 @@ Proof.
         {
           ipso (recurse ((a %. q)) (division.remainder.boundedness a q) (+ q)).
         }
-        ipso &facto.
+        ipso facto.
       }
-      ipso &facto.
+      ipso facto.
   }
   ipso (Accessible.recursion &descent &b (order.strict.wellfoundedness &b)).
 Qed.
@@ -2772,7 +2772,7 @@ Proof.
             simpl in |- *.
             quod idem est.
           }
-          ipso &facto.
+          ipso facto.
         }
         ipso (disjoin &side, _).
 Qed.
@@ -2827,7 +2827,7 @@ Proof.
               (+ Nat.One) ((+ (Nat.Successor Nat.One)) * k2)) in |- *.
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End addition. (* parity.odd.addition *)

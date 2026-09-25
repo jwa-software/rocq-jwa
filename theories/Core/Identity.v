@@ -120,23 +120,23 @@ Proof.
 
   let proof facto
     : Identity_introduction &x = reflexivity &x
-    := &facto.
+    := facto.
 
   let proof facto
     : transitivity
         (Identity_introduction &x)
         (Identity_introduction &x)
       = reflexivity &x
-    := &facto.
+    := facto.
 
   let proof facto
     : transitivity
         (symmetry (Identity_introduction &x))
         (Identity_introduction &x)
       = reflexivity &x
-    := &facto.
+    := facto.
 
-  ipso &facto.
+  ipso facto.
 Qed.
 
 Module hedberg. (* hedberg *)

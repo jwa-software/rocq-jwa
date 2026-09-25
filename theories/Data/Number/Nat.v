@@ -448,7 +448,7 @@ Proof.
       simpl in |- *.
       quod idem est.
     }
-    ipso (disjoin &facto, _).
+    ipso (disjoin facto, _).
   -
     lemma facto : 1 < Successor &m'.
     {
@@ -457,7 +457,7 @@ Proof.
       simpl in |- *.
       quod idem est.
     }
-    ipso (disjoin _, (disjoin _, &facto)).
+    ipso (disjoin _, (disjoin _, facto)).
   -
     let proof t := IH n'.
     match t with | lt | rest end.
@@ -471,7 +471,7 @@ Proof.
           leibniz &eq in |- *.
           quod idem est.
         }
-        ipso (disjoin _, (disjoin &facto, _)).
+        ipso (disjoin _, (disjoin facto, _)).
       *
         ipso (disjoin _, (disjoin _, (successor.order.monotonicity gt))).
 Qed.
@@ -1074,7 +1074,7 @@ Proof.
       leibniz e in b.
       ex b quodlibet.
     }
-    ipso (disjoin _, &facto).
+    ipso (disjoin _, facto).
   - ipso (disjoin (comparison.equality.forward.specification e), _).
   - lemma facto : ~ (&m = &n).
     {
@@ -1084,7 +1084,7 @@ Proof.
       leibniz e in b.
       ex b quodlibet.
     }
-    ipso (disjoin _, &facto).
+    ipso (disjoin _, facto).
 Qed.
 
 (* What a type carrying an equation as a field needs before two of its

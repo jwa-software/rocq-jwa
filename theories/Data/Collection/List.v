@@ -1008,7 +1008,7 @@ Proof.
         ipso (disjoin _, &singleton).
       + ipso (disjoin (&IH &h'), _).
     }
-    ipso (membership.backward.distributivity.over.concatenation &facto).
+    ipso (membership.backward.distributivity.over.concatenation facto).
 Qed.
 
 End of. (* reversal.backward.preservation.of *)
@@ -1089,7 +1089,7 @@ Proof.
         ipso (disjoin _, &singleton).
       + ipso (disjoin h', _).
     }
-    ipso (membership.backward.distributivity.over.concatenation &facto).
+    ipso (membership.backward.distributivity.over.concatenation facto).
 Qed.
 
 (* appending.reversal *)
@@ -2187,7 +2187,7 @@ Proof.
           leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
           quod idem est.
         }
-        ipso &facto.
+        ipso facto.
 Qed.
 
 End taking. (* taking *)
@@ -2228,7 +2228,7 @@ Proof.
                      (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
           quod idem est.
         }
-        ipso &facto.
+        ipso facto.
 Qed.
 
 End dropping. (* dropping *)
@@ -2323,7 +2323,7 @@ Proof.
         in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   - simpl in |- *.
     leibniz IH in |- *.
     leibniz (NatWithZero.multiplication.associativity
@@ -2624,7 +2624,7 @@ Proof.
       + ipso (disjoin e, _).
       + ipso (disjoin _, (IH h')).
     }
-    ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') &facto).
+    ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') facto).
 Qed.
 
 End of. (* sorting.backward.preservation.of *)
@@ -2733,7 +2733,7 @@ Proof.
             (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
             below).
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End forward. (* range.positive.forward *)
@@ -2892,13 +2892,13 @@ Proof.
                        (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
             quod idem est.
           }
-          ipso &facto.
+          ipso facto.
         }
-        ipso &facto.
+        ipso facto.
       }
-      ipso &facto.
+      ipso facto.
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End sum. (* range.from_zero.sum *)

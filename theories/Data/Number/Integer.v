@@ -801,7 +801,7 @@ Proof.
              (ramp (negate (nat_with_zero_difference c d))))
           (NatWithZero.add a c)
           (NatWithZero.add b d)
-          &facto).
+          facto).
 Qed.
 
 (* difference.nat_with_zero.scaling *)
@@ -828,8 +828,8 @@ Proof.
     let proof facto
       : (+ &k) * nat_with_zero_difference (NatWithZero.Positive &p) (NatWithZero.Positive &q)
         = nat_difference (Nat.mul &k &p) (Nat.mul &k &q)
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
 Qed.
 
 End nat_with_zero. (* difference.nat_with_zero *)
@@ -1322,7 +1322,7 @@ Proof.
               in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   - simpl in |- *.
     leibniz (addition.left.identity 0) in |- *.
     quod idem est.
@@ -1355,7 +1355,7 @@ Proof.
             in |- *.
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -1561,7 +1561,7 @@ Proof.
     leibniz e1 in |- *.
     ipso e2.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End strict. (* order.strict *)
@@ -1834,7 +1834,7 @@ Proof.
       leibniz h in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   - simpl in |- *.
     quod idem est.
   - lemma facto : (+ (Nat.mul &k &p)) /. (Nat.mul &k &d) = (+ &p) /. &d.
@@ -1849,7 +1849,7 @@ Proof.
       leibniz h in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End division. (* division *)
@@ -1965,9 +1965,9 @@ Proof.
               simpl in |- *.
               quod idem est.
             }
-            ipso &facto.
+            ipso facto.
           }
-          ipso &facto.
+          ipso facto.
         }
         ipso (disjoin _, &side).
       * lemma side : Even (- (Nat.Successor &p')).
@@ -2050,7 +2050,7 @@ Proof.
             simpl in |- *.
             quod idem est.
           }
-          ipso &facto.
+          ipso facto.
         }
         ipso (disjoin &side, _).
 Qed.
@@ -2106,7 +2106,7 @@ Proof.
               ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End addition. (* parity.odd.addition *)

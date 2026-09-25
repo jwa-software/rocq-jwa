@@ -711,8 +711,8 @@ Proof.
       : Integer.mul (Integer.add (Integer.mul &p &s') (Integer.mul &r &q')) (Integer.mul &b' &d')
         = Integer.mul (Integer.add (Integer.mul &a &d') (Integer.mul &c &b'))
                       (Integer.from_nat (Nat.mul &q &s))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof criterion := characterisation
@@ -762,8 +762,8 @@ Proof.
     let proof facto
       : Integer.mul (Integer.mul &p &r) (Integer.mul (Integer.from_nat &b) (Integer.from_nat &d))
         = Integer.mul (Integer.mul &a &c) (Integer.from_nat (Nat.mul &q &s))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof criterion := characterisation
@@ -907,7 +907,7 @@ Proof.
       (&scaling (Integer.mul &a (Integer.Positive &d)) (Integer.mul &c (Integer.Positive &b))
                 (Nat.mul &q &s)),
       &scaled |- facto.
-    ipso &facto.
+    ipso facto.
   - intro h.
     modus aequans
       (&scaling (Integer.mul &a (Integer.Positive &d)) (Integer.mul &c (Integer.Positive &b))
@@ -918,7 +918,7 @@ Proof.
       (&scaling (Integer.mul &p (Integer.Positive &s)) (Integer.mul &r (Integer.Positive &q))
                 (Nat.mul &b &d)),
       &scaled |- facto.
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End strict. (* make.order.strict *)
@@ -1018,8 +1018,8 @@ Proof.
                             (Integer.mul (Integer.add (Integer.mul &c &f') (Integer.mul &e &d'))
                                          &b'))
                (Nat.mul &b (Nat.mul &d &f))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof g := general
@@ -1071,20 +1071,20 @@ Proof.
                         (Integer.mul (numerator &x) (Integer.Positive Nat.One)))
            (Nat.mul Nat.One (denominator &x))
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
                         (Integer.mul (numerator &x) (Integer.from_nat Nat.One)))
            (Nat.mul Nat.One (denominator &x))
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
                         (Integer.mul (numerator &x) (Integer.from_nat (denominator Zero))))
            (Nat.mul (denominator Zero) (denominator &x))
       = &x
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 (* addition.left.inverse *)
@@ -1156,14 +1156,14 @@ Proof.
                         (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
            (Nat.mul (denominator &x) Nat.One)
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.add (Integer.mul (numerator &x) (Integer.from_nat (denominator Zero)))
                         (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
            (Nat.mul (denominator &x) (denominator Zero))
       = &x
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 (* addition.right.inverse *)
@@ -1342,7 +1342,7 @@ Proof.
 
   simpl Integer.from_nat in |- *.
   modus aequans (make.order.strict.characterisation _ _ _ _), &cross |- facto.
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End strict. (* addition.order.strict *)
@@ -1415,13 +1415,13 @@ Proof.
     : make (Integer.mul (Integer.Positive Nat.One) (numerator &x))
            (Nat.mul Nat.One (denominator &x))
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.mul (Integer.Positive Nat.One) (numerator &x))
            (Nat.mul (denominator One) (denominator &x))
       = &x
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 (* multiplication.left.annihilation *)
@@ -1437,13 +1437,13 @@ Proof.
   }
   let proof facto
     : make (Integer.mul Integer.Zero (numerator &x)) (Nat.mul Nat.One (denominator &x)) = Zero
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.mul Integer.Zero (numerator &x))
            (Nat.mul (denominator Zero) (denominator &x))
       = Zero
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 Module distributivity. (* multiplication.left.distributivity *)
@@ -1538,8 +1538,8 @@ Proof.
         = make (Integer.add (Integer.mul (Integer.mul &a &c) (Integer.mul &b' &f'))
                             (Integer.mul (Integer.mul &a &e) (Integer.from_nat (Nat.mul &b &d))))
                (Nat.mul (Nat.mul &b &d) (Nat.mul &b &f))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof g := general
@@ -1626,7 +1626,7 @@ Proof.
     }
 
     modus aequans (make.order.strict.characterisation _ _ _ _), &cross |- facto.
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -1756,8 +1756,8 @@ Proof.
         let proof facto
           : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
             = Integer.mul (Integer.Positive Nat.One) (Integer.from_nat (Nat.mul &d &p))
-          := &facto.
-        ipso &facto.
+          := facto.
+        ipso facto.
       }
 
       let proof criterion := make.characterisation
@@ -1768,7 +1768,7 @@ Proof.
       modus aequans criterion, cross |- joined.
       ipso (Identity.transitivity joined unit).
     }
-    ipso &facto.
+    ipso facto.
 
   - ex e quodlibet.
 
@@ -1800,8 +1800,8 @@ Proof.
         let proof facto
           : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
             = Integer.mul (Integer.Positive Nat.One) (Integer.from_nat (Nat.mul &d &p))
-          := &facto.
-        ipso &facto.
+          := facto.
+        ipso facto.
       }
 
       let proof criterion := make.characterisation
@@ -1812,7 +1812,7 @@ Proof.
       modus aequans criterion, cross |- joined.
       ipso (Identity.transitivity joined unit).
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End inverse. (* inverse *)
@@ -2012,9 +2012,9 @@ Proof.
     {
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 (* embedding.multiplication *)
@@ -2030,7 +2030,7 @@ Proof.
   {
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 (* embedding.order *)
