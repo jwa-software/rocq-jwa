@@ -19,7 +19,7 @@ build:
 	$(OPAM_EXEC) dune build
 
 fmt:
-	$(OPAM_EXEC) dune fmt
+	$(OPAM_EXEC) dune fmt || $(OPAM_EXEC) dune build @fmt
 
 clean:
 	$(OPAM_EXEC) dune clean
