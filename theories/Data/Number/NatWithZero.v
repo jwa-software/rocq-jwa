@@ -61,7 +61,7 @@ Definition add := fun (m : NatWithZero) (n : NatWithZero) .
   | + p =>
       match n with
       | 0   => + p
-      | + q => + (Nat.add p q)
+      | + q => + (p + q)%nat
       end
   end.
 
@@ -72,7 +72,7 @@ Definition mul := fun (m : NatWithZero) (n : NatWithZero) .
   | + p =>
       match n with
       | 0   => 0
-      | + q => + (Nat.mul p q)
+      | + q => + (p * q)%nat
       end
   end.
 
@@ -507,7 +507,7 @@ Proof.
     exists k.
     quod idem est.
   - simpl in |- *.
-    exists (Nat.add n' k).
+    exists (n' + k)%nat.
     quod idem est.
 Qed.
 
@@ -983,7 +983,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl ( _ < _ ) in |- *.
-  exists (Nat.add k1 k2).
+  exists (k1 + k2)%nat.
   symm in e1, e2.
   leibniz e2, e1 in |- *.
   leibniz (addition.associativity l (+ k1) (+ k2)) in |- *.
@@ -2016,7 +2016,7 @@ Qed.
 (* division.invariance *)
 Theorem invariance
   : forall (n : NatWithZero) (d : Nat) (k : Nat) .
-      (((+ k) * n) /. (Nat.mul k d)) = n /. d.
+      (((+ k) * n) /. (k * d)%nat) = n /. d.
 Proof.
   intros n d k.
 
@@ -2026,8 +2026,8 @@ Proof.
     := division.remainder.boundedness n d.
 
   lemma witness
-  : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
-  /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
+  : (((n /. d) * (+ (k * d)%nat)) + ((+ k) * (n %. d)) = (+ k) * n)
+  /\ ((+ k) * (n %. d)) < (+ (k * d)%nat).
   {
     divide et impera.
     -
@@ -2163,7 +2163,7 @@ Module modulo. (* modulo *)
 (* modulo.homogeneity *)
 Theorem homogeneity
   : forall (n : NatWithZero) (d : Nat) (k : Nat) .
-      (((+ k) * n) %. (Nat.mul k d)) = (+ k) * (n %. d).
+      (((+ k) * n) %. (k * d)%nat) = (+ k) * (n %. d).
 Proof.
   intros n d k.
 
@@ -2173,8 +2173,8 @@ Proof.
     := division.remainder.boundedness n d.
 
   lemma witness
-  : (((n /. d) * (+ (Nat.mul k d))) + ((+ k) * (n %. d)) = (+ k) * n)
-  /\ ((+ k) * (n %. d)) < (+ (Nat.mul k d)).
+  : (((n /. d) * (+ (k * d)%nat)) + ((+ k) * (n %. d)) = (+ k) * n)
+  /\ ((+ k) * (n %. d)) < (+ (k * d)%nat).
   {
     divide et impera.
     - lemma facto
@@ -2756,9 +2756,9 @@ Proof.
       ipso facto.
     + leibniz (gcd.recurrence a q) in |- *.
       lemma facto
-      : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * &a) (+ (Nat.mul &k &q)).
+      : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * &a) (+ (&k * &q)%nat).
       {
-        leibniz (gcd.recurrence ((+ k) * a) (Nat.mul k q)) in |- *.
+        leibniz (gcd.recurrence ((+ k) * a) (k * q)%nat) in |- *.
         leibniz (modulo.homogeneity a q k) in |- *.
         lemma facto
         : (+ &k) * gcd (+ &q) (&a %. &q)
@@ -2995,18 +2995,18 @@ Module of. (* gcd.nat.left.distributivity.of *)
 (* gcd.nat.left.distributivity.of.multiplication *)
 Theorem multiplication
   : forall (k : Nat) (q : Nat) (a : NatWithZero) .
-      Nat.mul k (gcd.nat a q) = gcd.nat ((+ k) * a) (Nat.mul k q).
+      (k * gcd.nat a q)%nat = gcd.nat ((+ k) * a) (k * q)%nat.
 Proof.
   intros k q a.
   let proof h
     := gcd.left.distributivity.of.multiplication k (+ q) a.
   leibniz (gcd.nat.specification q a) in h.
   let proof h
-    : (+ k) * (+ (gcd.nat a q)) = gcd ((+ k) * a) (+ (Nat.mul k q))
+    : (+ k) * (+ (gcd.nat a q)) = gcd ((+ k) * a) (+ (k * q)%nat)
     := &h.
-  leibniz (gcd.nat.specification (Nat.mul k q) ((+ k) * a)) in h.
+  leibniz (gcd.nat.specification (k * q)%nat ((+ k) * a)) in h.
   let proof h
-    : (+ (Nat.mul k (gcd.nat a q))) = (+ (gcd.nat ((+ k) * a) (Nat.mul k q)))
+    : (+ (k * gcd.nat a q)%nat) = (+ (gcd.nat ((+ k) * a) (k * q)%nat))
     := &h.
   ipso (positive.injectivity h).
 Qed.
@@ -3066,9 +3066,7 @@ Proof.
     ipso e.
   }
   lemma bottom
-  : Nat.mul
-      (gcd.nat a q)
-      (divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))
+  : (gcd.nat a q * divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))%nat
   = q.
   {
     let proof s
