@@ -1008,7 +1008,7 @@ Proof.
         ipso (disjoin _, &singleton).
       + ipso (disjoin (&IH &h'), _).
     }
-    ipso (membership.backward.distributivity.over.concatenation &facto).
+    ipso (membership.backward.distributivity.over.concatenation facto).
 Qed.
 
 End of. (* reversal.backward.preservation.of *)
@@ -1089,7 +1089,7 @@ Proof.
         ipso (disjoin _, &singleton).
       + ipso (disjoin h', _).
     }
-    ipso (membership.backward.distributivity.over.concatenation &facto).
+    ipso (membership.backward.distributivity.over.concatenation facto).
 Qed.
 
 (* appending.reversal *)
@@ -1693,7 +1693,7 @@ Proof.
   intro h.
   match (head.forward.specification h) with | r e end.
   exists (reverse r).
-  let proof e' := Identity.congruence reverse e.
+  congru reverse, e |- e'.
   leibniz (reversal.involution &l) in e'.
   simpl in e'.
   ipso e'.
@@ -1752,7 +1752,7 @@ Proof.
     intro h.
     let proof e' := Option.some.injectivity h.
     exists b.
-    let proof er' := Identity.congruence reverse er.
+    congru reverse, er |- er'.
     leibniz (reversal.involution &l) in er'.
     simpl in er'.
     leibniz e' in er'.
@@ -2079,7 +2079,7 @@ Proof.
   match l with | | b l' by IH end per List.induction.
   - intros i h.
     simpl in h.
-    simpl NatWithZero.LessThan in h.
+    simpl ( _ < _ )%nat_with_zero in h.
     match h with | k e end.
     let proof r := NatWithZero.addition.right.identity.absence i k.
     simpl (~ _) in r.
@@ -2187,7 +2187,7 @@ Proof.
           leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
           quod idem est.
         }
-        ipso &facto.
+        ipso facto.
 Qed.
 
 End taking. (* taking *)
@@ -2228,7 +2228,7 @@ Proof.
                      (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
           quod idem est.
         }
-        ipso &facto.
+        ipso facto.
 Qed.
 
 End dropping. (* dropping *)
@@ -2323,7 +2323,7 @@ Proof.
         in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   - simpl in |- *.
     leibniz IH in |- *.
     leibniz (NatWithZero.multiplication.associativity
@@ -2624,7 +2624,7 @@ Proof.
       + ipso (disjoin e, _).
       + ipso (disjoin _, (IH h')).
     }
-    ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') &facto).
+    ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') facto).
 Qed.
 
 End of. (* sorting.backward.preservation.of *)
@@ -2702,7 +2702,7 @@ Proof.
     simpl in h.
     match h with | e | f end.
     + leibniz e in |- *.
-      simpl NatWithZero.LessThan in |- *.
+      simpl ( _ < _ )%nat_with_zero in |- *.
       exists Nat.One.
       simpl in |- *.
       quod idem est.
@@ -2721,7 +2721,7 @@ Proof.
       leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
       lemma below : i <= NatWithZero.Positive p'.
       {
-        simpl NatWithZero.LessOrEqual in |- *.
+        simpl ( _ <= _ )%nat_with_zero in |- *.
         match h' with | h1 | h2 end.
         + ipso (disjoin _, (IH i h1)).
         + simpl in h2.
@@ -2733,7 +2733,7 @@ Proof.
             (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
             below).
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End forward. (* range.positive.forward *)
@@ -2748,7 +2748,7 @@ Proof.
   intros p.
   match p with | | p' by IH end per Nat.induction.
   - intros i h.
-    simpl NatWithZero.LessThan in h.
+    simpl ( _ < _ )%nat_with_zero in h.
     match h with | k e end.
     match i with | | q end.
     + simpl in |- *.
@@ -2764,7 +2764,7 @@ Proof.
     lemma side : range_positive p' contains_member i
                    \/ (NatWithZero.Positive p' :: []) contains_member i.
     {
-      simpl NatWithZero.LessOrEqual in h'.
+      simpl ( _ <= _ )%nat_with_zero in h'.
       match h' with | e | lt end.
       + lemma singleton : (NatWithZero.Positive &p' :: []) contains_member &i.
         {
@@ -2811,7 +2811,7 @@ Proof.
     + intro f.
       ex f quodlibet.
     + intro h.
-      simpl NatWithZero.LessThan in h.
+      simpl ( _ < _ )%nat_with_zero in h.
       match h with | k e end.
       let proof r := NatWithZero.addition.right.identity.absence i k.
       simpl (~ _) in r.
@@ -2892,13 +2892,13 @@ Proof.
                        (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
             quod idem est.
           }
-          ipso &facto.
+          ipso facto.
         }
-        ipso &facto.
+        ipso facto.
       }
-      ipso &facto.
+      ipso facto.
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End sum. (* range.from_zero.sum *)

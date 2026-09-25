@@ -123,21 +123,26 @@ Definition inverse := fun (x : Rational) .
 
 (* [Rational -> Rational -> Prop] *)
 Definition LessThan := fun (x : Rational) (y : Rational) .
-  Integer.LessThan
-    (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
-    (Integer.mul (numerator y) (Integer.from_nat (denominator x))).
-
-(* [Rational -> Rational -> Prop] *)
-Definition LessOrEqual := fun (x : Rational) (y : Rational) .
-  x = y \/ LessThan x y.
+  (Integer.mul (numerator x) (Integer.from_nat (denominator y))
+   < Integer.mul (numerator y) (Integer.from_nat (denominator x)))%integer.
 
 Notation "x < y" := (LessThan x y) (only parsing)
   : jwa_rational_scope.
+
+(* [Rational -> Rational -> Prop] *)
+Definition LessOrEqual := fun (x : Rational) (y : Rational) .
+  x = y \/ (x < y)%rational.
+
 Notation "x <= y" := (LessOrEqual x y) (only parsing)
   : jwa_rational_scope.
 Notation "x > y" := (LessThan y x) (only parsing)
   : jwa_rational_scope.
 Notation "x >= y" := (LessOrEqual y x) (only parsing)
+  : jwa_rational_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_rational_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
   : jwa_rational_scope.
 
 (* [Rational -> Rational -> Comparison] *)
@@ -369,7 +374,7 @@ Proof.
                       (Integer.abs a) b)))
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)).
   {
-    let proof c := Identity.congruence Integer.from_nat bottom.
+    congru Integer.from_nat, bottom |- c.
     symm in c.
     leibniz c in |- *.
     simpl Integer.from_nat in |- *.
@@ -459,8 +464,8 @@ Proof.
   divide et impera.
 
   - intro e.
-    let proof hp := Identity.congruence numerator   e.
-    let proof hq := Identity.congruence denominator e.
+    congru numerator,   e |- hp.
+    congru denominator, e |- hq.
     simpl numerator   in hp.
     simpl denominator in hq.
     leibniz hp in P1.
@@ -549,7 +554,7 @@ Proof.
                   (Integer.mul r (Integer.from_nat q))
                   nzbd widened.
 
-    let proof m := Identity.congruence Integer.abs cross.
+    congru Integer.abs, cross |- m.
     leibniz (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
     leibniz (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
     let proof m
@@ -711,8 +716,8 @@ Proof.
       : Integer.mul (Integer.add (Integer.mul &p &s') (Integer.mul &r &q')) (Integer.mul &b' &d')
         = Integer.mul (Integer.add (Integer.mul &a &d') (Integer.mul &c &b'))
                       (Integer.from_nat (Nat.mul &q &s))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof criterion := characterisation
@@ -762,8 +767,8 @@ Proof.
     let proof facto
       : Integer.mul (Integer.mul &p &r) (Integer.mul (Integer.from_nat &b) (Integer.from_nat &d))
         = Integer.mul (Integer.mul &a &c) (Integer.from_nat (Nat.mul &q &s))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof criterion := characterisation
@@ -816,13 +821,12 @@ Module strict. (* make.order.strict *)
 Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       make a b < make c d
-      <-> Integer.LessThan (Integer.mul a (Integer.from_nat d))
-                           (Integer.mul c (Integer.from_nat b)).
+      <-> (Integer.mul a (Integer.from_nat d) < Integer.mul c (Integer.from_nat b))%integer.
 Proof.
   intros a b c d.
   let proof P1 := proportionality a b.
   let proof P2 := proportionality c d.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   simpl Integer.from_nat in &P1, &P2 |- *.
   let p := numerator   (make &a &b) in *.
   let q := denominator (make &a &b) in *.
@@ -830,9 +834,9 @@ Proof.
   let s := denominator (make &c &d) in *.
 
   lemma scaling : forall (m : Integer) (n : Integer) (k : Nat) .
-              Integer.LessThan m n
-              <-> Integer.LessThan (Integer.mul m (Integer.Positive k))
-                                   (Integer.mul n (Integer.Positive k)).
+              (m < n)%integer
+              <-> (Integer.mul m (Integer.Positive k)
+                   < Integer.mul n (Integer.Positive k))%integer.
   {
     intros m n k.
     divide et impera.
@@ -907,7 +911,7 @@ Proof.
       (&scaling (Integer.mul &a (Integer.Positive &d)) (Integer.mul &c (Integer.Positive &b))
                 (Nat.mul &q &s)),
       &scaled |- facto.
-    ipso &facto.
+    ipso facto.
   - intro h.
     modus aequans
       (&scaling (Integer.mul &a (Integer.Positive &d)) (Integer.mul &c (Integer.Positive &b))
@@ -918,7 +922,7 @@ Proof.
       (&scaling (Integer.mul &p (Integer.Positive &s)) (Integer.mul &r (Integer.Positive &q))
                 (Nat.mul &b &d)),
       &scaled |- facto.
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End strict. (* make.order.strict *)
@@ -1018,8 +1022,8 @@ Proof.
                             (Integer.mul (Integer.add (Integer.mul &c &f') (Integer.mul &e &d'))
                                          &b'))
                (Nat.mul &b (Nat.mul &d &f))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof g := general
@@ -1071,20 +1075,20 @@ Proof.
                         (Integer.mul (numerator &x) (Integer.Positive Nat.One)))
            (Nat.mul Nat.One (denominator &x))
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
                         (Integer.mul (numerator &x) (Integer.from_nat Nat.One)))
            (Nat.mul Nat.One (denominator &x))
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
                         (Integer.mul (numerator &x) (Integer.from_nat (denominator Zero))))
            (Nat.mul (denominator Zero) (denominator &x))
       = &x
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 (* addition.left.inverse *)
@@ -1122,9 +1126,7 @@ Proof.
   leibniz (inverse k)  in an.
   leibniz (identity n) in an.
 
-  let proof h := Identity.congruence
-                (fun (t : Rational) . add (negate k) t)
-                (e).
+  congru (fun (t : Rational) . add (negate k) t), e |- h.
   simpl in h.
 
   symm in an.
@@ -1158,14 +1160,14 @@ Proof.
                         (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
            (Nat.mul (denominator &x) Nat.One)
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.add (Integer.mul (numerator &x) (Integer.from_nat (denominator Zero)))
                         (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
            (Nat.mul (denominator &x) (denominator Zero))
       = &x
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 (* addition.right.inverse *)
@@ -1206,7 +1208,7 @@ Proof.
   leibniz (inverse k)  in an.
   leibniz (identity n) in an.
 
-  let proof h := Identity.congruence (fun (t : Rational) . add t (negate k)) e.
+  congru (fun (t : Rational) . add t (negate k)), e |- h.
   simpl in h.
 
   symm in am.
@@ -1260,7 +1262,7 @@ Proof.
   match &z with | e f hz end.
   match &x with | a b hx end.
   match &y with | c d hy end.
-  simpl LessThan, numerator, denominator in &h.
+  simpl ( _ < _ ), numerator, denominator in &h.
   simpl Integer.from_nat in &h.
   let proof rz := make.retraction (Rational_introduction &e &f &hz).
   let proof rx := make.retraction (Rational_introduction &a &b &hx).
@@ -1318,15 +1320,14 @@ Proof.
   }
 
   lemma cross
-    : Integer.LessThan
-        (Integer.mul
-           (Integer.add (Integer.mul &e (Integer.Positive &b))
-                        (Integer.mul &a (Integer.Positive &f)))
-           (Integer.from_nat (Nat.mul &f &d)))
-        (Integer.mul
+    : (Integer.mul
+         (Integer.add (Integer.mul &e (Integer.Positive &b))
+                      (Integer.mul &a (Integer.Positive &f)))
+         (Integer.from_nat (Nat.mul &f &d))
+       < Integer.mul
            (Integer.add (Integer.mul &e (Integer.Positive &d))
                         (Integer.mul &c (Integer.Positive &f)))
-           (Integer.from_nat (Nat.mul &f &b))).
+           (Integer.from_nat (Nat.mul &f &b)))%integer.
   {
     simpl Integer.from_nat in |- *.
     let proof scaled := Integer.multiplication.left.order.strict.monotonicity
@@ -1344,7 +1345,7 @@ Proof.
 
   simpl Integer.from_nat in |- *.
   modus aequans (make.order.strict.characterisation _ _ _ _), &cross |- facto.
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End strict. (* addition.order.strict *)
@@ -1417,13 +1418,13 @@ Proof.
     : make (Integer.mul (Integer.Positive Nat.One) (numerator &x))
            (Nat.mul Nat.One (denominator &x))
       = &x
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.mul (Integer.Positive Nat.One) (numerator &x))
            (Nat.mul (denominator One) (denominator &x))
       = &x
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 (* multiplication.left.annihilation *)
@@ -1439,13 +1440,13 @@ Proof.
   }
   let proof facto
     : make (Integer.mul Integer.Zero (numerator &x)) (Nat.mul Nat.One (denominator &x)) = Zero
-    := &facto.
+    := facto.
   let proof facto
     : make (Integer.mul Integer.Zero (numerator &x))
            (Nat.mul (denominator Zero) (denominator &x))
       = Zero
-    := &facto.
-  ipso &facto.
+    := facto.
+  ipso facto.
 Qed.
 
 Module distributivity. (* multiplication.left.distributivity *)
@@ -1540,8 +1541,8 @@ Proof.
         = make (Integer.add (Integer.mul (Integer.mul &a &c) (Integer.mul &b' &f'))
                             (Integer.mul (Integer.mul &a &e) (Integer.from_nat (Nat.mul &b &d))))
                (Nat.mul (Nat.mul &b &d) (Nat.mul &b &f))
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
   }
 
   let proof g := general
@@ -1571,7 +1572,7 @@ Proof.
   match &z with | e f hz end.
   match &x with | a b hx end.
   match &y with | c d hy end.
-  simpl LessThan, numerator, denominator in &positive, &h.
+  simpl ( _ < _ ), numerator, denominator in &positive, &h.
   simpl Integer.from_nat in &positive, &h.
   simpl Zero in &positive.
   simpl in &positive.
@@ -1613,9 +1614,9 @@ Proof.
     }
 
     lemma cross
-      : Integer.LessThan
-          (Integer.mul (Integer.mul (Integer.Positive &k) &a) (Integer.from_nat (Nat.mul &f &d)))
-          (Integer.mul (Integer.mul (Integer.Positive &k) &c) (Integer.from_nat (Nat.mul &f &b))).
+      : (Integer.mul (Integer.mul (Integer.Positive &k) &a) (Integer.from_nat (Nat.mul &f &d))
+         < Integer.mul (Integer.mul (Integer.Positive &k) &c)
+                       (Integer.from_nat (Nat.mul &f &b)))%integer.
     {
       simpl Integer.from_nat in |- *.
       let proof scaled := Integer.multiplication.left.order.strict.monotonicity
@@ -1628,7 +1629,7 @@ Proof.
     }
 
     modus aequans (make.order.strict.characterisation _ _ _ _), &cross |- facto.
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -1758,8 +1759,8 @@ Proof.
         let proof facto
           : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
             = Integer.mul (Integer.Positive Nat.One) (Integer.from_nat (Nat.mul &d &p))
-          := &facto.
-        ipso &facto.
+          := facto.
+        ipso facto.
       }
 
       let proof criterion := make.characterisation
@@ -1770,7 +1771,7 @@ Proof.
       modus aequans criterion, cross |- joined.
       ipso (Identity.transitivity joined unit).
     }
-    ipso &facto.
+    ipso facto.
 
   - ex e quodlibet.
 
@@ -1802,8 +1803,8 @@ Proof.
         let proof facto
           : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
             = Integer.mul (Integer.Positive Nat.One) (Integer.from_nat (Nat.mul &d &p))
-          := &facto.
-        ipso &facto.
+          := facto.
+        ipso facto.
       }
 
       let proof criterion := make.characterisation
@@ -1814,7 +1815,7 @@ Proof.
       modus aequans criterion, cross |- joined.
       ipso (Identity.transitivity joined unit).
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End inverse. (* inverse *)
@@ -1826,10 +1827,10 @@ Module strict. (* order.strict *)
 (* order.strict.transitivity *)
 Theorem transitivity
   : forall (x : Rational) (y : Rational) (z : Rational) .
-      LessThan x y -> LessThan y z -> LessThan x z.
+      x < y -> y < z -> x < z.
 Proof.
   intros x y z H1 H2.
-  simpl LessThan in H1, H2 |- *.
+  simpl ( _ < _ ) in H1, H2 |- *.
   simpl Integer.from_nat in H1, H2 |- *.
 
   let a := numerator   x in *.
@@ -2014,9 +2015,9 @@ Proof.
     {
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 (* embedding.multiplication *)
@@ -2032,14 +2033,14 @@ Proof.
   {
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 (* embedding.order *)
 Theorem order
   : forall (m : Integer) (n : Integer) .
-      Integer.LessThan m n
-      <-> LessThan (from_integer m) (from_integer n).
+      (m < n)%integer
+      <-> from_integer m < from_integer n.
 Proof.
   intros m n.
   simpl from_integer in |- *.
@@ -2065,7 +2066,7 @@ Abbreviation Rational := Rational.T.
 Export (notations) Rational.
 
 Instance Rational_comparable
-  : Comparable Rational.compare Rational.LessThan :=
+  : Comparable Rational.compare (<)%rational :=
   {| Comparable.transitivity  := Rational.order.strict.transitivity
    ; Comparable.specification := Rational.comparison.specification
    ; Comparable.antisymmetry  := Rational.comparison.antisymmetry |}.

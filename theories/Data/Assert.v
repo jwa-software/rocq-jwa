@@ -9,11 +9,6 @@ From jwa Require Import Tactics.Modus.
  * [Verum] and [Assert false] is [Falsum] by reduction, so case analysis on
  * a [Bool] turns each law below into a concrete implication in both
  * directions.
- *
- * It stands in a file of its own rather than inside [Module Bool]: the
- * boolean operations are one subject and the crossing into [Prop] is
- * another, and a client that wants only the algebra should not be handed
- * the bridge.
  *)
 (* [Bool -> Prop] *)
 Definition Assert := fun (b : Bool) .
@@ -38,9 +33,7 @@ Theorem conjunction
       Assert (b1 && b2) <-> Assert b1 /\ Assert b2.
 Proof.
   intros b1 b2.
-  match b1 with | | end;
-      match b2 with | | end; simpl in |- *;
-          divide et impera; intro h.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; divide et impera; intro h.
   - divide et impera; ipso I.
   - ipso I.
   - ex h quodlibet.
@@ -60,9 +53,7 @@ Theorem disjunction
       Assert (b1 || b2) <-> Assert b1 \/ Assert b2.
 Proof.
   intros b1 b2.
-  match b1 with | | end;
-      match b2 with | | end; simpl in |- *;
-          divide et impera; intro h.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; divide et impera; intro h.
   - ipso (disjoin I, _).
   - ipso I.
   - ipso (disjoin I, _).
@@ -81,11 +72,7 @@ Theorem sejunction
       Assert (b1 ^^ b2) <-> Assert b1 _\/_ Assert b2.
 Proof.
   intros b1 b2.
-  match b1 with | | end;
-      match b2 with | | end;
-          simpl in |- *;
-            divide et impera;
-              intro h.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; divide et impera; intro h.
   - ex h quodlibet.
   - match h with | t nt | nt t end; ipso (modus ponens nt, t).
   - ipso (sejoin I, (fun (f : Falsum) . f)).
@@ -102,10 +89,7 @@ Theorem negation
 Proof.
   intros b.
   simpl (~ _) in |- *.
-  match b with | | end;
-      simpl in |- *;
-          divide et impera;
-            intro h.
+  match b with | | end; simpl in |- *; divide et impera; intro h.
   - ex h quodlibet.
   - ipso (modus ponens h, I).
   - intro k.

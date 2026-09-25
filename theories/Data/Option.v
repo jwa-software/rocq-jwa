@@ -2,6 +2,7 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Functor.
+From jwa Require Import Tactics.Equation.
 
 (* A module may carry the type's name; its members read [Option.map]. The
  * type and its ctors are declared inside it: a ctor at the top level is
@@ -38,7 +39,7 @@ Theorem injectivity
 Proof.
   intros A a b e.
   let f := fun (o : Option A) . match o with | Some x => x | None => a end.
-  let proof e' := Identity.congruence f e.
+  congru f, e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -52,9 +53,7 @@ Theorem identity
   : forall {A : Type} (o : Option A) . map (fun (a : A) . a) o = o.
 Proof.
   intros A o.
-  match o with | | a end;
-      simpl map in |- *;
-      quod idem est.
+  match o with | | a end; simpl map in |- *; quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -63,9 +62,7 @@ Theorem composition
       map g (map f o) = map (fun (a : A) . g (f a)) o.
 Proof.
   intros A B C f g o.
-  match o with | | a end;
-      simpl in |- *;
-      quod idem est.
+  match o with | | a end; simpl in |- *; quod idem est.
 Qed.
 
 End mapping. (* mapping *)

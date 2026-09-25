@@ -2,6 +2,7 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Functor.
+From jwa Require Import Tactics.Equation.
 
 (* A coproduct holds one [A] or one [B], tagged by which. Both are
  * parameters: the type behind each tag is fixed for the whole coproduct.
@@ -109,7 +110,7 @@ Proof.
   intros A B a1 a2 e.
   let f := fun (cp : Coproduct A B) .
               match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end.
-  let proof e' := Identity.congruence f e.
+  congru f, e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -126,7 +127,7 @@ Proof.
   intros A B b1 b2 e.
   let f := fun (cp : Coproduct A B) .
              match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end.
-  let proof e' := Identity.congruence f e.
+  congru f, e |- e'.
   simpl in e'.
   ipso e'.
 Qed.

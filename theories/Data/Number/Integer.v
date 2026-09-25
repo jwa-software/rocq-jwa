@@ -189,11 +189,12 @@ Notation "m /. n" := (divide m n) (only parsing)
 Definition LessThan := fun (m : Integer) (n : Integer) .
   forsome (k : Nat) . m + (+ k) = n.
 
-(* [Integer -> Integer -> Prop] *)
-Definition LessOrEqual := fun (m : Integer) (n : Integer) . m = n \/ LessThan m n.
-
 Notation "m < n" := (LessThan m n) (only parsing)
   : jwa_integer_scope.
+
+(* [Integer -> Integer -> Prop] *)
+Definition LessOrEqual := fun (m : Integer) (n : Integer) . m = n \/ m < n.
+
 Notation "m <= n" := (LessOrEqual m n) (only parsing)
   : jwa_integer_scope.
 
@@ -203,6 +204,11 @@ Notation "m <= n" := (LessOrEqual m n) (only parsing)
 Notation "m > n" := (LessThan n m) (only parsing)
   : jwa_integer_scope.
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
+  : jwa_integer_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_integer_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
   : jwa_integer_scope.
 
 (* [Integer -> Integer -> Comparison] *)
@@ -250,9 +256,7 @@ Lemma injectivity
   : forall {p : Nat} {q : Nat} . (- p) = - q -> p = q.
 Proof.
   intros p q e.
-  let proof e' := Identity.congruence
-                (fun (x : Integer) . match x with | - r => r | 0 => p | + _ => p end)
-                e.
+  congru (fun (x : Integer) . match x with | - r => r | 0 => p | + _ => p end), e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -266,9 +270,7 @@ Lemma injectivity
   : forall {p : Nat} {q : Nat} . (+ p) = + q -> p = q.
 Proof.
   intros p q e.
-  let proof e' := Identity.congruence
-                (fun (x : Integer) . match x with | - _ => p | 0 => p | + r => r end)
-                e.
+  congru (fun (x : Integer) . match x with | - _ => p | 0 => p | + r => r end), e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -390,7 +392,7 @@ Proof.
   intros p q r s h.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     symm in e.
     leibniz e in h |- *.
@@ -410,7 +412,7 @@ Proof.
       leibniz e in |- *.
       leibniz (difference.nat.reflexivity r) in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | k e end.
       symm in e.
       leibniz e in h |- *.
@@ -432,7 +434,7 @@ Proof.
   intros p q.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     symm in e.
     leibniz e in |- *.
@@ -446,7 +448,7 @@ Proof.
       leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | k e end.
       symm in e.
       leibniz e in |- *.
@@ -466,7 +468,7 @@ Proof.
   intros p q.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     symm in e.
     leibniz e in |- *.
@@ -479,7 +481,7 @@ Proof.
       leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | k e end.
       symm in e.
       leibniz e in |- *.
@@ -566,7 +568,7 @@ Proof.
   intros k p q.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | j e end.
     symm in e.
     leibniz e in |- *.
@@ -583,7 +585,7 @@ Proof.
       leibniz (difference.nat.reflexivity (Nat.mul k q)) in |- *.
       simpl in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | j e end.
       symm in e.
       leibniz e in |- *.
@@ -805,7 +807,7 @@ Proof.
              (ramp (negate (nat_with_zero_difference c d))))
           (NatWithZero.add a c)
           (NatWithZero.add b d)
-          &facto).
+          facto).
 Qed.
 
 (* difference.nat_with_zero.scaling *)
@@ -832,8 +834,8 @@ Proof.
     let proof facto
       : (+ &k) * nat_with_zero_difference (NatWithZero.Positive &p) (NatWithZero.Positive &q)
         = nat_difference (Nat.mul &k &p) (Nat.mul &k &q)
-      := &facto.
-    ipso &facto.
+      := facto.
+    ipso facto.
 Qed.
 
 End nat_with_zero. (* difference.nat_with_zero *)
@@ -987,7 +989,7 @@ Theorem cancellation
   : forall {k : Integer} {m : Integer} {n : Integer} . k + m = k + n -> m = n.
 Proof.
   intros k m n h.
-  let proof h' := Identity.congruence (add (negate k)) h.
+  congru (add (negate k)), h |- h'.
   leibniz <- (addition.associativity (negate k) k m)
           in h'.
   leibniz <- (addition.associativity (negate k) k n)
@@ -1083,9 +1085,9 @@ Theorem monotonicity
       m < n -> k + m < k + n.
 Proof.
   intros k m n h.
-  simpl LessThan in h.
+  simpl ( _ < _ ) in h.
   match h with | d e end.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   exists d.
   leibniz (addition.associativity k m (+ d)) in |- *.
   leibniz e in |- *.
@@ -1281,12 +1283,12 @@ Proof.
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate m))
                   (multiplication.left.negation m (+ k)))
-                (Identity.congruence negate (multiplication.commutativity m (+ k))).
+                (congru negate, (multiplication.commutativity m (+ k))).
   let proof nn := Identity.transitivity
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate n))
                   (multiplication.left.negation n (+ k)))
-                (Identity.congruence negate (multiplication.commutativity n (+ k))).
+                (congru negate, (multiplication.commutativity n (+ k))).
   leibniz <- nm in |- *.
   leibniz <- nn in |- *.
   leibniz (ramp.scaling k (negate m)) in |- *.
@@ -1326,7 +1328,7 @@ Proof.
               in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   - simpl in |- *.
     leibniz (addition.left.identity 0) in |- *.
     quod idem est.
@@ -1347,9 +1349,9 @@ Theorem monotonicity
       m < n -> (+ p) * m < (+ p) * n.
 Proof.
   intros p m n h.
-  simpl LessThan in h.
+  simpl ( _ < _ ) in h.
   match h with | d e end.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   exists (Nat.mul p d).
   lemma facto : ((+ &p) * &m) + ((+ &p) * (+ &d)) = (+ &p) * &n.
   {
@@ -1359,7 +1361,7 @@ Proof.
             in |- *.
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End strict. (* multiplication.left.order.strict *)
@@ -1541,7 +1543,7 @@ Proof.
   intros n.
   simpl (~ _) in |- *.
   intro h.
-  simpl LessThan in h.
+  simpl ( _ < _ ) in h.
   match h with | k e end.
   let proof e' := Identity.transitivity e (Identity.symmetry (addition.right.identity n)).
   let proof f := addition.left.cancellation e'.
@@ -1554,10 +1556,10 @@ Theorem transitivity
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
-  simpl LessThan in h1, h2.
+  simpl ( _ < _ ) in h1, h2.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   exists (Nat.add k1 k2).
   lemma facto : &l + ((+ &k1) + (+ &k2)) = &n.
   {
@@ -1565,7 +1567,7 @@ Proof.
     leibniz e1 in |- *.
     ipso e2.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End strict. (* order.strict *)
@@ -1607,12 +1609,12 @@ Lemma specification
   : forall (m : Integer) (n : Integer) . compare m n = Comparison.Lt <-> m < n.
 Proof.
   intros m n.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   simpl add in |- *.
   match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
     let proof lt := Nat.comparison.strict.forward.specification c.
-    simpl Nat.LessThan in lt.
+    simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     exists k.
     leibniz (Nat.addition.commutativity n' k) in e.
@@ -1620,9 +1622,9 @@ Proof.
   - intro h.
     match h with | k e end.
     modus aequans (difference.nat.negative.specification k m' n'), e |- e'.
-    lemma smaller : Nat.LessThan &n' &m'.
+    lemma smaller : (&n' < &m')%nat.
     {
-      simpl Nat.LessThan in |- *.
+      simpl ( _ < _ )%nat in |- *.
       exists k.
       leibniz (Nat.addition.commutativity n' k) in |- *.
       ipso e'.
@@ -1665,7 +1667,7 @@ Proof.
     ex e quodlibet.
   - intro c.
     let proof lt := Nat.comparison.strict.forward.specification c.
-    simpl Nat.LessThan in lt.
+    simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     exists k.
     leibniz e in |- *.
@@ -1673,9 +1675,9 @@ Proof.
   - intro h.
     match h with | k e end.
     let proof e' := magnitude.positive.injectivity e.
-    lemma smaller : Nat.LessThan &m' &n'.
+    lemma smaller : (&m' < &n')%nat.
     {
-      simpl Nat.LessThan in |- *.
+      simpl ( _ < _ )%nat in |- *.
       exists k.
       ipso e'.
     }
@@ -1838,7 +1840,7 @@ Proof.
       leibniz h in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
   - simpl in |- *.
     quod idem est.
   - lemma facto : (+ (Nat.mul &k &p)) /. (Nat.mul &k &d) = (+ &p) /. &d.
@@ -1853,7 +1855,7 @@ Proof.
       leibniz h in |- *.
       quod idem est.
     }
-    ipso &facto.
+    ipso facto.
 Qed.
 
 End division. (* division *)
@@ -1969,9 +1971,9 @@ Proof.
               simpl in |- *.
               quod idem est.
             }
-            ipso &facto.
+            ipso facto.
           }
-          ipso &facto.
+          ipso facto.
         }
         ipso (disjoin _, &side).
       * lemma side : Even (- (Nat.Successor &p')).
@@ -1980,7 +1982,7 @@ Proof.
           match od with | k e end.
           simpl Even, Divides in |- *.
           exists k.
-          let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
+          congru (fun (x : Integer) . x + (- Nat.One)), e |- e'.
           let proof e'
             : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
             := e'.
@@ -2054,7 +2056,7 @@ Proof.
             simpl in |- *.
             quod idem est.
           }
-          ipso &facto.
+          ipso facto.
         }
         ipso (disjoin &side, _).
 Qed.
@@ -2110,7 +2112,7 @@ Proof.
               ((+ (Nat.Successor Nat.One)) * k2) (+ Nat.One)) in |- *.
     quod idem est.
   }
-  ipso &facto.
+  ipso facto.
 Qed.
 
 End addition. (* parity.odd.addition *)
@@ -2141,12 +2143,12 @@ Export (notations) Integer.
  * so.
  *)
 Instance Integer_magnitude_well_founded
-  : WellFounded (Induced NatWithZero.LessThan Integer.abs) :=
-  WellFounded.induced NatWithZero.LessThan Integer.abs
+  : WellFounded (Induced (<)%nat_with_zero Integer.abs) :=
+  WellFounded.induced (<)%nat_with_zero Integer.abs
     NatWithZero_less_than_well_founded.
 
 Instance Integer_comparable
-  : Comparable Integer.compare Integer.LessThan :=
+  : Comparable Integer.compare (<)%integer :=
   {| Comparable.transitivity  := @Integer.order.strict.transitivity
    ; Comparable.specification := Integer.comparison.specification
    ; Comparable.antisymmetry  := Integer.comparison.antisymmetry |}.

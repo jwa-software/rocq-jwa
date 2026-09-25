@@ -310,12 +310,12 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_let_with_an_arrow_type
-  : forall (A : Prop) . ~ A -> ~ A.
+  : forall (m : Nat) . m = m.
 Proof.
-  intros A na.
-  let k : A -> Falsum := na.
+  intro m.
+  let f : Nat -> Nat := Nat.add &m.
   lazy_match! goal with
-  | [ _ := na : A -> Falsum |- _ ] => ipso k
+  | [ _ := Nat.add m : Nat -> Nat |- _ ] => quod idem est
   end.
 Qed.
 
@@ -330,13 +330,13 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_let_retyping_a_definition
-  : forall (A : Prop) . ~ A -> ~ A.
+  : forall (A : Prop) (na : ~ A) . na = na.
 Proof.
   intros A na.
-  let k := na.
+  let k := na in |- *.
   let k : A -> Falsum := k.
   lazy_match! goal with
-  | [ _ := na : A -> Falsum |- _ ] => ipso k
+  | [ _ := na : A -> Falsum |- _ ] => quod idem est
   end.
 Qed.
 
@@ -366,29 +366,27 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_let_proof_dropping_a_body
-  : forall (m : Nat) (n : Nat) .
-      Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
 Proof.
-  intros m n h.
-  let H := Nat.addition.order.monotonicity Nat.One m n h.
-  let proof H := H.
+  intro m.
+  let k := Nat.add m m.
+  let proof k := k.
   Fail lazy_match! goal with
   | [ _ := _ |- _ ] => ()
   end.
-  ipso H.
+  quod idem est.
 Qed.
 
 Theorem tactics_all_delivers_let_proof_dropping_a_body_with_a_type
-  : forall (m : Nat) (n : Nat) .
-      Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
 Proof.
-  intros m n h.
-  let H := Nat.addition.order.monotonicity Nat.One m n h.
-  let proof H : Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n) := H.
+  intro m.
+  let k := Nat.add m m.
+  let proof k : Nat := k.
   Fail lazy_match! goal with
   | [ _ := _ |- _ ] => ()
   end.
-  ipso H.
+  quod idem est.
 Qed.
 
 Theorem tactics_all_delivers_let_proof_of_a_definition_under_another_name
@@ -396,10 +394,13 @@ Theorem tactics_all_delivers_let_proof_of_a_definition_under_another_name
       Nat.LessThan m n -> Nat.LessThan (Nat.add Nat.One m) (Nat.add Nat.One n).
 Proof.
   intros m n h.
-  let H := Nat.addition.order.monotonicity Nat.One m n h.
-  let proof facto := H.
+  let k := Nat.add m m.
+  let proof j := k.
   lazy_match! goal with
-  | [ _ := _ |- _ ] => ipso facto
+  | [ _ := Nat.add m m |- _ ] => ()
+  end.
+  lazy_match! Constr.type &j with
+  | Nat => ipso (Nat.addition.order.monotonicity Nat.One m n h)
   end.
 Qed.
 
@@ -711,6 +712,23 @@ Theorem tactics_all_delivers_simpl_reduction_goal
 Proof.
   intro m.
   simpl in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_simpl_term
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.Successor m = n.
+Proof.
+  intros m n e.
+  leibniz <- (simpl &e) in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_simpl_term_as_hypothesis
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.Successor m = n.
+Proof.
+  intros m n e.
+  let proof f := simpl &e.
+  leibniz <- &f in |- *.
   quod idem est.
 Qed.
 
@@ -1339,6 +1357,31 @@ Proof.
   quod idem est.
 Qed.
 
+Theorem tactics_all_delivers_let_refusing_a_type
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> m = m.
+Proof.
+  intros m n e.
+  Fail let proof f : m = n := &e.
+  Fail let f : m = n := &e.
+  Fail let k : Nat := &e in |- *.
+  Fail let proof f := &e : Nat.Successor m = n.
+  Fail let proof f := (&e : Nat.Successor m = n).
+  Fail let proof f : Nat.Successor m = n := &e : Nat.Successor m = n.
+  Fail let k := Nat.add Nat.One &m : Nat.
+  Fail let k := Nat.add Nat.One &m : Nat in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_let_refusing_a_proof
+  : forall (m : Nat) (n : Nat) . m = n -> m = m.
+Proof.
+  intros m n e.
+  Fail let f := &e.
+  Fail let f : m = n := &e.
+  let k := &m.
+  quod idem est.
+Qed.
+
 Theorem tactics_all_delivers_simpl_refusing
   : forall (A : Prop) (m : Nat) . A -> m = m.
 Proof.
@@ -1347,6 +1390,7 @@ Proof.
   Fail simpl (~ _) in &a.
   Fail simpl in |- *.
   Fail simpl in &x.
+  Fail let proof b := simpl &a.
   let k := &m.
   Fail simpl k in |- *.
   quod idem est.
@@ -1457,6 +1501,49 @@ Proof.
   ipso &e.
 Qed.
 
+Theorem tactics_all_delivers_congru
+  : forall (A : Type) (B : Type) (f : A -> B) (x : A) (y : A) . x = y -> f x = f y.
+Proof.
+  intros A B f x y e.
+  ipso (congru &f, &e).
+Qed.
+
+Theorem tactics_all_delivers_congru_as
+  : forall (A : Type) (B : Type) (f : A -> B) (x : A) (y : A) . x = y -> f x = f y.
+Proof.
+  intros A B f x y e.
+  congru &f, &e as g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_congru_turnstile
+  : forall (A : Type) (B : Type) (f : A -> B) (x : A) (y : A) . x = y -> f x = f y.
+Proof.
+  intros A B f x y e.
+  congru &f, &e |- g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_congru_with_implicit_arguments
+  : forall (A : Type) (B : Type) (p : Product A B) (q : Product A B) .
+      p = q -> Product.first p = Product.first q.
+Proof.
+  intros A B p q e.
+  congru Product.first, &e |- g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_congru_refusing
+  : forall (A : Type) (B : Type) (C : Prop) (f : A -> B) (x : A) (b : B) .
+      C -> x = x -> b = b -> C.
+Proof.
+  intros A B C f x b c ex eb.
+  Fail congru &f, &c |- g.
+  Fail congru &f, &eb |- g.
+  Fail congru &f, &ex |- c.
+  ipso &c.
+Qed.
+
 Theorem tactics_all_delivers_exists
   : forall (A : Type) (P : A -> Prop) (a : A) . P a -> forsome (x : A) . P x.
 Proof.
@@ -1563,6 +1650,22 @@ Proof.
   Fail let proof b : A := &a.
   let proof b : &A := &a.
   ipso &b.
+Qed.
+
+Theorem tactics_all_delivers_strict_checking_sparing_facto
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  lemma facto : &A.
+  {
+    ipso &a.
+  }
+  mv facto b.
+  lemma facto : &A.
+  {
+    ipso &b.
+  }
+  ipso facto.
 Qed.
 
 End strict.

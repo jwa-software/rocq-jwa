@@ -72,11 +72,6 @@ Notation "b1 ^^ b2" := (xor b1 b2) (only parsing)
 
 Local Open Scope jwa_bool_scope.
 
-(* A law of the type itself rather than of any operation, so it belongs to
- * no topic below. Both readings are stated: a proof that has [false = true]
- * in hand needs the second, and deriving it from the first each time costs
- * a step that reads as nothing.
- *)
 Module distinctness. (* distinctness *)
 
 (* distinctness.forward *)
@@ -124,8 +119,7 @@ Theorem associativity
       (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
-    quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* conjunction.commutativity *)
@@ -161,8 +155,7 @@ Theorem sejunction
       b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
-    quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 End over. (* conjunction.left.distributivity.over *)
@@ -183,8 +176,7 @@ Theorem sejunction
       (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
-    quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 End over. (* conjunction.right.distributivity.over *)
@@ -223,8 +215,7 @@ Theorem associativity
       (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
-    quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* disjunction.commutativity *)
@@ -257,8 +248,7 @@ Theorem associativity
       (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
   intros b1 b2 b3.
-  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
-    quod idem est.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* sejunction.commutativity *)
@@ -294,9 +284,7 @@ Theorem inverse
   : forall (b : Bool) . (b ^^ b = false) /\ (b ^^ b = false).
 Proof.
   intros b.
-  divide et impera.
-  - ipso (sejunction.irreflexivity b).
-  - ipso (sejunction.irreflexivity b).
+  divide et impera; ipso (sejunction.irreflexivity b).
 Qed.
 
 End sejunction. (* sejunction *)

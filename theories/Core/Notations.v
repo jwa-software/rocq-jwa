@@ -87,6 +87,8 @@ Reserved Notation "x <-> y"
   (at level 95, no associativity).
 Reserved Notation "~ x"
   (at level 75, right associativity).
+Reserved Notation "x ^ y"
+  (at level 30, right associativity).
 Reserved Notation "! b"
   (at level 35, right associativity).
 Reserved Notation "x && y"
@@ -165,13 +167,16 @@ Reserved Notation "'dne' H"
 Reserved Notation "'de' 'morgan' H"
   (at level 10, H at next level).
 
-(* The symmetry and the transitivity of [=] written as terms, for the same
- * reason and at the same level. Their meanings belong to [Tactics.Equation].
+(* The symmetry, the transitivity and the congruence of [=] written as terms,
+ * for the same reason and at the same level. Their meanings belong to
+ * [Tactics.Equation].
  *)
 Reserved Notation "'symm' H"
   (at level 10, H at next level).
 Reserved Notation "'trans' H1 , H2"
   (at level 10, H1 at next level, H2 at next level).
+Reserved Notation "'congru' F , H"
+  (at level 10, F at next level, H at next level).
 
 (* The introduction of each junction written as a term, at the same level.
  * Their meanings belong beside each connective in [Core.Logic], and the

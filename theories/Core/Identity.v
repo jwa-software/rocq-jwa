@@ -120,23 +120,23 @@ Proof.
 
   let proof facto
     : Identity_introduction &x = reflexivity &x
-    := &facto.
+    := facto.
 
   let proof facto
     : transitivity
         (Identity_introduction &x)
         (Identity_introduction &x)
       = reflexivity &x
-    := &facto.
+    := facto.
 
   let proof facto
     : transitivity
         (symmetry (Identity_introduction &x))
         (Identity_introduction &x)
       = reflexivity &x
-    := &facto.
+    := facto.
 
-  ipso &facto.
+  ipso facto.
 Qed.
 
 Module hedberg. (* hedberg *)
@@ -202,9 +202,7 @@ Proof.
   let base := decided decide x x (reflexivity x)
   in *.
 
-  let shift := fun (e : x = y) . transitivity (symmetry base) e.
-
-  let proof step := congruence shift c.
+  let proof step := congruence (fun (e : x = y) . transitivity (symmetry base) e) c.
   let proof rp' := symmetry rp.
   ipso (transitivity rp' (transitivity step rq)).
 Qed.

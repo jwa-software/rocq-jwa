@@ -130,3 +130,50 @@ Ltac2 Notation "trans" h1(thunk(constr)) "," h2(thunk(constr)) "as" p(intropatte
 
 Ltac2 Notation "trans" h1(thunk(constr)) "," h2(thunk(constr)) "|-" p(intropattern) :=
   trans_as h1 h2 p.
+
+(* The congruence of [=] under a function.
+ *
+ *   congru <F>, <H>    x = y |- F x = F y
+ *
+ * <F> a function, <H> an equation between values of the type <F> takes.
+ * Bare, it is a term; [congru <F>, <H> as <p>], or equally
+ * [congru <F>, <H> |- <p>], is a tactic, and <p> must be new. An <H> that is
+ * no equation, and an <F> that takes another type, are refused. Nothing
+ * anywhere may be named [congru].
+ *)
+Notation "'congru' F , H" := (Identity.congruence F H)
+  (only parsing).
+
+(* <F> and <H> are typed as one application, so that <H> fixes the implicit
+ * arguments of an <F> such as [first]; <F> alone is typed only to word the
+ * refusal.
+ *)
+Ltac2 congru_as (f : preterm) (h : preterm) (p : Std.intro_pattern) :=
+  Control.enter (fun () =>
+    Local.check_preterms "congru" [f; h];
+    let ch := Local.elaborate h in
+    must_be_equation "congru" ch;
+    must_be_new "congru" p;
+    Control.once_plus
+      (fun () =>
+        Std.specialize
+          (Local.elaborate preterm:(Identity.congruence $preterm:f $preterm:h), Std.NoBindings)
+          (Some p))
+      (fun _ =>
+        let function :=
+          Control.once_plus
+            (fun () =>
+               let cf := Local.elaborate f in
+               Message.concat (Message.of_constr cf)
+                 (Message.concat (Message.of_string " has type ")
+                    (Message.of_constr (Constr.type cf))))
+            (fun _ => Message.of_string "the function") in
+        refuse [Message.of_string "congru: "; function;
+                Message.of_string ", which does not take the sides of ";
+                Message.of_constr (Constr.type ch)])).
+
+Ltac2 Notation "congru" f(preterm) "," h(preterm) "as" p(intropattern) :=
+  congru_as f h p.
+
+Ltac2 Notation "congru" f(preterm) "," h(preterm) "|-" p(intropattern) :=
+  congru_as f h p.

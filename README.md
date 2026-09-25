@@ -69,9 +69,9 @@ Each tactic file opens with its grammar in a comment. In outline, against the Ro
 | `exists w` | `exists &w` | `Tactics/Witness.v` |
 | `left`, `right` | the terms `disjoin a, _` and `disjoin _, b` | `Core/Logic/Disjunction.v` |
 
-`jwa.Tactics` also names the rules of inference: `modus ponens`, `modus tollens`, `modus tollendo ponens`, `modus ponendo tollens`, `modus aequans`, `hs` (hypothetical syllogism), `barbara`, `dni` and `dne` (double negation), `de morgan`, `trans`, and the introductions `conjoin`, `sejoin` and `abjoin`. Bare, each is a term, `ipso (modus ponens &hab, &a)`; followed by `as <p>` or `|- <p>` it is a tactic that adds the conclusion as `<p>`.
+`jwa.Tactics` also names the rules of inference: `modus ponens`, `modus tollens`, `modus tollendo ponens`, `modus ponendo tollens`, `modus aequans`, `hs` (hypothetical syllogism), `barbara`, `dni` and `dne` (double negation), `de morgan`, `trans` and `congru` (the transitivity and the congruence of `=`), and the introductions `conjoin`, `sejoin` and `abjoin`. Bare, each is a term, `ipso (modus ponens &hab, &a)`; followed by `as <p>` or `|- <p>` it is a tactic that adds the conclusion as `<p>`.
 
-**Nothing is reduced on the user's behalf.** `quod idem est` closes `a = b` only when the two sides are the same term as written; `ex &h quodlibet` needs the empty type or the clash of constructors as written; `leibniz` takes an equation given whole, never a law left to be instantiated. A step that computes is written out before, with `simpl`. **Every refusal says what and where**, in the tactic's own words: `simpl: negate does not occur in h`, `rm: the goal depends on n, so it cannot be cleared`.
+**Nothing is reduced on the user's behalf.** `quod idem est` closes `a = b` only when the two sides are the same term as written; `ex &h quodlibet` needs the empty type or the clash of constructors as written; `leibniz` takes an equation given whole, never a law left to be instantiated. A step that computes is written out before, with `simpl`, or on the proof itself as the term `simpl &h`, which is `&h` with its type reduced: `leibniz (simpl &e) in |- *`. **Every refusal says what and where**, in the tactic's own words: `simpl: negate does not occur in h`, `rm: the goal depends on n, so it cannot be cleared`.
 
 **A name of the context is written `&h`**: a hypothesis, a local definition and a type introduced by `intros` alike. A global name is written bare, and a name being introduced takes no `&` (`intro a`, `let proof x`, the names of a `match` branch). By default a bare name of the context is accepted too; `Ltac2 Set Local.checking := Strict` makes every tactic refuse it with `<tactic>: h is in the context; write &h`.
 
@@ -84,8 +84,8 @@ Each tactic file opens with its grammar in a comment. In outline, against the Ro
 | `make` | Compiles every layer to `.vo` under `_build/default/theories/`, and the test suite. Silent on success. | After any change to a `.v` or `dune` file. |
 | `opam exec -- dune build theories/Data` | Compiles one layer and the layers it depends on. | Iterating on a single layer. |
 | `make opam` | Regenerates `opam/rocq-jwa.opam` from `dune-project`, rewriting it in place. | After changing a field of `dune-project` that ends up in the opam file: version, depends, synopsis, description, authors, maintainers, license, source, tags. |
-| `opam exec -- dune build @fmt` | Prints the formatting diff of the `dune` files without touching them. | Before committing, to see what `make fmt` would change. |
-| `make fmt` | Reformats the `dune` files in place. `.v` files are never touched. | When `@fmt` reports a diff you agree with. |
+| `make fmt-check` | Prints the formatting diff of the `dune` files without touching them; CI runs it. | Before committing, to see what `make fmt` would change. |
+| `make fmt` | Reformats the `dune` files in place. `.v` files are never touched. | When `make fmt-check` reports a diff you agree with. |
 | `opam exec -- dune build @install` | Builds exactly what an opam installation of the package would build. | Before a release, as a self-check. |
 | `make clean` | Deletes `_build/`. | When a build result looks stale or inconsistent. |
 | `make deps` | Installs the dependencies declared in `opam/rocq-jwa.opam` into the active switch. | Once, on a new switch. |
