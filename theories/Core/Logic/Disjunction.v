@@ -23,7 +23,7 @@ Notation "A \/ B" := (Disjunction A B)
 (* [disjoin a, _] : [A \/ B] from [a : A], and [disjoin _, b] from [b : B];
  * the side written [_] comes from the expected type.
  *)
-Notation "'disjoin' a , '_'" := (Disjunction_introduction_left a) (only parsing).
+Notation "'disjoin' a , '_'" := (Disjunction_introduction_left  a) (only parsing).
 Notation "'disjoin' '_' , b" := (Disjunction_introduction_right b) (only parsing).
 
 (* A module may carry the type's name; its laws read
@@ -96,10 +96,6 @@ End over. (* distributivity.over *)
 
 End distributivity. (* distributivity *)
 
-(* The universal property of [\/] as a coproduct: a proof of [C] from
- * [A \/ B] is a pair of proofs of [C], one from [A] and one from [B]. It is
- * the dual of [Conjunction.universality].
- *)
 Theorem universality
   : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B -> C) <-> (A -> C) /\ (B -> C).
 Proof.
@@ -145,12 +141,6 @@ Qed.
 
 End Disjunction. (* Disjunction *)
 
-(* The law of [/\] over [\/] belongs to [Conjunction], but it can be stated
- * only here, the lowest file that knows both connectives. A module cannot
- * be reopened across files; a second module of the same name continues
- * it, and a client reads [Conjunction.distributivity.over.disjunction]
- * under one prefix with the laws of [Core.Logic.Conjunction].
- *)
 Module Conjunction. (* Conjunction *)
 
 Module distributivity. (* distributivity *)
