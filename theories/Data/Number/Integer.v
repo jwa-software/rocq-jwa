@@ -403,7 +403,7 @@ Proof.
     leibniz (difference.nat.right.inversion.of.addition k r) in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + leibniz eq in h |- *.
+    + leibniz &eq in h |- *.
       leibniz (difference.nat.reflexivity q) in |- *.
       leibniz (Nat.addition.commutativity r q) in h.
       let proof e := Nat.addition.left.cancellation h.
@@ -442,7 +442,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + leibniz eq in |- *.
+    + leibniz &eq in |- *.
       leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
@@ -475,7 +475,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + leibniz eq in |- *.
+    + leibniz &eq in |- *.
       leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
@@ -578,7 +578,7 @@ Proof.
               (Nat.mul k j) (Nat.mul k p)) in |- *.
     quod idem est.
   - match rest with | eq | gt end.
-    + leibniz eq in |- *.
+    + leibniz &eq in |- *.
       leibniz (difference.nat.reflexivity q) in |- *.
       leibniz (difference.nat.reflexivity (Nat.mul k q)) in |- *.
       simpl in |- *.
@@ -1749,10 +1749,15 @@ Proof.
   intros x d.
   match x with | p | | p end.
   - simpl divide, abs in |- *.
-    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; quod idem est.
-  - quod idem est.
+    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end;
+      simpl from_nat_with_zero, negate in |- *; quod idem est.
   - simpl divide, abs in |- *.
-    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end; quod idem est.
+    simpl NatWithZero.divide, NatWithZero.div in |- *.
+    simpl in |- *.
+    quod idem est.
+  - simpl divide, abs in |- *.
+    match (NatWithZero.divide (NatWithZero.Positive p) d) with | | k end;
+      simpl from_nat_with_zero in |- *; quod idem est.
 Qed.
 
 (* division.exactness *)
