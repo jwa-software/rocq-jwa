@@ -63,11 +63,11 @@ Proof.
   match b1 with | | end;
       match b2 with | | end; simpl in |- *;
           divide et impera; intro h.
-  - ipso (Disjunction.left I).
+  - ipso (disjoin I, _).
   - ipso I.
-  - ipso (Disjunction.left I).
+  - ipso (disjoin I, _).
   - ipso I.
-  - ipso (Disjunction.right I).
+  - ipso (disjoin _, I).
   - ipso I.
   - ex h quodlibet.
   - match h with | h1 | h2 end.

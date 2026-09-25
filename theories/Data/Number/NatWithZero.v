@@ -462,7 +462,7 @@ Proof.
   simpl LessOrEqual in |- *.
   match m with | | m' end.
   - simpl in |- *.
-    ipso (Disjunction.L (Identity.reflexivity n)).
+    ipso (disjoin (Identity.reflexivity n), _).
   - lemma facto : &n < (+ &m') + &n.
     {
       simpl LessThan in |- *.
@@ -563,7 +563,7 @@ Proof.
   match h with | e | lt end.
   - leibniz e in |- *.
     simpl LessOrEqual in |- *.
-    ipso (Disjunction.L (Identity.reflexivity (k + n))).
+    ipso (disjoin (Identity.reflexivity (k + n)), _).
   - simpl LessOrEqual in |- *.
     ipso (disjoin _, (addition.order.strict.monotonicity k m n lt)).
 Qed.
@@ -744,10 +744,10 @@ Proof.
   simpl LessOrEqual in |- *.
   match n with | | p end.
   - simpl in |- *.
-    ipso (Disjunction.L (Identity.reflexivity 0)).
+    ipso (disjoin (Identity.reflexivity 0), _).
   - match k with | | k' end.
     + simpl in |- *.
-      ipso (Disjunction.L (Identity.reflexivity (+ p))).
+      ipso (disjoin (Identity.reflexivity (+ p)), _).
     + lemma facto : (+ &p) < (+ Nat.Successor &k') * (+ &p).
       {
         simpl LessThan in |- *.
@@ -1343,7 +1343,7 @@ Proof.
       quod idem est.
     + simpl in |- *.
       leibniz (Nat.subtraction.truncation
-                (Disjunction.R (Nat.addition.order.extensivity m' k))) in |- *.
+                (disjoin _, (Nat.addition.order.extensivity m' k))) in |- *.
       simpl in |- *.
       quod idem est.
 Qed.
@@ -1396,7 +1396,7 @@ Proof.
       quod idem est.
     + simpl in |- *.
       leibniz (Nat.subtraction.truncation
-                 (Disjunction.R (Nat.addition.order.extensivity k' n'))) in |- *.
+                 (disjoin _, (Nat.addition.order.extensivity k' n'))) in |- *.
       simpl in |- *.
       quod idem est.
     + simpl in |- *.

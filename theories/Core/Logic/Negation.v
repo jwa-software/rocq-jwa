@@ -36,9 +36,9 @@ Proof.
   - intro h.
     divide et impera.
     + intro a.
-      ipso (h (Disjunction.left a)).
+      ipso (h (disjoin a, _)).
     + intro b.
-      ipso (h (Disjunction.right b)).
+      ipso (h (disjoin _, b)).
   - intro h.
     match h with | not_a not_b end.
     intro ab.

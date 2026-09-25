@@ -75,8 +75,8 @@ Proof.
   divide et impera.
   - intro h.
     match h with | a nb | na b end.
-    + ipso (Disjunction.left (abjoin a, nb)).
-    + ipso (Disjunction.right (abjoin b, na)).
+    + ipso (disjoin (abjoin a, nb), _).
+    + ipso (disjoin _, (abjoin b, na)).
   - intro h.
     match h with | ab | ba end.
     + match ab with | a nb end.
@@ -99,12 +99,12 @@ Proof.
   divide et impera.
   - intro h.
     match h with | a nb | na b end; divide et impera.
-    + ipso (Disjunction.left a).
+    + ipso (disjoin a, _).
     + simpl (~ _) in nb |- *.
       intro ab.
       match ab with | _ b end.
       ipso (nb b).
-    + ipso (Disjunction.right b).
+    + ipso (disjoin _, b).
     + simpl (~ _) in na |- *.
       intro ab.
       match ab with | a _ end.
@@ -153,8 +153,8 @@ Proof.
   intros A B.
   intro h.
   match h with | a nb | na b end.
-  - ipso (Disjunction.left  a).
-  - ipso (Disjunction.right b).
+  - ipso (disjoin a, _).
+  - ipso (disjoin _, b).
 Qed.
 
 End to. (* weakening.to *)

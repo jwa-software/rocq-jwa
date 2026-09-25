@@ -265,19 +265,19 @@ Proof.
     divide et impera.
     + intro h.
       match h with | e | h' end.
-      * ipso (Disjunction.L (Disjunction.L e)).
+      * ipso (disjoin (disjoin e, _), _).
       * modus aequans IH, h' |- d.
         match d with | m | m end.
-        -- ipso (Disjunction.L (Disjunction.R m)).
-        -- ipso (Disjunction.R m).
+        -- ipso (disjoin (disjoin _, m), _).
+        -- ipso (disjoin _, m).
     + intro h.
       match h with | c | m end.
       * match c with | e | m end.
-        -- ipso (Disjunction.L e).
-        -- modus aequans IH, (Disjunction.L m) |- h'.
-           ipso (Disjunction.R h').
-      * modus aequans IH, (Disjunction.R m) |- h'.
-        ipso (Disjunction.R h').
+        -- ipso (disjoin e, _).
+        -- modus aequans IH, (disjoin m, _) |- h'.
+           ipso (disjoin _, h').
+      * modus aequans IH, (disjoin _, m) |- h'.
+        ipso (disjoin _, h').
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -440,8 +440,8 @@ Proof.
     quod idem est.
   - simpl in |- *.
     match (le b (maximum_of le x')) with end |- s.
-    + ipso (Disjunction.R IH).
-    + ipso (Disjunction.L (Identity.reflexivity b)).
+    + ipso (disjoin _, IH).
+    + ipso (disjoin (Identity.reflexivity b), _).
 Qed.
 
 End maximum. (* maximum *)
@@ -490,8 +490,8 @@ Proof.
     quod idem est.
   - simpl in |- *.
     match (le b (minimum_of le x')) with end |- s.
-    + ipso (Disjunction.L (Identity.reflexivity b)).
-    + ipso (Disjunction.R IH).
+    + ipso (disjoin (Identity.reflexivity b), _).
+    + ipso (disjoin _, IH).
 Qed.
 
 End minimum. (* minimum *)
@@ -550,7 +550,7 @@ Proof.
   - simpl in |- *.
     divide et impera.
     + intro e.
-      ipso (Disjunction.L e).
+      ipso (disjoin e, _).
     + intro h.
       match h with | e | f end.
       * ipso e.
@@ -559,14 +559,14 @@ Proof.
     divide et impera.
     + intro h.
       match h with | e | m end.
-      * ipso (Disjunction.L e).
+      * ipso (disjoin e, _).
       * modus aequans IH, m |- m'.
-        ipso (Disjunction.R m').
+        ipso (disjoin _, m').
     + intro h.
       match h with | e | m end.
-      * ipso (Disjunction.L e).
+      * ipso (disjoin e, _).
       * modus aequans IH, m |- m'.
-        ipso (Disjunction.R m').
+        ipso (disjoin _, m').
 Qed.
 
 (* The [Option] that [List]'s extrema carry is about emptiness and nothing

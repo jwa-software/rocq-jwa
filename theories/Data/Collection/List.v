@@ -819,14 +819,14 @@ Proof.
   match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    ipso (Disjunction.R h).
+    ipso (disjoin _, h).
   - simpl in |- *.
     intro h.
     match h with | e | h' end.
-    + ipso (Disjunction.L (Disjunction.L e)).
+    + ipso (disjoin (disjoin e, _), _).
     + match (IH h') with | h1 | h2 end.
-      * ipso (Disjunction.L (Disjunction.R h1)).
-      * ipso (Disjunction.R h2).
+      * ipso (disjoin (disjoin _, h1), _).
+      * ipso (disjoin _, h2).
 Qed.
 
 End over. (* membership.forward.distributivity.over *)
@@ -857,7 +857,7 @@ Proof.
     intro h.
     match h with | h1 | h2 end.
     + match h1 with | e | h1' end.
-      * ipso (Disjunction.L e).
+      * ipso (disjoin e, _).
       * ipso (disjoin _, (&IH (disjoin &h1', _))).
     + ipso (disjoin _, (&IH (disjoin _, &h2))).
 Qed.
@@ -969,7 +969,7 @@ Proof.
     + ipso (disjoin _, (&IH &h1)).
     + simpl in h2.
       match h2 with | e | f end.
-      * ipso (Disjunction.L e).
+      * ipso (disjoin e, _).
       * ex f quodlibet.
 Qed.
 
@@ -1003,7 +1003,7 @@ Proof.
       + lemma singleton : (&b :: []) contains_member &a.
         {
           simpl in |- *.
-          ipso (Disjunction.L e).
+          ipso (disjoin e, _).
         }
         ipso (disjoin _, &singleton).
       + ipso (disjoin (&IH &h'), _).
@@ -1072,10 +1072,10 @@ Proof.
   divide et impera.
   - intro h.
     match (membership.forward.distributivity.over.concatenation h) with | h1 | h2 end.
-    + ipso (Disjunction.R h1).
+    + ipso (disjoin _, h1).
     + simpl in h2.
       match h2 with | e | f end.
-      * ipso (Disjunction.L e).
+      * ipso (disjoin e, _).
       * ex f quodlibet.
   - intro h.
     lemma facto : &l contains_member &b \/ (&a :: []) contains_member &b.
@@ -1084,10 +1084,10 @@ Proof.
       + lemma singleton : (&a :: []) contains_member &b.
         {
           simpl in |- *.
-          ipso (Disjunction.L e).
+          ipso (disjoin e, _).
         }
         ipso (disjoin _, &singleton).
-      + ipso (Disjunction.L h').
+      + ipso (disjoin h', _).
     }
     ipso (membership.backward.distributivity.over.concatenation &facto).
 Qed.
@@ -1171,17 +1171,17 @@ Proof.
       intro h.
       match h with | e | h' end.
       * divide et impera.
-        -- ipso (Disjunction.L e).
+        -- ipso (disjoin e, _).
         -- leibniz e in |- *.
            ipso pb.
       * match (IH h') with | hl pa end.
         divide et impera.
-        -- ipso (Disjunction.R hl).
+        -- ipso (disjoin _, hl).
         -- ipso pa.
     + intro h'.
       match (IH h') with | hl pa end.
       divide et impera.
-      * ipso (Disjunction.R hl).
+      * ipso (disjoin _, hl).
       * ipso pa.
 Qed.
 
@@ -1207,7 +1207,7 @@ Proof.
     + leibniz e in pa.
       leibniz pa in |- *.
       simpl in |- *.
-      ipso (Disjunction.L e).
+      ipso (disjoin e, _).
     + match (p b) with | | end.
       * simpl in |- *.
         ipso (disjoin _, (&IH (conjoin &h', &pa))).
@@ -1422,14 +1422,14 @@ Proof.
   match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    ipso (Disjunction.R h).
+    ipso (disjoin _, h).
   - simpl in |- *.
     intro h.
     match h with | pb | h' end.
-    + ipso (Disjunction.L (Disjunction.L pb)).
+    + ipso (disjoin (disjoin pb, _), _).
     + match (IH h') with | h1 | h2 end.
-      * ipso (Disjunction.L (Disjunction.R h1)).
-      * ipso (Disjunction.R h2).
+      * ipso (disjoin (disjoin _, h1), _).
+      * ipso (disjoin _, h2).
 Qed.
 
 End over. (* quantification.any.forward.distributivity.over *)
@@ -1451,13 +1451,13 @@ Proof.
     match h with | pb | h' end.
     + exists b.
       divide et impera.
-      * ipso (Disjunction.L (Identity.reflexivity b)).
+      * ipso (disjoin (Identity.reflexivity b), _).
       * ipso pb.
     + match (IH h') with | a ha end.
       match ha with | ha' pa end.
       exists a.
       divide et impera.
-      * ipso (Disjunction.R ha').
+      * ipso (disjoin _, ha').
       * ipso pa.
 Qed.
 
@@ -1485,7 +1485,7 @@ Proof.
     intro h.
     match h with | h1 | h2 end.
     + match h1 with | pb | h1' end.
-      * ipso (Disjunction.L pb).
+      * ipso (disjoin pb, _).
       * ipso (disjoin _, (&IH (disjoin &h1', _))).
     + ipso (disjoin _, (&IH (disjoin _, &h2))).
 Qed.
@@ -1512,7 +1512,7 @@ Proof.
     match ha with | ha' pa end.
     match ha' with | e | ha'' end.
     + leibniz e in pa.
-      ipso (Disjunction.L pa).
+      ipso (disjoin pa, _).
     + lemma witness : forsome (x : &A) . &l' contains_member x /\ &P x.
       {
         exists &a.
@@ -2485,11 +2485,11 @@ Proof.
     + simpl in |- *.
       intro h.
       match h with | e | h' end.
-      * ipso (Disjunction.R (Disjunction.L e)).
+      * ipso (disjoin _, (disjoin e, _)).
       * modus ponens IH, h' |- h''.
         match h'' with | e | h''' end.
-        { ipso (Disjunction.L e). }
-        { ipso (Disjunction.R (Disjunction.R h''')). }
+        { ipso (disjoin e, _). }
+        { ipso (disjoin _, (disjoin _, h''')). }
 Qed.
 
 End forward. (* sorting.insertion.forward *)
@@ -2514,10 +2514,10 @@ Proof.
     + simpl in |- *.
       intro h.
       match h with | e | h' end.
-      * ipso (Disjunction.R (IH (Disjunction.L e))).
+      * ipso (disjoin _, (IH (disjoin e, _))).
       * match h' with | e | h'' end.
-        { ipso (Disjunction.L e). }
-        { ipso (Disjunction.R (IH (Disjunction.R h''))). }
+        { ipso (disjoin e, _). }
+        { ipso (disjoin _, (IH (disjoin _, h''))). }
 Qed.
 
 End backward. (* sorting.insertion.backward *)
@@ -2590,8 +2590,8 @@ Proof.
     intro h.
     let proof h' := sorting.insertion.forward.membership h.
     match h' with | e | h'' end.
-    + ipso (Disjunction.L e).
-    + ipso (Disjunction.R (IH h'')).
+    + ipso (disjoin e, _).
+    + ipso (disjoin _, (IH h'')).
 Qed.
 
 End of. (* sorting.forward.preservation.of *)
@@ -2621,8 +2621,8 @@ Proof.
     lemma facto : &a = &b \/ insertion_sort &le &l' contains_member &a.
     {
       match h with | e | h' end.
-      + ipso (Disjunction.L e).
-      + ipso (Disjunction.R (IH h')).
+      + ipso (disjoin e, _).
+      + ipso (disjoin _, (IH h')).
     }
     ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') &facto).
 Qed.
@@ -2723,10 +2723,10 @@ Proof.
       {
         simpl NatWithZero.LessOrEqual in |- *.
         match h' with | h1 | h2 end.
-        + ipso (Disjunction.R (IH i h1)).
+        + ipso (disjoin _, (IH i h1)).
         + simpl in h2.
           match h2 with | e | f end.
-          * ipso (Disjunction.L e).
+          * ipso (disjoin e, _).
           * ex f quodlibet.
       }
       ipso (modus aequans
@@ -2752,7 +2752,7 @@ Proof.
     match h with | k e end.
     match i with | | q end.
     + simpl in |- *.
-      ipso (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
+      ipso (disjoin (Identity.reflexivity NatWithZero.Zero), _).
     + simpl in e.
       let proof e' := NatWithZero.positive.injectivity e.
       match q with | | q' end; simpl in e'; ex e' quodlibet.
@@ -2769,10 +2769,10 @@ Proof.
       + lemma singleton : (NatWithZero.Positive &p' :: []) contains_member &i.
         {
           simpl in |- *.
-          ipso (Disjunction.L e).
+          ipso (disjoin e, _).
         }
         ipso (disjoin _, &singleton).
-      + ipso (Disjunction.L (IH i lt)).
+      + ipso (disjoin (IH i lt), _).
     }
     ipso (modus aequans
              (membership.distributivity.over.concatenation
@@ -3176,7 +3176,7 @@ Proof.
     match (maximum_of le l') with | | m' end |- r.
     + let proof e' := Option.some.injectivity e.
       simpl in |- *.
-      ipso (Disjunction.L (Identity.symmetry e')).
+      ipso (disjoin (Identity.symmetry e'), _).
     + match (le a m') with end |- s.
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
@@ -3184,7 +3184,7 @@ Proof.
         ipso (disjoin _, (&IH &m' (Identity.reflexivity (Some &m')))).
       * let proof e' := Option.some.injectivity e.
         simpl in |- *.
-        ipso (Disjunction.L (Identity.symmetry e')).
+        ipso (disjoin (Identity.symmetry e'), _).
 Qed.
 
 End maximum. (* maximum *)
@@ -3274,11 +3274,11 @@ Proof.
     match (minimum_of le l') with | | m' end |- r.
     + let proof e' := Option.some.injectivity e.
       simpl in |- *.
-      ipso (Disjunction.L (Identity.symmetry e')).
+      ipso (disjoin (Identity.symmetry e'), _).
     + match (le a m') with end |- s.
       * let proof e' := Option.some.injectivity e.
         simpl in |- *.
-        ipso (Disjunction.L (Identity.symmetry e')).
+        ipso (disjoin (Identity.symmetry e'), _).
       * let proof e' := Option.some.injectivity e.
         leibniz <- e' in |- *.
         simpl in |- *.

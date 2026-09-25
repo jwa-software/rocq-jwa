@@ -50,8 +50,8 @@ Proof.
    * - one with [b : B].
    *)
   match h with | a | b end.
-  - ipso (right a).
-  - ipso (left  b).
+  - ipso (disjoin _, a).
+  - ipso (disjoin b, _).
 Qed.
 
 Theorem associativity
@@ -62,15 +62,15 @@ Proof.
   - intro h.
     match h with | ab | c end.
     + match ab with | a | b end.
-      * ipso (Disjunction.left a).
-      * ipso (Disjunction.right (Disjunction.left b)).
-    + ipso (Disjunction.right (Disjunction.right c)).
+      * ipso (disjoin a, _).
+      * ipso (disjoin _, (disjoin b, _)).
+    + ipso (disjoin _, (disjoin _, c)).
   - intro h.
     match h with | a | bc end.
-    + ipso (Disjunction.left (Disjunction.left a)).
+    + ipso (disjoin (disjoin a, _), _).
     + match bc with | b | c end.
-      * ipso (Disjunction.left (Disjunction.right b)).
-      * ipso (Disjunction.right c).
+      * ipso (disjoin (disjoin _, b), _).
+      * ipso (disjoin _, c).
 Qed.
 
 Module distributivity. (* distributivity *)
@@ -86,19 +86,19 @@ Proof.
   - intro h.
     match h with | a | bc end.
     + divide et impera.
-      * ipso (Disjunction.left a).
-      * ipso (Disjunction.left a).
+      * ipso (disjoin a, _).
+      * ipso (disjoin a, _).
     + match bc with | b c end.
       divide et impera.
-      * ipso (Disjunction.right b).
-      * ipso (Disjunction.right c).
+      * ipso (disjoin _, b).
+      * ipso (disjoin _, c).
   - intro h.
     match h  with | ab ac end.
     match ab with | a | b end.
-    + ipso (Disjunction.left a).
+    + ipso (disjoin a, _).
     + match ac with | a | c end.
-      * ipso (Disjunction.left a).
-      * ipso (Disjunction.right (conjoin b, c)).
+      * ipso (disjoin a, _).
+      * ipso (disjoin _, (conjoin b, c)).
 Qed.
 
 End over. (* distributivity.over *)
@@ -117,9 +117,9 @@ Proof.
   - intro f.
     divide et impera.
     + intro a.
-      ipso (f (Disjunction.left a)).
+      ipso (f (disjoin a, _)).
     + intro b.
-      ipso (f (Disjunction.right b)).
+      ipso (f (disjoin _, b)).
   - intro h.
     match h with | ac bc end.
     intro ab.
@@ -141,15 +141,15 @@ Proof.
   - (* [h : A1 \/ B1]: [|- A2 \/ B2] *)
     match h with | a1 | b1 end.
     + let proof a2 := a12 a1.
-      ipso (Disjunction.left a2).
+      ipso (disjoin a2, _).
     + let proof b2 := b12 b1.
-      ipso (Disjunction.right b2).
+      ipso (disjoin _, b2).
   - (* [h : A2 \/ B2]: [|- A1 \/ B1] *)
     match h with | a2 | b2 end.
     + let proof a1 := a21 a2.
-      ipso (Disjunction.left a1).
+      ipso (disjoin a1, _).
     + let proof b1 := b21 b2.
-      ipso (Disjunction.right b1).
+      ipso (disjoin _, b1).
 Qed.
 
 End Disjunction. (* Disjunction *)
@@ -175,18 +175,18 @@ Proof.
   - intro h.
     match h with | a bc end.
     match bc with | b | c end.
-    + ipso (Disjunction.left (conjoin a, b)).
-    + ipso (Disjunction.right (conjoin a, c)).
+    + ipso (disjoin (conjoin a, b), _).
+    + ipso (disjoin _, (conjoin a, c)).
   - intro h.
     match h with | ab | ac end.
     + match ab with | a b end.
       divide et impera.
       * ipso a.
-      * ipso (Disjunction.left b).
+      * ipso (disjoin b, _).
     + match ac with | a c end.
       divide et impera.
       * ipso a.
-      * ipso (Disjunction.right c).
+      * ipso (disjoin _, c).
 Qed.
 
 End over. (* distributivity.over *)

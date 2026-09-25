@@ -439,7 +439,7 @@ Proof.
   intro n; match n with | | n' end.
   -
     let proof id := Identity.reflexivity 1.
-    ipso (Disjunction.R (Disjunction.L id)).
+    ipso (disjoin _, (disjoin id, _)).
   -
     lemma facto : 1 < Successor &n'.
     {
