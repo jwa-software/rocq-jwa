@@ -1515,6 +1515,20 @@ Proof.
   match m with | m' | | m' end; match n with | n' | | n' end; simpl in |- *; quod idem est.
 Qed.
 
+Module positive. (* multiplication.positive *)
+
+(* multiplication.positive.homomorphism *)
+Theorem homomorphism
+  : forall (m : Nat) (n : Nat) .
+      (+ m) * (+ n) = + (Nat.mul m n).
+Proof.
+  intros m n.
+  simpl mul in |- *.
+  quod idem est.
+Qed.
+
+End positive. (* multiplication.positive *)
+
 End multiplication. (* multiplication *)
 
 Module order. (* order *)

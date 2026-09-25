@@ -39,13 +39,41 @@ From Ltac2 Require Control Std.
 
 (* Tries each branch in turn and keeps the first that succeeds; a later
  * failure does not come back to try the next, as [Control.plus] alone
- * would.
+ * would. When none succeeds, [refusal] says why.
  *)
-Ltac2 rec first_branch (branches : (unit -> unit) list) :=
+Ltac2 rec first_branch (refusal : unit -> unit) (branches : (unit -> unit) list) :=
   match branches with
-  | [] => Control.zero (Tactic_failure None)
-  | branch :: rest => Control.once_plus branch (fun _ => first_branch rest)
+  | [] => refusal ()
+  | branch :: rest => Control.once_plus branch (fun _ => first_branch refusal rest)
   end.
+
+(* A premise and its type, printed from the elaborated term, where [&h] reads [h]. *)
+Ltac2 premise (h : preterm) : message :=
+  Control.once_plus
+    (fun () =>
+       let t := Local.elaborate h in
+       Message.concat (Message.of_constr t)
+         (Message.concat (Message.of_string " proves ")
+            (Message.of_constr (Constr.type t))))
+    (fun _ => Message.of_string "a premise that does not type on its own").
+
+(* The refusal of a modus whose two premises fit none of its forms. *)
+Ltac2 refuse_premises (who : string) (forms : string) (h1 : preterm) (h2 : preterm) :=
+  Control.zero
+    (Tactic_failure
+       (Some (Message.concat (Message.of_string who)
+             (Message.concat (Message.of_string ": ")
+             (Message.concat (premise h1)
+             (Message.concat (Message.of_string " and ")
+             (Message.concat (premise h2)
+             (Message.concat (Message.of_string "; the rule takes ")
+                (Message.of_string forms))))))))).
+
+Ltac2 tollendo_ponens_forms () := "A \/ B with ~ A, or A \/ B with ~ B".
+
+Ltac2 ponendo_tollens_forms () := "~ (A /\ B) or A _\/_ B, with A or with B".
+
+Ltac2 aequans_forms () := "A <-> B with A, or A <-> B with B".
 
 (* The levels are reserved in [Core.Notations]; only the meanings belong
  * here. [ltac2:] is what lets a term try branches: it opens a goal, runs the
@@ -119,6 +147,8 @@ Ltac2 Notation "modus" "tollendo" "tollens" h1(preterm) "," h2(preterm)
 
 Notation "'modus' 'tollendo' 'ponens' H1 , H2"
     := (ltac2:(first_branch
+                 (fun () => refuse_premises "modus tollendo ponens" (tollendo_ponens_forms ())
+                              preterm:($preterm:H1) preterm:($preterm:H2))
                  [ (fun () => Control.refine (fun () =>
                       constr:(Negation.elimination.left.of.disjunction
                                 $preterm:H1 $preterm:H2)));
@@ -131,6 +161,7 @@ Ltac2 modus_tollendo_ponens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern
   Control.enter (fun () =>
     Local.check_preterms "modus tollendo ponens" [h1; h2];
     first_branch
+      (fun () => refuse_premises "modus tollendo ponens" (tollendo_ponens_forms ()) h1 h2)
       [ (fun () => Std.specialize
            (Local.elaborate preterm:(Negation.elimination.left.of.disjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
@@ -148,6 +179,8 @@ Ltac2 Notation "modus" "tollendo" "ponens" h1(preterm) "," h2(preterm)
 
 Notation "'modus' 'ponendo' 'tollens' H1 , H2"
     := (ltac2:(first_branch
+                 (fun () => refuse_premises "modus ponendo tollens" (ponendo_tollens_forms ())
+                              preterm:($preterm:H1) preterm:($preterm:H2))
                  [ (fun () => Control.refine (fun () =>
                       constr:(Negation.exclusion.left.of.conjunction
                                 $preterm:H1 $preterm:H2)));
@@ -168,6 +201,7 @@ Ltac2 modus_ponendo_tollens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern
   Control.enter (fun () =>
     Local.check_preterms "modus ponendo tollens" [h1; h2];
     first_branch
+      (fun () => refuse_premises "modus ponendo tollens" (ponendo_tollens_forms ()) h1 h2)
       [ (fun () => Std.specialize
            (Local.elaborate preterm:(Negation.exclusion.left.of.conjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
@@ -193,6 +227,8 @@ Ltac2 Notation "modus" "ponendo" "tollens" h1(preterm) "," h2(preterm)
 
 Notation "'modus' 'aequans' H1 , H2"
     := (ltac2:(first_branch
+                 (fun () => refuse_premises "modus aequans" (aequans_forms ())
+                              preterm:($preterm:H1) preterm:($preterm:H2))
                  [ (fun () => Control.refine (fun () =>
                       constr:(Biconditional.forward.elimination
                                 $preterm:H1 $preterm:H2)));
@@ -205,6 +241,7 @@ Ltac2 modus_aequans (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern) :=
   Control.enter (fun () =>
     Local.check_preterms "modus aequans" [h1; h2];
     first_branch
+      (fun () => refuse_premises "modus aequans" (aequans_forms ()) h1 h2)
       [ (fun () => Std.specialize
            (Local.elaborate preterm:(Biconditional.forward.elimination
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
