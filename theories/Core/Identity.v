@@ -152,8 +152,8 @@ Local Definition decided
     (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
     (x : A) (y : A) (e : x = y) .
     match decide x y with
-    | Disjunction.L l => l
-    | Disjunction.R r => let falsum: Falsum := (r e) in Falsum.elimination (x = y) falsum
+    | disjoin l, _ => l
+    | disjoin _, r => let falsum: Falsum := (r e) in Falsum.elimination (x = y) falsum
     end.
 
 (* hedberg.constancy *)

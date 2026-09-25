@@ -31,12 +31,6 @@ Notation "'disjoin' '_' , b" := (Disjunction_introduction_right b) (only parsing
  *)
 Module Disjunction. (* Disjunction *)
 
-(* The two ctors under short names, for a [match] pattern such as
- * [| Disjunction.L a => ...]: an abbreviation is the ctor itself.
- *)
-Abbreviation L := Disjunction_introduction_left  (only parsing).
-Abbreviation R := Disjunction_introduction_right (only parsing).
-
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A \/ B -> B \/ A.
 Proof.
