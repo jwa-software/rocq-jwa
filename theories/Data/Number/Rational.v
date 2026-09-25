@@ -2065,6 +2065,12 @@ Abbreviation Rational := Rational.T.
  *)
 Export (notations) Rational.
 
+(* An [Integer] stands wherever a [Rational] is expected, and through it a
+ * [Nat] or a [NatWithZero]; the conversion is printed where it happened.
+ *)
+Coercion Rational.from_integer : Integer >-> Rational.
+Add Printing Coercion Rational.from_integer.
+
 Instance Rational_comparable
   : Comparable Rational.compare (<)%rational :=
   {| Comparable.transitivity  := Rational.order.strict.transitivity
