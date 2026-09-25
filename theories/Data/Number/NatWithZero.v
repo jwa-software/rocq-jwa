@@ -284,7 +284,8 @@ Proof.
     simpl in e.
     let proof e' := positive.injectivity e.
     simpl Nat.LessThan in |- *.
-    ipso (Exists_introduction k e').
+    exists &k.
+    ipso &e'.
   - intro h.
     simpl Nat.LessThan in h.
     match h with | k e end.

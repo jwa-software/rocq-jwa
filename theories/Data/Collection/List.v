@@ -746,12 +746,13 @@ Proof.
     + simpl in |- *.
       intro h.
       match h with | e | h' end.
-      * ipso (Exists_introduction
-                 a (conjoin (Disjunction.L (Identity.reflexivity a)), e)).
+      * exists &a.
+        ipso (conjoin (disjoin (Identity.reflexivity &a), _), &e).
       * let proof w := IH h'.
         match w with | a' c end.
         match c with | m e end.
-        ipso (Exists_introduction a' (conjoin (Disjunction.R m), e)).
+        exists &a'.
+        ipso (conjoin (disjoin _, &m), &e).
   - intro w.
     match w with | a c end.
     match c with | m e end.

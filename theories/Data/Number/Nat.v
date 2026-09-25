@@ -200,7 +200,8 @@ Proof.
   simpl in e.
   let proof e' := successor.injectivity e.
   simpl LessThan in |- *.
-  ipso (Exists_introduction k e').
+  exists &k.
+  ipso &e'.
 Qed.
 
 End monotonicity. (* successor.order.monotonicity *)
