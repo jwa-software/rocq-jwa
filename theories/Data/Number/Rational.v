@@ -444,8 +444,8 @@ Proof.
     quod idem est.
   }
 
-  let proof P1 := proportionality a b.
-  let proof P2 := proportionality c d.
+  let proof P1 := make.proportionality a b.
+  let proof P2 := make.proportionality c d.
 
   (* The third field is the irreducibility of each pair, handed over by the
    * case analysis rather than proved after it.
@@ -640,7 +640,7 @@ Proof.
     quod idem est.
   }
 
-  let proof criterion := characterisation Integer.Zero b Integer.Zero Nat.One.
+  let proof criterion := make.characterisation Integer.Zero b Integer.Zero Nat.One.
   modus aequans criterion, cross |- joined.
   ipso (Identity.transitivity joined unit).
 Qed.
@@ -657,8 +657,8 @@ Proof.
   intros a b c d.
   simpl add in |- *.
 
-  let proof P1 := proportionality a b.
-  let proof P2 := proportionality c d.
+  let proof P1 := make.proportionality a b.
+  let proof P2 := make.proportionality c d.
 
   match (make a b) with | p q I1 end |- E1.
   match (make c d) with | r s I2 end |- E2.
@@ -714,7 +714,7 @@ Proof.
     ipso facto.
   }
 
-  let proof criterion := characterisation
+  let proof criterion := make.characterisation
                 (p * s' + r * q')%integer
                 (q * s)%nat
                 (a * d' + c * b')%integer
@@ -735,8 +735,8 @@ Proof.
   intros a b c d.
   simpl mul in |- *.
 
-  let proof P1 := proportionality a b.
-  let proof P2 := proportionality c d.
+  let proof P1 := make.proportionality a b.
+  let proof P2 := make.proportionality c d.
 
   match (make a b) with | p q I1 end |- E1.
   match (make c d) with | r s I2 end |- E2.
@@ -765,7 +765,7 @@ Proof.
     ipso facto.
   }
 
-  let proof criterion := characterisation
+  let proof criterion := make.characterisation
                 (p * r)%integer (q * s)%nat
                 (a * c)%integer (b * d)%nat.
   modus aequans criterion, cross |- joined.
@@ -784,7 +784,7 @@ Proof.
   intros a b.
   simpl negate in |- *.
 
-  let proof P1 := proportionality a b.
+  let proof P1 := make.proportionality a b.
 
   match (make a b) with | p q I1 end |- E1.
   simpl numerator, denominator in P1.
@@ -799,7 +799,7 @@ Proof.
     quod idem est.
   }
 
-  let proof criterion := characterisation
+  let proof criterion := make.characterisation
                 (Integer.negate p) q (Integer.negate a) b.
   modus aequans criterion, cross |- joined.
   ipso joined.
@@ -818,8 +818,8 @@ Theorem characterisation
       <-> (a * d < c * b)%integer.
 Proof.
   intros a b c d.
-  let proof P1 := proportionality a b.
-  let proof P2 := proportionality c d.
+  let proof P1 := make.proportionality a b.
+  let proof P2 := make.proportionality c d.
   simpl ( _ < _ ) in |- *.
   let p := numerator   (make &a &b) in *.
   let q := denominator (make &a &b) in *.
@@ -1090,13 +1090,13 @@ Theorem cancellation
 Proof.
   intros k m n e.
 
-  let proof am := associativity (negate k) k m.
-  leibniz (inverse k)  in am.
-  leibniz (identity m) in am.
+  let proof am := addition.associativity (negate k) k m.
+  leibniz (addition.left.inverse k)  in am.
+  leibniz (addition.left.identity m) in am.
 
-  let proof an := associativity (negate k) k n.
-  leibniz (inverse k)  in an.
-  leibniz (identity n) in an.
+  let proof an := addition.associativity (negate k) k n.
+  leibniz (addition.left.inverse k)  in an.
+  leibniz (addition.left.identity n) in an.
 
   congru (fun (t : Rational) . add (negate k) t), e |- h.
   simpl in h.
@@ -1169,13 +1169,13 @@ Theorem cancellation
 Proof.
   intros k m n e.
 
-  let proof am := associativity m k (negate k).
-  leibniz (inverse k)  in am.
-  leibniz (identity m) in am.
+  let proof am := addition.associativity m k (negate k).
+  leibniz (addition.right.inverse k)  in am.
+  leibniz (addition.right.identity m) in am.
 
-  let proof an := associativity n k (negate k).
-  leibniz (inverse k)  in an.
-  leibniz (identity n) in an.
+  let proof an := addition.associativity n k (negate k).
+  leibniz (addition.right.inverse k)  in an.
+  leibniz (addition.right.identity n) in an.
 
   congru (fun (t : Rational) . add t (negate k)), e |- h.
   simpl in h.
@@ -1192,8 +1192,8 @@ Theorem identity
 Proof.
   intro x.
   divide et impera.
-  - ipso (left.identity  x).
-  - ipso (right.identity x).
+  - ipso (addition.left.identity  x).
+  - ipso (addition.right.identity x).
 Qed.
 
 (* addition.inverse *)
@@ -1203,8 +1203,8 @@ Theorem inverse
 Proof.
   intro x.
   divide et impera.
-  - ipso (left.inverse  x).
-  - ipso (right.inverse x).
+  - ipso (addition.left.inverse  x).
+  - ipso (addition.right.inverse x).
 Qed.
 
 (* addition.cancellation *)
@@ -1214,8 +1214,8 @@ Theorem cancellation
 Proof.
   intros m n k.
   divide et impera.
-  - ipso (left.cancellation  m n k).
-  - ipso (right.cancellation n m k).
+  - ipso (addition.left.cancellation  m n k).
+  - ipso (addition.right.cancellation n m k).
 Qed.
 
 Module order. (* addition.order *)
@@ -1580,16 +1580,16 @@ Module right. (* multiplication.right *)
   Theorem identity : forall (x : Rational) . x * One = x.
 Proof.
   intro x.
-  leibniz (commutativity x One) in |- *.
-  ipso (left.identity x).
+  leibniz (multiplication.commutativity x One) in |- *.
+  ipso (multiplication.left.identity x).
 Qed.
 
 (* multiplication.right.annihilation *)
 Theorem annihilation : forall (x : Rational) . x * Zero = Zero.
 Proof.
   intro x.
-  leibniz (commutativity x Zero) in |- *.
-  ipso (left.annihilation x).
+  leibniz (multiplication.commutativity x Zero) in |- *.
+  ipso (multiplication.left.annihilation x).
 Qed.
 
 Module distributivity. (* multiplication.right.distributivity *)
@@ -1602,10 +1602,10 @@ Theorem addition
       (y + z) * x = (y * x) + (z * x).
 Proof.
   intros x y z.
-  leibniz (commutativity (y + z) x) in |- *.
-  leibniz (left.distributivity.over.addition x y z) in |- *.
-  leibniz (commutativity x y) in |- *.
-  leibniz (commutativity x z) in |- *.
+  leibniz (multiplication.commutativity (y + z) x) in |- *.
+  leibniz (multiplication.left.distributivity.over.addition x y z) in |- *.
+  leibniz (multiplication.commutativity x y) in |- *.
+  leibniz (multiplication.commutativity x z) in |- *.
   quod idem est.
 Qed.
 
@@ -1621,8 +1621,8 @@ Theorem identity
 Proof.
   intro x.
   divide et impera.
-  - ipso (left.identity  x).
-  - ipso (right.identity x).
+  - ipso (multiplication.left.identity  x).
+  - ipso (multiplication.right.identity x).
 Qed.
 
 Module distributivity. (* multiplication.distributivity *)
@@ -1637,8 +1637,8 @@ Theorem addition
 Proof.
   intros x y z.
   divide et impera.
-  - ipso (left.distributivity.over.addition  x y z).
-  - ipso (right.distributivity.over.addition x y z).
+  - ipso (multiplication.left.distributivity.over.addition  x y z).
+  - ipso (multiplication.right.distributivity.over.addition x y z).
 Qed.
 
 End over. (* multiplication.distributivity.over *)
@@ -2030,7 +2030,7 @@ Proof.
     + ex e quodlibet.
   - intro e.
     leibniz e in |- *.
-    ipso (retraction n).
+    ipso (narrowing.integer.retraction n).
 Qed.
 
 (* narrowing.integer.failure *)
@@ -2065,7 +2065,7 @@ Theorem retraction
 Proof.
   intro n.
   simpl to_nat_with_zero in |- *.
-  leibniz (integer.retraction n) in |- *.
+  leibniz (narrowing.integer.retraction n) in |- *.
   simpl in |- *.
   ipso (Integer.narrowing.nat_with_zero.retraction n).
 Qed.
@@ -2081,13 +2081,13 @@ Proof.
     simpl to_nat_with_zero in e.
     match (to_integer x) with | None | Some z end |- t.
     + ex e quodlibet.
-    + modus aequans (integer.specification x z), t |- ex.
+    + modus aequans (narrowing.integer.specification x z), t |- ex.
       modus aequans (Integer.narrowing.nat_with_zero.specification z n), e |- ez.
       leibniz ex, ez in |- *.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (retraction n).
+    ipso (narrowing.nat_with_zero.retraction n).
 Qed.
 
 (* narrowing.nat_with_zero.failure *)
@@ -2101,22 +2101,22 @@ Proof.
   divide et impera.
   - intro e.
     match (to_integer x) with | None | Some z end |- t.
-    + modus aequans (integer.failure x), t |- nd.
+    + modus aequans (narrowing.integer.failure x), t |- nd.
       ipso (disjoin nd, _).
     + modus aequans (Integer.narrowing.nat_with_zero.failure z), e |- neg.
-      modus aequans (integer.specification x z), t |- ex.
+      modus aequans (narrowing.integer.specification x z), t |- ex.
       leibniz ex, (embedding.introduction z) in |- *.
       simpl numerator in |- *.
       ipso (disjoin _, neg).
   - intro d.
     match d with | nd | neg end.
-    + modus aequans (integer.failure x), nd |- t.
+    + modus aequans (narrowing.integer.failure x), nd |- t.
       leibniz t in |- *.
       simpl in |- *.
       quod idem est.
     + match (to_integer x) with | None | Some z end |- t.
       * quod idem est.
-      * modus aequans (integer.specification x z), t |- ex.
+      * modus aequans (narrowing.integer.specification x z), t |- ex.
         leibniz ex, (embedding.introduction z) in neg.
         simpl numerator in neg.
         modus aequans (Integer.narrowing.nat_with_zero.failure z), neg |- f.
@@ -2133,7 +2133,7 @@ Theorem retraction
 Proof.
   intro p.
   simpl to_nat in |- *.
-  leibniz (integer.retraction p) in |- *.
+  leibniz (narrowing.integer.retraction p) in |- *.
   simpl in |- *.
   ipso (Integer.narrowing.nat.retraction p).
 Qed.
@@ -2149,13 +2149,13 @@ Proof.
     simpl to_nat in e.
     match (to_integer x) with | None | Some z end |- t.
     + ex e quodlibet.
-    + modus aequans (integer.specification x z), t |- ex.
+    + modus aequans (narrowing.integer.specification x z), t |- ex.
       modus aequans (Integer.narrowing.nat.specification z p), e |- ez.
       leibniz ex, ez in |- *.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (retraction p).
+    ipso (narrowing.nat.retraction p).
 Qed.
 
 (* narrowing.nat.failure *)
@@ -2169,22 +2169,22 @@ Proof.
   divide et impera.
   - intro e.
     match (to_integer x) with | None | Some z end |- t.
-    + modus aequans (integer.failure x), t |- nd.
+    + modus aequans (narrowing.integer.failure x), t |- nd.
       ipso (disjoin nd, _).
     + modus aequans (Integer.narrowing.nat.failure z), e |- nonpositive.
-      modus aequans (integer.specification x z), t |- ex.
+      modus aequans (narrowing.integer.specification x z), t |- ex.
       leibniz ex, (embedding.introduction z) in |- *.
       simpl numerator in |- *.
       ipso (disjoin _, nonpositive).
   - intro d.
     match d with | nd | nonpositive end.
-    + modus aequans (integer.failure x), nd |- t.
+    + modus aequans (narrowing.integer.failure x), nd |- t.
       leibniz t in |- *.
       simpl in |- *.
       quod idem est.
     + match (to_integer x) with | None | Some z end |- t.
       * quod idem est.
-      * modus aequans (integer.specification x z), t |- ex.
+      * modus aequans (narrowing.integer.specification x z), t |- ex.
         leibniz ex, (embedding.introduction z) in nonpositive.
         simpl numerator in nonpositive.
         modus aequans (Integer.narrowing.nat.failure z), nonpositive |- f.

@@ -2159,7 +2159,7 @@ Proof.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (retraction n).
+    ipso (narrowing.nat_with_zero.retraction n).
 Qed.
 
 (* narrowing.nat_with_zero.failure *)
@@ -2222,7 +2222,7 @@ Proof.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (retraction p).
+    ipso (narrowing.nat.retraction p).
 Qed.
 
 (* narrowing.nat.failure *)

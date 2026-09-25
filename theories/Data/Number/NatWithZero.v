@@ -1027,7 +1027,7 @@ Proof.
   |
   | p
   end.
-  - ipso zero.accessibility.
+  - ipso order.strict.zero.accessibility.
   - match p with
     |
     | p' by IH
@@ -1040,7 +1040,7 @@ Proof.
         match y with
         |
         | q end.
-        * ipso zero.accessibility.
+        * ipso order.strict.zero.accessibility.
         * simpl in e.
           let proof falso := positive.injectivity e.
           match q with
@@ -1056,7 +1056,7 @@ Proof.
         intros y h.
         match h with | k e end.
         match y with | | q end.
-        * ipso zero.accessibility.
+        * ipso order.strict.zero.accessibility.
         * simpl in e.
           let proof e := positive.injectivity e.
           leibniz (Nat.addition.commutativity q k) in e.
@@ -2262,7 +2262,7 @@ Definition step
     end recurse.
 
 (* euclid.extensionality *)
-Lemma extensionality : Descent.Extensional step.
+Lemma extensionality : Descent.Extensional euclid.step.
 Proof.
   (* [x : NatWithZero * NatWithZero]
    * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
@@ -2290,7 +2290,7 @@ Proof.
     (* [|- f ((+ b'), (a %. b')) (Induced.introduction (division.remainder.boundedness a b'))
      *  = g ((+ b'), (a %. b')) (Induced.introduction (division.remainder.boundedness a b'))]
      *)
-    simpl step in |- *.
+    simpl euclid.step in |- *.
 
     (* The context gains [bound := division.remainder.boundedness a b'],
      * of type [(a %. b') < + b']
@@ -2385,11 +2385,11 @@ Definition step
     end recurse.
 
 (* euclid.nat.extensionality *)
-Lemma extensionality : Descent.Extensional step.
+Lemma extensionality : Descent.Extensional euclid.nat.step.
 Proof.
   intros p f g h.
   match p with | a q end.
-  simpl step in |- *.
+  simpl euclid.nat.step in |- *.
   let b := division.remainder.boundedness a q in |- *.
   let proof b := &b.
   extro &b.
@@ -3294,7 +3294,7 @@ Proof.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (retraction p).
+    ipso (narrowing.nat.retraction p).
 Qed.
 
 (* narrowing.nat.failure *)
