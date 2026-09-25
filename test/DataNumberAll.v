@@ -535,6 +535,13 @@ Definition data_number_all_delivers_rational_narrowing_nat_with_zero_specificati
   : forall (x : Rational) (n : NatWithZero) . Rational.to_nat_with_zero x = Some n <-> x = n
   := Rational.narrowing.nat_with_zero.specification.
 
+Definition data_number_all_delivers_rational_narrowing_nat_with_zero_failure
+  : forall (x : Rational) .
+      Rational.to_nat_with_zero x = None
+      <-> ~ (Rational.denominator x = Nat.One)
+          \/ (Rational.numerator x < Integer.Zero)%integer
+  := Rational.narrowing.nat_with_zero.failure.
+
 Definition data_number_all_delivers_rational_narrowing_nat_retraction
   : forall (p : Nat) . Rational.to_nat p = Some p
   := Rational.narrowing.nat.retraction.
@@ -542,6 +549,13 @@ Definition data_number_all_delivers_rational_narrowing_nat_retraction
 Definition data_number_all_delivers_rational_narrowing_nat_specification
   : forall (x : Rational) (p : Nat) . Rational.to_nat x = Some p <-> x = p
   := Rational.narrowing.nat.specification.
+
+Definition data_number_all_delivers_rational_narrowing_nat_failure
+  : forall (x : Rational) .
+      Rational.to_nat x = None
+      <-> ~ (Rational.denominator x = Nat.One)
+          \/ (Rational.numerator x <= Integer.Zero)%integer
+  := Rational.narrowing.nat.failure.
 
 Theorem data_number_all_delivers_coercion_nat_to_nat_with_zero
   : forall (n : Nat) .

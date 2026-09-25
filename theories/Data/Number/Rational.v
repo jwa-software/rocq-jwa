@@ -2090,6 +2090,39 @@ Proof.
     ipso (retraction n).
 Qed.
 
+(* narrowing.nat_with_zero.failure *)
+Theorem failure
+  : forall (x : Rational) .
+      to_nat_with_zero x = None
+      <-> ~ (denominator x = Nat.One) \/ (numerator x < Integer.Zero)%integer.
+Proof.
+  intro x.
+  simpl to_nat_with_zero in |- *.
+  divide et impera.
+  - intro e.
+    match (to_integer x) with | None | Some z end |- t.
+    + modus aequans (integer.failure x), t |- nd.
+      ipso (disjoin nd, _).
+    + modus aequans (Integer.narrowing.nat_with_zero.failure z), e |- neg.
+      modus aequans (integer.specification x z), t |- ex.
+      leibniz ex, (embedding.introduction z) in |- *.
+      simpl numerator in |- *.
+      ipso (disjoin _, neg).
+  - intro d.
+    match d with | nd | neg end.
+    + modus aequans (integer.failure x), nd |- t.
+      leibniz t in |- *.
+      simpl in |- *.
+      quod idem est.
+    + match (to_integer x) with | None | Some z end |- t.
+      * quod idem est.
+      * modus aequans (integer.specification x z), t |- ex.
+        leibniz ex, (embedding.introduction z) in neg.
+        simpl numerator in neg.
+        modus aequans (Integer.narrowing.nat_with_zero.failure z), neg |- f.
+        ipso f.
+Qed.
+
 End nat_with_zero. (* narrowing.nat_with_zero *)
 
 Module nat. (* narrowing.nat *)
@@ -2123,6 +2156,39 @@ Proof.
   - intro e.
     leibniz e in |- *.
     ipso (retraction p).
+Qed.
+
+(* narrowing.nat.failure *)
+Theorem failure
+  : forall (x : Rational) .
+      to_nat x = None
+      <-> ~ (denominator x = Nat.One) \/ (numerator x <= Integer.Zero)%integer.
+Proof.
+  intro x.
+  simpl to_nat in |- *.
+  divide et impera.
+  - intro e.
+    match (to_integer x) with | None | Some z end |- t.
+    + modus aequans (integer.failure x), t |- nd.
+      ipso (disjoin nd, _).
+    + modus aequans (Integer.narrowing.nat.failure z), e |- nonpositive.
+      modus aequans (integer.specification x z), t |- ex.
+      leibniz ex, (embedding.introduction z) in |- *.
+      simpl numerator in |- *.
+      ipso (disjoin _, nonpositive).
+  - intro d.
+    match d with | nd | nonpositive end.
+    + modus aequans (integer.failure x), nd |- t.
+      leibniz t in |- *.
+      simpl in |- *.
+      quod idem est.
+    + match (to_integer x) with | None | Some z end |- t.
+      * quod idem est.
+      * modus aequans (integer.specification x z), t |- ex.
+        leibniz ex, (embedding.introduction z) in nonpositive.
+        simpl numerator in nonpositive.
+        modus aequans (Integer.narrowing.nat.failure z), nonpositive |- f.
+        ipso f.
 Qed.
 
 End nat. (* narrowing.nat *)
