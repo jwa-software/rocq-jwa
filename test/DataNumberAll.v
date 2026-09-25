@@ -483,7 +483,7 @@ Proof.
 Qed.
 
 Theorem data_number_all_delivers_coercion_nat_to_integer
-  : forall (n : Nat) . Integer.negate n = Integer.negate (Integer.from_nat n).
+  : forall (n : Nat) . Integer.negate n = Integer.negate (Integer.Positive n).
 Proof.
   intro n.
   quod idem est.
@@ -505,7 +505,7 @@ Qed.
 
 Theorem data_number_all_delivers_coercion_nat_to_rational
   : forall (n : Nat) .
-      Rational.negate n = Rational.negate (Rational.from_integer (Integer.from_nat n)).
+      Rational.negate n = Rational.negate (Rational.from_integer (Integer.Positive n)).
 Proof.
   intro n.
   quod idem est.

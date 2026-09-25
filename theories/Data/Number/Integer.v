@@ -2137,9 +2137,9 @@ Abbreviation Integer := Integer.T.
  *)
 Export (notations) Integer.
 
-Coercion Integer.from_nat : Nat >-> Integer.
+Coercion Integer.Positive : Nat >-> Integer.
 Coercion Integer.from_nat_with_zero : NatWithZero >-> Integer.
-Add Printing Coercion Integer.from_nat.
+Add Printing Coercion Integer.Positive.
 Add Printing Coercion Integer.from_nat_with_zero.
 
 Instance Integer_magnitude_well_founded
