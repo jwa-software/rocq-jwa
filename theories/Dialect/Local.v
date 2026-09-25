@@ -10,7 +10,8 @@ From Ltac2 Require Char Constr Control Fresh Ident Int List Message Std String.
  *
  * While [checking] is [NonStrict], a bare name of the context is accepted
  * too; [Ltac2 Set Local.checking := Strict] makes every tactic refuse it with
- * [<tactic>: h is in the context; write &h].
+ * [<tactic>: h is in the context; write &h]. The one exception is [facto],
+ * the closing proof of [ipso facto], accepted bare in both modes.
  *
  * A name a notation reads itself, as in [in &h] or [rm &a &b], is a
  * [context_name]. A term is checked by reading it once more with every name
@@ -43,11 +44,16 @@ Ltac2 write_ampersand (who : string) (x : ident) :=
   local_refuse [Message.of_string who; Message.of_string ": "; Message.of_ident x;
                 Message.of_string " is in the context; write &"; Message.of_ident x].
 
+Ltac2 is_facto (x : ident) : bool := Ident.equal x @facto.
+
 (* A [context_name] as the ident it names. *)
 Ltac2 context_ident (who : string) (x : bool * ident) : ident :=
   match x with
   | (marked, h) =>
-      if marked then h else if is_strict () then write_ampersand who h else h
+      if marked then h
+      else if is_facto h then h
+      else if is_strict () then write_ampersand who h
+      else h
   end.
 
 Ltac2 context_idents (who : string) (xs : (bool * ident) list) : ident list :=
@@ -135,11 +141,13 @@ Ltac2 rec hunt (read : unit -> constr) (kept : ident list) : ident option :=
   | _ => None
   end.
 
-(* Under [Strict], refuse a term that names the context bare. *)
+(* Under [Strict], refuse a term that names the context bare; [facto] is kept
+ * visible from the start.
+ *)
 Ltac2 check (who : string) (read : unit -> constr) :=
   if is_strict ()
   then
-    match hunt read [] with
+    match hunt read [@facto] with
     | Some x => write_ampersand who x
     | None => ()
     end

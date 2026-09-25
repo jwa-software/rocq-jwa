@@ -1608,4 +1608,20 @@ Proof.
   ipso &b.
 Qed.
 
+Theorem tactics_all_delivers_strict_checking_sparing_facto
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  lemma facto : &A.
+  {
+    ipso &a.
+  }
+  mv facto b.
+  lemma facto : &A.
+  {
+    ipso &b.
+  }
+  ipso facto.
+Qed.
+
 End strict.
