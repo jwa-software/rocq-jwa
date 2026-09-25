@@ -714,6 +714,23 @@ Proof.
   quod idem est.
 Qed.
 
+Theorem tactics_all_delivers_simpl_term
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.Successor m = n.
+Proof.
+  intros m n e.
+  leibniz <- (simpl &e) in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_simpl_term_as_hypothesis
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> Nat.Successor m = n.
+Proof.
+  intros m n e.
+  let proof f := simpl &e.
+  leibniz <- &f in |- *.
+  quod idem est.
+Qed.
+
 Theorem tactics_all_delivers_barbara
   : forall (A : Type) (S : A -> Prop) (M : A -> Prop) (P : A -> Prop) .
       (forall (x : A) . M x -> P x) ->
@@ -1347,6 +1364,7 @@ Proof.
   Fail simpl (~ _) in &a.
   Fail simpl in |- *.
   Fail simpl in &x.
+  Fail let proof b := simpl &a.
   let k := &m.
   Fail simpl k in |- *.
   quod idem est.

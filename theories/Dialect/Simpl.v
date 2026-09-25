@@ -32,8 +32,13 @@ From Ltac2 Require Constr Control Env Ident List Message RedFlags Std.
  *   simpl in |- *
  *   simpl in *
  *
+ * Reducing the type of a proof, as a term, the way [symm <H>] turns an
+ * equation round: [let proof e := simpl &h], [leibniz (simpl &e) in |- *].
+ *
+ *   simpl <H>
+ *
  * [|- *] is the goal, and [*] every hypothesis together with the goal.
- * There is no bare [simpl] and no [simpl <d>]: the place is always written.
+ * As a step there is no bare [simpl] and no [simpl <d>]: the place is always written.
  * Rocq's own [simpl <d> in ...] would reduce only the calls headed by <d>
  * and leave a stuck one as it was; here it unfolds <d> whatever follows.
  *
@@ -42,7 +47,8 @@ From Ltac2 Require Constr Control Env Ident List Message RedFlags Std.
  * is named, and somewhere when [*] is; each hypothesis named must be in the
  * context. A reduction that would change nothing fails the same way: each
  * hypothesis named must change, the goal when [|- *] is named, and
- * something when [*] is.
+ * something when [*] is; [simpl <H>] fails when the type of <H> has
+ * nothing to reduce.
  *)
 
 (* A global definition is named as in a term, [Negation] or [Nat.add], and a
@@ -368,3 +374,17 @@ Ltac2 Notation "simpl" "in" "|-" "*" :=
 
 Ltac2 Notation "simpl" "in" "*" :=
   reduce_everywhere ().
+
+(* <H> cast to its type as [simpl in] reduces it, so that whatever reads the
+ * type of the term, [let proof] or [leibniz], meets the reduced one.
+ *)
+Ltac2 simplified (h : constr) : constr :=
+  let t := Constr.type h in
+  let reduced := Std.eval_simpl RedFlags.all None t in
+  if Constr.equal t reduced
+  then refuse [simpl_says "simpl: "; Message.of_constr h; simpl_says " has nothing to reduce"]
+  else constr:($h : $reduced).
+
+Notation "'simpl' H" :=
+  (ltac2:(Control.refine (fun () => simplified constr:($preterm:H))))
+  (at level 10, H at next level, only parsing).
