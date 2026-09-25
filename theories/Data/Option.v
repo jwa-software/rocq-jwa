@@ -52,9 +52,7 @@ Theorem identity
   : forall {A : Type} (o : Option A) . map (fun (a : A) . a) o = o.
 Proof.
   intros A o.
-  match o with | | a end;
-      simpl map in |- *;
-      quod idem est.
+  match o with | | a end; simpl map in |- *; quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -63,9 +61,7 @@ Theorem composition
       map g (map f o) = map (fun (a : A) . g (f a)) o.
 Proof.
   intros A B C f g o.
-  match o with | | a end;
-      simpl in |- *;
-      quod idem est.
+  match o with | | a end; simpl in |- *; quod idem est.
 Qed.
 
 End mapping. (* mapping *)
