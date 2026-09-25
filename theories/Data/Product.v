@@ -29,7 +29,7 @@ Notation "( a , b )" := (Product_introduction a b)
  *)
 Local Open Scope jwa_product_scope.
 
-(* The eliminator behind the [induction] tactic, written out. Nothing recurses: a
+(* The eliminator that [match ... per] takes, written out. Nothing recurses: a
  * product holds no smaller product, so one [match] is the whole content.
  *)
 Definition Product_induction

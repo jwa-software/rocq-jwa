@@ -16,7 +16,7 @@ Inductive Coproduct (A : Type) (B : Type) : Type :=
 Arguments Coproduct_introduction_left  {A} {B} a.
 Arguments Coproduct_introduction_right {A} {B} b.
 
-(* The eliminator behind the [induction] tactic, written out. Nothing recurses: a
+(* The eliminator that [match ... per] takes, written out. Nothing recurses: a
  * coproduct holds no smaller coproduct, so one [match] is the whole content.
  *)
 Definition Coproduct_induction

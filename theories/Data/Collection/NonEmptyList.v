@@ -64,7 +64,7 @@ Notation "[ a ]" := (One a)
 Local Open Scope jwa_list_scope.
 Local Open Scope jwa_non_empty_list_scope.
 
-(* The eliminator behind the [induction] tactic, written out. Its content
+(* The eliminator that [match ... per] takes, written out. Its content
  * is the [fix]: the proof for [Cons a x] is built from the proof for [x],
  * and following [x] down to [One] is what terminates.
  *)

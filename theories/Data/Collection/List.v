@@ -65,7 +65,7 @@ Notation "a :: l" := (Cons a l)
 (* Opening the scope here lets every definition and law below use them. *)
 Local Open Scope jwa_list_scope.
 
-(* The eliminator behind the [induction] tactic, written out. Its content is the [fix]:
+(* The eliminator that [match ... per] takes, written out. Its content is the [fix]:
  * the proof for [Cons a l] is built from the proof for [l], and following
  * [l] down to [Nil] is what terminates.
  *)
