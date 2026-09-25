@@ -154,6 +154,30 @@ Definition compare := fun (x : Rational) (y : Rational) .
 (* [Integer -> Rational] *)
 Definition from_integer := fun (n : Integer) . make n Nat.One.
 
+(* The conversions down: an [Integer] only from a denominator of one, and
+ * from there as [Integer.to_nat_with_zero] and [Integer.to_nat] go on.
+ *)
+(* [Rational -> Option Integer] *)
+Definition to_integer := fun (x : Rational) .
+  match denominator x with
+  | Nat.One         => Some (numerator x)
+  | Nat.Successor _ => None
+  end.
+
+(* [Rational -> Option NatWithZero] *)
+Definition to_nat_with_zero := fun (x : Rational) .
+  match to_integer x with
+  | None   => None
+  | Some z => Integer.to_nat_with_zero z
+  end.
+
+(* [Rational -> Option Nat] *)
+Definition to_nat := fun (x : Rational) .
+  match to_integer x with
+  | None   => None
+  | Some z => Integer.to_nat z
+  end.
+
 Local Open Scope jwa_rational_scope.
 
 Theorem extensionality
@@ -1948,7 +1972,162 @@ Proof.
   ipso (Biconditional.symmetry &c).
 Qed.
 
+(* [make n Nat.One] has nothing to reduce, so the embedded [n] is the
+ * rational whose parts are [n] and [Nat.One].
+ *)
+(* embedding.introduction *)
+Lemma introduction
+  : forall (n : Integer) .
+      from_integer n
+      = Rational_introduction n Nat.One
+          (NatWithZero.gcd.nat.right.annihilation (Integer.abs n)).
+Proof.
+  intro n.
+  simpl from_integer in |- *.
+  ipso (make.retraction
+          (Rational_introduction n Nat.One
+             (NatWithZero.gcd.nat.right.annihilation (Integer.abs n)))).
+Qed.
+
 End embedding. (* embedding *)
+
+Module narrowing. (* narrowing *)
+
+Module integer. (* narrowing.integer *)
+
+(* narrowing.integer.retraction *)
+Theorem retraction
+  : forall (n : Integer) . to_integer (from_integer n) = Some n.
+Proof.
+  intro n.
+  leibniz (embedding.introduction n) in |- *.
+  simpl to_integer in |- *.
+  simpl denominator in |- *.
+  simpl numerator in |- *.
+  quod idem est.
+Qed.
+
+(* narrowing.integer.specification *)
+Theorem specification
+  : forall (x : Rational) (n : Integer) .
+      to_integer x = Some n <-> x = from_integer n.
+Proof.
+  intros x n.
+  divide et impera.
+  - intro e.
+    match x with | m d h end.
+    simpl to_integer in e.
+    simpl denominator in e.
+    match d with | One | Successor d' end.
+    + simpl in e.
+      let proof f := Option.some.injectivity e.
+      leibniz (embedding.introduction n) in |- *.
+      ipso (extensionality
+              (Rational_introduction m Nat.One h)
+              (Rational_introduction n Nat.One
+                 (NatWithZero.gcd.nat.right.annihilation (Integer.abs n)))
+              f (Identity.reflexivity Nat.One)).
+    + ex e quodlibet.
+  - intro e.
+    leibniz e in |- *.
+    ipso (retraction n).
+Qed.
+
+(* narrowing.integer.failure *)
+Theorem failure
+  : forall (x : Rational) . to_integer x = None <-> ~ (denominator x = Nat.One).
+Proof.
+  intro x.
+  match x with | m d h end.
+  simpl to_integer in |- *.
+  simpl denominator in |- *.
+  divide et impera.
+  - intro e.
+    match d with | One | Successor d' end.
+    + simpl in e.
+      ex e quodlibet.
+    + simpl (~ _) in |- *.
+      intro c.
+      ex c quodlibet.
+  - intro ne.
+    match d with | One | Successor d' end.
+    + ex (ne (Identity.reflexivity Nat.One)) quodlibet.
+    + quod idem est.
+Qed.
+
+End integer. (* narrowing.integer *)
+
+Module nat_with_zero. (* narrowing.nat_with_zero *)
+
+(* narrowing.nat_with_zero.retraction *)
+Theorem retraction
+  : forall (n : NatWithZero) . to_nat_with_zero (from_integer n) = Some n.
+Proof.
+  intro n.
+  simpl to_nat_with_zero in |- *.
+  leibniz (integer.retraction n) in |- *.
+  simpl in |- *.
+  ipso (Integer.narrowing.nat_with_zero.retraction n).
+Qed.
+
+(* narrowing.nat_with_zero.specification *)
+Theorem specification
+  : forall (x : Rational) (n : NatWithZero) .
+      to_nat_with_zero x = Some n <-> x = from_integer n.
+Proof.
+  intros x n.
+  divide et impera.
+  - intro e.
+    simpl to_nat_with_zero in e.
+    match (to_integer x) with | None | Some z end |- t.
+    + ex e quodlibet.
+    + modus aequans (integer.specification x z), t |- ex.
+      modus aequans (Integer.narrowing.nat_with_zero.specification z n), e |- ez.
+      leibniz ex, ez in |- *.
+      quod idem est.
+  - intro e.
+    leibniz e in |- *.
+    ipso (retraction n).
+Qed.
+
+End nat_with_zero. (* narrowing.nat_with_zero *)
+
+Module nat. (* narrowing.nat *)
+
+(* narrowing.nat.retraction *)
+Theorem retraction
+  : forall (p : Nat) . to_nat (from_integer p) = Some p.
+Proof.
+  intro p.
+  simpl to_nat in |- *.
+  leibniz (integer.retraction p) in |- *.
+  simpl in |- *.
+  ipso (Integer.narrowing.nat.retraction p).
+Qed.
+
+(* narrowing.nat.specification *)
+Theorem specification
+  : forall (x : Rational) (p : Nat) .
+      to_nat x = Some p <-> x = from_integer p.
+Proof.
+  intros x p.
+  divide et impera.
+  - intro e.
+    simpl to_nat in e.
+    match (to_integer x) with | None | Some z end |- t.
+    + ex e quodlibet.
+    + modus aequans (integer.specification x z), t |- ex.
+      modus aequans (Integer.narrowing.nat.specification z p), e |- ez.
+      leibniz ex, ez in |- *.
+      quod idem est.
+  - intro e.
+    leibniz e in |- *.
+    ipso (retraction p).
+Qed.
+
+End nat. (* narrowing.nat *)
+
+End narrowing. (* narrowing *)
 
 Local Close Scope jwa_rational_scope.
 
