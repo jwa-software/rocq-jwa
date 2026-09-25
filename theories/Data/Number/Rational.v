@@ -372,6 +372,8 @@ Proof.
     let proof c := Identity.congruence Integer.from_nat bottom.
     symm in c.
     leibniz c in |- *.
+    simpl Integer.from_nat in |- *.
+    simpl in |- *.
     quod idem est.
   }
 
@@ -442,6 +444,7 @@ Proof.
   {
     simpl (~ _) in |- *.
     intro z.
+    simpl Integer.from_nat in z.
     ex z quodlibet.
   }
 
@@ -449,6 +452,7 @@ Proof.
   {
     simpl (~ _) in |- *.
     intro z.
+    simpl Integer.from_nat in z.
     ex z quodlibet.
   }
 
@@ -502,6 +506,8 @@ Proof.
     {
       simpl (~ _) in |- *.
       intro z.
+      simpl Integer.from_nat in z.
+      simpl in z.
       ex z quodlibet.
     }
 
