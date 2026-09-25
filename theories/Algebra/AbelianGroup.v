@@ -6,5 +6,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 
 Class AbelianGroup {A : Type} (op : A -> A -> A) (identity : A) (inverse : A -> A) : Prop :=
-  { group       :: Group op identity inverse
-  ; commutative :: Commutative op }.
+  { group
+    :: Group op identity inverse
+  ; commutative
+    :: Commutative op }.

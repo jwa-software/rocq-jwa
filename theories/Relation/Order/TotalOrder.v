@@ -7,4 +7,4 @@ From jwa Require Import Relation.Total.
 
 Class TotalOrder {A : Type} (R : A -> A -> Prop) : Prop :=
   { partial_order :: PartialOrder R
-  ; totality      :: Total       R }.
+  ; totality      :: Total        R }.
