@@ -123,8 +123,8 @@ Definition inverse := fun (x : Rational) .
 
 (* [Rational -> Rational -> Prop] *)
 Definition LessThan := fun (x : Rational) (y : Rational) .
-  ((numerator x * denominator y)%integer
-   < (numerator y * denominator x)%integer)%integer.
+  (numerator x * denominator y
+   < numerator y * denominator x)%integer.
 
 Notation "x < y" := (LessThan x y) (only parsing)
   : jwa_rational_scope.
@@ -280,7 +280,7 @@ Proof.
   simpl make in |- *.
 
   lemma top : (k * n /. NatWithZero.gcd.nat
-                (Integer.abs (k * n)%integer)
+                (Integer.abs (k * n))
                 (k * d)%nat)%integer
           = (n /. NatWithZero.gcd.nat (Integer.abs n) d)%integer.
   {
@@ -791,7 +791,7 @@ Module strict. (* make.order.strict *)
 Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       make a b < make c d
-      <-> ((a * d)%integer < (c * b)%integer)%integer.
+      <-> (a * d < c * b)%integer.
 Proof.
   intros a b c d.
   let proof P1 := proportionality a b.
@@ -804,8 +804,8 @@ Proof.
 
   lemma scaling : forall (m : Integer) (n : Integer) (k : Nat) .
               (m < n)%integer
-              <-> ((m * k)%integer
-                   < (n * k)%integer)%integer.
+              <-> (m * k
+                   < n * k)%integer.
   {
     intros m n k.
     divide et impera.
@@ -1256,8 +1256,8 @@ Proof.
   }
 
   lemma cross
-    : (((&e * b + &a * f) * (&f * &d)%nat)%integer
-       < ((&e * d + &c * f) * (&f * &b)%nat)%integer)%integer.
+    : ((&e * b + &a * f) * (&f * &d)%nat
+       < (&e * d + &c * f) * (&f * &b)%nat)%integer.
   {
     let proof scaled := Integer.multiplication.left.order.strict.monotonicity
                           (&f * &f)%nat
@@ -1528,8 +1528,8 @@ Proof.
     }
 
     lemma cross
-      : ((k * &a * (&f * &d)%nat)%integer
-         < (k * &c * (&f * &b)%nat)%integer)%integer.
+      : (k * &a * (&f * &d)%nat
+         < k * &c * (&f * &b)%nat)%integer.
     {
       let proof scaled := Integer.multiplication.left.order.strict.monotonicity
                             (&k * &f)%nat
