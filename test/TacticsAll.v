@@ -1050,6 +1050,15 @@ Proof.
   ipso &e.
 Qed.
 
+Theorem tactics_all_delivers_rm_refusing_a_dependent_left_behind
+  : forall (n : Nat) (e : n = n) (A : Prop) . A -> A.
+Proof.
+  intros n e A a.
+  Fail rm &n.
+  rm &n &e.
+  ipso &a.
+Qed.
+
 Theorem tactics_all_delivers_rm_force
   : forall (n : Nat) (e : n = n) (A : Prop) . A -> A.
 Proof.

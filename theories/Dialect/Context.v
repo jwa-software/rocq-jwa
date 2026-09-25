@@ -59,11 +59,6 @@ Ltac2 all_in_context (hypotheses : ident list) :=
                    Message.of_string " is not in the context"])
     hypotheses.
 
-Ltac2 remove (hypotheses : ident list) :=
-  Control.enter (fun () =>
-    (all_in_context hypotheses;
-     Std.clear hypotheses)).
-
 Ltac2 try_clear (h : ident) : bool :=
   Control.once_plus (fun () => (Std.clear [h]; true)) (fun _ => false).
 
@@ -111,6 +106,36 @@ Ltac2 with_dependents (hypotheses : ident list) : ident list :=
       end)
     hypotheses (Control.hyps ()).
 
+Ltac2 names_message (xs : ident list) (prefix : string) : message :=
+  List.fold_left
+    (fun m x =>
+       Message.concat m
+         (Message.concat (Message.of_string " ")
+            (Message.concat (Message.of_string prefix) (Message.of_ident x))))
+    (Message.of_string "") xs.
+
+Ltac2 remove (hypotheses : ident list) :=
+  Control.enter (fun () =>
+    (all_in_context hypotheses;
+     let goal := Control.goal () in
+     match List.find_opt (fun x => occurs x goal) hypotheses with
+     | Some x =>
+         refuse [Message.of_string "rm: the goal depends on "; Message.of_ident x;
+                 Message.of_string ", so it cannot be cleared"]
+     | None =>
+         let left :=
+           List.filter (fun y => if List.exist (Ident.equal y) hypotheses then false else true)
+             (with_dependents hypotheses) in
+         match left with
+         | [] => Std.clear hypotheses
+         | _ =>
+             refuse [Message.of_string "rm:"; names_message left "";
+                     Message.of_string " would be left depending on what is cleared; write rm";
+                     names_message (with_dependents hypotheses) "&";
+                     Message.of_string ", or rm -r"; names_message hypotheses "&"]
+         end
+     end)).
+
 Ltac2 remove_recursive (hypotheses : ident list) :=
   Control.enter (fun () =>
     (all_in_context hypotheses;
@@ -122,14 +147,6 @@ Ltac2 remove_recursive (hypotheses : ident list) :=
                  Message.of_string ", so it cannot be cleared"]
      | None => Std.clear gathered
      end)).
-
-Ltac2 names_message (xs : ident list) (prefix : string) : message :=
-  List.fold_left
-    (fun m x =>
-       Message.concat m
-         (Message.concat (Message.of_string " ")
-            (Message.concat (Message.of_string prefix) (Message.of_ident x))))
-    (Message.of_string "") xs.
 
 Ltac2 depends_on (h : ident) (x : ident) : bool :=
   match List.find_opt

@@ -95,7 +95,8 @@ Ltac2 ex_quodlibet (h : unit -> constr) :=
           Std.discriminate false (Some (Std.ElimOnConstr (fun () => (h, Std.NoBindings)))))
         (fun _ => not_as_written h t)
     else
-      match Constr.Unsafe.kind t with
+      (* The type is reduced only to choose the advice, so [~ A] is told to be applied. *)
+      match Constr.Unsafe.kind (Std.eval_hnf t) with
       | Constr.Unsafe.Prod _ _ =>
           ex_refuse h t
             (Message.concat (Message.of_string ", a function; apply it first: ex (")
