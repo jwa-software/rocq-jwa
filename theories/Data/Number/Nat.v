@@ -161,7 +161,7 @@ Lemma injectivity
 Proof.
   intros m n e.
   let f := fun (x : Nat) . match x with | 1 => m | S y => y end.
-  let proof e' := Identity.congruence f e.
+  congru f, e |- e'.
   simpl in e'.
   ipso e'.
 Qed.

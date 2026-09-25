@@ -5,6 +5,7 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Functor.
+From jwa Require Import Tactics.Equation.
 
 (* A product holds one [A] and one [B], in that order. Both are parameters:
  * the type of each component is fixed for the whole product.
@@ -122,8 +123,8 @@ Theorem injectivity
       ((a1, b1) = (a2, b2)) -> (a1 = a2) /\ (b1 = b2).
 Proof.
   intros A B a1 b1 a2 b2 e.
-  let proof a := Identity.congruence first  e. simpl in a.
-  let proof b := Identity.congruence second e. simpl in b.
+  congru first,  e |- a. simpl in a.
+  congru second, e |- b. simpl in b.
   ipso (conjoin a, b).
 Qed.
 

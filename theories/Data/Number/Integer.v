@@ -250,9 +250,7 @@ Lemma injectivity
   : forall {p : Nat} {q : Nat} . (- p) = - q -> p = q.
 Proof.
   intros p q e.
-  let proof e' := Identity.congruence
-                (fun (x : Integer) . match x with | - r => r | 0 => p | + _ => p end)
-                e.
+  congru (fun (x : Integer) . match x with | - r => r | 0 => p | + _ => p end), e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -266,9 +264,7 @@ Lemma injectivity
   : forall {p : Nat} {q : Nat} . (+ p) = + q -> p = q.
 Proof.
   intros p q e.
-  let proof e' := Identity.congruence
-                (fun (x : Integer) . match x with | - _ => p | 0 => p | + r => r end)
-                e.
+  congru (fun (x : Integer) . match x with | - _ => p | 0 => p | + r => r end), e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -987,7 +983,7 @@ Theorem cancellation
   : forall {k : Integer} {m : Integer} {n : Integer} . k + m = k + n -> m = n.
 Proof.
   intros k m n h.
-  let proof h' := Identity.congruence (add (negate k)) h.
+  congru (add (negate k)), h |- h'.
   leibniz <- (addition.associativity (negate k) k m)
           in h'.
   leibniz <- (addition.associativity (negate k) k n)
@@ -1281,12 +1277,12 @@ Proof.
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate m))
                   (multiplication.left.negation m (+ k)))
-                (Identity.congruence negate (multiplication.commutativity m (+ k))).
+                (congru negate, (multiplication.commutativity m (+ k))).
   let proof nn := Identity.transitivity
                 (Identity.transitivity
                   (multiplication.commutativity (+ k) (negate n))
                   (multiplication.left.negation n (+ k)))
-                (Identity.congruence negate (multiplication.commutativity n (+ k))).
+                (congru negate, (multiplication.commutativity n (+ k))).
   leibniz <- nm in |- *.
   leibniz <- nn in |- *.
   leibniz (ramp.scaling k (negate m)) in |- *.
@@ -1980,7 +1976,7 @@ Proof.
           match od with | k e end.
           simpl Even, Divides in |- *.
           exists k.
-          let proof e' := Identity.congruence (fun (x : Integer) . x + (- Nat.One)) e.
+          congru (fun (x : Integer) . x + (- Nat.One)), e |- e'.
           let proof e'
             : (((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One)) + (- Nat.One) = (- p') + (- Nat.One)
             := e'.

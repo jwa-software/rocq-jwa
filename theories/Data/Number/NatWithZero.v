@@ -262,9 +262,7 @@ Theorem injectivity
   : forall {m : Nat} {n : Nat} . (+ m) = + n -> m = n.
 Proof.
   intros m n e.
-  let proof e' := Identity.congruence
-                (fun (x : NatWithZero) . match x with | 0 => m | + y => y end)
-                e.
+  congru (fun (x : NatWithZero) . match x with | 0 => m | + y => y end), e |- e'.
   simpl in e'.
   ipso e'.
 Qed.

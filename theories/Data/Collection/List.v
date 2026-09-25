@@ -1693,7 +1693,7 @@ Proof.
   intro h.
   match (head.forward.specification h) with | r e end.
   exists (reverse r).
-  let proof e' := Identity.congruence reverse e.
+  congru reverse, e |- e'.
   leibniz (reversal.involution &l) in e'.
   simpl in e'.
   ipso e'.
@@ -1752,7 +1752,7 @@ Proof.
     intro h.
     let proof e' := Option.some.injectivity h.
     exists b.
-    let proof er' := Identity.congruence reverse er.
+    congru reverse, er |- er'.
     leibniz (reversal.involution &l) in er'.
     simpl in er'.
     leibniz e' in er'.

@@ -369,7 +369,7 @@ Proof.
                       (Integer.abs a) b)))
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)).
   {
-    let proof c := Identity.congruence Integer.from_nat bottom.
+    congru Integer.from_nat, bottom |- c.
     symm in c.
     leibniz c in |- *.
     simpl Integer.from_nat in |- *.
@@ -459,8 +459,8 @@ Proof.
   divide et impera.
 
   - intro e.
-    let proof hp := Identity.congruence numerator   e.
-    let proof hq := Identity.congruence denominator e.
+    congru numerator,   e |- hp.
+    congru denominator, e |- hq.
     simpl numerator   in hp.
     simpl denominator in hq.
     leibniz hp in P1.
@@ -549,7 +549,7 @@ Proof.
                   (Integer.mul r (Integer.from_nat q))
                   nzbd widened.
 
-    let proof m := Identity.congruence Integer.abs cross.
+    congru Integer.abs, cross |- m.
     leibniz (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
     leibniz (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
     let proof m
@@ -1122,9 +1122,7 @@ Proof.
   leibniz (inverse k)  in an.
   leibniz (identity n) in an.
 
-  let proof h := Identity.congruence
-                (fun (t : Rational) . add (negate k) t)
-                (e).
+  congru (fun (t : Rational) . add (negate k) t), e |- h.
   simpl in h.
 
   symm in an.
@@ -1206,7 +1204,7 @@ Proof.
   leibniz (inverse k)  in an.
   leibniz (identity n) in an.
 
-  let proof h := Identity.congruence (fun (t : Rational) . add t (negate k)) e.
+  congru (fun (t : Rational) . add t (negate k)), e |- h.
   simpl in h.
 
   symm in am.
