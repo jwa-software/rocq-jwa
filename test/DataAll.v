@@ -14,6 +14,43 @@ Definition data_all_delivers_none
   := fun (A : Type) .
        Identity.reflexivity None.
 
+Definition data_all_delivers_option_defaulting_retraction
+  : forall (A : Type) (d : A) (a : A) . Option.unwrap_or d (Some a) = a
+  := @Option.defaulting.retraction.
+
+Definition data_all_delivers_option_defaulting_fallback
+  : forall (A : Type) (d : A) . Option.unwrap_or d None = d
+  := @Option.defaulting.fallback.
+
+Definition data_all_delivers_option_unwrapping_retraction
+  : forall (A : Type) (a : A) (h : ~ (Some a = None)) . Option.unwrap (Some a) h = a
+  := @Option.unwrapping.retraction.
+
+Definition data_all_delivers_option_unwrapping_restoration
+  : forall (A : Type) (o : Option A) (h : ~ (o = None)) . Some (Option.unwrap o h) = o
+  := @Option.unwrapping.restoration.
+
+Definition data_all_delivers_option_unwrapping_irrelevance
+  : forall (A : Type) (o : Option A) (h1 : ~ (o = None)) (h2 : ~ (o = None)) .
+      Option.unwrap o h1 = Option.unwrap o h2
+  := @Option.unwrapping.irrelevance.
+
+Definition data_all_delivers_option_unwrap_or_of_a_value
+  : Option.unwrap_or false (Some true) = true
+  := Identity.reflexivity true.
+
+Theorem data_all_delivers_some_is_not_none
+  : ~ (Some true = None).
+Proof.
+  simpl (~ _) in |- *.
+  intro e.
+  ex e quodlibet.
+Qed.
+
+Definition data_all_delivers_option_unwrap_of_a_value
+  : Option.unwrap (Some true) data_all_delivers_some_is_not_none = true
+  := Identity.reflexivity true.
+
 Definition data_all_delivers_product
   : Bool * Bool
   := (true , false)%product.

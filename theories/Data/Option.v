@@ -31,6 +31,26 @@ Definition map := fun {A : Type} {B : Type} (f : A -> B) (o : Option A) .
   | Some a => Some (f a)
   end.
 
+(* The value held, or [d] when there is none. *)
+(* [forall {A : Type} . A -> Option A -> A] *)
+Definition unwrap_or := fun {A : Type} (d : A) (o : Option A) .
+  match o with
+  | None   => d
+  | Some a => a
+  end.
+
+(* The value held, given a proof that there is one: at [None] the proof
+ * refutes [None = None], so no call reaches that branch and it answers by
+ * eliminating [Falsum].
+ *)
+(* [forall {A : Type} (o : Option A) . ~ (o = None) -> A] *)
+Definition unwrap := fun {A : Type} (o : Option A) .
+  match o as p return ~ (p = None) -> A with
+  | None   => fun (h : ~ (None = None)) .
+                match h (Identity.reflexivity None) return A with end
+  | Some a => fun (_ : ~ (Some a = None)) . a
+  end.
+
 Module some. (* some *)
 
 (* some.injectivity *)
@@ -66,6 +86,65 @@ Proof.
 Qed.
 
 End mapping. (* mapping *)
+
+Module defaulting. (* defaulting *)
+
+(* defaulting.retraction *)
+Theorem retraction
+  : forall {A : Type} (d : A) (a : A) . unwrap_or d (Some a) = a.
+Proof.
+  intros A d a.
+  simpl unwrap_or in |- *.
+  quod idem est.
+Qed.
+
+(* defaulting.fallback *)
+Theorem fallback
+  : forall {A : Type} (d : A) . unwrap_or d None = d.
+Proof.
+  intros A d.
+  simpl unwrap_or in |- *.
+  quod idem est.
+Qed.
+
+End defaulting. (* defaulting *)
+
+Module unwrapping. (* unwrapping *)
+
+(* unwrapping.retraction *)
+Theorem retraction
+  : forall {A : Type} (a : A) (h : ~ (Some a = None)) . unwrap (Some a) h = a.
+Proof.
+  intros A a h.
+  simpl unwrap in |- *.
+  quod idem est.
+Qed.
+
+(* unwrapping.restoration *)
+Theorem restoration
+  : forall {A : Type} (o : Option A) (h : ~ (o = None)) . Some (unwrap o h) = o.
+Proof.
+  intros A o h.
+  match o with | None | Some a end.
+  - ex (h (Identity.reflexivity None)) quodlibet.
+  - simpl unwrap in |- *.
+    quod idem est.
+Qed.
+
+(* The value does not depend on which proof of [~ (o = None)] is given. *)
+(* unwrapping.irrelevance *)
+Theorem irrelevance
+  : forall {A : Type} (o : Option A) (h1 : ~ (o = None)) (h2 : ~ (o = None)) .
+      unwrap o h1 = unwrap o h2.
+Proof.
+  intros A o h1 h2.
+  match o with | None | Some a end.
+  - ex (h1 (Identity.reflexivity None)) quodlibet.
+  - simpl unwrap in |- *.
+    quod idem est.
+Qed.
+
+End unwrapping. (* unwrapping *)
 
 End Option. (* Option *)
 

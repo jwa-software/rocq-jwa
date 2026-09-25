@@ -2,9 +2,11 @@
 
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Number.All.
+From jwa Require Import Data.Option.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Induced.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Equation.
 
 Definition data_number_all_delivers
   : Nat -> NatWithZero -> Integer -> ~ Falsum -> Verum
@@ -556,6 +558,15 @@ Definition data_number_all_delivers_rational_narrowing_nat_failure
       <-> ~ (Rational.denominator x = Nat.One)
           \/ (Rational.numerator x <= Integer.Zero)%integer
   := Rational.narrowing.nat.failure.
+
+Theorem data_number_all_delivers_unwrap_of_a_narrowing
+  : forall (n : Integer) (h : ~ (Rational.to_integer n = None)) .
+      Option.unwrap (Rational.to_integer n) h = n.
+Proof.
+  intros n h.
+  let proof r := Option.unwrapping.restoration (Rational.to_integer n) h.
+  ipso (Option.some.injectivity (trans r, (Rational.narrowing.integer.retraction n))).
+Qed.
 
 Theorem data_number_all_delivers_coercion_nat_to_nat_with_zero
   : forall (n : Nat) .
