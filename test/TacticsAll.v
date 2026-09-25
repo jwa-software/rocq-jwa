@@ -1480,6 +1480,15 @@ Proof.
   ipso &g.
 Qed.
 
+Theorem tactics_all_delivers_congru_with_implicit_arguments
+  : forall (A : Type) (B : Type) (p : Product A B) (q : Product A B) .
+      p = q -> Product.first p = Product.first q.
+Proof.
+  intros A B p q e.
+  congru Product.first, &e |- g.
+  ipso &g.
+Qed.
+
 Theorem tactics_all_delivers_congru_refusing
   : forall (A : Type) (B : Type) (C : Prop) (f : A -> B) (x : A) (b : B) .
       C -> x = x -> b = b -> C.

@@ -144,23 +144,36 @@ Ltac2 Notation "trans" h1(thunk(constr)) "," h2(thunk(constr)) "|-" p(intropatte
 Notation "'congru' F , H" := (Identity.congruence F H)
   (only parsing).
 
-Ltac2 congru_as (f : unit -> constr) (h : unit -> constr) (p : Std.intro_pattern) :=
+(* <F> and <H> are typed as one application, so that <H> fixes the implicit
+ * arguments of an <F> such as [first]; <F> alone is typed only to word the
+ * refusal.
+ *)
+Ltac2 congru_as (f : preterm) (h : preterm) (p : Std.intro_pattern) :=
   Control.enter (fun () =>
-    let cf := Local.checked "congru" f in
-    let ch := Local.checked "congru" h in
+    Local.check_preterms "congru" [f; h];
+    let ch := Local.elaborate h in
     must_be_equation "congru" ch;
     must_be_new "congru" p;
     Control.once_plus
       (fun () =>
-        Std.specialize (constr:(Identity.congruence $cf $ch), Std.NoBindings) (Some p))
+        Std.specialize
+          (Local.elaborate preterm:(Identity.congruence $preterm:f $preterm:h), Std.NoBindings)
+          (Some p))
       (fun _ =>
-        refuse [Message.of_string "congru: "; Message.of_constr cf;
-                Message.of_string " has type "; Message.of_constr (Constr.type cf);
+        let function :=
+          Control.once_plus
+            (fun () =>
+               let cf := Local.elaborate f in
+               Message.concat (Message.of_constr cf)
+                 (Message.concat (Message.of_string " has type ")
+                    (Message.of_constr (Constr.type cf))))
+            (fun _ => Message.of_string "the function") in
+        refuse [Message.of_string "congru: "; function;
                 Message.of_string ", which does not take the sides of ";
                 Message.of_constr (Constr.type ch)])).
 
-Ltac2 Notation "congru" f(thunk(constr)) "," h(thunk(constr)) "as" p(intropattern) :=
+Ltac2 Notation "congru" f(preterm) "," h(preterm) "as" p(intropattern) :=
   congru_as f h p.
 
-Ltac2 Notation "congru" f(thunk(constr)) "," h(thunk(constr)) "|-" p(intropattern) :=
+Ltac2 Notation "congru" f(preterm) "," h(preterm) "|-" p(intropattern) :=
   congru_as f h p.
