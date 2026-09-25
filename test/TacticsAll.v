@@ -915,6 +915,33 @@ Proof.
   ipso facto.
 Qed.
 
+Theorem tactics_all_delivers_modus_tollendo_ponens_refusing
+  : forall (A : Prop) (B : Prop) (C : Prop) . A \/ B -> C -> C.
+Proof.
+  intros A B C h c.
+  Fail modus tollendo ponens &h, &c |- d.
+  Fail let proof d := modus tollendo ponens &h, &c.
+  ipso &c.
+Qed.
+
+Theorem tactics_all_delivers_modus_ponendo_tollens_refusing
+  : forall (A : Prop) (B : Prop) (C : Prop) . ~ (A /\ B) -> C -> C.
+Proof.
+  intros A B C h c.
+  Fail modus ponendo tollens &h, &c |- d.
+  Fail let proof d := modus ponendo tollens &h, &c.
+  ipso &c.
+Qed.
+
+Theorem tactics_all_delivers_modus_aequans_refusing
+  : forall (A : Prop) (B : Prop) (C : Prop) . (A <-> B) -> C -> C.
+Proof.
+  intros A B C h c.
+  Fail modus aequans &h, &c |- d.
+  Fail let proof d := modus aequans &h, &c.
+  ipso &c.
+Qed.
+
 Theorem tactics_all_delivers_quod_idem_est
   : forall (m : Nat) . m = m.
 Proof.
