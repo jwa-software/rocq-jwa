@@ -822,7 +822,7 @@ Proof.
   intros a b c d.
   let proof P1 := proportionality a b.
   let proof P2 := proportionality c d.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   simpl Integer.from_nat in &P1, &P2 |- *.
   let p := numerator   (make &a &b) in *.
   let q := denominator (make &a &b) in *.
@@ -1258,7 +1258,7 @@ Proof.
   match &z with | e f hz end.
   match &x with | a b hx end.
   match &y with | c d hy end.
-  simpl LessThan, numerator, denominator in &h.
+  simpl ( _ < _ ), numerator, denominator in &h.
   simpl Integer.from_nat in &h.
   let proof rz := make.retraction (Rational_introduction &e &f &hz).
   let proof rx := make.retraction (Rational_introduction &a &b &hx).
@@ -1569,7 +1569,7 @@ Proof.
   match &z with | e f hz end.
   match &x with | a b hx end.
   match &y with | c d hy end.
-  simpl LessThan, numerator, denominator in &positive, &h.
+  simpl ( _ < _ ), numerator, denominator in &positive, &h.
   simpl Integer.from_nat in &positive, &h.
   simpl Zero in &positive.
   simpl in &positive.
@@ -1827,7 +1827,7 @@ Theorem transitivity
       LessThan x y -> LessThan y z -> LessThan x z.
 Proof.
   intros x y z H1 H2.
-  simpl LessThan in H1, H2 |- *.
+  simpl ( _ < _ ) in H1, H2 |- *.
   simpl Integer.from_nat in H1, H2 |- *.
 
   let a := numerator   x in *.

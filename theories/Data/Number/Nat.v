@@ -1122,7 +1122,7 @@ Theorem truncation
   : forall {m : Nat} {n : Nat} . m <= n -> sub m n = None.
 Proof.
   intros m n h.
-  simpl LessOrEqual in h.
+  simpl ( _ <= _ ) in h.
   match h with | e | lt end.
   -
     leibniz e in |- *.

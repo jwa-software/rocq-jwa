@@ -386,7 +386,7 @@ Proof.
   intros p q r s h.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     symm in e.
     leibniz e in h |- *.
@@ -406,7 +406,7 @@ Proof.
       leibniz e in |- *.
       leibniz (difference.nat.reflexivity r) in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | k e end.
       symm in e.
       leibniz e in h |- *.
@@ -428,7 +428,7 @@ Proof.
   intros p q.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     symm in e.
     leibniz e in |- *.
@@ -442,7 +442,7 @@ Proof.
       leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | k e end.
       symm in e.
       leibniz e in |- *.
@@ -462,7 +462,7 @@ Proof.
   intros p q.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     symm in e.
     leibniz e in |- *.
@@ -475,7 +475,7 @@ Proof.
       leibniz (difference.nat.reflexivity q) in |- *.
       simpl in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | k e end.
       symm in e.
       leibniz e in |- *.
@@ -562,7 +562,7 @@ Proof.
   intros k p q.
   let proof t := Nat.order.strict.trichotomy p q.
   match t with | lt | rest end.
-  - simpl Nat.LessThan in lt.
+  - simpl ( _ < _ )%nat in lt.
     match lt with | j e end.
     symm in e.
     leibniz e in |- *.
@@ -579,7 +579,7 @@ Proof.
       leibniz (difference.nat.reflexivity (Nat.mul k q)) in |- *.
       simpl in |- *.
       quod idem est.
-    + simpl Nat.LessThan in gt.
+    + simpl ( _ < _ )%nat in gt.
       match gt with | j e end.
       symm in e.
       leibniz e in |- *.
@@ -1079,9 +1079,9 @@ Theorem monotonicity
       m < n -> k + m < k + n.
 Proof.
   intros k m n h.
-  simpl LessThan in h.
+  simpl ( _ < _ ) in h.
   match h with | d e end.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   exists d.
   leibniz (addition.associativity k m (+ d)) in |- *.
   leibniz e in |- *.
@@ -1343,9 +1343,9 @@ Theorem monotonicity
       m < n -> (+ p) * m < (+ p) * n.
 Proof.
   intros p m n h.
-  simpl LessThan in h.
+  simpl ( _ < _ ) in h.
   match h with | d e end.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   exists (Nat.mul p d).
   lemma facto : ((+ &p) * &m) + ((+ &p) * (+ &d)) = (+ &p) * &n.
   {
@@ -1537,7 +1537,7 @@ Proof.
   intros n.
   simpl (~ _) in |- *.
   intro h.
-  simpl LessThan in h.
+  simpl ( _ < _ ) in h.
   match h with | k e end.
   let proof e' := Identity.transitivity e (Identity.symmetry (addition.right.identity n)).
   let proof f := addition.left.cancellation e'.
@@ -1550,10 +1550,10 @@ Theorem transitivity
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
-  simpl LessThan in h1, h2.
+  simpl ( _ < _ ) in h1, h2.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   exists (Nat.add k1 k2).
   lemma facto : &l + ((+ &k1) + (+ &k2)) = &n.
   {
@@ -1603,12 +1603,12 @@ Lemma specification
   : forall (m : Integer) (n : Integer) . compare m n = Comparison.Lt <-> m < n.
 Proof.
   intros m n.
-  simpl LessThan in |- *.
+  simpl ( _ < _ ) in |- *.
   simpl add in |- *.
   match m with | m' | | m' end; match n with | n' | | n' end; divide et impera; simpl in |- *.
   - intro c.
     let proof lt := Nat.comparison.strict.forward.specification c.
-    simpl Nat.LessThan in lt.
+    simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     exists k.
     leibniz (Nat.addition.commutativity n' k) in e.
@@ -1618,7 +1618,7 @@ Proof.
     modus aequans (difference.nat.negative.specification k m' n'), e |- e'.
     lemma smaller : Nat.LessThan &n' &m'.
     {
-      simpl Nat.LessThan in |- *.
+      simpl ( _ < _ )%nat in |- *.
       exists k.
       leibniz (Nat.addition.commutativity n' k) in |- *.
       ipso e'.
@@ -1661,7 +1661,7 @@ Proof.
     ex e quodlibet.
   - intro c.
     let proof lt := Nat.comparison.strict.forward.specification c.
-    simpl Nat.LessThan in lt.
+    simpl ( _ < _ )%nat in lt.
     match lt with | k e end.
     exists k.
     leibniz e in |- *.
@@ -1671,7 +1671,7 @@ Proof.
     let proof e' := magnitude.positive.injectivity e.
     lemma smaller : Nat.LessThan &m' &n'.
     {
-      simpl Nat.LessThan in |- *.
+      simpl ( _ < _ )%nat in |- *.
       exists k.
       ipso e'.
     }

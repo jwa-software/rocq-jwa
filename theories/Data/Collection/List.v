@@ -2079,7 +2079,7 @@ Proof.
   match l with | | b l' by IH end per List.induction.
   - intros i h.
     simpl in h.
-    simpl NatWithZero.LessThan in h.
+    simpl ( _ < _ )%nat_with_zero in h.
     match h with | k e end.
     let proof r := NatWithZero.addition.right.identity.absence i k.
     simpl (~ _) in r.
@@ -2702,7 +2702,7 @@ Proof.
     simpl in h.
     match h with | e | f end.
     + leibniz e in |- *.
-      simpl NatWithZero.LessThan in |- *.
+      simpl ( _ < _ )%nat_with_zero in |- *.
       exists Nat.One.
       simpl in |- *.
       quod idem est.
@@ -2721,7 +2721,7 @@ Proof.
       leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
       lemma below : i <= NatWithZero.Positive p'.
       {
-        simpl NatWithZero.LessOrEqual in |- *.
+        simpl ( _ <= _ )%nat_with_zero in |- *.
         match h' with | h1 | h2 end.
         + ipso (disjoin _, (IH i h1)).
         + simpl in h2.
@@ -2748,7 +2748,7 @@ Proof.
   intros p.
   match p with | | p' by IH end per Nat.induction.
   - intros i h.
-    simpl NatWithZero.LessThan in h.
+    simpl ( _ < _ )%nat_with_zero in h.
     match h with | k e end.
     match i with | | q end.
     + simpl in |- *.
@@ -2764,7 +2764,7 @@ Proof.
     lemma side : range_positive p' contains_member i
                    \/ (NatWithZero.Positive p' :: []) contains_member i.
     {
-      simpl NatWithZero.LessOrEqual in h'.
+      simpl ( _ <= _ )%nat_with_zero in h'.
       match h' with | e | lt end.
       + lemma singleton : (NatWithZero.Positive &p' :: []) contains_member &i.
         {
@@ -2811,7 +2811,7 @@ Proof.
     + intro f.
       ex f quodlibet.
     + intro h.
-      simpl NatWithZero.LessThan in h.
+      simpl ( _ < _ )%nat_with_zero in h.
       match h with | k e end.
       let proof r := NatWithZero.addition.right.identity.absence i k.
       simpl (~ _) in r.
