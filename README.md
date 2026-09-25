@@ -69,7 +69,7 @@ Each tactic file opens with its grammar in a comment. In outline, against the Ro
 | `exists w` | `exists &w` | `Tactics/Witness.v` |
 | `left`, `right` | the terms `disjoin a, _` and `disjoin _, b` | `Core/Logic/Disjunction.v` |
 
-`jwa.Tactics` also names the rules of inference: `modus ponens`, `modus tollens`, `modus tollendo ponens`, `modus ponendo tollens`, `modus aequans`, `hs` (hypothetical syllogism), `barbara`, `dni` and `dne` (double negation), `de morgan`, `trans`, and the introductions `conjoin`, `sejoin` and `abjoin`. Bare, each is a term, `ipso (modus ponens &hab, &a)`; followed by `as <p>` or `|- <p>` it is a tactic that adds the conclusion as `<p>`.
+`jwa.Tactics` also names the rules of inference: `modus ponens`, `modus tollens`, `modus tollendo ponens`, `modus ponendo tollens`, `modus aequans`, `hs` (hypothetical syllogism), `barbara`, `dni` and `dne` (double negation), `de morgan`, `trans` and `congru` (the transitivity and the congruence of `=`), and the introductions `conjoin`, `sejoin` and `abjoin`. Bare, each is a term, `ipso (modus ponens &hab, &a)`; followed by `as <p>` or `|- <p>` it is a tactic that adds the conclusion as `<p>`.
 
 **Nothing is reduced on the user's behalf.** `quod idem est` closes `a = b` only when the two sides are the same term as written; `ex &h quodlibet` needs the empty type or the clash of constructors as written; `leibniz` takes an equation given whole, never a law left to be instantiated. A step that computes is written out before, with `simpl`. **Every refusal says what and where**, in the tactic's own words: `simpl: negate does not occur in h`, `rm: the goal depends on n, so it cannot be cleared`.
 

@@ -130,3 +130,37 @@ Ltac2 Notation "trans" h1(thunk(constr)) "," h2(thunk(constr)) "as" p(intropatte
 
 Ltac2 Notation "trans" h1(thunk(constr)) "," h2(thunk(constr)) "|-" p(intropattern) :=
   trans_as h1 h2 p.
+
+(* The congruence of [=] under a function.
+ *
+ *   congru <F>, <H>    x = y |- F x = F y
+ *
+ * <F> a function, <H> an equation between values of the type <F> takes.
+ * Bare, it is a term; [congru <F>, <H> as <p>], or equally
+ * [congru <F>, <H> |- <p>], is a tactic, and <p> must be new. An <H> that is
+ * no equation, and an <F> that takes another type, are refused. Nothing
+ * anywhere may be named [congru].
+ *)
+Notation "'congru' F , H" := (Identity.congruence F H)
+  (only parsing).
+
+Ltac2 congru_as (f : unit -> constr) (h : unit -> constr) (p : Std.intro_pattern) :=
+  Control.enter (fun () =>
+    let cf := Local.checked "congru" f in
+    let ch := Local.checked "congru" h in
+    must_be_equation "congru" ch;
+    must_be_new "congru" p;
+    Control.once_plus
+      (fun () =>
+        Std.specialize (constr:(Identity.congruence $cf $ch), Std.NoBindings) (Some p))
+      (fun _ =>
+        refuse [Message.of_string "congru: "; Message.of_constr cf;
+                Message.of_string " has type "; Message.of_constr (Constr.type cf);
+                Message.of_string ", which does not take the sides of ";
+                Message.of_constr (Constr.type ch)])).
+
+Ltac2 Notation "congru" f(thunk(constr)) "," h(thunk(constr)) "as" p(intropattern) :=
+  congru_as f h p.
+
+Ltac2 Notation "congru" f(thunk(constr)) "," h(thunk(constr)) "|-" p(intropattern) :=
+  congru_as f h p.

@@ -1457,6 +1457,40 @@ Proof.
   ipso &e.
 Qed.
 
+Theorem tactics_all_delivers_congru
+  : forall (A : Type) (B : Type) (f : A -> B) (x : A) (y : A) . x = y -> f x = f y.
+Proof.
+  intros A B f x y e.
+  ipso (congru &f, &e).
+Qed.
+
+Theorem tactics_all_delivers_congru_as
+  : forall (A : Type) (B : Type) (f : A -> B) (x : A) (y : A) . x = y -> f x = f y.
+Proof.
+  intros A B f x y e.
+  congru &f, &e as g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_congru_turnstile
+  : forall (A : Type) (B : Type) (f : A -> B) (x : A) (y : A) . x = y -> f x = f y.
+Proof.
+  intros A B f x y e.
+  congru &f, &e |- g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_congru_refusing
+  : forall (A : Type) (B : Type) (C : Prop) (f : A -> B) (x : A) (b : B) .
+      C -> x = x -> b = b -> C.
+Proof.
+  intros A B C f x b c ex eb.
+  Fail congru &f, &c |- g.
+  Fail congru &f, &eb |- g.
+  Fail congru &f, &ex |- c.
+  ipso &c.
+Qed.
+
 Theorem tactics_all_delivers_exists
   : forall (A : Type) (P : A -> Prop) (a : A) . P a -> forsome (x : A) . P x.
 Proof.
