@@ -413,6 +413,26 @@ Definition data_number_all_delivers_rational_order_strict_transitivity
       -> Rational.LessThan x z
   := Rational.order.strict.transitivity.
 
+Definition data_number_all_delivers_rational_make_order_strict_characterisation
+  : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
+      Rational.LessThan (Rational.make a b) (Rational.make c d)
+      <-> Integer.LessThan (Integer.mul a (Integer.from_nat d))
+                           (Integer.mul c (Integer.from_nat b))
+  := Rational.make.order.strict.characterisation.
+
+Definition data_number_all_delivers_rational_addition_order_strict_monotonicity
+  : forall (z : Rational) (x : Rational) (y : Rational) .
+      Rational.LessThan x y
+      -> Rational.LessThan (Rational.add z x) (Rational.add z y)
+  := Rational.addition.order.strict.monotonicity.
+
+Definition data_number_all_delivers_rational_multiplication_left_order_strict_monotonicity
+  : forall (z : Rational) (x : Rational) (y : Rational) .
+      Rational.LessThan Rational.Zero z
+      -> Rational.LessThan x y
+      -> Rational.LessThan (Rational.mul z x) (Rational.mul z y)
+  := Rational.multiplication.left.order.strict.monotonicity.
+
 Definition data_number_all_delivers_rational_comparison_specification
   : forall (x : Rational) (y : Rational) .
       (Rational.compare x y = Comparison.Lt <-> Rational.LessThan x y)
