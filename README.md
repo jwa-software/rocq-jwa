@@ -84,8 +84,8 @@ Each tactic file opens with its grammar in a comment. In outline, against the Ro
 | `make` | Compiles every layer to `.vo` under `_build/default/theories/`, and the test suite. Silent on success. | After any change to a `.v` or `dune` file. |
 | `opam exec -- dune build theories/Data` | Compiles one layer and the layers it depends on. | Iterating on a single layer. |
 | `make opam` | Regenerates `opam/rocq-jwa.opam` from `dune-project`, rewriting it in place. | After changing a field of `dune-project` that ends up in the opam file: version, depends, synopsis, description, authors, maintainers, license, source, tags. |
-| `opam exec -- dune build @fmt` | Prints the formatting diff of the `dune` files without touching them. | Before committing, to see what `make fmt` would change. |
-| `make fmt` | Reformats the `dune` files in place. `.v` files are never touched. | When `@fmt` reports a diff you agree with. |
+| `make fmt-check` | Prints the formatting diff of the `dune` files without touching them; CI runs it. | Before committing, to see what `make fmt` would change. |
+| `make fmt` | Reformats the `dune` files in place. `.v` files are never touched. | When `make fmt-check` reports a diff you agree with. |
 | `opam exec -- dune build @install` | Builds exactly what an opam installation of the package would build. | Before a release, as a self-check. |
 | `make clean` | Deletes `_build/`. | When a build result looks stale or inconsistent. |
 | `make deps` | Installs the dependencies declared in `opam/rocq-jwa.opam` into the active switch. | Once, on a new switch. |

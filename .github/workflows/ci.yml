@@ -41,14 +41,14 @@ jobs:
           # reporting a diff, so git is what catches a stale one.
           script: |
             startGroup "Build"
-              opam exec -- dune build
+              make build
             endGroup
             startGroup "opam file in sync with dune-project"
-              opam exec -- dune build opam/rocq-jwa.opam
+              make opam
               git diff --exit-code opam/
             endGroup
             startGroup "dune files formatted"
-              opam exec -- dune build @fmt
+              make fmt-check
             endGroup
           # The default uninstall test would opam remove the package, which
           # the script above never installed.

@@ -2,24 +2,28 @@
 
 # Build entry points for rocq-jwa.
 #
-#   make          build every theory and the test suite (default target)
-#   make fmt      format the dune files
-#   make clean    remove the build directory
-#   make opam     regenerate opam/rocq-jwa.opam from dune-project
-#   make deps     install the build dependencies into the current opam switch
+#   make            build every theory and the test suite (default target)
+#   make fmt        format the dune files
+#   make fmt-check  report the dune files that are not formatted, changing none
+#   make clean      remove the build directory
+#   make opam       regenerate opam/rocq-jwa.opam from dune-project
+#   make deps       install the build dependencies into the current opam switch
 #
 # Each command runs under `opam exec`, so that the dune and Rocq of the
 # active switch are used whether or not the shell has been initialised with
 # `opam env`.
 OPAM_EXEC := opam exec --
 
-.PHONY: build fmt clean opam deps
+.PHONY: build fmt fmt-check clean opam deps
 
 build:
 	$(OPAM_EXEC) dune build
 
 fmt:
 	$(OPAM_EXEC) dune fmt || $(OPAM_EXEC) dune build @fmt
+
+fmt-check:
+	$(OPAM_EXEC) dune build @fmt
 
 clean:
 	$(OPAM_EXEC) dune clean
