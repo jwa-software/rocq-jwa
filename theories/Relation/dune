@@ -11,4 +11,4 @@
 (rocq.theory
  (name jwa.Relation)
  (package rocq-jwa)
- (theories jwa.Core jwa.Tactics))
+ (theories Ltac2 jwa.Dialect jwa.Core jwa.Tactics))

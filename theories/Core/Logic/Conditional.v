@@ -1,7 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Conditional is the conditional, [if A then B]. [->] is the kernel's
  * non-dependent [forall], which this line only gives a spelling.
@@ -18,7 +18,7 @@ Theorem reflexivity : forall {A : Prop} . A -> A.
 Proof.
   intro A.
   intro a.
-  exact a.
+  ipso a.
 Qed.
 
 Theorem transitivity
@@ -28,9 +28,9 @@ Proof.
   intro ab.
   intro bc.
   intro a.
-  apply bc.
-  apply ab.
-  exact a.
+  let proof b := ab a.
+  let proof facto := bc b.
+  ipso facto.
 Qed.
 
 (* The three structural rules of Gentzen's sequent calculus, as theorems
@@ -42,7 +42,7 @@ Proof.
   intros A B.
   intro a.
   intro b.
-  exact a.
+  ipso a.
 Qed.
 
 Theorem contraction
@@ -51,9 +51,7 @@ Proof.
   intros A B.
   intro f.
   intro a.
-  apply f.
-  - exact a.
-  - exact a.
+  ipso (f a a).
 Qed.
 
 (* Its own converse: applying it twice restores the order. *)
@@ -64,9 +62,7 @@ Proof.
   intro f.
   intro b.
   intro a.
-  apply f.
-  - exact a.
-  - exact b.
+  ipso (f a b).
 Qed.
 
 (* Two laws of [->] are stated higher up, each in a second module of this

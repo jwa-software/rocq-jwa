@@ -8,6 +8,7 @@
 From jwa Require Export Algebra.All.
 From jwa Require Export Core.All.
 From jwa Require Export Data.All.
+From jwa Require Export Dialect.All.
 From jwa Require Export Programming.All.
 From jwa Require Export Relation.All.
 From jwa Require Export Tactics.All.

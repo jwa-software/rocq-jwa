@@ -59,7 +59,7 @@ Declare Scope jwa_rational_scope.
 Delimit Scope jwa_rational_scope with rational.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
-   [exists] beyond them, so a formula reads without parentheses; [_\/_] sits
+   [forsome] beyond them, so a formula reads without parentheses; [_\/_] sits
    between [/\] and [\/] as [^^] sits between [&&] and [||], and [!] is to
    that boolean row what [~] is to this one, below all of it. The quotes
    make [contains_member] a keyword rather than a variable. *)
@@ -165,9 +165,34 @@ Reserved Notation "'dne' H"
 Reserved Notation "'de' 'morgan' H"
   (at level 10, H at next level).
 
+(* The symmetry and the transitivity of [=] written as terms, for the same
+ * reason and at the same level. Their meanings belong to [Tactics.Equation].
+ *)
+Reserved Notation "'symm' H"
+  (at level 10, H at next level).
+Reserved Notation "'trans' H1 , H2"
+  (at level 10, H1 at next level, H2 at next level).
+
+(* The introduction of each junction written as a term, at the same level.
+ * Their meanings belong beside each connective in [Core.Logic], and the
+ * tactics of the same names to [Tactics.Join]. [_] marks the side of a
+ * disjunction that comes from the expected type.
+ *)
+Reserved Notation "'conjoin' A , B"
+  (at level 10, A at next level, B at next level).
+#[warnings="-closed-notation-not-level-0"]
+Reserved Notation "'disjoin' A , '_'"
+  (at level 10, A at next level).
+Reserved Notation "'disjoin' '_' , B"
+  (at level 10, B at next level).
+Reserved Notation "'sejoin' A , B"
+  (at level 10, A at next level, B at next level).
+Reserved Notation "'abjoin' A , B"
+  (at level 10, A at next level, B at next level).
+
 (* [x binder] is what lets [x] be written with or without its type, and the
-   [..] is what lets one [exists] carry several of them. *)
-Reserved Notation "'exists' x .. y '.' p"
+   [..] is what lets one [forsome] carry several of them. *)
+Reserved Notation "'forsome' x .. y '.' p"
   (at level 200, x binder, y binder, right associativity).
 
 (* The lambda as it is written on paper, [fun x . body], beside the
@@ -181,7 +206,7 @@ Notation "'fun' x .. y '.' body" := (fun x => .. (fun y => body) ..)
   (at level 200, x binder, y binder, right associativity).
 
 (* The quantifier written the same way, [forall x . p] beside the kernel's
- * [forall x, p]. [exists] gets its dotted spelling in [Core.Logic.Exists],
+ * [forall x, p]. [forsome] gets its dotted spelling in [Core.Logic.Exists],
  * where its meaning is.
  *)
 Notation "'forall' x .. y '.' p" := (forall x, .. (forall y, p) ..)

@@ -9,9 +9,12 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.WellFounded.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [Nat.add]. The type
  * and its ctors are declared inside it: a ctor at the top level is rebound
@@ -89,7 +92,7 @@ Notation "++ n" := (inc n) (only parsing)
   : jwa_nat_scope.
 
 (* [Nat -> Nat -> Prop] *)
-Definition LessThan := fun (m : Nat) (n : Nat) . exists (k : Nat) . m + k = n.
+Definition LessThan := fun (m : Nat) (n : Nat) . forsome (k : Nat) . m + k = n.
 
 (* [Nat -> Nat -> Prop] *)
 Definition LessOrEqual := fun (m : Nat) (n : Nat) . m = n \/ LessThan m n.
@@ -157,10 +160,10 @@ Lemma injectivity
   : forall {m : Nat} {n : Nat} . S m = S n -> m = n.
 Proof.
   intros m n e.
-  pose (f := (fun (x : Nat) . match x with | 1 => m | S y => y end)).
-  pose proof (Identity.congruence f e) as e'.
+  let f := fun (x : Nat) . match x with | 1 => m | S y => y end.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 Module order. (* successor.order *)
@@ -176,13 +179,13 @@ Theorem monotonicity
       m < n -> S m < S n.
 Proof.
   intros m n h.
-  unfold LessThan in h.
-  destruct h as [k e].
-  unfold LessThan in |- *.
-  apply (Exists_introduction k).
+  simpl LessThan in h.
+  match h with | k e end.
+  simpl LessThan in |- *.
+  exists k.
   simpl in |- *.
-  rewrite e in |- *.
-  reflexivity.
+  leibniz e in |- *.
+  quod idem est.
 Qed.
 
 Module monotonicity. (* successor.order.monotonicity *)
@@ -192,13 +195,13 @@ Lemma inversion
   : forall {m : Nat} {n : Nat} . S m < S n -> m < n.
 Proof.
   intros m n h.
-  unfold LessThan in h.
-  destruct h as [k e].
+  simpl LessThan in h.
+  match h with | k e end.
   simpl in e.
-  pose proof (successor.injectivity e)
-          as e'.
-  unfold LessThan in |- *.
-  exact (Exists_introduction k e').
+  let proof e' := successor.injectivity e.
+  simpl LessThan in |- *.
+  exists &k.
+  ipso &e'.
 Qed.
 
 End monotonicity. (* successor.order.monotonicity *)
@@ -214,47 +217,46 @@ Theorem associativity
   : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction.
+  match l with | | l' by IH end per Nat.induction.
   -
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   -
     simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 (* addition.commutativity *)
 Theorem commutativity : forall (m : Nat) (n : Nat) . m + n = n + m.
 Proof.
   intros m n.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       simpl in |- *.
   -
-    induction n as [| n' IH2]
-        using Nat.induction;
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
-      pose proof (Identity.symmetry IH2)
-              as IH2'.
-      rewrite IH2'
+      let proof IH2' := Identity.symmetry IH2.
+      leibniz IH2'
               in |- *.
-      reflexivity.
+      quod idem est.
   -
-    rewrite IH in |- *.
-    clear IH.
-    induction n as [| n' IH2]
-        using Nat.induction;
+    leibniz IH in |- *.
+    rm IH.
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
-      symmetry in IH2.
-      rewrite IH2 in |- *.
-      reflexivity.
+      symm in IH2.
+      leibniz IH2 in |- *.
+      quod idem est.
 Qed.
 
 Module identity. (* addition.identity *)
@@ -263,26 +265,25 @@ Module identity. (* addition.identity *)
 Theorem absence : forall (k : Nat) (n : Nat) . ~ (k + n = n).
 Proof.
   intros k n.
-  induction n as [| n' IH] using Nat.induction.
+  match n with | | n' by IH end per Nat.induction.
   -
-    unfold Negation in |- *.
+    simpl (~ _) in |- *.
     intro e.
-    rewrite (addition.commutativity k 1)
+    leibniz (addition.commutativity k 1)
             in e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   -
-    unfold Negation in |- *.
+    simpl (~ _) in |- *.
     intro e.
-    rewrite (addition.commutativity k (S n'))
+    leibniz (addition.commutativity k (S n'))
             in e.
     simpl in e.
-    pose proof (successor.injectivity e)
-            as e'.
-    rewrite (addition.commutativity n' k)
+    let proof e' := successor.injectivity e.
+    leibniz (addition.commutativity n' k)
             in e'.
-    unfold Negation in IH.
-    exact (modus ponens IH, e').
+    simpl (~ _) in IH.
+    ipso (modus ponens IH, e').
 Qed.
 
 End identity. (* addition.identity *)
@@ -294,15 +295,14 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m + n = m + k -> n = k.
 Proof.
   intros m n k.
-  induction m as [| m' IH] using Nat.induction.
+  match m with | | m' by IH end per Nat.induction.
   - simpl in |- *.
     intro e.
-    exact (successor.injectivity e).
+    ipso (successor.injectivity e).
   - simpl in |- *.
     intro e.
-    pose proof (successor.injectivity e)
-            as e'.
-    exact (modus ponens IH, e').
+    let proof e' := successor.injectivity e.
+    ipso (modus ponens IH, e').
 Qed.
 
 (* addition.left.commutativity *)
@@ -310,10 +310,10 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . l + (m + n) = m + (l + n).
 Proof.
   intros l m n.
-  rewrite (addition.commutativity l (m + n)) in |- *.
-  rewrite (addition.associativity m n l)     in |- *.
-  rewrite (addition.commutativity n l)       in |- *.
-  reflexivity.
+  leibniz (addition.commutativity l (m + n)) in |- *.
+  leibniz (addition.associativity m n l)     in |- *.
+  leibniz (addition.commutativity n l)       in |- *.
+  quod idem est.
 Qed.
 
 End left. (* addition.left *)
@@ -325,9 +325,9 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m + n = k + n -> m = k.
 Proof.
   intros m n k e.
-  rewrite (addition.commutativity k n) in e.
-  rewrite (addition.commutativity m n) in e.
-  exact (addition.left.cancellation e).
+  leibniz (addition.commutativity k n) in e.
+  leibniz (addition.commutativity m n) in e.
+  ipso (addition.left.cancellation e).
 Qed.
 
 (* addition.right.commutativity *)
@@ -335,10 +335,10 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . (l + m) + n = (l + n) + m.
 Proof.
   intros l m n.
-  rewrite (addition.associativity l m n) in |- *.
-  rewrite (addition.associativity l n m) in |- *.
-  rewrite (addition.commutativity m n)   in |- *.
-  reflexivity.
+  leibniz (addition.associativity l m n) in |- *.
+  leibniz (addition.associativity l n m) in |- *.
+  leibniz (addition.commutativity m n)   in |- *.
+  quod idem est.
 Qed.
 
 End right. (* addition.right *)
@@ -349,9 +349,9 @@ Theorem cancellation
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  split.
-  - exact (@addition.left.cancellation  m n k).
-  - exact (@addition.right.cancellation m n k).
+  divide et impera.
+  - ipso (@addition.left.cancellation  m n k).
+  - ipso (@addition.right.cancellation m n k).
 Qed.
 
 Module order. (* addition.order *)
@@ -360,9 +360,9 @@ Module order. (* addition.order *)
 Theorem extensivity : forall (m : Nat) (k : Nat) . m < m + k.
 Proof.
   intros m k.
-  unfold LessThan in |- *.
-  apply (Exists_introduction k).
-  reflexivity.
+  simpl LessThan in |- *.
+  exists k.
+  quod idem est.
 Qed.
 
 (* addition.order.monotonicity *)
@@ -371,15 +371,15 @@ Theorem monotonicity
       m < n -> k + m < k + n.
 Proof.
   intros k m n h.
-  unfold LessThan in h.
-  destruct h as [d e].
-  unfold LessThan in |- *.
-  apply (Exists_introduction d).
-  rewrite (addition.associativity k m d)
+  simpl LessThan in h.
+  match h with | d e end.
+  simpl LessThan in |- *.
+  exists d.
+  leibniz (addition.associativity k m d)
           in |- *.
-  rewrite e
+  leibniz e
           in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End order. (* addition.order *)
@@ -394,17 +394,16 @@ Module strict. (* order.strict *)
 Theorem irreflexivity : forall (n : Nat) . ~ (n < n).
 Proof.
   intros n.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
-  unfold LessThan in h.
-  destruct h as [k e].
-  rewrite (addition.commutativity n k)
+  simpl LessThan in h.
+  match h with | k e end.
+  leibniz (addition.commutativity n k)
           in e.
-  pose proof (addition.identity.absence k n)
-          as i.
-  unfold Negation in i.
-  modus ponens i, e as f.
-  contradiction f.
+  let proof i := addition.identity.absence k n.
+  simpl (~ _) in i.
+  modus ponens i, e |- f.
+  ex f quodlibet.
 Qed.
 
 (* order.strict.transitivity *)
@@ -413,17 +412,16 @@ Theorem transitivity
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
-  unfold LessThan in h1.
-  unfold LessThan in h2.
-  destruct h1 as [k1 e1].
-  destruct h2 as [k2 e2].
-  unfold LessThan in |- *.
-  apply (Exists_introduction (k1 + k2)).
-  pose proof (Identity.symmetry (addition.associativity l k1 k2))
-          as a.
-  rewrite a  in |- *.
-  rewrite e1 in |- *.
-  exact e2.
+  simpl LessThan in h1.
+  simpl LessThan in h2.
+  match h1 with | k1 e1 end.
+  match h2 with | k2 e2 end.
+  simpl LessThan in |- *.
+  exists (k1 + k2).
+  let proof a := Identity.symmetry (addition.associativity l k1 k2).
+  leibniz a  in |- *.
+  leibniz e1 in |- *.
+  ipso e2.
 Qed.
 
 (* Trichotomy, "cut in three": for any [m] and [n], exactly one of
@@ -436,43 +434,46 @@ Theorem trichotomy
   : forall (m : Nat) (n : Nat) . (m < n) \/ (m = n) \/ (n < m).
 Proof.
   intro m.
-  induction m as [| m' IH]
-      using Nat.induction;
-  intro n; destruct n as [| n'].
+  match m with | | m' by IH end
+      per Nat.induction;
+  intro n; match n with | | n' end.
   -
-    pose proof (Identity.reflexivity 1)
-            as id.
-    exact (Disjunction.R (Disjunction.L id)).
+    let proof id := Identity.reflexivity 1.
+    ipso (disjoin _, (disjoin id, _)).
   -
-    apply Disjunction.L.
-    unfold LessThan in |- *.
-    apply (Exists_introduction n').
-    simpl in |- *.
-    reflexivity.
+    lemma facto : 1 < Successor &n'.
+    {
+      simpl LessThan in |- *.
+      exists n'.
+      simpl in |- *.
+      quod idem est.
+    }
+    ipso (disjoin &facto, _).
   -
-    apply Disjunction.R.
-    apply Disjunction.R.
-    unfold LessThan in |- *.
-    apply (Exists_introduction m').
-    simpl in |- *.
-    reflexivity.
+    lemma facto : 1 < Successor &m'.
+    {
+      simpl LessThan in |- *.
+      exists m'.
+      simpl in |- *.
+      quod idem est.
+    }
+    ipso (disjoin _, (disjoin _, &facto)).
   -
-    pose proof (IH n') as t.
-    destruct t as [lt | rest].
+    let proof t := IH n'.
+    match t with | lt | rest end.
     +
-      apply Disjunction.L.
-      exact (successor.order.monotonicity lt).
+      ipso (disjoin (successor.order.monotonicity lt), _).
     +
-      destruct rest as [eq | gt].
+      match rest with | eq | gt end.
       *
-        apply Disjunction.R.
-        apply Disjunction.L.
-        rewrite eq in |- *.
-        reflexivity.
+        lemma facto : Successor &m' = Successor &n'.
+        {
+          leibniz &eq in |- *.
+          quod idem est.
+        }
+        ipso (disjoin _, (disjoin &facto, _)).
       *
-        apply Disjunction.R.
-        apply Disjunction.R.
-        exact (successor.order.monotonicity gt).
+        ipso (disjoin _, (disjoin _, (successor.order.monotonicity gt))).
 Qed.
 
 (* Descending from [n] cannot go on for ever, since [One] has nothing below
@@ -482,30 +483,40 @@ Qed.
 Theorem wellfoundedness : forall (n : Nat) . Accessible LessThan n.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat.induction.
-  - apply Accessible_introduction.
-    intros y h.
-    destruct h as [k e].
-    destruct y as [| y'].
-    + simpl in e.
-      discriminate e.
-    + simpl in e.
-      discriminate e.
-  - apply Accessible_introduction.
-    intros y h.
-    destruct h as [k e].
-    rewrite (addition.commutativity y k) in e.
-    destruct k as [| k'].
-    + simpl in e.
-      pose proof (successor.injectivity e) as e'.
-      rewrite e' in |- *.
-      exact IH.
-    + simpl in e.
-      pose proof (successor.injectivity e) as e'.
-      apply (Accessible.descend IH).
-      apply (Exists_introduction k').
-      rewrite (addition.commutativity y k') in |- *.
-      exact e'.
+  match n with | | n' by IH end per Nat.induction.
+  - lemma below : forall (y : Nat) . y < 1 -> Accessible LessThan y.
+    {
+      intros y h.
+      match h with | k e end.
+      match y with | | y' end.
+      + simpl in e.
+        ex e quodlibet.
+      + simpl in e.
+        ex e quodlibet.
+    }
+    ipso (Accessible_introduction &below).
+  - lemma below : forall (y : Nat) . y < Successor &n' -> Accessible LessThan y.
+    {
+      intros y h.
+      match h with | k e end.
+      leibniz (addition.commutativity y k) in e.
+      match k with | | k' end.
+      + simpl in e.
+        let proof e' := successor.injectivity e.
+        leibniz e' in |- *.
+        ipso IH.
+      + simpl in e.
+        let proof e' := successor.injectivity e.
+        lemma smaller : &y < &n'.
+        {
+          simpl LessThan in |- *.
+          exists k'.
+          leibniz (addition.commutativity y k') in |- *.
+          ipso e'.
+        }
+        ipso (Accessible.descend &IH &smaller).
+    }
+    ipso (Accessible_introduction &below).
 Qed.
 
 End strict. (* order.strict *)
@@ -518,36 +529,35 @@ Module multiplication. (* multiplication *)
 Theorem commutativity : forall (m : Nat) (n : Nat) . m * n = n * m.
 Proof.
   intros m n.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       simpl in |- *.
   -
-    induction n as [| n' IH2]
-        using Nat.induction;
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
-      pose proof (Identity.symmetry IH2)
-              as IH2'.
-      rewrite IH2'
+      let proof IH2' := Identity.symmetry IH2.
+      leibniz IH2'
               in |- *.
-      reflexivity.
+      quod idem est.
   -
-    rewrite IH in |- *.
-    clear IH.
-    induction n as [| n' IH2]
-        using Nat.induction;
+    leibniz IH in |- *.
+    rm IH.
+    match n with | | n' by IH2 end
+        per Nat.induction;
         simpl in |- *.
     +
-      reflexivity.
+      quod idem est.
     +
-      symmetry in IH2.
-      rewrite IH2
+      symm in IH2.
+      leibniz IH2
            in |- *.
-      rewrite (addition.left.commutativity n' m' (n' * m'))
+      leibniz (addition.left.commutativity n' m' (n' * m'))
            in |- *.
-      reflexivity.
+      quod idem est.
 Qed.
 
 Module left. (* multiplication.left *)
@@ -562,15 +572,15 @@ Theorem addition
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction; simpl in |- *.
+  match l with | | l' by IH end per Nat.induction; simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
-    rewrite IH in |- *.
-    rewrite (addition.associativity m n ((l' * m) + (l' * n))) in |- *.
-    rewrite (addition.left.commutativity n (l' * m) (l' * n))  in |- *.
-    rewrite (addition.associativity m (l' * m) (n + (l' * n))) in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    leibniz (addition.associativity m n ((l' * m) + (l' * n))) in |- *.
+    leibniz (addition.left.commutativity n (l' * m) (l' * n))  in |- *.
+    leibniz (addition.associativity m (l' * m) (n + (l' * n))) in |- *.
+    quod idem est.
 Qed.
 
 End over. (* multiplication.left.distributivity.over *)
@@ -582,11 +592,11 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . l * (m * n) = m * (l * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
-  - rewrite IH in |- *.
-    rewrite (multiplication.left.distributivity.over.addition m n (l' * n)) in |- *.
-    reflexivity.
+  match l with | | l' by IH end per Nat.induction; simpl in |- *.
+  - quod idem est.
+  - leibniz IH in |- *.
+    leibniz (multiplication.left.distributivity.over.addition m n (l' * n)) in |- *.
+    quod idem est.
 Qed.
 
 Module order. (* multiplication.left.order *)
@@ -597,16 +607,15 @@ Theorem monotonicity
       m < n -> k * m < k * n.
 Proof.
   intros k m n h.
-  unfold LessThan in h.
-  destruct h as [d e].
-  unfold LessThan in |- *.
-  apply (Exists_introduction (k * d)).
-  pose proof (Identity.symmetry
-                (multiplication.left.distributivity.over.addition k m d))
-          as dist.
-  rewrite dist in |- *.
-  rewrite e    in |- *.
-  reflexivity.
+  simpl LessThan in h.
+  match h with | d e end.
+  simpl LessThan in |- *.
+  exists (k * d).
+  let proof dist := Identity.symmetry
+                (multiplication.left.distributivity.over.addition k m d).
+  leibniz dist in |- *.
+  leibniz e    in |- *.
+  quod idem est.
 Qed.
 
 End order. (* multiplication.left.order *)
@@ -616,28 +625,24 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m * n = m * k -> n = k.
 Proof.
   intros m n k e.
-  pose proof (order.strict.trichotomy n k) as t.
-  destruct t as [lt | rest].
-  - pose proof (multiplication.left.order.monotonicity m n k lt)
-            as lt'.
-    rewrite e
+  let proof t := order.strict.trichotomy n k.
+  match t with | lt | rest end.
+  - let proof lt' := multiplication.left.order.monotonicity m n k lt.
+    leibniz e
             in lt'.
-    pose proof (order.strict.irreflexivity (m * k))
-            as i.
-    unfold Negation in i.
-    modus ponens i, lt' as f.
-    contradiction f.
-  - destruct rest as [eq | gt].
-    + exact eq.
-    + pose proof (multiplication.left.order.monotonicity m k n gt)
-              as gt'.
-      rewrite e
+    let proof i := order.strict.irreflexivity (m * k).
+    simpl (~ _) in i.
+    modus ponens i, lt' |- f.
+    ex f quodlibet.
+  - match rest with | eq | gt end.
+    + ipso &eq.
+    + let proof gt' := multiplication.left.order.monotonicity m k n gt.
+      leibniz e
               in gt'.
-      pose proof (order.strict.irreflexivity (m * k))
-              as i.
-      unfold Negation in i.
-      modus ponens i, gt' as f.
-      contradiction f.
+      let proof i := order.strict.irreflexivity (m * k).
+      simpl (~ _) in i.
+      modus ponens i, gt' |- f.
+      ex f quodlibet.
 Qed.
 
 End left. (* multiplication.left *)
@@ -654,11 +659,11 @@ Theorem addition
       (m + n) * l = (m * l) + (n * l).
 Proof.
   intros l m n.
-  rewrite (multiplication.commutativity (m + n) l)                 in |- *.
-  rewrite (multiplication.left.distributivity.over.addition l m n) in |- *.
-  rewrite (multiplication.commutativity l m)                       in |- *.
-  rewrite (multiplication.commutativity l n)                       in |- *.
-  reflexivity.
+  leibniz (multiplication.commutativity (m + n) l)                 in |- *.
+  leibniz (multiplication.left.distributivity.over.addition l m n) in |- *.
+  leibniz (multiplication.commutativity l m)                       in |- *.
+  leibniz (multiplication.commutativity l n)                       in |- *.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.right.distributivity.over *)
@@ -670,9 +675,9 @@ Theorem cancellation
   : forall {m : Nat} {n : Nat} {k : Nat} . m * n = k * n -> m = k.
 Proof.
   intros m n k e.
-  rewrite (multiplication.commutativity m n) in e.
-  rewrite (multiplication.commutativity k n) in e.
-  exact (multiplication.left.cancellation e).
+  leibniz (multiplication.commutativity m n) in e.
+  leibniz (multiplication.commutativity k n) in e.
+  ipso (multiplication.left.cancellation e).
 Qed.
 
 (* multiplication.right.commutativity *)
@@ -680,12 +685,12 @@ Lemma commutativity
   : forall (l : Nat) (m : Nat) (n : Nat) . (l * m) * n = (l * n) * m.
 Proof.
   intros l m n.
-  rewrite (multiplication.commutativity (l * m) n)  in |- *.
-  rewrite (multiplication.commutativity (l * n) m)  in |- *.
-  rewrite (multiplication.left.commutativity n l m) in |- *.
-  rewrite (multiplication.left.commutativity m l n) in |- *.
-  rewrite (multiplication.commutativity n m)        in |- *.
-  reflexivity.
+  leibniz (multiplication.commutativity (l * m) n)  in |- *.
+  leibniz (multiplication.commutativity (l * n) m)  in |- *.
+  leibniz (multiplication.left.commutativity n l m) in |- *.
+  leibniz (multiplication.left.commutativity m l n) in |- *.
+  leibniz (multiplication.commutativity n m)        in |- *.
+  quod idem est.
 Qed.
 
 End right. (* multiplication.right *)
@@ -696,15 +701,15 @@ Theorem associativity
     (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
-  induction l as [| l' IH] using Nat.induction; simpl in |- *.
+  match l with | | l' by IH end per Nat.induction; simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
-    rewrite (multiplication.right.distributivity.over.addition n m (l' * m))
+    leibniz (multiplication.right.distributivity.over.addition n m (l' * m))
             in |- *.
-    rewrite IH
+    leibniz IH
             in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* multiplication.identity *)
@@ -712,12 +717,12 @@ Theorem identity
   : forall (n : Nat) . (1 * n = n) /\ (n * 1 = n).
 Proof.
   intros n.
-  split.
+  divide et impera.
   - simpl in |- *.
-    reflexivity.
-  - rewrite (multiplication.commutativity n 1) in |- *.
+    quod idem est.
+  - leibniz (multiplication.commutativity n 1) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module identity. (* multiplication.identity *)
@@ -727,17 +732,17 @@ Theorem factorization
   : forall {k : Nat} {j : Nat} . k * j = 1 -> k = 1 /\ j = 1.
 Proof.
   intros k j e.
-  destruct k as [| k']; simpl in e.
+  match k with | | k' end; simpl in e.
   -
-    split.
-    + reflexivity.
-    + exact e.
+    divide et impera.
+    + quod idem est.
+    + ipso e.
   -
-    destruct j as [| j'].
+    match j with | | j' end.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
 Qed.
 
 End identity. (* multiplication.identity *)
@@ -752,10 +757,10 @@ Theorem addition
       (a + b) * (c + d) = ((a * c) + (a * d)) + ((b * c) + (b * d)).
 Proof.
   intros a b c d.
-  rewrite (multiplication.right.distributivity.over.addition (c + d) a b) in |- *.
-  rewrite (multiplication.left.distributivity.over.addition a c d)        in |- *.
-  rewrite (multiplication.left.distributivity.over.addition b c d)        in |- *.
-  reflexivity.
+  leibniz (multiplication.right.distributivity.over.addition (c + d) a b) in |- *.
+  leibniz (multiplication.left.distributivity.over.addition a c d)        in |- *.
+  leibniz (multiplication.left.distributivity.over.addition b c d)        in |- *.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.distributivity.over *)
@@ -769,9 +774,9 @@ Theorem cancellation
     /\ (m * n = k * n -> m = k).
 Proof.
   intros m n k.
-  split.
-  - exact (@multiplication.left.cancellation  m n k).
-  - exact (@multiplication.right.cancellation m n k).
+  divide et impera.
+  - ipso (@multiplication.left.cancellation  m n k).
+  - ipso (@multiplication.right.cancellation m n k).
 Qed.
 
 End multiplication. (* multiplication *)
@@ -781,16 +786,16 @@ Module power. (* power *)
 (* power.identity *)
 Lemma identity : forall (m : Nat) . power m 1 = m.
 Proof.
-  intros m. simpl in |- *. reflexivity.
+  intros m. simpl in |- *. quod idem est.
 Qed.
 
 (* power.annihilation *)
 Lemma annihilation : forall (n : Nat) . power 1 n = 1.
 Proof.
   intros n.
-  induction n as [| n' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
-  - exact IH.
+  match n with | | n' by IH end per Nat.induction; simpl in |- *.
+  - quod idem est.
+  - ipso IH.
 Qed.
 
 Module exponent. (* power.exponent *)
@@ -801,15 +806,15 @@ Theorem addition
       power m a * power m b = power m (a + b).
 Proof.
   intros m a b.
-  induction a as [| a' IH]
-      using Nat.induction;
+  match a with | | a' by IH end
+      per Nat.induction;
       simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
-    rewrite (multiplication.associativity m (power m a') (power m b)) in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz (multiplication.associativity m (power m a') (power m b)) in |- *.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 (* power.exponent.multiplication *)
@@ -818,23 +823,23 @@ Theorem multiplication
       power (power m a) b = power m (a * b).
 Proof.
   intros m a b.
-  induction b as [| b' IH] using Nat.induction.
+  match b with | | b' by IH end per Nat.induction.
   -
-    rewrite -> (multiplication.commutativity a 1)
+    leibniz -> (multiplication.commutativity a 1)
             in |- *.
     simpl   in |- *.
-    reflexivity.
+    quod idem est.
   -
-    rewrite -> (multiplication.commutativity a (S b'))
+    leibniz -> (multiplication.commutativity a (S b'))
             in |- *.
     simpl   in |- *.
-    rewrite -> (multiplication.commutativity b' a)
+    leibniz -> (multiplication.commutativity b' a)
             in |- *.
-    rewrite <- (power.exponent.addition m a (a * b'))
+    leibniz <- (power.exponent.addition m a (a * b'))
             in |- *.
-    rewrite -> IH
+    leibniz -> IH
             in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End exponent. (* power.exponent *)
@@ -849,15 +854,15 @@ Theorem multiplication
       power (m * n) a = power m a * power n a.
 Proof.
   intros m n a.
-  induction a as [| a' IH] using Nat.induction; simpl in |- *.
+  match a with | | a' by IH end per Nat.induction; simpl in |- *.
   -
-    reflexivity.
+    quod idem est.
   -
-    rewrite IH in |- *.
-    rewrite (multiplication.associativity m n (power m a' * power n a'))    in |- *.
-    rewrite (multiplication.left.commutativity n (power m a') (power n a')) in |- *.
-    rewrite (multiplication.associativity m (power m a') (n * power n a'))  in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    leibniz (multiplication.associativity m n (power m a' * power n a'))    in |- *.
+    leibniz (multiplication.left.commutativity n (power m a') (power n a')) in |- *.
+    leibniz (multiplication.associativity m (power m a') (n * power n a'))  in |- *.
+    quod idem est.
 Qed.
 
 End over. (* power.distributivity.over *)
@@ -877,23 +882,23 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . compare m n = Comparison.Lt -> m < n.
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intro n;
-  destruct n as [| n'];
+  match n with | | n' end;
       simpl in |- *;
       intro e.
   -
-    discriminate e.
+    ex e quodlibet.
   -
-    unfold LessThan in |- *.
-    apply (Exists_introduction n').
+    simpl LessThan in |- *.
+    exists n'.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   -
-    discriminate e.
+    ex e quodlibet.
   -
-    exact (successor.order.monotonicity (IH n' e)).
+    ipso (successor.order.monotonicity (IH n' e)).
 Qed.
 
 End forward. (* comparison.strict.forward *)
@@ -905,26 +910,26 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . m < n -> compare m n = Comparison.Lt.
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intro n;
-  destruct n as [| n'];
+  match n with | | n' end;
       intro h;
       simpl in |- *.
   +
-    pose proof (order.strict.irreflexivity 1) as i.
-    unfold Negation in i.
-    modus ponens i, h as f.
-    contradiction f.
+    let proof i := order.strict.irreflexivity 1.
+    simpl (~ _) in i.
+    modus ponens i, h |- f.
+    ex f quodlibet.
   +
-    reflexivity.
+    quod idem est.
   +
-    unfold LessThan in h.
-    destruct h as [k e].
+    simpl LessThan in h.
+    match h with | k e end.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   +
-    exact (IH n' (successor.order.monotonicity.inversion h)).
+    ipso (IH n' (successor.order.monotonicity.inversion h)).
 Qed.
 
 End backward. (* comparison.strict.backward *)
@@ -940,17 +945,17 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . compare m n = Comparison.Eq -> m = n.
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intro n;
-  destruct n as [| n'];
+  match n with | | n' end;
       intro e;
-      simpl in |- *.
-  + reflexivity.
-  + discriminate e.
-  + discriminate e.
-  + rewrite (IH n' e) in |- *.
-    reflexivity.
+      simpl in e.
+  + quod idem est.
+  + ex e quodlibet.
+  + ex e quodlibet.
+  + leibniz (IH n' e) in |- *.
+    quod idem est.
 Qed.
 
 End forward. (* comparison.equality.forward *)
@@ -962,11 +967,11 @@ Lemma specification
   : forall {m : Nat} {n : Nat} . m = n -> compare m n = Comparison.Eq.
 Proof.
   intros m n e.
-  rewrite e in |- *.
-  clear e.
-  induction n as [| n' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
-  - exact IH.
+  leibniz e in |- *.
+  rm e.
+  match n with | | n' by IH end per Nat.induction; simpl in |- *.
+  - quod idem est.
+  - ipso IH.
 Qed.
 
 End backward. (* comparison.equality.backward *)
@@ -979,11 +984,11 @@ Theorem specification
       (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
-  split; split.
-  - exact (@comparison.strict.forward.specification    m n).
-  - exact (@comparison.strict.backward.specification   m n).
-  - exact (@comparison.equality.forward.specification  m n).
-  - exact (@comparison.equality.backward.specification m n).
+  divide et impera; divide et impera.
+  - ipso (@comparison.strict.forward.specification    m n).
+  - ipso (@comparison.strict.backward.specification   m n).
+  - ipso (@comparison.equality.forward.specification  m n).
+  - ipso (@comparison.equality.backward.specification m n).
 Qed.
 
 (* comparison.antisymmetry *)
@@ -991,15 +996,15 @@ Theorem antisymmetry
   : forall (m : Nat) (n : Nat) . compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m.
-  induction m as [| m' IH]
-      using Nat.induction;
+  match m with | | m' by IH end
+      per Nat.induction;
       intros n;
-  destruct n as [| n'];
+  match n with | | n' end;
       simpl in |- *.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - exact (IH n').
+  - quod idem est.
+  - quod idem est.
+  - quod idem est.
+  - ipso (IH n').
 Qed.
 
 Module maximum. (* comparison.maximum *)
@@ -1010,17 +1015,16 @@ Module right. (* comparison.maximum.right *)
 Lemma identity : forall (n : Nat) . max n 1 = n.
 Proof.
   intros n.
-  unfold Comparable.max in |- *.
-  destruct (compare n 1) as [| |] eqn:c.
-  - pose proof (comparison.strict.forward.specification c)
-            as lt.
-    unfold LessThan in lt.
-    destruct lt as [k e].
-    destruct n as [| n'];
+  simpl Comparable.max in |- *.
+  match (compare n 1) with | | | end |- c.
+  - let proof lt := comparison.strict.forward.specification c.
+    simpl LessThan in lt.
+    match lt with | k e end.
+    match n with | | n' end;
         simpl in e;
-        discriminate e.
-  - reflexivity.
-  - reflexivity.
+        ex e quodlibet.
+  - quod idem est.
+  - quod idem est.
 Qed.
 
 End right. (* comparison.maximum.right *)
@@ -1031,8 +1035,8 @@ Module left. (* comparison.maximum.left *)
 Lemma identity : forall (n : Nat) . max 1 n = n.
 Proof.
   intros n.
-  unfold Comparable.max in |- *.
-  destruct n as [| n']; simpl in |- *; reflexivity.
+  simpl Comparable.max in |- *.
+  match n with | | n' end; simpl in |- *; quod idem est.
 Qed.
 
 End left. (* comparison.maximum.left *)
@@ -1042,9 +1046,9 @@ Theorem identity
   : forall (n : Nat) . (max 1 n = n) /\ (max n 1 = n).
 Proof.
   intros n.
-  split.
-  - exact (comparison.maximum.left.identity  n).
-  - exact (comparison.maximum.right.identity n).
+  divide et impera.
+  - ipso (comparison.maximum.left.identity  n).
+  - ipso (comparison.maximum.right.identity n).
 Qed.
 
 End maximum. (* comparison.maximum *)
@@ -1061,21 +1065,26 @@ Theorem decidability
   : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n).
 Proof.
   intros m n.
-  destruct (compare m n) as [| |] eqn:e.
-  - apply Disjunction.R.
-    unfold Negation in |- *.
-    intro h.
-    pose proof (comparison.equality.backward.specification h) as b.
-    rewrite e in b.
-    discriminate b.
-  - apply Disjunction.L.
-    exact (comparison.equality.forward.specification e).
-  - apply Disjunction.R.
-    unfold Negation in |- *.
-    intro h.
-    pose proof (comparison.equality.backward.specification h) as b.
-    rewrite e in b.
-    discriminate b.
+  match (compare m n) with | | | end |- e.
+  - lemma facto : ~ (&m = &n).
+    {
+      simpl (~ _) in |- *.
+      intro h.
+      let proof b := comparison.equality.backward.specification h.
+      leibniz e in b.
+      ex b quodlibet.
+    }
+    ipso (disjoin _, &facto).
+  - ipso (disjoin (comparison.equality.forward.specification e), _).
+  - lemma facto : ~ (&m = &n).
+    {
+      simpl (~ _) in |- *.
+      intro h.
+      let proof b := comparison.equality.backward.specification h.
+      leibniz e in b.
+      ex b quodlibet.
+    }
+    ipso (disjoin _, &facto).
 Qed.
 
 (* What a type carrying an equation as a field needs before two of its
@@ -1086,7 +1095,7 @@ Theorem uniqueness
   : forall (m : Nat) (n : Nat) (p : m = n) (q : m = n) . p = q.
 Proof.
   intros m n p q.
-  exact (Identity.hedberg.uniqueness decidability m n p q).
+  ipso (Identity.hedberg.uniqueness decidability m n p q).
 Qed.
 
 End equality. (* equality *)
@@ -1098,27 +1107,27 @@ Theorem truncation
   : forall {m : Nat} {n : Nat} . m <= n -> sub m n = None.
 Proof.
   intros m n h.
-  unfold LessOrEqual in h.
-  destruct h as [e | lt].
+  simpl LessOrEqual in h.
+  match h with | e | lt end.
   -
-    rewrite e in |- *.
-    clear e.
-    induction n as [| n' IH]
-        using Nat.induction;
+    leibniz e in |- *.
+    rm e.
+    match n with | | n' by IH end
+        per Nat.induction;
         simpl in |- *.
-    + reflexivity.
-    + exact IH.
+    + quod idem est.
+    + ipso IH.
   -
-    unfold LessThan in lt.
-    destruct lt as [k e].
-    pose proof (Identity.symmetry e) as e'.
-    rewrite e' in |- *.
-    clear e e'.
-    induction m as [| m' IH]
-        using Nat.induction;
+    simpl LessThan in lt.
+    match lt with | k e end.
+    let proof e' := Identity.symmetry e.
+    leibniz e' in |- *.
+    rm e e'.
+    match m with | | m' by IH end
+        per Nat.induction;
         simpl in |- *.
-    + reflexivity.
-    + exact IH.
+    + quod idem est.
+    + ipso IH.
 Qed.
 
 Module inversion. (* subtraction.inversion *)
@@ -1130,14 +1139,14 @@ Theorem addition
   : forall (m : Nat) (n : Nat) . sub (m + n) n = Some m.
 Proof.
   intros m n.
-  induction n as [| n' IH] using Nat.induction.
-  - rewrite (addition.commutativity m 1) in |- *.
+  match n with | | n' by IH end per Nat.induction.
+  - leibniz (addition.commutativity m 1) in |- *.
     simpl in |- *.
-    reflexivity.
-  - rewrite (addition.commutativity m (S n')) in |- *.
+    quod idem est.
+  - leibniz (addition.commutativity m (S n')) in |- *.
     simpl in |- *.
-    rewrite (addition.commutativity n' m) in |- *.
-    exact IH.
+    leibniz (addition.commutativity n' m) in |- *.
+    ipso IH.
 Qed.
 
 End of. (* subtraction.inversion.of *)
@@ -1149,9 +1158,9 @@ Theorem cancellation
   : forall (k : Nat) (m : Nat) (n : Nat) . sub (k + m) (k + n) = sub m n.
 Proof.
   intros k m n.
-  induction k as [| k' IH] using Nat.induction; simpl in |- *.
-  - reflexivity.
-  - exact IH.
+  match k with | | k' by IH end per Nat.induction; simpl in |- *.
+  - quod idem est.
+  - ipso IH.
 Qed.
 
 Module forward. (* subtraction.forward *)
@@ -1161,23 +1170,23 @@ Lemma specification
   : forall {m : Nat} {n : Nat} {k : Nat} . sub m n = Some k -> n + k = m.
 Proof.
   intros m.
-  induction m as [| m' IH] using Nat.induction.
+  match m with | | m' by IH end per Nat.induction.
   -
     intros n k e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   -
     intros n k.
-    destruct n as [| n'];
+    match n with | | n' end;
         simpl in |- *;
         intro e.
     +
-      pose proof (Option.some.injectivity e) as e'.
-      rewrite e' in |- *.
-      reflexivity.
+      let proof e' := Option.some.injectivity e.
+      leibniz e' in |- *.
+      quod idem est.
     +
-      rewrite (IH n' k e) in |- *.
-      reflexivity.
+      leibniz (IH n' k e) in |- *.
+      quod idem est.
 Qed.
 
 End forward. (* subtraction.forward *)
@@ -1189,10 +1198,10 @@ Lemma specification
   : forall {m : Nat} {n : Nat} {k : Nat} . n + k = m -> sub m n = Some k.
 Proof.
   intros m n k e.
-  symmetry in e.
-  rewrite e in |- *.
-  rewrite (addition.commutativity n k) in |- *.
-  exact (subtraction.inversion.of.addition k n).
+  symm in e.
+  leibniz e in |- *.
+  leibniz (addition.commutativity n k) in |- *.
+  ipso (subtraction.inversion.of.addition k n).
 Qed.
 
 End backward. (* subtraction.backward *)
@@ -1202,9 +1211,9 @@ Theorem specification
   : forall (m : Nat) (n : Nat) (k : Nat) . sub m n = Some k <-> n + k = m.
 Proof.
   intros m n k.
-  split.
-  - exact (@subtraction.forward.specification  m n k).
-  - exact (@subtraction.backward.specification m n k).
+  divide et impera.
+  - ipso (@subtraction.forward.specification  m n k).
+  - ipso (@subtraction.backward.specification m n k).
 Qed.
 
 Module saturating. (* subtraction.saturating *)
@@ -1214,10 +1223,10 @@ Theorem truncation
   : forall {m : Nat} {n : Nat} . m <= n -> saturating_sub m n = 1.
 Proof.
   intros m n h.
-  unfold saturating_sub in |- *.
-  rewrite (subtraction.truncation h) in |- *.
+  simpl saturating_sub in |- *.
+  leibniz (subtraction.truncation h) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Module inversion. (* subtraction.saturating.inversion *)
@@ -1229,10 +1238,10 @@ Theorem addition
   : forall (m : Nat) (n : Nat) . saturating_sub (m + n) n = m.
 Proof.
   intros m n.
-  unfold saturating_sub in |- *.
-  rewrite (subtraction.inversion.of.addition m n) in |- *.
+  simpl saturating_sub in |- *.
+  leibniz (subtraction.inversion.of.addition m n) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End of. (* subtraction.saturating.inversion.of *)
@@ -1244,12 +1253,12 @@ Theorem specification
   : forall {m : Nat} {n : Nat} . n < m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
-  unfold LessThan in h.
-  destruct h as [k e].
-  unfold saturating_sub in |- *.
-  rewrite (subtraction.backward.specification e) in |- *.
+  simpl LessThan in h.
+  match h with | k e end.
+  simpl saturating_sub in |- *.
+  leibniz (subtraction.backward.specification e) in |- *.
   simpl in |- *.
-  exact e.
+  ipso e.
 Qed.
 
 End saturating. (* subtraction.saturating *)

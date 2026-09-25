@@ -16,7 +16,7 @@ Inductive Coproduct (A : Type) (B : Type) : Type :=
 Arguments Coproduct_introduction_left  {A} {B} a.
 Arguments Coproduct_introduction_right {A} {B} b.
 
-(* The eliminator behind the [induction] tactic, written out. Nothing recurses: a
+(* The eliminator that [match ... per] takes, written out. Nothing recurses: a
  * coproduct holds no smaller coproduct, so one [match] is the whole content.
  *)
 Definition Coproduct_induction
@@ -94,9 +94,9 @@ Theorem distinctness
       ~ (Coproduct.left a = Coproduct.right b).
 Proof.
   intros A B a b.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 Module left. (* left *)
@@ -107,11 +107,11 @@ Theorem injectivity
       (@Coproduct.left A B a1 = @Coproduct.left A B a2) -> (a1 = a2).
 Proof.
   intros A B a1 a2 e.
-  pose (f := fun (cp : Coproduct A B) .
-             match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end).
-  pose proof (Identity.congruence f e) as e'.
+  let f := fun (cp : Coproduct A B) .
+              match cp with | Coproduct.left x => x | Coproduct.right _ => a1 end.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End left. (* left *)
@@ -124,11 +124,11 @@ Theorem injectivity
       @Coproduct.right A B b1 = @Coproduct.right A B b2 -> b1 = b2.
 Proof.
   intros A B b1 b2 e.
-  pose (f := fun (cp : Coproduct A B) .
-             match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end).
-  pose proof (Identity.congruence f e) as e'.
+  let f := fun (cp : Coproduct A B) .
+             match cp with | Coproduct.left _ => b1 | Coproduct.right y => y end.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End right. (* right *)
@@ -140,7 +140,7 @@ Theorem involution
   : forall {A : Type} {B : Type} (cp : Coproduct A B) . swap (swap cp) = cp.
 Proof.
   intros A B cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 End swap. (* swap *)
@@ -154,7 +154,7 @@ Theorem identity
   : forall {A : Type} {B : Type} (cp : Coproduct A B) . map_left (fun (a : A) . a) cp = cp.
 Proof.
   intros A B cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 (* mapping.left.composition *)
@@ -164,7 +164,7 @@ Theorem composition
       map_left g (map_left f cp) = map_left (fun (a : A) . g (f a)) cp.
 Proof.
   intros A B C D f g cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 End left. (* mapping.left *)
@@ -176,7 +176,7 @@ Theorem identity
   : forall {A : Type} {B : Type} (cp : Coproduct A B) . map_right (fun (b : B) . b) cp = cp.
 Proof.
   intros A B cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 (* mapping.right.composition *)
@@ -186,7 +186,7 @@ Theorem composition
       map_right g (map_right f cp) = map_right (fun (b : B) . g (f b)) cp.
 Proof.
   intros A B C D f g cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 End right. (* mapping.right *)
@@ -198,7 +198,7 @@ Theorem commutativity
       map_left f (map_right g cp) = map_right g (map_left f cp).
 Proof.
   intros A B C D f g cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 Module both. (* mapping.both *)
@@ -209,7 +209,7 @@ Theorem identity
       bimap (fun (a : A) . a) (fun (b : B) . b) cp = cp.
 Proof.
   intros A B cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 (* mapping.both.composition *)
@@ -220,7 +220,7 @@ Theorem composition
       = bimap (fun (a : A) . g1 (f1 a)) (fun (b : B) . g2 (f2 b)) cp.
 Proof.
   intros A B C D E F f1 f2 g1 g2 cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 (* mapping.both.decomposition *)
@@ -230,7 +230,7 @@ Theorem decomposition
       bimap f g cp = map_left f (map_right g cp).
 Proof.
   intros A B C D f g cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 End both. (* mapping.both *)
@@ -245,7 +245,7 @@ Theorem identity
       copair Coproduct.left Coproduct.right cp = cp.
 Proof.
   intros A B cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 (* copair.naturality *)
@@ -255,7 +255,7 @@ Theorem naturality
       h (copair f g cp) = copair (fun (a : A) . h (f a)) (fun (b : B) . h (g b)) cp.
 Proof.
   intros A B C D f g h cp.
-  destruct cp as [a | b]; simpl in |- *; reflexivity.
+  match cp with | a | b end; simpl in |- *; quod idem est.
 Qed.
 
 End copair. (* copair *)

@@ -8,6 +8,8 @@
  (name jwa)
  (package rocq-jwa)
  (theories
+  Ltac2
+  jwa.Dialect
   jwa.Core
   jwa.Tactics
   jwa.Algebra

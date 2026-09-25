@@ -6,8 +6,8 @@ From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Exists.
 From jwa Require Import Core.Logic.Falsum.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Negation: a proof of [A] leads to [Falsum]. *)
 (* [Prop -> Prop] *)
@@ -31,22 +31,20 @@ Theorem disjunction
   : forall (A : Prop) (B : Prop) . ~ (A \/ B) <-> ~ A /\ ~ B.
 Proof.
   intros A B.
-  unfold Negation in |- *.
-  split.
+  simpl (~ _) in |- *.
+  divide et impera.
   - intro h.
-    split.
+    divide et impera.
     + intro a.
-      apply h.
-      exact (Disjunction.left a).
+      ipso (h (disjoin a, _)).
     + intro b.
-      apply h.
-      exact (Disjunction.right b).
+      ipso (h (disjoin _, b)).
   - intro h.
-    destruct h as [not_a not_b].
+    match h with | not_a not_b end.
     intro ab.
-    destruct ab as [a | b].
-    + exact (not_a a).
-    + exact (not_b b).
+    match ab with | a | b end.
+    + ipso (not_a a).
+    + ipso (not_b b).
 Qed.
 
 (* De Morgan for a conjunction holds in this direction only: from
@@ -58,34 +56,33 @@ Theorem conjunction
   : forall {A : Prop} {B : Prop} . ~ A \/ ~ B -> ~ (A /\ B).
 Proof.
   intros A B.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
   intro ab.
-  destruct ab as [a b].
-  destruct h as [not_a | not_b].
-  - exact (not_a a).
-  - exact (not_b b).
+  match ab with | a b end.
+  match h with | not_a | not_b end.
+  - ipso (not_a a).
+  - ipso (not_b b).
 Qed.
 
-(* De Morgan for [exists], the disjunction over every [x]: no [x] satisfies
+(* De Morgan for [forsome], the disjunction over every [x]: no [x] satisfies
  * [P] exactly when each [x] fails it, in both directions.
  *)
 (* de_morgan.existential *)
 Theorem existential
-  : forall (A : Type) (P : A -> Prop) . ~ (exists (x : A) . P x) <-> forall (x : A) . ~ P x.
+  : forall (A : Type) (P : A -> Prop) . ~ (forsome (x : A) . P x) <-> forall (x : A) . ~ P x.
 Proof.
   intros A P.
-  unfold Negation in |- *.
-  split.
+  simpl (~ _) in |- *.
+  divide et impera.
   - intro h.
     intro x.
     intro p.
-    apply h.
-    exact (Exists_introduction x p).
+    ipso (h (Exists_introduction x p)).
   - intro h.
     intro e.
-    destruct e as [x p].
-    exact (h x p).
+    match e with | x p end.
+    ipso (h x p).
 Qed.
 
 End de_morgan. (* de_morgan *)
@@ -108,15 +105,15 @@ Proof.
   intro h.
 
   (* [|- (A -> Falsum) -> B] *)
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
 
   (* The context gains [not_a : A -> Falsum]: [|- B] *)
   intro not_a.
 
-  destruct h as [a | b].
-  - pose proof (not_a a) as f.
-    contradiction f.
-  - exact b.
+  match h with | a | b end.
+  - let proof f := not_a a.
+    ex f quodlibet.
+  - ipso b.
 Qed.
 
 End of. (* elimination.left.of *)
@@ -136,14 +133,14 @@ Proof.
   intro h.
 
   (* [|- (B -> Falsum) -> A] *)
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
 
   intro not_b.
 
-  destruct h as [a | b].
-  - exact a.
-  - pose proof (not_b b) as f.
-    contradiction f.
+  match h with | a | b end.
+  - ipso a.
+  - let proof f := not_b b.
+    ex f quodlibet.
 Qed.
 
 End of. (* elimination.right.of *)
@@ -166,16 +163,13 @@ Proof.
   intro B.
 
   (* [|- (A /\ B -> Falsum) -> A -> B -> Falsum] *)
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
 
   intro h.
   intro a.
   intro b.
 
-  (* [|- A /\ B] *)
-  apply h.
-
-  exact (Conjunction_introduction a b).
+  ipso (h (conjoin a, b)).
 Qed.
 
 End of. (* exclusion.left.of *)
@@ -194,16 +188,13 @@ Proof.
   intro B.
 
   (* [|- (A /\ B -> Falsum) -> B -> A -> Falsum] *)
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
 
   intro h.
   intro b.
   intro a.
 
-  (* [|- A /\ B] *)
-  apply h.
-
-  exact (Conjunction_introduction a b).
+  ipso (h (conjoin a, b)).
 Qed.
 
 End of. (* exclusion.right.of *)
@@ -219,9 +210,9 @@ Theorem introduction : forall {A : Prop} . A -> ~ ~ A.
 Proof.
   intro A.
   intro a.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro not_a.
-  exact (not_a a).
+  ipso (not_a a).
 Qed.
 
 End double. (* double *)
@@ -232,12 +223,22 @@ Module triple. (* triple *)
 Theorem reduction : forall {A : Prop} . ~ ~ ~ A -> ~ A.
 Proof.
   intro A.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro not_not_not_a.
   intro a.
-  apply not_not_not_a.
-  intro not_a.
-  exact (not_a a).
+  (* not_a                         : A -> Falsum          (= ~ A)
+   * a                             : A
+   * not_a a                       : Falsum               (body)
+   * fun (not_a : ~ A) . not_a a   : (A -> Falsum) -> Falsum
+   *                               = ~ (A -> Falsum)
+   *                               = ~ (~ A)
+   *                               = ~ ~ A
+   *
+   * [let proof] keeps the type alone, [not_not_a : ~ ~ A].
+   * [let] works here too, but keeps the body as well, [not_not_a := fun (not_a : ~ A) . not_a a : ~ ~ A].
+   *)
+  let proof not_not_a : ~ ~ A := fun (not_a : ~ A) . not_a a.
+  ipso (not_not_not_a not_not_a).
 Qed.
 
 End triple. (* triple *)
@@ -248,7 +249,7 @@ Proof.
   intros A B.
 
   (* [|- (A -> B) -> (B -> Falsum) -> (A -> Falsum)] *)
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
 
   (* The context gains [ab : A -> B]: [|- (B -> Falsum) -> A -> Falsum] *)
   intro ab.
@@ -257,12 +258,12 @@ Proof.
   (* The context gains [a : A]: [|- Falsum] *)
   intro a.
 
-  (* [|- B] *)
-  apply not_b.
-  (* [|- A] *)
-  apply ab.
+  (* The context gains [b : B] *)
+  let proof b := ab a.
+  (* The context gains [facto : Falsum] *)
+  let proof facto := not_b b.
 
-  exact a.
+  ipso facto.
 Qed.
 
 Theorem congruence
@@ -274,37 +275,37 @@ Proof.
   (* [a12 : A1 -> A2]
    * [a21 : A2 -> A1].
    *)
-  destruct ea as [a12 a21].
+  match ea with | a12 a21 end.
 
   (* [|- (A1 -> Falsum) <-> (A2 -> Falsum)] *)
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
 
   (* [Biconditional] has one ctor with two fields,
    * so the goal splits into two goals:
    * [|- (A1 -> Falsum) -> (A2 -> Falsum)]
    * [|- (A2 -> Falsum) -> (A1 -> Falsum)].
    *)
-  split.
+  divide et impera.
 
   - intro not_a1.
     intro a2.
 
-    (* [|- A1] *)
-    apply not_a1.
-    (* [|- A2] *)
-    apply a21.
+    (* The context gains [a1 : A1] *)
+    let proof a1 := a21 a2.
+    (* The context gains [facto : Falsum] *)
+    let proof facto := not_a1 a1.
 
-    exact a2.
+    ipso facto.
 
   - intro not_a2.
     intro a1.
 
-    (* [|- A2] *)
-    apply not_a2.
-    (* [|- A1] *)
-    apply a12.
+    (* The context gains [a2 : A2] *)
+    let proof a2 := a12 a1.
+    (* The context gains [facto : Falsum] *)
+    let proof facto := not_a2 a2.
 
-    exact a1.
+    ipso facto.
 Qed.
 
 End Negation. (* Negation *)

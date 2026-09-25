@@ -4,6 +4,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Antisymmetric.
 From jwa Require Import Relation.Irreflexive.
 From jwa Require Import Relation.Order.PartialOrder.
@@ -83,8 +84,8 @@ Theorem reflexivity
     compare n n = Comparison.Eq.
 Proof.
   intros A compare lt C n.
-  destruct (Comparable.specification n n) as [_ s].
-  exact (modus aequans s, (Identity.reflexivity n)).
+  match (Comparable.specification n n) with | _ s end.
+  ipso (modus aequans s, (Identity.reflexivity n)).
 Qed.
 
 Module strict. (* comparison.strict *)
@@ -99,8 +100,8 @@ Theorem specification
     compare m n = Comparison.Lt <-> lt m n.
 Proof.
   intros A compare lt C m n.
-  destruct (Comparable.specification m n) as [s _].
-  exact s.
+  match (Comparable.specification m n) with | s _ end.
+  ipso s.
 Qed.
 
 Module transposition. (* comparison.strict.transposition *)
@@ -118,22 +119,22 @@ Theorem specification
     compare m n = Comparison.Gt <-> lt n m.
 Proof.
   intros A compare lt C m n.
-  rewrite (Comparable.antisymmetry m n) in |- *.
-  split.
+  leibniz (Comparable.antisymmetry m n) in |- *.
+  divide et impera.
   - intro e.
-    destruct (compare n m) as [| |] eqn:c.
-    + destruct (Comparable.specification n m) as [s _].
-      exact (modus aequans s, c).
+    match (compare n m) with | | | end |- c.
+    + match (Comparable.specification n m) with | s _ end.
+      ipso (modus aequans s, c).
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
     + simpl in e.
-      discriminate e.
+      ex e quodlibet.
   - intro h.
-    destruct (Comparable.specification n m) as [s _].
-    modus aequans s, h as e.
-    rewrite e in |- *.
+    match (Comparable.specification n m) with | s _ end.
+    modus aequans s, h |- e.
+    leibniz e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End transposition. (* comparison.strict.transposition *)
@@ -152,8 +153,8 @@ Theorem specification
     compare m n = Comparison.Eq <-> m = n.
 Proof.
   intros A compare lt C m n.
-  destruct (Comparable.specification m n) as [_ s].
-  exact s.
+  match (Comparable.specification m n) with | _ s end.
+  ipso s.
 Qed.
 
 (* comparison.equality.reflection *)
@@ -166,19 +167,19 @@ Theorem reflection
     eq compare m n = true <-> m = n.
 Proof.
   intros A compare lt C m n.
-  unfold eq in |- *.
-  split.
+  simpl eq in |- *.
+  divide et impera.
   - intro e.
-    destruct (compare m n) as [| |] eqn:c.
-    + discriminate e.
-    + destruct (Comparable.specification m n) as [_ s].
-      exact (modus aequans s, c).
-    + discriminate e.
+    match (compare m n) with | | | end |- c.
+    + ex e quodlibet.
+    + match (Comparable.specification m n) with | _ s end.
+      ipso (modus aequans s, c).
+    + ex e quodlibet.
   - intro h.
-    destruct (Comparable.specification m n) as [_ s].
-    modus aequans s, h as e.
-    rewrite e in |- *.
-    reflexivity.
+    match (Comparable.specification m n) with | _ s end.
+    leibniz (modus aequans s, h) in |- *.
+    simpl in |- *.
+    quod idem est.
 Qed.
 
 End equality. (* comparison.equality *)
@@ -199,11 +200,11 @@ Theorem irreflexivity
     ~ (lt n n).
 Proof.
   intros A compare lt C n.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
-  modus aequans (comparison.strict.specification n n), h as c.
-  rewrite (comparison.reflexivity n) in c.
-  discriminate c.
+  modus aequans (comparison.strict.specification n n), h |- c.
+  leibniz (comparison.reflexivity n) in c.
+  ex c quodlibet.
 Qed.
 
 (* order.strict.asymmetry *)
@@ -216,13 +217,13 @@ Theorem asymmetry
     lt m n -> ~ (lt n m).
 Proof.
   intros A compare lt C m n h1.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro h2.
-  pose proof (Comparable.transitivity m n m h1 h2) as h.
-  pose proof (order.strict.irreflexivity m) as i.
-  unfold Negation in i.
-  modus ponens i, h as f.
-  contradiction f.
+  let proof h := Comparable.transitivity m n m h1 h2.
+  let proof i := order.strict.irreflexivity m.
+  simpl (~ _) in i.
+  modus ponens i, h |- f.
+  ex f quodlibet.
 Qed.
 
 (* order.strict.trichotomy *)
@@ -235,15 +236,15 @@ Theorem trichotomy
     lt m n \/ m = n \/ lt n m.
 Proof.
   intros A compare lt C m n.
-  destruct (compare m n) as [| |] eqn:c.
-  - destruct (Comparable.specification m n) as [s _].
-    modus aequans s, c as h.
-    exact (Disjunction.L h).
-  - destruct (Comparable.specification m n) as [_ s].
-    modus aequans s, c as h.
-    exact (Disjunction.R (Disjunction.L h)).
-  - modus aequans (comparison.strict.transposition.specification m n), c as h.
-    exact (Disjunction.R (Disjunction.R h)).
+  match (compare m n) with | | | end |- c.
+  - match (Comparable.specification m n) with | s _ end.
+    modus aequans s, c |- h.
+    ipso (disjoin h, _).
+  - match (Comparable.specification m n) with | _ s end.
+    modus aequans s, c |- h.
+    ipso (disjoin _, (disjoin h, _)).
+  - modus aequans (comparison.strict.transposition.specification m n), c |- h.
+    ipso (disjoin _, (disjoin _, h)).
 Qed.
 
 End strict. (* order.strict *)
@@ -258,8 +259,8 @@ Theorem reflexivity
     LessOrEqual lt n n.
 Proof.
   intros A compare lt C n.
-  unfold LessOrEqual in |- *.
-  exact (Disjunction.L (Identity.reflexivity n)).
+  simpl LessOrEqual in |- *.
+  ipso (disjoin (Identity.reflexivity n), _).
 Qed.
 
 (* order.antisymmetry *)
@@ -272,16 +273,16 @@ Theorem antisymmetry
     LessOrEqual lt m n -> LessOrEqual lt n m -> m = n.
 Proof.
   intros A compare lt C m n h1 h2.
-  unfold LessOrEqual in h1.
-  unfold LessOrEqual in h2.
-  destruct h1 as [e1 | lt1].
-  - exact e1.
-  - destruct h2 as [e2 | lt2].
-    + exact (Identity.symmetry e2).
-    + pose proof (order.strict.asymmetry m n lt1) as a.
-      unfold Negation in a.
-      modus ponens a, lt2 as f.
-      contradiction f.
+  simpl LessOrEqual in h1.
+  simpl LessOrEqual in h2.
+  match h1 with | e1 | lt1 end.
+  - ipso e1.
+  - match h2 with | e2 | lt2 end.
+    + ipso (Identity.symmetry e2).
+    + let proof a := order.strict.asymmetry m n lt1.
+      simpl (~ _) in a.
+      modus ponens a, lt2 |- f.
+      ex f quodlibet.
 Qed.
 
 (* order.transitivity *)
@@ -294,14 +295,14 @@ Theorem transitivity
     LessOrEqual lt l m -> LessOrEqual lt m n -> LessOrEqual lt l n.
 Proof.
   intros A compare lt C l m n h1 h2.
-  unfold LessOrEqual in h1, h2 |- *.
-  destruct h1 as [e1 | lt1].
-  - rewrite e1 in |- *.
-    exact h2.
-  - destruct h2 as [e2 | lt2].
-    + rewrite e2 in lt1.
-      exact (Disjunction.R lt1).
-    + exact (Disjunction.R (Comparable.transitivity l m n lt1 lt2)).
+  simpl LessOrEqual in h1, h2 |- *.
+  match h1 with | e1 | lt1 end.
+  - leibniz e1 in |- *.
+    ipso h2.
+  - match h2 with | e2 | lt2 end.
+    + leibniz e2 in lt1.
+      ipso (disjoin _, lt1).
+    + ipso (disjoin _, (Comparable.transitivity l m n lt1 lt2)).
 Qed.
 
 (* order.totality *)
@@ -314,13 +315,13 @@ Theorem totality
     LessOrEqual lt m n \/ LessOrEqual lt n m.
 Proof.
   intros A c lt C m n.
-  pose proof (order.strict.trichotomy m n) as t.
-  unfold LessOrEqual in |- *.
-  destruct t as [lt1 | rest].
-  - exact (Disjunction.L (Disjunction.R lt1)).
-  - destruct rest as [e | gt].
-    + exact (Disjunction.L (Disjunction.L e)).
-    + exact (Disjunction.R (Disjunction.R gt)).
+  let proof t := order.strict.trichotomy m n.
+  simpl LessOrEqual in |- *.
+  match t with | lt1 | rest end.
+  - ipso (disjoin (disjoin _, lt1), _).
+  - match rest with | e | gt end.
+    + ipso (disjoin (disjoin e, _), _).
+    + ipso (disjoin _, (disjoin _, gt)).
 Qed.
 
 (* order.reflection *)
@@ -333,36 +334,34 @@ Theorem reflection
     le compare m n = true <-> LessOrEqual lt m n.
 Proof.
   intros A compare lt C m n.
-  unfold le in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare m n) as [| |] eqn:c.
-  - split.
+  simpl le in |- *.
+  simpl LessOrEqual in |- *.
+  match (compare m n) with | | | end |- c.
+  - divide et impera.
     + intro e.
-      apply Disjunction.R.
-      destruct (Comparable.specification m n) as [s _].
-      exact (modus aequans s, c).
+      match (Comparable.specification m n) with | s _ end.
+      ipso (disjoin _, (modus aequans s, c)).
     + intro h.
-      reflexivity.
-  - split.
+      quod idem est.
+  - divide et impera.
     + intro e.
-      apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
-      exact (modus aequans s, c).
+      match (Comparable.specification m n) with | _ s end.
+      ipso (disjoin (modus aequans s, c), _).
     + intro h.
-      reflexivity.
-  - split.
+      quod idem est.
+  - divide et impera.
     + intro e.
-      discriminate e.
+      ex e quodlibet.
     + intro h.
-      destruct h as [e | lt1].
-      * destruct (Comparable.specification m n) as [_ s].
-        modus aequans s, e as e'.
-        rewrite e' in c.
-        discriminate c.
-      * destruct (Comparable.specification m n) as [s _].
-        modus aequans s, lt1 as e.
-        rewrite e in c.
-        discriminate c.
+      match h with | e | lt1 end.
+      * match (Comparable.specification m n) with | _ s end.
+        modus aequans s, e |- e'.
+        leibniz e' in c.
+        ex c quodlibet.
+      * match (Comparable.specification m n) with | s _ end.
+        modus aequans s, lt1 |- e.
+        leibniz e in c.
+        ex c quodlibet.
 Qed.
 
 End order. (* order *)
@@ -379,29 +378,26 @@ Theorem specification
     min compare m n = m <-> LessOrEqual lt m n.
 Proof.
   intros A compare lt C m n.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
-  split.
+  simpl min in |- *.
+  simpl LessOrEqual in |- *.
+  divide et impera.
   - intro e.
-    destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction.R.
-      destruct (Comparable.specification m n) as [s _].
-      exact (modus aequans s, c).
-    + apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
-      exact (modus aequans s, c).
-    + apply Disjunction.L.
-      exact (Identity.symmetry e).
+    match (compare m n) with | | | end |- c.
+    + match (Comparable.specification m n) with | s _ end.
+      ipso (disjoin _, (modus aequans s, c)).
+    + match (Comparable.specification m n) with | _ s end.
+      ipso (disjoin (modus aequans s, c), _).
+    + ipso (disjoin (Identity.symmetry e), _).
   - intro h.
-    destruct (compare m n) as [| |] eqn:c.
-    + reflexivity.
-    + reflexivity.
-    + destruct h as [e | lt1].
-      * exact (Identity.symmetry e).
-      * destruct (Comparable.specification m n) as [s _].
-        modus aequans s, lt1 as e.
-        rewrite e in c.
-        discriminate c.
+    match (compare m n) with | | | end |- c.
+    + quod idem est.
+    + quod idem est.
+    + match h with | e | lt1 end.
+      * ipso (Identity.symmetry e).
+      * match (Comparable.specification m n) with | s _ end.
+        modus aequans s, lt1 |- e.
+        leibniz e in c.
+        ex c quodlibet.
 Qed.
 
 Module left. (* minimum.left *)
@@ -416,14 +412,13 @@ Lemma projection
     LessOrEqual lt (min compare l r) l.
 Proof.
   intros A compare lt C l r.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.L (Identity.reflexivity l)).
-  - exact (Disjunction.L (Identity.reflexivity l)).
-  - apply Disjunction.R.
-    exact (modus aequans
-             (comparison.strict.transposition.specification l r), c).
+  simpl min in |- *.
+  simpl LessOrEqual in |- *.
+  match (compare l r) with | | | end |- c.
+  - ipso (disjoin (Identity.reflexivity l), _).
+  - ipso (disjoin (Identity.reflexivity l), _).
+  - ipso (disjoin _, (modus aequans
+                         (comparison.strict.transposition.specification l r), c)).
 Qed.
 
 End left. (* minimum.left *)
@@ -440,16 +435,14 @@ Lemma projection
     LessOrEqual lt (min compare l r) r.
 Proof.
   intros A compare lt C l r.
-  unfold min in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction.R.
-    destruct (Comparable.specification l r) as [s _].
-    exact (modus aequans s, c).
-  - apply Disjunction.L.
-    destruct (Comparable.specification l r) as [_ s].
-    exact (modus aequans s, c).
-  - exact (Disjunction.L (Identity.reflexivity r)).
+  simpl min in |- *.
+  simpl LessOrEqual in |- *.
+  match (compare l r) with | | | end |- c.
+  - match (Comparable.specification l r) with | s _ end.
+    ipso (disjoin _, (modus aequans s, c)).
+  - match (Comparable.specification l r) with | _ s end.
+    ipso (disjoin (modus aequans s, c), _).
+  - ipso (disjoin (Identity.reflexivity r), _).
 Qed.
 
 End right. (* minimum.right *)
@@ -464,11 +457,11 @@ Theorem universality
     LessOrEqual lt k m -> LessOrEqual lt k n -> LessOrEqual lt k (min compare m n).
 Proof.
   intros A c lt C k m n h1 h2.
-  unfold min in |- *.
-  destruct (c m n) as [| |].
-  - exact h1.
-  - exact h1.
-  - exact h2.
+  simpl min in |- *.
+  match (c m n) with | | | end.
+  - ipso h1.
+  - ipso h1.
+  - ipso h2.
 Qed.
 
 (* minimum.commutativity *)
@@ -481,13 +474,13 @@ Theorem commutativity
     min compare m n = min compare n m.
 Proof.
   intros A c lt C m n.
-  apply (order.antisymmetry (min c m n) (min c n m)).
-  - exact (minimum.universality
-            (min c m n) n m
-            (minimum.right.projection m n) (minimum.left.projection m n)).
-  - exact (minimum.universality
-            (min c n m) m n
-            (minimum.right.projection n m) (minimum.left.projection n m)).
+  ipso (order.antisymmetry (min c m n) (min c n m)
+          (minimum.universality
+             (min c m n) n m
+             (minimum.right.projection m n) (minimum.left.projection m n))
+          (minimum.universality
+             (min c n m) m n
+             (minimum.right.projection n m) (minimum.left.projection n m))).
 Qed.
 
 (* minimum.associativity *)
@@ -500,40 +493,47 @@ Theorem associativity
     min compare (min compare l m) n = min compare l (min compare m n).
 Proof.
   intros A c lt C l m n.
-  apply (order.antisymmetry
+  lemma forth : LessOrEqual &lt (min &c (min &c &l &m) &n) (min &c &l (min &c &m &n)).
+  {
+    ipso (minimum.universality
+            (min c (min c l m) n) l (min c m n)
+            (order.transitivity
+               (min c (min c l m) n) (min c l m) l
+               (minimum.left.projection (min c l m) n)
+               (minimum.left.projection l m))
+            (minimum.universality
+               (min c (min c l m) n) m n
+               (order.transitivity
+                  (min c (min c l m) n) (min c l m) m
+                  (minimum.left.projection (min c l m) n)
+                  (minimum.right.projection l m))
+               (minimum.right.projection
+                  (min c l m) n))).
+  }
+  lemma back : LessOrEqual &lt (min &c &l (min &c &m &n)) (min &c (min &c &l &m) &n).
+  {
+    ipso (minimum.universality
+            (min c l (min c m n))
+            (min c l m)
+            n
+            (minimum.universality
+               (min c l (min c m n)) l m
+               (minimum.left.projection
+                  l
+                  (min c m n))
+               (order.transitivity
+                  (min c l (min c m n)) (min c m n) m
+                  (minimum.right.projection l (min c m n))
+                  (minimum.left.projection m n)))
+            (order.transitivity
+               (min c l (min c m n)) (min c m n) n
+               (minimum.right.projection l (min c m n))
+               (minimum.right.projection m n))).
+  }
+  ipso (order.antisymmetry
           (min c (min c l m) n)
-          (min c l (min c m n))).
-  - apply (minimum.universality
-            (min c (min c l m) n) l (min c m n)).
-    + exact (order.transitivity
-              (min c (min c l m) n) (min c l m) l
-              (minimum.left.projection (min c l m) n)
-              (minimum.left.projection l m)).
-    + apply (minimum.universality
-              (min c (min c l m) n) m n).
-      * exact (order.transitivity
-                (min c (min c l m) n) (min c l m) m
-                (minimum.left.projection (min c l m) n)
-                (minimum.right.projection l m)).
-      * exact (minimum.right.projection
-                (min c l m) n).
-  - apply (minimum.universality
-              (min c l (min c m n))
-              (min c l m)
-              n).
-    + apply (minimum.universality
-              (min c l (min c m n)) l m).
-      * exact (minimum.left.projection
-                l
-                (min c m n)).
-      * exact (order.transitivity
-                (min c l (min c m n)) (min c m n) m
-                (minimum.right.projection l (min c m n))
-                (minimum.left.projection m n)).
-    + exact (order.transitivity
-              (min c l (min c m n)) (min c m n) n
-              (minimum.right.projection l (min c m n))
-              (minimum.right.projection m n)).
+          (min c l (min c m n))
+          &forth &back).
 Qed.
 
 (* minimum.idempotence *)
@@ -546,9 +546,10 @@ Theorem idempotence
     min compare n n = n.
 Proof.
   intros A c lt C n.
-  unfold min in |- *.
-  rewrite (comparison.reflexivity n) in |- *.
-  reflexivity.
+  simpl min in |- *.
+  leibniz (comparison.reflexivity n) in |- *.
+  simpl in |- *.
+  quod idem est.
 Qed.
 
 End minimum. (* minimum *)
@@ -565,29 +566,26 @@ Theorem specification
     max compare m n = m <-> LessOrEqual lt n m.
 Proof.
   intros A compare lt C m n.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  split.
+  simpl max in |- *.
+  simpl LessOrEqual in |- *.
+  divide et impera.
   - intro e.
-    destruct (compare m n) as [| |] eqn:c.
-    + apply Disjunction.L.
-      exact e.
-    + apply Disjunction.L.
-      destruct (Comparable.specification m n) as [_ s].
-      modus aequans s, c as e'.
-      exact (Identity.symmetry e').
-    + apply Disjunction.R.
-      exact (modus aequans
-               (comparison.strict.transposition.specification m n), c).
+    match (compare m n) with | | | end |- c.
+    + ipso (disjoin e, _).
+    + match (Comparable.specification m n) with | _ s end.
+      modus aequans s, c |- e'.
+      ipso (disjoin (Identity.symmetry e'), _).
+    + ipso (disjoin _, (modus aequans
+                           (comparison.strict.transposition.specification m n), c)).
   - intro h.
-    destruct (compare m n) as [| |] eqn:c.
-    + destruct h as [e | gt].
-      * exact e.
-      * modus aequans (comparison.strict.transposition.specification m n), gt as e.
-        rewrite e in c.
-        discriminate c.
-    + reflexivity.
-    + reflexivity.
+    match (compare m n) with | | | end |- c.
+    + match h with | e | gt end.
+      * ipso e.
+      * modus aequans (comparison.strict.transposition.specification m n), gt |- e.
+        leibniz e in c.
+        ex c quodlibet.
+    + quod idem est.
+    + quod idem est.
 Qed.
 
 Module left. (* maximum.left *)
@@ -602,14 +600,13 @@ Lemma injection
     LessOrEqual lt l (max compare l r).
 Proof.
   intros A compare lt C l r.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - apply Disjunction.R.
-    destruct (Comparable.specification l r) as [s _].
-    exact (modus aequans s, c).
-  - exact (Disjunction.L (Identity.reflexivity l)).
-  - exact (Disjunction.L (Identity.reflexivity l)).
+  simpl max in |- *.
+  simpl LessOrEqual in |- *.
+  match (compare l r) with | | | end |- c.
+  - match (Comparable.specification l r) with | s _ end.
+    ipso (disjoin _, (modus aequans s, c)).
+  - ipso (disjoin (Identity.reflexivity l), _).
+  - ipso (disjoin (Identity.reflexivity l), _).
 Qed.
 
 End left. (* maximum.left *)
@@ -626,17 +623,15 @@ Lemma injection
     LessOrEqual lt r (max compare l r).
 Proof.
   intros A compare lt C l r.
-  unfold max in |- *.
-  unfold LessOrEqual in |- *.
-  destruct (compare l r) as [| |] eqn:c.
-  - exact (Disjunction.L (Identity.reflexivity r)).
-  - apply Disjunction.L.
-    destruct (Comparable.specification l r) as [_ s].
-    modus aequans s, c as e.
-    exact (Identity.symmetry e).
-  - apply Disjunction.R.
-    exact (modus aequans
-             (comparison.strict.transposition.specification l r), c).
+  simpl max in |- *.
+  simpl LessOrEqual in |- *.
+  match (compare l r) with | | | end |- c.
+  - ipso (disjoin (Identity.reflexivity r), _).
+  - match (Comparable.specification l r) with | _ s end.
+    modus aequans s, c |- e.
+    ipso (disjoin (Identity.symmetry e), _).
+  - ipso (disjoin _, (modus aequans
+                         (comparison.strict.transposition.specification l r), c)).
 Qed.
 
 End right. (* maximum.right *)
@@ -652,11 +647,11 @@ Theorem universality
     LessOrEqual lt m k -> LessOrEqual lt n k -> LessOrEqual lt (max compare m n) k.
 Proof.
   intros A c lt C k m n h1 h2.
-  unfold max in |- *.
-  destruct (c m n) as [| |].
-  - exact h2.
-  - exact h1.
-  - exact h1.
+  simpl max in |- *.
+  match (c m n) with | | | end.
+  - ipso h2.
+  - ipso h1.
+  - ipso h1.
 Qed.
 
 (* maximum.commutativity *)
@@ -669,13 +664,13 @@ Theorem commutativity
     max compare m n = max compare n m.
 Proof.
   intros A c lt C m n.
-  apply (order.antisymmetry (max c m n) (max c n m)).
-  - exact (maximum.universality
-            (max c n m) m n
-            (maximum.right.injection n m) (maximum.left.injection n m)).
-  - exact (maximum.universality
-            (max c m n) n m
-            (maximum.right.injection m n) (maximum.left.injection m n)).
+  ipso (order.antisymmetry (max c m n) (max c n m)
+          (maximum.universality
+             (max c n m) m n
+             (maximum.right.injection n m) (maximum.left.injection n m))
+          (maximum.universality
+             (max c m n) n m
+             (maximum.right.injection m n) (maximum.left.injection m n))).
 Qed.
 
 (* maximum.associativity *)
@@ -688,41 +683,48 @@ Theorem associativity
     max compare (max compare l m) n = max compare l (max compare m n).
 Proof.
   intros A c lt C l m n.
-  apply (order.antisymmetry
-          (max c (max c l m) n)
-          (max c l (max c m n))).
-  - apply (maximum.universality
+  lemma forth : LessOrEqual &lt (max &c (max &c &l &m) &n) (max &c &l (max &c &m &n)).
+  {
+    ipso (maximum.universality
             (max c l (max c m n))
             (max c l m)
-            n).
-    + apply (maximum.universality
-              (max c l (max c m n)) l m).
-      * exact (maximum.left.injection
-                l (max c m n)).
-      * exact (order.transitivity
-                m (max c m n) (max c l (max c m n))
-                (maximum.left.injection m n)
-                (maximum.right.injection l (max c m n))).
-    + exact (order.transitivity
-              n (max c m n) (max c l (max c m n))
-              (maximum.right.injection m n)
-              (maximum.right.injection l (max c m n))).
-  - apply (maximum.universality
+            n
+            (maximum.universality
+               (max c l (max c m n)) l m
+               (maximum.left.injection
+                  l (max c m n))
+               (order.transitivity
+                  m (max c m n) (max c l (max c m n))
+                  (maximum.left.injection m n)
+                  (maximum.right.injection l (max c m n))))
+            (order.transitivity
+               n (max c m n) (max c l (max c m n))
+               (maximum.right.injection m n)
+               (maximum.right.injection l (max c m n)))).
+  }
+  lemma back : LessOrEqual &lt (max &c &l (max &c &m &n)) (max &c (max &c &l &m) &n).
+  {
+    ipso (maximum.universality
             (max c (max c l m) n)
-            l (max c m n)).
-    + exact (order.transitivity
-              l (max c l m) (max c (max c l m) n)
-              (maximum.left.injection l m)
-              (maximum.left.injection (max c l m)
-              n)).
-    + apply (maximum.universality
-              (max c (max c l m) n) m n).
-      * exact (order.transitivity
-                m (max c l m) (max c (max c l m) n)
-                (maximum.right.injection l m)
-                (maximum.left.injection (max c l m) n)).
-      * exact (maximum.right.injection
-                (max c l m) n).
+            l (max c m n)
+            (order.transitivity
+               l (max c l m) (max c (max c l m) n)
+               (maximum.left.injection l m)
+               (maximum.left.injection (max c l m)
+               n))
+            (maximum.universality
+               (max c (max c l m) n) m n
+               (order.transitivity
+                  m (max c l m) (max c (max c l m) n)
+                  (maximum.right.injection l m)
+                  (maximum.left.injection (max c l m) n))
+               (maximum.right.injection
+                  (max c l m) n))).
+  }
+  ipso (order.antisymmetry
+          (max c (max c l m) n)
+          (max c l (max c m n))
+          &forth &back).
 Qed.
 
 (* maximum.idempotence *)
@@ -735,9 +737,10 @@ Theorem idempotence
     max compare n n = n.
 Proof.
   intros A c lt C n.
-  unfold max in |- *.
-  rewrite (comparison.reflexivity n) in |- *.
-  reflexivity.
+  simpl max in |- *.
+  leibniz (comparison.reflexivity n) in |- *.
+  simpl in |- *.
+  quod idem est.
 Qed.
 
 End maximum. (* maximum *)

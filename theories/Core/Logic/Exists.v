@@ -3,7 +3,7 @@
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Notations.
 
-(* [P] is a predicate, not a binder: [exists x . p] is [Exists (fun x . p)],
+(* [P] is a predicate, not a binder: [forsome x . p] is [Exists (fun x . p)],
  * so the [x] is bound by the [fun] and [Exists] never binds anything.
  *)
 Inductive Exists (A : Type) (P : A -> Prop) : Prop :=
@@ -12,10 +12,10 @@ Inductive Exists (A : Type) (P : A -> Prop) : Prop :=
 Arguments Exists {A} P.
 Arguments Exists_introduction {A} {P} x _.
 
-(* The [..] is what lets one [exists] carry several binders, nesting into
+(* The [..] is what lets one [forsome] carry several binders, nesting into
  * one [Exists] each. The dot matches [fun x . body] and [forall x . p].
  *)
-Notation "'exists' x .. y '.' p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
+Notation "'forsome' x .. y '.' p" := (Exists (fun x . .. (Exists (fun y . p)) ..))
   : jwa_type_scope.
 
 (* A witness, then a proof of [P] at it. [false] cannot be the witness here:
@@ -26,5 +26,5 @@ Notation "'exists' x .. y '.' p" := (Exists (fun x . .. (Exists (fun y . p)) ..)
  *                       |     proof
  *                       witness
  *
- * has type [exists (b : Bool) . b = true].
+ * has type [forsome (b : Bool) . b = true].
  *)

@@ -12,8 +12,11 @@ From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
+From jwa Require Import Dialect.ExFalso.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Syllogism.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [List.concat]. The
  * type and its ctors are declared inside it, so the names [Nil] and [Cons]
@@ -62,7 +65,7 @@ Notation "a :: l" := (Cons a l)
 (* Opening the scope here lets every definition and law below use them. *)
 Local Open Scope jwa_list_scope.
 
-(* The eliminator behind the [induction] tactic, written out. Its content is the [fix]:
+(* The eliminator that [match ... per] takes, written out. Its content is the [fix]:
  * the proof for [Cons a l] is built from the proof for [l], and following
  * [l] down to [Nil] is what terminates.
  *)
@@ -482,9 +485,9 @@ Theorem distinctness
   : forall {A : Type} (a : A) (l : List A) . ~ (a :: l = []).
 Proof.
   intros A a l.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 Module concatenation. (* concatenation *)
@@ -495,12 +498,12 @@ Theorem associativity
       (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
 Proof.
   intros A l1 l2 l3.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 Module left. (* concatenation.left *)
@@ -510,7 +513,7 @@ Lemma identity : forall {A : Type} (l : List A) . [] ++ l = l.
 Proof.
   intros A l.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End left. (* concatenation.left *)
@@ -521,12 +524,12 @@ Module right. (* concatenation.right *)
 Lemma identity : forall {A : Type} (l : List A) . l ++ [] = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End right. (* concatenation.right *)
@@ -536,9 +539,9 @@ Theorem identity
   : forall {A : Type} (l : List A) . ([] ++ l = l) /\ (l ++ [] = l).
 Proof.
   intros A l.
-  split.
-  - exact (concatenation.left.identity  l).
-  - exact (concatenation.right.identity l).
+  divide et impera.
+  - ipso (concatenation.left.identity  l).
+  - ipso (concatenation.right.identity l).
 Qed.
 
 (* concatenation.catamorphism *)
@@ -547,12 +550,12 @@ Theorem catamorphism
       l1 ++ l2 = fold_right Cons l2 l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End concatenation. (* concatenation *)
@@ -570,18 +573,18 @@ Theorem concatenation
       (|| l1 ++ l2 ||) = (|| l1 ||) + (|| l2 ||).
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    rewrite (NatWithZero.increment.specification ((|| l1' ||) + (|| l2 ||)))
+    leibniz IH in |- *.
+    leibniz (NatWithZero.increment.specification ((|| l1' ||) + (|| l2 ||)))
       in |- *.
-    rewrite (NatWithZero.increment.specification (|| l1' ||))
+    leibniz (NatWithZero.increment.specification (|| l1' ||))
       in |- *.
-    rewrite (NatWithZero.addition.associativity (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2 ||))
+    leibniz (NatWithZero.addition.associativity (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2 ||))
       in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* length.additivity.over *)
@@ -597,12 +600,12 @@ Theorem catamorphism
                    l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End length. (* length *)
@@ -614,12 +617,12 @@ Theorem identity
   : forall {A : Type} (l : List A) . map (fun a . a) l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -629,12 +632,12 @@ Theorem composition
     map g (map f l) = map (fun a . g (f a)) l.
 Proof.
   intros A B C f g l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 Module distributivity. (* mapping.distributivity *)
@@ -647,12 +650,12 @@ Theorem concatenation
       map f (l1 ++ l2) = map f l1 ++ map f l2.
 Proof.
   intros A B f l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End over. (* mapping.distributivity.over *)
@@ -668,12 +671,12 @@ Theorem catamorphism
                    l.
 Proof.
   intros A B f l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 Module preservation. (* mapping.preservation *)
@@ -689,19 +692,20 @@ Theorem membership
       l contains_member a -> map f l contains_member f a.
 Proof.
   intros A B f a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro g.
-    exact g.
+    ipso g.
   - simpl in |- *.
     intro h.
-    destruct h as [e | h'].
-    + apply Disjunction.L.
-      rewrite e in |- *.
-      reflexivity.
-    + apply Disjunction.R.
-      apply IH.
-      exact h'.
+    match h with | e | h' end.
+    + lemma side : &f &a = &f &b.
+      {
+        leibniz e in |- *.
+        quod idem est.
+      }
+      ipso (disjoin &side, _).
+    + ipso (disjoin _, (&IH &h')).
 Qed.
 
 (* mapping.preservation.of.length *)
@@ -710,12 +714,12 @@ Theorem length
       (|| map f l ||) = (|| l ||).
 Proof.
   intros A B f l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End of. (* mapping.preservation.of *)
@@ -731,28 +735,29 @@ Module membership. (* mapping.membership *)
 Theorem specification
   : forall {A : Type} {B : Type} (f : A -> B) (b : B) (l : List A) .
       map f l contains_member b
-      <-> exists (a : A) . l contains_member a /\ b = f a.
+      <-> forsome (a : A) . l contains_member a /\ b = f a.
 Proof.
   intros A B f b l.
-  split.
-  - induction l as [| a l' IH] using List.induction.
+  divide et impera.
+  - match l with | | a l' by IH end per List.induction.
     + simpl in |- *.
       intro g.
-      contradiction g.
+      ex g quodlibet.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
-      * exact (Exists_introduction
-                 a (Conjunction_introduction (Disjunction.L (Identity.reflexivity a)) e)).
-      * pose proof (IH h') as w.
-        destruct w as [a' c].
-        destruct c as [m e].
-        exact (Exists_introduction a' (Conjunction_introduction (Disjunction.R m) e)).
+      match h with | e | h' end.
+      * exists &a.
+        ipso (conjoin (disjoin (Identity.reflexivity &a), _), &e).
+      * let proof w := IH h'.
+        match w with | a' c end.
+        match c with | m e end.
+        exists &a'.
+        ipso (conjoin (disjoin _, &m), &e).
   - intro w.
-    destruct w as [a c].
-    destruct c as [m e].
-    rewrite e in |- *.
-    exact (preservation.of.membership f a l m).
+    match w with | a c end.
+    match c with | m e end.
+    leibniz e in |- *.
+    ipso (preservation.of.membership f a l m).
 Qed.
 
 End membership. (* mapping.membership *)
@@ -771,12 +776,12 @@ Theorem concatenation
       fold_right f z (l1 ++ l2) = fold_right f (fold_right f z l2) l1.
 Proof.
   intros A B f z l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End over. (* folding.composition.over *)
@@ -793,10 +798,10 @@ Theorem vacuity
   : forall {A : Type} (a : A) . [] does_not_contain_member a.
 Proof.
   intros A a.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   simpl in |- *.
   intro f.
-  exact f.
+  ipso f.
 Qed.
 
 Module forward. (* membership.forward *)
@@ -811,17 +816,17 @@ Lemma concatenation
       l1 ++ l2 contains_member a -> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact (Disjunction.R h).
+    ipso (disjoin _, h).
   - simpl in |- *.
     intro h.
-    destruct h as [e | h'].
-    + exact (Disjunction.L (Disjunction.L e)).
-    + destruct (IH h') as [h1 | h2].
-      * exact (Disjunction.L (Disjunction.R h1)).
-      * exact (Disjunction.R h2).
+    match h with | e | h' end.
+    + ipso (disjoin (disjoin e, _), _).
+    + match (IH h') with | h1 | h2 end.
+      * ipso (disjoin (disjoin _, h1), _).
+      * ipso (disjoin _, h2).
 Qed.
 
 End over. (* membership.forward.distributivity.over *)
@@ -842,23 +847,19 @@ Lemma concatenation
       l1 contains_member a \/ l2 contains_member a -> l1 ++ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [f | h2].
-    + contradiction f.
-    + exact h2.
+    match h with | f | h2 end.
+    + ex f quodlibet.
+    + ipso h2.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 | h2].
-    + destruct h1 as [e | h1'].
-      * exact (Disjunction.L e).
-      * apply Disjunction.R.
-        apply IH.
-        exact (Disjunction.L h1').
-    + apply Disjunction.R.
-      apply IH.
-      exact (Disjunction.R h2).
+    match h with | h1 | h2 end.
+    + match h1 with | e | h1' end.
+      * ipso (disjoin e, _).
+      * ipso (disjoin _, (&IH (disjoin &h1', _))).
+    + ipso (disjoin _, (&IH (disjoin _, &h2))).
 Qed.
 
 End over. (* membership.backward.distributivity.over *)
@@ -877,9 +878,9 @@ Theorem concatenation
       l1 ++ l2 contains_member a <-> l1 contains_member a \/ l2 contains_member a.
 Proof.
   intros A a l1 l2.
-  split.
-  - exact (@membership.forward.distributivity.over.concatenation  A a l1 l2).
-  - exact (@membership.backward.distributivity.over.concatenation A a l1 l2).
+  divide et impera.
+  - ipso (@membership.forward.distributivity.over.concatenation  A a l1 l2).
+  - ipso (@membership.backward.distributivity.over.concatenation A a l1 l2).
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -893,12 +894,12 @@ Theorem catamorphism
       = fold_right (fun (b : A) (rest : Prop) . a = b \/ rest) Falsum l.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End membership. (* membership *)
@@ -915,15 +916,15 @@ Theorem concatenation
       reverse (l1 ++ l2) = reverse l2 ++ reverse l1.
 Proof.
   intros A l1 l2.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    rewrite concatenation.right.identity in |- *.
-    reflexivity.
+    leibniz (concatenation.right.identity (reverse &l2)) in |- *.
+    quod idem est.
   - simpl in |- *.
-    unfold append in |- *.
-    rewrite IH in |- *.
-    rewrite concatenation.associativity in |- *.
-    reflexivity.
+    simpl append in |- *.
+    leibniz IH in |- *.
+    leibniz (concatenation.associativity (reverse &l2) (reverse &l1') (&a :: [])) in |- *.
+    quod idem est.
 Qed.
 
 End over. (* reversal.antidistributivity.over *)
@@ -935,15 +936,15 @@ Theorem involution
   : forall {A : Type} (l : List A) . reverse (reverse l) = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    unfold append in |- *.
-    rewrite reversal.antidistributivity.over.concatenation in |- *.
+    simpl append in |- *.
+    leibniz (reversal.antidistributivity.over.concatenation (reverse &l') (&a :: [])) in |- *.
     simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 Module forward. (* reversal.forward *)
@@ -958,20 +959,18 @@ Lemma membership
       reverse l contains_member a -> l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
-    exact f.
+    ipso f.
   - simpl in |- *.
     intro h.
-    destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
-    + apply Disjunction.R.
-      apply IH.
-      exact h1.
+    match (membership.forward.distributivity.over.concatenation h) with | h1 | h2 end.
+    + ipso (disjoin _, (&IH &h1)).
     + simpl in h2.
-      destruct h2 as [e | f].
-      * exact (Disjunction.L e).
-      * contradiction f.
+      match h2 with | e | f end.
+      * ipso (disjoin e, _).
+      * ex f quodlibet.
 Qed.
 
 End of. (* reversal.forward.preservation.of *)
@@ -992,20 +991,24 @@ Lemma membership
       l contains_member a -> reverse l contains_member a.
 Proof.
   intros A a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
-    exact f.
+    ipso f.
   - simpl in |- *.
     intro h.
-    apply membership.backward.distributivity.over.concatenation.
-    destruct h as [e | h'].
-    + apply Disjunction.R.
-      simpl in |- *.
-      exact (Disjunction.L e).
-    + apply Disjunction.L.
-      apply IH.
-      exact h'.
+    lemma facto : reverse &l' contains_member &a \/ (&b :: []) contains_member &a.
+    {
+      match h with | e | h' end.
+      + lemma singleton : (&b :: []) contains_member &a.
+        {
+          simpl in |- *.
+          ipso (disjoin e, _).
+        }
+        ipso (disjoin _, &singleton).
+      + ipso (disjoin (&IH &h'), _).
+    }
+    ipso (membership.backward.distributivity.over.concatenation &facto).
 Qed.
 
 End of. (* reversal.backward.preservation.of *)
@@ -1024,9 +1027,9 @@ Theorem membership
       reverse l contains_member a <-> l contains_member a.
 Proof.
   intros A a l.
-  split.
-  - exact (@reversal.forward.preservation.of.membership  A a l).
-  - exact (@reversal.backward.preservation.of.membership A a l).
+  divide et impera.
+  - ipso (@reversal.forward.preservation.of.membership  A a l).
+  - ipso (@reversal.backward.preservation.of.membership A a l).
 Qed.
 
 End of. (* reversal.preservation.of *)
@@ -1042,8 +1045,8 @@ Theorem specification
   : forall {A : Type} (l : List A) (a : A) . append l a = l ++ (a :: []).
 Proof.
   intros A l a.
-  unfold append in |- *.
-  reflexivity.
+  simpl append in |- *.
+  quod idem est.
 Qed.
 
 (* appending.length *)
@@ -1051,12 +1054,12 @@ Theorem length
   : forall {A : Type} (l : List A) (a : A) . (|| append l a ||) = ++ (|| l ||).
 Proof.
   intros A l a.
-  rewrite (appending.specification l a) in |- *.
-  rewrite (length.additivity.over.concatenation l (a :: [])) in |- *.
+  leibniz (appending.specification l a) in |- *.
+  leibniz (length.additivity.over.concatenation l (a :: [])) in |- *.
   simpl in |- *.
-  rewrite (NatWithZero.increment.specification (|| l ||)) in |- *.
-  rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l ||)) in |- *.
-  reflexivity.
+  leibniz (NatWithZero.increment.specification (|| l ||)) in |- *.
+  leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l ||)) in |- *.
+  quod idem est.
 Qed.
 
 (* appending.membership *)
@@ -1065,36 +1068,39 @@ Theorem membership
       append l a contains_member b <-> b = a \/ l contains_member b.
 Proof.
   intros A l a b.
-  rewrite (appending.specification l a) in |- *.
-  split.
+  leibniz (appending.specification l a) in |- *.
+  divide et impera.
   - intro h.
-    destruct (membership.forward.distributivity.over.concatenation h) as [h1 | h2].
-    + exact (Disjunction.R h1).
+    match (membership.forward.distributivity.over.concatenation h) with | h1 | h2 end.
+    + ipso (disjoin _, h1).
     + simpl in h2.
-      destruct h2 as [e | f].
-      * exact (Disjunction.L e).
-      * contradiction f.
+      match h2 with | e | f end.
+      * ipso (disjoin e, _).
+      * ex f quodlibet.
   - intro h.
-    apply membership.backward.distributivity.over.concatenation.
-    destruct h as [e | h'].
-    + apply Disjunction.R.
-      simpl in |- *.
-      exact (Disjunction.L e).
-    + exact (Disjunction.L h').
+    lemma facto : &l contains_member &b \/ (&a :: []) contains_member &b.
+    {
+      match h with | e | h' end.
+      + lemma singleton : (&a :: []) contains_member &b.
+        {
+          simpl in |- *.
+          ipso (disjoin e, _).
+        }
+        ipso (disjoin _, &singleton).
+      + ipso (disjoin h', _).
+    }
+    ipso (membership.backward.distributivity.over.concatenation &facto).
 Qed.
 
-(* The mirror of [reverse]'s own step: its definition turns a [Cons] into
- * an [append], and this turns an [append] back into a [Cons].
- *)
 (* appending.reversal *)
 Theorem reversal
   : forall {A : Type} (l : List A) (a : A) . reverse (append l a) = a :: reverse l.
 Proof.
   intros A l a.
-  rewrite (appending.specification l a) in |- *.
-  rewrite (reversal.antidistributivity.over.concatenation l (a :: [])) in |- *.
+  leibniz (appending.specification l a) in |- *.
+  leibniz (reversal.antidistributivity.over.concatenation l (a :: [])) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End appending. (* appending *)
@@ -1111,23 +1117,21 @@ Theorem concatenation
       filter p (l1 ++ l2) = filter p l1 ++ filter p l2.
 Proof.
   intros A p l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    destruct (p b) as [|].
+    match (p b) with | | end.
     + simpl in |- *.
-      rewrite IH in |- *.
-      reflexivity.
-    + simpl in |- *.
-      exact IH.
+      leibniz IH in |- *.
+      quod idem est.
+    + ipso IH.
 Qed.
 
 End over. (* filtering.distributivity.over *)
 
 End distributivity. (* filtering.distributivity *)
 
-(* [filter] is a catamorphism too: [Cons] becomes a conditional [Cons]. *)
 (* filtering.catamorphism *)
 Theorem catamorphism
   : forall {A : Type} (p : A -> Bool) (l : List A) .
@@ -1141,12 +1145,12 @@ Theorem catamorphism
                     l.
 Proof.
   intros A p l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 Module forward. (* filtering.forward *)
@@ -1157,29 +1161,28 @@ Lemma specification
       filter p l contains_member a -> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
-    destruct (p b) as [|] eqn:pb.
+    match (p b) with | | end |- pb.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
-      * split.
-        -- exact (Disjunction.L e).
-        -- rewrite e in |- *.
-           exact pb.
-      * destruct (IH h') as [hl pa].
-        split.
-        -- exact (Disjunction.R hl).
-        -- exact pa.
-    + simpl in |- *.
-      intro h'.
-      destruct (IH h') as [hl pa].
-      split.
-      * exact (Disjunction.R hl).
-      * exact pa.
+      match h with | e | h' end.
+      * divide et impera.
+        -- ipso (disjoin e, _).
+        -- leibniz e in |- *.
+           ipso pb.
+      * match (IH h') with | hl pa end.
+        divide et impera.
+        -- ipso (disjoin _, hl).
+        -- ipso pa.
+    + intro h'.
+      match (IH h') with | hl pa end.
+      divide et impera.
+      * ipso (disjoin _, hl).
+      * ipso pa.
 Qed.
 
 End forward. (* filtering.forward *)
@@ -1192,31 +1195,23 @@ Lemma specification
       l contains_member a /\ p a = true -> filter p l contains_member a.
 Proof.
   intros A p a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [f _].
-    contradiction f.
+    match h with | f _ end.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 pa].
-    destruct h1 as [e | h'].
-    + rewrite e in pa.
-      rewrite pa in |- *.
+    match h with | h1 pa end.
+    match h1 with | e | h' end.
+    + leibniz e in pa.
+      leibniz pa in |- *.
       simpl in |- *.
-      exact (Disjunction.L e).
-    + destruct (p b) as [|].
+      ipso (disjoin e, _).
+    + match (p b) with | | end.
       * simpl in |- *.
-        apply Disjunction.R.
-        apply IH.
-        split.
-        -- exact h'.
-        -- exact pa.
-      * simpl in |- *.
-        apply IH.
-        split.
-        -- exact h'.
-        -- exact pa.
+        ipso (disjoin _, (&IH (conjoin &h', &pa))).
+      * ipso (&IH (conjoin &h', &pa)).
 Qed.
 
 End backward. (* filtering.backward *)
@@ -1227,9 +1222,9 @@ Theorem specification
       filter p l contains_member a <-> l contains_member a /\ p a = true.
 Proof.
   intros A p a l.
-  split.
-  - exact (@filtering.forward.specification  A p a l).
-  - exact (@filtering.backward.specification A p a l).
+  divide et impera.
+  - ipso (@filtering.forward.specification  A p a l).
+  - ipso (@filtering.backward.specification A p a l).
 Qed.
 
 End filtering. (* filtering *)
@@ -1244,28 +1239,27 @@ Module distributivity. (* quantification.all.forward.distributivity *)
 
 Module over. (* quantification.all.forward.distributivity.over *)
 
-(* [All] over a concatenation is [All] over each half. *)
 (* quantification.all.forward.distributivity.over.concatenation *)
 Lemma concatenation
   : forall {A : Type} {P : A -> Prop} {l1 : List A} {l2 : List A} .
       All P (l1 ++ l2) -> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    split.
-    + exact I.
-    + exact h.
+    divide et impera.
+    + ipso I.
+    + ipso h.
   - simpl in |- *.
     intro h.
-    destruct h as [pb h'].
-    destruct (IH h') as [h1 h2].
-    split.
-    + split.
-      * exact pb.
-      * exact h1.
-    + exact h2.
+    match h with | pb h' end.
+    match (IH h') with | h1 h2 end.
+    divide et impera.
+    + divide et impera.
+      * ipso pb.
+      * ipso h1.
+    + ipso h2.
 Qed.
 
 End over. (* quantification.all.forward.distributivity.over *)
@@ -1278,19 +1272,18 @@ Lemma specification
       All P l -> forall (a : A) . l contains_member a -> P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intros v a f.
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [pb h'].
+    match h with | pb h' end.
     intros a ha.
-    destruct ha as [e | ha'].
-    + rewrite e in |- *.
-      exact pb.
-    + apply (IH h').
-      exact ha'.
+    match ha with | e | ha' end.
+    + leibniz e in |- *.
+      ipso pb.
+    + ipso (&IH &h' &a &ha').
 Qed.
 
 End forward. (* quantification.all.forward *)
@@ -1307,21 +1300,18 @@ Lemma concatenation
       All P l1 /\ All P l2 -> All P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [_ h2].
-    exact h2.
+    match h with | _ h2 end.
+    ipso h2.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 h2].
-    destruct h1 as [pb h1'].
-    split.
-    + exact pb.
-    + apply IH.
-      split.
-      * exact h1'.
-      * exact h2.
+    match h with | h1 h2 end.
+    match h1 with | pb h1' end.
+    divide et impera.
+    + ipso pb.
+    + ipso (&IH (conjoin &h1', &h2)).
 Qed.
 
 End over. (* quantification.all.backward.distributivity.over *)
@@ -1334,19 +1324,20 @@ Lemma specification
       (forall (a : A) . l contains_member a -> P a) -> All P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact I.
+    ipso I.
   - simpl in |- *.
     intro h.
-    split.
-    + apply (h b).
-      exact (Disjunction.L (Identity.reflexivity b)).
-    + apply IH.
-      intros a ha.
-      apply (h a).
-      exact (Disjunction.R ha).
+    divide et impera.
+    + ipso (&h &b (disjoin (Identity.reflexivity &b), _)).
+    + lemma members : forall (a : &A) . &l' contains_member a -> &P a.
+      {
+        intros a ha.
+        ipso (&h &a (disjoin _, &ha)).
+      }
+      ipso (&IH &members).
 Qed.
 
 End backward. (* quantification.all.backward *)
@@ -1361,9 +1352,9 @@ Theorem concatenation
       All P (l1 ++ l2) <-> All P l1 /\ All P l2.
 Proof.
   intros A P l1 l2.
-  split.
-  - exact (@quantification.all.forward.distributivity.over.concatenation  A P l1 l2).
-  - exact (@quantification.all.backward.distributivity.over.concatenation A P l1 l2).
+  divide et impera.
+  - ipso (@quantification.all.forward.distributivity.over.concatenation  A P l1 l2).
+  - ipso (@quantification.all.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
 
 End over. (* quantification.all.distributivity.over *)
@@ -1376,9 +1367,9 @@ Theorem specification
       All P l <-> (forall (a : A) . l contains_member a -> P a).
 Proof.
   intros A P l.
-  split.
-  - exact (@quantification.all.forward.specification  A P l).
-  - exact (@quantification.all.backward.specification A P l).
+  divide et impera.
+  - ipso (@quantification.all.forward.specification  A P l).
+  - ipso (@quantification.all.backward.specification A P l).
 Qed.
 
 (* quantification.all.monotonicity *)
@@ -1387,14 +1378,14 @@ Lemma monotonicity
       (forall (a : A) . P a -> Q a) -> All P l -> All Q l.
 Proof.
   intros A P Q l h.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro v.
-    exact v.
+    ipso v.
   - simpl in |- *.
     intro c.
-    destruct c as [pb all'].
-    exact (Conjunction_introduction (h b pb) (IH all')).
+    match c with | pb all' end.
+    ipso (conjoin (h b pb), (IH all')).
 Qed.
 
 (* quantification.all.catamorphism *)
@@ -1403,12 +1394,12 @@ Theorem catamorphism
       All P l = fold_right (fun (a : A) (rest : Prop) . P a /\ rest) Verum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End all. (* quantification.all *)
@@ -1428,17 +1419,17 @@ Lemma concatenation
       Any P (l1 ++ l2) -> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact (Disjunction.R h).
+    ipso (disjoin _, h).
   - simpl in |- *.
     intro h.
-    destruct h as [pb | h'].
-    + exact (Disjunction.L (Disjunction.L pb)).
-    + destruct (IH h') as [h1 | h2].
-      * exact (Disjunction.L (Disjunction.R h1)).
-      * exact (Disjunction.R h2).
+    match h with | pb | h' end.
+    + ipso (disjoin (disjoin pb, _), _).
+    + match (IH h') with | h1 | h2 end.
+      * ipso (disjoin (disjoin _, h1), _).
+      * ipso (disjoin _, h2).
 Qed.
 
 End over. (* quantification.any.forward.distributivity.over *)
@@ -1448,26 +1439,26 @@ End distributivity. (* quantification.any.forward.distributivity *)
 (* quantification.any.forward.specification *)
 Lemma specification
   : forall {A : Type} {P : A -> Prop} {l : List A} .
-      Any P l -> exists (a : A) . l contains_member a /\ P a.
+      Any P l -> forsome (a : A) . l contains_member a /\ P a.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro f.
-    contradiction f.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [pb | h'].
-    + apply (Exists_introduction b).
-      split.
-      * exact (Disjunction.L (Identity.reflexivity b)).
-      * exact pb.
-    + destruct (IH h') as [a ha].
-      destruct ha as [ha' pa].
-      apply (Exists_introduction a).
-      split.
-      * exact (Disjunction.R ha').
-      * exact pa.
+    match h with | pb | h' end.
+    + exists b.
+      divide et impera.
+      * ipso (disjoin (Identity.reflexivity b), _).
+      * ipso pb.
+    + match (IH h') with | a ha end.
+      match ha with | ha' pa end.
+      exists a.
+      divide et impera.
+      * ipso (disjoin _, ha').
+      * ipso pa.
 Qed.
 
 End forward. (* quantification.any.forward *)
@@ -1484,23 +1475,19 @@ Lemma concatenation
       Any P l1 \/ Any P l2 -> Any P (l1 ++ l2).
 Proof.
   intros A P l1 l2.
-  induction l1 as [| b l1' IH] using List.induction.
+  match l1 with | | b l1' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [f | h2].
-    + contradiction f.
-    + exact h2.
+    match h with | f | h2 end.
+    + ex f quodlibet.
+    + ipso h2.
   - simpl in |- *.
     intro h.
-    destruct h as [h1 | h2].
-    + destruct h1 as [pb | h1'].
-      * exact (Disjunction.L pb).
-      * apply Disjunction.R.
-        apply IH.
-        exact (Disjunction.L h1').
-    + apply Disjunction.R.
-      apply IH.
-      exact (Disjunction.R h2).
+    match h with | h1 | h2 end.
+    + match h1 with | pb | h1' end.
+      * ipso (disjoin pb, _).
+      * ipso (disjoin _, (&IH (disjoin &h1', _))).
+    + ipso (disjoin _, (&IH (disjoin _, &h2))).
 Qed.
 
 End over. (* quantification.any.backward.distributivity.over *)
@@ -1510,28 +1497,28 @@ End distributivity. (* quantification.any.backward.distributivity *)
 (* quantification.any.backward.specification *)
 Lemma specification
   : forall {A : Type} {P : A -> Prop} {l : List A} .
-      (exists (a : A) . l contains_member a /\ P a) -> Any P l.
+      (forsome (a : A) . l contains_member a /\ P a) -> Any P l.
 Proof.
   intros A P l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    destruct h as [a ha].
-    destruct ha as [f _].
-    contradiction f.
+    match h with | a ha end.
+    match ha with | f _ end.
+    ex f quodlibet.
   - simpl in |- *.
     intro h.
-    destruct h as [a ha].
-    destruct ha as [ha' pa].
-    destruct ha' as [e | ha''].
-    + rewrite e in pa.
-      exact (Disjunction.L pa).
-    + apply Disjunction.R.
-      apply IH.
-      apply (Exists_introduction a).
-      split.
-      * exact ha''.
-      * exact pa.
+    match h with | a ha end.
+    match ha with | ha' pa end.
+    match ha' with | e | ha'' end.
+    + leibniz e in pa.
+      ipso (disjoin pa, _).
+    + lemma witness : forsome (x : &A) . &l' contains_member x /\ &P x.
+      {
+        exists &a.
+        ipso (conjoin &ha'', &pa).
+      }
+      ipso (disjoin _, (&IH &witness)).
 Qed.
 
 End backward. (* quantification.any.backward *)
@@ -1546,9 +1533,9 @@ Theorem concatenation
       Any P (l1 ++ l2) <-> Any P l1 \/ Any P l2.
 Proof.
   intros A P l1 l2.
-  split.
-  - exact (@quantification.any.forward.distributivity.over.concatenation  A P l1 l2).
-  - exact (@quantification.any.backward.distributivity.over.concatenation A P l1 l2).
+  divide et impera.
+  - ipso (@quantification.any.forward.distributivity.over.concatenation  A P l1 l2).
+  - ipso (@quantification.any.backward.distributivity.over.concatenation A P l1 l2).
 Qed.
 
 End over. (* quantification.any.distributivity.over *)
@@ -1558,12 +1545,12 @@ End distributivity. (* quantification.any.distributivity *)
 (* quantification.any.specification *)
 Theorem specification
   : forall {A : Type} (P : A -> Prop) (l : List A) .
-      Any P l <-> (exists (a : A) . l contains_member a /\ P a).
+      Any P l <-> (forsome (a : A) . l contains_member a /\ P a).
 Proof.
   intros A P l.
-  split.
-  - exact (@quantification.any.forward.specification  A P l).
-  - exact (@quantification.any.backward.specification A P l).
+  divide et impera.
+  - ipso (@quantification.any.forward.specification  A P l).
+  - ipso (@quantification.any.backward.specification A P l).
 Qed.
 
 (* quantification.any.catamorphism *)
@@ -1572,12 +1559,12 @@ Theorem catamorphism
       Any P l = fold_right (fun (a : A) (rest : Prop) . P a \/ rest) Falsum l.
 Proof.
   intros A P l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End any. (* quantification.any *)
@@ -1591,19 +1578,19 @@ Module forward. (* head.forward *)
 (* head.forward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      head l = Some a -> exists (l' : List A) . l = a :: l'.
+      head l = Some a -> forsome (l' : List A) . l = a :: l'.
 Proof.
   intros A a l.
-  destruct l as [| b rest].
+  match l with | | b rest end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity e) as e'.
-    apply (Exists_introduction rest).
-    rewrite e' in |- *.
-    reflexivity.
+    let proof e' := Option.some.injectivity e.
+    exists rest.
+    leibniz e' in |- *.
+    quod idem est.
 Qed.
 
 End forward. (* head.forward *)
@@ -1613,14 +1600,14 @@ Module backward. (* head.backward *)
 (* head.backward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      (exists (l' : List A) . l = a :: l') -> head l = Some a.
+      (forsome (l' : List A) . l = a :: l') -> head l = Some a.
 Proof.
   intros A a l.
   intro h.
-  destruct h as [l' e].
-  rewrite e in |- *.
+  match h with | l' e end.
+  leibniz e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* head.backward *)
@@ -1628,12 +1615,12 @@ End backward. (* head.backward *)
 (* head.specification *)
 Theorem specification
   : forall {A : Type} (a : A) (l : List A) .
-      head l = Some a <-> (exists (l' : List A) . l = a :: l').
+      head l = Some a <-> (forsome (l' : List A) . l = a :: l').
 Proof.
   intros A a l.
-  split.
-  - exact (@head.forward.specification  A a l).
-  - exact (@head.backward.specification A a l).
+  divide et impera.
+  - ipso (@head.forward.specification  A a l).
+  - ipso (@head.backward.specification A a l).
 Qed.
 
 End head. (* head *)
@@ -1645,19 +1632,19 @@ Module forward. (* tail.forward *)
 (* tail.forward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      tail l = Some l' -> exists (a : A) . l = a :: l'.
+      tail l = Some l' -> forsome (a : A) . l = a :: l'.
 Proof.
   intros A l l'.
-  destruct l as [| b rest].
+  match l with | | b rest end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity e) as e'.
-    apply (Exists_introduction b).
-    rewrite e' in |- *.
-    reflexivity.
+    let proof e' := Option.some.injectivity e.
+    exists b.
+    leibniz e' in |- *.
+    quod idem est.
 Qed.
 
 End forward. (* tail.forward *)
@@ -1667,14 +1654,14 @@ Module backward. (* tail.backward *)
 (* tail.backward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      (exists (a : A) . l = a :: l') -> tail l = Some l'.
+      (forsome (a : A) . l = a :: l') -> tail l = Some l'.
 Proof.
   intros A l l'.
   intro h.
-  destruct h as [a e].
-  rewrite e in |- *.
+  match h with | a e end.
+  leibniz e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* tail.backward *)
@@ -1682,12 +1669,12 @@ End backward. (* tail.backward *)
 (* tail.specification *)
 Theorem specification
   : forall {A : Type} (l : List A) (l' : List A) .
-      tail l = Some l' <-> (exists (a : A) . l = a :: l').
+      tail l = Some l' <-> (forsome (a : A) . l = a :: l').
 Proof.
   intros A l l'.
-  split.
-  - exact (@tail.forward.specification  A l l').
-  - exact (@tail.backward.specification A l l').
+  divide et impera.
+  - ipso (@tail.forward.specification  A l l').
+  - ipso (@tail.backward.specification A l l').
 Qed.
 
 End tail. (* tail *)
@@ -1699,17 +1686,17 @@ Module forward. (* last.forward *)
 (* last.forward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      last l = Some a -> exists (l' : List A) . l = append l' a.
+      last l = Some a -> forsome (l' : List A) . l = append l' a.
 Proof.
   intros A a l.
-  unfold last in |- *.
+  simpl last in |- *.
   intro h.
-  destruct (head.forward.specification h) as [r e].
-  apply (Exists_introduction (reverse r)).
-  pose proof (Identity.congruence reverse e) as e'.
-  rewrite reversal.involution in e'.
+  match (head.forward.specification h) with | r e end.
+  exists (reverse r).
+  let proof e' := Identity.congruence reverse e.
+  leibniz (reversal.involution &l) in e'.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End forward. (* last.forward *)
@@ -1719,16 +1706,16 @@ Module backward. (* last.backward *)
 (* last.backward.specification *)
 Lemma specification
   : forall {A : Type} {a : A} {l : List A} .
-      (exists (l' : List A) . l = append l' a) -> last l = Some a.
+      (forsome (l' : List A) . l = append l' a) -> last l = Some a.
 Proof.
   intros A a l.
   intro h.
-  destruct h as [l' e].
-  unfold last in |- *.
-  rewrite e in |- *.
-  rewrite appending.reversal in |- *.
+  match h with | l' e end.
+  simpl last in |- *.
+  leibniz e in |- *.
+  leibniz (appending.reversal &l' &a) in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* last.backward *)
@@ -1736,12 +1723,12 @@ End backward. (* last.backward *)
 (* last.specification *)
 Theorem specification
   : forall {A : Type} (a : A) (l : List A) .
-      last l = Some a <-> (exists (l' : List A) . l = append l' a).
+      last l = Some a <-> (forsome (l' : List A) . l = append l' a).
 Proof.
   intros A a l.
-  split.
-  - exact (@last.forward.specification  A a l).
-  - exact (@last.backward.specification A a l).
+  divide et impera.
+  - ipso (@last.forward.specification  A a l).
+  - ipso (@last.backward.specification A a l).
 Qed.
 
 End last. (* last *)
@@ -1753,23 +1740,23 @@ Module forward. (* initial.forward *)
 (* initial.forward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      initial l = Some l' -> exists (a : A) . l = append l' a.
+      initial l = Some l' -> forsome (a : A) . l = append l' a.
 Proof.
   intros A l l'.
-  unfold initial in |- *.
-  destruct (reverse l) as [| b r] eqn:er.
+  simpl initial in |- *.
+  match (reverse l) with | | b r end |- er.
   - simpl in |- *.
     intro h.
-    discriminate h.
+    ex h quodlibet.
   - simpl in |- *.
     intro h.
-    pose proof (Option.some.injectivity h) as e'.
-    apply (Exists_introduction b).
-    pose proof (Identity.congruence reverse er) as er'.
-    rewrite reversal.involution in er'.
+    let proof e' := Option.some.injectivity h.
+    exists b.
+    let proof er' := Identity.congruence reverse er.
+    leibniz (reversal.involution &l) in er'.
     simpl in er'.
-    rewrite e' in er'.
-    exact er'.
+    leibniz e' in er'.
+    ipso er'.
 Qed.
 
 End forward. (* initial.forward *)
@@ -1779,17 +1766,17 @@ Module backward. (* initial.backward *)
 (* initial.backward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {l' : List A} .
-      (exists (a : A) . l = append l' a) -> initial l = Some l'.
+      (forsome (a : A) . l = append l' a) -> initial l = Some l'.
 Proof.
   intros A l l'.
   intro h.
-  destruct h as [a e].
-  unfold initial in |- *.
-  rewrite e in |- *.
-  rewrite appending.reversal in |- *.
+  match h with | a e end.
+  simpl initial in |- *.
+  leibniz e in |- *.
+  leibniz (appending.reversal &l' &a) in |- *.
   simpl in |- *.
-  rewrite reversal.involution in |- *.
-  reflexivity.
+  leibniz (reversal.involution &l') in |- *.
+  quod idem est.
 Qed.
 
 End backward. (* initial.backward *)
@@ -1797,12 +1784,12 @@ End backward. (* initial.backward *)
 (* initial.specification *)
 Theorem specification
   : forall {A : Type} (l : List A) (l' : List A) .
-      initial l = Some l' <-> (exists (a : A) . l = append l' a).
+      initial l = Some l' <-> (forsome (a : A) . l = append l' a).
 Proof.
   intros A l l'.
-  split.
-  - exact (@initial.forward.specification  A l l').
-  - exact (@initial.backward.specification A l l').
+  divide et impera.
+  - ipso (@initial.forward.specification  A l l').
+  - ipso (@initial.backward.specification A l l').
 Qed.
 
 End initial. (* initial *)
@@ -1817,17 +1804,18 @@ Lemma specification
       pop l = Some (a, l') -> l = a :: l'.
 Proof.
   intros A a l' l.
-  destruct l as [| b rest].
+  match l with | | b rest end.
   - simpl in |- *.
     intro e.
-    discriminate e.
+    ex e quodlibet.
   - simpl in |- *.
     intro e.
-    pose proof (Option.some.injectivity e) as e'.
-    pose proof (Product.introduction.injectivity e') as e''.
-    destruct e'' as [eb erest].
-    rewrite eb, erest in |- *.
-    reflexivity.
+    let proof e' := Option.some.injectivity e.
+    let proof e'' := Product.introduction.injectivity e'.
+    match e'' with | eb erest end.
+    leibniz eb in |- *.
+    leibniz erest in |- *.
+    quod idem est.
 Qed.
 
 End forward. (* popping.forward *)
@@ -1840,9 +1828,9 @@ Lemma specification
       l = a :: l' -> pop l = Some (a, l').
 Proof.
   intros A a l' l e.
-  rewrite e in |- *.
+  leibniz e in |- *.
   simpl in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 End backward. (* popping.backward *)
@@ -1854,9 +1842,9 @@ Theorem specification
       pop l = Some (a, l') <-> l = a :: l'.
 Proof.
   intros A a l' l.
-  split.
-  - exact (@popping.forward.specification  A a l' l).
-  - exact (@popping.backward.specification A a l' l).
+  divide et impera.
+  - ipso (@popping.forward.specification  A a l' l).
+  - ipso (@popping.backward.specification A a l' l).
 Qed.
 
 (* Projecting a [pop] gives back [head] and [tail]. *)
@@ -1868,7 +1856,7 @@ Theorem projection
   : forall {A : Type} (l : List A) . Option.map Product.first (pop l) = head l.
 Proof.
   intros A l.
-  destruct l as [| a l']; simpl in |- *; reflexivity.
+  match l with | | a l' end; simpl in |- *; quod idem est.
 Qed.
 
 End head. (* popping.head *)
@@ -1880,7 +1868,7 @@ Theorem projection
   : forall {A : Type} (l : List A) . Option.map Product.second (pop l) = tail l.
 Proof.
   intros A l.
-  destruct l as [| a l']; simpl in |- *; reflexivity.
+  match l with | | a l' end; simpl in |- *; quod idem est.
 Qed.
 
 End tail. (* popping.tail *)
@@ -1902,15 +1890,15 @@ Theorem unzipping
       zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
 Proof.
   intros A B l.
-  induction l as [| p l' IH] using List.induction.
+  match l with | | p l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    unfold unzip in IH.
+    simpl unzip in IH.
     simpl in IH.
-    rewrite IH in |- *.
-    rewrite <- (Product.introduction.surjectivity p) in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    leibniz <- (Product.introduction.surjectivity p) in |- *.
+    quod idem est.
 Qed.
 
 End of. (* zipping.inversion.of *)
@@ -1926,28 +1914,29 @@ Theorem length
       (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - intros l2.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + simpl in |- *.
-      reflexivity.
+      simpl Comparable.min, NatWithZero.compare in |- *.
+      quod idem est.
     + simpl in |- *.
-      rewrite (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
-      reflexivity.
+      leibniz (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
+      quod idem est.
   - intros l2.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + simpl in |- *.
-      rewrite (NatWithZero.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
-      reflexivity.
+      leibniz (NatWithZero.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
+      quod idem est.
     + simpl in |- *.
-      rewrite (IH l2') in |- *.
-      rewrite (NatWithZero.increment.specification
+      leibniz (IH l2') in |- *.
+      leibniz (NatWithZero.increment.specification
                  (NatWithZero.min (|| l1' ||) (|| l2' ||))) in |- *.
-      rewrite (NatWithZero.minimum.left.distributivity.of.addition
+      leibniz (NatWithZero.minimum.left.distributivity.of.addition
                  (NatWithZero.Positive Nat.One) (|| l1' ||) (|| l2' ||)) in |- *.
-      rewrite (NatWithZero.increment.specification (|| l1' ||)) in |- *.
-      rewrite (NatWithZero.increment.specification (|| l2' ||)) in |- *.
-      reflexivity.
+      leibniz (NatWithZero.increment.specification (|| l1' ||)) in |- *.
+      leibniz (NatWithZero.increment.specification (|| l2' ||)) in |- *.
+      quod idem est.
 Qed.
 
 End zipping. (* zipping *)
@@ -1971,42 +1960,42 @@ Theorem zipping
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = (l1, l2).
 Proof.
   intros A B l1.
-  induction l1 as [| a l1' IH] using List.induction.
+  match l1 with | | a l1' by IH end per List.induction.
   - intros l2 e.
-    destruct l2 as [| b l2'].
-    + unfold unzip in |- *.
+    match l2 with | | b l2' end.
+    + simpl unzip in |- *.
       simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in e.
-      pose proof (Identity.symmetry e) as e'.
-      rewrite (NatWithZero.increment.specification (|| l2' ||)) in e'.
-      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One) as h.
-      unfold Negation in h.
-      modus ponens h, e' as f.
-      contradiction f.
+      let proof e' := Identity.symmetry e.
+      leibniz (NatWithZero.increment.specification (|| l2' ||)) in e'.
+      leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l2' ||)) in e'.
+      let proof h := NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One.
+      simpl (~ _) in h.
+      modus ponens h, e' |- f.
+      ex f quodlibet.
   - intros l2 e.
-    destruct l2 as [| b l2'].
+    match l2 with | | b l2' end.
     + simpl in e.
-      rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
-      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
-      pose proof (NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One) as h.
-      unfold Negation in h.
-      modus ponens h, e as f.
-      contradiction f.
+      leibniz (NatWithZero.increment.specification (|| l1' ||)) in e.
+      leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l1' ||)) in e.
+      let proof h := NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One.
+      simpl (~ _) in h.
+      modus ponens h, e |- f.
+      ex f quodlibet.
     + simpl in e.
-      rewrite (NatWithZero.increment.specification (|| l1' ||)) in e.
-      rewrite (NatWithZero.increment.specification (|| l2' ||)) in e.
-      pose proof (NatWithZero.addition.left.cancellation e) as e'.
-      pose proof (IH l2' e') as IH'.
-      unfold unzip in IH'.
-      pose proof (Product.introduction.injectivity IH') as e''.
-      destruct e'' as [e1 e2].
-      unfold unzip in |- *.
+      leibniz (NatWithZero.increment.specification (|| l1' ||)) in e.
+      leibniz (NatWithZero.increment.specification (|| l2' ||)) in e.
+      let proof e' := NatWithZero.addition.left.cancellation e.
+      let proof IH' := IH l2' e'.
+      simpl unzip in IH'.
+      let proof e'' := Product.introduction.injectivity IH'.
+      match e'' with | e1 e2 end.
+      simpl unzip in |- *.
       simpl in |- *.
-      rewrite e1 in |- *.
-      rewrite e2 in |- *.
-      reflexivity.
+      leibniz e1 in |- *.
+      leibniz e2 in |- *.
+      quod idem est.
 Qed.
 
 End of. (* unzipping.inversion.of *)
@@ -2024,12 +2013,12 @@ Theorem specification
       = (filter p l, filter (fun (a : A) . ! p a) l).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    destruct (p a) as [|] eqn:pa; simpl in |- *; reflexivity.
+    leibniz IH in |- *.
+    match (p a) with | | end |- pa; simpl in |- *; quod idem est.
 Qed.
 
 End partitioning. (* partitioning *)
@@ -2049,31 +2038,31 @@ Module forward. (* indexing.forward *)
 (* indexing.forward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {i : NatWithZero} .
-      (exists (a : A) . nth l i = Some a) -> i < (|| l ||).
+      (forsome (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - intros i h.
-    destruct h as [a e].
+    match h with | a e end.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros i h.
-    destruct i as [| i'].
+    match i with | | i' end.
     + simpl in |- *.
-      rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-      rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
-      exact (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
-    + destruct i' as [| i''].
+      leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+      leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
+      ipso (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
+    + match i' with | | i'' end.
       * simpl in h.
-        pose proof (IH NatWithZero.Zero h) as lt.
+        let proof lt := IH NatWithZero.Zero h.
         simpl in |- *.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        ipso (NatWithZero.addition.order.strict.monotonicity (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) lt).
       * simpl in h.
-        pose proof (IH (NatWithZero.Positive i'') h) as lt.
+        let proof lt := IH (NatWithZero.Positive i'') h.
         simpl in |- *.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        ipso (NatWithZero.addition.order.strict.monotonicity
                  (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) lt).
 Qed.
 
@@ -2084,36 +2073,35 @@ Module backward. (* indexing.backward *)
 (* indexing.backward.specification *)
 Lemma specification
   : forall {A : Type} {l : List A} {i : NatWithZero} .
-      i < (|| l ||) -> exists (a : A) . nth l i = Some a.
+      i < (|| l ||) -> forsome (a : A) . nth l i = Some a.
 Proof.
   intros A l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - intros i h.
     simpl in h.
-    unfold NatWithZero.LessThan in h.
-    destruct h as [k e].
-    pose proof (NatWithZero.addition.right.identity.absence i k) as r.
-    unfold Negation in r.
-    modus ponens r, e as f.
-    contradiction f.
+    simpl NatWithZero.LessThan in h.
+    match h with | k e end.
+    let proof r := NatWithZero.addition.right.identity.absence i k.
+    simpl (~ _) in r.
+    modus ponens r, e |- f.
+    ex f quodlibet.
   - intros i h.
-    destruct i as [| i'].
+    match i with | | i' end.
     + simpl in |- *.
-      apply (Exists_introduction b).
-      reflexivity.
-    + destruct i' as [| i''].
+      exists b.
+      quod idem est.
+    + match i' with | | i'' end.
       * simpl in h.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h)
-          as lt.
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in h.
+        let proof lt := NatWithZero.addition.order.strict.cancellation (NatWithZero.Positive Nat.One) NatWithZero.Zero (|| l' ||) h.
         simpl in |- *.
-        exact (IH NatWithZero.Zero lt).
+        ipso (IH NatWithZero.Zero lt).
       * simpl in h.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in h.
-        pose proof (NatWithZero.addition.order.strict.cancellation
-                      (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h) as lt.
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in h.
+        let proof lt := NatWithZero.addition.order.strict.cancellation
+                      (NatWithZero.Positive Nat.One) (NatWithZero.Positive i'') (|| l' ||) h.
         simpl in |- *.
-        exact (IH (NatWithZero.Positive i'') lt).
+        ipso (IH (NatWithZero.Positive i'') lt).
 Qed.
 
 End backward. (* indexing.backward *)
@@ -2121,124 +2109,126 @@ End backward. (* indexing.backward *)
 (* indexing.specification *)
 Theorem specification
   : forall {A : Type} (l : List A) (i : NatWithZero) .
-      (exists (a : A) . nth l i = Some a) <-> i < (|| l ||).
+      (forsome (a : A) . nth l i = Some a) <-> i < (|| l ||).
 Proof.
   intros A l i.
-  split.
-  - exact (@indexing.forward.specification  A l i).
-  - exact (@indexing.backward.specification A l i).
+  divide et impera.
+  - ipso (@indexing.forward.specification  A l i).
+  - ipso (@indexing.backward.specification A l i).
 Qed.
 
 End indexing. (* indexing *)
 
 Module splitting. (* splitting *)
 
-(* The two parts put back together give the list. *)
 (* splitting.decomposition *)
 Theorem decomposition
   : forall {A : Type} (l : List A) (n : NatWithZero) .
       take n l ++ drop n l = l.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - intros n.
-    destruct n as [| n'].
+    match n with | | n' end.
     + simpl in |- *.
-      reflexivity.
-    + destruct n' as [| n''].
+      quod idem est.
+    + match n' with | | n'' end.
       * simpl in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
-        rewrite (IH (NatWithZero.Positive n'')) in |- *.
-        reflexivity.
+        leibniz (IH (NatWithZero.Positive n'')) in |- *.
+        quod idem est.
 Qed.
 
 End splitting. (* splitting *)
 
 Module taking. (* taking *)
 
-(* The length of a [take] is the smaller of the count and the length; each
- * step adds one to both candidates, and addition distributes over [min].
- *)
 (* taking.length *)
 Theorem length
   : forall {A : Type} (l : List A) (n : NatWithZero) .
       (|| take n l ||) = NatWithZero.min n (|| l ||).
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
-    rewrite (NatWithZero.minimum.right.annihilation n) in |- *.
-    reflexivity.
+    leibniz (NatWithZero.minimum.right.annihilation n) in |- *.
+    quod idem est.
   - intros n.
-    destruct n as [| n'].
+    match n with | | n' end.
     + simpl in |- *.
-      rewrite (NatWithZero.minimum.left.annihilation (++ (|| l' ||))) in |- *.
-      reflexivity.
-    + destruct n' as [| n''].
+      leibniz (NatWithZero.minimum.left.annihilation (++ (|| l' ||))) in |- *.
+      quod idem est.
+    + match n' with | | n'' end.
       * simpl in |- *.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
         modus aequans
           (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
-             ((|| l' ||) + NatWithZero.Positive Nat.One)),
+            ((|| l' ||) + NatWithZero.Positive Nat.One)),
           (NatWithZero.addition.right.order.extensivity
-             (|| l' ||) (NatWithZero.Positive Nat.One)) as e.
-        rewrite e in |- *.
-        reflexivity.
+            (|| l' ||) (NatWithZero.Positive Nat.One)) |- e.
+        leibniz e in |- *.
+        quod idem est.
       * simpl in |- *.
-        rewrite (IH (NatWithZero.Positive n'')) in |- *.
-        rewrite (NatWithZero.increment.specification
-                   (NatWithZero.min (NatWithZero.Positive n'') (|| l' ||))) in |- *.
-        rewrite (NatWithZero.minimum.left.distributivity.of.addition
-                   (NatWithZero.Positive Nat.One) (NatWithZero.Positive n'') (|| l' ||)) in |- *.
-        change (NatWithZero.Positive Nat.One + NatWithZero.Positive n'')
-          with (NatWithZero.Positive (Nat.Successor n'')) in |- *.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        reflexivity.
+        leibniz (IH (NatWithZero.Positive n'')) in |- *.
+        leibniz (NatWithZero.increment.specification
+                  (NatWithZero.min (NatWithZero.Positive n'') (|| l' ||))) in |- *.
+        leibniz (NatWithZero.minimum.left.distributivity.of.addition
+                  (NatWithZero.Positive Nat.One) (NatWithZero.Positive n'') (|| l' ||)) in |- *.
+        lemma facto
+          : NatWithZero.min (NatWithZero.Positive (Nat.Successor &n'')) (NatWithZero.Positive Nat.One + (|| &l' ||))
+          = NatWithZero.min (NatWithZero.Positive (Nat.Successor &n'')) (++ (|| &l' ||)).
+        {
+          leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+          quod idem est.
+        }
+        ipso &facto.
 Qed.
 
 End taking. (* taking *)
 
 Module dropping. (* dropping *)
 
-(* The length of a [drop] is the length less the count; each step takes one
- * from both, which truncated subtraction ignores.
- *)
 (* dropping.length *)
 Theorem length
   : forall {A : Type} (l : List A) (n : NatWithZero) .
       (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
   - intros n.
-    destruct n as [| n'].
+    match n with | | n' end.
     + simpl in |- *.
-      rewrite (NatWithZero.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
-      reflexivity.
-    + destruct n' as [| n''].
+      leibniz (NatWithZero.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
+      quod idem est.
+    + match n' with | | n'' end.
       * simpl in |- *.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
-        rewrite (NatWithZero.subtraction.saturating.inversion.of.addition
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (|| l' ||)) in |- *.
+        leibniz (NatWithZero.subtraction.saturating.inversion.of.addition
                    (|| l' ||) (NatWithZero.Positive Nat.One)) in |- *.
-        reflexivity.
+        quod idem est.
       * simpl in |- *.
-        rewrite (IH (NatWithZero.Positive n'')) in |- *.
-        rewrite (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        change (NatWithZero.Positive (Nat.Successor n''))
-          with (NatWithZero.Positive Nat.One + NatWithZero.Positive n'') in |- *.
-        rewrite (NatWithZero.subtraction.saturating.cancellation
-                   (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
-        reflexivity.
+        leibniz (IH (NatWithZero.Positive n'')) in |- *.
+        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        lemma facto
+          : NatWithZero.saturating_sub (|| &l' ||) (NatWithZero.Positive &n'')
+            = NatWithZero.saturating_sub (NatWithZero.Positive Nat.One + (|| &l' ||))
+                                         (NatWithZero.Positive Nat.One + NatWithZero.Positive &n'').
+        {
+          leibniz (NatWithZero.subtraction.saturating.cancellation
+                     (NatWithZero.Positive Nat.One) (|| l' ||) (NatWithZero.Positive n'')) in |- *.
+          quod idem est.
+        }
+        ipso &facto.
 Qed.
 
 End dropping. (* dropping *)
@@ -2252,13 +2242,14 @@ Lemma length
   : forall {A : Type} (k : Nat) (a : A) . (|| replicate_positive k a ||) = NatWithZero.Positive k.
 Proof.
   intros A k a.
-  induction k as [| k' IH] using Nat.induction.
+  match k with | | k' by IH end per Nat.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
+    leibniz IH in |- *.
     simpl in |- *.
-    reflexivity.
+    simpl Nat.inc in |- *.
+    quod idem est.
 Qed.
 
 End positive. (* replication.positive *)
@@ -2268,11 +2259,11 @@ Theorem length
   : forall {A : Type} (n : NatWithZero) (a : A) . (|| replicate n a ||) = n.
 Proof.
   intros A n a.
-  destruct n as [| k].
+  match n with | | k end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    exact (replication.positive.length k a).
+    ipso (replication.positive.length k a).
 Qed.
 
 End replication. (* replication *)
@@ -2289,16 +2280,16 @@ Theorem concatenation
       sum (l1 ++ l2) = sum l1 + sum l2.
 Proof.
   intros l1 l2.
-  unfold sum in |- *.
-  induction l1 as [| a l1' IH] using List.induction.
+  simpl sum in |- *.
+  match l1 with | | a l1' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    rewrite (NatWithZero.addition.associativity
+    leibniz IH in |- *.
+    leibniz (NatWithZero.addition.associativity
                a (fold_right NatWithZero.add NatWithZero.Zero l1') (fold_right NatWithZero.add NatWithZero.Zero l2))
       in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* sum.additivity.over *)
@@ -2319,20 +2310,26 @@ Theorem concatenation
       product (l1 ++ l2) = product l1 * product l2.
 Proof.
   intros l1 l2.
-  unfold product in |- *.
-  induction l1 as [| a l1' IH] using List.induction.
-  - rewrite (concatenation.left.identity l2) in |- *.
-    change (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) []) with (NatWithZero.Positive Nat.One) in |- *.
-    rewrite (NatWithZero.multiplication.left.identity
-               (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
-      in |- *.
-    reflexivity.
+  simpl product in |- *.
+  match l1 with | | a l1' by IH end per List.induction.
+  - leibniz (concatenation.left.identity l2) in |- *.
+    lemma facto
+      : fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) &l2
+        = NatWithZero.Positive Nat.One
+          * fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) &l2.
+    {
+      leibniz (NatWithZero.multiplication.left.identity
+                 (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2))
+        in |- *.
+      quod idem est.
+    }
+    ipso &facto.
   - simpl in |- *.
-    rewrite IH in |- *.
-    rewrite (NatWithZero.multiplication.associativity
+    leibniz IH in |- *.
+    leibniz (NatWithZero.multiplication.associativity
                a (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l1')
                (fold_right NatWithZero.mul (NatWithZero.Positive Nat.One) l2)) in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End over. (* product.multiplicativity.over *)
@@ -2348,57 +2345,52 @@ Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) . count p l = (|| filter p l ||).
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    destruct (p a) as [|].
+    match (p a) with | | end.
     + simpl in |- *.
-      rewrite IH in |- *.
-      reflexivity.
-    + exact IH.
+      leibniz IH in |- *.
+      quod idem est.
+    + ipso IH.
 Qed.
 
 Module zero. (* counting.zero *)
 
-(* [count] answers [NatWithZero.Zero] exactly when [p] answers [false] on every
- * member.
- *)
 (* counting.zero.specification *)
 Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
       count p l = NatWithZero.Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro e.
-      exact I.
+      ipso I.
     + intro v.
-      reflexivity.
+      quod idem est.
   - simpl in |- *.
-    destruct (p a) as [|].
-    + simpl in |- *.
-      split.
+    match (p a) with | | end.
+    + divide et impera.
       * intro e.
-        rewrite (NatWithZero.increment.specification (count p l')) in e.
-        rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
-        pose proof (NatWithZero.addition.right.identity.absence (count p l') Nat.One) as r.
-        unfold Negation in r.
-        modus ponens r, e as f.
-        contradiction f.
+        leibniz (NatWithZero.increment.specification (count p l')) in e.
+        leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (count p l')) in e.
+        let proof r := NatWithZero.addition.right.identity.absence (count p l') Nat.One.
+        simpl (~ _) in r.
+        modus ponens r, e |- f.
+        ex f quodlibet.
       * intro c.
-        destruct c as [e f].
-        discriminate e.
-    + simpl in |- *.
-      split.
+        match c with | e f end.
+        ex e quodlibet.
+    + divide et impera.
       * intro e.
-        modus aequans IH, e as all'.
-        exact (Conjunction_introduction (Identity.reflexivity false) all').
+        modus aequans IH, e |- all'.
+        ipso (conjoin (Identity.reflexivity false), all').
       * intro c.
-        destruct c as [e all'].
-        exact (modus aequans IH, all').
+        match c with | e all' end.
+        ipso (modus aequans IH, all').
 Qed.
 
 End zero. (* counting.zero *)
@@ -2419,18 +2411,18 @@ Lemma all
       P a -> All P l -> All P (insert le a l).
 Proof.
   intros A le P a l pa.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro v.
-    exact (Conjunction_introduction pa v).
+    ipso (conjoin pa, v).
   - simpl in |- *.
     intro c.
-    destruct c as [pb all'].
-    destruct (le a b) as [|].
+    match c with | pb all' end.
+    match (le a b) with | | end.
     + simpl in |- *.
-      exact (Conjunction_introduction pa (Conjunction_introduction pb all')).
+      ipso (conjoin pa, (conjoin pb, all')).
     + simpl in |- *.
-      exact (Conjunction_introduction pb (IH all')).
+      ipso (conjoin pb, (IH all')).
 Qed.
 
 End of. (* sorting.insertion.preservation.of *)
@@ -2446,29 +2438,28 @@ Lemma sortedness
       forall (a : A) (l : List A) . Sorted le l -> Sorted le (insert le a l).
 Proof.
   intros A le total transitive a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro v.
-    exact (Conjunction_introduction v v).
+    ipso (conjoin v, v).
   - simpl in |- *.
     intro s.
-    destruct s as [below sorted'].
-    destruct (le a b) as [|] eqn:c.
+    match s with | below sorted' end.
+    match (le a b) with | | end |- c.
     + simpl in |- *.
-      pose proof (quantification.all.monotonicity
-                    (fun (x : A) (h : le b x = true) . transitive a b x c h) below)
-        as below_a.
-      exact (Conjunction_introduction
-               (Conjunction_introduction c below_a)
-               (Conjunction_introduction below sorted')).
+      let proof below_a := quantification.all.monotonicity
+                    (fun (x : A) (h : le b x = true) . transitive a b x c h) below.
+      ipso (conjoin
+               (conjoin c, below_a),
+               (conjoin below, sorted')).
     + simpl in |- *.
-      pose proof (total a b) as t.
-      destruct t as [ab | ba].
-      * rewrite c in ab.
-        discriminate ab.
-      * exact (Conjunction_introduction
+      let proof t := total a b.
+      match t with | ab | ba end.
+      * leibniz c in ab.
+        ex ab quodlibet.
+      * ipso (conjoin
                  (sorting.insertion.preservation.of.all
-                    le (fun (x : A) . le b x = true) a l' ba below)
+                    le (fun (x : A) . le b x = true) a l' ba below),
                  (IH sorted')).
 Qed.
 
@@ -2482,23 +2473,23 @@ Lemma membership
       insert le a l contains_member b -> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List.induction.
+  match l with | | c l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
-    destruct (le a c) as [|].
+    match (le a c) with | | end.
     + simpl in |- *.
       intro h.
-      exact h.
+      ipso h.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
-      * exact (Disjunction.R (Disjunction.L e)).
-      * modus ponens IH, h' as h''.
-        destruct h'' as [e | h'''].
-        { exact (Disjunction.L e). }
-        { exact (Disjunction.R (Disjunction.R h''')). }
+      match h with | e | h' end.
+      * ipso (disjoin _, (disjoin e, _)).
+      * modus ponens IH, h' |- h''.
+        match h'' with | e | h''' end.
+        { ipso (disjoin e, _). }
+        { ipso (disjoin _, (disjoin _, h''')). }
 Qed.
 
 End forward. (* sorting.insertion.forward *)
@@ -2511,22 +2502,22 @@ Lemma membership
       b = a \/ l contains_member b -> insert le a l contains_member b.
 Proof.
   intros A le a b l.
-  induction l as [| c l' IH] using List.induction.
+  match l with | | c l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
-    destruct (le a c) as [|].
+    match (le a c) with | | end.
     + simpl in |- *.
       intro h.
-      exact h.
+      ipso h.
     + simpl in |- *.
       intro h.
-      destruct h as [e | h'].
-      * exact (Disjunction.R (IH (Disjunction.L e))).
-      * destruct h' as [e | h''].
-        { exact (Disjunction.L e). }
-        { exact (Disjunction.R (IH (Disjunction.R h''))). }
+      match h with | e | h' end.
+      * ipso (disjoin _, (IH (disjoin e, _))).
+      * match h' with | e | h'' end.
+        { ipso (disjoin e, _). }
+        { ipso (disjoin _, (IH (disjoin _, h''))). }
 Qed.
 
 End backward. (* sorting.insertion.backward *)
@@ -2537,9 +2528,9 @@ Theorem membership
       insert le a l contains_member b <-> b = a \/ l contains_member b.
 Proof.
   intros A le a b l.
-  split.
-  - exact (@sorting.insertion.forward.membership  A le a b l).
-  - exact (sorting.insertion.backward.membership le a b l).
+  divide et impera.
+  - ipso (@sorting.insertion.forward.membership  A le a b l).
+  - ipso (sorting.insertion.backward.membership le a b l).
 Qed.
 
 (* sorting.insertion.length *)
@@ -2548,16 +2539,16 @@ Lemma length
       (|| insert le a l ||) = ++ (|| l ||).
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    destruct (le a b) as [|].
+    match (le a b) with | | end.
     + simpl in |- *.
-      reflexivity.
+      quod idem est.
     + simpl in |- *.
-      rewrite IH in |- *.
-      reflexivity.
+      leibniz IH in |- *.
+      quod idem est.
 Qed.
 
 End insertion. (* sorting.insertion *)
@@ -2571,11 +2562,11 @@ Theorem sortedness
       forall (l : List A) . Sorted le (insertion_sort le l).
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    exact I.
+    ipso I.
   - simpl in |- *.
-    exact (sorting.insertion.sortedness
+    ipso (sorting.insertion.sortedness
              total transitive a (insertion_sort le l') IH).
 Qed.
 
@@ -2591,16 +2582,16 @@ Lemma membership
       insertion_sort le l contains_member a -> l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
     intro h.
-    pose proof (sorting.insertion.forward.membership h) as h'.
-    destruct h' as [e | h''].
-    + exact (Disjunction.L e).
-    + exact (Disjunction.R (IH h'')).
+    let proof h' := sorting.insertion.forward.membership h.
+    match h' with | e | h'' end.
+    + ipso (disjoin e, _).
+    + ipso (disjoin _, (IH h'')).
 Qed.
 
 End of. (* sorting.forward.preservation.of *)
@@ -2621,16 +2612,19 @@ Lemma membership
       l contains_member a -> insertion_sort le l contains_member a.
 Proof.
   intros A le a l.
-  induction l as [| b l' IH] using List.induction.
+  match l with | | b l' by IH end per List.induction.
   - simpl in |- *.
     intro h.
-    exact h.
+    ipso h.
   - simpl in |- *.
     intro h.
-    apply (sorting.insertion.backward.membership le b a (insertion_sort le l')).
-    destruct h as [e | h'].
-    + exact (Disjunction.L e).
-    + exact (Disjunction.R (IH h')).
+    lemma facto : &a = &b \/ insertion_sort &le &l' contains_member &a.
+    {
+      match h with | e | h' end.
+      + ipso (disjoin e, _).
+      + ipso (disjoin _, (IH h')).
+    }
+    ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') &facto).
 Qed.
 
 End of. (* sorting.backward.preservation.of *)
@@ -2649,9 +2643,9 @@ Theorem membership
       insertion_sort le l contains_member a <-> l contains_member a.
 Proof.
   intros A le a l.
-  split.
-  - exact (@sorting.forward.preservation.of.membership  A le a l).
-  - exact (sorting.backward.preservation.of.membership le a l).
+  divide et impera.
+  - ipso (@sorting.forward.preservation.of.membership  A le a l).
+  - ipso (sorting.backward.preservation.of.membership le a l).
 Qed.
 
 (* sorting.preservation.of.length *)
@@ -2660,13 +2654,13 @@ Theorem length
       (|| insertion_sort le l ||) = (|| l ||).
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite (sorting.insertion.length le a (insertion_sort le l')) in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz (sorting.insertion.length le a (insertion_sort le l')) in |- *.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End of. (* sorting.preservation.of *)
@@ -2684,14 +2678,15 @@ Lemma length
   : forall (p : Nat) . (|| range_positive p ||) = NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite (appending.length (range_positive p') (NatWithZero.Positive p')) in |- *.
-    rewrite IH in |- *.
+    leibniz (appending.length (range_positive p') (NatWithZero.Positive p')) in |- *.
+    leibniz IH in |- *.
     simpl in |- *.
-    reflexivity.
+    simpl Nat.inc in |- *.
+    quod idem est.
 Qed.
 
 Module forward. (* range.positive.forward *)
@@ -2702,38 +2697,43 @@ Lemma membership
       range_positive p contains_member i -> i < NatWithZero.Positive p.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - intros i h.
     simpl in h.
-    destruct h as [e | f].
-    + rewrite e in |- *.
-      unfold NatWithZero.LessThan in |- *.
-      apply (Exists_introduction Nat.One).
+    match h with | e | f end.
+    + leibniz e in |- *.
+      simpl NatWithZero.LessThan in |- *.
+      exists Nat.One.
       simpl in |- *.
-      reflexivity.
-    + contradiction f.
+      quod idem est.
+    + ex f quodlibet.
   - intros i h.
     simpl in h.
     modus aequans
-      (membership.distributivity.over.concatenation
-         i (range_positive p') (NatWithZero.Positive p' :: [])),
-      h as h'.
-    change (NatWithZero.Positive (Nat.Successor p'))
-      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p') in |- *.
-    rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
-    assert (below : i <= NatWithZero.Positive p').
+      (membership
+        .distributivity
+        .over
+        .concatenation
+          (i) (range_positive p') (NatWithZero.Positive p' :: [])),
+      h |- h'.
+    lemma facto : &i < NatWithZero.Positive Nat.One + NatWithZero.Positive &p'.
     {
-      unfold NatWithZero.LessOrEqual in |- *.
-      destruct h' as [h1 | h2].
-      + exact (Disjunction.R (IH i h1)).
-      + simpl in h2.
-        destruct h2 as [e | f].
-        * exact (Disjunction.L e).
-        * contradiction f.
+      leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in |- *.
+      lemma below : i <= NatWithZero.Positive p'.
+      {
+        simpl NatWithZero.LessOrEqual in |- *.
+        match h' with | h1 | h2 end.
+        + ipso (disjoin _, (IH i h1)).
+        + simpl in h2.
+          match h2 with | e | f end.
+          * ipso (disjoin e, _).
+          * ex f quodlibet.
+      }
+      ipso (modus aequans
+            (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
+            below).
     }
-    exact (modus aequans
-             (NatWithZero.order.discreteness i (NatWithZero.Positive p')),
-           below).
+    ipso &facto.
 Qed.
 
 End forward. (* range.positive.forward *)
@@ -2746,34 +2746,35 @@ Lemma membership
       i < NatWithZero.Positive p -> range_positive p contains_member i.
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
+  match p with | | p' by IH end per Nat.induction.
   - intros i h.
-    unfold NatWithZero.LessThan in h.
-    destruct h as [k e].
-    destruct i as [| q].
+    simpl NatWithZero.LessThan in h.
+    match h with | k e end.
+    match i with | | q end.
     + simpl in |- *.
-      exact (Disjunction.L (Identity.reflexivity NatWithZero.Zero)).
+      ipso (disjoin (Identity.reflexivity NatWithZero.Zero), _).
     + simpl in e.
-      pose proof (NatWithZero.positive.injectivity e) as e'.
-      destruct q as [| q']; simpl in e'; discriminate e'.
+      let proof e' := NatWithZero.positive.injectivity e.
+      match q with | | q' end; simpl in e'; ex e' quodlibet.
   - intros i h.
-    change (NatWithZero.Positive (Nat.Successor p'))
-      with (NatWithZero.Positive Nat.One + NatWithZero.Positive p')
-      in h.
-    rewrite (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
-    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h as h'.
+    let proof h : i < NatWithZero.Positive Nat.One + NatWithZero.Positive p' := &h.
+    leibniz (NatWithZero.addition.commutativity (NatWithZero.Positive Nat.One) (NatWithZero.Positive p')) in h.
+    modus aequans (NatWithZero.order.discreteness i (NatWithZero.Positive p')), h |- h'.
     simpl in |- *.
-    assert (side : range_positive p' contains_member i
-                   \/ (NatWithZero.Positive p' :: []) contains_member i).
+    lemma side : range_positive p' contains_member i
+                   \/ (NatWithZero.Positive p' :: []) contains_member i.
     {
-      unfold NatWithZero.LessOrEqual in h'.
-      destruct h' as [e | lt].
-      + apply Disjunction.R.
-        simpl in |- *.
-        exact (Disjunction.L e).
-      + exact (Disjunction.L (IH i lt)).
+      simpl NatWithZero.LessOrEqual in h'.
+      match h' with | e | lt end.
+      + lemma singleton : (NatWithZero.Positive &p' :: []) contains_member &i.
+        {
+          simpl in |- *.
+          ipso (disjoin e, _).
+        }
+        ipso (disjoin _, &singleton).
+      + ipso (disjoin (IH i lt), _).
     }
-    exact (modus aequans
+    ipso (modus aequans
              (membership.distributivity.over.concatenation
                 i (range_positive p') (NatWithZero.Positive p' :: [])),
            side).
@@ -2789,11 +2790,11 @@ Module from_zero. (* range.from_zero *)
 Theorem length : forall (n : NatWithZero) . (|| range_from_zero n ||) = n.
 Proof.
   intros n.
-  destruct n as [| p].
+  match n with | | p end.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    exact (range.positive.length p).
+    ipso (range.positive.length p).
 Qed.
 
 Module membership. (* range.from_zero.membership *)
@@ -2804,22 +2805,22 @@ Theorem specification
       range_from_zero n contains_member i <-> i < n.
 Proof.
   intros n i.
-  destruct n as [| p].
+  match n with | | p end.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro f.
-      contradiction f.
+      ex f quodlibet.
     + intro h.
-      unfold NatWithZero.LessThan in h.
-      destruct h as [k e].
-      pose proof (NatWithZero.addition.right.identity.absence i k) as r.
-      unfold Negation in r.
-      modus ponens r, e as f.
-      contradiction f.
+      simpl NatWithZero.LessThan in h.
+      match h with | k e end.
+      let proof r := NatWithZero.addition.right.identity.absence i k.
+      simpl (~ _) in r.
+      modus ponens r, e |- f.
+      ex f quodlibet.
   - simpl in |- *.
-    split.
-    + exact (@range.positive.forward.membership  p i).
-    + exact (@range.positive.backward.membership p i).
+    divide et impera.
+    + ipso (@range.positive.forward.membership  p i).
+    + ipso (@range.positive.backward.membership p i).
 Qed.
 
 End membership. (* range.from_zero.membership *)
@@ -2841,37 +2842,63 @@ Theorem closed_form
       = NatWithZero.Positive p * NatWithZero.Positive (Nat.Successor p).
 Proof.
   intros p.
-  induction p as [| p' IH] using Nat.induction.
-  - unfold sum in |- *.
+  match p with | | p' by IH end per Nat.induction.
+  - simpl sum in |- *.
     simpl in |- *.
-    reflexivity.
-  - change (range_from_zero (NatWithZero.Positive (Nat.Successor (Nat.Successor p'))))
-      with (append (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
-              (NatWithZero.Positive (Nat.Successor p')))
-      in |- *.
-    rewrite (appending.specification
-               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
-               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
-    rewrite (sum.additivity.over.concatenation
-               (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
-               (NatWithZero.Positive (Nat.Successor p') :: []))
-      in |- *.
-    change (sum (NatWithZero.Positive (Nat.Successor p') :: [])) with (NatWithZero.Positive (Nat.Successor p')) in |- *.
-    rewrite (NatWithZero.multiplication.left.distributivity.over.addition
-               (NatWithZero.Positive (Nat.Successor Nat.One))
-               (sum (range_from_zero (NatWithZero.Positive (Nat.Successor p'))))
-               (NatWithZero.Positive (Nat.Successor p'))) in |- *.
-    rewrite IH in |- *.
-    rewrite <- (NatWithZero.multiplication.right.distributivity.over.addition
-                  (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
-      in |- *.
-    change (NatWithZero.Positive p' + NatWithZero.Positive (Nat.Successor Nat.One))
-      with (NatWithZero.Positive (Nat.add p' (Nat.Successor Nat.One))) in |- *.
-    rewrite (Nat.addition.commutativity p' (Nat.Successor Nat.One)) in |- *.
-    change (Nat.add (Nat.Successor Nat.One) p') with (Nat.Successor (Nat.Successor p')) in |- *.
-    rewrite (NatWithZero.multiplication.commutativity
-               (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
-    reflexivity.
+    quod idem est.
+  - lemma facto
+      : NatWithZero.Positive (Nat.Successor Nat.One)
+        * sum (append (range_from_zero (NatWithZero.Positive (Nat.Successor &p')))
+                      (NatWithZero.Positive (Nat.Successor &p')))
+        = NatWithZero.Positive (Nat.Successor &p')
+          * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+    {
+      leibniz (appending.specification
+                 (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+                 (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+      leibniz (sum.additivity.over.concatenation
+                 (range_from_zero (NatWithZero.Positive (Nat.Successor p')))
+                 (NatWithZero.Positive (Nat.Successor p') :: []))
+        in |- *.
+      lemma facto
+        : NatWithZero.Positive (Nat.Successor Nat.One)
+          * (sum (range_from_zero (NatWithZero.Positive (Nat.Successor &p')))
+             + NatWithZero.Positive (Nat.Successor &p'))
+          = NatWithZero.Positive (Nat.Successor &p')
+            * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+      {
+        leibniz (NatWithZero.multiplication.left.distributivity.over.addition
+                   (NatWithZero.Positive (Nat.Successor Nat.One))
+                   (sum (range_from_zero (NatWithZero.Positive (Nat.Successor p'))))
+                   (NatWithZero.Positive (Nat.Successor p'))) in |- *.
+        leibniz IH in |- *.
+        leibniz <- (NatWithZero.multiplication.right.distributivity.over.addition
+                      (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
+          in |- *.
+        lemma facto
+          : NatWithZero.Positive (Nat.add &p' (Nat.Successor Nat.One))
+            * NatWithZero.Positive (Nat.Successor &p')
+            = NatWithZero.Positive (Nat.Successor &p')
+              * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+        {
+          leibniz (Nat.addition.commutativity p' (Nat.Successor Nat.One)) in |- *.
+          lemma facto
+            : NatWithZero.Positive (Nat.Successor (Nat.Successor &p'))
+              * NatWithZero.Positive (Nat.Successor &p')
+              = NatWithZero.Positive (Nat.Successor &p')
+                * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
+          {
+            leibniz (NatWithZero.multiplication.commutativity
+                       (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive (Nat.Successor (Nat.Successor p')))) in |- *.
+            quod idem est.
+          }
+          ipso &facto.
+        }
+        ipso &facto.
+      }
+      ipso &facto.
+    }
+    ipso &facto.
 Qed.
 
 End sum. (* range.from_zero.sum *)
@@ -2884,11 +2911,11 @@ Theorem length
       (|| range start stop ||) = NatWithZero.saturating_sub stop start.
 Proof.
   intros start stop.
-  unfold range in |- *.
-  rewrite (mapping.preservation.of.length
+  simpl range in |- *.
+  leibniz (mapping.preservation.of.length
              (NatWithZero.add start)
              (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
-  exact (from_zero.length (NatWithZero.saturating_sub stop start)).
+  ipso (from_zero.length (NatWithZero.saturating_sub stop start)).
 Qed.
 
 Module membership. (* range.membership *)
@@ -2899,73 +2926,77 @@ Theorem specification
       range start stop contains_member i <-> start <= i /\ i < stop.
 Proof.
   intros start stop i.
-  unfold range in |- *.
-  destruct (Comparable.order.totality start stop) as [below | above].
-  - pose proof (NatWithZero.subtraction.saturating.specification below) as reach.
-    split.
+  simpl range in |- *.
+  match (Comparable.order.totality start stop) with | below | above end.
+  - let proof reach := NatWithZero.subtraction.saturating.specification below.
+    divide et impera.
     + intro h.
       modus aequans
         (mapping.membership.specification
            (NatWithZero.add start) i
            (range_from_zero (NatWithZero.saturating_sub stop start))),
-        h as w.
-      destruct w as [j c].
-      destruct c as [m e].
+        h |- w.
+      match w with | j c end.
+      match c with | m e end.
       modus aequans
         (from_zero.membership.specification
            (NatWithZero.saturating_sub stop start) j),
-        m as lt.
-      split.
-      * rewrite e in |- *.
-        rewrite (NatWithZero.addition.commutativity start j) in |- *.
-        exact (NatWithZero.addition.right.order.extensivity j start).
-      * rewrite e in |- *.
-        rewrite <- reach in |- *.
-        exact (NatWithZero.addition.order.strict.monotonicity
+        m |- lt.
+      divide et impera.
+      * leibniz e in |- *.
+        leibniz (NatWithZero.addition.commutativity start j) in |- *.
+        ipso (NatWithZero.addition.right.order.extensivity j start).
+      * leibniz e in |- *.
+        leibniz <- reach in |- *.
+        ipso (NatWithZero.addition.order.strict.monotonicity
                  start j (NatWithZero.saturating_sub stop start) lt).
     + intro c.
-      destruct c as [low high].
-      pose proof (NatWithZero.subtraction.saturating.specification low) as step.
-      assert (inside : NatWithZero.saturating_sub i start
-                       < NatWithZero.saturating_sub stop start).
+      match c with | low high end.
+      let proof step := NatWithZero.subtraction.saturating.specification low.
+      lemma inside : NatWithZero.saturating_sub i start
+                       < NatWithZero.saturating_sub stop start.
       {
-        apply (NatWithZero.addition.order.strict.cancellation start).
-        rewrite step in |- *.
-        rewrite reach in |- *.
-        exact high.
+        lemma shifted : &start + NatWithZero.saturating_sub &i &start
+                          < &start + NatWithZero.saturating_sub &stop &start.
+        {
+          leibniz step in |- *.
+          leibniz reach in |- *.
+          ipso high.
+        }
+        ipso (NatWithZero.addition.order.strict.cancellation &start _ _ &shifted).
       }
-      assert (witness : exists (j : NatWithZero) .
+      lemma witness : forsome (j : NatWithZero) .
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
-                /\ i = NatWithZero.add start j).
+                /\ i = NatWithZero.add start j.
       {
-        apply (Exists_introduction (NatWithZero.saturating_sub i start)).
-        split.
-        * exact (modus aequans
+        exists (NatWithZero.saturating_sub i start).
+        divide et impera.
+        * ipso (modus aequans
                    (from_zero.membership.specification
                       (NatWithZero.saturating_sub stop start)
                       (NatWithZero.saturating_sub i start)),
                  inside).
-        * symmetry in step.
-          exact step.
+        * symm in step.
+          ipso step.
       }
-      exact (modus aequans
+      ipso (modus aequans
                (mapping.membership.specification
                   (NatWithZero.add start) i
                   (range_from_zero (NatWithZero.saturating_sub stop start))),
              witness).
-  - pose proof (NatWithZero.subtraction.saturating.truncation above) as empty.
-    rewrite empty in |- *.
+  - let proof empty := NatWithZero.subtraction.saturating.truncation above.
+    leibniz empty in |- *.
     simpl in |- *.
-    split.
+    divide et impera.
     + intro f.
-      contradiction f.
+      ex f quodlibet.
     + intro c.
-      destruct c as [low high].
-      pose proof (Comparable.order.transitivity stop start i above low) as reached.
-      destruct reached as [e | lt].
-      * rewrite e in high.
-        exact (NatWithZero.order.strict.irreflexivity i high).
-      * exact (Comparable.order.strict.asymmetry i stop high lt).
+      match c with | low high end.
+      let proof reached := Comparable.order.transitivity stop start i above low.
+      match reached with | e | lt end.
+      * leibniz e in high.
+        ipso (NatWithZero.order.strict.irreflexivity i high).
+      * ipso (Comparable.order.strict.asymmetry i stop high lt).
 Qed.
 
 End membership. (* range.membership *)
@@ -2979,8 +3010,8 @@ Theorem length
       = NatWithZero.saturating_sub (NatWithZero.inc stop) start.
 Proof.
   intros start stop.
-  unfold range_inclusive in |- *.
-  exact (range.length start (NatWithZero.inc stop)).
+  simpl range_inclusive in |- *.
+  ipso (range.length start (NatWithZero.inc stop)).
 Qed.
 
 Module membership. (* range.inclusive.membership *)
@@ -2991,29 +3022,29 @@ Theorem specification
       range_inclusive start stop contains_member i <-> start <= i /\ i <= stop.
 Proof.
   intros start stop i.
-  unfold range_inclusive in |- *.
-  rewrite (NatWithZero.increment.specification stop) in |- *.
-  rewrite (NatWithZero.addition.commutativity
+  simpl range_inclusive in |- *.
+  leibniz (NatWithZero.increment.specification stop) in |- *.
+  leibniz (NatWithZero.addition.commutativity
              (NatWithZero.Positive Nat.One) stop) in |- *.
-  split.
+  divide et impera.
   - intro h.
     modus aequans
       (range.membership.specification
          start (stop + NatWithZero.Positive Nat.One) i),
-      h as c.
-    destruct c as [low high].
-    split.
-    + exact low.
-    + exact (modus aequans (NatWithZero.order.discreteness i stop), high).
+      h |- c.
+    match c with | low high end.
+    divide et impera.
+    + ipso low.
+    + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
   - intro c.
-    destruct c as [low high].
-    assert (bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One).
+    match c with | low high end.
+    lemma bounds : start <= i /\ i < stop + NatWithZero.Positive Nat.One.
     {
-      split.
-      + exact low.
-      + exact (modus aequans (NatWithZero.order.discreteness i stop), high).
+      divide et impera.
+      + ipso low.
+      + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
     }
-    exact (modus aequans
+    ipso (modus aequans
              (range.membership.specification
                 start (stop + NatWithZero.Positive Nat.One) i),
            bounds).
@@ -3040,9 +3071,9 @@ Lemma reflexivity
       forall (a : A) . le a a = true.
 Proof.
   intros A le total a.
-  destruct (total a a) as [h | h].
-  - exact h.
-  - exact h.
+  match (total a a) with | h | h end.
+  - ipso h.
+  - ipso h.
 Qed.
 
 (* comparison.contraposition *)
@@ -3052,9 +3083,9 @@ Lemma contraposition
       forall {a : A} {b : A} . le a b = false -> le b a = true.
 Proof.
   intros A le total a b s.
-  symmetry in s.
+  symm in s.
   hs (Identity.transitivity s), Bool.distinctness.backward as n.
-  exact (modus tollendo ponens (total a b), n).
+  ipso (modus tollendo ponens (total a b), n).
 Qed.
 
 End comparison. (* comparison *)
@@ -3069,20 +3100,20 @@ Lemma specification
       maximum_of le l = None <-> l = [].
 Proof.
   intros A le l.
-  split.
+  divide et impera.
   - intro e.
-    destruct l as [| a l'].
-    + reflexivity.
+    match l with | | a l' end.
+    + quod idem est.
     + simpl in e.
-      destruct (maximum_of le l') as [| m].
-      * discriminate e.
-      * destruct (le a m).
-        -- discriminate e.
-        -- discriminate e.
+      match (maximum_of le l') with | | m end.
+      * ex e quodlibet.
+      * match (le a m) with end.
+        -- ex e quodlibet.
+        -- ex e quodlibet.
   - intro e.
-    rewrite e in |- *.
+    leibniz e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End absence. (* maximum.absence *)
@@ -3097,35 +3128,35 @@ Theorem bound
         maximum_of le l = Some m -> All (fun (a : A) . le a m = true) l.
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
-    destruct (maximum_of le l') as [| m'] eqn:r.
-    + modus aequans (absence.specification le l'), r as en.
-      pose proof (Option.some.injectivity e) as e'.
-      rewrite en in |- *.
-      rewrite <- e' in |- *.
+    match (maximum_of le l') with | | m' end |- r.
+    + modus aequans (absence.specification le l'), r |- en.
+      let proof e' := Option.some.injectivity e.
+      leibniz en in |- *.
+      leibniz <- e' in |- *.
       simpl in |- *.
-      split.
-      * exact (comparison.reflexivity total a).
-      * exact I.
-    + destruct (le a m') eqn:s.
-      * pose proof (Option.some.injectivity e) as e'.
-        rewrite <- e' in |- *.
+      divide et impera.
+      * ipso (comparison.reflexivity total a).
+      * ipso I.
+    + match (le a m') with end |- s.
+      * let proof e' := Option.some.injectivity e.
+        leibniz <- e' in |- *.
         simpl in |- *.
-        split.
-        -- exact s.
-        -- exact (IH m' (Identity.reflexivity (Some m'))).
-      * pose proof (Option.some.injectivity e) as e'.
-        rewrite <- e' in |- *.
+        divide et impera.
+        -- ipso s.
+        -- ipso (IH m' (Identity.reflexivity (Some m'))).
+      * let proof e' := Option.some.injectivity e.
+        leibniz <- e' in |- *.
         simpl in |- *.
-        pose proof (comparison.contraposition total s) as ha.
-        split.
-        -- exact (comparison.reflexivity total a).
-        -- exact (quantification.all.monotonicity
+        let proof ha := comparison.contraposition total s.
+        divide et impera.
+        -- ipso (comparison.reflexivity total a).
+        -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le x m' = true) . transitive x m' a h ha)
                     (IH m' (Identity.reflexivity (Some m')))).
 Qed.
@@ -3136,25 +3167,24 @@ Theorem membership
       maximum_of le l = Some m -> l contains_member m.
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
-    destruct (maximum_of le l') as [| m'] eqn:r.
-    + pose proof (Option.some.injectivity e) as e'.
+    match (maximum_of le l') with | | m' end |- r.
+    + let proof e' := Option.some.injectivity e.
       simpl in |- *.
-      exact (Disjunction.L (Identity.symmetry e')).
-    + destruct (le a m') eqn:s.
-      * pose proof (Option.some.injectivity e) as e'.
-        rewrite <- e' in |- *.
+      ipso (disjoin (Identity.symmetry e'), _).
+    + match (le a m') with end |- s.
+      * let proof e' := Option.some.injectivity e.
+        leibniz <- e' in |- *.
         simpl in |- *.
-        apply Disjunction.R.
-        exact (IH m' (Identity.reflexivity (Some m'))).
-      * pose proof (Option.some.injectivity e) as e'.
+        ipso (disjoin _, (&IH &m' (Identity.reflexivity (Some &m')))).
+      * let proof e' := Option.some.injectivity e.
         simpl in |- *.
-        exact (Disjunction.L (Identity.symmetry e')).
+        ipso (disjoin (Identity.symmetry e'), _).
 Qed.
 
 End maximum. (* maximum *)
@@ -3169,20 +3199,20 @@ Lemma specification
       minimum_of le l = None <-> l = [].
 Proof.
   intros A le l.
-  split.
+  divide et impera.
   - intro e.
-    destruct l as [| a l'].
-    + reflexivity.
+    match l with | | a l' end.
+    + quod idem est.
     + simpl in e.
-      destruct (minimum_of le l') as [| m].
-      * discriminate e.
-      * destruct (le a m).
-        -- discriminate e.
-        -- discriminate e.
+      match (minimum_of le l') with | | m end.
+      * ex e quodlibet.
+      * match (le a m) with end.
+        -- ex e quodlibet.
+        -- ex e quodlibet.
   - intro e.
-    rewrite e in |- *.
+    leibniz e in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End absence. (* minimum.absence *)
@@ -3197,36 +3227,36 @@ Theorem bound
         minimum_of le l = Some m -> All (fun (a : A) . le m a = true) l.
 Proof.
   intros A le total transitive l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
-    destruct (minimum_of le l') as [| m'] eqn:r.
-    + modus aequans (absence.specification le l'), r as en.
-      pose proof (Option.some.injectivity e) as e'.
-      rewrite en in |- *.
-      rewrite <- e' in |- *.
+    match (minimum_of le l') with | | m' end |- r.
+    + modus aequans (absence.specification le l'), r |- en.
+      let proof e' := Option.some.injectivity e.
+      leibniz en in |- *.
+      leibniz <- e' in |- *.
       simpl in |- *.
-      split.
-      * exact (comparison.reflexivity total a).
-      * exact I.
-    + destruct (le a m') eqn:s.
-      * pose proof (Option.some.injectivity e) as e'.
-        rewrite <- e' in |- *.
+      divide et impera.
+      * ipso (comparison.reflexivity total a).
+      * ipso I.
+    + match (le a m') with end |- s.
+      * let proof e' := Option.some.injectivity e.
+        leibniz <- e' in |- *.
         simpl in |- *.
-        split.
-        -- exact (comparison.reflexivity total a).
-        -- exact (quantification.all.monotonicity
+        divide et impera.
+        -- ipso (comparison.reflexivity total a).
+        -- ipso (quantification.all.monotonicity
                     (fun (x : A) (h : le m' x = true) . transitive a m' x s h)
                     (IH m' (Identity.reflexivity (Some m')))).
-      * pose proof (Option.some.injectivity e) as e'.
-        rewrite <- e' in |- *.
+      * let proof e' := Option.some.injectivity e.
+        leibniz <- e' in |- *.
         simpl in |- *.
-        split.
-        -- exact (comparison.contraposition total s).
-        -- exact (IH m' (Identity.reflexivity (Some m'))).
+        divide et impera.
+        -- ipso (comparison.contraposition total s).
+        -- ipso (IH m' (Identity.reflexivity (Some m'))).
 Qed.
 
 (* minimum.membership *)
@@ -3235,25 +3265,24 @@ Theorem membership
       minimum_of le l = Some m -> l contains_member m.
 Proof.
   intros A le l.
-  induction l as [| a l' IH] using List.induction.
+  match l with | | a l' by IH end per List.induction.
   - intros m e.
     simpl in e.
-    discriminate e.
+    ex e quodlibet.
   - intros m e.
     simpl in e.
-    destruct (minimum_of le l') as [| m'] eqn:r.
-    + pose proof (Option.some.injectivity e) as e'.
+    match (minimum_of le l') with | | m' end |- r.
+    + let proof e' := Option.some.injectivity e.
       simpl in |- *.
-      exact (Disjunction.L (Identity.symmetry e')).
-    + destruct (le a m') eqn:s.
-      * pose proof (Option.some.injectivity e) as e'.
+      ipso (disjoin (Identity.symmetry e'), _).
+    + match (le a m') with end |- s.
+      * let proof e' := Option.some.injectivity e.
         simpl in |- *.
-        exact (Disjunction.L (Identity.symmetry e')).
-      * pose proof (Option.some.injectivity e) as e'.
-        rewrite <- e' in |- *.
+        ipso (disjoin (Identity.symmetry e'), _).
+      * let proof e' := Option.some.injectivity e.
+        leibniz <- e' in |- *.
         simpl in |- *.
-        apply Disjunction.R.
-        exact (IH m' (Identity.reflexivity (Some m'))).
+        ipso (disjoin _, (&IH &m' (Identity.reflexivity (Some &m')))).
 Qed.
 
 End minimum. (* minimum *)

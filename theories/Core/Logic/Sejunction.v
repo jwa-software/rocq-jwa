@@ -6,8 +6,8 @@ From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Sejunction is exclusive disjunction: one side holds and the other does
  * not. [Theorem t : Verum _\/_ Verum.] is accepted and [Proof.] opens, but no
@@ -24,19 +24,26 @@ Arguments Sejunction_introduction_right {A} {B} na b.
 Notation "A _\/_ B" := (Sejunction A B)
   : jwa_type_scope.
 
+(* [sejoin a, nb] : [A _\/_ B] from [a : A] and [nb : ~ B], and [sejoin na, b]
+ * from [na : ~ A] and [b : B]: the types of the two decide the side.
+ *)
+Notation "'sejoin' a , b"
+    := (ltac2:(Control.once_plus
+                 (fun () => Control.refine (fun () =>
+                    constr:(Sejunction_introduction_left $preterm:a $preterm:b)))
+                 (fun _ => Control.once_plus
+                    (fun () => Control.refine (fun () =>
+                       constr:(Sejunction_introduction_right $preterm:a $preterm:b)))
+                    (fun _ => Control.zero (Tactic_failure (Some (Message.concat
+                       (Message.of_string
+                          "sejoin: give a proof of one side and a refutation of the other,")
+                       (Message.of_string " as in sejoin a, nb or sejoin na, b"))))))))
+  (only parsing).
+
 (* A module may carry the type's name; its laws read
  * [Sejunction.commutativity].
  *)
 Module Sejunction. (* Sejunction *)
-
-(* The two ctors under the names a proof writes: [Sejunction.left a nb] and
- * [Sejunction.right na b]. An abbreviation is the ctor itself, so it also
- * serves as a pattern; Rocq prints the ctor's own name.
- *)
-Abbreviation left  := Sejunction_introduction_left.
-Abbreviation right := Sejunction_introduction_right.
-Abbreviation L     := Sejunction_introduction_left  (only parsing).
-Abbreviation R     := Sejunction_introduction_right (only parsing).
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A _\/_ B -> B _\/_ A.
@@ -48,9 +55,9 @@ Proof.
    * - one with [a : A]    and [nb : ~ B],
    * - one with [na : ~ A] and [b : B].
    *)
-  destruct h as [a nb | na b].
-  - exact (Sejunction.right nb  a).
-  - exact (Sejunction.left   b na).
+  match h with | a nb | na b end.
+  - ipso (sejoin nb, a).
+  - ipso (sejoin b, na).
 Qed.
 
 Module decomposition. (* decomposition *)
@@ -65,23 +72,17 @@ Theorem abjunction
   : forall (A : Prop) (B : Prop) . A _\/_ B <-> (A -/> B) \/ (B -/> A).
 Proof.
   intros A B.
-  split.
+  divide et impera.
   - intro h.
-    destruct h as [a nb | na b].
-    + apply Disjunction.left.
-      split.
-      * exact a.
-      * exact nb.
-    + apply Disjunction.right.
-      split.
-      * exact b.
-      * exact na.
+    match h with | a nb | na b end.
+    + ipso (disjoin (abjoin a, nb), _).
+    + ipso (disjoin _, (abjoin b, na)).
   - intro h.
-    destruct h as [ab | ba].
-    + destruct ab as [a nb].
-      exact (Sejunction.left a nb).
-    + destruct ba as [b na].
-      exact (Sejunction.right na b).
+    match h with | ab | ba end.
+    + match ab with | a nb end.
+      ipso (sejoin a, nb).
+    + match ba with | b na end.
+      ipso (sejoin na, b).
 Qed.
 
 End into. (* decomposition.into *)
@@ -95,39 +96,27 @@ Theorem specification
   : forall (A : Prop) (B : Prop) . A _\/_ B <-> (A \/ B) /\ ~ (A /\ B).
 Proof.
   intros A B.
-  split.
+  divide et impera.
   - intro h.
-    destruct h as [a nb | na b]; split.
-    + exact (Disjunction.left a).
-    + unfold Negation in nb |- *.
+    match h with | a nb | na b end; divide et impera.
+    + ipso (disjoin a, _).
+    + simpl (~ _) in nb |- *.
       intro ab.
-      destruct ab as [_ b].
-      exact (nb b).
-    + exact (Disjunction.right b).
-    + unfold Negation in na |- *.
+      match ab with | _ b end.
+      ipso (nb b).
+    + ipso (disjoin _, b).
+    + simpl (~ _) in na |- *.
       intro ab.
-      destruct ab as [a _].
-      exact (na a).
+      match ab with | a _ end.
+      ipso (na a).
   - intro h.
-    destruct h as [ab nab].
-    unfold Negation in nab.
-    destruct ab as [a | b].
-    + apply Sejunction.left.
-      * exact a.
-      * unfold Negation in |- *.
-        intro b.
-        apply nab.
-        split.
-        { exact a. }
-        { exact b. }
-    + apply Sejunction.right.
-      * unfold Negation in |- *.
-        intro a.
-        apply nab.
-        split.
-        { exact a. }
-        { exact b. }
-      * exact b.
+    match h with | ab nab end.
+    simpl (~ _) in nab.
+    match ab with | a | b end.
+    + let proof nb : ~ B := fun (b : B) . nab (conjoin a, b).
+      ipso (sejoin a, nb).
+    + let proof na : ~ A := fun (a : A) . nab (conjoin a, b).
+      ipso (sejoin na, b).
 Qed.
 
 Theorem congruence
@@ -137,43 +126,19 @@ Proof.
   intros A1 A2 B1 B2.
   intro ea.
   intro eb.
-  destruct ea as [a12 a21].
-  destruct eb as [b12 b21].
-  split; intro h.
-  - destruct h as [a1 nb1 | na1 b1].
-    + apply Sejunction.left.
-      * apply a12.
-        exact a1.
-      * unfold Negation in nb1 |- *.
-        intro b2.
-        apply nb1.
-        apply b21.
-        exact b2.
-    + apply Sejunction.right.
-      * unfold Negation in na1 |- *.
-        intro a2.
-        apply na1.
-        apply a21.
-        exact a2.
-      * apply b12.
-        exact b1.
-  - destruct h as [a2 nb2 | na2 b2].
-    + apply Sejunction.left.
-      * apply a21.
-        exact a2.
-      * unfold Negation in nb2 |- *.
-        intro b1.
-        apply nb2.
-        apply b12.
-        exact b1.
-    + apply Sejunction.right.
-      * unfold Negation in na2 |- *.
-        intro a1.
-        apply na2.
-        apply a12.
-        exact a1.
-      * apply b21.
-        exact b2.
+  match ea with | a12 a21 end.
+  match eb with | b12 b21 end.
+  divide et impera; intro h.
+  - match h with | a1 nb1 | na1 b1 end.
+    + let proof nb2 : ~ B2 := fun (b2 : B2) . nb1 (b21 b2).
+      ipso (sejoin (a12 a1), nb2).
+    + let proof na2 : ~ A2 := fun (a2 : A2) . na1 (a21 a2).
+      ipso (sejoin na2, (b12 b1)).
+  - match h with | a2 nb2 | na2 b2 end.
+    + let proof nb1 : ~ B1 := fun (b1 : B1) . nb2 (b12 b1).
+      ipso (sejoin (a21 a2), nb1).
+    + let proof na1 : ~ A1 := fun (a1 : A1) . na2 (a12 a1).
+      ipso (sejoin na1, (b21 b2)).
 Qed.
 
 Module weakening. (* weakening *)
@@ -187,9 +152,9 @@ Theorem disjunction
 Proof.
   intros A B.
   intro h.
-  destruct h as [a nb | na b].
-  - exact (Disjunction.left  a).
-  - exact (Disjunction.right b).
+  match h with | a nb | na b end.
+  - ipso (disjoin a, _).
+  - ipso (disjoin _, b).
 Qed.
 
 End to. (* weakening.to *)
@@ -211,12 +176,12 @@ Theorem conjunction
 Proof.
   intros A B.
   intro h.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro ab.
-  destruct ab as [a b].
-  destruct h  as [_ nb | na _].
-  - exact (nb b).
-  - exact (na a).
+  match ab with | a b end.
+  match h  with | _ nb | na _ end.
+  - ipso (nb b).
+  - ipso (na a).
 Qed.
 
 (* exclusion.of.biconditional *)
@@ -225,18 +190,18 @@ Theorem biconditional
 Proof.
   intros A B.
   intro h.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
-  destruct e as [ab ba].
-  destruct h as [a nb | na b].
-  - unfold Negation in nb.
-    apply nb.
-    apply ab.
-    exact a.
-  - unfold Negation in na.
-    apply na.
-    apply ba.
-    exact b.
+  match e with | ab ba end.
+  match h with | a nb | na b end.
+  - simpl (~ _) in nb.
+    let proof b := ab a.
+    let proof facto := nb b.
+    ipso facto.
+  - simpl (~ _) in na.
+    let proof a := ba b.
+    let proof facto := na a.
+    ipso facto.
 Qed.
 
 End of. (* exclusion.of *)
@@ -262,18 +227,18 @@ Theorem sejunction
 Proof.
   intros A B.
   intro e.
-  destruct e as [ab ba].
-  unfold Negation in |- *.
+  match e with | ab ba end.
+  simpl (~ _) in |- *.
   intro h.
-  destruct h as [a nb | na b].
-  - unfold Negation in nb.
-    apply nb.
-    apply ab.
-    exact a.
-  - unfold Negation in na.
-    apply na.
-    apply ba.
-    exact b.
+  match h with | a nb | na b end.
+  - simpl (~ _) in nb.
+    let proof b := ab a.
+    let proof facto := nb b.
+    ipso facto.
+  - simpl (~ _) in na.
+    let proof a := ba b.
+    let proof facto := na a.
+    ipso facto.
 Qed.
 
 End of. (* exclusion.of *)

@@ -1,8 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Conditional.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* The syllogisms of traditional logic, each under the mediaeval name that
  * encodes its form. [S], [M] and [P] are the minor, middle and major terms,
@@ -36,10 +36,10 @@ Proof.
   intro x.
   intro s.
 
-  apply mp.
-  apply sm.
+  let proof m := sm x s.
+  let proof facto := mp x m.
 
-  exact s.
+  ipso facto.
 Qed.
 
 End Syllogism. (* Syllogism *)

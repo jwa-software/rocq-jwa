@@ -3,4 +3,4 @@
 (rocq.theory
  (name jwa.Tactics)
  (package rocq-jwa)
- (theories jwa.Core))
+ (theories Ltac2 jwa.Dialect jwa.Core))

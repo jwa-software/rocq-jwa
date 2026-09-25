@@ -2,6 +2,7 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
+From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Tactics.Modus.
 
 (* The bridge from a computed answer to a statement. [Assert true] is
@@ -37,20 +38,20 @@ Theorem conjunction
       Assert (b1 && b2) <-> Assert b1 /\ Assert b2.
 Proof.
   intros b1 b2.
-  destruct b1 as [|];
-      destruct b2 as [|]; simpl in |- *;
-          split; intro h.
-  - split; exact I.
-  - exact I.
-  - contradiction h.
-  - destruct h as [_ h].
-    exact h.
-  - contradiction h.
-  - destruct h as [h _].
-    exact h.
-  - contradiction h.
-  - destruct h as [h _].
-    exact h.
+  match b1 with | | end;
+      match b2 with | | end; simpl in |- *;
+          divide et impera; intro h.
+  - divide et impera; ipso I.
+  - ipso I.
+  - ex h quodlibet.
+  - match h with | _ h end.
+    ipso h.
+  - ex h quodlibet.
+  - match h with | h _ end.
+    ipso h.
+  - ex h quodlibet.
+  - match h with | h _ end.
+    ipso h.
 Qed.
 
 (* Assert.disjunction *)
@@ -59,19 +60,19 @@ Theorem disjunction
       Assert (b1 || b2) <-> Assert b1 \/ Assert b2.
 Proof.
   intros b1 b2.
-  destruct b1 as [|];
-      destruct b2 as [|]; simpl in |- *;
-          split; intro h.
-  - exact (Disjunction.left I).
-  - exact I.
-  - exact (Disjunction.left I).
-  - exact I.
-  - exact (Disjunction.right I).
-  - exact I.
-  - contradiction h.
-  - destruct h as [h1 | h2].
-    + exact h1.
-    + exact h2.
+  match b1 with | | end;
+      match b2 with | | end; simpl in |- *;
+          divide et impera; intro h.
+  - ipso (disjoin I, _).
+  - ipso I.
+  - ipso (disjoin I, _).
+  - ipso I.
+  - ipso (disjoin _, I).
+  - ipso I.
+  - ex h quodlibet.
+  - match h with | h1 | h2 end.
+    + ipso h1.
+    + ipso h2.
 Qed.
 
 (* Assert.sejunction *)
@@ -80,19 +81,19 @@ Theorem sejunction
       Assert (b1 ^^ b2) <-> Assert b1 _\/_ Assert b2.
 Proof.
   intros b1 b2.
-  destruct b1 as [|];
-      destruct b2 as [|];
+  match b1 with | | end;
+      match b2 with | | end;
           simpl in |- *;
-            split;
+            divide et impera;
               intro h.
-  - contradiction h.
-  - destruct h as [t nt | nt t]; exact (modus ponens nt, t).
-  - exact (Sejunction.left  I (fun (f : Falsum) . f)).
-  - exact I.
-  - exact (Sejunction.right (fun (f : Falsum) . f) I).
-  - exact I.
-  - contradiction h.
-  - destruct h as [f _ | _ f]; exact f.
+  - ex h quodlibet.
+  - match h with | t nt | nt t end; ipso (modus ponens nt, t).
+  - ipso (sejoin I, (fun (f : Falsum) . f)).
+  - ipso I.
+  - ipso (sejoin (fun (f : Falsum) . f), I).
+  - ipso I.
+  - ex h quodlibet.
+  - match h with | f _ | _ f end; ipso f.
 Qed.
 
 (* Assert.negation *)
@@ -100,27 +101,27 @@ Theorem negation
   : forall (b : Bool) . Assert (! b) <-> ~ Assert b.
 Proof.
   intros b.
-  unfold Negation in |- *.
-  destruct b as [|];
+  simpl (~ _) in |- *.
+  match b with | | end;
       simpl in |- *;
-          split;
+          divide et impera;
             intro h.
-  - contradiction h.
-  - exact (modus ponens h, I).
+  - ex h quodlibet.
+  - ipso (modus ponens h, I).
   - intro k.
-    destruct k.
-  - exact I.
+    match k with end.
+  - ipso I.
 Qed.
 
 (* Assert.specification *)
 Theorem specification : forall (b : Bool) . Assert b <-> b = true.
 Proof.
   intros b.
-  destruct b as [|]; simpl in |- *; split; intro h.
-  - reflexivity.
-  - exact I.
-  - contradiction h.
-  - discriminate h.
+  match b with | | end; simpl in |- *; divide et impera; intro h.
+  - quod idem est.
+  - ipso I.
+  - ex h quodlibet.
+  - ex h quodlibet.
 Qed.
 
 End Assert. (* Assert *)

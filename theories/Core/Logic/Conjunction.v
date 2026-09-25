@@ -2,8 +2,8 @@
 
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 Inductive Conjunction (A : Prop) (B : Prop) : Prop :=
   | Conjunction_introduction : A -> B -> Conjunction A B.
@@ -12,6 +12,9 @@ Arguments Conjunction_introduction {A} {B} a b.
 
 Notation "A /\ B" := (Conjunction A B)
   : jwa_type_scope.
+
+(* [conjoin a, b] : [A /\ B], from [a : A] and [b : B]. *)
+Notation "'conjoin' a , b" := (Conjunction_introduction a b) (only parsing).
 
 (* A module may carry the type's name; its laws read
  * [Conjunction.commutativity].
@@ -23,36 +26,36 @@ Theorem commutativity
 Proof.
   intros A B.
   intro h.
-  destruct h as [a b].
+  match h with | a b end.
   (* [Conjunction] has one ctor with two fields,
    * so the goal splits into two goals: [|- B] and [|- A].
    *)
-  split.
-  - exact b.
-  - exact a.
+  divide et impera.
+  - ipso b.
+  - ipso a.
 Qed.
 
 Theorem associativity
   : forall (A : Prop) (B : Prop) (C : Prop) . (A /\ B) /\ C <-> A /\ (B /\ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
-    destruct h  as [ab c].
-    destruct ab as [a b].
-    split.
-    + exact a.
-    + split.
-      * exact b.
-      * exact c.
+    match h  with | ab c end.
+    match ab with | a b end.
+    divide et impera.
+    + ipso a.
+    + divide et impera.
+      * ipso b.
+      * ipso c.
   - intro h.
-    destruct h  as [a bc].
-    destruct bc as [b c].
-    split.
-    + split.
-      * exact a.
-      * exact b.
-    + exact c.
+    match h  with | a bc end.
+    match bc with | b c end.
+    divide et impera.
+    + divide et impera.
+      * ipso a.
+      * ipso b.
+    + ipso c.
 Qed.
 
 (* Currying: a proof from a pair is a proof from the first that returns a
@@ -62,20 +65,15 @@ Theorem currying
   : forall (A : Prop) (B : Prop) (C : Prop) . (A /\ B -> C) <-> (A -> B -> C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro f.
     intro a.
     intro b.
-    apply f.
-    split.
-    + exact a.
-    + exact b.
+    ipso (f (conjoin a, b)).
   - intro f.
     intro h.
-    destruct h as [a b].
-    apply f.
-    + exact a.
-    + exact b.
+    match h with | a b end.
+    ipso (f a b).
 Qed.
 
 (* The universal property of [/\] as a product: a proof of [B /\ C] from [A]
@@ -86,19 +84,17 @@ Theorem universality
       (A -> B /\ C) <-> (A -> B) /\ (A -> C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro f.
-    split; intro a; destruct (f a) as [b c].
-    + exact b.
-    + exact c.
+    divide et impera; intro a; match (f a) with | b c end.
+    + ipso b.
+    + ipso c.
   - intro h.
-    destruct h as [ab ac].
+    match h with | ab ac end.
     intro a.
-    split.
-    + apply ab.
-      exact a.
-    + apply ac.
-      exact a.
+    divide et impera.
+    + ipso (ab a).
+    + ipso (ac a).
 Qed.
 
 Theorem congruence
@@ -107,30 +103,26 @@ Theorem congruence
 Proof.
   intros A1 A2 B1 B2.
   intros a b.
-  destruct a as [a12 a21].
-  destruct b as [b12 b21].
+  match a with | a12 a21 end.
+  match b with | b12 b21 end.
   (* [Biconditional] has one ctor with two fields, so the goal splits into two
    * goals: [|- A1 /\ B1 -> A2 /\ B2] and [|- A2 /\ B2 -> A1 /\ B1].
    *)
-  split.
+  divide et impera.
   - (* [h : A1 /\ B1]: [|- A2 /\ B2] *)
     intro h.
-    destruct h as [a1 b1].
+    match h with | a1 b1 end.
     (* The goal splits into [|- A2] and [|- B2]. *)
-    split.
-    + apply a12.
-      exact a1.
-    + apply b12.
-      exact b1.
+    divide et impera.
+    + ipso (a12 a1).
+    + ipso (b12 b1).
   - (* [h : A2 /\ B2]: [|- A1 /\ B1] *)
     intro h.
-    destruct h as [a2 b2].
+    match h with | a2 b2 end.
     (* The goal splits into [|- A1] and [|- B1]. *)
-    split.
-    + apply a21.
-      exact a2.
-    + apply b21.
-      exact b2.
+    divide et impera.
+    + ipso (a21 a2).
+    + ipso (b21 b2).
 Qed.
 
 (* [Conjunction.distributivity.over.disjunction] is stated in

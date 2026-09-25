@@ -37,10 +37,10 @@ Theorem injectivity
   : forall {A : Type} {a : A} {b : A} . Some a = Some b -> a = b.
 Proof.
   intros A a b e.
-  pose (f := fun (o : Option A) . match o with | Some x => x | None => a end).
-  pose proof (Identity.congruence f e) as e'.
+  let f := fun (o : Option A) . match o with | Some x => x | None => a end.
+  let proof e' := Identity.congruence f e.
   simpl in e'.
-  exact e'.
+  ipso e'.
 Qed.
 
 End some. (* some *)
@@ -52,10 +52,9 @@ Theorem identity
   : forall {A : Type} (o : Option A) . map (fun (a : A) . a) o = o.
 Proof.
   intros A o.
-  destruct o as [| a];
-      unfold map in |- *;
-      simpl in |- *;
-      reflexivity.
+  match o with | | a end;
+      simpl map in |- *;
+      quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -64,9 +63,9 @@ Theorem composition
       map g (map f o) = map (fun (a : A) . g (f a)) o.
 Proof.
   intros A B C f g o.
-  destruct o as [| a];
+  match o with | | a end;
       simpl in |- *;
-      reflexivity.
+      quod idem est.
 Qed.
 
 End mapping. (* mapping *)

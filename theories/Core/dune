@@ -5,6 +5,10 @@
 
 (include_subdirs qualified)
 
+; The full dependency closure is listed, not only the direct dependencies,
+; so the position of this layer in the stack can be read off this file.
+
 (rocq.theory
  (name jwa.Core)
- (package rocq-jwa))
+ (package rocq-jwa)
+ (theories Ltac2 jwa.Dialect))

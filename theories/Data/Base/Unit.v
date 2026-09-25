@@ -25,7 +25,7 @@ Module Unit.
  *)
 Theorem surjectivity : forall (u : Unit) . u = Unit_introduction.
 Proof.
-  intros u. destruct u. reflexivity.
+  intros u. match u with end. quod idem est.
 Qed.
 
 End Unit.

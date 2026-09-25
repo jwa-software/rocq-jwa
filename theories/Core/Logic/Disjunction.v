@@ -3,8 +3,8 @@
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 Inductive Disjunction (A : Prop) (B : Prop) : Prop :=
   | Disjunction_introduction_left  : A -> Disjunction A B
@@ -20,19 +20,16 @@ Arguments Disjunction_introduction_right {A} {B} b.
 Notation "A \/ B" := (Disjunction A B)
   : jwa_type_scope.
 
+(* [disjoin a, _] : [A \/ B] from [a : A], and [disjoin _, b] from [b : B];
+ * the side written [_] comes from the expected type.
+ *)
+Notation "'disjoin' a , '_'" := (Disjunction_introduction_left a) (only parsing).
+Notation "'disjoin' '_' , b" := (Disjunction_introduction_right b) (only parsing).
+
 (* A module may carry the type's name; its laws read
  * [Disjunction.commutativity].
  *)
 Module Disjunction. (* Disjunction *)
-
-(* The two ctors under the names a proof writes: [Disjunction.left a] and
- * [Disjunction.right b]. An abbreviation is the ctor itself, so it also
- * serves as a pattern; Rocq prints the ctor's own name.
- *)
-Abbreviation left  := Disjunction_introduction_left.
-Abbreviation right := Disjunction_introduction_right.
-Abbreviation L     := Disjunction_introduction_left  (only parsing).
-Abbreviation R     := Disjunction_introduction_right (only parsing).
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A \/ B -> B \/ A.
@@ -43,28 +40,28 @@ Proof.
    * - one with [a : A],
    * - one with [b : B].
    *)
-  destruct h as [a | b].
-  - exact (right a).
-  - exact (left  b).
+  match h with | a | b end.
+  - ipso (disjoin _, a).
+  - ipso (disjoin b, _).
 Qed.
 
 Theorem associativity
   : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B) \/ C <-> A \/ (B \/ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
-    destruct h as [ab | c].
-    + destruct ab as [a | b].
-      * exact (Disjunction.left a).
-      * exact (Disjunction.right (Disjunction.left b)).
-    + exact (Disjunction.right (Disjunction.right c)).
+    match h with | ab | c end.
+    + match ab with | a | b end.
+      * ipso (disjoin a, _).
+      * ipso (disjoin _, (disjoin b, _)).
+    + ipso (disjoin _, (disjoin _, c)).
   - intro h.
-    destruct h as [a | bc].
-    + exact (Disjunction.left (Disjunction.left a)).
-    + destruct bc as [b | c].
-      * exact (Disjunction.left (Disjunction.right b)).
-      * exact (Disjunction.right c).
+    match h with | a | bc end.
+    + ipso (disjoin (disjoin a, _), _).
+    + match bc with | b | c end.
+      * ipso (disjoin (disjoin _, b), _).
+      * ipso (disjoin _, c).
 Qed.
 
 Module distributivity. (* distributivity *)
@@ -76,26 +73,23 @@ Theorem conjunction
   : forall (A : Prop) (B : Prop) (C : Prop) . A \/ (B /\ C) <-> (A \/ B) /\ (A \/ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
-    destruct h as [a | bc].
-    + split.
-      * exact (Disjunction.left a).
-      * exact (Disjunction.left a).
-    + destruct bc as [b c].
-      split.
-      * exact (Disjunction.right b).
-      * exact (Disjunction.right c).
+    match h with | a | bc end.
+    + divide et impera.
+      * ipso (disjoin a, _).
+      * ipso (disjoin a, _).
+    + match bc with | b c end.
+      divide et impera.
+      * ipso (disjoin _, b).
+      * ipso (disjoin _, c).
   - intro h.
-    destruct h  as [ab ac].
-    destruct ab as [a | b].
-    + exact (Disjunction.left a).
-    + destruct ac as [a | c].
-      * exact (Disjunction.left a).
-      * apply Disjunction.right.
-        split.
-        { exact b. }
-        { exact c. }
+    match h  with | ab ac end.
+    match ab with | a | b end.
+    + ipso (disjoin a, _).
+    + match ac with | a | c end.
+      * ipso (disjoin a, _).
+      * ipso (disjoin _, (conjoin b, c)).
 Qed.
 
 End over. (* distributivity.over *)
@@ -110,23 +104,19 @@ Theorem universality
   : forall (A : Prop) (B : Prop) (C : Prop) . (A \/ B -> C) <-> (A -> C) /\ (B -> C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro f.
-    split.
+    divide et impera.
     + intro a.
-      apply f.
-      exact (Disjunction.left a).
+      ipso (f (disjoin a, _)).
     + intro b.
-      apply f.
-      exact (Disjunction.right b).
+      ipso (f (disjoin _, b)).
   - intro h.
-    destruct h as [ac bc].
+    match h with | ac bc end.
     intro ab.
-    destruct ab as [a | b].
-    + apply ac.
-      exact a.
-    + apply bc.
-      exact b.
+    match ab with | a | b end.
+    + ipso (ac a).
+    + ipso (bc b).
 Qed.
 
 Theorem congruence
@@ -136,29 +126,21 @@ Proof.
   intros A1 A2 B1 B2.
   intro a.
   intro b.
-  destruct a as [a12 a21].
-  destruct b as [b12 b21].
-  split; intro h.
+  match a with | a12 a21 end.
+  match b with | b12 b21 end.
+  divide et impera; intro h.
   - (* [h : A1 \/ B1]: [|- A2 \/ B2] *)
-    destruct h as [a1 | b1].
-    + (* [|- A2] *)
-      apply Disjunction.left.
-      apply a12.
-      exact a1.
-    + (* [|- B2] *)
-      apply Disjunction.right.
-      apply b12.
-      exact b1.
+    match h with | a1 | b1 end.
+    + let proof a2 := a12 a1.
+      ipso (disjoin a2, _).
+    + let proof b2 := b12 b1.
+      ipso (disjoin _, b2).
   - (* [h : A2 \/ B2]: [|- A1 \/ B1] *)
-    destruct h as [a2 | b2].
-    + (* [|- A1] *)
-      apply Disjunction.left.
-      apply a21.
-      exact a2.
-    + (* [|- B1] *)
-      apply Disjunction.right.
-      apply b21.
-      exact b2.
+    match h with | a2 | b2 end.
+    + let proof a1 := a21 a2.
+      ipso (disjoin a1, _).
+    + let proof b1 := b21 b2.
+      ipso (disjoin _, b1).
 Qed.
 
 End Disjunction. (* Disjunction *)
@@ -180,30 +162,22 @@ Theorem disjunction
   : forall (A : Prop) (B : Prop) (C : Prop) . A /\ (B \/ C) <-> (A /\ B) \/ (A /\ C).
 Proof.
   intros A B C.
-  split.
+  divide et impera.
   - intro h.
-    destruct h as [a bc].
-    destruct bc as [b | c].
-    + (* [|- A /\ B] *)
-      apply Disjunction.left.
-      split.
-      * exact a.
-      * exact b.
-    + (* [|- A /\ C] *)
-      apply Disjunction.right.
-      split.
-      * exact a.
-      * exact c.
+    match h with | a bc end.
+    match bc with | b | c end.
+    + ipso (disjoin (conjoin a, b), _).
+    + ipso (disjoin _, (conjoin a, c)).
   - intro h.
-    destruct h as [ab | ac].
-    + destruct ab as [a b].
-      split.
-      * exact a.
-      * exact (Disjunction.left b).
-    + destruct ac as [a c].
-      split.
-      * exact a.
-      * exact (Disjunction.right c).
+    match h with | ab | ac end.
+    + match ab with | a b end.
+      divide et impera.
+      * ipso a.
+      * ipso (disjoin b, _).
+    + match ac with | a c end.
+      divide et impera.
+      * ipso a.
+      * ipso (disjoin _, c).
 Qed.
 
 End over. (* distributivity.over *)

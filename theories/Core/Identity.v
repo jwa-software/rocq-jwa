@@ -4,17 +4,8 @@ From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Disjunction.
 From jwa Require Import Core.Logic.Falsum.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
-
-(* Gottfried Leibniz, seventeenth century: two things are the same exactly
- * when no property tells them apart. If everything true of [x] is true of
- * [y], there is nothing left over that could distinguish them, so there is
- * nothing left to mean by "different".
- *)
-(* [forall {A : Type} . A -> A -> Prop] *)
-Definition Leibniz := fun {A : Type} (x : A) (y : A) .
-  forall (P : A -> Prop) . P x -> P y.
+From jwa Require Import Dialect.All.
 
 (* The identity type, which [=] spells: two terms of one type that are the
  * same term. [x] is a parameter and the second argument an index, so the
@@ -26,6 +17,9 @@ Inductive Identity (A : Type) (x : A) : A -> Prop :=
 
 Arguments Identity              {A} x _.
 Arguments Identity_introduction {A} x.
+
+(* [quod idem est] closes an equation of this type and no other goal. *)
+Ltac2 Set Idem.equality := fun () => Some constr:(@Identity).
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Identity x y)
@@ -56,9 +50,9 @@ Proof.
    * chooses the parameter, which is why [y] becomes [x] and not the other
    * way: [|- P x]
    *)
-  destruct e.
+  match e with end.
   (* [p] is a proof of the goal as it stands. *)
-  exact p.
+  ipso p.
 Defined.
 
 (* A module may carry the type's name; its laws read [Identity.symmetry]. *)
@@ -69,31 +63,42 @@ Theorem reflexivity
   : forall {A : Type} (x : A) . x = x.
 Proof.
   intros A x.
-  exact (Identity_introduction x).
+  ipso (Identity_introduction x).
 Defined.
 
 Theorem symmetry
   : forall {A : Type} {x : A} {y : A} . x = y -> y = x.
 Proof.
   intros A x y e.
-  destruct e.
-  reflexivity.
+  match e with end.
+  quod idem est.
 Defined.
 
 Theorem transitivity
   : forall {A : Type} {x : A} {y : A} {z : A} . x = y -> y = z -> x = z.
 Proof.
   intros A x y z e1 e2.
-  destruct e2.
-  exact e1.
+  match e2 with end.
+  ipso e1.
 Defined.
 
 Theorem congruence
   : forall {A : Type} {B : Type} {x : A} {y : A} (f : A -> B) . x = y -> f x = f y.
 Proof.
   intros A B x y f e.
-  destruct e.
-  reflexivity.
+  match e with end.
+  quod idem est.
+Defined.
+
+(* Gottfried Leibniz's law: whatever holds of [x] holds of anything equal to
+ * [x]. [Defined], so that a term the [leibniz] tactic builds still computes.
+ *)
+Theorem Leibniz
+  : forall {A : Type} {x : A} {y : A} (P : A -> Prop) . x = y -> P x -> P y.
+Proof.
+  intros A x y P e p.
+  match e with end.
+  ipso p.
 Defined.
 
 Local Theorem cancellation
@@ -107,14 +112,31 @@ Proof.
    *       (Identity_introduction x)
    *     = reflexivity x]
    *)
-  destruct r.
-  change (symmetry (Identity_introduction x))
-    with (Identity_introduction x) in |- *.
-  change (transitivity (Identity_introduction x) (Identity_introduction x))
-    with (Identity_introduction x) in |- *.
-  change (reflexivity x) with (Identity_introduction x) in |- *.
-  (* [|- Identity_introduction x = Identity_introduction x] *)
-  reflexivity.
+  match r with end.
+  lemma facto : Identity_introduction &x = Identity_introduction &x.
+  {
+    quod idem est.
+  }
+
+  let proof facto
+    : Identity_introduction &x = reflexivity &x
+    := &facto.
+
+  let proof facto
+    : transitivity
+        (Identity_introduction &x)
+        (Identity_introduction &x)
+      = reflexivity &x
+    := &facto.
+
+  let proof facto
+    : transitivity
+        (symmetry (Identity_introduction &x))
+        (Identity_introduction &x)
+      = reflexivity &x
+    := &facto.
+
+  ipso &facto.
 Qed.
 
 Module hedberg. (* hedberg *)
@@ -130,8 +152,8 @@ Local Definition decided
     (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
     (x : A) (y : A) (e : x = y) .
     match decide x y with
-    | Disjunction.L l => l
-    | Disjunction.R r => let falsum: Falsum := (r e) in Falsum.elimination (x = y) falsum
+    | disjoin l, _ => l
+    | disjoin _, r => let falsum: Falsum := (r e) in Falsum.elimination (x = y) falsum
     end.
 
 (* hedberg.constancy *)
@@ -142,12 +164,12 @@ Local Theorem constancy
       decided decide x y p = decided decide x y q.
 Proof.
   intros A decide x y p q.
-  unfold decided in |- *.
-  destruct (decide x y) as [r | n].
-  - reflexivity.
-  - unfold Negation in n.
-    pose proof (n p) as absurdity.
-    contradiction absurdity.
+  simpl decided in |- *.
+  match (decide x y) with | r | n end.
+  - quod idem est.
+  - simpl (~ _) in n.
+    let proof falso := n p.
+    ex falso quodlibet.
 Qed.
 
 (* hedberg.retraction *)
@@ -161,8 +183,8 @@ Local Theorem retraction
       = e.
 Proof.
   intros A decide x y p.
-  destruct p.
-  exact (cancellation (decided decide x x (reflexivity x))).
+  match p with end.
+  ipso (cancellation (decided decide x x (reflexivity x))).
 Qed.
 
 (* hedberg.uniqueness *)
@@ -173,57 +195,29 @@ Theorem uniqueness
 Proof.
   intros A decide x y p q.
 
-  pose proof (retraction decide x y p)   as rp.
-  pose proof (retraction decide x y q)   as rq.
-  pose proof (constancy  decide x y p q) as c.
+  let proof rp := retraction decide x y p.
+  let proof rq := retraction decide x y q.
+  let proof c  := constancy  decide x y p q.
 
-  set (base
-        := decided decide x x (reflexivity x))
+  let base := decided decide x x (reflexivity x)
   in *.
 
-  set (shift
-        := fun (e : x = y) . transitivity (symmetry base) e)
-  in |- *.
+  let shift := fun (e : x = y) . transitivity (symmetry base) e.
 
-  pose proof (congruence shift c) as step.
-  pose proof (symmetry rp) as rp'.
-  exact (transitivity rp' (transitivity step rq)).
+  let proof step := congruence shift c.
+  let proof rp' := symmetry rp.
+  ipso (transitivity rp' (transitivity step rq)).
 Qed.
 
 End hedberg. (* hedberg *)
 
 End Identity.
 
-(* [rewrite] builds its proof term out of these two, which carry a proof
- * along the equation into [Type], forwards and backwards. [Defined] keeps
- * them transparent.
+(* The [leibniz] tactic builds its proofs from [Identity.Leibniz]. Set
+ * outside [Module Identity], where it would hold only while that module is
+ * imported.
  *)
-
-Definition Identity_rewrite_forward
-  : forall (A : Type) (x : A) (P : A -> Type) .
-      P x -> forall (y : A) . x = y -> P y.
-Proof.
-  intros A x P p.
-  intros y e.
-  destruct e.
-  exact p.
-Defined.
-
-Definition Identity_rewrite_backward
-  : forall (A : Type) (x : A) (y : A) (P : A -> Type) .
-      P y -> x = y -> P x.
-Proof.
-  intros A x y P p.
-  intro e.
-  destruct e.
-  exact p.
-Defined.
-
-(* [Register Scheme] is what points [rewrite] at them. The kinds [rew] and
- * [rew_r] are Rocq's own, fixed like a registration key.
- *)
-Register Scheme Identity_rewrite_forward  as rew   for Identity.
-Register Scheme Identity_rewrite_backward as rew_r for Identity.
+Ltac2 Set Leibniz.law := fun () => Some constr:(@Identity.Leibniz).
 
 (* [build_eqdata_gen] in rocqlib.ml demands exactly these six; a single
  * missing one surfaces as [No primitive equality found].

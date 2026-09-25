@@ -3,7 +3,9 @@
 (rocq.theory
  (name jwa_test)
  (theories
+  Ltac2
   jwa
+  jwa.Dialect
   jwa.Core
   jwa.Tactics
   jwa.Algebra

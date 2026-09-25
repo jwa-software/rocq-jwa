@@ -8,7 +8,7 @@ From jwa Require Import Core.All.
  *)
 Inductive Empty : Type := .
 
-(* The eliminator behind the [induction] tactic, written out. With no ctor the [match]
+(* The eliminator that [match ... per] takes, written out. With no ctor the [match]
  * has no branch, and that is the whole proof: there is no [e] to prove
  * anything about.
  *)

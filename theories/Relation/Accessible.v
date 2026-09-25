@@ -1,9 +1,9 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simpl.
 
 (* [R] points downwards throughout this file: its first argument is the
  * lower one, so [R y x] says that [y] is below [x]. [Accessible R x] holds
@@ -76,7 +76,7 @@ Proof.
    *  = step x (fun (y : A) (r : R y x)
    *            . recursion step y (descend (Accessible_introduction f) r))]
    *)
-  destruct a as [f].
+  match a with | f end.
 
   (* [|- step x (fun (y : A) (r : R y x) . recursion step y (f y r))
    *  = step x (fun (y : A) (r : R y x) . recursion step y (f y r))]
@@ -84,7 +84,7 @@ Proof.
   simpl in |- *.
 
   (* The two sides are the same term. *)
-  reflexivity.
+  quod idem est.
 Qed.
 
 (* recursion.independence *)
@@ -111,14 +111,14 @@ Proof.
    *       forall (a : Accessible R x) (b : Accessible R x) .
    *         recursion step x a = recursion step x b]
    *)
-  set (P := fun (x : A) .
+  let P := fun (x : A) .
             forall (a : Accessible R x) (b : Accessible R x) .
-              recursion step x a = recursion step x b).
+              recursion step x a = recursion step x b.
 
   (* The context gains
    * [recursor : Descent.Step R P -> forall (x : A) . Accessible R x -> P x]
    *)
-  pose proof (recursion (R := R) (P := P)) as recursor.
+  let proof recursor := recursion (R := R) (P := P).
 
   (* [at 2] is the occurrence of [P] in the conclusion; the one in the
    * premise stays folded.
@@ -127,14 +127,11 @@ Proof.
    *             forall (a : Accessible R x) (b : Accessible R x) .
    *               recursion step x a = recursion step x b]
    *)
-  unfold P at 2 in recursor.
+  simpl &P at 2 in recursor.
 
-  (* [|- Descent.Step R P]
-   * [|- Accessible R x]
-   *)
-  apply recursor.
-
-  - clear a b x.
+  lemma descent : Descent.Step R &P.
+  {
+    rm a b x.
 
     (* [|- forall (x : A) . (forall (y : A) . R y x -> P y) -> P x] *)
     simpl Descent.Step in |- *.
@@ -149,7 +146,7 @@ Proof.
     (* [|- forall (a : Accessible R x) (b : Accessible R x) .
      *      recursion step x a = recursion step x b]
      *)
-    simpl P in |- *.
+    simpl &P in |- *.
 
     (* [a : Accessible R x]
      * [b : Accessible R x]
@@ -161,67 +158,68 @@ Proof.
     (* [|- step x (fun (y : A) (r : R y x) . recursion step y (descend a r))
      *  = recursion step x b]
      *)
-    rewrite (unfolding step x a) in |- *.
+    leibniz (unfolding step x a) in |- *.
 
     (* [|- step x (fun (y : A) (r : R y x) . recursion step y (descend a r))
      *  = step x (fun (y : A) (r : R y x) . recursion step y (descend b r))]
      *)
-    rewrite (unfolding step x b) in |- *.
+    leibniz (unfolding step x b) in |- *.
 
     (* [f := fun (y : A) (r : R y x) . recursion step y (descend a r)]
      * :
      * [|- step x f
      *  = step x (fun (y : A) (r : R y x) . recursion step y (descend b r))]
      *)
-    set (f := fun (y : A) (r : R y x) . recursion step y (descend a r)).
+    let f := fun (y : A) (r : R y x) . recursion step y (descend a r) in |- *.
 
     (* [g := fun (y : A) (r : R y x) . recursion step y (descend b r)]
      * :
      * [|- step x f = step x g]
      *)
-    set (g := fun (y : A) (r : R y x) . recursion step y (descend b r)).
+    let g := fun (y : A) (r : R y x) . recursion step y (descend b r) in |- *.
 
     (* The context gains
      * [H : forall (f : forall (y : A) . R y x -> _P y)
      *             (g : forall (y : A) . R y x -> _P y) .
      *        (forall (y : A) (r : R y x) . f y r = g y r) -> step x f = step x g]
      *)
-    pose proof (extensional x) as H.
+    let proof H := extensional x.
 
     (* The context gains
      * [H' : (forall (y : A) (r : R y x) . f y r = g y r) -> step x f = step x g]
      *)
-    pose proof (H f g) as H'.
+    let proof H' := H f g.
 
-    assert (pointwise : forall (y : A) (r : R y x) . f y r = g y r).
+    lemma pointwise : forall (y : A) (r : R y x) . f y r = g y r.
     {
       intros y r.
 
       (* [|- recursion step y (descend a r)
        *  = recursion step y (descend b r) ]
        *)
-      simpl f, g in |- *.
+      simpl &f, &g in |- *.
 
       (* [|- recursion step y a'
        *  = recursion step y b' ]
        *)
-      set (a' := descend a r).
-      set (b' := descend b r).
+      let a' := descend a r in |- *.
+      let b' := descend b r in |- *.
 
       (* The context gains [h : P y] *)
-      pose proof (recurse y r) as h.
+      let proof h := recurse y r.
 
       (* [h : forall (a : Accessible R y) (b : Accessible R y) .
        *      recursion step y a = recursion step y b]
        *)
-      simpl P in h.
+      simpl &P in h.
 
-      exact (h a' b').
+      ipso (h a' b').
     }
 
-    exact (modus ponens H', pointwise).
+    ipso (modus ponens H', pointwise).
+  }
 
-  - exact a.
+  ipso (recursor &descent &x &a &a &b).
 Qed.
 
 End recursion. (* recursion *)

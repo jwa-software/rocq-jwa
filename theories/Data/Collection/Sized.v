@@ -5,6 +5,7 @@ From jwa Require Import Core.Class.
 From jwa Require Import Data.Assert.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Dialect.ExFalso.
 
 (* How many elements a container holds. The count is one function taken at
  * every element type at once, which is what makes it a fact about the
@@ -41,16 +42,16 @@ Theorem reflection
       Assert (is_empty x) <-> cardinality x = NatWithZero.Zero.
 Proof.
   intros F S A x.
-  unfold is_empty in |- *.
-  destruct (cardinality x) as [| p] eqn:c; split; simpl in |- *.
+  simpl is_empty in |- *.
+  match (cardinality x) with | | p end |- c; divide et impera; simpl in |- *.
   - intro h.
-    reflexivity.
+    quod idem est.
   - intro e.
-    exact I.
+    ipso I.
   - intro h.
-    contradiction h.
+    ex h quodlibet.
   - intro e.
-    discriminate e.
+    ex e quodlibet.
 Qed.
 
 End emptiness. (* emptiness *)
@@ -63,10 +64,10 @@ Theorem reflection
       Assert (is_not_empty x) <-> ~ (cardinality x = NatWithZero.Zero).
 Proof.
   intros F S A x.
-  unfold is_not_empty in |- *.
-  pose proof (Assert.negation (is_empty x)) as n.
-  pose proof (Negation.congruence (emptiness.reflection x)) as c.
-  exact (Biconditional.transitivity n c).
+  simpl is_not_empty in |- *.
+  let proof n := Assert.negation (is_empty x).
+  let proof c := Negation.congruence (emptiness.reflection x).
+  ipso (Biconditional.transitivity n c).
 Qed.
 
 End inhabitation. (* inhabitation *)

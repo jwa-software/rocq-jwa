@@ -6,4 +6,4 @@
 (rocq.theory
  (name jwa.Algebra)
  (package rocq-jwa)
- (theories jwa.Core))
+ (theories Ltac2 jwa.Dialect jwa.Core))

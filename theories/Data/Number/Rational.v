@@ -14,8 +14,10 @@ From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
+From jwa Require Import Dialect.Simpl.
+From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simpl.
 
 Module Rational. (* Rational *)
 
@@ -156,15 +158,15 @@ Theorem extensionality
       -> x = y.
 Proof.
   intros x y.
-  destruct x as [n1 d1 h1].
-  destruct y as [n2 d2 h2].
+  match x with | n1 d1 h1 end.
+  match y with | n2 d2 h2 end.
   simpl numerator, denominator in |- *.
   intros e1 e2.
-  destruct e1.
-  destruct e2.
-  rewrite (Nat.equality.uniqueness
+  match e1 with end.
+  match e2 with end.
+  leibniz (Nat.equality.uniqueness
              (NatWithZero.gcd.nat (Integer.abs n1) d1) Nat.One h1 h2) in |- *.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Theorem irreducibility
@@ -173,9 +175,9 @@ Theorem irreducibility
       = Nat.One.
 Proof.
   intro x.
-  destruct x as [n d h].
+  match x with | n d h end.
   simpl numerator, denominator in |- *.
-  exact h.
+  ipso h.
 Qed.
 
 
@@ -186,64 +188,65 @@ Theorem retraction
   : forall (x : Rational) . make (numerator x) (denominator x) = x.
 Proof.
   intro x.
-  destruct x as [n d h].
+  match x with | n d h end.
   simpl numerator, denominator in |- *.
 
-  assert (whole : Integer.divide n Nat.One = n).
+  lemma whole : Integer.divide n Nat.One = n.
   {
-    pose proof (Integer.division.exactness
+    let proof e := Integer.division.exactness
                   n Nat.One
-                  (NatWithZero.divisibility.bottom (Integer.abs n))) as e.
-    pose proof (Integer.multiplication.right.identity
-                  (Integer.divide n Nat.One)) as i.
-    symmetry in i.
-    exact (Identity.transitivity i e).
+                  (NatWithZero.divisibility.bottom (Integer.abs n)).
+    let proof i := Integer.multiplication.right.identity
+                  (Integer.divide n Nat.One).
+    symm in i.
+    ipso (Identity.transitivity i e).
   }
 
-  assert (undivided
-          : NatWithZero.divide (NatWithZero.Positive d) (Nat.One)
-          = NatWithZero.Positive d).
+  lemma undivided : NatWithZero.divide (NatWithZero.Positive d) (Nat.One)
+          = NatWithZero.Positive d.
   {
-    pose proof (NatWithZero.division.exactness
+    let proof e := NatWithZero.division.exactness
                   (NatWithZero.Positive d) (Nat.One)
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)))
-            as e.
-    pose proof (NatWithZero.multiplication.right.identity
-                  (NatWithZero.divide (NatWithZero.Positive d) (Nat.One))) as i.
-    symmetry in i.
-    exact (Identity.transitivity i e).
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
+    let proof i := NatWithZero.multiplication.right.identity
+                  (NatWithZero.divide (NatWithZero.Positive d) (Nat.One)).
+    symm in i.
+    ipso (Identity.transitivity i e).
   }
 
-  assert (same
-          : NatWithZero.divide (NatWithZero.Positive d)
+  lemma same : NatWithZero.divide (NatWithZero.Positive d)
               (NatWithZero.gcd.nat (Integer.abs n) d)
-          = NatWithZero.divide (NatWithZero.Positive d) (Nat.One)).
+          = NatWithZero.divide (NatWithZero.Positive d) (Nat.One).
   {
-    rewrite h in |- *.
-    reflexivity.
+    leibniz h in |- *.
+    quod idem est.
   }
 
-  apply extensionality.
-  - simpl make      in |- *.
+  lemma top : numerator (make &n &d) = numerator (Rational_introduction &n &d &h).
+  {
+    simpl make      in |- *.
     simpl numerator in |- *.
-    rewrite h in |- *.
-    exact whole.
-  - simpl make        in |- *.
+    leibniz h in |- *.
+    ipso whole.
+  }
+  lemma bottom : denominator (make &n &d) = denominator (Rational_introduction &n &d &h).
+  {
+    simpl make        in |- *.
     simpl denominator in |- *.
-    pose proof (NatWithZero.divide.nat.safe.congruence
+    let proof c := NatWithZero.divide.nat.safe.congruence
                   d (NatWithZero.gcd.nat (Integer.abs n) d)
                   (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)
                   d Nat.One
                   (NatWithZero.divisibility.bottom (NatWithZero.Positive d))
-                  same)
-            as c.
-    pose proof (NatWithZero.divide.nat.safe.specification
+                  same.
+    let proof s := NatWithZero.divide.nat.safe.specification
                   d Nat.One
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)))
-            as s.
-    rewrite undivided in s.
-    pose proof (NatWithZero.positive.injectivity s) as inj.
-    exact (Identity.transitivity c inj).
+                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
+    leibniz undivided in s.
+    let proof inj := NatWithZero.positive.injectivity s.
+    ipso (Identity.transitivity c inj).
+  }
+  ipso (extensionality _ _ &top &bottom).
 Qed.
 
 (* make.invariance *)
@@ -253,40 +256,38 @@ Theorem invariance
 Proof.
   intros n d k.
 
-  assert (common
-          : NatWithZero.gcd.nat
+  lemma common : NatWithZero.gcd.nat
               (Integer.abs (Integer.mul (Integer.Positive k) n))
               (Nat.mul k d)
-          = Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d)).
+          = Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d).
   {
-    pose proof (Integer.multiplication.magnitude (Integer.Positive k) n) as am.
-    change (Integer.abs (Integer.Positive k))
-      with (NatWithZero.Positive k) in am.
-    rewrite am in |- *.
-    pose proof (NatWithZero.gcd.nat.left.distributivity.of.multiplication
-                  k d (Integer.abs n))
-            as gd.
-    symmetry in gd.
-    exact gd.
+    let proof am := Integer.multiplication.magnitude (Integer.Positive k) n.
+    let proof am
+      : Integer.abs (Integer.mul (Integer.Positive k) n)
+        = NatWithZero.mul (NatWithZero.Positive k) (Integer.abs n)
+      := &am.
+    leibniz am in |- *.
+    let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
+                  k d (Integer.abs n).
+    symm in gd.
+    ipso gd.
   }
 
   simpl make in |- *.
 
-  assert (top
-          : Integer.divide
+  lemma top : Integer.divide
               (Integer.mul (Integer.Positive k) n)
               (NatWithZero.gcd.nat
                 (Integer.abs (Integer.mul (Integer.Positive k) n))
                 (Nat.mul k d))
-          = Integer.divide n (NatWithZero.gcd.nat (Integer.abs n) d)).
+          = Integer.divide n (NatWithZero.gcd.nat (Integer.abs n) d).
   {
-    rewrite common in |- *.
-    exact (Integer.division.invariance
+    leibniz common in |- *.
+    ipso (Integer.division.invariance
              n (NatWithZero.gcd.nat (Integer.abs n) d) k).
   }
 
-  assert (bottom
-          : NatWithZero.divide.nat.safe
+  lemma bottom : NatWithZero.divide.nat.safe
                 (Nat.mul k d)
                 (NatWithZero.gcd.nat
                   (Integer.abs (Integer.mul (Integer.Positive k) n))
@@ -297,27 +298,35 @@ Proof.
           = NatWithZero.divide.nat.safe
                 d
                 (NatWithZero.gcd.nat (Integer.abs n) d)
-                (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)).
+                (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d).
   {
-    apply NatWithZero.divide.nat.safe.congruence.
-    rewrite common in |- *.
-    pose proof (NatWithZero.division.invariance
-                  (NatWithZero.Positive d)
-                  (NatWithZero.gcd.nat (Integer.abs n) d) k)
-            as inv.
-    change (NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.Positive d))
-      with (NatWithZero.Positive (Nat.mul k d))
-        in inv.
-    exact inv.
+    lemma quotients
+      : NatWithZero.divide
+          (NatWithZero.Positive (Nat.mul &k &d))
+          (NatWithZero.gcd.nat (Integer.abs (Integer.mul (Integer.Positive &k) &n)) (Nat.mul &k &d))
+        = NatWithZero.divide
+            (NatWithZero.Positive &d)
+            (NatWithZero.gcd.nat (Integer.abs &n) &d).
+    {
+      leibniz common in |- *.
+      let proof inv := NatWithZero.division.invariance
+                    (NatWithZero.Positive d)
+                    (NatWithZero.gcd.nat (Integer.abs n) d) k.
+      let proof inv
+        : NatWithZero.divide
+            (NatWithZero.Positive (Nat.mul k d))
+            (Nat.mul k (NatWithZero.gcd.nat (Integer.abs n) d))
+          = NatWithZero.divide (NatWithZero.Positive d) (NatWithZero.gcd.nat (Integer.abs n) d)
+        := &inv.
+      ipso inv.
+    }
+    ipso (NatWithZero.divide.nat.safe.congruence _ _ _ _ _ _ &quotients).
   }
 
-  apply extensionality.
-  - simpl make      in |- *.
-    simpl numerator in |- *.
-    exact top.
-  - simpl make        in |- *.
-    simpl denominator in |- *.
-    exact bottom.
+  ipso (extensionality
+          (make (Integer.mul (Integer.Positive &k) &n) (Nat.mul &k &d))
+          (make &n &d)
+          &top &bottom).
 Qed.
 
 (* make.proportionality *)
@@ -330,64 +339,63 @@ Proof.
   simpl make in |- *.
   simpl numerator, denominator in |- *.
 
-  assert (bottom
-          : Nat.mul
+  lemma bottom : Nat.mul
               (NatWithZero.divide.nat.safe
                 b (NatWithZero.gcd.nat (Integer.abs a) b)
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b))
               (NatWithZero.gcd.nat (Integer.abs a) b)
-          = b).
+          = b.
   {
-    pose proof (NatWithZero.divide.nat.safe.specification
+    let proof s := NatWithZero.divide.nat.safe.specification
                   b (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.gcd.nat.right.divisibility
-                    (Integer.abs a) b)) as s.
-    pose proof (NatWithZero.division.exactness
+                    (Integer.abs a) b).
+    let proof e := NatWithZero.division.exactness
                   (NatWithZero.Positive b)
                   (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.gcd.nat.right.divisibility
-                    (Integer.abs a) b)) as e.
-    symmetry in s.
-    rewrite s in e.
-    exact (NatWithZero.positive.injectivity e).
+                    (Integer.abs a) b).
+    symm in s.
+    leibniz s in e.
+    ipso (NatWithZero.positive.injectivity e).
   }
 
-  assert (lifted
-          : Integer.from_nat b
+  lemma lifted : Integer.from_nat b
           = Integer.mul
               (Integer.from_nat
                 (NatWithZero.divide.nat.safe
                     b (NatWithZero.gcd.nat (Integer.abs a) b)
                     (NatWithZero.gcd.nat.right.divisibility
                       (Integer.abs a) b)))
-              (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))).
+              (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)).
   {
-    pose proof (Identity.congruence Integer.from_nat bottom) as c.
-    symmetry in c.
-    rewrite c in |- *.
-    reflexivity.
+    let proof c := Identity.congruence Integer.from_nat bottom.
+    symm in c.
+    leibniz c in |- *.
+    simpl Integer.from_nat in |- *.
+    simpl in |- *.
+    quod idem est.
   }
 
-  assert (whole
-          : Integer.mul
+  lemma whole : Integer.mul
               (Integer.divide a (NatWithZero.gcd.nat (Integer.abs a) b))
               (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))
-          = a).
+          = a.
   {
-    exact (Integer.division.exactness
+    ipso (Integer.division.exactness
             a (NatWithZero.gcd.nat (Integer.abs a) b)
             (NatWithZero.gcd.nat.left.divisibility (Integer.abs a) b)).
   }
 
-  rewrite lifted in |- *.
-  rewrite (Integer.multiplication.commutativity
+  leibniz lifted in |- *.
+  leibniz (Integer.multiplication.commutativity
             (Integer.from_nat
               (NatWithZero.divide.nat.safe
                 b (NatWithZero.gcd.nat (Integer.abs a) b)
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b)))
             (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b)))
     in |- *.
-  pose proof (Identity.symmetry
+  let proof assoc := Identity.symmetry
                 (Integer.multiplication.associativity
                   (Integer.divide a (NatWithZero.gcd.nat (Integer.abs a) b))
                   (Integer.from_nat (NatWithZero.gcd.nat (Integer.abs a) b))
@@ -395,11 +403,10 @@ Proof.
                     (NatWithZero.divide.nat.safe
                       b (NatWithZero.gcd.nat (Integer.abs a) b)
                       (NatWithZero.gcd.nat.right.divisibility
-                        (Integer.abs a) b)))))
-          as assoc.
-  rewrite assoc in |- *.
-  rewrite whole in |- *.
-  reflexivity.
+                        (Integer.abs a) b)))).
+  leibniz assoc in |- *.
+  leibniz whole in |- *.
+  quod idem est.
 Qed.
 
 (* make.characterisation *)
@@ -411,207 +418,202 @@ Theorem characterisation
 Proof.
   intros a b c d.
 
-  assert (swap
-          : forall (x : Integer) (y : Integer) (z : Integer) .
+  lemma swap : forall (x : Integer) (y : Integer) (z : Integer) .
               Integer.mul (Integer.mul x y) z
-              = Integer.mul (Integer.mul x z) y).
+              = Integer.mul (Integer.mul x z) y.
   {
     intros x y z.
-    rewrite (Integer.multiplication.associativity x y z) in |- *.
-    rewrite (Integer.multiplication.commutativity y z)   in |- *.
-    pose proof (Identity.symmetry (Integer.multiplication.associativity x z y)) as h.
-    rewrite h in |- *.
-    reflexivity.
+    leibniz (Integer.multiplication.associativity x y z) in |- *.
+    leibniz (Integer.multiplication.commutativity y z)   in |- *.
+    let proof h := Identity.symmetry (Integer.multiplication.associativity x z y).
+    leibniz h in |- *.
+    quod idem est.
   }
 
-  pose proof (proportionality a b) as P1.
-  pose proof (proportionality c d) as P2.
+  let proof P1 := proportionality a b.
+  let proof P2 := proportionality c d.
 
   (* The third field is the irreducibility of each pair, handed over by the
    * case analysis rather than proved after it.
    *)
-  destruct (make a b) as [p q I1] eqn:E1.
-  destruct (make c d) as [r s I2] eqn:E2.
+  match (make a b) with | p q I1 end |- E1.
+  match (make c d) with | r s I2 end |- E2.
   simpl numerator, denominator in P1, P2.
 
-  assert (nzq : ~ (Integer.from_nat q = Integer.Zero)).
+  lemma nzq : ~ (Integer.from_nat q = Integer.Zero).
   {
-    unfold Negation in |- *.
+    simpl (~ _) in |- *.
     intro z.
-    discriminate z.
+    simpl Integer.from_nat in z.
+    ex z quodlibet.
   }
 
-  assert (nzs : ~ (Integer.from_nat s = Integer.Zero)).
+  lemma nzs : ~ (Integer.from_nat s = Integer.Zero).
   {
-    unfold Negation in |- *.
+    simpl (~ _) in |- *.
     intro z.
-    discriminate z.
+    simpl Integer.from_nat in z.
+    ex z quodlibet.
   }
 
-  split.
+  divide et impera.
 
   - intro e.
-    pose proof (Identity.congruence numerator   e) as hp.
-    pose proof (Identity.congruence denominator e) as hq.
+    let proof hp := Identity.congruence numerator   e.
+    let proof hq := Identity.congruence denominator e.
     simpl numerator   in hp.
     simpl denominator in hq.
-    rewrite hp in P1.
-    rewrite hq in P1.
+    leibniz hp in P1.
+    leibniz hq in P1.
 
-    assert (Q1 : Integer.mul (Integer.mul r (Integer.from_nat b))
+    lemma Q1 : Integer.mul (Integer.mul r (Integer.from_nat b))
                              (Integer.from_nat d)
                  = Integer.mul (Integer.mul a (Integer.from_nat s))
-                               (Integer.from_nat d)).
+                               (Integer.from_nat d).
     {
-      rewrite P1 in |- *.
-      reflexivity.
+      leibniz P1 in |- *.
+      quod idem est.
     }
 
-    assert (Q2 : Integer.mul (Integer.mul r (Integer.from_nat d))
+    lemma Q2 : Integer.mul (Integer.mul r (Integer.from_nat d))
                              (Integer.from_nat b)
                  = Integer.mul (Integer.mul c (Integer.from_nat s))
-                               (Integer.from_nat b)).
+                               (Integer.from_nat b).
     {
-      rewrite P2 in |- *.
-      reflexivity.
+      leibniz P2 in |- *.
+      quod idem est.
     }
 
-    rewrite (swap r (Integer.from_nat b) (Integer.from_nat d)) in Q1.
-    symmetry in Q1.
-    pose proof (Identity.transitivity Q1 Q2) as Q.
-    rewrite (swap a (Integer.from_nat s) (Integer.from_nat d)) in Q.
-    rewrite (swap c (Integer.from_nat s) (Integer.from_nat b)) in Q.
-    rewrite (Integer.multiplication.commutativity
+    leibniz (swap r (Integer.from_nat b) (Integer.from_nat d)) in Q1.
+    symm in Q1.
+    let proof Q := Identity.transitivity Q1 Q2.
+    leibniz (swap a (Integer.from_nat s) (Integer.from_nat d)) in Q.
+    leibniz (swap c (Integer.from_nat s) (Integer.from_nat b)) in Q.
+    leibniz (Integer.multiplication.commutativity
               (Integer.mul a (Integer.from_nat d))
               (Integer.from_nat s)) in Q.
-    rewrite (Integer.multiplication.commutativity
+    leibniz (Integer.multiplication.commutativity
               (Integer.mul c (Integer.from_nat b))
               (Integer.from_nat s)) in Q.
-    exact (Integer.multiplication.cancellation
+    ipso (Integer.multiplication.cancellation
             (Integer.from_nat s) (Integer.mul a (Integer.from_nat d))
             (Integer.mul c (Integer.from_nat b)) nzs Q).
 
   - intro e.
 
-    assert (nzbd
-            : ~ (Integer.mul (Integer.from_nat b) (Integer.from_nat d)
-            = Integer.Zero)).
+    lemma nzbd : ~ (Integer.mul (Integer.from_nat b) (Integer.from_nat d)
+            = Integer.Zero).
     {
-      unfold Negation in |- *.
+      simpl (~ _) in |- *.
       intro z.
-      discriminate z.
+      simpl Integer.from_nat in z.
+      simpl in z.
+      ex z quodlibet.
     }
 
-    assert (widened
-            : Integer.mul (Integer.mul p (Integer.from_nat s))
+    lemma widened : Integer.mul (Integer.mul p (Integer.from_nat s))
                 (Integer.mul (Integer.from_nat b) (Integer.from_nat d))
             = Integer.mul (Integer.mul r (Integer.from_nat q))
-                (Integer.mul (Integer.from_nat b) (Integer.from_nat d))).
+                (Integer.mul (Integer.from_nat b) (Integer.from_nat d)).
     {
-      rewrite (Integer.multiplication.interchange
+      leibniz (Integer.multiplication.interchange
                 p (Integer.from_nat s) (Integer.from_nat b) (Integer.from_nat d)) in |- *.
-      rewrite P1 in |- *.
-      rewrite (Integer.multiplication.commutativity (Integer.from_nat s) (Integer.from_nat d)) in |- *.
-      rewrite (Integer.multiplication.interchange
+      leibniz P1 in |- *.
+      leibniz (Integer.multiplication.commutativity (Integer.from_nat s) (Integer.from_nat d)) in |- *.
+      leibniz (Integer.multiplication.interchange
                 a (Integer.from_nat q) (Integer.from_nat d) (Integer.from_nat s)) in |- *.
-      rewrite e in |- *.
-      rewrite (Integer.multiplication.commutativity (Integer.from_nat q) (Integer.from_nat s)) in |- *.
-      rewrite (Integer.multiplication.interchange
+      leibniz e in |- *.
+      leibniz (Integer.multiplication.commutativity (Integer.from_nat q) (Integer.from_nat s)) in |- *.
+      leibniz (Integer.multiplication.interchange
                 c (Integer.from_nat b) (Integer.from_nat s) (Integer.from_nat q)) in |- *.
-      pose proof (Identity.symmetry P2) as P2'.
-      rewrite P2' in |- *.
-      rewrite (Integer.multiplication.commutativity (Integer.from_nat b) (Integer.from_nat q)) in |- *.
-      rewrite (Integer.multiplication.interchange
+      let proof P2' := Identity.symmetry P2.
+      leibniz P2' in |- *.
+      leibniz (Integer.multiplication.commutativity (Integer.from_nat b) (Integer.from_nat q)) in |- *.
+      leibniz (Integer.multiplication.interchange
                 r (Integer.from_nat d) (Integer.from_nat q) (Integer.from_nat b)) in |- *.
-      rewrite (Integer.multiplication.commutativity (Integer.from_nat d) (Integer.from_nat b)) in |- *.
-      reflexivity.
+      leibniz (Integer.multiplication.commutativity (Integer.from_nat d) (Integer.from_nat b)) in |- *.
+      quod idem est.
     }
 
-    rewrite (Integer.multiplication.commutativity
+    leibniz (Integer.multiplication.commutativity
               (Integer.mul p (Integer.from_nat s))
               (Integer.mul (Integer.from_nat b)
                            (Integer.from_nat d))) in widened.
-    rewrite (Integer.multiplication.commutativity
+    leibniz (Integer.multiplication.commutativity
               (Integer.mul r (Integer.from_nat q))
               (Integer.mul (Integer.from_nat b)
                            (Integer.from_nat d))) in widened.
-    pose proof (Integer.multiplication.cancellation
+    let proof cross := Integer.multiplication.cancellation
                   (Integer.mul (Integer.from_nat b) (Integer.from_nat d))
                   (Integer.mul p (Integer.from_nat s))
                   (Integer.mul r (Integer.from_nat q))
-                  nzbd widened) as cross.
+                  nzbd widened.
 
-    pose proof (Identity.congruence Integer.abs cross) as m.
-    rewrite (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
-    rewrite (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
-    change (Integer.abs (Integer.from_nat s))
-      with (NatWithZero.Positive s) in m.
-    change (Integer.abs (Integer.from_nat q))
-      with (NatWithZero.Positive q) in m.
+    let proof m := Identity.congruence Integer.abs cross.
+    leibniz (Integer.multiplication.magnitude p (Integer.from_nat s)) in m.
+    leibniz (Integer.multiplication.magnitude r (Integer.from_nat q)) in m.
+    let proof m
+      : NatWithZero.mul (Integer.abs p) (NatWithZero.Positive s)
+        = NatWithZero.mul (Integer.abs r) (NatWithZero.Positive q)
+      := &m.
 
-    assert (coprime1
-            : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
-            = NatWithZero.Positive Nat.One).
+    lemma coprime1 : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
+            = NatWithZero.Positive Nat.One.
     {
-      pose proof (NatWithZero.gcd.nat.specification q (Integer.abs p)) as g.
-      rewrite I1 in g.
-      rewrite (NatWithZero.gcd.commutativity
+      let proof g := NatWithZero.gcd.nat.specification q (Integer.abs p).
+      leibniz I1 in g.
+      leibniz (NatWithZero.gcd.commutativity
                 (Integer.abs p) (NatWithZero.Positive q)) in g.
-      exact g.
+      ipso g.
     }
 
-    assert (coprime2
-            : NatWithZero.gcd (NatWithZero.Positive s) (Integer.abs r)
-            = NatWithZero.Positive Nat.One).
+    lemma coprime2 : NatWithZero.gcd (NatWithZero.Positive s) (Integer.abs r)
+            = NatWithZero.Positive Nat.One.
     {
-      pose proof (NatWithZero.gcd.nat.specification s (Integer.abs r)) as g.
-      rewrite I2 in g.
-      rewrite (NatWithZero.gcd.commutativity (Integer.abs r)
+      let proof g := NatWithZero.gcd.nat.specification s (Integer.abs r).
+      leibniz I2 in g.
+      leibniz (NatWithZero.gcd.commutativity (Integer.abs r)
                  (NatWithZero.Positive s)) in g.
-      exact g.
+      ipso g.
     }
 
-    assert (qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s)).
+    lemma qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s).
     {
-      pose proof (NatWithZero.divisibility.multiplication.closure
+      let proof h := NatWithZero.divisibility.multiplication.closure
                     (NatWithZero.Positive q) (NatWithZero.Positive q)
                     (Integer.abs r)
-                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive q)))
-              as h.
-      rewrite (NatWithZero.multiplication.commutativity
+                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive q)).
+      leibniz (NatWithZero.multiplication.commutativity
                 (NatWithZero.Positive q) (Integer.abs r)) in h.
-      pose proof (Identity.symmetry m) as m'.
-      rewrite m' in h.
-      exact (NatWithZero.gcd.multiplication.cancellation
+      let proof m' := Identity.symmetry m.
+      leibniz m' in h.
+      ipso (NatWithZero.gcd.multiplication.cancellation
               (NatWithZero.Positive q) (Integer.abs p)
               (NatWithZero.Positive s) h coprime1).
     }
 
-    assert (sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q)).
+    lemma sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q).
     {
-      pose proof (NatWithZero.divisibility.multiplication.closure
+      let proof h := NatWithZero.divisibility.multiplication.closure
                     (NatWithZero.Positive s) (NatWithZero.Positive s)
                     (Integer.abs p)
-                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive s))) as h.
-      rewrite (NatWithZero.multiplication.commutativity
+                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive s)).
+      leibniz (NatWithZero.multiplication.commutativity
                  (NatWithZero.Positive s) (Integer.abs p)) in h.
-      rewrite m in h.
-      exact (NatWithZero.gcd.multiplication.cancellation
+      leibniz m in h.
+      ipso (NatWithZero.gcd.multiplication.cancellation
                (NatWithZero.Positive s) (Integer.abs r)
                (NatWithZero.Positive q) h coprime2).
     }
 
-    pose proof (NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq)) as hq.
-    rewrite hq in cross.
-    rewrite (Integer.multiplication.commutativity p (Integer.from_nat s)) in cross.
-    rewrite (Integer.multiplication.commutativity r (Integer.from_nat s)) in cross.
-    pose proof (Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross)
-            as hp.
-    apply extensionality.
-    + simpl numerator in |- *.
-      exact hp.
-    + simpl denominator in |- *.
-      exact hq.
+    let proof hq := NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq).
+    leibniz hq in cross.
+    leibniz (Integer.multiplication.commutativity p (Integer.from_nat s)) in cross.
+    leibniz (Integer.multiplication.commutativity r (Integer.from_nat s)) in cross.
+    let proof hp := Integer.multiplication.cancellation (Integer.from_nat s) p r nzs cross.
+    ipso (extensionality
+            (Rational_introduction &p &q &I1) (Rational_introduction &r &s &I2)
+            &hp &hq).
 Qed.
 
 (* make.annihilation *)
@@ -620,26 +622,24 @@ Theorem annihilation
 Proof.
   intro b.
 
-  assert (unit : make Integer.Zero Nat.One = Zero).
+  lemma unit : make Integer.Zero Nat.One = Zero.
   {
-    pose proof (retraction Zero) as r.
-    change (numerator   Zero) with Integer.Zero in r.
-    change (denominator Zero) with Nat.One  in r.
-    exact r.
+    let proof r := retraction Zero.
+    let proof r : make Integer.Zero Nat.One = Zero := &r.
+    ipso r.
   }
 
-  assert (cross
-          : Integer.mul Integer.Zero (Integer.from_nat Nat.One)
-          = Integer.mul Integer.Zero (Integer.from_nat b)).
+  lemma cross : Integer.mul Integer.Zero (Integer.from_nat Nat.One)
+          = Integer.mul Integer.Zero (Integer.from_nat b).
   {
-    rewrite (Integer.multiplication.left.annihilation (Integer.from_nat Nat.One)) in |- *.
-    rewrite (Integer.multiplication.left.annihilation (Integer.from_nat b))     in |- *.
-    reflexivity.
+    leibniz (Integer.multiplication.left.annihilation (Integer.from_nat Nat.One)) in |- *.
+    leibniz (Integer.multiplication.left.annihilation (Integer.from_nat b))     in |- *.
+    quod idem est.
   }
 
-  pose proof (characterisation Integer.Zero b Integer.Zero Nat.One) as criterion.
-  modus aequans criterion, cross as joined.
-  exact (Identity.transitivity joined unit).
+  let proof criterion := characterisation Integer.Zero b Integer.Zero Nat.One.
+  modus aequans criterion, cross |- joined.
+  ipso (Identity.transitivity joined unit).
 Qed.
 
 Module addition. (* make.addition *)
@@ -655,71 +655,73 @@ Proof.
   intros a b c d.
   simpl add in |- *.
 
-  pose proof (proportionality a b) as P1.
-  pose proof (proportionality c d) as P2.
+  let proof P1 := proportionality a b.
+  let proof P2 := proportionality c d.
 
-  destruct (make a b) as [p q I1] eqn:E1.
-  destruct (make c d) as [r s I2] eqn:E2.
+  match (make a b) with | p q I1 end |- E1.
+  match (make c d) with | r s I2 end |- E2.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
-  set (b' := Integer.from_nat b) in *.
-  set (d' := Integer.from_nat d) in *.
-  set (q' := Integer.from_nat q) in *.
-  set (s' := Integer.from_nat s) in *.
+  let b' := Integer.from_nat b in *.
+  let d' := Integer.from_nat d in *.
+  let q' := Integer.from_nat q in *.
+  let s' := Integer.from_nat s in *.
 
-  assert (first
-          : Integer.mul (Integer.mul p s') (Integer.mul b' d')
-          = Integer.mul (Integer.mul a d') (Integer.mul q' s')).
+  lemma first : Integer.mul (Integer.mul p s') (Integer.mul b' d')
+          = Integer.mul (Integer.mul a d') (Integer.mul q' s').
   {
-    rewrite (Integer.multiplication.interchange p s' b' d') in |- *.
-    rewrite P1 in |- *.
-    rewrite (Integer.multiplication.commutativity s' d') in |- *.
-    rewrite (Integer.multiplication.interchange a q' d' s') in |- *.
-    reflexivity.
+    leibniz (Integer.multiplication.interchange p s' b' d') in |- *.
+    leibniz P1 in |- *.
+    leibniz (Integer.multiplication.commutativity s' d') in |- *.
+    leibniz (Integer.multiplication.interchange a q' d' s') in |- *.
+    quod idem est.
   }
 
-  assert (second
-          : Integer.mul (Integer.mul r q') (Integer.mul b' d')
-          = Integer.mul (Integer.mul c b') (Integer.mul q' s')).
+  lemma second : Integer.mul (Integer.mul r q') (Integer.mul b' d')
+          = Integer.mul (Integer.mul c b') (Integer.mul q' s').
   {
-    rewrite (Integer.multiplication.commutativity b' d') in |- *.
-    rewrite (Integer.multiplication.interchange r q' d' b') in |- *.
-    rewrite P2 in |- *.
-    rewrite (Integer.multiplication.commutativity q' b') in |- *.
-    rewrite (Integer.multiplication.interchange c s' b' q') in |- *.
-    rewrite (Integer.multiplication.commutativity s' q') in |- *.
-    reflexivity.
+    leibniz (Integer.multiplication.commutativity b' d') in |- *.
+    leibniz (Integer.multiplication.interchange r q' d' b') in |- *.
+    leibniz P2 in |- *.
+    leibniz (Integer.multiplication.commutativity q' b') in |- *.
+    leibniz (Integer.multiplication.interchange c s' b' q') in |- *.
+    leibniz (Integer.multiplication.commutativity s' q') in |- *.
+    quod idem est.
   }
 
-  assert (cross
-          : Integer.mul (Integer.add (Integer.mul p s') (Integer.mul r q'))
+  lemma cross : Integer.mul (Integer.add (Integer.mul p s') (Integer.mul r q'))
                   (Integer.from_nat (Nat.mul b d))
           = Integer.mul (Integer.add (Integer.mul a d') (Integer.mul c b'))
-                  (Integer.from_nat (Nat.mul q s))).
+                  (Integer.from_nat (Nat.mul q s)).
   {
-    change (Integer.from_nat (Nat.mul b d))
-      with (Integer.mul b' d')
-        in |- *.
-    change (Integer.from_nat (Nat.mul q s))
-      with (Integer.mul q' s')
-        in |- *.
-    rewrite (Integer.multiplication.right.distributivity.over.addition
-              (Integer.mul b' d') (Integer.mul p s') (Integer.mul r q')) in |- *.
-    rewrite (Integer.multiplication.right.distributivity.over.addition
-              (Integer.mul q' s') (Integer.mul a d') (Integer.mul c b')) in |- *.
-    rewrite first  in |- *.
-    rewrite second in |- *.
-    reflexivity.
+    lemma facto
+      : Integer.mul (Integer.add (Integer.mul &p &s') (Integer.mul &r &q')) (Integer.mul &b' &d')
+        = Integer.mul (Integer.add (Integer.mul &a &d') (Integer.mul &c &b')) (Integer.mul &q' &s').
+    {
+      leibniz (Integer.multiplication.right.distributivity.over.addition
+                (Integer.mul b' d') (Integer.mul p s') (Integer.mul r q')) in |- *.
+      leibniz (Integer.multiplication.right.distributivity.over.addition
+                (Integer.mul q' s') (Integer.mul a d') (Integer.mul c b')) in |- *.
+      leibniz first  in |- *.
+      leibniz second in |- *.
+      quod idem est.
+    }
+    let proof facto
+      : Integer.mul (Integer.add (Integer.mul &p &s') (Integer.mul &r &q')) (Integer.mul &b' &d')
+        = Integer.mul (Integer.add (Integer.mul &a &d') (Integer.mul &c &b'))
+                      (Integer.from_nat (Nat.mul &q &s))
+      := &facto.
+    ipso &facto.
   }
 
-  pose proof (characterisation
+  let proof criterion := characterisation
                 (Integer.add (Integer.mul p s') (Integer.mul r q'))
                 (Nat.mul q s)
                 (Integer.add (Integer.mul a d') (Integer.mul c b'))
-                (Nat.mul b d)) as criterion.
-  modus aequans criterion, cross as joined.
-  exact joined.
+                (Nat.mul b d).
+  modus aequans criterion, cross |- joined.
+  ipso joined.
 Qed.
 
 End addition. (* make.addition *)
@@ -734,38 +736,41 @@ Proof.
   intros a b c d.
   simpl mul in |- *.
 
-  pose proof (proportionality a b) as P1.
-  pose proof (proportionality c d) as P2.
+  let proof P1 := proportionality a b.
+  let proof P2 := proportionality c d.
 
-  destruct (make a b) as [p q I1] eqn:E1.
-  destruct (make c d) as [r s I2] eqn:E2.
+  match (make a b) with | p q I1 end |- E1.
+  match (make c d) with | r s I2 end |- E2.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
-  assert (cross
-          : Integer.mul (Integer.mul p r) (Integer.from_nat (Nat.mul b d))
-          = Integer.mul (Integer.mul a c) (Integer.from_nat (Nat.mul q s))).
+  lemma cross : Integer.mul (Integer.mul p r) (Integer.from_nat (Nat.mul b d))
+          = Integer.mul (Integer.mul a c) (Integer.from_nat (Nat.mul q s)).
   {
-    change (Integer.from_nat (Nat.mul b d))
-      with (Integer.mul (Integer.from_nat b) (Integer.from_nat d))
-        in |- *.
-    change (Integer.from_nat (Nat.mul q s))
-      with (Integer.mul (Integer.from_nat q) (Integer.from_nat s))
-        in |- *.
-    rewrite (Integer.multiplication.interchange
-              p r (Integer.from_nat b) (Integer.from_nat d)) in |- *.
-    rewrite P1 in |- *.
-    rewrite P2 in |- *.
-    rewrite (Integer.multiplication.interchange
-              a (Integer.from_nat q) c (Integer.from_nat s)) in |- *.
-    reflexivity.
+    lemma facto
+      : Integer.mul (Integer.mul &p &r) (Integer.mul (Integer.from_nat &b) (Integer.from_nat &d))
+        = Integer.mul (Integer.mul &a &c) (Integer.mul (Integer.from_nat &q) (Integer.from_nat &s)).
+    {
+      leibniz (Integer.multiplication.interchange
+                p r (Integer.from_nat b) (Integer.from_nat d)) in |- *.
+      leibniz P1 in |- *.
+      leibniz P2 in |- *.
+      leibniz (Integer.multiplication.interchange
+                a (Integer.from_nat q) c (Integer.from_nat s)) in |- *.
+      quod idem est.
+    }
+    let proof facto
+      : Integer.mul (Integer.mul &p &r) (Integer.mul (Integer.from_nat &b) (Integer.from_nat &d))
+        = Integer.mul (Integer.mul &a &c) (Integer.from_nat (Nat.mul &q &s))
+      := &facto.
+    ipso &facto.
   }
 
-  pose proof (characterisation
+  let proof criterion := characterisation
                 (Integer.mul p r) (Nat.mul q s)
-                (Integer.mul a c) (Nat.mul b d)) as criterion.
-  modus aequans criterion, cross as joined.
-  exact joined.
+                (Integer.mul a c) (Nat.mul b d).
+  modus aequans criterion, cross |- joined.
+  ipso joined.
 Qed.
 
 End multiplication. (* make.multiplication *)
@@ -780,26 +785,25 @@ Proof.
   intros a b.
   simpl negate in |- *.
 
-  pose proof (proportionality a b) as P1.
+  let proof P1 := proportionality a b.
 
-  destruct (make a b) as [p q I1] eqn:E1.
+  match (make a b) with | p q I1 end |- E1.
   simpl numerator, denominator in P1.
   simpl numerator, denominator in |- *.
 
-  assert (cross
-          : Integer.mul (Integer.negate p) (Integer.from_nat b)
-          = Integer.mul (Integer.negate a) (Integer.from_nat q)).
+  lemma cross : Integer.mul (Integer.negate p) (Integer.from_nat b)
+          = Integer.mul (Integer.negate a) (Integer.from_nat q).
   {
-    rewrite (Integer.multiplication.left.negation p (Integer.from_nat b)) in |- *.
-    rewrite (Integer.multiplication.left.negation a (Integer.from_nat q)) in |- *.
-    rewrite P1 in |- *.
-    reflexivity.
+    leibniz (Integer.multiplication.left.negation p (Integer.from_nat b)) in |- *.
+    leibniz (Integer.multiplication.left.negation a (Integer.from_nat q)) in |- *.
+    leibniz P1 in |- *.
+    quod idem est.
   }
 
-  pose proof (characterisation
-                (Integer.negate p) q (Integer.negate a) b) as criterion.
-  modus aequans criterion, cross as joined.
-  exact joined.
+  let proof criterion := characterisation
+                (Integer.negate p) q (Integer.negate a) b.
+  modus aequans criterion, cross |- joined.
+  ipso joined.
 Qed.
 
 End negation. (* make.negation *)
@@ -813,12 +817,12 @@ Theorem characterisation
         = Integer.mul (numerator y) (Integer.from_nat (denominator x)).
 Proof.
   intros x y.
-  pose proof (make.characterisation
+  let proof c := make.characterisation
                 (numerator x) (denominator x)
-                (numerator y) (denominator y)) as c.
-  rewrite (make.retraction x) in c.
-  rewrite (make.retraction y) in c.
-  exact c.
+                (numerator y) (denominator y).
+  leibniz (make.retraction x) in c.
+  leibniz (make.retraction y) in c.
+  ipso c.
 Qed.
 
 Module addition. (* addition *)
@@ -830,74 +834,85 @@ Theorem associativity
 Proof.
   intros x y z.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
+  lemma general : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
               ((make a b) + (make c d)) + (make e f)
-            = (make a b) + ((make c d) + (make e f))).
+            = (make a b) + ((make c d) + (make e f)).
   {
     intros a b c d e f.
-    rewrite (make.addition.homomorphism a b c d) in |- *.
-    rewrite (make.addition.homomorphism c d e f) in |- *.
-    rewrite (make.addition.homomorphism
+    leibniz (make.addition.homomorphism a b c d) in |- *.
+    leibniz (make.addition.homomorphism c d e f) in |- *.
+    leibniz (make.addition.homomorphism
                (Integer.add (Integer.mul a (Integer.from_nat d))
                       (Integer.mul c (Integer.from_nat b)))
                (Nat.mul b d)
                e f) in |- *.
-    rewrite (make.addition.homomorphism
+    leibniz (make.addition.homomorphism
                a b
                (Integer.add (Integer.mul c (Integer.from_nat f))
                       (Integer.mul e (Integer.from_nat d)))
                (Nat.mul d f)) in |- *.
 
-    set (b' := Integer.from_nat b) in *.
-    set (d' := Integer.from_nat d) in *.
-    set (f' := Integer.from_nat f) in *.
+    let b' := Integer.from_nat b in *.
+    let d' := Integer.from_nat d in *.
+    let f' := Integer.from_nat f in *.
 
-    change (Integer.from_nat (Nat.mul b d))
-      with (Integer.mul b' d')
-        in |- *.
-    change (Integer.from_nat (Nat.mul d f))
-      with (Integer.mul d' f')
-        in |- *.
-
-    assert (tops
-            : Integer.add
-                (Integer.mul (Integer.add (Integer.mul a d') (Integer.mul c b')) (f'))
-                (Integer.mul (e) (Integer.mul b' d'))
-            = Integer.add
-                (Integer.mul (a) (Integer.mul d' f'))
-                (Integer.mul (Integer.add (Integer.mul c f') (Integer.mul e d')) (b'))).
+    lemma facto
+      : make (Integer.add (Integer.mul (Integer.add (Integer.mul &a &d') (Integer.mul &c &b')) &f')
+                          (Integer.mul &e (Integer.mul &b' &d')))
+             (Nat.mul (Nat.mul &b &d) &f)
+        = make (Integer.add (Integer.mul &a (Integer.mul &d' &f'))
+                            (Integer.mul (Integer.add (Integer.mul &c &f') (Integer.mul &e &d'))
+                                         &b'))
+               (Nat.mul &b (Nat.mul &d &f)).
     {
-      rewrite (Integer.multiplication.right.distributivity.over.addition
-                f' (Integer.mul a d') (Integer.mul c b')) in |- *.
-      rewrite (Integer.multiplication.right.distributivity.over.addition
-                b' (Integer.mul c f') (Integer.mul e d')) in |- *.
-      rewrite (Integer.addition.associativity
-                (Integer.mul (Integer.mul a d') f')
-                (Integer.mul (Integer.mul c b') f')
-                (Integer.mul e (Integer.mul b' d'))) in |- *.
-      rewrite (Integer.multiplication.associativity a d' f') in |- *.
-      rewrite (Integer.multiplication.associativity c b' f') in |- *.
-      rewrite (Integer.multiplication.associativity c f' b') in |- *.
-      rewrite (Integer.multiplication.associativity e d' b') in |- *.
-      rewrite (Integer.multiplication.commutativity b' f') in |- *.
-      rewrite (Integer.multiplication.commutativity b' d') in |- *.
-      reflexivity.
-    }
+      lemma tops : Integer.add
+                  (Integer.mul (Integer.add (Integer.mul a d') (Integer.mul c b')) (f'))
+                  (Integer.mul (e) (Integer.mul b' d'))
+              = Integer.add
+                  (Integer.mul (a) (Integer.mul d' f'))
+                  (Integer.mul (Integer.add (Integer.mul c f') (Integer.mul e d')) (b')).
+      {
+        leibniz (Integer.multiplication.right.distributivity.over.addition
+                  f' (Integer.mul a d') (Integer.mul c b')) in |- *.
+        leibniz (Integer.multiplication.right.distributivity.over.addition
+                  b' (Integer.mul c f') (Integer.mul e d')) in |- *.
+        leibniz (Integer.addition.associativity
+                  (Integer.mul (Integer.mul a d') f')
+                  (Integer.mul (Integer.mul c b') f')
+                  (Integer.mul e (Integer.mul b' d'))) in |- *.
+        leibniz (Integer.multiplication.associativity a d' f') in |- *.
+        leibniz (Integer.multiplication.associativity c b' f') in |- *.
+        leibniz (Integer.multiplication.associativity c f' b') in |- *.
+        leibniz (Integer.multiplication.associativity e d' b') in |- *.
+        leibniz (Integer.multiplication.commutativity b' f') in |- *.
+        leibniz (Integer.multiplication.commutativity b' d') in |- *.
+        quod idem est.
+      }
 
-    rewrite tops in |- *.
-    rewrite (Nat.multiplication.associativity b d f) in |- *.
-    reflexivity.
+      leibniz tops in |- *.
+      leibniz (Nat.multiplication.associativity b d f) in |- *.
+      quod idem est.
+    }
+    let proof facto
+      : make (Integer.add (Integer.mul (Integer.add (Integer.mul &a &d') (Integer.mul &c &b')) &f')
+                          (Integer.mul &e (Integer.mul &b' &d')))
+             (Nat.mul (Nat.mul &b &d) &f)
+        = make (Integer.add (Integer.mul &a (Integer.from_nat (Nat.mul &d &f)))
+                            (Integer.mul (Integer.add (Integer.mul &c &f') (Integer.mul &e &d'))
+                                         &b'))
+               (Nat.mul &b (Nat.mul &d &f))
+      := &facto.
+    ipso &facto.
   }
 
-  pose proof (general
+  let proof g := general
                 (numerator x) (denominator x)
                 (numerator y) (denominator y)
-                (numerator z) (denominator z)) as g.
-  rewrite (make.retraction x) in g.
-  rewrite (make.retraction y) in g.
-  rewrite (make.retraction z) in g.
-  exact g.
+                (numerator z) (denominator z).
+  leibniz (make.retraction x) in g.
+  leibniz (make.retraction y) in g.
+  leibniz (make.retraction z) in g.
+  ipso g.
 Qed.
 
 (* addition.commutativity *)
@@ -906,11 +921,11 @@ Theorem commutativity
 Proof.
   intros x y.
   simpl add in |- *.
-  rewrite (Integer.addition.commutativity
+  leibniz (Integer.addition.commutativity
             (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
             (Integer.mul (numerator y) (Integer.from_nat (denominator x)))) in |- *.
-  rewrite (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
-  reflexivity.
+  leibniz (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
+  quod idem est.
 Qed.
 
 Module left. (* addition.left *)
@@ -920,23 +935,39 @@ Module left. (* addition.left *)
 Proof.
   intro x.
   simpl add in |- *.
-  change (numerator Zero)
-    with Integer.Zero
-      in |- *.
-  change (denominator Zero)
-    with Nat.One
-      in |- *.
-  change (Integer.from_nat Nat.One)
-    with (Integer.Positive Nat.One)
-      in |- *.
-  change (Nat.mul Nat.One (denominator x)) with (denominator x) in |- *.
-  rewrite (Integer.multiplication.left.annihilation
-             (Integer.from_nat (denominator x))) in |- *.
-  rewrite (Integer.addition.left.identity
-             (Integer.mul (numerator x)
-                          (Integer.Positive Nat.One))) in |- *.
-  rewrite (Integer.multiplication.right.identity (numerator x)) in |- *.
-  exact (make.retraction x).
+  lemma facto
+    : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
+                        (Integer.mul (numerator &x) (Integer.Positive Nat.One)))
+           (denominator &x)
+      = &x.
+  {
+    leibniz (Integer.multiplication.left.annihilation
+               (Integer.from_nat (denominator x))) in |- *.
+    leibniz (Integer.addition.left.identity
+               (Integer.mul (numerator x)
+                            (Integer.Positive Nat.One))) in |- *.
+    leibniz (Integer.multiplication.right.identity (numerator x)) in |- *.
+    ipso (make.retraction x).
+  }
+  let proof facto
+    : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
+                        (Integer.mul (numerator &x) (Integer.Positive Nat.One)))
+           (Nat.mul Nat.One (denominator &x))
+      = &x
+    := &facto.
+  let proof facto
+    : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
+                        (Integer.mul (numerator &x) (Integer.from_nat Nat.One)))
+           (Nat.mul Nat.One (denominator &x))
+      = &x
+    := &facto.
+  let proof facto
+    : make (Integer.add (Integer.mul Integer.Zero (Integer.from_nat (denominator &x)))
+                        (Integer.mul (numerator &x) (Integer.from_nat (denominator Zero))))
+           (Nat.mul (denominator Zero) (denominator &x))
+      = &x
+    := &facto.
+  ipso &facto.
 Qed.
 
 (* addition.left.inverse *)
@@ -944,20 +975,19 @@ Theorem inverse : forall (x : Rational) . (negate x) + x = Zero.
 Proof.
   intro x.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) . (negate (make a b)) + (make a b) = Zero).
+  lemma general : forall (a : Integer) (b : Nat) . (negate (make a b)) + (make a b) = Zero.
   {
     intros a b.
-    rewrite (make.negation.homomorphism a b) in |- *.
-    rewrite (make.addition.homomorphism (Integer.negate a) b a b) in |- *.
-    rewrite (Integer.multiplication.left.negation (a) (Integer.from_nat b)) in |- *.
-    rewrite (Integer.addition.left.inverse (Integer.mul a (Integer.from_nat b))) in |- *.
-    exact (make.annihilation (Nat.mul b b)).
+    leibniz (make.negation.homomorphism a b) in |- *.
+    leibniz (make.addition.homomorphism (Integer.negate a) b a b) in |- *.
+    leibniz (Integer.multiplication.left.negation (a) (Integer.from_nat b)) in |- *.
+    leibniz (Integer.addition.left.inverse (Integer.mul a (Integer.from_nat b))) in |- *.
+    ipso (make.annihilation (Nat.mul b b)).
   }
 
-  pose proof (general (numerator x) (denominator x)) as g.
-  rewrite (make.retraction x) in g.
-  exact g.
+  let proof g := general (numerator x) (denominator x).
+  leibniz (make.retraction x) in g.
+  ipso g.
 Qed.
 
 (* addition.left.cancellation *)
@@ -967,21 +997,21 @@ Theorem cancellation
 Proof.
   intros k m n e.
 
-  pose proof (associativity (negate k) k m) as am.
-  rewrite (inverse k)  in am.
-  rewrite (identity m) in am.
+  let proof am := associativity (negate k) k m.
+  leibniz (inverse k)  in am.
+  leibniz (identity m) in am.
 
-  pose proof (associativity (negate k) k n) as an.
-  rewrite (inverse k)  in an.
-  rewrite (identity n) in an.
+  let proof an := associativity (negate k) k n.
+  leibniz (inverse k)  in an.
+  leibniz (identity n) in an.
 
-  pose proof (Identity.congruence
+  let proof h := Identity.congruence
                 (fun (t : Rational) . add (negate k) t)
-                (e)) as h.
+                (e).
   simpl in h.
 
-  symmetry in an.
-  exact (Identity.transitivity am (Identity.transitivity h an)).
+  symm in an.
+  ipso (Identity.transitivity am (Identity.transitivity h an)).
 Qed.
 
 End left. (* addition.left *)
@@ -993,15 +1023,32 @@ Module right. (* addition.right *)
 Proof.
   intro x.
   simpl add in |- *.
-  change (numerator   Zero) with Integer.Zero in |- *.
-  change (denominator Zero) with Nat.One  in |- *.
-  change (Integer.from_nat Nat.One) with (Integer.Positive Nat.One) in |- *.
-  rewrite (Integer.multiplication.right.identity (numerator x)) in |- *.
-  rewrite (Integer.multiplication.left.annihilation (Integer.from_nat (denominator x))) in |- *.
-  rewrite (Integer.addition.right.identity (numerator x)) in |- *.
-  destruct (Nat.multiplication.identity (denominator x)) as [_ unit].
-  rewrite unit in |- *.
-  exact (make.retraction x).
+  lemma facto
+    : make (Integer.add (Integer.mul (numerator &x) (Integer.Positive Nat.One))
+                        (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
+           (Nat.mul (denominator &x) Nat.One)
+      = &x.
+  {
+    leibniz (Integer.multiplication.right.identity (numerator x)) in |- *.
+    leibniz (Integer.multiplication.left.annihilation (Integer.from_nat (denominator x))) in |- *.
+    leibniz (Integer.addition.right.identity (numerator x)) in |- *.
+    match (Nat.multiplication.identity (denominator x)) with | _ unit end.
+    leibniz unit in |- *.
+    ipso (make.retraction x).
+  }
+  let proof facto
+    : make (Integer.add (Integer.mul (numerator &x) (Integer.from_nat Nat.One))
+                        (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
+           (Nat.mul (denominator &x) Nat.One)
+      = &x
+    := &facto.
+  let proof facto
+    : make (Integer.add (Integer.mul (numerator &x) (Integer.from_nat (denominator Zero)))
+                        (Integer.mul Integer.Zero (Integer.from_nat (denominator &x))))
+           (Nat.mul (denominator &x) (denominator Zero))
+      = &x
+    := &facto.
+  ipso &facto.
 Qed.
 
 (* addition.right.inverse *)
@@ -1009,23 +1056,22 @@ Theorem inverse : forall (x : Rational) . x + (negate x) = Zero.
 Proof.
   intro x.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) .
-              add (make a b) (negate (make a b)) = Zero).
+  lemma general : forall (a : Integer) (b : Nat) .
+              add (make a b) (negate (make a b)) = Zero.
   {
     intros a b.
-    rewrite (make.negation.homomorphism a b) in |- *.
-    rewrite (make.addition.homomorphism a b (Integer.negate a) b) in |- *.
-    rewrite (Integer.multiplication.left.negation
+    leibniz (make.negation.homomorphism a b) in |- *.
+    leibniz (make.addition.homomorphism a b (Integer.negate a) b) in |- *.
+    leibniz (Integer.multiplication.left.negation
                a (Integer.from_nat b)) in |- *.
-    rewrite (Integer.addition.right.inverse
+    leibniz (Integer.addition.right.inverse
                (Integer.mul a (Integer.from_nat b))) in |- *.
-    exact (make.annihilation (Nat.mul b b)).
+    ipso (make.annihilation (Nat.mul b b)).
   }
 
-  pose proof (general (numerator x) (denominator x)) as g.
-  rewrite (make.retraction x) in g.
-  exact g.
+  let proof g := general (numerator x) (denominator x).
+  leibniz (make.retraction x) in g.
+  ipso g.
 Qed.
 
 (* addition.right.cancellation *)
@@ -1035,20 +1081,19 @@ Theorem cancellation
 Proof.
   intros k m n e.
 
-  pose proof (associativity m k (negate k)) as am.
-  rewrite (inverse k)  in am.
-  rewrite (identity m) in am.
+  let proof am := associativity m k (negate k).
+  leibniz (inverse k)  in am.
+  leibniz (identity m) in am.
 
-  pose proof (associativity n k (negate k)) as an.
-  rewrite (inverse k)  in an.
-  rewrite (identity n) in an.
+  let proof an := associativity n k (negate k).
+  leibniz (inverse k)  in an.
+  leibniz (identity n) in an.
 
-  pose proof (Identity.congruence (fun (t : Rational) . add t (negate k)) e)
-          as h.
+  let proof h := Identity.congruence (fun (t : Rational) . add t (negate k)) e.
   simpl in h.
 
-  symmetry in am.
-  exact (Identity.transitivity am (Identity.transitivity h an)).
+  symm in am.
+  ipso (Identity.transitivity am (Identity.transitivity h an)).
 Qed.
 
 End right. (* addition.right *)
@@ -1058,9 +1103,9 @@ Theorem identity
   : forall (x : Rational) . (Zero + x = x) /\ (x + Zero = x).
 Proof.
   intro x.
-  split.
-  - exact (left.identity  x).
-  - exact (right.identity x).
+  divide et impera.
+  - ipso (left.identity  x).
+  - ipso (right.identity x).
 Qed.
 
 (* addition.inverse *)
@@ -1069,9 +1114,9 @@ Theorem inverse
       ((negate x) + x = Zero) /\ (x + (negate x) = Zero).
 Proof.
   intro x.
-  split.
-  - exact (left.inverse  x).
-  - exact (right.inverse x).
+  divide et impera.
+  - ipso (left.inverse  x).
+  - ipso (right.inverse x).
 Qed.
 
 (* addition.cancellation *)
@@ -1080,9 +1125,9 @@ Theorem cancellation
       (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  split.
-  - exact (left.cancellation  m n k).
-  - exact (right.cancellation n m k).
+  divide et impera.
+  - ipso (left.cancellation  m n k).
+  - ipso (right.cancellation n m k).
 Qed.
 
 End addition. (* addition *)
@@ -1096,9 +1141,9 @@ Theorem commutativity
 Proof.
   intros x y.
   simpl mul in |- *.
-  rewrite (Integer.multiplication.commutativity (numerator   x) (numerator   y)) in |- *.
-  rewrite (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
-  reflexivity.
+  leibniz (Integer.multiplication.commutativity (numerator   x) (numerator   y)) in |- *.
+  leibniz (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
+  quod idem est.
 Qed.
 
 (* multiplication.associativity *)
@@ -1108,31 +1153,30 @@ Theorem associativity
 Proof.
   intros x y z.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
+  lemma general : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) (e : Integer) (f : Nat) .
               ((make a b) * (make c d)) * (make e f)
-            = (make a b) * ((make c d) * (make e f))).
+            = (make a b) * ((make c d) * (make e f)).
   {
     intros a b c d e f.
-    rewrite (make.multiplication.homomorphism a b c d) in |- *.
-    rewrite (make.multiplication.homomorphism c d e f) in |- *.
-    rewrite (make.multiplication.homomorphism
+    leibniz (make.multiplication.homomorphism a b c d) in |- *.
+    leibniz (make.multiplication.homomorphism c d e f) in |- *.
+    leibniz (make.multiplication.homomorphism
               (Integer.mul a c) (Nat.mul b d) e f) in |- *.
-    rewrite (make.multiplication.homomorphism
+    leibniz (make.multiplication.homomorphism
               a b (Integer.mul c e) (Nat.mul d f)) in |- *.
-    rewrite (Integer.multiplication.associativity a c e) in |- *.
-    rewrite (Nat.multiplication.associativity b d f) in |- *.
-    reflexivity.
+    leibniz (Integer.multiplication.associativity a c e) in |- *.
+    leibniz (Nat.multiplication.associativity b d f) in |- *.
+    quod idem est.
   }
 
-  pose proof (general
+  let proof g := general
                 (numerator x) (denominator x)
                 (numerator y) (denominator y)
-                (numerator z) (denominator z)) as g.
-  rewrite (make.retraction x) in g.
-  rewrite (make.retraction y) in g.
-  rewrite (make.retraction z) in g.
-  exact g.
+                (numerator z) (denominator z).
+  leibniz (make.retraction x) in g.
+  leibniz (make.retraction y) in g.
+  leibniz (make.retraction z) in g.
+  ipso g.
 Qed.
 
 Module left. (* multiplication.left *)
@@ -1142,11 +1186,23 @@ Theorem identity : forall (x : Rational) . mul One x = x.
 Proof.
   intro x.
   simpl mul in |- *.
-  change (numerator   One) with (Integer.Positive Nat.One) in |- *.
-  change (denominator One) with Nat.One              in |- *.
-  change (Nat.mul Nat.One (denominator x)) with (denominator x) in |- *.
-  rewrite (Integer.multiplication.left.identity (numerator x)) in |- *.
-  exact (make.retraction x).
+  lemma facto
+    : make (Integer.mul (Integer.Positive Nat.One) (numerator &x)) (denominator &x) = &x.
+  {
+    leibniz (Integer.multiplication.left.identity (numerator x)) in |- *.
+    ipso (make.retraction x).
+  }
+  let proof facto
+    : make (Integer.mul (Integer.Positive Nat.One) (numerator &x))
+           (Nat.mul Nat.One (denominator &x))
+      = &x
+    := &facto.
+  let proof facto
+    : make (Integer.mul (Integer.Positive Nat.One) (numerator &x))
+           (Nat.mul (denominator One) (denominator &x))
+      = &x
+    := &facto.
+  ipso &facto.
 Qed.
 
 (* multiplication.left.annihilation *)
@@ -1154,11 +1210,21 @@ Theorem annihilation : forall (x : Rational) . Zero * x = Zero.
 Proof.
   intro x.
   simpl mul in |- *.
-  change (numerator   Zero) with Integer.Zero in |- *.
-  change (denominator Zero) with Nat.One  in |- *.
-  change (Nat.mul Nat.One (denominator x)) with (denominator x)  in |- *.
-  rewrite (Integer.multiplication.left.annihilation (numerator x)) in |- *.
-  exact (make.annihilation (denominator x)).
+  lemma facto
+    : make (Integer.mul Integer.Zero (numerator &x)) (denominator &x) = Zero.
+  {
+    leibniz (Integer.multiplication.left.annihilation (numerator x)) in |- *.
+    ipso (make.annihilation (denominator x)).
+  }
+  let proof facto
+    : make (Integer.mul Integer.Zero (numerator &x)) (Nat.mul Nat.One (denominator &x)) = Zero
+    := &facto.
+  let proof facto
+    : make (Integer.mul Integer.Zero (numerator &x))
+           (Nat.mul (denominator Zero) (denominator &x))
+      = Zero
+    := &facto.
+  ipso &facto.
 Qed.
 
 Module distributivity. (* multiplication.left.distributivity *)
@@ -1172,93 +1238,99 @@ Theorem addition
 Proof.
   intros x y z.
 
-  assert (general
-          : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat)
+  lemma general : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat)
               (e : Integer) (f : Nat) .
               (make a b) * ((make c d) + (make e f))
-            = ((make a b) * (make c d)) + ((make a b) * (make e f))).
+            = ((make a b) * (make c d)) + ((make a b) * (make e f)).
   {
     intros a b c d e f.
-    rewrite (make.addition.homomorphism c d e f) in |- *.
-    rewrite (make.multiplication.homomorphism
+    leibniz (make.addition.homomorphism c d e f) in |- *.
+    leibniz (make.multiplication.homomorphism
               a b
               (Integer.add (Integer.mul c (Integer.from_nat f))
                      (Integer.mul e (Integer.from_nat d)))
               (Nat.mul d f)) in |- *.
-    rewrite (make.multiplication.homomorphism a b c d) in |- *.
-    rewrite (make.multiplication.homomorphism a b e f) in |- *.
-    rewrite (make.addition.homomorphism
+    leibniz (make.multiplication.homomorphism a b c d) in |- *.
+    leibniz (make.multiplication.homomorphism a b e f) in |- *.
+    leibniz (make.addition.homomorphism
               (Integer.mul a c) (Nat.mul b d)
               (Integer.mul a e) (Nat.mul b f)) in |- *.
 
-    set (b' := Integer.from_nat b) in *.
-    set (d' := Integer.from_nat d) in *.
-    set (f' := Integer.from_nat f) in *.
+    let b' := Integer.from_nat b.
+    let d' := Integer.from_nat d in *.
+    let f' := Integer.from_nat f in *.
 
-    change (Integer.from_nat (Nat.mul b f))
-      with (Integer.mul b' f')
-        in |- *.
-    change (Integer.from_nat (Nat.mul b d))
-      with (Integer.mul b' d')
-        in |- *.
-
-    assert (tops
-            : Integer.add
-                (Integer.mul (Integer.mul a c) (Integer.mul b' f'))
-                (Integer.mul (Integer.mul a e) (Integer.mul b' d'))
-            = Integer.mul b'
-                (Integer.mul
-                  (a)
-                  (Integer.add (Integer.mul c f') (Integer.mul e d')))).
+    lemma facto
+      : make (Integer.mul &a (Integer.add (Integer.mul &c &f') (Integer.mul &e &d')))
+             (Nat.mul &b (Nat.mul &d &f))
+        = make (Integer.add (Integer.mul (Integer.mul &a &c) (Integer.mul &b' &f'))
+                            (Integer.mul (Integer.mul &a &e) (Integer.mul &b' &d')))
+               (Nat.mul (Nat.mul &b &d) (Nat.mul &b &f)).
     {
-      rewrite (Integer.multiplication.left.distributivity.over.addition
-                a (Integer.mul c f') (Integer.mul e d')) in |- *.
-      rewrite (Integer.multiplication.left.distributivity.over.addition
-                b'
-                (Integer.mul a (Integer.mul c f'))
-                (Integer.mul a (Integer.mul e d'))) in |- *.
-      rewrite (Integer.multiplication.interchange a c b' f') in |- *.
-      rewrite (Integer.multiplication.interchange a e b' d') in |- *.
-      rewrite (Integer.multiplication.commutativity a b') in |- *.
-      rewrite (Integer.multiplication.associativity
-                b' a (Integer.mul c f')) in |- *.
-      rewrite (Integer.multiplication.associativity
-                b' a (Integer.mul e d')) in |- *.
-      reflexivity.
-    }
+      lemma tops : Integer.add
+                  (Integer.mul (Integer.mul a c) (Integer.mul b' f'))
+                  (Integer.mul (Integer.mul a e) (Integer.mul b' d'))
+              = Integer.mul b'
+                  (Integer.mul
+                    (a)
+                    (Integer.add (Integer.mul c f') (Integer.mul e d'))).
+      {
+        leibniz (Integer.multiplication.left.distributivity.over.addition
+                  a (Integer.mul c f') (Integer.mul e d')) in |- *.
+        leibniz (Integer.multiplication.left.distributivity.over.addition
+                  b'
+                  (Integer.mul a (Integer.mul c f'))
+                  (Integer.mul a (Integer.mul e d'))) in |- *.
+        leibniz (Integer.multiplication.interchange a c b' f') in |- *.
+        leibniz (Integer.multiplication.interchange a e b' d') in |- *.
+        leibniz (Integer.multiplication.commutativity a b') in |- *.
+        leibniz (Integer.multiplication.associativity
+                  b' a (Integer.mul c f')) in |- *.
+        leibniz (Integer.multiplication.associativity
+                  b' a (Integer.mul e d')) in |- *.
+        quod idem est.
+      }
 
-    assert (bots
-            : Nat.mul
-                (Nat.mul b d)
-                (Nat.mul b f)
-            = Nat.mul
-                (b)
-                (Nat.mul b (Nat.mul d f))).
-    {
-      rewrite (Nat.multiplication.associativity b d (Nat.mul b f)) in |- *.
-      rewrite (Nat.multiplication.commutativity d (Nat.mul b f)) in |- *.
-      rewrite (Nat.multiplication.associativity b f d) in |- *.
-      rewrite (Nat.multiplication.commutativity f d) in |- *.
-      reflexivity.
-    }
+      lemma bots : Nat.mul
+                  (Nat.mul b d)
+                  (Nat.mul b f)
+              = Nat.mul
+                  (b)
+                  (Nat.mul b (Nat.mul d f)).
+      {
+        leibniz (Nat.multiplication.associativity b d (Nat.mul b f)) in |- *.
+        leibniz (Nat.multiplication.commutativity d (Nat.mul b f)) in |- *.
+        leibniz (Nat.multiplication.associativity b f d) in |- *.
+        leibniz (Nat.multiplication.commutativity f d) in |- *.
+        quod idem est.
+      }
 
-    rewrite tops in |- *.
-    rewrite bots in |- *.
-    symmetry in |- *.
-    exact (make.invariance
-            (Integer.mul (a) (Integer.add (Integer.mul c f') (Integer.mul e d')))
-            (Nat.mul (b) (Nat.mul d f))
-            (b)).
+      leibniz tops in |- *.
+      leibniz bots in |- *.
+      symm in |- *.
+      ipso (make.invariance
+              (Integer.mul (a) (Integer.add (Integer.mul c f') (Integer.mul e d')))
+              (Nat.mul (b) (Nat.mul d f))
+              (b)).
+    }
+    let proof facto
+      : make (Integer.mul &a (Integer.add (Integer.mul &c &f') (Integer.mul &e &d')))
+             (Nat.mul &b (Nat.mul &d &f))
+        = make (Integer.add (Integer.mul (Integer.mul &a &c) (Integer.mul &b' &f'))
+                            (Integer.mul (Integer.mul &a &e) (Integer.from_nat (Nat.mul &b &d))))
+               (Nat.mul (Nat.mul &b &d) (Nat.mul &b &f))
+      := &facto.
+    ipso &facto.
   }
 
-  pose proof (general
+  let proof g := general
                 (numerator x) (denominator x)
                 (numerator y) (denominator y)
-                (numerator z) (denominator z)) as g.
-  rewrite (make.retraction x) in g.
-  rewrite (make.retraction y) in g.
-  rewrite (make.retraction z) in g.
-  exact g.
+                (numerator z) (denominator z).
+  leibniz (make.retraction x) in g.
+  leibniz (make.retraction y) in g.
+  leibniz (make.retraction z) in g.
+  ipso g.
 Qed.
 
 End over. (* multiplication.left.distributivity.over *)
@@ -1273,16 +1345,16 @@ Module right. (* multiplication.right *)
   Theorem identity : forall (x : Rational) . x * One = x.
 Proof.
   intro x.
-  rewrite (commutativity x One) in |- *.
-  exact (left.identity x).
+  leibniz (commutativity x One) in |- *.
+  ipso (left.identity x).
 Qed.
 
 (* multiplication.right.annihilation *)
 Theorem annihilation : forall (x : Rational) . x * Zero = Zero.
 Proof.
   intro x.
-  rewrite (commutativity x Zero) in |- *.
-  exact (left.annihilation x).
+  leibniz (commutativity x Zero) in |- *.
+  ipso (left.annihilation x).
 Qed.
 
 Module distributivity. (* multiplication.right.distributivity *)
@@ -1295,11 +1367,11 @@ Theorem addition
       (y + z) * x = (y * x) + (z * x).
 Proof.
   intros x y z.
-  rewrite (commutativity (y + z) x) in |- *.
-  rewrite (left.distributivity.over.addition x y z) in |- *.
-  rewrite (commutativity x y) in |- *.
-  rewrite (commutativity x z) in |- *.
-  reflexivity.
+  leibniz (commutativity (y + z) x) in |- *.
+  leibniz (left.distributivity.over.addition x y z) in |- *.
+  leibniz (commutativity x y) in |- *.
+  leibniz (commutativity x z) in |- *.
+  quod idem est.
 Qed.
 
 End over. (* multiplication.right.distributivity.over *)
@@ -1313,9 +1385,9 @@ Theorem identity
   : forall (x : Rational) . (One * x = x) /\ (x * One = x).
 Proof.
   intro x.
-  split.
-  - exact (left.identity  x).
-  - exact (right.identity x).
+  divide et impera.
+  - ipso (left.identity  x).
+  - ipso (right.identity x).
 Qed.
 
 Module distributivity. (* multiplication.distributivity *)
@@ -1329,9 +1401,9 @@ Theorem addition
     /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
-  split.
-  - exact (left.distributivity.over.addition  x y z).
-  - exact (right.distributivity.over.addition x y z).
+  divide et impera.
+  - ipso (left.distributivity.over.addition  x y z).
+  - ipso (right.distributivity.over.addition x y z).
 Qed.
 
 End over. (* multiplication.distributivity.over *)
@@ -1349,93 +1421,102 @@ Theorem specification
 Proof.
   intros x y e.
 
-  assert (unit : make (Integer.Positive Nat.One) Nat.One = One).
+  lemma unit : make (Integer.Positive Nat.One) Nat.One = One.
   {
-    pose proof (make.retraction One) as r.
-    change (numerator   One) with (Integer.Positive Nat.One) in r.
-    change (denominator One) with Nat.One              in r.
-    exact r.
+    let proof r := make.retraction One.
+    let proof r : make (Integer.Positive Nat.One) Nat.One = One := &r.
+    ipso r.
   }
 
-  pose proof (make.retraction x) as r.
+  let proof r := make.retraction x.
   simpl inverse in e.
-  destruct (numerator x) as [p | | p] eqn:E.
+  match (numerator x) with | p | | p end |- E.
 
-  - pose proof (Option.some.injectivity e) as hy.
-    symmetry in r.
-    rewrite r in |- *.
-    symmetry in hy.
-    rewrite hy in |- *.
-    set (d := denominator x) in *.
-    rewrite (make.multiplication.homomorphism (Integer.Negative p) (d) (Integer.Negative d) (p)) in |- *.
-    change (Integer.mul (Integer.Negative p) (Integer.Negative d))
-      with (Integer.Positive (Nat.mul p d))
-        in |- *.
-
-    assert (cross
-            : Integer.mul (Integer.Positive (Nat.mul p d))
-                    (Integer.from_nat Nat.One)
-            = Integer.mul (Integer.Positive Nat.One)
-                    (Integer.from_nat (Nat.mul d p))).
+  - let proof hy := Option.some.injectivity e.
+    symm in r.
+    leibniz r in |- *.
+    symm in hy.
+    leibniz hy in |- *.
+    let d := denominator x in *.
+    leibniz (make.multiplication.homomorphism (Integer.Negative p) (d) (Integer.Negative d) (p)) in |- *.
+    lemma facto : make (Integer.Positive (Nat.mul &p &d)) (Nat.mul &d &p) = One.
     {
-      change (Integer.from_nat Nat.One)
-        with (Integer.Positive Nat.One)
-          in |- *.
-      change (Integer.from_nat (Nat.mul d p))
-        with (Integer.Positive (Nat.mul d p))
-          in |- *.
-      rewrite (Integer.multiplication.right.identity
-                (Integer.Positive (Nat.mul p d))) in |- *.
-      rewrite (Integer.multiplication.left.identity
-                (Integer.Positive (Nat.mul d p))) in |- *.
-      rewrite (Nat.multiplication.commutativity p d) in |- *.
-      reflexivity.
+      lemma cross : Integer.mul (Integer.Positive (Nat.mul p d))
+                      (Integer.from_nat Nat.One)
+              = Integer.mul (Integer.Positive Nat.One)
+                      (Integer.from_nat (Nat.mul d p)).
+      {
+        lemma facto
+          : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
+            = Integer.mul (Integer.Positive Nat.One) (Integer.Positive (Nat.mul &d &p)).
+        {
+          leibniz (Integer.multiplication.right.identity
+                    (Integer.Positive (Nat.mul p d))) in |- *.
+          leibniz (Integer.multiplication.left.identity
+                    (Integer.Positive (Nat.mul d p))) in |- *.
+          leibniz (Nat.multiplication.commutativity p d) in |- *.
+          quod idem est.
+        }
+        let proof facto
+          : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
+            = Integer.mul (Integer.Positive Nat.One) (Integer.from_nat (Nat.mul &d &p))
+          := &facto.
+        ipso &facto.
+      }
+
+      let proof criterion := make.characterisation
+                    (Integer.Positive (Nat.mul p d))
+                    (Nat.mul d p)
+                    (Integer.Positive Nat.One)
+                    (Nat.One).
+      modus aequans criterion, cross |- joined.
+      ipso (Identity.transitivity joined unit).
     }
+    ipso &facto.
 
-    pose proof (make.characterisation
-                  (Integer.Positive (Nat.mul p d))
-                  (Nat.mul d p)
-                  (Integer.Positive Nat.One)
-                  (Nat.One)) as criterion.
-    modus aequans criterion, cross as joined.
-    exact (Identity.transitivity joined unit).
+  - ex e quodlibet.
 
-  - discriminate e.
-
-  - pose proof (Option.some.injectivity e) as hy.
-    symmetry in r.
-    rewrite r in |- *.
-    symmetry in hy.
-    rewrite hy in |- *.
-    set (d := denominator x) in *.
-    rewrite (make.multiplication.homomorphism
+  - let proof hy := Option.some.injectivity e.
+    symm in r.
+    leibniz r in |- *.
+    symm in hy.
+    leibniz hy in |- *.
+    let d := denominator x in *.
+    leibniz (make.multiplication.homomorphism
               (Integer.Positive p) (d)
               (Integer.Positive d) (p)) in |- *.
-    change (Integer.mul (Integer.Positive p) (Integer.Positive d))
-      with (Integer.Positive (Nat.mul p d))
-        in |- *.
-
-    assert (cross
-            : Integer.mul (Integer.Positive (Nat.mul p d))
-                    (Integer.from_nat Nat.One)
-            = Integer.mul (Integer.Positive Nat.One)
-                    (Integer.from_nat (Nat.mul d p))).
+    lemma facto : make (Integer.Positive (Nat.mul &p &d)) (Nat.mul &d &p) = One.
     {
-      change (Integer.from_nat Nat.One) with (Integer.Positive Nat.One) in |- *.
-      change (Integer.from_nat (Nat.mul d p)) with (Integer.Positive (Nat.mul d p)) in |- *.
-      rewrite (Integer.multiplication.right.identity (Integer.Positive (Nat.mul p d))) in |- *.
-      rewrite (Integer.multiplication.left.identity (Integer.Positive (Nat.mul d p))) in |- *.
-      rewrite (Nat.multiplication.commutativity p d) in |- *.
-      reflexivity.
-    }
+      lemma cross : Integer.mul (Integer.Positive (Nat.mul p d))
+                      (Integer.from_nat Nat.One)
+              = Integer.mul (Integer.Positive Nat.One)
+                      (Integer.from_nat (Nat.mul d p)).
+      {
+        lemma facto
+          : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
+            = Integer.mul (Integer.Positive Nat.One) (Integer.Positive (Nat.mul &d &p)).
+        {
+          leibniz (Integer.multiplication.right.identity (Integer.Positive (Nat.mul p d))) in |- *.
+          leibniz (Integer.multiplication.left.identity (Integer.Positive (Nat.mul d p))) in |- *.
+          leibniz (Nat.multiplication.commutativity p d) in |- *.
+          quod idem est.
+        }
+        let proof facto
+          : Integer.mul (Integer.Positive (Nat.mul &p &d)) (Integer.Positive Nat.One)
+            = Integer.mul (Integer.Positive Nat.One) (Integer.from_nat (Nat.mul &d &p))
+          := &facto.
+        ipso &facto.
+      }
 
-    pose proof (make.characterisation
-                  (Integer.Positive (Nat.mul p d))
-                  (Nat.mul d p)
-                  (Integer.Positive Nat.One)
-                  (Nat.One)) as criterion.
-    modus aequans criterion, cross as joined.
-    exact (Identity.transitivity joined unit).
+      let proof criterion := make.characterisation
+                    (Integer.Positive (Nat.mul p d))
+                    (Nat.mul d p)
+                    (Integer.Positive Nat.One)
+                    (Nat.One).
+      modus aequans criterion, cross |- joined.
+      ipso (Identity.transitivity joined unit).
+    }
+    ipso &facto.
 Qed.
 
 End inverse. (* inverse *)
@@ -1450,106 +1531,105 @@ Theorem transitivity
       LessThan x y -> LessThan y z -> LessThan x z.
 Proof.
   intros x y z H1 H2.
-  unfold LessThan in H1, H2 |- *.
-  unfold Integer.from_nat in H1, H2 |- *.
+  simpl LessThan in H1, H2 |- *.
+  simpl Integer.from_nat in H1, H2 |- *.
 
-  set (a := numerator   x) in *.
-  set (b := denominator x) in *.
-  set (c := numerator   y) in *.
-  set (d := denominator y) in *.
-  set (e := numerator   z) in *.
-  set (f := denominator z) in *.
+  let a := numerator   x in *.
+  let b := denominator x in *.
+  let c := numerator   y in *.
+  let d := denominator y in *.
+  let e := numerator   z in *.
+  let f := denominator z in *.
 
-  assert (bridge
-          : Integer.mul (Integer.Positive f)
+  lemma bridge : Integer.mul (Integer.Positive f)
                         (Integer.mul c (Integer.Positive b))
           = Integer.mul (Integer.Positive b)
-                        (Integer.mul c (Integer.Positive f))).
+                        (Integer.mul c (Integer.Positive f)).
   {
-    pose proof (Identity.symmetry
+    let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
-                    (Integer.Positive f) c (Integer.Positive b))) as h.
-    rewrite h in |- *.
-    rewrite (Integer.multiplication.commutativity
+                    (Integer.Positive f) c (Integer.Positive b)).
+    leibniz h in |- *.
+    leibniz (Integer.multiplication.commutativity
                (Integer.Positive f) c) in |- *.
-    rewrite (Integer.multiplication.commutativity
+    leibniz (Integer.multiplication.commutativity
                (Integer.mul c (Integer.Positive f))
                (Integer.Positive b)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
-  assert (leftward
-          : Integer.mul (Integer.Positive f)
+  lemma leftward : Integer.mul (Integer.Positive f)
                   (Integer.mul a (Integer.Positive d))
           = Integer.mul (Integer.Positive d)
-                  (Integer.mul a (Integer.Positive f))).
+                  (Integer.mul a (Integer.Positive f)).
   {
-    pose proof (Identity.symmetry
+    let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
-                    (Integer.Positive f) a (Integer.Positive d))) as h.
-    rewrite h in |- *.
-    rewrite (Integer.multiplication.commutativity
+                    (Integer.Positive f) a (Integer.Positive d)).
+    leibniz h in |- *.
+    leibniz (Integer.multiplication.commutativity
               (Integer.Positive f)
               (a)) in |- *.
-    rewrite (Integer.multiplication.commutativity
+    leibniz (Integer.multiplication.commutativity
               (Integer.mul a (Integer.Positive f))
               (Integer.Positive d)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
-  assert (rightward
-          : Integer.mul (Integer.Positive b)
+  lemma rightward : Integer.mul (Integer.Positive b)
                   (Integer.mul e (Integer.Positive d))
           = Integer.mul (Integer.Positive d)
-                  (Integer.mul e (Integer.Positive b))).
+                  (Integer.mul e (Integer.Positive b)).
   {
-    pose proof (Identity.symmetry
+    let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
                     (Integer.Positive b)
                     (e)
-                    (Integer.Positive d))) as h.
-    rewrite h in |- *.
-    rewrite (Integer.multiplication.commutativity (Integer.Positive b) e) in |- *.
-    rewrite (Integer.multiplication.commutativity
+                    (Integer.Positive d)).
+    leibniz h in |- *.
+    leibniz (Integer.multiplication.commutativity (Integer.Positive b) e) in |- *.
+    leibniz (Integer.multiplication.commutativity
                (Integer.mul e (Integer.Positive b))
                (Integer.Positive d)) in |- *.
-    reflexivity.
+    quod idem est.
   }
 
-  pose proof (Integer.multiplication.left.order.strict.monotonicity
+  let proof S1 := Integer.multiplication.left.order.strict.monotonicity
                 f (Integer.mul a (Integer.Positive d))
-                  (Integer.mul c (Integer.Positive b)) H1) as S1.
-  pose proof (Integer.multiplication.left.order.strict.monotonicity
+                  (Integer.mul c (Integer.Positive b)) H1.
+  let proof S2 := Integer.multiplication.left.order.strict.monotonicity
                 b (Integer.mul c (Integer.Positive f))
-                  (Integer.mul e (Integer.Positive d)) H2) as S2.
+                  (Integer.mul e (Integer.Positive d)) H2.
 
-  rewrite bridge    in S1.
-  rewrite leftward  in S1.
-  rewrite rightward in S2.
+  leibniz bridge    in S1.
+  leibniz leftward  in S1.
+  leibniz rightward in S2.
 
-  pose proof (Integer.order.strict.transitivity S1 S2) as chain.
+  let proof chain := Integer.order.strict.transitivity S1 S2.
 
-  destruct (Comparable.order.strict.trichotomy
-              (Integer.mul a (Integer.Positive f))
-              (Integer.mul e (Integer.Positive b)))
-        as [lt | [eq | gt]].
+  match (Comparable.order.strict.trichotomy
+           (Integer.mul a (Integer.Positive f))
+           (Integer.mul e (Integer.Positive b)))
+        with | lt | rest end.
 
-  - exact lt.
+  - ipso lt.
 
-  - rewrite eq in chain.
-    pose proof (Integer.order.strict.irreflexivity
-                  (Integer.mul (Integer.Positive d)
-                         (Integer.mul e (Integer.Positive b)))) as ir.
-    contradiction ir.
+  - match rest with | eq | gt end.
 
-  - pose proof (Integer.multiplication.left.order.strict.monotonicity
-                  d (Integer.mul e (Integer.Positive b))
-                    (Integer.mul a (Integer.Positive f)) gt) as back.
-    pose proof (Integer.order.strict.transitivity chain back) as loop.
-    pose proof (Integer.order.strict.irreflexivity
-                  (Integer.mul (Integer.Positive d)
-                         (Integer.mul a (Integer.Positive f)))) as ir.
-    contradiction ir.
+    + leibniz eq in chain.
+      let proof ir := Integer.order.strict.irreflexivity
+                    (Integer.mul (Integer.Positive d)
+                           (Integer.mul e (Integer.Positive b))).
+      ex (ir chain) quodlibet.
+
+    + let proof back := Integer.multiplication.left.order.strict.monotonicity
+                    d (Integer.mul e (Integer.Positive b))
+                      (Integer.mul a (Integer.Positive f)) gt.
+      let proof loop := Integer.order.strict.transitivity chain back.
+      let proof ir := Integer.order.strict.irreflexivity
+                    (Integer.mul (Integer.Positive d)
+                           (Integer.mul a (Integer.Positive f))).
+      ex (ir loop) quodlibet.
 Qed.
 
 End strict. (* order.strict *)
@@ -1566,22 +1646,22 @@ Theorem specification
 Proof.
   intros x y.
 
-  destruct (Integer.comparison.specification
+  match (Integer.comparison.specification
               (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
               (Integer.mul (numerator y) (Integer.from_nat (denominator x))))
-        as [below equal].
+        with | below equal end.
 
-  split.
-  - exact below.
-  - split.
+  divide et impera.
+  - ipso below.
+  - divide et impera.
     + intro h.
-      modus aequans equal, h as cross.
-      modus aequans (characterisation x y), cross as same.
-      exact same.
+      modus aequans equal, h |- cross.
+      modus aequans (characterisation x y), cross |- same.
+      ipso same.
     + intro h.
-      modus aequans (characterisation x y), h as cross.
-      modus aequans equal, cross as answer.
-      exact answer.
+      modus aequans (characterisation x y), h |- cross.
+      modus aequans equal, cross |- answer.
+      ipso answer.
 Qed.
 
 (* comparison.antisymmetry *)
@@ -1590,7 +1670,7 @@ Theorem antisymmetry
       compare x y = Comparison.transpose (compare y x).
 Proof.
   intros x y.
-  exact (Integer.comparison.antisymmetry
+  ipso (Integer.comparison.antisymmetry
           (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
           (Integer.mul (numerator y) (Integer.from_nat (denominator x)))).
 Qed.
@@ -1605,13 +1685,14 @@ Theorem injectivity
       from_integer m = from_integer n -> m = n.
 Proof.
   intros m n e.
-  unfold from_integer in e.
-  modus aequans (make.characterisation m Nat.One n Nat.One), e as cross.
-  change (Integer.from_nat Nat.One)
-    with (Integer.Positive Nat.One) in cross.
-  rewrite (Integer.multiplication.right.identity m) in cross.
-  rewrite (Integer.multiplication.right.identity n) in cross.
-  exact cross.
+  simpl from_integer in e.
+  modus aequans (make.characterisation m Nat.One n Nat.One), e |- cross.
+  let proof cross
+    : Integer.mul m (Integer.Positive Nat.One) = Integer.mul n (Integer.Positive Nat.One)
+    := &cross.
+  leibniz (Integer.multiplication.right.identity m) in cross.
+  leibniz (Integer.multiplication.right.identity n) in cross.
+  ipso cross.
 Qed.
 
 (* embedding.addition *)
@@ -1621,14 +1702,23 @@ Theorem addition
     = (from_integer m) + (from_integer n).
 Proof.
   intros m n.
-  unfold from_integer in |- *.
-  rewrite (make.addition.homomorphism m Nat.One n Nat.One) in |- *.
-  change (Integer.from_nat Nat.One)
-    with (Integer.Positive Nat.One) in |- *.
-  rewrite (Integer.multiplication.right.identity m) in |- *.
-  rewrite (Integer.multiplication.right.identity n) in |- *.
-  change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
-  reflexivity.
+  simpl from_integer in |- *.
+  leibniz (make.addition.homomorphism m Nat.One n Nat.One) in |- *.
+  lemma facto
+    : make (Integer.add &m &n) Nat.One
+      = make (Integer.add (Integer.mul &m (Integer.Positive Nat.One))
+                          (Integer.mul &n (Integer.Positive Nat.One)))
+             (Nat.mul Nat.One Nat.One).
+  {
+    leibniz (Integer.multiplication.right.identity m) in |- *.
+    leibniz (Integer.multiplication.right.identity n) in |- *.
+    lemma facto : make (Integer.add &m &n) Nat.One = make (Integer.add &m &n) Nat.One.
+    {
+      quod idem est.
+    }
+    ipso &facto.
+  }
+  ipso &facto.
 Qed.
 
 (* embedding.multiplication *)
@@ -1638,10 +1728,13 @@ Theorem multiplication
     = (from_integer m) * (from_integer n).
 Proof.
   intros m n.
-  unfold from_integer in |- *.
-  rewrite (make.multiplication.homomorphism m Nat.One n Nat.One) in |- *.
-  change (Nat.mul Nat.One Nat.One) with Nat.One in |- *.
-  reflexivity.
+  simpl from_integer in |- *.
+  leibniz (make.multiplication.homomorphism m Nat.One n Nat.One) in |- *.
+  lemma facto : make (Integer.mul &m &n) Nat.One = make (Integer.mul &m &n) Nat.One.
+  {
+    quod idem est.
+  }
+  ipso &facto.
 Qed.
 
 (* embedding.order *)
@@ -1652,71 +1745,82 @@ Theorem order
 Proof.
   intros m n.
 
-  assert (scaling
-          : forall (p : Integer) (q : Integer) (k : Nat) .
+  lemma scaling : forall (p : Integer) (q : Integer) (k : Nat) .
               Integer.LessThan p q
               <-> Integer.LessThan (Integer.mul p (Integer.Positive k))
-                                   (Integer.mul q (Integer.Positive k))).
+                                   (Integer.mul q (Integer.Positive k)).
   {
     intros p q k.
-    split.
+    divide et impera.
     - intro h.
-      pose proof (Integer.multiplication.left.order.strict.monotonicity
-                    k p q h) as s.
-      rewrite (Integer.multiplication.commutativity
+      let proof s := Integer.multiplication.left.order.strict.monotonicity
+                    k p q h.
+      leibniz (Integer.multiplication.commutativity
                  (Integer.Positive k) p) in s.
-      rewrite (Integer.multiplication.commutativity
+      leibniz (Integer.multiplication.commutativity
                  (Integer.Positive k) q) in s.
-      exact s.
+      ipso s.
     - intro h.
-      destruct (Comparable.order.strict.trichotomy p q)
-            as [below | [equal | above]].
-      + exact below.
-      + rewrite equal in h.
-        pose proof (Integer.order.strict.irreflexivity
-                      (Integer.mul q (Integer.Positive k))) as ir.
-        contradiction ir.
-      + pose proof (Integer.multiplication.left.order.strict.monotonicity
-                      k q p above) as s.
-        rewrite (Integer.multiplication.commutativity
-                   (Integer.Positive k) q) in s.
-        rewrite (Integer.multiplication.commutativity
-                   (Integer.Positive k) p) in s.
-        pose proof (Integer.order.strict.transitivity h s) as loop.
-        pose proof (Integer.order.strict.irreflexivity
-                      (Integer.mul p (Integer.Positive k))) as ir.
-        contradiction ir.
+      match (Comparable.order.strict.trichotomy p q)
+            with | below | rest end.
+      + ipso below.
+      + match rest with | equal | above end.
+        * leibniz equal in h.
+          let proof ir := Integer.order.strict.irreflexivity
+                        (Integer.mul q (Integer.Positive k)).
+          ex (ir h) quodlibet.
+        * let proof s := Integer.multiplication.left.order.strict.monotonicity
+                        k q p above.
+          leibniz (Integer.multiplication.commutativity
+                     (Integer.Positive k) q) in s.
+          leibniz (Integer.multiplication.commutativity
+                     (Integer.Positive k) p) in s.
+          let proof loop := Integer.order.strict.transitivity h s.
+          let proof ir := Integer.order.strict.irreflexivity
+                        (Integer.mul p (Integer.Positive k)).
+          ex (ir loop) quodlibet.
   }
 
-  pose proof (make.proportionality m Nat.One) as P1.
-  pose proof (make.proportionality n Nat.One) as P2.
-  change (Integer.from_nat Nat.One)
-    with (Integer.Positive Nat.One) in P1, P2.
-  rewrite (Integer.multiplication.right.identity
+  let proof P1 := make.proportionality m Nat.One.
+  let proof P2 := make.proportionality n Nat.One.
+  let proof P1
+    : Integer.mul (numerator (make m Nat.One)) (Integer.Positive Nat.One)
+      = Integer.mul m (Integer.from_nat (denominator (make m Nat.One)))
+    := &P1.
+  let proof P2
+    : Integer.mul (numerator (make n Nat.One)) (Integer.Positive Nat.One)
+      = Integer.mul n (Integer.from_nat (denominator (make n Nat.One)))
+    := &P2.
+  leibniz (Integer.multiplication.right.identity
              (numerator (make m Nat.One))) in P1.
-  rewrite (Integer.multiplication.right.identity
+  leibniz (Integer.multiplication.right.identity
              (numerator (make n Nat.One))) in P2.
 
-  unfold LessThan   in |- *.
-  unfold from_integer in |- *.
-  rewrite P1 in |- *.
-  rewrite P2 in |- *.
+  simpl LessThan   in |- *.
+  simpl from_integer in |- *.
+  leibniz P1 in |- *.
+  leibniz P2 in |- *.
 
-  set (dm := Integer.from_nat (denominator (make m Nat.One))) in *.
-  set (dn := Integer.from_nat (denominator (make n Nat.One))) in *.
+  let dm := Integer.from_nat (denominator (make m Nat.One)) in *.
+  let dn := Integer.from_nat (denominator (make n Nat.One)) in *.
 
-  rewrite (Integer.multiplication.associativity m dm dn) in |- *.
-  rewrite (Integer.multiplication.associativity n dn dm) in |- *.
-  rewrite (Integer.multiplication.commutativity dn dm) in |- *.
+  leibniz (Integer.multiplication.associativity m dm dn) in |- *.
+  leibniz (Integer.multiplication.associativity n dn dm) in |- *.
+  leibniz (Integer.multiplication.commutativity dn dm) in |- *.
 
-  change (Integer.mul dm dn)
-    with (Integer.Positive
-           (Nat.mul (denominator (make m Nat.One))
-                    (denominator (make n Nat.One)))) in |- *.
-
-  exact (scaling m n
-           (Nat.mul (denominator (make m Nat.One))
-                    (denominator (make n Nat.One)))).
+  lemma facto
+    : Integer.LessThan &m &n
+      <-> Integer.LessThan
+            (Integer.mul &m (Integer.Positive (Nat.mul (denominator (make &m Nat.One))
+                                                       (denominator (make &n Nat.One)))))
+            (Integer.mul &n (Integer.Positive (Nat.mul (denominator (make &m Nat.One))
+                                                       (denominator (make &n Nat.One))))).
+  {
+    ipso (scaling m n
+             (Nat.mul (denominator (make m Nat.One))
+                      (denominator (make n Nat.One)))).
+  }
+  ipso &facto.
 Qed.
 
 End embedding. (* embedding *)

@@ -3,8 +3,8 @@
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Negation.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 (* Abjunction is material nonimplication: [A] holds and [B] does not, the
  * one case in which [A -> B] fails.
@@ -16,6 +16,9 @@ Arguments Abjunction_introduction {A} {B} a nb.
 
 Notation "A -/> B" := (Abjunction A B)
   : jwa_type_scope.
+
+(* [abjoin a, nb] : [A -/> B], from [a : A] and [nb : ~ B]. *)
+Notation "'abjoin' a , nb" := (Abjunction_introduction a nb) (only parsing).
 
 (* A module may carry the type's name; its laws read
  * [Abjunction.congruence].
@@ -35,12 +38,12 @@ Theorem conditional
 Proof.
   intros A B.
   intro h.
-  destruct h as [a nb].
-  unfold Negation in nb |- *.
+  match h with | a nb end.
+  simpl (~ _) in nb |- *.
   intro ab.
-  apply nb.
-  apply ab.
-  exact a.
+  let proof b := ab a.
+  let proof facto := nb b.
+  ipso facto.
 Qed.
 
 End of. (* exclusion.of *)
@@ -54,22 +57,17 @@ Theorem specification
   : forall (A : Prop) (B : Prop) . ~ (A -/> B) <-> (A -> ~ ~ B).
 Proof.
   intros A B.
-  split.
+  divide et impera.
   - intro h.
-    unfold Negation in h |- *.
+    simpl (~ _) in h |- *.
     intro a.
     intro nb.
-    apply h.
-    split.
-    + exact a.
-    + exact nb.
-  - unfold Negation in |- *.
+    ipso (h (abjoin a, nb)).
+  - simpl (~ _) in |- *.
     intro f.
     intro h.
-    destruct h as [a nb].
-    apply f.
-    + exact a.
-    + exact nb.
+    match h with | a nb end.
+    ipso (f a nb).
 Qed.
 
 End negation. (* negation *)
@@ -81,27 +79,25 @@ Proof.
   intros A1 A2 B1 B2.
   intro ea.
   intro eb.
-  destruct ea as [a12 a21].
-  destruct eb as [b12 b21].
-  split; intro h.
-  - destruct h as [a1 nb1].
-    split.
-    + apply a12.
-      exact a1.
-    + unfold Negation in nb1 |- *.
+  match ea with | a12 a21 end.
+  match eb with | b12 b21 end.
+  divide et impera; intro h.
+  - match h with | a1 nb1 end.
+    divide et impera.
+    + ipso (a12 a1).
+    + simpl (~ _) in nb1 |- *.
       intro b2.
-      apply nb1.
-      apply b21.
-      exact b2.
-  - destruct h as [a2 nb2].
-    split.
-    + apply a21.
-      exact a2.
-    + unfold Negation in nb2 |- *.
+      let proof b1 := b21 b2.
+      let proof facto := nb1 b1.
+      ipso facto.
+  - match h with | a2 nb2 end.
+    divide et impera.
+    + ipso (a21 a2).
+    + simpl (~ _) in nb2 |- *.
       intro b1.
-      apply nb2.
-      apply b12.
-      exact b1.
+      let proof b2 := b12 b1.
+      let proof facto := nb2 b2.
+      ipso facto.
 Qed.
 
 End Abjunction. (* Abjunction *)
@@ -123,13 +119,13 @@ Theorem abjunction
 Proof.
   intros A B.
   intro ab.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro h.
-  destruct h as [a nb].
-  unfold Negation in nb.
-  apply nb.
-  apply ab.
-  exact a.
+  match h with | a nb end.
+  simpl (~ _) in nb.
+  let proof b := ab a.
+  let proof facto := nb b.
+  ipso facto.
 Qed.
 
 End of. (* exclusion.of *)

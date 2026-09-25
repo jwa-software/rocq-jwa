@@ -82,17 +82,17 @@ Module distinctness. (* distinctness *)
 (* distinctness.forward *)
 Theorem forward : ~ (true = false).
 Proof.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 (* distinctness.backward *)
 Theorem backward : ~ (false = true).
 Proof.
-  unfold Negation in |- *.
+  simpl (~ _) in |- *.
   intro e.
-  discriminate e.
+  ex e quodlibet.
 Qed.
 
 End distinctness. (* distinctness *)
@@ -100,9 +100,9 @@ End distinctness. (* distinctness *)
 (* distinctness *)
 Theorem distinctness : ~ (true = false) /\ ~ (false = true).
 Proof.
-  split.
-  - exact distinctness.forward.
-  - exact distinctness.backward.
+  divide et impera.
+  - ipso distinctness.forward.
+  - ipso distinctness.backward.
 Qed.
 
 Module negation. (* negation *)
@@ -111,7 +111,7 @@ Module negation. (* negation *)
 Theorem involution : forall (b : Bool) . ! ! b = b.
 Proof.
   intros b.
-  destruct b as [|]; simpl in |- *; reflexivity.
+  match b with | | end; simpl in |- *; quod idem est.
 Qed.
 
 End negation. (* negation *)
@@ -124,7 +124,8 @@ Theorem associativity
       (b1 && b2) && b3 = b1 && (b2 && b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 (* conjunction.commutativity *)
@@ -132,7 +133,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 && b2 = b2 && b1.
 Proof.
   intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* conjunction.identity *)
@@ -140,12 +141,12 @@ Theorem identity
   : forall (b : Bool) . (true && b = b) /\ (b && true = b).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - simpl in |- *.
-    reflexivity.
-  - rewrite (conjunction.commutativity b true) in |- *.
+    quod idem est.
+  - leibniz (conjunction.commutativity b true) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 Module left. (* conjunction.left *)
@@ -160,7 +161,8 @@ Theorem sejunction
       b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 End over. (* conjunction.left.distributivity.over *)
@@ -181,7 +183,8 @@ Theorem sejunction
       (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 End over. (* conjunction.right.distributivity.over *)
@@ -201,9 +204,9 @@ Theorem sejunction
     /\ ((b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1)).
 Proof.
   intros b1 b2 b3.
-  split.
-  - exact (conjunction.left.distributivity.over.sejunction  b1 b2 b3).
-  - exact (conjunction.right.distributivity.over.sejunction b1 b2 b3).
+  divide et impera.
+  - ipso (conjunction.left.distributivity.over.sejunction  b1 b2 b3).
+  - ipso (conjunction.right.distributivity.over.sejunction b1 b2 b3).
 Qed.
 
 End over. (* conjunction.distributivity.over *)
@@ -220,14 +223,15 @@ Theorem associativity
       (b1 || b2) || b3 = b1 || (b2 || b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity : forall (b1 : Bool) (b2 : Bool) . b1 || b2 = b2 || b1.
 Proof.
   intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* disjunction.identity *)
@@ -235,12 +239,12 @@ Theorem identity
   : forall (b : Bool) . (false || b = b) /\ (b || false = b).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - simpl in |- *.
-    reflexivity.
-  - rewrite (disjunction.commutativity b false) in |- *.
+    quod idem est.
+  - leibniz (disjunction.commutativity b false) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 End disjunction. (* disjunction *)
@@ -253,7 +257,8 @@ Theorem associativity
       (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
 Proof.
   intros b1 b2 b3.
-  destruct b1 as [|]; destruct b2 as [|]; destruct b3 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; match b3 with | | end; simpl in |- *;
+    quod idem est.
 Qed.
 
 (* sejunction.commutativity *)
@@ -261,7 +266,7 @@ Theorem commutativity
   : forall (b1 : Bool) (b2 : Bool) . b1 ^^ b2 = b2 ^^ b1.
 Proof.
   intros b1 b2.
-  destruct b1 as [|]; destruct b2 as [|]; reflexivity.
+  match b1 with | | end; match b2 with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* sejunction.identity *)
@@ -269,19 +274,19 @@ Theorem identity
   : forall (b : Bool) . (false ^^ b = b) /\ (b ^^ false = b).
 Proof.
   intros b.
-  split.
+  divide et impera.
   - simpl in |- *.
-    reflexivity.
-  - rewrite (sejunction.commutativity b false) in |- *.
+    quod idem est.
+  - leibniz (sejunction.commutativity b false) in |- *.
     simpl in |- *.
-    reflexivity.
+    quod idem est.
 Qed.
 
 (* sejunction.irreflexivity *)
 Theorem irreflexivity : forall (b : Bool) . b ^^ b = false.
 Proof.
   intros b.
-  destruct b as [|]; reflexivity.
+  match b with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* sejunction.inverse *)
@@ -289,9 +294,9 @@ Theorem inverse
   : forall (b : Bool) . (b ^^ b = false) /\ (b ^^ b = false).
 Proof.
   intros b.
-  split.
-  - exact (sejunction.irreflexivity b).
-  - exact (sejunction.irreflexivity b).
+  divide et impera.
+  - ipso (sejunction.irreflexivity b).
+  - ipso (sejunction.irreflexivity b).
 Qed.
 
 End sejunction. (* sejunction *)

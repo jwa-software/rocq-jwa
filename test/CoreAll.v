@@ -14,7 +14,7 @@ Theorem core_all_delivers_proof_mode
   : forall (A : Type) (x : A) . x = x.
 Proof.
   intros A x.
-  reflexivity.
+  quod idem est.
 Qed.
 
 Definition core_all_delivers_identity_hedberg_uniqueness

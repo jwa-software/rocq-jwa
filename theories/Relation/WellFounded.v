@@ -2,10 +2,10 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Relation.Induced.
-From jwa Require Import Tactics.Simpl.
 
 (* [R] points downwards here: [R y x] says that [y] is below [x]. *)
 
@@ -39,14 +39,20 @@ Theorem unfolding
 Proof.
   intros A R P W step extensional x.
   simpl recursion in |- *.
-  rewrite (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
-  apply extensional.
-  intros y r.
-  exact (Accessible.recursion.independence
-          extensional
-          y
-          (Accessible.descend (accessibility x) r)
-          (accessibility y)).
+  leibniz (Accessible.recursion.unfolding step x (accessibility x)) in |- *.
+  lemma pointwise
+    : forall (y : &A) (r : &R y &x) .
+        Accessible.recursion &step y (Accessible.descend (accessibility &x) r)
+        = Accessible.recursion &step y (accessibility y).
+  {
+    intros y r.
+    ipso (Accessible.recursion.independence
+            extensional
+            y
+            (Accessible.descend (accessibility x) r)
+            (accessibility y)).
+  }
+  ipso (extensional &x _ _ &pointwise).
 Qed.
 
 End recursion. (* recursion *)
@@ -67,15 +73,15 @@ Theorem accessibility
       (forall (x : A) . R (f x) b -> Accessible (Induced R f) x).
 Proof.
   intros A B R f b a.
-  apply (Accessible.recursion
-           (R := R)
-           (P := fun (c : B) .
-                 forall (x : A) . R (f x) c -> Accessible (Induced R f) x)).
-  - intros c recurse x r.
-    apply Accessible_introduction.
-    intros y s.
-    exact (recurse (f x) r y (Induced.elimination s)).
-  - exact a.
+  lemma descent
+    : Descent.Step &R
+        (fun (c : &B) . forall (x : &A) . &R (&f x) c -> Accessible (Induced &R &f) x).
+  {
+    intros c recurse x r.
+    ipso (Accessible_introduction
+            (fun (y : A) (s : Induced R f y x) . recurse (f x) r y (Induced.elimination s))).
+  }
+  ipso (Accessible.recursion &descent &b &a).
 Qed.
 
 End induced. (* induced *)
@@ -87,7 +93,7 @@ Theorem induced
       WellFounded R -> WellFounded (Induced R f).
 Proof.
   intros A B R f W.
-  exact {| accessibility :=
+  ipso {| accessibility :=
              fun (x : A) .
                Accessible_introduction
                  (fun (y : A) (s : Induced R f y x) .

@@ -9,8 +9,9 @@ From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
+From jwa Require Import Dialect.Simpl.
 From jwa Require Import Tactics.Modus.
-From jwa Require Import Tactics.Simpl.
 
 (* A module may carry the type's name; its members read
  * [NonEmptyList.head]. The type and its ctors are declared inside it: a
@@ -63,7 +64,7 @@ Notation "[ a ]" := (One a)
 Local Open Scope jwa_list_scope.
 Local Open Scope jwa_non_empty_list_scope.
 
-(* The eliminator behind the [induction] tactic, written out. Its content
+(* The eliminator that [match ... per] takes, written out. Its content
  * is the [fix]: the proof for [Cons a x] is built from the proof for [x],
  * and following [x] down to [One] is what terminates.
  *)
@@ -205,12 +206,12 @@ Theorem associativity
       (x ++ y) ++ z = x ++ (y ++ z).
 Proof.
   intros A x y z.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End concatenation. (* concatenation *)
@@ -227,12 +228,12 @@ Theorem concatenation
       (|| x ++ y ||) = Nat.add (|| x ||) (|| y ||).
 Proof.
   intros A x y.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End over. (* length.additivity.over *)
@@ -253,30 +254,30 @@ Theorem concatenation
       (x ++ y) contains_member a <-> x contains_member a \/ y contains_member a.
 Proof.
   intros A a x y.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro h.
-      exact h.
+      ipso h.
     + intro h.
-      exact h.
+      ipso h.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro h.
-      destruct h as [e | h'].
-      * exact (Disjunction.L (Disjunction.L e)).
-      * modus aequans IH, h' as d.
-        destruct d as [m | m].
-        -- exact (Disjunction.L (Disjunction.R m)).
-        -- exact (Disjunction.R m).
+      match h with | e | h' end.
+      * ipso (disjoin (disjoin e, _), _).
+      * modus aequans IH, h' |- d.
+        match d with | m | m end.
+        -- ipso (disjoin (disjoin _, m), _).
+        -- ipso (disjoin _, m).
     + intro h.
-      destruct h as [c | m].
-      * destruct c as [e | m].
-        -- exact (Disjunction.L e).
-        -- modus aequans IH, (Disjunction.L m) as h'.
-           exact (Disjunction.R h').
-      * modus aequans IH, (Disjunction.R m) as h'.
-        exact (Disjunction.R h').
+      match h with | c | m end.
+      * match c with | e | m end.
+        -- ipso (disjoin e, _).
+        -- modus aequans IH, (disjoin m, _) |- h'.
+           ipso (disjoin _, h').
+      * modus aequans IH, (disjoin _, m) |- h'.
+        ipso (disjoin _, h').
 Qed.
 
 End over. (* membership.distributivity.over *)
@@ -297,12 +298,12 @@ Theorem concatenation
       reverse (x ++ y) = reverse y ++ reverse x.
 Proof.
   intros A x y.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    exact (concatenation.associativity (reverse y) (reverse x') [a]).
+    leibniz IH in |- *.
+    ipso (concatenation.associativity (reverse y) (reverse x') [a]).
 Qed.
 
 End over. (* reversal.antidistributivity.over *)
@@ -314,14 +315,14 @@ Theorem involution
   : forall {A : Type} (x : NonEmptyList A) . reverse (reverse x) = x.
 Proof.
   intros A x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
+    leibniz (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
     simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End reversal. (* reversal *)
@@ -333,12 +334,12 @@ Theorem identity
   : forall (A : Type) (x : NonEmptyList A) . map (fun (a : A) . a) x = x.
 Proof.
   intros A x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 (* mapping.composition *)
@@ -348,12 +349,12 @@ Theorem composition
       map g (map f x) = map (fun (a : A) . g (f a)) x.
 Proof.
   intros A B C f g x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 Module preservation. (* mapping.preservation *)
@@ -366,19 +367,21 @@ Theorem membership
       x contains_member a -> (map f x) contains_member f a.
 Proof.
   intros A B f a x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
     intro e.
-    rewrite e in |- *.
-    reflexivity.
+    leibniz e in |- *.
+    quod idem est.
   - simpl in |- *.
     intro h.
-    destruct h as [e | h'].
-    + apply Disjunction.L.
-      rewrite e in |- *.
-      reflexivity.
-    + apply Disjunction.R.
-      exact (IH h').
+    match h with | e | h' end.
+    + lemma facto : &f &a = &f &b.
+      {
+        leibniz e in |- *.
+        quod idem est.
+      }
+      ipso (disjoin &facto, _).
+    + ipso (disjoin _, (IH h')).
 Qed.
 
 End of. (* mapping.preservation.of *)
@@ -405,25 +408,25 @@ Theorem bound
         x contains_member a -> le a (maximum_of le x) = true.
 Proof.
   intros A le total transitive x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - intros a h.
     simpl in |- *.
     simpl in h.
-    rewrite h in |- *.
-    exact (List.comparison.reflexivity total b).
+    leibniz h in |- *.
+    ipso (List.comparison.reflexivity total b).
   - intros a h.
     simpl in h.
     simpl in |- *.
-    destruct (le b (maximum_of le x')) eqn:s.
-    + destruct h as [e | m].
-      * rewrite e in |- *.
-        exact s.
-      * exact (IH a m).
-    + pose proof (List.comparison.contraposition total s) as ha.
-      destruct h as [e | m].
-      * rewrite e in |- *.
-        exact (List.comparison.reflexivity total b).
-      * exact (transitive a (maximum_of le x') b (IH a m) ha).
+    match (le b (maximum_of le x')) with end |- s.
+    + match h with | e | m end.
+      * leibniz e in |- *.
+        ipso s.
+      * ipso (IH a m).
+    + let proof ha := List.comparison.contraposition total s.
+      match h with | e | m end.
+      * leibniz e in |- *.
+        ipso (List.comparison.reflexivity total b).
+      * ipso (transitive a (maximum_of le x') b (IH a m) ha).
 Qed.
 
 (* maximum.membership *)
@@ -432,13 +435,13 @@ Theorem membership
       x contains_member maximum_of le x.
 Proof.
   intros A le x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    destruct (le b (maximum_of le x')) eqn:s.
-    + exact (Disjunction.R IH).
-    + exact (Disjunction.L (Identity.reflexivity b)).
+    match (le b (maximum_of le x')) with end |- s.
+    + ipso (disjoin _, IH).
+    + ipso (disjoin (Identity.reflexivity b), _).
 Qed.
 
 End maximum. (* maximum *)
@@ -455,25 +458,25 @@ Theorem bound
         x contains_member a -> le (minimum_of le x) a = true.
 Proof.
   intros A le total transitive x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - intros a h.
     simpl in |- *.
     simpl in h.
-    rewrite h in |- *.
-    exact (List.comparison.reflexivity total b).
+    leibniz h in |- *.
+    ipso (List.comparison.reflexivity total b).
   - intros a h.
     simpl in h.
     simpl in |- *.
-    destruct (le b (minimum_of le x')) eqn:s.
-    + destruct h as [e | m].
-      * rewrite e in |- *.
-        exact (List.comparison.reflexivity total b).
-      * exact (transitive b (minimum_of le x') a s (IH a m)).
-    + pose proof (List.comparison.contraposition total s) as ha.
-      destruct h as [e | m].
-      * rewrite e in |- *.
-        exact ha.
-      * exact (IH a m).
+    match (le b (minimum_of le x')) with end |- s.
+    + match h with | e | m end.
+      * leibniz e in |- *.
+        ipso (List.comparison.reflexivity total b).
+      * ipso (transitive b (minimum_of le x') a s (IH a m)).
+    + let proof ha := List.comparison.contraposition total s.
+      match h with | e | m end.
+      * leibniz e in |- *.
+        ipso ha.
+      * ipso (IH a m).
 Qed.
 
 (* minimum.membership *)
@@ -482,13 +485,13 @@ Theorem membership
       x contains_member minimum_of le x.
 Proof.
   intros A le x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    destruct (le b (minimum_of le x')) eqn:s.
-    + exact (Disjunction.L (Identity.reflexivity b)).
-    + exact (Disjunction.R IH).
+    match (le b (minimum_of le x')) with end |- s.
+    + ipso (disjoin (Identity.reflexivity b), _).
+    + ipso (disjoin _, IH).
 Qed.
 
 End minimum. (* minimum *)
@@ -510,12 +513,12 @@ Theorem concatenation
       to_list (x ++ y) = List.concat (to_list x) (to_list y).
 Proof.
   intros A x y.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    quod idem est.
 Qed.
 
 End over. (* conversion.distributivity.over *)
@@ -528,12 +531,13 @@ Theorem length
       List.length (to_list x) = NatWithZero.Positive (|| x ||).
 Proof.
   intros A x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    reflexivity.
+    leibniz IH in |- *.
+    simpl NatWithZero.inc, Nat.inc in |- *.
+    quod idem est.
 Qed.
 
 (* conversion.membership *)
@@ -542,27 +546,27 @@ Theorem membership
       x contains_member a <-> List.Contains a (to_list x).
 Proof.
   intros A a x.
-  induction x as [b | b x' IH] using NonEmptyList.induction.
+  match x with | b | b x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro e.
-      exact (Disjunction.L e).
+      ipso (disjoin e, _).
     + intro h.
-      destruct h as [e | f].
-      * exact e.
-      * contradiction f.
+      match h with | e | f end.
+      * ipso e.
+      * ex f quodlibet.
   - simpl in |- *.
-    split.
+    divide et impera.
     + intro h.
-      destruct h as [e | m].
-      * exact (Disjunction.L e).
-      * modus aequans IH, m as m'.
-        exact (Disjunction.R m').
+      match h with | e | m end.
+      * ipso (disjoin e, _).
+      * modus aequans IH, m |- m'.
+        ipso (disjoin _, m').
     + intro h.
-      destruct h as [e | m].
-      * exact (Disjunction.L e).
-      * modus aequans IH, m as m'.
-        exact (Disjunction.R m').
+      match h with | e | m end.
+      * ipso (disjoin e, _).
+      * modus aequans IH, m |- m'.
+        ipso (disjoin _, m').
 Qed.
 
 (* The [Option] that [List]'s extrema carry is about emptiness and nothing
@@ -575,12 +579,13 @@ Theorem maximum
       List.maximum_of le (to_list x) = Some (maximum_of le x).
 Proof.
   intros A le x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    destruct (le a (maximum_of le x')) eqn:s; reflexivity.
+    leibniz IH in |- *.
+    simpl in |- *.
+    match (le a (maximum_of le x')) with end |- s; quod idem est.
 Qed.
 
 (* conversion.minimum *)
@@ -589,12 +594,13 @@ Theorem minimum
       List.minimum_of le (to_list x) = Some (minimum_of le x).
 Proof.
   intros A le x.
-  induction x as [a | a x' IH] using NonEmptyList.induction.
+  match x with | a | a x' by IH end per NonEmptyList.induction.
   - simpl in |- *.
-    reflexivity.
+    quod idem est.
   - simpl in |- *.
-    rewrite IH in |- *.
-    destruct (le a (minimum_of le x')) eqn:s; reflexivity.
+    leibniz IH in |- *.
+    simpl in |- *.
+    match (le a (minimum_of le x')) with end |- s; quod idem est.
 Qed.
 
 End conversion. (* conversion *)

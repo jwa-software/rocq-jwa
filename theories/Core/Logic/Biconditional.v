@@ -1,8 +1,8 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.Logic.Conditional.
-From jwa Require Import Core.Ltac.
 From jwa Require Import Core.Notations.
+From jwa Require Import Dialect.All.
 
 Inductive Biconditional (P : Prop) (Q : Prop) : Prop :=
   | Biconditional_introduction : (P -> Q) -> (Q -> P) -> Biconditional P Q.
@@ -20,7 +20,7 @@ Module Biconditional. (* Biconditional *)
 Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
   intro P.
-  split; intro p; exact p.
+  divide et impera; intro p; ipso p.
 Qed.
 
 Theorem symmetry
@@ -28,10 +28,10 @@ Theorem symmetry
 Proof.
   intros P Q.
   intro h.
-  destruct h as [pq qp].
-  split.
-  - exact qp.
-  - exact pq.
+  match h with | pq qp end.
+  divide et impera.
+  - ipso qp.
+  - ipso pq.
 Qed.
 
 Theorem transitivity
@@ -41,17 +41,17 @@ Proof.
   intros P Q C.
   intro hpq.
   intro hqr.
-  destruct hpq as [pq qp].
-  destruct hqr as [qr rq].
-  split.
+  match hpq with | pq qp end.
+  match hqr with | qr rq end.
+  divide et impera.
   - intro p.
-    apply qr.
-    apply pq.
-    exact p.
+    let proof q := pq p.
+    let proof facto := qr q.
+    ipso facto.
   - intro r.
-    apply qp.
-    apply rq.
-    exact r.
+    let proof q := rq r.
+    let proof facto := qp q.
+    ipso facto.
 Qed.
 
 Module forward. (* forward *)
@@ -62,8 +62,8 @@ Theorem elimination
 Proof.
   intros P Q.
   intro e.
-  destruct e as [pq qp].
-  exact pq.
+  match e with | pq qp end.
+  ipso pq.
 Qed.
 
 End forward. (* forward *)
@@ -76,8 +76,8 @@ Theorem elimination
 Proof.
   intros P Q.
   intro e.
-  destruct e as [pq qp].
-  exact qp.
+  match e with | pq qp end.
+  ipso qp.
 Qed.
 
 End backward. (* backward *)
@@ -89,33 +89,33 @@ Proof.
   intros P1 P2 Q1 Q2.
   intro a.
   intro b.
-  destruct a as [p12 p21].
-  destruct b as [q12 q21].
-  split; intro e; destruct e as [pq qp]; split.
+  match a with | p12 p21 end.
+  match b with | q12 q21 end.
+  divide et impera; intro e; match e with | pq qp end; divide et impera.
   +
     intro p2.
-    apply q12.
-    apply pq.
-    apply p21.
-    exact p2.
+    let proof p1 := p21 p2.
+    let proof q1 := pq p1.
+    let proof facto := q12 q1.
+    ipso facto.
   +
     intro q2.
-    apply p12.
-    apply qp.
-    apply q21.
-    exact q2.
+    let proof q1 := q21 q2.
+    let proof p1 := qp q1.
+    let proof facto := p12 p1.
+    ipso facto.
   +
     intro p1.
-    apply q21.
-    apply pq.
-    apply p12.
-    exact p1.
+    let proof p2 := p12 p1.
+    let proof q2 := pq p2.
+    let proof facto := q21 q2.
+    ipso facto.
   +
     intro q1.
-    apply p21.
-    apply qp.
-    apply q12.
-    exact q1.
+    let proof q2 := q12 q1.
+    let proof p2 := qp q2.
+    let proof facto := p21 p2.
+    ipso facto.
 Qed.
 
 (* [Biconditional.exclusion.of.sejunction] is stated in
@@ -138,19 +138,19 @@ Proof.
   intros P1 P2 Q1 Q2.
   intro a.
   intro b.
-  destruct a as [p12 p21].
-  destruct b as [q12 q21].
-  split; intro f.
+  match a with | p12 p21 end.
+  match b with | q12 q21 end.
+  divide et impera; intro f.
   - intro p2.
-    apply q12.
-    apply f.
-    apply p21.
-    exact p2.
+    let proof p1 := p21 p2.
+    let proof q1 := f p1.
+    let proof facto := q12 q1.
+    ipso facto.
   - intro p1.
-    apply q21.
-    apply f.
-    apply p12.
-    exact p1.
+    let proof p2 := p12 p1.
+    let proof q2 := f p2.
+    let proof facto := q21 q2.
+    ipso facto.
 Qed.
 
 End Conditional. (* Conditional *)
