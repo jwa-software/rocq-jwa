@@ -31,14 +31,11 @@ Notation "'disjoin' '_' , b" := (Disjunction_introduction_right b) (only parsing
  *)
 Module Disjunction. (* Disjunction *)
 
-(* The two ctors under the names a proof writes: [Disjunction.left a] and
- * [Disjunction.right b]. An abbreviation is the ctor itself, so it also
- * serves as a pattern; Rocq prints the ctor's own name.
+(* The two ctors under short names, for a [match] pattern such as
+ * [| Disjunction.L a => ...]: an abbreviation is the ctor itself.
  *)
-Abbreviation left  := Disjunction_introduction_left.
-Abbreviation right := Disjunction_introduction_right.
-Abbreviation L     := Disjunction_introduction_left  (only parsing).
-Abbreviation R     := Disjunction_introduction_right (only parsing).
+Abbreviation L := Disjunction_introduction_left  (only parsing).
+Abbreviation R := Disjunction_introduction_right (only parsing).
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A \/ B -> B \/ A.
