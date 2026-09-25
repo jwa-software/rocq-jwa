@@ -474,6 +474,75 @@ Definition data_number_all_delivers_rational_embedding_order
                             (Rational.from_integer n)
   := Rational.embedding.order.
 
+Definition data_number_all_delivers_gcd_nat_right_annihilation
+  : forall (a : NatWithZero) . NatWithZero.gcd.nat a Nat.One = Nat.One
+  := NatWithZero.gcd.nat.right.annihilation.
+
+Definition data_number_all_delivers_nat_with_zero_narrowing_nat_retraction
+  : forall (p : Nat) . NatWithZero.to_nat p = Some p
+  := NatWithZero.narrowing.nat.retraction.
+
+Definition data_number_all_delivers_nat_with_zero_narrowing_nat_specification
+  : forall (n : NatWithZero) (p : Nat) . NatWithZero.to_nat n = Some p <-> n = p
+  := NatWithZero.narrowing.nat.specification.
+
+Definition data_number_all_delivers_nat_with_zero_narrowing_nat_failure
+  : forall (n : NatWithZero) . NatWithZero.to_nat n = None <-> n = NatWithZero.Zero
+  := NatWithZero.narrowing.nat.failure.
+
+Definition data_number_all_delivers_integer_narrowing_nat_with_zero_retraction
+  : forall (n : NatWithZero) . Integer.to_nat_with_zero n = Some n
+  := Integer.narrowing.nat_with_zero.retraction.
+
+Definition data_number_all_delivers_integer_narrowing_nat_with_zero_specification
+  : forall (x : Integer) (n : NatWithZero) . Integer.to_nat_with_zero x = Some n <-> x = n
+  := Integer.narrowing.nat_with_zero.specification.
+
+Definition data_number_all_delivers_integer_narrowing_nat_with_zero_failure
+  : forall (x : Integer) . Integer.to_nat_with_zero x = None <-> (x < Integer.Zero)%integer
+  := Integer.narrowing.nat_with_zero.failure.
+
+Definition data_number_all_delivers_integer_narrowing_nat_retraction
+  : forall (p : Nat) . Integer.to_nat p = Some p
+  := Integer.narrowing.nat.retraction.
+
+Definition data_number_all_delivers_integer_narrowing_nat_specification
+  : forall (x : Integer) (p : Nat) . Integer.to_nat x = Some p <-> x = p
+  := Integer.narrowing.nat.specification.
+
+Definition data_number_all_delivers_integer_narrowing_nat_failure
+  : forall (x : Integer) . Integer.to_nat x = None <-> (x <= Integer.Zero)%integer
+  := Integer.narrowing.nat.failure.
+
+Definition data_number_all_delivers_rational_narrowing_integer_retraction
+  : forall (n : Integer) . Rational.to_integer n = Some n
+  := Rational.narrowing.integer.retraction.
+
+Definition data_number_all_delivers_rational_narrowing_integer_specification
+  : forall (x : Rational) (n : Integer) . Rational.to_integer x = Some n <-> x = n
+  := Rational.narrowing.integer.specification.
+
+Definition data_number_all_delivers_rational_narrowing_integer_failure
+  : forall (x : Rational) .
+      Rational.to_integer x = None <-> ~ (Rational.denominator x = Nat.One)
+  := Rational.narrowing.integer.failure.
+
+Definition data_number_all_delivers_rational_narrowing_nat_with_zero_retraction
+  : forall (n : NatWithZero) . Rational.to_nat_with_zero n = Some n
+  := Rational.narrowing.nat_with_zero.retraction.
+
+Definition data_number_all_delivers_rational_narrowing_nat_with_zero_specification
+  : forall (x : Rational) (n : NatWithZero) . Rational.to_nat_with_zero x = Some n <-> x = n
+  := Rational.narrowing.nat_with_zero.specification.
+
+Definition data_number_all_delivers_rational_narrowing_nat_retraction
+  : forall (p : Nat) . Rational.to_nat p = Some p
+  := Rational.narrowing.nat.retraction.
+
+Definition data_number_all_delivers_rational_narrowing_nat_specification
+  : forall (x : Rational) (p : Nat) . Rational.to_nat x = Some p <-> x = p
+  := Rational.narrowing.nat.specification.
+
 Theorem data_number_all_delivers_coercion_nat_to_nat_with_zero
   : forall (n : Nat) .
       NatWithZero.add n n = NatWithZero.add (NatWithZero.Positive n) (NatWithZero.Positive n).
