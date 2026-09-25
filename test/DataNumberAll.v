@@ -225,6 +225,12 @@ Definition data_number_all_delivers_integer_multiplication_interchange
       = Integer.mul (Integer.mul a c) (Integer.mul b d)
   := Integer.multiplication.interchange.
 
+Definition data_number_all_delivers_integer_multiplication_positive_homomorphism
+  : forall (m : Nat) (n : Nat) .
+      Integer.mul (Integer.Positive m) (Integer.Positive n)
+      = Integer.Positive (Nat.mul m n)
+  := Integer.multiplication.positive.homomorphism.
+
 Definition data_number_all_delivers_rational_numerator
   : Rational -> Integer
   := Rational.numerator.

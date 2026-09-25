@@ -856,22 +856,14 @@ Proof.
             quodlibet.
   }
 
-  lemma product : forall (m : Nat) (n : Nat) .
-              Integer.mul (Integer.Positive m) (Integer.Positive n)
-              = Integer.Positive (Nat.mul m n).
-  {
-    intros m n.
-    simpl Integer.mul in |- *.
-    quod idem est.
-  }
-
   lemma left_side
     : Integer.mul (Integer.mul &p (Integer.Positive &s))
                   (Integer.Positive (Nat.mul &b &d))
       = Integer.mul (Integer.mul &a (Integer.Positive &d))
                     (Integer.Positive (Nat.mul &q &s)).
   {
-    leibniz <- (&product &b &d), <- (&product &q &s) in |- *.
+    leibniz <- (Integer.multiplication.positive.homomorphism &b &d),
+            <- (Integer.multiplication.positive.homomorphism &q &s) in |- *.
     leibniz (Integer.multiplication.interchange
                &p (Integer.Positive &s) (Integer.Positive &b) (Integer.Positive &d)) in |- *.
     leibniz &P1 in |- *.
@@ -888,7 +880,8 @@ Proof.
       = Integer.mul (Integer.mul &c (Integer.Positive &b))
                     (Integer.Positive (Nat.mul &q &s)).
   {
-    leibniz <- (&product &b &d), <- (&product &q &s) in |- *.
+    leibniz <- (Integer.multiplication.positive.homomorphism &b &d),
+            <- (Integer.multiplication.positive.homomorphism &q &s) in |- *.
     leibniz (Integer.multiplication.commutativity (Integer.Positive &b) (Integer.Positive &d))
       in |- *.
     leibniz (Integer.multiplication.interchange
@@ -1277,15 +1270,6 @@ Proof.
   leibniz (make.addition.homomorphism &e &f &a &b),
           (make.addition.homomorphism &e &f &c &d) in |- *.
 
-  lemma product : forall (m : Nat) (n : Nat) .
-              Integer.mul (Integer.Positive m) (Integer.Positive n)
-              = Integer.Positive (Nat.mul m n).
-  {
-    intros m n.
-    simpl Integer.mul in |- *.
-    quod idem est.
-  }
-
   lemma lower
     : Integer.mul
         (Integer.add (Integer.mul &e (Integer.Positive &b)) (Integer.mul &a (Integer.Positive &f)))
@@ -1298,7 +1282,8 @@ Proof.
                (Integer.Positive (Nat.mul &f &d))
                (Integer.mul &e (Integer.Positive &b))
                (Integer.mul &a (Integer.Positive &f))) in |- *.
-    leibniz <- (&product &f &d), <- (&product &f &f) in |- *.
+    leibniz <- (Integer.multiplication.positive.homomorphism &f &d),
+            <- (Integer.multiplication.positive.homomorphism &f &f) in |- *.
     leibniz (Integer.multiplication.commutativity &a (Integer.Positive &f)) in |- *.
     leibniz (Integer.multiplication.interchange
                (Integer.Positive &f) &a (Integer.Positive &f) (Integer.Positive &d)) in |- *.
@@ -1317,7 +1302,9 @@ Proof.
                (Integer.Positive (Nat.mul &f &b))
                (Integer.mul &e (Integer.Positive &d))
                (Integer.mul &c (Integer.Positive &f))) in |- *.
-    leibniz <- (&product &f &b), <- (&product &f &d), <- (&product &f &f) in |- *.
+    leibniz <- (Integer.multiplication.positive.homomorphism &f &b),
+            <- (Integer.multiplication.positive.homomorphism &f &d),
+            <- (Integer.multiplication.positive.homomorphism &f &f) in |- *.
     leibniz (Integer.multiplication.commutativity &c (Integer.Positive &f)) in |- *.
     leibniz (Integer.multiplication.interchange
                (Integer.Positive &f) &c (Integer.Positive &f) (Integer.Positive &b)) in |- *.
@@ -1603,20 +1590,12 @@ Proof.
     leibniz (make.multiplication.homomorphism (Integer.Positive &k) &f &a &b),
             (make.multiplication.homomorphism (Integer.Positive &k) &f &c &d) in |- *.
 
-    lemma product : forall (m : Nat) (n : Nat) .
-                Integer.mul (Integer.Positive m) (Integer.Positive n)
-                = Integer.Positive (Nat.mul m n).
-    {
-      intros m n.
-      simpl Integer.mul in |- *.
-      quod idem est.
-    }
-
     lemma lower
       : Integer.mul (Integer.mul (Integer.Positive &k) &a) (Integer.Positive (Nat.mul &f &d))
         = Integer.mul (Integer.Positive (Nat.mul &k &f)) (Integer.mul &a (Integer.Positive &d)).
     {
-      leibniz <- (&product &f &d), <- (&product &k &f) in |- *.
+      leibniz <- (Integer.multiplication.positive.homomorphism &f &d),
+              <- (Integer.multiplication.positive.homomorphism &k &f) in |- *.
       leibniz (Integer.multiplication.interchange
                  (Integer.Positive &k) &a (Integer.Positive &f) (Integer.Positive &d)) in |- *.
       quod idem est.
@@ -1626,7 +1605,8 @@ Proof.
       : Integer.mul (Integer.mul (Integer.Positive &k) &c) (Integer.Positive (Nat.mul &f &b))
         = Integer.mul (Integer.Positive (Nat.mul &k &f)) (Integer.mul &c (Integer.Positive &b)).
     {
-      leibniz <- (&product &f &b), <- (&product &k &f) in |- *.
+      leibniz <- (Integer.multiplication.positive.homomorphism &f &b),
+              <- (Integer.multiplication.positive.homomorphism &k &f) in |- *.
       leibniz (Integer.multiplication.interchange
                  (Integer.Positive &k) &c (Integer.Positive &f) (Integer.Positive &b)) in |- *.
       quod idem est.
@@ -2062,83 +2042,12 @@ Theorem order
       <-> LessThan (from_integer m) (from_integer n).
 Proof.
   intros m n.
-
-  lemma scaling : forall (p : Integer) (q : Integer) (k : Nat) .
-              Integer.LessThan p q
-              <-> Integer.LessThan (Integer.mul p (Integer.Positive k))
-                                   (Integer.mul q (Integer.Positive k)).
-  {
-    intros p q k.
-    divide et impera.
-    - intro h.
-      let proof s := Integer.multiplication.left.order.strict.monotonicity
-                    k p q h.
-      leibniz (Integer.multiplication.commutativity
-                 (Integer.Positive k) p) in s.
-      leibniz (Integer.multiplication.commutativity
-                 (Integer.Positive k) q) in s.
-      ipso s.
-    - intro h.
-      match (Comparable.order.strict.trichotomy p q)
-            with | below | rest end.
-      + ipso below.
-      + match rest with | equal | above end.
-        * leibniz equal in h.
-          let proof ir := Integer.order.strict.irreflexivity
-                        (Integer.mul q (Integer.Positive k)).
-          ex (ir h) quodlibet.
-        * let proof s := Integer.multiplication.left.order.strict.monotonicity
-                        k q p above.
-          leibniz (Integer.multiplication.commutativity
-                     (Integer.Positive k) q) in s.
-          leibniz (Integer.multiplication.commutativity
-                     (Integer.Positive k) p) in s.
-          let proof loop := Integer.order.strict.transitivity h s.
-          let proof ir := Integer.order.strict.irreflexivity
-                        (Integer.mul p (Integer.Positive k)).
-          ex (ir loop) quodlibet.
-  }
-
-  let proof P1 := make.proportionality m Nat.One.
-  let proof P2 := make.proportionality n Nat.One.
-  let proof P1
-    : Integer.mul (numerator (make m Nat.One)) (Integer.Positive Nat.One)
-      = Integer.mul m (Integer.from_nat (denominator (make m Nat.One)))
-    := &P1.
-  let proof P2
-    : Integer.mul (numerator (make n Nat.One)) (Integer.Positive Nat.One)
-      = Integer.mul n (Integer.from_nat (denominator (make n Nat.One)))
-    := &P2.
-  leibniz (Integer.multiplication.right.identity
-             (numerator (make m Nat.One))) in P1.
-  leibniz (Integer.multiplication.right.identity
-             (numerator (make n Nat.One))) in P2.
-
-  simpl LessThan   in |- *.
   simpl from_integer in |- *.
-  leibniz P1 in |- *.
-  leibniz P2 in |- *.
-
-  let dm := Integer.from_nat (denominator (make m Nat.One)) in *.
-  let dn := Integer.from_nat (denominator (make n Nat.One)) in *.
-
-  leibniz (Integer.multiplication.associativity m dm dn) in |- *.
-  leibniz (Integer.multiplication.associativity n dn dm) in |- *.
-  leibniz (Integer.multiplication.commutativity dn dm) in |- *.
-
-  lemma facto
-    : Integer.LessThan &m &n
-      <-> Integer.LessThan
-            (Integer.mul &m (Integer.Positive (Nat.mul (denominator (make &m Nat.One))
-                                                       (denominator (make &n Nat.One)))))
-            (Integer.mul &n (Integer.Positive (Nat.mul (denominator (make &m Nat.One))
-                                                       (denominator (make &n Nat.One))))).
-  {
-    ipso (scaling m n
-             (Nat.mul (denominator (make m Nat.One))
-                      (denominator (make n Nat.One)))).
-  }
-  ipso &facto.
+  let proof c := make.order.strict.characterisation &m Nat.One &n Nat.One.
+  simpl Integer.from_nat in &c.
+  leibniz (Integer.multiplication.right.identity &m),
+          (Integer.multiplication.right.identity &n) in &c.
+  ipso (Biconditional.symmetry &c).
 Qed.
 
 End embedding. (* embedding *)
