@@ -3264,6 +3264,12 @@ Abbreviation NatWithZero := NatWithZero.T.
  *)
 Export (notations) NatWithZero.
 
+(* A [Nat] stands wherever a [NatWithZero] is expected, read as its
+ * [Positive], and the conversion is printed where it happened.
+ *)
+Coercion NatWithZero.Positive : Nat >-> NatWithZero.
+Add Printing Coercion NatWithZero.Positive.
+
 (* Declared inside [Module NatWithZero], whose proofs use it; an instance
  * declared there is dropped at the module's [End], so it is announced again
  * here.
