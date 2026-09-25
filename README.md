@@ -77,6 +77,12 @@ Each tactic file opens with its grammar in a comment. In outline, against the Ro
 
 **`let` and `match` take over Ltac2's own `let ... in` and `match ... with ... end`.** In a proof, and in any file that imports `Dialect.All` or `Core.All`, those two Ltac2 constructs no longer parse. Ltac2 code is therefore written only in files that import `Dialect.Ltac` alone, as the files of `jwa.Dialect` and `jwa.Tactics` do, with each helper declared before any notation of the same file that shadows what it uses.
 
+## Numbers
+
+`jwa.Data` holds four number types: `Nat`, which starts at one, `NatWithZero`, `Integer` and `Rational`. **Each converts upward without being written**: a `Nat` stands wherever a `NatWithZero`, an `Integer` or a `Rational` is expected, and so on up, so `(numerator x * denominator y)%integer` multiplies an `Integer` by a `Nat`. **Every such conversion is still printed** in the goal, as `Integer.Positive (denominator y)`, so a `leibniz` step can be aimed at what the goal shows. A conversion downward, which may have no answer, is never implicit.
+
+Arithmetic is written with each type's notation and scope delimiter, `(a + b)%nat`, `(p /. q)%nat_with_zero`, `(x * y)%rational`, and goals print the operations by name, `Rational.mul x y`.
+
 ## Building
 
 | Command | What it does | When to use it |
