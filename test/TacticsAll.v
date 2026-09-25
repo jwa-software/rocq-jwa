@@ -94,6 +94,15 @@ Proof.
   ipso h.
 Qed.
 
+Theorem tactics_all_delivers_de_morgan_in_two_hypotheses
+  : forall (A : Prop) (B : Prop) (C : Prop) (D : Prop) .
+      ~ (A \/ B) -> ~ (C \/ D) -> (~ A /\ ~ B) /\ (~ C /\ ~ D).
+Proof.
+  intros A B C D h k.
+  de morgan in &h, &k.
+  ipso (conjoin &h, &k).
+Qed.
+
 Theorem tactics_all_delivers_de_morgan_in_refusing_a_conjunction
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> ~ (A /\ B).
 Proof.
@@ -191,6 +200,14 @@ Proof.
   ipso a.
 Qed.
 
+Theorem tactics_all_delivers_dni_in_two_hypotheses
+  : forall (A : Prop) (B : Prop) . A -> B -> ~ ~ A /\ ~ ~ B.
+Proof.
+  intros A B a b.
+  dni in &a, &b.
+  ipso (conjoin &a, &b).
+Qed.
+
 Theorem tactics_all_delivers_dne_in_hypothesis
   : forall (A : Prop) . ~ ~ ~ A -> ~ A.
 Proof.
@@ -217,6 +234,14 @@ Proof.
   intros A nnna.
   dne in nnna |- *.
   ipso (dni nnna).
+Qed.
+
+Theorem tactics_all_delivers_dne_in_two_hypotheses
+  : forall (A : Prop) (B : Prop) . ~ ~ ~ A -> ~ ~ ~ B -> ~ A /\ ~ B.
+Proof.
+  intros A B nnna nnnb.
+  dne in &nnna, &nnnb.
+  ipso (conjoin &nnna, &nnnb).
 Qed.
 
 Theorem tactics_all_delivers_dne_in_refusing_a_double_negation
@@ -729,12 +754,27 @@ Proof.
   ipso (modus tollens hab, hnb).
 Qed.
 
+Theorem tactics_all_delivers_modus_tollens_as
+  : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
+Proof.
+  intros A B hab hnb.
+  modus tollens &hab, &hnb as na.
+  ipso &na.
+Qed.
+
 Theorem tactics_all_delivers_modus_tollendo_tollens
   : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
 Proof.
   intros A B hab hnb.
   modus tollendo tollens hab, hnb as na.
   ipso na.
+Qed.
+
+Theorem tactics_all_delivers_modus_tollendo_tollens_as_a_term
+  : forall (A : Prop) (B : Prop) . (A -> B) -> ~ B -> ~ A.
+Proof.
+  intros A B hab hnb.
+  ipso (modus tollendo tollens &hab, &hnb).
 Qed.
 
 Theorem tactics_all_delivers_modus_tollendo_ponens
@@ -874,3 +914,619 @@ Proof.
   modus aequans hab, hb |- facto.
   ipso facto.
 Qed.
+
+Theorem tactics_all_delivers_quod_idem_est
+  : forall (m : Nat) . m = m.
+Proof.
+  intro m.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_quod_idem_est_refusing_sides_that_only_compute_alike
+  : Nat.add Nat.One Nat.One = Nat.Successor Nat.One.
+Proof.
+  Fail quod idem est.
+  simpl in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_quod_idem_est_refusing_what_is_no_equation
+  : Verum.
+Proof.
+  Fail quod idem est.
+  ipso I.
+Qed.
+
+Theorem tactics_all_delivers_divide_et_impera
+  : forall (A : Prop) (B : Prop) . A -> B -> A /\ B.
+Proof.
+  intros A B a b.
+  divide et impera.
+  - ipso &a.
+  - ipso &b.
+Qed.
+
+Theorem tactics_all_delivers_divide_et_impera_biconditional
+  : forall (A : Prop) . A <-> A.
+Proof.
+  intro A.
+  divide et impera.
+  - intro a.
+    ipso &a.
+  - intro a.
+    ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_ex_quodlibet
+  : forall (A : Prop) . Falsum -> A.
+Proof.
+  intros A f.
+  ex &f quodlibet.
+Qed.
+
+Theorem tactics_all_delivers_ex_quodlibet_constructor_clash
+  : forall (A : Prop) . Bool.true = Bool.false -> A.
+Proof.
+  intros A e.
+  ex &e quodlibet.
+Qed.
+
+Theorem tactics_all_delivers_ex_quodlibet_refusing_a_negation
+  : forall (A : Prop) (B : Prop) . ~ A -> A -> B.
+Proof.
+  intros A B na a.
+  Fail ex &na quodlibet.
+  ex (&na &a) quodlibet.
+Qed.
+
+Theorem tactics_all_delivers_ex_quodlibet_refusing_a_function
+  : forall (A : Prop) (B : Prop) . (A -> Falsum) -> A -> B.
+Proof.
+  intros A B f a.
+  Fail ex &f quodlibet.
+  ex (&f &a) quodlibet.
+Qed.
+
+Theorem tactics_all_delivers_ex_quodlibet_refusing_what_only_computes_to_a_clash
+  : forall (A : Prop) . Bool.negate Bool.true = Bool.true -> A.
+Proof.
+  intros A e.
+  Fail ex &e quodlibet.
+  simpl in &e.
+  ex &e quodlibet.
+Qed.
+
+Theorem tactics_all_delivers_lemma
+  : forall (A : Prop) (B : Prop) . A -> (A -> B) -> B.
+Proof.
+  intros A B a hab.
+  lemma b : &B.
+  {
+    ipso (&hab &a).
+  }
+  ipso &b.
+Qed.
+
+Theorem tactics_all_delivers_lemma_refusing_a_name_in_use
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  Fail lemma a : &A.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_mv
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  mv &a b.
+  ipso &b.
+Qed.
+
+Theorem tactics_all_delivers_mv_refusing
+  : forall (A : Prop) (B : Prop) . A -> B -> A.
+Proof.
+  intros A B a b.
+  Fail mv &c d.
+  Fail mv &a b.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_rm
+  : forall (A : Prop) (B : Prop) (C : Prop) . A -> B -> C -> A.
+Proof.
+  intros A B C a b c.
+  rm &b &c.
+  Fail rm &b.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_rm_refusing
+  : forall (n : Nat) . n = n -> n = n.
+Proof.
+  intros n e.
+  Fail rm &n.
+  Fail rm &e &x.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_rm_force
+  : forall (n : Nat) (e : n = n) (A : Prop) . A -> A.
+Proof.
+  intros n e A a.
+  rm -f &n.
+  rm &e &n.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_rm_recursive
+  : forall (n : Nat) (e : n = n) (A : Prop) . A -> A.
+Proof.
+  intros n e A a.
+  rm -r &n.
+  Fail rm &e.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_rm_recursive_refusing_what_the_goal_depends_on
+  : forall (n : Nat) . n = n.
+Proof.
+  intro n.
+  Fail rm -r &n.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_extro
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  extro &a.
+  lazy_match! goal with
+  | [ |- A -> A ] => ()
+  end.
+  intro a.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_extros
+  : forall (n : Nat) . n = n -> n = n.
+Proof.
+  intros n e.
+  extros &n &e.
+  lazy_match! goal with
+  | [ |- forall (m : Nat) . m = m -> m = m ] => ()
+  end.
+  intros n e.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_extro_of_a_definition
+  : forall (m : Nat) . m = m.
+Proof.
+  intro m.
+  let k := m.
+  extro &k.
+  lazy_match! goal with
+  | [ |- let k := m in m = m ] => ()
+  end.
+  intro k.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_extros_refusing
+  : forall (n : Nat) . n = n -> n = n.
+Proof.
+  intros n e.
+  Fail extros &e &n.
+  Fail extro &n.
+  Fail extro &x.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_match
+  : forall (A : Prop) (B : Prop) . A \/ B -> B \/ A.
+Proof.
+  intros A B h.
+  match &h with | a | b end.
+  - ipso (disjoin _, &a).
+  - ipso (disjoin &b, _).
+Qed.
+
+Theorem tactics_all_delivers_match_named
+  : forall (n : Nat) . n = n.
+Proof.
+  intro n.
+  match &n with | One | Successor n' end.
+  - quod idem est.
+  - quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_match_without_names
+  : forall (b : Bool) . b = b.
+Proof.
+  intro b.
+  match &b with end.
+  - quod idem est.
+  - quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_match_with_an_equation
+  : forall (b : Bool) . Bool.negate b = Bool.negate b.
+Proof.
+  intro b.
+  match (Bool.negate &b) with | | end |- e.
+  - lazy_match! Constr.type &e with
+    | Bool.negate b = Bool.true => quod idem est
+    end.
+  - lazy_match! Constr.type &e with
+    | Bool.negate b = Bool.false => quod idem est
+    end.
+Qed.
+
+Theorem tactics_all_delivers_match_refusing
+  : forall (A : Prop) (B : Prop) (C : Prop) . A /\ (B /\ C) -> C.
+Proof.
+  intros A B C h.
+  Fail match &h with | a [b c] end.
+  match &h with | a bc end.
+  match &bc with | b c end.
+  ipso &c.
+Qed.
+
+Theorem tactics_all_delivers_match_refusing_named_branches_out_of_order
+  : forall (n : Nat) . n = n.
+Proof.
+  intro n.
+  Fail match &n with | Successor n' | One end.
+  Fail match &n with | One | n' end.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_match_per
+  : forall (P : Nat -> Prop) .
+      P Nat.One -> (forall (n : Nat) . P n -> P (Nat.Successor n)) -> forall (n : Nat) . P n.
+Proof.
+  intros P base step n.
+  match &n with | | n' by IH end per Nat.induction.
+  - ipso &base.
+  - ipso (&step &n' &IH).
+Qed.
+
+Theorem tactics_all_delivers_match_per_named
+  : forall (P : Nat -> Prop) .
+      P Nat.One -> (forall (n : Nat) . P n -> P (Nat.Successor n)) -> forall (n : Nat) . P n.
+Proof.
+  intros P base step n.
+  match &n with | One | Successor (n' by IH) end per Nat.induction.
+  - ipso &base.
+  - ipso (&step &n' &IH).
+Qed.
+
+Theorem tactics_all_delivers_match_per_dropping_the_hypothesis
+  : forall (n : Nat) . n = n.
+Proof.
+  intro n.
+  match &n with | | n' by _ end per Nat.induction.
+  - quod idem est.
+  - quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_match_per_for
+  : forall (P : Nat -> Prop) .
+      P Nat.One -> (forall (n : Nat) . P n -> P (Nat.Successor n)) -> forall (n : Nat) . P n.
+Proof.
+  intros P base step n.
+  match &n with | | n' by IH end per Nat.induction for (fun (m : Nat) . &P m).
+  - ipso &base.
+  - ipso (&step &n' &IH).
+Qed.
+
+Theorem tactics_all_delivers_match_per_refusing
+  : forall (n : Nat) . n = n.
+Proof.
+  intro n.
+  Fail match &n with | | n' end per Nat.induction.
+  Fail match &n with | | n' by IH end.
+  Fail match &n with | | n' by IH end per Nat.induction for (fun (m : Nat) . m = Nat.One).
+  Fail match &n with | | n' by IH end per Nat.induction |- e.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_match_per_refusing_by_on_a_value
+  : forall (A : Type) (l : List A) . l = l.
+Proof.
+  intros A l.
+  Fail match &l with | | (a by IH) (l' by IH') end per List.induction.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_let_in
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
+Proof.
+  intro m.
+  let k := Nat.add &m &m in |- *.
+  lazy_match! goal with
+  | [ |- k = k ] => quod idem est
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_in_hypothesis_and_goal
+  : forall (m : Nat) (P : Nat -> Prop) . P (Nat.add m m) -> P (Nat.add m m).
+Proof.
+  intros m P p.
+  let k := Nat.add &m &m in &p |- *.
+  lazy_match! Constr.type &p with
+  | P k => ipso &p
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_in_everywhere
+  : forall (m : Nat) (P : Nat -> Prop) . P (Nat.add m m) -> P (Nat.add m m).
+Proof.
+  intros m P p.
+  let k : Nat := Nat.add &m &m in *.
+  lazy_match! goal with
+  | [ _ : P k |- P k ] => ipso &p
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_at
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
+Proof.
+  intro m.
+  let k := Nat.add &m &m at 2 in |- *.
+  lazy_match! goal with
+  | [ |- Nat.add m m = k ] => ()
+  end.
+  simpl &k in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_let_fold
+  : forall (m : Nat) . Nat.add m m = Nat.add m m.
+Proof.
+  intro m.
+  let k := Nat.add &m &m.
+  let &k in |- *.
+  lazy_match! goal with
+  | [ |- k = k ] => quod idem est
+  end.
+Qed.
+
+Theorem tactics_all_delivers_let_refusing
+  : forall (m : Nat) . m = m.
+Proof.
+  intro m.
+  Fail let k := Nat.add &m &m in |- *.
+  Fail let k := &m at 3 in |- *.
+  Fail let &m in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_simpl_refusing
+  : forall (A : Prop) (m : Nat) . A -> m = m.
+Proof.
+  intros A m a.
+  Fail simpl (~ _) in |- *.
+  Fail simpl (~ _) in &a.
+  Fail simpl in |- *.
+  Fail simpl in &x.
+  let k := &m.
+  Fail simpl k in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_list
+  : forall (m : Nat) (n : Nat) (p : Nat) . m = n -> n = p -> m = p.
+Proof.
+  intros m n p e f.
+  leibniz &e, <- &f in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_leibniz_refusing_a_law_waiting_for_arguments
+  : forall (m : Nat) (n : Nat) . Nat.add m n = Nat.add n m.
+Proof.
+  intros m n.
+  Fail leibniz Nat.addition.commutativity in |- *.
+  leibniz (Nat.addition.commutativity &m &n) in |- *.
+  quod idem est.
+Qed.
+
+Theorem tactics_all_delivers_symm
+  : forall (m : Nat) (n : Nat) . m = n -> n = m.
+Proof.
+  intros m n e.
+  ipso (symm &e).
+Qed.
+
+Theorem tactics_all_delivers_symm_as
+  : forall (m : Nat) (n : Nat) . m = n -> n = m.
+Proof.
+  intros m n e.
+  symm &e as f.
+  ipso &f.
+Qed.
+
+Theorem tactics_all_delivers_symm_turnstile
+  : forall (m : Nat) (n : Nat) . m = n -> n = m.
+Proof.
+  intros m n e.
+  symm &e |- f.
+  ipso &f.
+Qed.
+
+Theorem tactics_all_delivers_symm_in_hypothesis
+  : forall (m : Nat) (n : Nat) . m = n -> n = m.
+Proof.
+  intros m n e.
+  symm in &e.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_symm_in_goal
+  : forall (m : Nat) (n : Nat) . m = n -> n = m.
+Proof.
+  intros m n e.
+  symm in |- *.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_symm_in_hypothesis_and_goal
+  : forall (m : Nat) (n : Nat) (p : Nat) . m = n -> n = p -> m = n.
+Proof.
+  intros m n p e f.
+  symm in &e, &f |- *.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_symm_refusing
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  Fail symm in &a.
+  Fail symm in |- *.
+  Fail symm &a as b.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_trans
+  : forall (m : Nat) (n : Nat) (p : Nat) . m = n -> n = p -> m = p.
+Proof.
+  intros m n p e f.
+  ipso (trans &e, &f).
+Qed.
+
+Theorem tactics_all_delivers_trans_as
+  : forall (m : Nat) (n : Nat) (p : Nat) . m = n -> n = p -> m = p.
+Proof.
+  intros m n p e f.
+  trans &e, &f as g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_trans_turnstile
+  : forall (m : Nat) (n : Nat) (p : Nat) . m = n -> n = p -> m = p.
+Proof.
+  intros m n p e f.
+  trans &e, &f |- g.
+  ipso &g.
+Qed.
+
+Theorem tactics_all_delivers_trans_refusing
+  : forall (m : Nat) (n : Nat) (p : Nat) . m = n -> p = n -> m = n.
+Proof.
+  intros m n p e f.
+  Fail trans &e, &f as g.
+  ipso &e.
+Qed.
+
+Theorem tactics_all_delivers_exists
+  : forall (A : Type) (P : A -> Prop) (a : A) . P a -> forsome (x : A) . P x.
+Proof.
+  intros A P a p.
+  exists &a.
+  ipso &p.
+Qed.
+
+Theorem tactics_all_delivers_exists_two
+  : forall (A : Type) (Q : A -> A -> Prop) (a : A) (b : A) .
+      Q a b -> forsome (x : A) (y : A) . Q x y.
+Proof.
+  intros A Q a b q.
+  exists &a, &b.
+  ipso &q.
+Qed.
+
+Theorem tactics_all_delivers_exists_refusing
+  : forall (A : Type) (P : A -> Prop) (a : A) . P a -> forsome (x : A) . P x.
+Proof.
+  intros A P a p.
+  Fail exists Nat.One.
+  exists &a.
+  Fail exists &a.
+  ipso &p.
+Qed.
+
+Theorem tactics_all_delivers_conjoin_turnstile
+  : forall (A : Prop) (B : Prop) . A -> B -> A /\ B.
+Proof.
+  intros A B a b.
+  conjoin &a, &b |- c.
+  ipso &c.
+Qed.
+
+Theorem tactics_all_delivers_disjoin
+  : forall (A : Prop) (B : Prop) . A -> A \/ B.
+Proof.
+  intros A B a.
+  ipso (disjoin &a, _).
+Qed.
+
+Theorem tactics_all_delivers_disjoin_right
+  : forall (A : Prop) (B : Prop) . B -> A \/ B.
+Proof.
+  intros A B b.
+  ipso (disjoin _, &b).
+Qed.
+
+Theorem tactics_all_delivers_sejoin
+  : forall (A : Prop) (B : Prop) . A -> ~ B -> A _\/_ B.
+Proof.
+  intros A B a nb.
+  ipso (sejoin &a, &nb).
+Qed.
+
+Theorem tactics_all_delivers_sejoin_right
+  : forall (A : Prop) (B : Prop) . ~ A -> B -> A _\/_ B.
+Proof.
+  intros A B na b.
+  ipso (sejoin &na, &b).
+Qed.
+
+Theorem tactics_all_delivers_sejoin_turnstile
+  : forall (A : Prop) (B : Prop) . A -> ~ B -> A _\/_ B.
+Proof.
+  intros A B a nb.
+  sejoin &a, &nb |- s.
+  ipso &s.
+Qed.
+
+Theorem tactics_all_delivers_sejoin_refusing
+  : forall (A : Prop) (B : Prop) . A -> B -> A.
+Proof.
+  intros A B a b.
+  Fail sejoin &a, &b |- s.
+  ipso &a.
+Qed.
+
+Theorem tactics_all_delivers_abjoin
+  : forall (A : Prop) (B : Prop) . A -> ~ B -> A -/> B.
+Proof.
+  intros A B a nb.
+  ipso (abjoin &a, &nb).
+Qed.
+
+Theorem tactics_all_delivers_abjoin_turnstile
+  : forall (A : Prop) (B : Prop) . A -> ~ B -> A -/> B.
+Proof.
+  intros A B a nb.
+  abjoin &a, &nb |- s.
+  ipso &s.
+Qed.
+
+Module strict.
+
+Ltac2 Set Local.checking := Strict.
+
+Theorem tactics_all_delivers_strict_checking
+  : forall (A : Prop) . A -> A.
+Proof.
+  intros A a.
+  Fail ipso a.
+  Fail let proof b : A := &a.
+  let proof b : &A := &a.
+  ipso &b.
+Qed.
+
+End strict.
