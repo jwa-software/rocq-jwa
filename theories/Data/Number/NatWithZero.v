@@ -3291,7 +3291,7 @@ Instance NatWithZero_add_cancellative
   |}.
 
 Instance NatWithZero_mul_monoid
-  : Monoid NatWithZero.mul (NatWithZero.Positive Nat.One) := {|
+  : Monoid NatWithZero.mul Nat.One := {|
     Monoid.semigroup := {|
       Semigroup.associativity := NatWithZero.multiplication.associativity |}
   ; Monoid.identity := NatWithZero.multiplication.identity |}.
@@ -3331,7 +3331,7 @@ Instance NatWithZero_max_commutative
 
 Instance NatWithZero_semiring
   : Semiring NatWithZero.add NatWithZero.Zero NatWithZero.mul
-      (NatWithZero.Positive Nat.One) :=
+      Nat.One :=
   {| Semiring.abelian_monoid := NatWithZero_add_abelian_monoid
    ; Semiring.monoid         := NatWithZero_mul_monoid
    ; Semiring.distributivity := NatWithZero.multiplication.distributivity.over.addition

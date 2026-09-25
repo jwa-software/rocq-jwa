@@ -207,20 +207,20 @@ Proof.
     ipso (Identity.transitivity i e).
   }
 
-  lemma undivided : (NatWithZero.Positive d /. (Nat.One))%nat_with_zero
-          = NatWithZero.Positive d.
+  lemma undivided : (d /. (Nat.One))%nat_with_zero
+          = d.
   {
     let proof e := NatWithZero.division.exactness
-                  (NatWithZero.Positive d) (Nat.One)
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
+                  d (Nat.One)
+                  (NatWithZero.divisibility.bottom d).
     let proof i := NatWithZero.multiplication.right.identity
-                  (NatWithZero.Positive d /. (Nat.One))%nat_with_zero.
+                  (d /. (Nat.One))%nat_with_zero.
     symm in i.
     ipso (Identity.transitivity i e).
   }
 
-  lemma same : (NatWithZero.Positive d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
-          = (NatWithZero.Positive d /. (Nat.One))%nat_with_zero.
+  lemma same : (d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
+          = (d /. (Nat.One))%nat_with_zero.
   {
     leibniz h in |- *.
     quod idem est.
@@ -241,11 +241,11 @@ Proof.
                   d (NatWithZero.gcd.nat (Integer.abs n) d)
                   (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)
                   d Nat.One
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d))
+                  (NatWithZero.divisibility.bottom d)
                   same.
     let proof s := NatWithZero.divide.nat.safe.specification
                   d Nat.One
-                  (NatWithZero.divisibility.bottom (NatWithZero.Positive d)).
+                  (NatWithZero.divisibility.bottom d).
     leibniz undivided in s.
     let proof inj := NatWithZero.positive.injectivity s.
     ipso (Identity.transitivity c inj).
@@ -268,7 +268,7 @@ Proof.
     let proof am := Integer.multiplication.magnitude k n.
     let proof am
       : Integer.abs (k * n)%integer
-        = (NatWithZero.Positive k * Integer.abs n)%nat_with_zero
+        = (k * Integer.abs n)%nat_with_zero
       := &am.
     leibniz am in |- *.
     let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
@@ -303,18 +303,18 @@ Proof.
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d).
   {
     lemma quotients
-      : (NatWithZero.Positive (&k * &d)%nat
+      : ((&k * &d)%nat
          /. NatWithZero.gcd.nat (Integer.abs (k * &n)%integer) (&k * &d)%nat)%nat_with_zero
-        = (NatWithZero.Positive &d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%nat_with_zero.
+        = (d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%nat_with_zero.
     {
       leibniz common in |- *.
       let proof inv := NatWithZero.division.invariance
-                    (NatWithZero.Positive d)
+                    d
                     (NatWithZero.gcd.nat (Integer.abs n) d) k.
       let proof inv
-        : (NatWithZero.Positive (k * d)%nat
+        : ((k * d)%nat
            /. (k * NatWithZero.gcd.nat (Integer.abs n) d)%nat)%nat_with_zero
-          = (NatWithZero.Positive d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
+          = (d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
         := &inv.
       ipso inv.
     }
@@ -348,7 +348,7 @@ Proof.
                   (NatWithZero.gcd.nat.right.divisibility
                     (Integer.abs a) b).
     let proof e := NatWithZero.division.exactness
-                  (NatWithZero.Positive b)
+                  b
                   (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.gcd.nat.right.divisibility
                     (Integer.abs a) b).
@@ -532,57 +532,57 @@ Proof.
     leibniz (Integer.multiplication.magnitude p s) in m.
     leibniz (Integer.multiplication.magnitude r q) in m.
     let proof m
-      : (Integer.abs p * NatWithZero.Positive s)%nat_with_zero
-        = (Integer.abs r * NatWithZero.Positive q)%nat_with_zero
+      : (Integer.abs p * s)%nat_with_zero
+        = (Integer.abs r * q)%nat_with_zero
       := &m.
 
-    lemma coprime1 : NatWithZero.gcd (NatWithZero.Positive q) (Integer.abs p)
-            = NatWithZero.Positive Nat.One.
+    lemma coprime1 : NatWithZero.gcd q (Integer.abs p)
+            = Nat.One.
     {
       let proof g := NatWithZero.gcd.nat.specification q (Integer.abs p).
       leibniz I1 in g.
       leibniz (NatWithZero.gcd.commutativity
-                (Integer.abs p) (NatWithZero.Positive q)) in g.
+                (Integer.abs p) q) in g.
       ipso g.
     }
 
-    lemma coprime2 : NatWithZero.gcd (NatWithZero.Positive s) (Integer.abs r)
-            = NatWithZero.Positive Nat.One.
+    lemma coprime2 : NatWithZero.gcd s (Integer.abs r)
+            = Nat.One.
     {
       let proof g := NatWithZero.gcd.nat.specification s (Integer.abs r).
       leibniz I2 in g.
       leibniz (NatWithZero.gcd.commutativity (Integer.abs r)
-                 (NatWithZero.Positive s)) in g.
+                 s) in g.
       ipso g.
     }
 
-    lemma qs : NatWithZero.Divides (NatWithZero.Positive q) (NatWithZero.Positive s).
+    lemma qs : NatWithZero.Divides q s.
     {
       let proof h := NatWithZero.divisibility.multiplication.closure
-                    (NatWithZero.Positive q) (NatWithZero.Positive q)
+                    q q
                     (Integer.abs r)
-                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive q)).
+                    (NatWithZero.divisibility.reflexivity q).
       leibniz (NatWithZero.multiplication.commutativity
-                (NatWithZero.Positive q) (Integer.abs r)) in h.
+                q (Integer.abs r)) in h.
       let proof m' := Identity.symmetry m.
       leibniz m' in h.
       ipso (NatWithZero.gcd.multiplication.cancellation
-              (NatWithZero.Positive q) (Integer.abs p)
-              (NatWithZero.Positive s) h coprime1).
+              q (Integer.abs p)
+              s h coprime1).
     }
 
-    lemma sq : NatWithZero.Divides (NatWithZero.Positive s) (NatWithZero.Positive q).
+    lemma sq : NatWithZero.Divides s q.
     {
       let proof h := NatWithZero.divisibility.multiplication.closure
-                    (NatWithZero.Positive s) (NatWithZero.Positive s)
+                    s s
                     (Integer.abs p)
-                    (NatWithZero.divisibility.reflexivity (NatWithZero.Positive s)).
+                    (NatWithZero.divisibility.reflexivity s).
       leibniz (NatWithZero.multiplication.commutativity
-                 (NatWithZero.Positive s) (Integer.abs p)) in h.
+                 s (Integer.abs p)) in h.
       leibniz m in h.
       ipso (NatWithZero.gcd.multiplication.cancellation
-               (NatWithZero.Positive s) (Integer.abs r)
-               (NatWithZero.Positive q) h coprime2).
+               s (Integer.abs r)
+               q h coprime2).
     }
 
     let proof hq := NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq).

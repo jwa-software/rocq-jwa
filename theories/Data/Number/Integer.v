@@ -171,9 +171,9 @@ Notation "m * n" := (mul m n) (only parsing)
 (* [Integer -> Nat -> Integer] *)
 Definition divide := fun (x : Integer) (d : Nat) .
   match x with
-  | - p => negate (from_nat_with_zero (NatWithZero.Positive p /. d)%nat_with_zero)
+  | - p => negate (from_nat_with_zero (p /. d)%nat_with_zero)
   | 0   => 0
-  | + p => from_nat_with_zero (NatWithZero.Positive p /. d)%nat_with_zero
+  | + p => from_nat_with_zero (p /. d)%nat_with_zero
   end.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here,
@@ -462,8 +462,8 @@ Qed.
 (* difference.nat.specification *)
 Lemma specification
   : forall (p : Nat) (q : Nat) .
-      (ramp (nat_difference p q) + NatWithZero.Positive q)%nat_with_zero
-    = (ramp (negate (nat_difference p q)) + NatWithZero.Positive p)%nat_with_zero.
+      (ramp (nat_difference p q) + q)%nat_with_zero
+    = (ramp (negate (nat_difference p q)) + p)%nat_with_zero.
 Proof.
   intros p q.
   let proof t := Nat.order.strict.trichotomy p q.
@@ -631,7 +631,7 @@ Module of. (* difference.nat_with_zero.left.inversion.of *)
 (* difference.nat_with_zero.left.inversion.of.addition *)
 Lemma addition
   : forall (k : Nat) (a : NatWithZero) .
-      nat_with_zero_difference (NatWithZero.Positive k + a)%nat_with_zero a = + k.
+      nat_with_zero_difference (k + a)%nat_with_zero a = + k.
 Proof.
   intros k a.
   match a with | | q end.
@@ -656,7 +656,7 @@ Module of. (* difference.nat_with_zero.right.inversion.of *)
 (* difference.nat_with_zero.right.inversion.of.addition *)
 Lemma addition
   : forall (k : Nat) (a : NatWithZero) .
-      nat_with_zero_difference a (NatWithZero.Positive k + a)%nat_with_zero = - k.
+      nat_with_zero_difference a (k + a)%nat_with_zero = - k.
 Proof.
   intros k a.
   match a with | | q end.
@@ -707,12 +707,12 @@ Proof.
     quod idem est.
   - simpl in h.
     leibniz h in |- *.
-    leibniz (NatWithZero.addition.commutativity c (NatWithZero.Positive q)) in |- *.
+    leibniz (NatWithZero.addition.commutativity c q) in |- *.
     leibniz (difference.nat_with_zero.right.inversion.of.addition q c) in |- *.
     simpl in |- *.
     quod idem est.
   - leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
-    let proof h : (NatWithZero.Positive p + d)%nat_with_zero = c := &h.
+    let proof h : (p + d)%nat_with_zero = c := &h.
     symm in h.
     leibniz h in |- *.
     leibniz (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
@@ -806,8 +806,8 @@ Lemma scaling
   : forall (k : Nat) (a : NatWithZero) (b : NatWithZero) .
       (+ k) * nat_with_zero_difference a b
       = nat_with_zero_difference
-          (NatWithZero.Positive k * a)%nat_with_zero
-          (NatWithZero.Positive k * b)%nat_with_zero.
+          (k * a)%nat_with_zero
+          (k * b)%nat_with_zero.
 Proof.
   intros k a b.
   match a with | | p end; match b with | | q end.
@@ -823,7 +823,7 @@ Proof.
       ipso (difference.nat.scaling k p q).
     }
     let proof facto
-      : (+ &k) * nat_with_zero_difference (NatWithZero.Positive &p) (NatWithZero.Positive &q)
+      : (+ &k) * nat_with_zero_difference p q
         = nat_difference (&k * &p)%nat (&k * &q)%nat
       := facto.
     ipso facto.
@@ -838,7 +838,7 @@ Module ramp. (* ramp *)
 (* ramp.scaling *)
 Lemma scaling
   : forall (k : Nat) (x : Integer) .
-      ramp ((+ k) * x) = (NatWithZero.Positive k * ramp x)%nat_with_zero.
+      ramp ((+ k) * x) = (k * ramp x)%nat_with_zero.
 Proof.
   intros k x.
   match x with | x' | | x' end; simpl in |- *; quod idem est.
@@ -1249,11 +1249,11 @@ Proof.
             (ramp m + ramp n)%nat_with_zero
             (ramp (negate m) + ramp (negate n))%nat_with_zero) in |- *.
   leibniz (NatWithZero.multiplication.left.distributivity.over.addition
-            (NatWithZero.Positive k)
+            k
             (ramp m)
             (ramp n)) in |- *.
   leibniz (NatWithZero.multiplication.left.distributivity.over.addition
-            (NatWithZero.Positive k)
+            k
             (ramp (negate m))
             (ramp (negate n))) in |- *.
   leibniz (ramp.scaling k m) in |- *.
@@ -1744,29 +1744,29 @@ Proof.
   intros x d.
   match x with | p | | p end.
   - simpl divide, abs in |- *.
-    match (NatWithZero.Positive p /. d)%nat_with_zero with | | k end;
+    match (p /. d)%nat_with_zero with | | k end;
       simpl from_nat_with_zero, negate in |- *; quod idem est.
   - simpl divide, abs in |- *.
     simpl NatWithZero.divide, NatWithZero.div in |- *.
     simpl in |- *.
     quod idem est.
   - simpl divide, abs in |- *.
-    match (NatWithZero.Positive p /. d)%nat_with_zero with | | k end;
+    match (p /. d)%nat_with_zero with | | k end;
       simpl from_nat_with_zero in |- *; quod idem est.
 Qed.
 
 (* division.exactness *)
 Theorem exactness
   : forall (x : Integer) (d : Nat) .
-      NatWithZero.Divides (NatWithZero.Positive d) (| x |)
+      NatWithZero.Divides d (| x |)
       -> (x /. d) * (+ d) = x.
 Proof.
   intros x d h.
   match x with | x' | | x' end.
   - simpl divide in |- *.
     let proof e := NatWithZero.division.exactness
-                  (NatWithZero.Positive x') d h.
-    match (NatWithZero.Positive x' /. d)%nat_with_zero with | | m end.
+                  x' d h.
+    match (x' /. d)%nat_with_zero with | | m end.
     + simpl in e.
       ex e quodlibet.
     + simpl in |- *.
@@ -1776,8 +1776,8 @@ Proof.
     quod idem est.
   - simpl divide in |- *.
     let proof e := NatWithZero.division.exactness
-                  (NatWithZero.Positive x') d h.
-    match (NatWithZero.Positive x' /. d)%nat_with_zero with | | m end.
+                  x' d h.
+    match (x' /. d)%nat_with_zero with | | m end.
     + simpl in e.
       ex e quodlibet.
     + simpl in |- *.
@@ -1811,10 +1811,10 @@ Proof.
     {
       simpl divide in |- *.
       let proof h := NatWithZero.division.invariance
-                    (NatWithZero.Positive p) d k.
+                    p d k.
       let proof h
-        : (NatWithZero.Positive (k * p)%nat /. (k * d)%nat)%nat_with_zero
-          = (NatWithZero.Positive p /. d)%nat_with_zero
+        : ((k * p)%nat /. (k * d)%nat)%nat_with_zero
+          = (p /. d)%nat_with_zero
         := &h.
       leibniz h in |- *.
       quod idem est.
@@ -1826,10 +1826,10 @@ Proof.
     {
       simpl divide in |- *.
       let proof h := NatWithZero.division.invariance
-                    (NatWithZero.Positive p) d k.
+                    p d k.
       let proof h
-        : (NatWithZero.Positive (k * p)%nat /. (k * d)%nat)%nat_with_zero
-          = (NatWithZero.Positive p /. d)%nat_with_zero
+        : ((k * p)%nat /. (k * d)%nat)%nat_with_zero
+          = (p /. d)%nat_with_zero
         := &h.
       leibniz h in |- *.
       quod idem est.
@@ -2143,7 +2143,7 @@ Instance Integer_add_cancellative : Cancellative Integer.add :=
 Instance Integer_add_commutative : Commutative Integer.add :=
   {| Commutative.commutativity := Integer.addition.commutativity |}.
 
-Instance Integer_mul_monoid : Monoid Integer.mul (Integer.Positive Nat.One) :=
+Instance Integer_mul_monoid : Monoid Integer.mul Nat.One :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Integer.multiplication.associativity |}
    ; Monoid.identity := Integer.multiplication.identity |}.
@@ -2163,7 +2163,7 @@ Instance Integer_add_abelian_group
 
 Instance Integer_ring
   : Ring Integer.add Integer.Zero Integer.negate Integer.mul
-      (Integer.Positive Nat.One) :=
+      Nat.One :=
   {| Ring.abelian_group  := Integer_add_abelian_group
    ; Ring.monoid         := Integer_mul_monoid
    ; Ring.distributivity := Integer.multiplication.distributivity.over.addition |}.
