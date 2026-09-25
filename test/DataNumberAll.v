@@ -473,3 +473,48 @@ Definition data_number_all_delivers_rational_embedding_order
       <-> Rational.LessThan (Rational.from_integer m)
                             (Rational.from_integer n)
   := Rational.embedding.order.
+
+Theorem data_number_all_delivers_coercion_nat_to_nat_with_zero
+  : forall (n : Nat) .
+      NatWithZero.add n n = NatWithZero.add (NatWithZero.Positive n) (NatWithZero.Positive n).
+Proof.
+  intro n.
+  quod idem est.
+Qed.
+
+Theorem data_number_all_delivers_coercion_nat_to_integer
+  : forall (n : Nat) . Integer.negate n = Integer.negate (Integer.Positive n).
+Proof.
+  intro n.
+  quod idem est.
+Qed.
+
+Theorem data_number_all_delivers_coercion_nat_with_zero_to_integer
+  : forall (w : NatWithZero) . Integer.negate w = Integer.negate (Integer.from_nat_with_zero w).
+Proof.
+  intro w.
+  quod idem est.
+Qed.
+
+Theorem data_number_all_delivers_coercion_integer_to_rational
+  : forall (z : Integer) . Rational.negate z = Rational.negate (Rational.from_integer z).
+Proof.
+  intro z.
+  quod idem est.
+Qed.
+
+Theorem data_number_all_delivers_coercion_nat_to_rational
+  : forall (n : Nat) .
+      Rational.negate n = Rational.negate (Rational.from_integer (Integer.Positive n)).
+Proof.
+  intro n.
+  quod idem est.
+Qed.
+
+Theorem data_number_all_delivers_coercion_nat_with_zero_to_rational
+  : forall (w : NatWithZero) .
+      Rational.negate w = Rational.negate (Rational.from_integer (Integer.from_nat_with_zero w)).
+Proof.
+  intro w.
+  quod idem est.
+Qed.

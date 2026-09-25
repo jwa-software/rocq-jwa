@@ -225,7 +225,7 @@ Module over. (* length.additivity.over *)
 (* length.additivity.over.concatenation *)
 Theorem concatenation
   : forall {A : Type} (x : NonEmptyList A) (y : NonEmptyList A) .
-      (|| x ++ y ||) = Nat.add (|| x ||) (|| y ||).
+      (|| x ++ y ||) = ((|| x ||) + (|| y ||))%nat.
 Proof.
   intros A x y.
   match x with | a | a x' by IH end per NonEmptyList.induction.
@@ -528,7 +528,7 @@ End distributivity. (* conversion.distributivity *)
 (* conversion.length *)
 Theorem length
   : forall {A : Type} (x : NonEmptyList A) .
-      List.length (to_list x) = NatWithZero.Positive (|| x ||).
+      List.length (to_list x) = (|| x ||).
 Proof.
   intros A x.
   match x with | a | a x' by IH end per NonEmptyList.induction.
@@ -633,7 +633,7 @@ Instance NonEmptyList_sized
   : Sized NonEmptyList :=
   {| Sized.cardinality :=
        fun (A : Type) (x : NonEmptyList A) .
-         NatWithZero.Positive (NonEmptyList.length x) |}.
+         NonEmptyList.length x |}.
 
 Instance NonEmptyList_membership
   : Membership NonEmptyList :=
