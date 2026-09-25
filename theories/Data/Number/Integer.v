@@ -2137,11 +2137,11 @@ Abbreviation Integer := Integer.T.
  *)
 Export (notations) Integer.
 
-(* [Integer.LessThan] is not well founded -- [0], [- 1], [- 2] descends for
- * ever -- so a recursion on an [Integer] descends on its magnitude instead,
- * and that relation is well founded for nothing but [NatWithZero]'s being
- * so.
- *)
+Coercion Integer.from_nat : Nat >-> Integer.
+Coercion Integer.from_nat_with_zero : NatWithZero >-> Integer.
+Add Printing Coercion Integer.from_nat.
+Add Printing Coercion Integer.from_nat_with_zero.
+
 Instance Integer_magnitude_well_founded
   : WellFounded (Induced (<)%nat_with_zero Integer.abs) :=
   WellFounded.induced (<)%nat_with_zero Integer.abs
