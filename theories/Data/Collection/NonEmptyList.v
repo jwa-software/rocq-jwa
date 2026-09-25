@@ -319,7 +319,7 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    leibniz (antidistributivity.over.concatenation (reverse x') [a]) in |- *.
+    leibniz (reversal.antidistributivity.over.concatenation (reverse x') [a]) in |- *.
     simpl in |- *.
     leibniz IH in |- *.
     quod idem est.
