@@ -13,6 +13,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Induced.
@@ -107,6 +108,25 @@ Definition ramp := fun (x : Integer) .
   | - _ => NatWithZero.Zero
   | 0   => NatWithZero.Zero
   | + p => NatWithZero.Positive p
+  end.
+
+(* The conversions down: [None] below [0] for [NatWithZero], and at or below
+ * it for [Nat], where [ramp] answers [NatWithZero.Zero] instead.
+ *)
+(* [Integer -> Option NatWithZero] *)
+Definition to_nat_with_zero := fun (x : Integer) .
+  match x with
+  | - _ => None
+  | 0   => Some NatWithZero.Zero
+  | + p => Some (NatWithZero.Positive p)
+  end.
+
+(* [Integer -> Option Nat] *)
+Definition to_nat := fun (x : Integer) .
+  match x with
+  | - _ => None
+  | 0   => None
+  | + p => Some p
   end.
 
 (* [Nat -> Nat -> Integer] *)
@@ -2099,6 +2119,154 @@ End addition. (* parity.odd.addition *)
 End odd. (* parity.odd *)
 
 End parity. (* parity *)
+
+Module narrowing. (* narrowing *)
+
+Module nat_with_zero. (* narrowing.nat_with_zero *)
+
+(* narrowing.nat_with_zero.retraction *)
+Theorem retraction
+  : forall (n : NatWithZero) . to_nat_with_zero (from_nat_with_zero n) = Some n.
+Proof.
+  intro n.
+  match n with | Zero | Positive p end.
+  - simpl from_nat_with_zero, to_nat_with_zero in |- *.
+    quod idem est.
+  - simpl from_nat_with_zero, to_nat_with_zero in |- *.
+    quod idem est.
+Qed.
+
+(* narrowing.nat_with_zero.specification *)
+Theorem specification
+  : forall (x : Integer) (n : NatWithZero) .
+      to_nat_with_zero x = Some n <-> x = from_nat_with_zero n.
+Proof.
+  intros x n.
+  divide et impera.
+  - intro e.
+    match x with | Negative p | Zero | Positive p end.
+    + simpl to_nat_with_zero in e.
+      ex e quodlibet.
+    + simpl to_nat_with_zero in e.
+      let proof f := Option.some.injectivity e.
+      leibniz <- f in |- *.
+      simpl from_nat_with_zero in |- *.
+      quod idem est.
+    + simpl to_nat_with_zero in e.
+      let proof f := Option.some.injectivity e.
+      leibniz <- f in |- *.
+      simpl from_nat_with_zero in |- *.
+      quod idem est.
+  - intro e.
+    leibniz e in |- *.
+    ipso (retraction n).
+Qed.
+
+(* narrowing.nat_with_zero.failure *)
+Theorem failure
+  : forall (x : Integer) . to_nat_with_zero x = None <-> x < 0.
+Proof.
+  intro x.
+  divide et impera.
+  - intro e.
+    match x with | Negative p | Zero | Positive p end.
+    + simpl ( _ < _ ) in |- *.
+      exists p.
+      ipso (addition.left.inverse (+ p)).
+    + simpl to_nat_with_zero in e.
+      ex e quodlibet.
+    + simpl to_nat_with_zero in e.
+      ex e quodlibet.
+  - intro h.
+    match x with | Negative p | Zero | Positive p end.
+    + simpl to_nat_with_zero in |- *.
+      quod idem est.
+    + ex (order.strict.irreflexivity 0 h) quodlibet.
+    + lemma above : 0 < + p.
+      {
+        simpl ( _ < _ ) in |- *.
+        exists p.
+        ipso (addition.left.identity (+ p)).
+      }
+      ex (order.strict.irreflexivity 0 (order.strict.transitivity above h)) quodlibet.
+Qed.
+
+End nat_with_zero. (* narrowing.nat_with_zero *)
+
+Module nat. (* narrowing.nat *)
+
+(* narrowing.nat.retraction *)
+Theorem retraction
+  : forall (p : Nat) . to_nat (+ p) = Some p.
+Proof.
+  intro p.
+  simpl to_nat in |- *.
+  quod idem est.
+Qed.
+
+(* narrowing.nat.specification *)
+Theorem specification
+  : forall (x : Integer) (p : Nat) . to_nat x = Some p <-> x = + p.
+Proof.
+  intros x p.
+  divide et impera.
+  - intro e.
+    match x with | Negative q | Zero | Positive q end.
+    + simpl to_nat in e.
+      ex e quodlibet.
+    + simpl to_nat in e.
+      ex e quodlibet.
+    + simpl to_nat in e.
+      let proof f := Option.some.injectivity e.
+      leibniz f in |- *.
+      quod idem est.
+  - intro e.
+    leibniz e in |- *.
+    ipso (retraction p).
+Qed.
+
+(* narrowing.nat.failure *)
+Theorem failure
+  : forall (x : Integer) . to_nat x = None <-> x <= 0.
+Proof.
+  intro x.
+  divide et impera.
+  - intro e.
+    simpl ( _ <= _ ) in |- *.
+    match x with | Negative p | Zero | Positive p end.
+    + lemma below : - p < 0.
+      {
+        simpl ( _ < _ ) in |- *.
+        exists p.
+        ipso (addition.left.inverse (+ p)).
+      }
+      ipso (disjoin _, below).
+    + ipso (disjoin (Identity.reflexivity 0), _).
+    + simpl to_nat in e.
+      ex e quodlibet.
+  - intro h.
+    simpl ( _ <= _ ) in h.
+    match h with | e | lt end.
+    + leibniz e in |- *.
+      simpl to_nat in |- *.
+      quod idem est.
+    + match x with | Negative p | Zero | Positive p end.
+      * simpl to_nat in |- *.
+        quod idem est.
+      * simpl to_nat in |- *.
+        quod idem est.
+      * lemma above : 0 < + p.
+        {
+          simpl ( _ < _ ) in |- *.
+          exists p.
+          ipso (addition.left.identity (+ p)).
+        }
+        ex (order.strict.irreflexivity 0 (order.strict.transitivity above lt)) quodlibet.
+Qed.
+
+End nat. (* narrowing.nat *)
+
+End narrowing. (* narrowing *)
 
 End Integer. (* Integer *)
 
