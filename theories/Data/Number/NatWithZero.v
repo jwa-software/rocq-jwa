@@ -187,6 +187,14 @@ Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
   | false => None
   end.
 
+(* The conversion down to [Nat], which has no zero: [None] at [0]. *)
+(* [NatWithZero -> Option Nat] *)
+Definition to_nat := fun (n : NatWithZero) .
+  match n with
+  | 0   => None
+  | + p => Some p
+  end.
+
 (* Euclidean division of a positive by a positive, by walking the dividend
  * down: each step adds one to the remainder, and the quotient goes up when
  * the remainder reaches the divisor. The divisor is a [Nat], so it is never
@@ -3029,6 +3037,17 @@ Proof.
   ipso h.
 Qed.
 
+(* gcd.nat.right.annihilation *)
+Theorem annihilation
+  : forall (a : NatWithZero) . gcd.nat a Nat.One = Nat.One.
+Proof.
+  intro a.
+  let proof down := gcd.nat.right.divisibility a Nat.One.
+  let proof up := divisibility.bottom (+ (gcd.nat a Nat.One)).
+  let proof e := divisibility.antisymmetry down up.
+  ipso (positive.injectivity e).
+Qed.
+
 End right. (* gcd.nat.right *)
 
 (* gcd.nat.divisibility *)
@@ -3245,6 +3264,59 @@ End addition. (* parity.odd.addition *)
 End odd. (* parity.odd *)
 
 End parity. (* parity *)
+
+Module narrowing. (* narrowing *)
+
+Module nat. (* narrowing.nat *)
+
+(* narrowing.nat.retraction *)
+Theorem retraction
+  : forall (p : Nat) . to_nat (+ p) = Some p.
+Proof.
+  intro p.
+  simpl to_nat in |- *.
+  quod idem est.
+Qed.
+
+(* narrowing.nat.specification *)
+Theorem specification
+  : forall (n : NatWithZero) (p : Nat) . to_nat n = Some p <-> n = + p.
+Proof.
+  intros n p.
+  divide et impera.
+  - intro e.
+    match n with | Zero | Positive q end.
+    + simpl to_nat in e.
+      ex e quodlibet.
+    + simpl to_nat in e.
+      let proof f := Option.some.injectivity e.
+      leibniz f in |- *.
+      quod idem est.
+  - intro e.
+    leibniz e in |- *.
+    ipso (retraction p).
+Qed.
+
+(* narrowing.nat.failure *)
+Theorem failure
+  : forall (n : NatWithZero) . to_nat n = None <-> n = 0.
+Proof.
+  intro n.
+  divide et impera.
+  - intro e.
+    match n with | Zero | Positive q end.
+    + quod idem est.
+    + simpl to_nat in e.
+      ex e quodlibet.
+  - intro e.
+    leibniz e in |- *.
+    simpl to_nat in |- *.
+    quod idem est.
+Qed.
+
+End nat. (* narrowing.nat *)
+
+End narrowing. (* narrowing *)
 
 End NatWithZero. (* NatWithZero *)
 
