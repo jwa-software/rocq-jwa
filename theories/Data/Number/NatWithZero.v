@@ -112,12 +112,13 @@ Definition power := fun (m : NatWithZero) (n : NatWithZero) .
 Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) .
   forsome (k : Nat) . m + (+ k) = n.
 
-(* [NatWithZero -> NatWithZero -> Prop] *)
-Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) .
-  m = n \/ LessThan m n.
-
 Notation "m < n" := (LessThan m n) (only parsing)
   : jwa_nat_with_zero_scope.
+
+(* [NatWithZero -> NatWithZero -> Prop] *)
+Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) .
+  m = n \/ m < n.
+
 Notation "m <= n" := (LessOrEqual m n) (only parsing)
   : jwa_nat_with_zero_scope.
 
@@ -272,7 +273,7 @@ Module order. (* positive.order *)
 (* positive.order.embedding *)
 Lemma embedding
   : forall (m : Nat) (n : Nat) .
-      (+ m) < + n <-> Nat.LessThan m n.
+      (+ m) < + n <-> (m < n)%nat.
 Proof.
   intros m n.
   divide et impera.
@@ -927,9 +928,9 @@ Qed.
 Module zero. (* order.strict.zero *)
 
 (* order.strict.zero.accessibility *)
-Lemma accessibility : Accessible LessThan 0.
+Lemma accessibility : Accessible (<) 0.
 Proof.
-  lemma below : forall (y : NatWithZero) . y < 0 -> Accessible LessThan y.
+  lemma below : forall (y : NatWithZero) . y < 0 -> Accessible (<) y.
   {
     intros y h.
     match h with | k e end.
@@ -948,13 +949,13 @@ End zero. (* order.strict.zero *)
  * a step down from a positive number lands on a smaller [Nat].
  *)
 (* order.strict.wellfoundedness *)
-Theorem wellfoundedness : forall (n : NatWithZero) . Accessible LessThan n.
+Theorem wellfoundedness : forall (n : NatWithZero) . Accessible (<) n.
 Proof.
   intros n.
   match n with | | p end.
   - ipso zero.accessibility.
   - match p with | | p' by IH end per Nat.induction.
-    + lemma below : forall (y : NatWithZero) . y < (+ Nat.One) -> Accessible LessThan y.
+    + lemma below : forall (y : NatWithZero) . y < (+ Nat.One) -> Accessible (<) y.
       {
         intros y h.
         match h with | k e end.
@@ -970,7 +971,7 @@ Proof.
       }
       ipso (Accessible_introduction &below).
     + lemma below
-        : forall (y : NatWithZero) . y < (+ Nat.Successor &p') -> Accessible LessThan y.
+        : forall (y : NatWithZero) . y < (+ Nat.Successor &p') -> Accessible (<) y.
       {
         intros y h.
         match h with | k e end.
@@ -1172,7 +1173,7 @@ End comparison. (* comparison *)
  * may use them and no topic before it can.
  *)
 Instance comparable
-  : Comparable compare LessThan :=
+  : Comparable compare (<) :=
   {| Comparable.transitivity  := @order.strict.transitivity
    ; Comparable.specification := comparison.specification
    ; Comparable.antisymmetry  := comparison.antisymmetry |}.
@@ -1938,7 +1939,7 @@ Module euclid. (* euclid *)
 (* euclid.well_founded *)
 Instance well_founded
   : WellFounded (Induced (<) pi_2) :=
-  WellFounded.induced LessThan (@Product.second NatWithZero NatWithZero)
+  WellFounded.induced (<) (@Product.second NatWithZero NatWithZero)
     {| accessibility := order.strict.wellfoundedness |}.
 
 Local Open Scope jwa_type_scope.
@@ -2046,8 +2047,8 @@ Module nat. (* euclid.nat *)
 
 (* euclid.nat.well_founded *)
 Instance well_founded
-  : WellFounded (Induced Nat.LessThan (@Product.second NatWithZero Nat)) :=
-  WellFounded.induced Nat.LessThan (@Product.second NatWithZero Nat)
+  : WellFounded (Induced (<)%nat (@Product.second NatWithZero Nat)) :=
+  WellFounded.induced (<)%nat (@Product.second NatWithZero Nat)
     Nat_less_than_well_founded.
 
 (* The inner [return] carries the bound rather than an equation, so the
@@ -2055,25 +2056,25 @@ Instance well_founded
  *)
 (* [forall (p : Product NatWithZero Nat) .
  *    (forall (s : Product NatWithZero Nat) .
- *       Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) ->
+ *       Induced (<)%nat (@Product.second NatWithZero Nat) s p -> Nat) ->
  *    Nat]
  *)
 (* euclid.nat.step *)
 Definition step
-  : Descent.Step (Induced Nat.LessThan (@Product.second NatWithZero Nat))
+  : Descent.Step (Induced (<)%nat (@Product.second NatWithZero Nat))
                  (fun (_ : Product NatWithZero Nat) . Nat)
   :=
   fun (p : Product NatWithZero Nat)
     (recurse : forall (s : Product NatWithZero Nat) .
-                 Induced Nat.LessThan (@Product.second NatWithZero Nat) s p -> Nat) .
+                 Induced (<)%nat (@Product.second NatWithZero Nat) s p -> Nat) .
     match p as t
       return ((forall (s : Product NatWithZero Nat) .
-                 Induced Nat.LessThan (@Product.second NatWithZero Nat) s t -> Nat) ->
+                 Induced (<)%nat (@Product.second NatWithZero Nat) s t -> Nat) ->
               Nat)
     with
     | (a, q) =>
         fun (descend : forall (s : Product NatWithZero Nat) .
-                         Induced Nat.LessThan (@Product.second NatWithZero Nat) s (a, q) ->
+                         Induced (<)%nat (@Product.second NatWithZero Nat) s (a, q) ->
                          Nat) .
           match (a %. q) as m return (m < (+ q) -> Nat) with
           | 0 => fun (_ : 0 < (+ q)) . q
@@ -2102,7 +2103,7 @@ Proof.
     let s := Induced.introduction
                 (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
                 (Biconditional.forward.elimination (positive.order.embedding r q) b)
-            : Induced Nat.LessThan (@Product.second NatWithZero Nat) ((+ q), r) (a, q) in |- *.
+            : Induced (<)%nat (@Product.second NatWithZero Nat) ((+ q), r) (a, q) in |- *.
     let proof H := h ((+ q), r).
     ipso (modus ponens H, s).
 Qed.
@@ -2339,7 +2340,7 @@ Theorem divisibility
 Proof.
   intros b.
   lemma descent
-    : Descent.Step LessThan
+    : Descent.Step (<)
         (fun (c : NatWithZero) .
            forall (a : NatWithZero) .
              Divides (gcd a c) a /\ Divides (gcd a c) c).
@@ -2387,7 +2388,7 @@ Theorem multiplication
 Proof.
   intros k b.
   lemma descent
-    : Descent.Step LessThan
+    : Descent.Step (<)
         (fun (c : NatWithZero) .
            forall (a : NatWithZero) .
              (+ &k) * gcd a c = gcd ((+ &k) * a) ((+ &k) * c)).
@@ -2445,7 +2446,7 @@ Theorem universality
 Proof.
   intros b.
   lemma descent
-    : Descent.Step LessThan
+    : Descent.Step (<)
         (fun (c : NatWithZero) .
            forall (a : NatWithZero) (d : NatWithZero) .
              Divides d a -> Divides d c -> Divides d (gcd a c)).
@@ -2567,7 +2568,7 @@ Theorem specification
 Proof.
   intros q.
   lemma descent
-    : Descent.Step Nat.LessThan
+    : Descent.Step (<)%nat
         (fun (c : Nat) .
            forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c)).
   {
@@ -2859,7 +2860,7 @@ Export (notations) NatWithZero.
 Existing Instance NatWithZero.comparable.
 
 Instance NatWithZero_less_than_well_founded
-  : WellFounded NatWithZero.LessThan :=
+  : WellFounded (<)%nat_with_zero :=
   {| accessibility := NatWithZero.order.strict.wellfoundedness |}.
 
 Instance NatWithZero_add_monoid

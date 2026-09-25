@@ -189,11 +189,12 @@ Notation "m /. n" := (divide m n) (only parsing)
 Definition LessThan := fun (m : Integer) (n : Integer) .
   forsome (k : Nat) . m + (+ k) = n.
 
-(* [Integer -> Integer -> Prop] *)
-Definition LessOrEqual := fun (m : Integer) (n : Integer) . m = n \/ LessThan m n.
-
 Notation "m < n" := (LessThan m n) (only parsing)
   : jwa_integer_scope.
+
+(* [Integer -> Integer -> Prop] *)
+Definition LessOrEqual := fun (m : Integer) (n : Integer) . m = n \/ m < n.
+
 Notation "m <= n" := (LessOrEqual m n) (only parsing)
   : jwa_integer_scope.
 
@@ -203,6 +204,11 @@ Notation "m <= n" := (LessOrEqual m n) (only parsing)
 Notation "m > n" := (LessThan n m) (only parsing)
   : jwa_integer_scope.
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
+  : jwa_integer_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_integer_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
   : jwa_integer_scope.
 
 (* [Integer -> Integer -> Comparison] *)
@@ -1616,7 +1622,7 @@ Proof.
   - intro h.
     match h with | k e end.
     modus aequans (difference.nat.negative.specification k m' n'), e |- e'.
-    lemma smaller : Nat.LessThan &n' &m'.
+    lemma smaller : (&n' < &m')%nat.
     {
       simpl ( _ < _ )%nat in |- *.
       exists k.
@@ -1669,7 +1675,7 @@ Proof.
   - intro h.
     match h with | k e end.
     let proof e' := magnitude.positive.injectivity e.
-    lemma smaller : Nat.LessThan &m' &n'.
+    lemma smaller : (&m' < &n')%nat.
     {
       simpl ( _ < _ )%nat in |- *.
       exists k.
@@ -2137,12 +2143,12 @@ Export (notations) Integer.
  * so.
  *)
 Instance Integer_magnitude_well_founded
-  : WellFounded (Induced NatWithZero.LessThan Integer.abs) :=
-  WellFounded.induced NatWithZero.LessThan Integer.abs
+  : WellFounded (Induced (<)%nat_with_zero Integer.abs) :=
+  WellFounded.induced (<)%nat_with_zero Integer.abs
     NatWithZero_less_than_well_founded.
 
 Instance Integer_comparable
-  : Comparable Integer.compare Integer.LessThan :=
+  : Comparable Integer.compare (<)%integer :=
   {| Comparable.transitivity  := @Integer.order.strict.transitivity
    ; Comparable.specification := Integer.comparison.specification
    ; Comparable.antisymmetry  := Integer.comparison.antisymmetry |}.

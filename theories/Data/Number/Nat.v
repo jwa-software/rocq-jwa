@@ -1307,11 +1307,11 @@ Abbreviation Nat := Nat.T.
 Export (notations) Nat.
 
 Instance Nat_less_than_well_founded
-  : WellFounded Nat.LessThan :=
+  : WellFounded (<)%nat :=
   {| accessibility := Nat.order.strict.wellfoundedness |}.
 
 Instance Nat_comparable
-  : Comparable Nat.compare Nat.LessThan :=
+  : Comparable Nat.compare (<)%nat :=
   {| Comparable.transitivity  := @Nat.order.strict.transitivity
    ; Comparable.specification := Nat.comparison.specification
    ; Comparable.antisymmetry  := Nat.comparison.antisymmetry |}.

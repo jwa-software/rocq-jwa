@@ -123,21 +123,26 @@ Definition inverse := fun (x : Rational) .
 
 (* [Rational -> Rational -> Prop] *)
 Definition LessThan := fun (x : Rational) (y : Rational) .
-  Integer.LessThan
-    (Integer.mul (numerator x) (Integer.from_nat (denominator y)))
-    (Integer.mul (numerator y) (Integer.from_nat (denominator x))).
-
-(* [Rational -> Rational -> Prop] *)
-Definition LessOrEqual := fun (x : Rational) (y : Rational) .
-  x = y \/ LessThan x y.
+  (Integer.mul (numerator x) (Integer.from_nat (denominator y))
+   < Integer.mul (numerator y) (Integer.from_nat (denominator x)))%integer.
 
 Notation "x < y" := (LessThan x y) (only parsing)
   : jwa_rational_scope.
+
+(* [Rational -> Rational -> Prop] *)
+Definition LessOrEqual := fun (x : Rational) (y : Rational) .
+  x = y \/ (x < y)%rational.
+
 Notation "x <= y" := (LessOrEqual x y) (only parsing)
   : jwa_rational_scope.
 Notation "x > y" := (LessThan y x) (only parsing)
   : jwa_rational_scope.
 Notation "x >= y" := (LessOrEqual y x) (only parsing)
+  : jwa_rational_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_rational_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
   : jwa_rational_scope.
 
 (* [Rational -> Rational -> Comparison] *)
@@ -816,8 +821,7 @@ Module strict. (* make.order.strict *)
 Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       make a b < make c d
-      <-> Integer.LessThan (Integer.mul a (Integer.from_nat d))
-                           (Integer.mul c (Integer.from_nat b)).
+      <-> (Integer.mul a (Integer.from_nat d) < Integer.mul c (Integer.from_nat b))%integer.
 Proof.
   intros a b c d.
   let proof P1 := proportionality a b.
@@ -830,9 +834,9 @@ Proof.
   let s := denominator (make &c &d) in *.
 
   lemma scaling : forall (m : Integer) (n : Integer) (k : Nat) .
-              Integer.LessThan m n
-              <-> Integer.LessThan (Integer.mul m (Integer.Positive k))
-                                   (Integer.mul n (Integer.Positive k)).
+              (m < n)%integer
+              <-> (Integer.mul m (Integer.Positive k)
+                   < Integer.mul n (Integer.Positive k))%integer.
   {
     intros m n k.
     divide et impera.
@@ -1316,15 +1320,14 @@ Proof.
   }
 
   lemma cross
-    : Integer.LessThan
-        (Integer.mul
-           (Integer.add (Integer.mul &e (Integer.Positive &b))
-                        (Integer.mul &a (Integer.Positive &f)))
-           (Integer.from_nat (Nat.mul &f &d)))
-        (Integer.mul
+    : (Integer.mul
+         (Integer.add (Integer.mul &e (Integer.Positive &b))
+                      (Integer.mul &a (Integer.Positive &f)))
+         (Integer.from_nat (Nat.mul &f &d))
+       < Integer.mul
            (Integer.add (Integer.mul &e (Integer.Positive &d))
                         (Integer.mul &c (Integer.Positive &f)))
-           (Integer.from_nat (Nat.mul &f &b))).
+           (Integer.from_nat (Nat.mul &f &b)))%integer.
   {
     simpl Integer.from_nat in |- *.
     let proof scaled := Integer.multiplication.left.order.strict.monotonicity
@@ -1611,9 +1614,9 @@ Proof.
     }
 
     lemma cross
-      : Integer.LessThan
-          (Integer.mul (Integer.mul (Integer.Positive &k) &a) (Integer.from_nat (Nat.mul &f &d)))
-          (Integer.mul (Integer.mul (Integer.Positive &k) &c) (Integer.from_nat (Nat.mul &f &b))).
+      : (Integer.mul (Integer.mul (Integer.Positive &k) &a) (Integer.from_nat (Nat.mul &f &d))
+         < Integer.mul (Integer.mul (Integer.Positive &k) &c)
+                       (Integer.from_nat (Nat.mul &f &b)))%integer.
     {
       simpl Integer.from_nat in |- *.
       let proof scaled := Integer.multiplication.left.order.strict.monotonicity
@@ -1824,7 +1827,7 @@ Module strict. (* order.strict *)
 (* order.strict.transitivity *)
 Theorem transitivity
   : forall (x : Rational) (y : Rational) (z : Rational) .
-      LessThan x y -> LessThan y z -> LessThan x z.
+      x < y -> y < z -> x < z.
 Proof.
   intros x y z H1 H2.
   simpl ( _ < _ ) in H1, H2 |- *.
@@ -2036,8 +2039,8 @@ Qed.
 (* embedding.order *)
 Theorem order
   : forall (m : Integer) (n : Integer) .
-      Integer.LessThan m n
-      <-> LessThan (from_integer m) (from_integer n).
+      (m < n)%integer
+      <-> from_integer m < from_integer n.
 Proof.
   intros m n.
   simpl from_integer in |- *.
@@ -2063,7 +2066,7 @@ Abbreviation Rational := Rational.T.
 Export (notations) Rational.
 
 Instance Rational_comparable
-  : Comparable Rational.compare Rational.LessThan :=
+  : Comparable Rational.compare (<)%rational :=
   {| Comparable.transitivity  := Rational.order.strict.transitivity
    ; Comparable.specification := Rational.comparison.specification
    ; Comparable.antisymmetry  := Rational.comparison.antisymmetry |}.
