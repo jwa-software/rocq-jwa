@@ -18,7 +18,8 @@ From Ltac2 Require Constr Control Fresh Ident Int List Message Std.
  * [:=] reads "is defined as", as in [Definition]: the binding is neither an
  * equation to be proved nor an assignment. [let] names <e> as a local
  * definition <x>, whose body stays visible; [let proof] adds <e> as a
- * hypothesis, its type alone, named by <p> or destructured by it.
+ * hypothesis, its type alone, named by <p> or destructured by it. A proof is
+ * named by [let proof]: [let] without [in] refuses one.
  *
  * With [in], [let] also writes <x> for each occurrence of <e> in the places
  * named, the four of [simpl]: [in &h1, &h2], [in &h1 |- *], [in |- *],
@@ -115,12 +116,31 @@ Ltac2 shadow_with (x : ident) (y : ident) :=
 Ltac2 pose_proof (e : constr) (x : ident) :=
   Std.specialize (e, Std.NoBindings) (Some (Std.IntroNaming (Std.IntroIdentifier x))).
 
+(* A proof is named by [let proof], which keeps no body: only a goal that
+ * holds the proof term reads it, and [let ... in] names it there. [let x :=
+ * x] and [let x : T := x] name nothing new and pass.
+ *)
+Ltac2 no_proof (x : ident) (e : constr) :=
+  let refuse () :=
+    let_refuse [Message.of_string "let: "; Message.of_constr e;
+                Message.of_string " proves "; Message.of_constr (Constr.type e);
+                Message.of_string "; name a proof with let proof, ";
+                Message.of_string "or with let ... in where the goal holds it"] in
+  if Constr.equal (Constr.type (Constr.type e)) constr:(Prop)
+  then
+    if is_in_context x
+    then (if Constr.equal e (Control.hyp x) then () else refuse ())
+    else refuse ()
+  else ().
+
 Ltac2 let_definition (x : ident) (e : constr) :=
+  no_proof x e;
   if is_in_context x
   then (let y := Fresh.in_goal x in Std.pose (Some y) e; shadow_with x y)
   else Std.pose (Some x) e.
 
 Ltac2 let_definition_typed (x : ident) (t : constr) (e : constr) :=
+  no_proof x e;
   if is_in_context x
   then
     if Constr.equal e (Control.hyp x)

@@ -202,9 +202,7 @@ Proof.
   let base := decided decide x x (reflexivity x)
   in *.
 
-  let shift := fun (e : x = y) . transitivity (symmetry base) e.
-
-  let proof step := congruence shift c.
+  let proof step := congruence (fun (e : x = y) . transitivity (symmetry base) e) c.
   let proof rp' := symmetry rp.
   ipso (transitivity rp' (transitivity step rq)).
 Qed.
