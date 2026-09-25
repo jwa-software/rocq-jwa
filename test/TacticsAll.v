@@ -1356,6 +1356,16 @@ Proof.
   quod idem est.
 Qed.
 
+Theorem tactics_all_delivers_let_refusing_a_type
+  : forall (m : Nat) (n : Nat) . Nat.add Nat.One m = n -> m = m.
+Proof.
+  intros m n e.
+  Fail let proof f : m = n := &e.
+  Fail let f : m = n := &e.
+  Fail let k : Nat := &e in |- *.
+  quod idem est.
+Qed.
+
 Theorem tactics_all_delivers_simpl_refusing
   : forall (A : Prop) (m : Nat) . A -> m = m.
 Proof.

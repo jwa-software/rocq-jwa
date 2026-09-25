@@ -147,19 +147,39 @@ Ltac2 let_proof_typed (h : ident) (t : constr) (e : constr) :=
   else pose_proof constr:($e : $t) h.
 
 (* <e> read with <T> as its expected type, so that what only <T> decides,
- * such as the side [disjoin a, _] leaves open, is inferred.
+ * such as the side [disjoin a, _] leaves open, is inferred. An <e> that
+ * reads on its own but not as <T> is refused in the words of [retype]; one
+ * that does not read at all keeps Rocq's error, which says why.
  *)
-Ltac2 read_as (t : constr) (e : preterm) : unit -> constr :=
+Ltac2 read_as (who : string) (t : constr) (e : preterm) : unit -> constr :=
   fun () =>
-    Constr.Pretype.pretype
-      Constr.Pretype.Flags.constr_flags (Constr.Pretype.expected_oftype t) e.
+    Control.once_plus
+      (fun () =>
+        Constr.Pretype.pretype
+          Constr.Pretype.Flags.constr_flags (Constr.Pretype.expected_oftype t) e)
+      (fun error =>
+        let alone :=
+          Control.once_plus
+            (fun () =>
+              Some (Constr.Pretype.pretype
+                      Constr.Pretype.Flags.constr_flags
+                      Constr.Pretype.expected_without_type_constraint e))
+            (fun _ => None) in
+        match alone with
+        | Some c =>
+            let_refuse [Message.of_string who; Message.of_string ": "; Message.of_constr c;
+                        Message.of_string " has type "; Message.of_constr (Constr.type c);
+                        Message.of_string ", which is not convertible with ";
+                        Message.of_constr t]
+        | None => Control.zero error
+        end).
 
 (* <T> and <e> arrive unread, so that [Local.checked] can read them twice;
  * <T> is read first, and <e> against it.
  *)
 Ltac2 typed_proof (who : string) (t : unit -> constr) (e : preterm) : constr :=
   let t := Local.checked who t in
-  let e := Local.checked who (read_as t e) in
+  let e := Local.checked who (read_as who t e) in
   constr:($e : $t).
 
 (* The body and the type of a name of the context, [None] when it is not
@@ -474,22 +494,22 @@ Ltac2 let_fold (x : ident) (places : ident list * bool * bool) :=
 (* The typed forms read <T> first and <e> against it, through [read_as]. *)
 Ltac2 let_typed (x : ident) (t : unit -> constr) (e : preterm) :=
   let t := Local.checked "let" t in
-  let_definition_typed x t (Local.checked "let" (read_as t e)).
+  let_definition_typed x t (Local.checked "let" (read_as "let" t e)).
 
 Ltac2 let_in_typed
   (x : ident) (t : unit -> constr) (e : preterm) (places : ident list * bool * bool) :=
   let t := Local.checked "let" t in
-  let_in x (Local.checked "let" (read_as t e)) (Some t) places.
+  let_in x (Local.checked "let" (read_as "let" t e)) (Some t) places.
 
 Ltac2 let_at_typed
   (x : ident) (t : unit -> constr) (e : preterm) (n : int)
   (places : ident list * bool * bool) :=
   let t := Local.checked "let" t in
-  let_at x (Local.checked "let" (read_as t e)) (Some t) n places.
+  let_at x (Local.checked "let" (read_as "let" t e)) (Some t) n places.
 
 Ltac2 let_proof_typed_read (h : ident) (t : unit -> constr) (e : preterm) :=
   let t := Local.checked "let proof" t in
-  let_proof_typed h t (Local.checked "let proof" (read_as t e)).
+  let_proof_typed h t (Local.checked "let proof" (read_as "let proof" t e)).
 
 (* The intro-pattern forms are declared before the name forms: of two rules
  * that both accept a bare name, the later one is tried first, and a name
