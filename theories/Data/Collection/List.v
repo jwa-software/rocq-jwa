@@ -2876,7 +2876,7 @@ Proof.
                       (NatWithZero.Positive (Nat.Successor p')) (NatWithZero.Positive p') (NatWithZero.Positive (Nat.Successor Nat.One)))
           in |- *.
         lemma facto
-          : NatWithZero.Positive (Nat.add &p' (Nat.Successor Nat.One))
+          : NatWithZero.Positive (&p' + Nat.Successor Nat.One)%nat
             * NatWithZero.Positive (Nat.Successor &p')
             = NatWithZero.Positive (Nat.Successor &p')
               * NatWithZero.Positive (Nat.Successor (Nat.Successor &p')).
@@ -2967,7 +2967,7 @@ Proof.
       }
       lemma witness : forsome (j : NatWithZero) .
                 range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
-                /\ i = NatWithZero.add start j.
+                /\ i = (start + j)%nat_with_zero.
       {
         exists (NatWithZero.saturating_sub i start).
         divide et impera.

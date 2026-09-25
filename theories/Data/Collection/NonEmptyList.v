@@ -225,7 +225,7 @@ Module over. (* length.additivity.over *)
 (* length.additivity.over.concatenation *)
 Theorem concatenation
   : forall {A : Type} (x : NonEmptyList A) (y : NonEmptyList A) .
-      (|| x ++ y ||) = Nat.add (|| x ||) (|| y ||).
+      (|| x ++ y ||) = ((|| x ||) + (|| y ||))%nat.
 Proof.
   intros A x y.
   match x with | a | a x' by IH end per NonEmptyList.induction.
