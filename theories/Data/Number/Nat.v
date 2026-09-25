@@ -115,6 +115,9 @@ Fixpoint power (m : Nat) (n : Nat) : Nat :=
   | S n' => m * power m n'
   end.
 
+Notation "m ^ n" := (power m n) (only parsing)
+  : jwa_nat_scope.
+
 (* [Nat -> Nat -> Comparison] *)
 Fixpoint compare (m : Nat) (n : Nat) : Comparison :=
   match m, n with
@@ -801,13 +804,13 @@ End multiplication. (* multiplication *)
 Module power. (* power *)
 
 (* power.identity *)
-Lemma identity : forall (m : Nat) . power m 1 = m.
+Lemma identity : forall (m : Nat) . m ^ 1 = m.
 Proof.
   intros m. simpl in |- *. quod idem est.
 Qed.
 
 (* power.annihilation *)
-Lemma annihilation : forall (n : Nat) . power 1 n = 1.
+Lemma annihilation : forall (n : Nat) . 1 ^ n = 1.
 Proof.
   intros n.
   match n with | | n' by IH end per Nat.induction; simpl in |- *.
@@ -820,7 +823,7 @@ Module exponent. (* power.exponent *)
 (* power.exponent.addition *)
 Theorem addition
   : forall (m : Nat) (a : Nat) (b : Nat) .
-      power m a * power m b = power m (a + b).
+      m ^ a * m ^ b = m ^ (a + b).
 Proof.
   intros m a b.
   match a with
@@ -832,7 +835,7 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    leibniz (multiplication.associativity m (power m a') (power m b)) in |- *.
+    leibniz (multiplication.associativity m (m ^ a') (m ^ b)) in |- *.
     leibniz IH in |- *.
     quod idem est.
 Qed.
@@ -840,7 +843,7 @@ Qed.
 (* power.exponent.multiplication *)
 Theorem multiplication
   : forall (m : Nat) (a : Nat) (b : Nat) .
-      power (power m a) b = power m (a * b).
+      (m ^ a) ^ b = m ^ (a * b).
 Proof.
   intros m a b.
   match b with | | b' by IH end per Nat.induction.
@@ -870,7 +873,7 @@ Module over. (* power.distributivity.over *)
 (* power.distributivity.over.multiplication *)
 Theorem multiplication
   : forall (m : Nat) (n : Nat) (a : Nat) .
-      power (m * n) a = power m a * power n a.
+      (m * n) ^ a = m ^ a * n ^ a.
 Proof.
   intros m n a.
   match a with
@@ -883,9 +886,9 @@ Proof.
   -
     simpl in |- *.
     leibniz IH in |- *.
-    leibniz (multiplication.associativity m n (power m a' * power n a')) in |- *.
-    leibniz (multiplication.left.commutativity n (power m a') (power n a')) in |- *.
-    leibniz (multiplication.associativity m (power m a') (n * power n a')) in |- *.
+    leibniz (multiplication.associativity m n (m ^ a' * n ^ a')) in |- *.
+    leibniz (multiplication.left.commutativity n (m ^ a') (n ^ a')) in |- *.
+    leibniz (multiplication.associativity m (m ^ a') (n * n ^ a')) in |- *.
     quod idem est.
 Qed.
 

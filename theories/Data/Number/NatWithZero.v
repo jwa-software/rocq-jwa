@@ -104,9 +104,12 @@ Definition power := fun (m : NatWithZero) (n : NatWithZero) .
   | + q =>
       match m with
       | 0   => 0
-      | + p => + (Nat.power p q)
+      | + p => + (p ^ q)%nat
       end
   end.
+
+Notation "m ^ n" := (power m n) (only parsing)
+  : jwa_nat_with_zero_scope.
 
 (* [NatWithZero -> NatWithZero -> Prop] *)
 Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) .
@@ -798,7 +801,7 @@ Module power. (* power *)
 Module exponent. (* power.exponent *)
 
 (* power.exponent.absence *)
-Lemma absence : forall (m : NatWithZero) . power m 0 = + Nat.One.
+Lemma absence : forall (m : NatWithZero) . m ^ 0 = + Nat.One.
 Proof.
   intros m.
   simpl in |- *.
@@ -808,7 +811,7 @@ Qed.
 (* power.exponent.addition *)
 Theorem addition
   : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero) .
-      power m a * power m b = power m (a + b).
+      m ^ a * m ^ b = m ^ (a + b).
 Proof.
   intros m a b.
   match a with | | a' end; match b with | | b' end.
@@ -819,7 +822,7 @@ Proof.
     * simpl in |- *.
       quod idem est.
     * simpl in |- *.
-      leibniz (Nat.multiplication.commutativity (Nat.power m' a') Nat.One) in |- *.
+      leibniz (Nat.multiplication.commutativity (m' ^ a')%nat Nat.One) in |- *.
       simpl in |- *.
       quod idem est.
   - match m with | | m' end.
@@ -833,7 +836,7 @@ Qed.
 (* power.exponent.multiplication *)
 Theorem multiplication
   : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero) .
-      power (power m a) b = power m (a * b).
+      (m ^ a) ^ b = m ^ (a * b).
 Proof.
   intros m a b.
   match a with | | a' end; match b with | | b' end.
@@ -861,7 +864,7 @@ Module over. (* power.distributivity.over *)
 (* power.distributivity.over.multiplication *)
 Theorem multiplication
   : forall (m : NatWithZero) (n : NatWithZero) (a : NatWithZero) .
-      power (m * n) a = power m a * power n a.
+      (m * n) ^ a = m ^ a * n ^ a.
 Proof.
   intros m n a.
   match a with | | a' end.

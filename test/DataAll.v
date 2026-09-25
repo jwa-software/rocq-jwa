@@ -108,6 +108,14 @@ Definition data_all_delivers_power
   : Nat
   := Nat.power (Nat.Successor Nat.One) Nat.One.
 
+Definition data_all_delivers_power_notation
+  : Nat
+  := (Nat.Successor Nat.One ^ Nat.One)%nat.
+
+Definition data_all_delivers_nat_with_zero_power_notation
+  : NatWithZero
+  := (NatWithZero.Positive Nat.One ^ NatWithZero.Zero)%nat_with_zero.
+
 Definition data_all_delivers_sub
   : Option Nat
   := Nat.sub (Nat.Successor Nat.One) Nat.One.

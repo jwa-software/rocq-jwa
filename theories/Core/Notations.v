@@ -87,6 +87,8 @@ Reserved Notation "x <-> y"
   (at level 95, no associativity).
 Reserved Notation "~ x"
   (at level 75, right associativity).
+Reserved Notation "x ^ y"
+  (at level 30, right associativity).
 Reserved Notation "! b"
   (at level 35, right associativity).
 Reserved Notation "x && y"
