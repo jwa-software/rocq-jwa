@@ -536,6 +536,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
+    simpl NatWithZero.inc, Nat.inc in |- *.
     quod idem est.
 Qed.
 
@@ -583,6 +584,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
+    simpl in |- *.
     match (le a (maximum_of le x')) with end |- s; quod idem est.
 Qed.
 
@@ -597,6 +599,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
+    simpl in |- *.
     match (le a (minimum_of le x')) with end |- s; quod idem est.
 Qed.
 
