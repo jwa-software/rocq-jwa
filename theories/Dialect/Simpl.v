@@ -375,15 +375,16 @@ Ltac2 Notation "simpl" "in" "|-" "*" :=
 Ltac2 Notation "simpl" "in" "*" :=
   reduce_everywhere ().
 
-(* <H> cast to its type as [simpl in] reduces it, so that whatever reads the
- * type of the term, [let proof] or [leibniz], meets the reduced one.
+(* <H> bound at its type as [simpl in] reduces it, so that whatever reads the
+ * type of the term, [let proof] or [leibniz], meets the reduced one. It is
+ * bound by a [let ... in] rather than cast, since [let] refuses a cast value.
  *)
 Ltac2 simplified (h : constr) : constr :=
   let t := Constr.type h in
   let reduced := Std.eval_simpl RedFlags.all None t in
   if Constr.equal t reduced
   then refuse [simpl_says "simpl: "; Message.of_constr h; simpl_says " has nothing to reduce"]
-  else constr:($h : $reduced).
+  else constr:(let x : $reduced := $h in x).
 
 Notation "'simpl' H" :=
   (ltac2:(Control.refine (fun () => simplified constr:($preterm:H))))

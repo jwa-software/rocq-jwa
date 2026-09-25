@@ -2253,8 +2253,6 @@ Definition step
         end
     end recurse.
 
-Local Close Scope jwa_type_scope.
-
 (* euclid.extensionality *)
 Lemma extensionality : Descent.Extensional step.
 Proof.
@@ -2293,8 +2291,8 @@ Proof.
      *  = g ((+ b'), (a %. b')) (Induced.introduction bound)]
      *)
     let bound
-      := division.remainder.boundedness a b'
       : (a %. b') < + b'
+      := division.remainder.boundedness a b'
       in |- *.
 
     (* The context gains [y := ((+ b'), (a %. b'))]
@@ -2303,8 +2301,8 @@ Proof.
      *  = g y (Induced.introduction bound)]
      *)
     let y
-      := ((+ b'), (a %. b'))
       : NatWithZero * NatWithZero
+      := ((+ b'), (a %. b'))
       in |- *.
 
     (* The context gains [x := (a, + b')], and [f], [g] and [h] fold to it:
@@ -2320,8 +2318,8 @@ Proof.
      * [|- f y r = g y r]
      *)
     let r
-      := Induced.introduction bound
       : Induced (<) pi_2 y x
+      := Induced.introduction bound
       in |- *.
 
     (* [H : forall (r : Induced (<) pi_2 y x) . f y r = g y r] *)
@@ -2330,6 +2328,8 @@ Proof.
     ipso (modus ponens H, r).
   }
 Qed.
+
+Local Close Scope jwa_type_scope.
 
 Module nat. (* euclid.nat *)
 
@@ -2393,14 +2393,14 @@ Proof.
     quod idem est.
   - intros b.
     let s
-      := Induced.introduction
-          (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
-          (Biconditional.forward.elimination (positive.order.embedding r q) b)
       : Induced
           (<)%nat
           (@Product.second NatWithZero Nat)
           ((+ q), r)
           (a, q)
+      := Induced.introduction
+          (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+          (Biconditional.forward.elimination (positive.order.embedding r q) b)
       in |- *.
     let proof H := h ((+ q), r).
     ipso (modus ponens H, s).

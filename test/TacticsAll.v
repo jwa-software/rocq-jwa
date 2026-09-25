@@ -1363,6 +1363,11 @@ Proof.
   Fail let proof f : m = n := &e.
   Fail let f : m = n := &e.
   Fail let k : Nat := &e in |- *.
+  Fail let proof f := &e : Nat.Successor m = n.
+  Fail let proof f := (&e : Nat.Successor m = n).
+  Fail let proof f : Nat.Successor m = n := &e : Nat.Successor m = n.
+  Fail let k := Nat.add Nat.One &m : Nat.
+  Fail let k := Nat.add Nat.One &m : Nat in |- *.
   quod idem est.
 Qed.
 
