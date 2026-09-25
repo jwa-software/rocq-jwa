@@ -161,10 +161,10 @@ Local Theorem constancy
   : forall {A : Type}
       (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
       (x : A) (y : A) (p : x = y) (q : x = y) .
-      decided decide x y p = decided decide x y q.
+      hedberg.decided decide x y p = hedberg.decided decide x y q.
 Proof.
   intros A decide x y p q.
-  simpl decided in |- *.
+  simpl hedberg.decided in |- *.
   match (decide x y) with | r | n end.
   - quod idem est.
   - simpl (~ _) in n.
@@ -178,13 +178,13 @@ Local Theorem retraction
       (decide : forall (x : A) (y : A) . x = y \/ ~ (x = y))
       (x : A) (y : A) (e : x = y) .
       transitivity
-        (symmetry (decided decide x x (reflexivity x)))
-        (decided decide x y e)
+        (symmetry (hedberg.decided decide x x (reflexivity x)))
+        (hedberg.decided decide x y e)
       = e.
 Proof.
   intros A decide x y p.
   match p with end.
-  ipso (cancellation (decided decide x x (reflexivity x))).
+  ipso (cancellation (hedberg.decided decide x x (reflexivity x))).
 Qed.
 
 (* hedberg.uniqueness *)
@@ -195,11 +195,11 @@ Theorem uniqueness
 Proof.
   intros A decide x y p q.
 
-  let proof rp := retraction decide x y p.
-  let proof rq := retraction decide x y q.
-  let proof c  := constancy  decide x y p q.
+  let proof rp := hedberg.retraction decide x y p.
+  let proof rq := hedberg.retraction decide x y q.
+  let proof c  := hedberg.constancy  decide x y p q.
 
-  let base := decided decide x x (reflexivity x)
+  let base := hedberg.decided decide x x (reflexivity x)
   in *.
 
   let proof step := congruence (fun (e : x = y) . transitivity (symmetry base) e) c.

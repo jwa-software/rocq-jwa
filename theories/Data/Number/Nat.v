@@ -1113,7 +1113,7 @@ Theorem uniqueness
   : forall (m : Nat) (n : Nat) (p : m = n) (q : m = n) . p = q.
 Proof.
   intros m n p q.
-  ipso (Identity.hedberg.uniqueness decidability m n p q).
+  ipso (Identity.hedberg.uniqueness equality.decidability m n p q).
 Qed.
 
 End equality. (* equality *)

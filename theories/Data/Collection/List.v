@@ -757,7 +757,7 @@ Proof.
     match w with | a c end.
     match c with | m e end.
     leibniz e in |- *.
-    ipso (preservation.of.membership f a l m).
+    ipso (mapping.preservation.of.membership f a l m).
 Qed.
 
 End membership. (* mapping.membership *)
@@ -2915,7 +2915,7 @@ Proof.
   leibniz (mapping.preservation.of.length
              (NatWithZero.add start)
              (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
-  ipso (from_zero.length (NatWithZero.saturating_sub stop start)).
+  ipso (range.from_zero.length (NatWithZero.saturating_sub stop start)).
 Qed.
 
 Module membership. (* range.membership *)
@@ -2939,7 +2939,7 @@ Proof.
       match w with | j c end.
       match c with | m e end.
       modus aequans
-        (from_zero.membership.specification
+        (range.from_zero.membership.specification
            (NatWithZero.saturating_sub stop start) j),
         m |- lt.
       divide et impera.
@@ -2972,7 +2972,7 @@ Proof.
         exists (NatWithZero.saturating_sub i start).
         divide et impera.
         * ipso (modus aequans
-                   (from_zero.membership.specification
+                   (range.from_zero.membership.specification
                       (NatWithZero.saturating_sub stop start)
                       (NatWithZero.saturating_sub i start)),
                  inside).
@@ -3135,7 +3135,7 @@ Proof.
   - intros m e.
     simpl in e.
     match (maximum_of le l') with | | m' end |- r.
-    + modus aequans (absence.specification le l'), r |- en.
+    + modus aequans (maximum.absence.specification le l'), r |- en.
       let proof e' := Option.some.injectivity e.
       leibniz en in |- *.
       leibniz <- e' in |- *.
@@ -3234,7 +3234,7 @@ Proof.
   - intros m e.
     simpl in e.
     match (minimum_of le l') with | | m' end |- r.
-    + modus aequans (absence.specification le l'), r |- en.
+    + modus aequans (minimum.absence.specification le l'), r |- en.
       let proof e' := Option.some.injectivity e.
       leibniz en in |- *.
       leibniz <- e' in |- *.
