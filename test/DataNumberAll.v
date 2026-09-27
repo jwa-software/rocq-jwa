@@ -1,5 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Number.All.
 From jwa Require Import Data.Option.
@@ -687,6 +688,56 @@ Definition data_number_all_delivers_binary_with_zero_subtraction
 Definition data_number_all_delivers_binary_with_zero_subtraction_computes
   : BinaryWithZero.sub (Binary.AppendZero Binary.One) (Binary.AppendZero Binary.One)
     = Some BinaryWithZero.Zero
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_conjunction_commutativity
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      (m && n)%binary_with_zero = (n && m)%binary_with_zero
+  := BinaryWithZero.conjunction.commutativity.
+
+Definition data_number_all_delivers_binary_with_zero_sejunction_irreflexivity
+  : forall (n : BinaryWithZero) . (n ^^ n)%binary_with_zero = BinaryWithZero.Zero
+  := BinaryWithZero.sejunction.irreflexivity.
+
+Definition data_number_all_delivers_binary_with_zero_shift_retraction
+  : forall (n : BinaryWithZero) (k : NatWithZero) .
+      BinaryWithZero.shift_right (BinaryWithZero.shift_left n k) k = n
+  := BinaryWithZero.shift.retraction.
+
+Definition data_number_all_delivers_binary_with_zero_left_shift
+  : forall (n : BinaryWithZero) (k : NatWithZero) .
+      BinaryWithZero.to_nat_with_zero (BinaryWithZero.shift_left n k)
+      = (BinaryWithZero.to_nat_with_zero n
+         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%nat_with_zero
+  := BinaryWithZero.conversion.left.shift.
+
+Definition data_number_all_delivers_binary_with_zero_conjunction_computes
+  : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+     && Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%binary_with_zero
+    = Binary.AppendZero (Binary.AppendZero (Binary.AppendZero Binary.One))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_disjunction_computes
+  : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+     || Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%binary_with_zero
+    = Binary.AppendZero (Binary.AppendOne (Binary.AppendOne Binary.One))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_sejunction_computes
+  : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+     ^^ Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%binary_with_zero
+    = Binary.AppendZero (Binary.AppendOne Binary.One)
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_shift_computes
+  : BinaryWithZero.shift_left (Binary.AppendOne Binary.One) (Nat.Successor Nat.One)
+    = Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_bit_computes
+  : BinaryWithZero.test_bit (Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))
+                            Nat.One
+    = true
   := Identity.reflexivity _.
 
 Theorem data_number_all_delivers_coercion_binary_to_binary_with_zero
