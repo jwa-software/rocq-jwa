@@ -1,12 +1,23 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Algebra.AbelianMonoid.
+From jwa Require Import Algebra.Cancellative.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Semigroup.
+From jwa Require Import Algebra.Semiring.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Binary.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Option.
+From jwa Require Import Relation.Accessible.
+From jwa Require Import Relation.Descent.
+From jwa Require Import Relation.Induced.
+From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
@@ -96,6 +107,30 @@ Definition power := fun (m : BinaryWithZero) (n : BinaryWithZero) .
 Notation "m ^ n" := (power m n) (only parsing)
   : jwa_binary_with_zero_scope.
 
+(* [BinaryWithZero -> BinaryWithZero -> Prop] *)
+Definition LessThan := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+  forsome (k : Binary) . m + (+ k) = n.
+
+Notation "m < n" := (LessThan m n) (only parsing)
+  : jwa_binary_with_zero_scope.
+
+(* [BinaryWithZero -> BinaryWithZero -> Prop] *)
+Definition LessOrEqual := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+  m = n \/ m < n.
+
+Notation "m <= n" := (LessOrEqual m n) (only parsing)
+  : jwa_binary_with_zero_scope.
+
+Notation "m > n" := (LessThan n m) (only parsing)
+  : jwa_binary_with_zero_scope.
+Notation "m >= n" := (LessOrEqual n m) (only parsing)
+  : jwa_binary_with_zero_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_binary_with_zero_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_binary_with_zero_scope.
+
 (* [BinaryWithZero -> BinaryWithZero -> Comparison] *)
 Definition compare := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   match m with
@@ -110,6 +145,18 @@ Definition compare := fun (m : BinaryWithZero) (n : BinaryWithZero) .
       | + q => Binary.compare p q
       end
   end.
+
+(* [BinaryWithZero -> BinaryWithZero -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [BinaryWithZero -> BinaryWithZero -> Bool] *)
+Abbreviation le := (Comparable.le compare).
+
+(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
+Abbreviation max := (Comparable.max compare).
 
 (* [m - n], [None] when [n] is the greater, as [NatWithZero.sub] is. *)
 (* [BinaryWithZero -> BinaryWithZero -> Option BinaryWithZero] *)
@@ -138,6 +185,13 @@ Definition saturating_sub := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   match sub m n with
   | Some k => k
   | None   => 0
+  end.
+
+(* [BinaryWithZero -> Option Binary] *)
+Definition to_binary := fun (n : BinaryWithZero) .
+  match n with
+  | 0   => None
+  | + p => Some p
   end.
 
 (* [n] with [bit] written after its lowest bit: [2n], or [2n + 1] when [bit]
@@ -645,6 +699,50 @@ Qed.
 
 End subtraction. (* conversion.subtraction *)
 
+(* conversion.injectivity *)
+Theorem injectivity
+  : forall {m : BinaryWithZero} {n : BinaryWithZero} .
+      to_nat_with_zero m = to_nat_with_zero n -> m = n.
+Proof.
+  intros m n e.
+  leibniz <- (conversion.section &m), <- (conversion.section &n) in |- *.
+  leibniz &e in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.order *)
+Theorem order
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      m < n <-> (to_nat_with_zero m < to_nat_with_zero n)%nat_with_zero.
+Proof.
+  intros m n.
+  divide et impera.
+  -
+    intro h.
+    simpl LessThan in &h.
+    match &h with | k e end.
+    simpl NatWithZero.LessThan in |- *.
+    exists (Binary.to_nat &k).
+    leibniz <- &e in |- *.
+    leibniz (conversion.addition &m (+ &k)) in |- *.
+    simpl in |- *.
+    quod idem est.
+  -
+    intro h.
+    simpl NatWithZero.LessThan in &h.
+    match &h with | j e end.
+    simpl LessThan in |- *.
+    exists (Binary.from_nat &j).
+    lemma f : to_nat_with_zero (&m + (+ Binary.from_nat &j)) = to_nat_with_zero &n.
+    {
+      leibniz (conversion.addition &m (+ Binary.from_nat &j)) in |- *.
+      simpl in |- *.
+      leibniz (Binary.conversion.retraction &j) in |- *.
+      ipso &e.
+    }
+    ipso (conversion.injectivity &f).
+Qed.
+
 (* conversion.appending *)
 Theorem appending
   : forall (n : BinaryWithZero) (bit : Bool) .
@@ -733,6 +831,353 @@ Qed.
 End left. (* conversion.left *)
 
 End conversion. (* conversion *)
+
+Module addition. (* addition *)
+
+(* addition.associativity *)
+Theorem associativity
+  : forall (l : BinaryWithZero) (m : BinaryWithZero) (n : BinaryWithZero) .
+      (l + m) + n = l + (m + n).
+Proof.
+  intros l m n.
+  lemma f : to_nat_with_zero ((&l + &m) + &n) = to_nat_with_zero (&l + (&m + &n)).
+  {
+    leibniz (conversion.addition (&l + &m) &n), (conversion.addition &l &m),
+            (conversion.addition &l (&m + &n)), (conversion.addition &m &n) in |- *.
+    ipso (NatWithZero.addition.associativity
+            (to_nat_with_zero &l) (to_nat_with_zero &m) (to_nat_with_zero &n)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.commutativity *)
+Theorem commutativity
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m + n = n + m.
+Proof.
+  intros m n.
+  lemma f : to_nat_with_zero (&m + &n) = to_nat_with_zero (&n + &m).
+  {
+    leibniz (conversion.addition &m &n), (conversion.addition &n &m) in |- *.
+    ipso (NatWithZero.addition.commutativity (to_nat_with_zero &m) (to_nat_with_zero &n)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.identity *)
+Theorem identity
+  : forall (n : BinaryWithZero) . (0 + n = n) /\ (n + 0 = n).
+Proof.
+  intro n.
+  divide et impera.
+  -
+    simpl in |- *.
+    quod idem est.
+  -
+    match n with | | p end; simpl in |- *; quod idem est.
+Qed.
+
+(* addition.cancellation *)
+Theorem cancellation
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) (k : BinaryWithZero) .
+    (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
+Proof.
+  intros m n k.
+  let proof c := NatWithZero.addition.cancellation
+                   (to_nat_with_zero &m) (to_nat_with_zero &n) (to_nat_with_zero &k).
+  match &c with | l r end.
+  divide et impera.
+  -
+    intro e.
+    let proof f := congru to_nat_with_zero, &e.
+    leibniz (conversion.addition &m &n), (conversion.addition &m &k) in &f.
+    ipso (conversion.injectivity (&l &f)).
+  -
+    intro e.
+    let proof f := congru to_nat_with_zero, &e.
+    leibniz (conversion.addition &m &n), (conversion.addition &k &n) in &f.
+    ipso (conversion.injectivity (&r &f)).
+Qed.
+
+End addition. (* addition *)
+
+Module multiplication. (* multiplication *)
+
+(* multiplication.associativity *)
+Theorem associativity
+  : forall (l : BinaryWithZero) (m : BinaryWithZero) (n : BinaryWithZero) .
+      (l * m) * n = l * (m * n).
+Proof.
+  intros l m n.
+  lemma f : to_nat_with_zero ((&l * &m) * &n) = to_nat_with_zero (&l * (&m * &n)).
+  {
+    leibniz (conversion.multiplication (&l * &m) &n), (conversion.multiplication &l &m),
+            (conversion.multiplication &l (&m * &n)), (conversion.multiplication &m &n)
+      in |- *.
+    ipso (NatWithZero.multiplication.associativity
+            (to_nat_with_zero &l) (to_nat_with_zero &m) (to_nat_with_zero &n)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* multiplication.commutativity *)
+Theorem commutativity
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m * n = n * m.
+Proof.
+  intros m n.
+  lemma f : to_nat_with_zero (&m * &n) = to_nat_with_zero (&n * &m).
+  {
+    leibniz (conversion.multiplication &m &n), (conversion.multiplication &n &m) in |- *.
+    ipso (NatWithZero.multiplication.commutativity
+            (to_nat_with_zero &m) (to_nat_with_zero &n)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* multiplication.identity *)
+Theorem identity
+  : forall (n : BinaryWithZero) . ((+ Binary.One) * n = n) /\ (n * (+ Binary.One) = n).
+Proof.
+  intro n.
+  divide et impera.
+  -
+    match n with | | p end; simpl in |- *; quod idem est.
+  -
+    match n with | | p end.
+    +
+      simpl in |- *.
+      quod idem est.
+    +
+      let proof i := Binary.multiplication.identity &p.
+      match &i with | l r end.
+      simpl in |- *.
+      leibniz &r in |- *.
+      quod idem est.
+Qed.
+
+(* multiplication.annihilation *)
+Theorem annihilation
+  : forall (n : BinaryWithZero) . (0 * n = 0) /\ (n * 0 = 0).
+Proof.
+  intro n.
+  divide et impera.
+  -
+    simpl in |- *.
+    quod idem est.
+  -
+    match n with | | p end; simpl in |- *; quod idem est.
+Qed.
+
+Module distributivity. (* multiplication.distributivity *)
+
+Module over. (* multiplication.distributivity.over *)
+
+(* multiplication.distributivity.over.addition *)
+Theorem addition
+  : forall (x : BinaryWithZero) (y : BinaryWithZero) (z : BinaryWithZero) .
+      (x * (y + z) = (x * y) + (x * z)) /\ ((y + z) * x = (y * x) + (z * x)).
+Proof.
+  intros x y z.
+  let proof d := NatWithZero.multiplication.distributivity.over.addition
+                   (to_nat_with_zero &x) (to_nat_with_zero &y) (to_nat_with_zero &z).
+  match &d with | l r end.
+  divide et impera.
+  -
+    lemma f : to_nat_with_zero (&x * (&y + &z)) = to_nat_with_zero ((&x * &y) + (&x * &z)).
+    {
+      leibniz (conversion.multiplication &x (&y + &z)), (conversion.addition &y &z),
+              (conversion.addition (&x * &y) (&x * &z)),
+              (conversion.multiplication &x &y), (conversion.multiplication &x &z) in |- *.
+      ipso &l.
+    }
+    ipso (conversion.injectivity &f).
+  -
+    lemma f : to_nat_with_zero ((&y + &z) * &x) = to_nat_with_zero ((&y * &x) + (&z * &x)).
+    {
+      leibniz (conversion.multiplication (&y + &z) &x), (conversion.addition &y &z),
+              (conversion.addition (&y * &x) (&z * &x)),
+              (conversion.multiplication &y &x), (conversion.multiplication &z &x) in |- *.
+      ipso &r.
+    }
+    ipso (conversion.injectivity &f).
+Qed.
+
+End over. (* multiplication.distributivity.over *)
+
+End distributivity. (* multiplication.distributivity *)
+
+End multiplication. (* multiplication *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.irreflexivity *)
+Theorem irreflexivity : forall (n : BinaryWithZero) . ~ (n < n).
+Proof.
+  intros n h.
+  ipso (NatWithZero.order.strict.irreflexivity (to_nat_with_zero &n)
+          (modus aequans (conversion.order &n &n), &h)).
+Qed.
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {l : BinaryWithZero} {m : BinaryWithZero} {n : BinaryWithZero} .
+      l < m -> m < n -> l < n.
+Proof.
+  intros l m n h1 h2.
+  let proof k := NatWithZero.order.strict.transitivity
+                   (modus aequans (conversion.order &l &m), &h1)
+                   (modus aequans (conversion.order &m &n), &h2).
+  ipso (modus aequans (conversion.order &l &n), &k).
+Qed.
+
+(* order.strict.wellfoundedness *)
+Theorem wellfoundedness : forall (n : BinaryWithZero) . Accessible (<) n.
+Proof.
+  intro n.
+  lemma descent
+    : Descent.Step (Induced NatWithZero.LessThan to_nat_with_zero)
+        (fun (x : BinaryWithZero) . Accessible (<) x).
+  {
+    intros x recurse.
+    ipso (Accessible_introduction
+            (fun (y : BinaryWithZero) (h : y < &x) .
+               &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
+  }
+  ipso (Accessible.recursion &descent &n
+          (@accessibility _ _ (WellFounded.induced NatWithZero.LessThan to_nat_with_zero _) &n)).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
+Proof.
+  intros m n.
+  leibniz (conversion.comparison &m &n) in |- *.
+  let proof s := NatWithZero.comparison.specification
+                   (to_nat_with_zero &m) (to_nat_with_zero &n).
+  match &s with | strict equality end.
+  divide et impera.
+  -
+    divide et impera.
+    +
+      intro c.
+      ipso (modus aequans (conversion.order &m &n), (modus aequans &strict, &c)).
+    +
+      intro h.
+      ipso (modus aequans &strict, (modus aequans (conversion.order &m &n), &h)).
+  -
+    divide et impera.
+    +
+      intro c.
+      ipso (conversion.injectivity (modus aequans &equality, &c)).
+    +
+      intro e.
+      ipso (modus aequans &equality, (congru to_nat_with_zero, &e)).
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      compare m n = Comparison.transpose (compare n m).
+Proof.
+  intros m n.
+  leibniz (conversion.comparison &m &n), (conversion.comparison &n &m) in |- *.
+  ipso (NatWithZero.comparison.antisymmetry (to_nat_with_zero &m) (to_nat_with_zero &n)).
+Qed.
+
+End comparison. (* comparison *)
+
+Instance comparable
+  : Comparable compare (<) :=
+  {| Comparable.transitivity  := @order.strict.transitivity
+   ; Comparable.specification := comparison.specification
+   ; Comparable.antisymmetry  := comparison.antisymmetry |}.
+
+Module maximum. (* maximum *)
+
+(* maximum.identity *)
+Theorem identity
+  : forall (n : BinaryWithZero) . (max 0 n = n) /\ (max n 0 = n).
+Proof.
+  intro n.
+  simpl Comparable.max in |- *.
+  divide et impera.
+  -
+    match n with | | p end; simpl in |- *; quod idem est.
+  -
+    match n with | | p end; simpl in |- *; quod idem est.
+Qed.
+
+End maximum. (* maximum *)
+
+Module narrowing. (* narrowing *)
+
+Module binary. (* narrowing.binary *)
+
+(* narrowing.binary.retraction *)
+Theorem retraction
+  : forall (p : Binary) . to_binary (+ p) = Some p.
+Proof.
+  intro p.
+  simpl to_binary in |- *.
+  quod idem est.
+Qed.
+
+(* narrowing.binary.specification *)
+Theorem specification
+  : forall (n : BinaryWithZero) (p : Binary) . to_binary n = Some p <-> n = + p.
+Proof.
+  intros n p.
+  divide et impera.
+  -
+    intro e.
+    match n with | | q end.
+    +
+      simpl to_binary in &e.
+      ex &e quodlibet.
+    +
+      simpl to_binary in &e.
+      let proof f := Option.some.injectivity &e.
+      leibniz &f in |- *.
+      quod idem est.
+  -
+    intro e.
+    leibniz &e in |- *.
+    ipso (narrowing.binary.retraction &p).
+Qed.
+
+(* narrowing.binary.failure *)
+Theorem failure
+  : forall (n : BinaryWithZero) . to_binary n = None <-> n = 0.
+Proof.
+  intro n.
+  divide et impera.
+  -
+    intro e.
+    match n with | | q end.
+    +
+      quod idem est.
+    +
+      simpl to_binary in &e.
+      ex &e quodlibet.
+  -
+    intro e.
+    leibniz &e in |- *.
+    simpl to_binary in |- *.
+    quod idem est.
+Qed.
+
+End binary. (* narrowing.binary *)
+
+End narrowing. (* narrowing *)
 
 Module halving. (* halving *)
 
@@ -1189,3 +1634,72 @@ Export (notations) BinaryWithZero.
  *)
 Coercion BinaryWithZero.Positive : Binary >-> BinaryWithZero.
 Add Printing Coercion BinaryWithZero.Positive.
+
+(* Declared inside [Module BinaryWithZero], whose proofs use it; an instance
+ * declared there is dropped at the module's [End], so it is announced again
+ * here.
+ *)
+Existing Instance BinaryWithZero.comparable.
+
+Instance BinaryWithZero_less_than_well_founded
+  : WellFounded (<)%binary_with_zero :=
+  {| accessibility := BinaryWithZero.order.strict.wellfoundedness |}.
+
+Instance BinaryWithZero_add_monoid
+  : Monoid BinaryWithZero.add BinaryWithZero.Zero := {|
+    Monoid.semigroup :=
+      {| Semigroup.associativity := BinaryWithZero.addition.associativity |}
+  ; Monoid.identity := BinaryWithZero.addition.identity
+  |}.
+
+Instance BinaryWithZero_add_cancellative
+  : Cancellative BinaryWithZero.add := {|
+    Cancellative.cancellation := BinaryWithZero.addition.cancellation
+  |}.
+
+Instance BinaryWithZero_mul_monoid
+  : Monoid BinaryWithZero.mul Binary.One := {|
+    Monoid.semigroup := {|
+      Semigroup.associativity := BinaryWithZero.multiplication.associativity |}
+  ; Monoid.identity := BinaryWithZero.multiplication.identity |}.
+
+Instance BinaryWithZero_add_commutative
+  : Commutative BinaryWithZero.add := {|
+      Commutative.commutativity := BinaryWithZero.addition.commutativity
+  |}.
+
+Instance BinaryWithZero_add_abelian_monoid
+  : AbelianMonoid BinaryWithZero.add BinaryWithZero.Zero :=
+  {| AbelianMonoid.monoid      := BinaryWithZero_add_monoid
+   ; AbelianMonoid.commutative := BinaryWithZero_add_commutative |}.
+
+Instance BinaryWithZero_mul_commutative
+  : Commutative BinaryWithZero.mul := {|
+    Commutative.commutativity := BinaryWithZero.multiplication.commutativity
+  |}.
+
+Instance BinaryWithZero_min_semigroup
+  : Semigroup BinaryWithZero.min :=
+  {| Semigroup.associativity := Comparable.minimum.associativity |}.
+
+Instance BinaryWithZero_max_monoid
+  : Monoid BinaryWithZero.max BinaryWithZero.Zero :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Comparable.maximum.associativity |}
+   ; Monoid.identity := BinaryWithZero.maximum.identity |}.
+
+Instance BinaryWithZero_min_commutative
+  : Commutative BinaryWithZero.min :=
+  {| Commutative.commutativity := Comparable.minimum.commutativity |}.
+
+Instance BinaryWithZero_max_commutative
+  : Commutative BinaryWithZero.max :=
+  {| Commutative.commutativity := Comparable.maximum.commutativity |}.
+
+Instance BinaryWithZero_semiring
+  : Semiring BinaryWithZero.add BinaryWithZero.Zero BinaryWithZero.mul
+      Binary.One :=
+  {| Semiring.abelian_monoid := BinaryWithZero_add_abelian_monoid
+   ; Semiring.monoid         := BinaryWithZero_mul_monoid
+   ; Semiring.distributivity := BinaryWithZero.multiplication.distributivity.over.addition
+   ; Semiring.annihilation   := BinaryWithZero.multiplication.annihilation |}.
