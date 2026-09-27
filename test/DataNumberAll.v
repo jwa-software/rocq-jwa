@@ -612,3 +612,86 @@ Proof.
   intro w.
   quod idem est.
 Qed.
+
+Definition data_number_all_delivers_binary_retraction
+  : forall (n : Nat) . Binary.to_nat (Binary.from_nat n) = n
+  := Binary.conversion.retraction.
+
+Definition data_number_all_delivers_binary_section
+  : forall (b : Binary) . Binary.from_nat (Binary.to_nat b) = b
+  := Binary.conversion.section.
+
+Definition data_number_all_delivers_binary_successor
+  : forall (b : Binary) . Binary.to_nat (++ b)%binary = Nat.Successor (Binary.to_nat b)
+  := Binary.conversion.successor.
+
+Definition data_number_all_delivers_binary_addition
+  : forall (a : Binary) (b : Binary) .
+      Binary.to_nat (a + b)%binary = (Binary.to_nat a + Binary.to_nat b)%nat
+  := Binary.conversion.addition.
+
+Definition data_number_all_delivers_binary_multiplication
+  : forall (a : Binary) (b : Binary) .
+      Binary.to_nat (a * b)%binary = (Binary.to_nat a * Binary.to_nat b)%nat
+  := Binary.conversion.multiplication.
+
+Definition data_number_all_delivers_binary_power
+  : forall (a : Binary) (n : Binary) .
+      Binary.to_nat (a ^ n)%binary = (Binary.to_nat a ^ Binary.to_nat n)%nat
+  := Binary.conversion.power.
+
+Definition data_number_all_delivers_binary_comparison
+  : forall (a : Binary) (b : Binary) .
+      Binary.compare a b = Nat.compare (Binary.to_nat a) (Binary.to_nat b)
+  := Binary.conversion.comparison.
+
+Definition data_number_all_delivers_binary_subtraction
+  : forall (a : Binary) (b : Binary) .
+      Option.map Binary.to_nat (Binary.sub a b) = Nat.sub (Binary.to_nat a) (Binary.to_nat b)
+  := Binary.conversion.subtraction.
+
+Definition data_number_all_delivers_binary_saturating_subtraction
+  : forall (a : Binary) (b : Binary) .
+      Binary.to_nat (Binary.saturating_sub a b)
+      = Nat.saturating_sub (Binary.to_nat a) (Binary.to_nat b)
+  := Binary.conversion.subtraction.saturating.
+
+Definition data_number_all_delivers_binary_multiplication_computes
+  : (Binary.AppendOne Binary.One * Binary.AppendZero (Binary.AppendOne Binary.One))%binary
+    = Binary.AppendZero (Binary.AppendOne (Binary.AppendZero (Binary.AppendZero Binary.One)))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_comparison_computes
+  : Binary.compare (Binary.AppendOne Binary.One)
+                   (Binary.AppendZero (Binary.AppendOne Binary.One))
+    = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_retraction
+  : forall (n : NatWithZero) .
+      BinaryWithZero.to_nat_with_zero (BinaryWithZero.from_nat_with_zero n) = n
+  := BinaryWithZero.conversion.retraction.
+
+Definition data_number_all_delivers_binary_with_zero_addition
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      BinaryWithZero.to_nat_with_zero (m + n)%binary_with_zero
+      = (BinaryWithZero.to_nat_with_zero m + BinaryWithZero.to_nat_with_zero n)%nat_with_zero
+  := BinaryWithZero.conversion.addition.
+
+Definition data_number_all_delivers_binary_with_zero_subtraction
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      Option.map BinaryWithZero.to_nat_with_zero (BinaryWithZero.sub m n)
+      = NatWithZero.sub (BinaryWithZero.to_nat_with_zero m) (BinaryWithZero.to_nat_with_zero n)
+  := BinaryWithZero.conversion.subtraction.
+
+Definition data_number_all_delivers_binary_with_zero_subtraction_computes
+  : BinaryWithZero.sub (Binary.AppendZero Binary.One) (Binary.AppendZero Binary.One)
+    = Some BinaryWithZero.Zero
+  := Identity.reflexivity _.
+
+Theorem data_number_all_delivers_coercion_binary_to_binary_with_zero
+  : forall (b : Binary) . BinaryWithZero.inc b = BinaryWithZero.inc (BinaryWithZero.Positive b).
+Proof.
+  intro b.
+  quod idem est.
+Qed.
