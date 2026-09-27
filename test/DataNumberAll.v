@@ -740,6 +740,42 @@ Definition data_number_all_delivers_binary_with_zero_bit_computes
     = true
   := Identity.reflexivity _.
 
+Definition data_number_all_delivers_binary_addition_commutativity
+  : forall (a : Binary) (b : Binary) . (a + b)%binary = (b + a)%binary
+  := Binary.addition.commutativity.
+
+Definition data_number_all_delivers_binary_order
+  : forall (a : Binary) (b : Binary) .
+      (a < b)%binary <-> (Binary.to_nat a < Binary.to_nat b)%nat
+  := Binary.conversion.order.
+
+Definition data_number_all_delivers_binary_well_founded
+  : forall (b : Binary) . Accessible Binary.LessThan b
+  := fun (b : Binary) . accessibility b.
+
+Definition data_number_all_delivers_binary_maximum_computes
+  : Binary.max (Binary.AppendOne Binary.One) (Binary.AppendZero Binary.One)
+    = Binary.AppendOne Binary.One
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_distributivity
+  : forall (x : BinaryWithZero) (y : BinaryWithZero) (z : BinaryWithZero) .
+      ((x * (y + z)) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%binary_with_zero
+  := BinaryWithZero.multiplication.distributivity.over.addition.
+
+Definition data_number_all_delivers_binary_with_zero_well_founded
+  : forall (n : BinaryWithZero) . Accessible BinaryWithZero.LessThan n
+  := fun (n : BinaryWithZero) . accessibility n.
+
+Definition data_number_all_delivers_binary_with_zero_narrowing_binary_specification
+  : forall (n : BinaryWithZero) (p : Binary) . BinaryWithZero.to_binary n = Some p <-> n = p
+  := BinaryWithZero.narrowing.binary.specification.
+
+Definition data_number_all_delivers_binary_with_zero_narrowing_binary_failure
+  : forall (n : BinaryWithZero) .
+      BinaryWithZero.to_binary n = None <-> n = BinaryWithZero.Zero
+  := BinaryWithZero.narrowing.binary.failure.
+
 Theorem data_number_all_delivers_coercion_binary_to_binary_with_zero
   : forall (b : Binary) . BinaryWithZero.inc b = BinaryWithZero.inc (BinaryWithZero.Positive b).
 Proof.
