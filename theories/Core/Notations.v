@@ -60,7 +60,7 @@ Delimit Scope jwa_rational_scope with rational.
 Declare Scope jwa_binary_scope.
 Delimit Scope jwa_binary_scope with binary.
 Declare Scope jwa_binary_with_zero_scope.
-Delimit Scope jwa_binary_with_zero_scope with binary_with_zero.
+Delimit Scope jwa_binary_with_zero_scope with b.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [forsome] beyond them, so a formula reads without parentheses; [_\/_] sits

@@ -13,6 +13,7 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Binary.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Descent.
@@ -72,9 +73,8 @@ Definition mul := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End BinaryWithZero] a client writes
- * [(m + n)%binary_with_zero]. [only parsing] keeps goals printing the
- * operations by name.
+ * module; after [End BinaryWithZero] a client writes [(m + n)%b]. [only
+ * parsing] keeps goals printing the operations by name.
  *)
 Notation "m + n" := (add m n) (only parsing)
   : jwa_binary_with_zero_scope.
@@ -371,6 +371,41 @@ Definition test_bit := fun (n : BinaryWithZero) (i : NatWithZero) .
   | + Binary.One          => true
   | + Binary.AppendZero _ => false
   | + Binary.AppendOne _  => true
+  end.
+
+(* [n] with the digits [d] appended, [None] once a digit is neither 0 nor 1. *)
+(* [BinaryWithZero -> Numeral.Decimal.Digits -> Option BinaryWithZero] *)
+Fixpoint from_digits (n : BinaryWithZero) (d : Numeral.Decimal.Digits)
+  : Option BinaryWithZero :=
+  match d with
+  | Numeral.Decimal.Digits.End     => Some n
+  | Numeral.Decimal.Digits.Zero d' => from_digits (append_bit n false) d'
+  | Numeral.Decimal.Digits.One d'  => from_digits (append_bit n true) d'
+  | _                              => None
+  end.
+
+(* The number a literal's digits spell in binary. *)
+(* [Numeral.Unsigned -> Option BinaryWithZero] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  match u with
+  | Numeral.Unsigned.Decimal d     => from_digits 0 d
+  | Numeral.Unsigned.Hexadecimal _ => None
+  end.
+
+(* The digits of [p] written before [rest]. *)
+(* [Binary -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
+Fixpoint to_digits (p : Binary) (rest : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
+  match p with
+  | Binary.One           => Numeral.Decimal.Digits.One rest
+  | Binary.AppendZero p' => to_digits p' (Numeral.Decimal.Digits.Zero rest)
+  | Binary.AppendOne p'  => to_digits p' (Numeral.Decimal.Digits.One rest)
+  end.
+
+(* [BinaryWithZero -> Numeral.Unsigned] *)
+Definition to_numeral := fun (n : BinaryWithZero) .
+  match n with
+  | 0   => Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End)
+  | + p => Numeral.Unsigned.Decimal (to_digits p Numeral.Decimal.Digits.End)
   end.
 
 (* The conversions to and from [NatWithZero], used to state the laws: they
@@ -1622,12 +1657,19 @@ End BinaryWithZero. (* BinaryWithZero *)
 Abbreviation BinaryWithZero := BinaryWithZero.T.
 
 (* Makes the notations declared in [Module BinaryWithZero] usable in every
- * file that imports this one, as [(m + n)%binary_with_zero] or under an
- * opened [jwa_binary_with_zero_scope]. Only the notations are exported:
- * [add] and the laws still need the [BinaryWithZero.] prefix, and the local
- * aliases [0] and [+ p] stay inside the module.
+ * file that imports this one, as [(m + n)%b] or under an opened
+ * [jwa_binary_with_zero_scope]. Only the notations are exported: [add] and
+ * the laws still need the [BinaryWithZero.] prefix, and the local aliases
+ * [0] and [+ p] stay inside the module.
  *)
 Export (notations) BinaryWithZero.
+
+(* A number of the type is written in binary digits under its scope, [1011%b]
+ * for eleven, and a closed one prints that way; a literal with any other
+ * digit is refused.
+ *)
+Number Notation BinaryWithZero.T BinaryWithZero.from_numeral BinaryWithZero.to_numeral
+  : jwa_binary_with_zero_scope.
 
 (* A [Binary] stands wherever a [BinaryWithZero] is expected, read as its
  * [Positive], and the conversion is printed where it happened.
@@ -1642,7 +1684,7 @@ Add Printing Coercion BinaryWithZero.Positive.
 Existing Instance BinaryWithZero.comparable.
 
 Instance BinaryWithZero_less_than_well_founded
-  : WellFounded (<)%binary_with_zero :=
+  : WellFounded (<)%b :=
   {| accessibility := BinaryWithZero.order.strict.wellfoundedness |}.
 
 Instance BinaryWithZero_add_monoid
