@@ -675,7 +675,7 @@ Definition data_number_all_delivers_binary_with_zero_retraction
 
 Definition data_number_all_delivers_binary_with_zero_addition
   : forall (m : BinaryWithZero) (n : BinaryWithZero) .
-      BinaryWithZero.to_nat_with_zero (m + n)%binary_with_zero
+      BinaryWithZero.to_nat_with_zero (m + n)%b
       = (BinaryWithZero.to_nat_with_zero m + BinaryWithZero.to_nat_with_zero n)%nat_with_zero
   := BinaryWithZero.conversion.addition.
 
@@ -692,11 +692,11 @@ Definition data_number_all_delivers_binary_with_zero_subtraction_computes
 
 Definition data_number_all_delivers_binary_with_zero_conjunction_commutativity
   : forall (m : BinaryWithZero) (n : BinaryWithZero) .
-      (m && n)%binary_with_zero = (n && m)%binary_with_zero
+      (m && n)%b = (n && m)%b
   := BinaryWithZero.conjunction.commutativity.
 
 Definition data_number_all_delivers_binary_with_zero_sejunction_irreflexivity
-  : forall (n : BinaryWithZero) . (n ^^ n)%binary_with_zero = BinaryWithZero.Zero
+  : forall (n : BinaryWithZero) . (n ^^ n)%b = BinaryWithZero.Zero
   := BinaryWithZero.sejunction.irreflexivity.
 
 Definition data_number_all_delivers_binary_with_zero_shift_retraction
@@ -713,19 +713,19 @@ Definition data_number_all_delivers_binary_with_zero_left_shift
 
 Definition data_number_all_delivers_binary_with_zero_conjunction_computes
   : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
-     && Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%binary_with_zero
+     && Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%b
     = Binary.AppendZero (Binary.AppendZero (Binary.AppendZero Binary.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_binary_with_zero_disjunction_computes
   : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
-     || Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%binary_with_zero
+     || Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%b
     = Binary.AppendZero (Binary.AppendOne (Binary.AppendOne Binary.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_binary_with_zero_sejunction_computes
   : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
-     ^^ Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%binary_with_zero
+     ^^ Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%b
     = Binary.AppendZero (Binary.AppendOne Binary.One)
   := Identity.reflexivity _.
 
@@ -760,7 +760,7 @@ Definition data_number_all_delivers_binary_maximum_computes
 
 Definition data_number_all_delivers_binary_with_zero_distributivity
   : forall (x : BinaryWithZero) (y : BinaryWithZero) (z : BinaryWithZero) .
-      ((x * (y + z)) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%binary_with_zero
+      ((x * (y + z)) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%b
   := BinaryWithZero.multiplication.distributivity.over.addition.
 
 Definition data_number_all_delivers_binary_with_zero_well_founded
@@ -775,6 +775,26 @@ Definition data_number_all_delivers_binary_with_zero_narrowing_binary_failure
   : forall (n : BinaryWithZero) .
       BinaryWithZero.to_binary n = None <-> n = BinaryWithZero.Zero
   := BinaryWithZero.narrowing.binary.failure.
+
+Definition data_number_all_delivers_binary_with_zero_literal
+  : (1011 + 1)%b = 1100%b
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_literal_zero
+  : 0%b = BinaryWithZero.Zero
+  := Identity.reflexivity _.
+
+Fail Definition data_number_all_refuses_binary_with_zero_literal_digit
+  : BinaryWithZero
+  := 1021%b.
+
+Definition data_number_all_delivers_binary_with_zero_large_power
+  : (10 ^ 11001000)%b = (100 ^ 1100100)%b
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_large_product
+  : (1111111111111111 * 1111111111111111)%b = 11111111111111100000000000000001%b
+  := Identity.reflexivity _.
 
 Theorem data_number_all_delivers_coercion_binary_to_binary_with_zero
   : forall (b : Binary) . BinaryWithZero.inc b = BinaryWithZero.inc (BinaryWithZero.Positive b).
