@@ -1,10 +1,19 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Algebra.Cancellative.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
+From jwa Require Import Relation.Accessible.
+From jwa Require Import Relation.Descent.
+From jwa Require Import Relation.Induced.
+From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
@@ -195,6 +204,30 @@ Fixpoint difference_with_borrow (borrow : Bool) (a : Binary) (b : Binary) : Diff
 (* [Binary -> Binary -> Difference] *)
 Definition difference := fun (a : Binary) (b : Binary) . difference_with_borrow false a b.
 
+(* [Binary -> Binary -> Prop] *)
+Definition LessThan := fun (a : Binary) (b : Binary) . forsome (k : Binary) . a + k = b.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_binary_scope.
+
+Notation "a < b" := (LessThan a b) (only parsing)
+  : jwa_binary_scope.
+
+(* [Binary -> Binary -> Prop] *)
+Definition LessOrEqual := fun (a : Binary) (b : Binary) . (a = b) \/ (a < b).
+
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_binary_scope.
+
+Notation "a <= b" := (LessOrEqual a b) (only parsing)
+  : jwa_binary_scope.
+
+Notation "a > b" := (b < a) (only parsing)
+  : jwa_binary_scope.
+
+Notation "a >= b" := (LessOrEqual b a) (only parsing)
+  : jwa_binary_scope.
+
 (* [Binary -> Binary -> Comparison] *)
 Definition compare := fun (a : Binary) (b : Binary) .
   match difference a b with
@@ -202,6 +235,15 @@ Definition compare := fun (a : Binary) (b : Binary) .
   | Equal   => Comparison.Eq
   | Above _ => Comparison.Gt
   end.
+
+(* [Binary -> Binary -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [Binary -> Binary -> Binary] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [Binary -> Binary -> Binary] *)
+Abbreviation max := (Comparable.max compare).
 
 (* [a - b], [None] unless it is positive, as [Nat.sub] is. *)
 (* [Binary -> Binary -> Option Binary] *)
@@ -980,7 +1022,339 @@ Qed.
 
 End subtraction. (* conversion.subtraction *)
 
+(* conversion.injectivity *)
+Theorem injectivity
+  : forall {a : Binary} {b : Binary} . to_nat a = to_nat b -> a = b.
+Proof.
+  intros a b e.
+  leibniz <- (conversion.section &a), <- (conversion.section &b) in |- *.
+  leibniz &e in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.order *)
+Theorem order
+  : forall (a : Binary) (b : Binary) . a < b <-> (to_nat a < to_nat b)%nat.
+Proof.
+  intros a b.
+  divide et impera.
+  -
+    intro h.
+    simpl LessThan in &h.
+    match &h with | k e end.
+    simpl Nat.LessThan in |- *.
+    exists (to_nat &k).
+    leibniz <- &e in |- *.
+    leibniz (conversion.addition &a &k) in |- *.
+    quod idem est.
+  -
+    intro h.
+    simpl Nat.LessThan in &h.
+    match &h with | j e end.
+    simpl LessThan in |- *.
+    exists (from_nat &j).
+    lemma f : to_nat (&a + from_nat &j) = to_nat &b.
+    {
+      leibniz (conversion.addition &a (from_nat &j)), (conversion.retraction &j) in |- *.
+      ipso &e.
+    }
+    ipso (conversion.injectivity &f).
+Qed.
+
 End conversion. (* conversion *)
+
+Module addition. (* addition *)
+
+(* addition.associativity *)
+Theorem associativity
+  : forall (a : Binary) (b : Binary) (c : Binary) . (a + b) + c = a + (b + c).
+Proof.
+  intros a b c.
+  lemma f : to_nat ((&a + &b) + &c) = to_nat (&a + (&b + &c)).
+  {
+    leibniz (conversion.addition (&a + &b) &c), (conversion.addition &a &b),
+            (conversion.addition &a (&b + &c)), (conversion.addition &b &c) in |- *.
+    ipso (Nat.addition.associativity (to_nat &a) (to_nat &b) (to_nat &c)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.commutativity *)
+Theorem commutativity : forall (a : Binary) (b : Binary) . a + b = b + a.
+Proof.
+  intros a b.
+  lemma f : to_nat (&a + &b) = to_nat (&b + &a).
+  {
+    leibniz (conversion.addition &a &b), (conversion.addition &b &a) in |- *.
+    ipso (Nat.addition.commutativity (to_nat &a) (to_nat &b)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.cancellation *)
+Theorem cancellation
+  : forall (a : Binary) (b : Binary) (c : Binary) .
+    (a + b = a + c -> b = c) /\ (a + b = c + b -> a = c).
+Proof.
+  intros a b c.
+  let proof n := Nat.addition.cancellation (to_nat &a) (to_nat &b) (to_nat &c).
+  match &n with | l r end.
+  divide et impera.
+  -
+    intro e.
+    let proof f := congru to_nat, &e.
+    leibniz (conversion.addition &a &b), (conversion.addition &a &c) in &f.
+    ipso (conversion.injectivity (&l &f)).
+  -
+    intro e.
+    let proof f := congru to_nat, &e.
+    leibniz (conversion.addition &a &b), (conversion.addition &c &b) in &f.
+    ipso (conversion.injectivity (&r &f)).
+Qed.
+
+End addition. (* addition *)
+
+Module multiplication. (* multiplication *)
+
+(* multiplication.associativity *)
+Theorem associativity
+  : forall (a : Binary) (b : Binary) (c : Binary) . (a * b) * c = a * (b * c).
+Proof.
+  intros a b c.
+  lemma f : to_nat ((&a * &b) * &c) = to_nat (&a * (&b * &c)).
+  {
+    leibniz (conversion.multiplication (&a * &b) &c), (conversion.multiplication &a &b),
+            (conversion.multiplication &a (&b * &c)), (conversion.multiplication &b &c)
+      in |- *.
+    ipso (Nat.multiplication.associativity (to_nat &a) (to_nat &b) (to_nat &c)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* multiplication.commutativity *)
+Theorem commutativity : forall (a : Binary) (b : Binary) . a * b = b * a.
+Proof.
+  intros a b.
+  lemma f : to_nat (&a * &b) = to_nat (&b * &a).
+  {
+    leibniz (conversion.multiplication &a &b), (conversion.multiplication &b &a) in |- *.
+    ipso (Nat.multiplication.commutativity (to_nat &a) (to_nat &b)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* multiplication.identity *)
+Theorem identity
+  : forall (b : Binary) . (One * b = b) /\ (b * One = b).
+Proof.
+  intro b.
+  divide et impera.
+  -
+    simpl in |- *.
+    quod idem est.
+  -
+    let proof i := Nat.multiplication.identity (to_nat &b).
+    match &i with | l r end.
+    lemma f : to_nat (&b * One) = to_nat &b.
+    {
+      leibniz (conversion.multiplication &b One) in |- *.
+      ipso &r.
+    }
+    ipso (conversion.injectivity &f).
+Qed.
+
+(* multiplication.cancellation *)
+Theorem cancellation
+  : forall (a : Binary) (b : Binary) (c : Binary) .
+      (a * b = a * c -> b = c) /\ (a * b = c * b -> a = c).
+Proof.
+  intros a b c.
+  let proof n := Nat.multiplication.cancellation (to_nat &a) (to_nat &b) (to_nat &c).
+  match &n with | l r end.
+  divide et impera.
+  -
+    intro e.
+    let proof f := congru to_nat, &e.
+    leibniz (conversion.multiplication &a &b), (conversion.multiplication &a &c) in &f.
+    ipso (conversion.injectivity (&l &f)).
+  -
+    intro e.
+    let proof f := congru to_nat, &e.
+    leibniz (conversion.multiplication &a &b), (conversion.multiplication &c &b) in &f.
+    ipso (conversion.injectivity (&r &f)).
+Qed.
+
+Module distributivity. (* multiplication.distributivity *)
+
+Module over. (* multiplication.distributivity.over *)
+
+(* multiplication.distributivity.over.addition *)
+Theorem addition
+  : forall (a : Binary) (b : Binary) (c : Binary) .
+      (a * (b + c) = (a * b) + (a * c)) /\ ((b + c) * a = (b * a) + (c * a)).
+Proof.
+  intros a b c.
+  divide et impera.
+  -
+    lemma f : to_nat (&a * (&b + &c)) = to_nat ((&a * &b) + (&a * &c)).
+    {
+      leibniz (conversion.multiplication &a (&b + &c)), (conversion.addition &b &c),
+              (conversion.addition (&a * &b) (&a * &c)),
+              (conversion.multiplication &a &b), (conversion.multiplication &a &c) in |- *.
+      ipso (Nat.multiplication.left.distributivity.over.addition
+              (to_nat &a) (to_nat &b) (to_nat &c)).
+    }
+    ipso (conversion.injectivity &f).
+  -
+    lemma f : to_nat ((&b + &c) * &a) = to_nat ((&b * &a) + (&c * &a)).
+    {
+      leibniz (conversion.multiplication (&b + &c) &a), (conversion.addition &b &c),
+              (conversion.addition (&b * &a) (&c * &a)),
+              (conversion.multiplication &b &a), (conversion.multiplication &c &a) in |- *.
+      ipso (Nat.multiplication.right.distributivity.over.addition
+              (to_nat &a) (to_nat &b) (to_nat &c)).
+    }
+    ipso (conversion.injectivity &f).
+Qed.
+
+End over. (* multiplication.distributivity.over *)
+
+End distributivity. (* multiplication.distributivity *)
+
+End multiplication. (* multiplication *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.irreflexivity *)
+Theorem irreflexivity : forall (b : Binary) . ~ (b < b).
+Proof.
+  intros b h.
+  ipso (Nat.order.strict.irreflexivity (to_nat &b) (modus aequans (conversion.order &b &b), &h)).
+Qed.
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {a : Binary} {b : Binary} {c : Binary} . a < b -> b < c -> a < c.
+Proof.
+  intros a b c h1 h2.
+  let proof n := Nat.order.strict.transitivity
+                   (modus aequans (conversion.order &a &b), &h1)
+                   (modus aequans (conversion.order &b &c), &h2).
+  ipso (modus aequans (conversion.order &a &c), &n).
+Qed.
+
+(* order.strict.trichotomy *)
+Theorem trichotomy
+  : forall (a : Binary) (b : Binary) . (a < b) \/ (a = b) \/ (b < a).
+Proof.
+  intros a b.
+  let proof t := Nat.order.strict.trichotomy (to_nat &a) (to_nat &b).
+  match &t with | lt | rest end.
+  -
+    ipso (disjoin (modus aequans (conversion.order &a &b), &lt), _).
+  -
+    match &rest with | same | gt end.
+    +
+      ipso (disjoin _, (disjoin (conversion.injectivity &same), _)).
+    +
+      ipso (disjoin _, (disjoin _, (modus aequans (conversion.order &b &a), &gt))).
+Qed.
+
+(* order.strict.wellfoundedness *)
+Theorem wellfoundedness : forall (b : Binary) . Accessible (<) b.
+Proof.
+  intro b.
+  lemma descent
+    : Descent.Step (Induced Nat.LessThan to_nat) (fun (x : Binary) . Accessible (<) x).
+  {
+    intros x recurse.
+    ipso (Accessible_introduction
+            (fun (y : Binary) (h : y < &x) .
+               &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
+  }
+  ipso (Accessible.recursion &descent &b
+          (@accessibility _ _ (WellFounded.induced Nat.LessThan to_nat _) &b)).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (a : Binary) (b : Binary) .
+      (compare a b = Comparison.Lt <-> a < b) /\ (compare a b = Comparison.Eq <-> a = b).
+Proof.
+  intros a b.
+  leibniz (conversion.comparison &a &b) in |- *.
+  let proof s := Nat.comparison.specification (to_nat &a) (to_nat &b).
+  match &s with | strict equality end.
+  divide et impera.
+  -
+    divide et impera.
+    +
+      intro c.
+      ipso (modus aequans (conversion.order &a &b), (modus aequans &strict, &c)).
+    +
+      intro h.
+      ipso (modus aequans &strict, (modus aequans (conversion.order &a &b), &h)).
+  -
+    divide et impera.
+    +
+      intro c.
+      ipso (conversion.injectivity (modus aequans &equality, &c)).
+    +
+      intro e.
+      ipso (modus aequans &equality, (congru to_nat, &e)).
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (a : Binary) (b : Binary) . compare a b = Comparison.transpose (compare b a).
+Proof.
+  intros a b.
+  leibniz (conversion.comparison &a &b), (conversion.comparison &b &a) in |- *.
+  ipso (Nat.comparison.antisymmetry (to_nat &a) (to_nat &b)).
+Qed.
+
+Module maximum. (* comparison.maximum *)
+
+(* comparison.maximum.identity *)
+Theorem identity
+  : forall (b : Binary) . (max One b = b) /\ (max b One = b).
+Proof.
+  intro b.
+  divide et impera.
+  -
+    simpl Comparable.max in |- *.
+    leibniz (conversion.comparison One &b) in |- *.
+    simpl in |- *.
+    match (to_nat &b) with | | n end |- e.
+    +
+      let proof e : to_nat &b = to_nat One := &e.
+      ipso (symm (conversion.injectivity &e)).
+    +
+      quod idem est.
+  -
+    simpl Comparable.max in |- *.
+    leibniz (conversion.comparison &b One) in |- *.
+    simpl in |- *.
+    match (to_nat &b) with | | n end.
+    +
+      simpl in |- *.
+      quod idem est.
+    +
+      simpl in |- *.
+      quod idem est.
+Qed.
+
+End maximum. (* comparison.maximum *)
+
+End comparison. (* comparison *)
 
 End Binary. (* Binary *)
 
@@ -995,3 +1369,57 @@ Abbreviation Binary := Binary.T.
  * still need the [Binary.] prefix.
  *)
 Export (notations) Binary.
+
+Instance Binary_less_than_well_founded
+  : WellFounded (<)%binary :=
+  {| accessibility := Binary.order.strict.wellfoundedness |}.
+
+Instance Binary_comparable
+  : Comparable Binary.compare (<)%binary :=
+  {| Comparable.transitivity  := @Binary.order.strict.transitivity
+   ; Comparable.specification := Binary.comparison.specification
+   ; Comparable.antisymmetry  := Binary.comparison.antisymmetry |}.
+
+Instance Binary_add_semigroup
+  : Semigroup Binary.add :=
+  {| Semigroup.associativity := Binary.addition.associativity |}.
+
+Instance Binary_add_cancellative
+  : Cancellative Binary.add :=
+  {| Cancellative.cancellation := Binary.addition.cancellation |}.
+
+Instance Binary_mul_cancellative
+  : Cancellative Binary.mul :=
+  {| Cancellative.cancellation := Binary.multiplication.cancellation |}.
+
+Instance Binary_mul_monoid
+  : Monoid Binary.mul Binary.One :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Binary.multiplication.associativity |}
+   ; Monoid.identity := Binary.multiplication.identity |}.
+
+Instance Binary_add_commutative
+  : Commutative Binary.add :=
+  {| Commutative.commutativity := Binary.addition.commutativity |}.
+
+Instance Binary_mul_commutative
+  : Commutative Binary.mul :=
+  {| Commutative.commutativity := Binary.multiplication.commutativity |}.
+
+Instance Binary_min_semigroup
+  : Semigroup Binary.min :=
+  {| Semigroup.associativity := Comparable.minimum.associativity |}.
+
+Instance Binary_max_monoid
+  : Monoid Binary.max Binary.One :=
+  {| Monoid.semigroup :=
+       {| Semigroup.associativity := Comparable.maximum.associativity |}
+   ; Monoid.identity := Binary.comparison.maximum.identity |}.
+
+Instance Binary_min_commutative
+  : Commutative Binary.min :=
+  {| Commutative.commutativity := Comparable.minimum.commutativity |}.
+
+Instance Binary_max_commutative
+  : Commutative Binary.max :=
+  {| Commutative.commutativity := Comparable.maximum.commutativity |}.
