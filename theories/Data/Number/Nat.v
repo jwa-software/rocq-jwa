@@ -351,7 +351,43 @@ Proof.
   quod idem est.
 Qed.
 
+(* A successor on the right comes out, as one on the left does by the
+ * definition of [add].
+ *)
+(* addition.right.successor *)
+Theorem successor
+  : forall (m : Nat) (n : Nat) . m + S n = S (m + n).
+Proof.
+  intros m n.
+  leibniz (addition.commutativity m (S n)) in |- *.
+  simpl in |- *.
+  leibniz (addition.commutativity n m) in |- *.
+  quod idem est.
+Qed.
+
 End right. (* addition.right *)
+
+(* addition.successor *)
+Theorem successor
+  : forall (m : Nat) (n : Nat) . S m + S n = S (S (m + n)).
+Proof.
+  intros m n.
+  simpl in |- *.
+  leibniz (addition.right.successor &m &n) in |- *.
+  quod idem est.
+Qed.
+
+(* addition.interchange *)
+Theorem interchange
+  : forall (a : Nat) (b : Nat) (c : Nat) (d : Nat) .
+      (a + b) + (c + d) = (a + c) + (b + d).
+Proof.
+  intros a b c d.
+  leibniz (addition.associativity a b (c + d))    in |- *.
+  leibniz (addition.left.commutativity b c d)     in |- *.
+  leibniz <- (addition.associativity a c (b + d)) in |- *.
+  quod idem est.
+Qed.
 
 (* addition.cancellation *)
 Theorem cancellation

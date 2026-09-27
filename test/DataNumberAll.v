@@ -1,5 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Number.All.
 From jwa Require Import Data.Option.
@@ -610,5 +611,194 @@ Theorem data_number_all_delivers_coercion_nat_with_zero_to_rational
       Rational.negate w = Rational.negate (Rational.from_integer (Integer.from_nat_with_zero w)).
 Proof.
   intro w.
+  quod idem est.
+Qed.
+
+Definition data_number_all_delivers_binary_retraction
+  : forall (n : Nat) . Binary.to_nat (Binary.from_nat n) = n
+  := Binary.conversion.retraction.
+
+Definition data_number_all_delivers_binary_section
+  : forall (b : Binary) . Binary.from_nat (Binary.to_nat b) = b
+  := Binary.conversion.section.
+
+Definition data_number_all_delivers_binary_successor
+  : forall (b : Binary) . Binary.to_nat (++ b)%binary = Nat.Successor (Binary.to_nat b)
+  := Binary.conversion.successor.
+
+Definition data_number_all_delivers_binary_addition
+  : forall (a : Binary) (b : Binary) .
+      Binary.to_nat (a + b)%binary = (Binary.to_nat a + Binary.to_nat b)%nat
+  := Binary.conversion.addition.
+
+Definition data_number_all_delivers_binary_multiplication
+  : forall (a : Binary) (b : Binary) .
+      Binary.to_nat (a * b)%binary = (Binary.to_nat a * Binary.to_nat b)%nat
+  := Binary.conversion.multiplication.
+
+Definition data_number_all_delivers_binary_power
+  : forall (a : Binary) (n : Binary) .
+      Binary.to_nat (a ^ n)%binary = (Binary.to_nat a ^ Binary.to_nat n)%nat
+  := Binary.conversion.power.
+
+Definition data_number_all_delivers_binary_comparison
+  : forall (a : Binary) (b : Binary) .
+      Binary.compare a b = Nat.compare (Binary.to_nat a) (Binary.to_nat b)
+  := Binary.conversion.comparison.
+
+Definition data_number_all_delivers_binary_subtraction
+  : forall (a : Binary) (b : Binary) .
+      Option.map Binary.to_nat (Binary.sub a b) = Nat.sub (Binary.to_nat a) (Binary.to_nat b)
+  := Binary.conversion.subtraction.
+
+Definition data_number_all_delivers_binary_saturating_subtraction
+  : forall (a : Binary) (b : Binary) .
+      Binary.to_nat (Binary.saturating_sub a b)
+      = Nat.saturating_sub (Binary.to_nat a) (Binary.to_nat b)
+  := Binary.conversion.subtraction.saturating.
+
+Definition data_number_all_delivers_binary_multiplication_computes
+  : (Binary.AppendOne Binary.One * Binary.AppendZero (Binary.AppendOne Binary.One))%binary
+    = Binary.AppendZero (Binary.AppendOne (Binary.AppendZero (Binary.AppendZero Binary.One)))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_comparison_computes
+  : Binary.compare (Binary.AppendOne Binary.One)
+                   (Binary.AppendZero (Binary.AppendOne Binary.One))
+    = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_retraction
+  : forall (n : NatWithZero) .
+      BinaryWithZero.to_nat_with_zero (BinaryWithZero.from_nat_with_zero n) = n
+  := BinaryWithZero.conversion.retraction.
+
+Definition data_number_all_delivers_binary_with_zero_addition
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      BinaryWithZero.to_nat_with_zero (m + n)%b
+      = (BinaryWithZero.to_nat_with_zero m + BinaryWithZero.to_nat_with_zero n)%nat_with_zero
+  := BinaryWithZero.conversion.addition.
+
+Definition data_number_all_delivers_binary_with_zero_subtraction
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      Option.map BinaryWithZero.to_nat_with_zero (BinaryWithZero.sub m n)
+      = NatWithZero.sub (BinaryWithZero.to_nat_with_zero m) (BinaryWithZero.to_nat_with_zero n)
+  := BinaryWithZero.conversion.subtraction.
+
+Definition data_number_all_delivers_binary_with_zero_subtraction_computes
+  : BinaryWithZero.sub (Binary.AppendZero Binary.One) (Binary.AppendZero Binary.One)
+    = Some BinaryWithZero.Zero
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_conjunction_commutativity
+  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+      (m && n)%b = (n && m)%b
+  := BinaryWithZero.conjunction.commutativity.
+
+Definition data_number_all_delivers_binary_with_zero_sejunction_irreflexivity
+  : forall (n : BinaryWithZero) . (n ^^ n)%b = BinaryWithZero.Zero
+  := BinaryWithZero.sejunction.irreflexivity.
+
+Definition data_number_all_delivers_binary_with_zero_shift_retraction
+  : forall (n : BinaryWithZero) (k : NatWithZero) .
+      BinaryWithZero.shift_right (BinaryWithZero.shift_left n k) k = n
+  := BinaryWithZero.shift.retraction.
+
+Definition data_number_all_delivers_binary_with_zero_left_shift
+  : forall (n : BinaryWithZero) (k : NatWithZero) .
+      BinaryWithZero.to_nat_with_zero (BinaryWithZero.shift_left n k)
+      = (BinaryWithZero.to_nat_with_zero n
+         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%nat_with_zero
+  := BinaryWithZero.conversion.left.shift.
+
+Definition data_number_all_delivers_binary_with_zero_conjunction_computes
+  : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+     && Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%b
+    = Binary.AppendZero (Binary.AppendZero (Binary.AppendZero Binary.One))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_disjunction_computes
+  : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+     || Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%b
+    = Binary.AppendZero (Binary.AppendOne (Binary.AppendOne Binary.One))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_sejunction_computes
+  : (Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+     ^^ Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))%b
+    = Binary.AppendZero (Binary.AppendOne Binary.One)
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_shift_computes
+  : BinaryWithZero.shift_left (Binary.AppendOne Binary.One) (Nat.Successor Nat.One)
+    = Binary.AppendZero (Binary.AppendZero (Binary.AppendOne Binary.One))
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_bit_computes
+  : BinaryWithZero.test_bit (Binary.AppendZero (Binary.AppendOne (Binary.AppendZero Binary.One)))
+                            Nat.One
+    = true
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_addition_commutativity
+  : forall (a : Binary) (b : Binary) . (a + b)%binary = (b + a)%binary
+  := Binary.addition.commutativity.
+
+Definition data_number_all_delivers_binary_order
+  : forall (a : Binary) (b : Binary) .
+      (a < b)%binary <-> (Binary.to_nat a < Binary.to_nat b)%nat
+  := Binary.conversion.order.
+
+Definition data_number_all_delivers_binary_well_founded
+  : forall (b : Binary) . Accessible Binary.LessThan b
+  := fun (b : Binary) . accessibility b.
+
+Definition data_number_all_delivers_binary_maximum_computes
+  : Binary.max (Binary.AppendOne Binary.One) (Binary.AppendZero Binary.One)
+    = Binary.AppendOne Binary.One
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_distributivity
+  : forall (x : BinaryWithZero) (y : BinaryWithZero) (z : BinaryWithZero) .
+      ((x * (y + z)) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%b
+  := BinaryWithZero.multiplication.distributivity.over.addition.
+
+Definition data_number_all_delivers_binary_with_zero_well_founded
+  : forall (n : BinaryWithZero) . Accessible BinaryWithZero.LessThan n
+  := fun (n : BinaryWithZero) . accessibility n.
+
+Definition data_number_all_delivers_binary_with_zero_narrowing_binary_specification
+  : forall (n : BinaryWithZero) (p : Binary) . BinaryWithZero.to_binary n = Some p <-> n = p
+  := BinaryWithZero.narrowing.binary.specification.
+
+Definition data_number_all_delivers_binary_with_zero_narrowing_binary_failure
+  : forall (n : BinaryWithZero) .
+      BinaryWithZero.to_binary n = None <-> n = BinaryWithZero.Zero
+  := BinaryWithZero.narrowing.binary.failure.
+
+Definition data_number_all_delivers_binary_with_zero_literal
+  : (1011 + 1)%b = 1100%b
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_literal_zero
+  : 0%b = BinaryWithZero.Zero
+  := Identity.reflexivity _.
+
+Fail Definition data_number_all_refuses_binary_with_zero_literal_digit
+  : BinaryWithZero
+  := 1021%b.
+
+Definition data_number_all_delivers_binary_with_zero_large_power
+  : (10 ^ 11001000)%b = (100 ^ 1100100)%b
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_binary_with_zero_large_product
+  : (1111111111111111 * 1111111111111111)%b = 11111111111111100000000000000001%b
+  := Identity.reflexivity _.
+
+Theorem data_number_all_delivers_coercion_binary_to_binary_with_zero
+  : forall (b : Binary) . BinaryWithZero.inc b = BinaryWithZero.inc (BinaryWithZero.Positive b).
+Proof.
+  intro b.
   quod idem est.
 Qed.

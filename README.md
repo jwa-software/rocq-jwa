@@ -28,9 +28,9 @@ make
 
 The root `dune` builds every theory with `-noinit`, so `Corelib.Init.Prelude` is not loaded anywhere in this tree. A file has nothing in scope that it did not require by name.
 
-That is wider than the datatypes. There are no notations, including `->`, which is spelled `forall _ : A, B`. There is no numeral parsing, so `0` does not elaborate even once `Corelib.Init.Datatypes` is required. And there are none of Rocq's tactics: see the next section.
+That is wider than the datatypes. There are no notations, including `->`, which is spelled `forall _ : A, B`. Numerals parse only where this library declares them, for the binary numbers under `%b` (see *Numbers*), so a bare `0` elaborates nowhere. And there are none of Rocq's tactics: see the next section.
 
-Nothing in this tree requires anything from `Corelib`. The notations, the connectives, equality and the data types are all defined here. The one piece not rebuilt is the tactic engine itself, which is a compiled plugin rather than a theory: `theories/Dialect/Ltac.v` loads the core of Ltac2, `Ltac2.Init`, and makes Ltac2 the proof mode.
+Nothing in this tree requires anything from `Corelib`. The notations, the connectives, equality and the data types are all defined here. Two pieces are not rebuilt, being compiled plugins rather than theories. The tactic engine: `theories/Dialect/Ltac.v` loads the core of Ltac2, `Ltac2.Init`, and makes Ltac2 the proof mode. And the reader of numerals behind `Number Notation`: `theories/Data/Number/Numeral.v` loads it and registers the library's own digit types, into which it reads a literal.
 
 ## The tactic language
 
@@ -79,11 +79,13 @@ Each tactic file opens with its grammar in a comment. In outline, against the Ro
 
 ## Numbers
 
-`jwa.Data` holds four number types: `Nat`, which starts at one, `NatWithZero`, `Integer` and `Rational`. **Each converts upward without being written**: a `Nat` stands wherever a `NatWithZero`, an `Integer` or a `Rational` is expected, and so on up, so `(numerator x * denominator y)%integer` multiplies an `Integer` by a `Nat`. **Every such conversion is still printed** in the goal, as `Integer.Positive (denominator y)`, so a `leibniz` step can be aimed at what the goal shows.
+`jwa.Data` holds six number types: `Nat`, which starts at one, `NatWithZero`, `Integer` and `Rational`, and the binary `Binary`, which starts at one, and `BinaryWithZero`. **Each converts upward without being written**: a `Nat` stands wherever a `NatWithZero`, an `Integer` or a `Rational` is expected, and so on up, so `(numerator x * denominator y)%integer` multiplies an `Integer` by a `Nat`; a `Binary` stands wherever a `BinaryWithZero` is expected. **Every such conversion is still printed** in the goal, as `Integer.Positive (denominator y)`, so a `leibniz` step can be aimed at what the goal shows.
 
 **A conversion downward may have no answer, so it is written and returns an `Option`**: `NatWithZero.to_nat`, `Integer.to_nat_with_zero`, `Integer.to_nat`, `Rational.to_integer`, `Rational.to_nat_with_zero` and `Rational.to_nat`, each `None` exactly where the value has no counterpart below (`Integer.to_nat_with_zero` below zero, `Rational.to_integer` at a denominator other than one). Each comes with its laws in a `narrowing` module: going up then down gives the value back (`Rational.narrowing.integer.retraction`), `to_integer x = Some n` holds exactly when `x` is `n` (`specification`), and `failure` says when the answer is `None`. The value is taken out with `Option.unwrap_or d o`, which falls back to `d`, or with `Option.unwrap o h`, where `h` proves `~ (o = None)`: there is no failing at run time, so the proof takes its place.
 
-Arithmetic is written with each type's notation and scope delimiter, `(a + b)%nat`, `(p /. q)%nat_with_zero`, `(x * y)%rational`, and goals print the operations by name, `Rational.mul x y`.
+Arithmetic is written with each type's notation and scope delimiter, `(a + b)%nat`, `(p /. q)%nat_with_zero`, `(x * y)%rational`, `(m && n)%b`, and goals print the operations by name, `Rational.mul x y`.
+
+**The binary numbers compute.** A `Binary` is `One` with bits appended after it by `AppendZero` and `AppendOne`, and `BinaryWithZero` adds zero. Their arithmetic works bit by bit, so `(10 ^ 11001000)%b`, two to the power two hundred, reduces in the kernel at once, where a `Nat` of that size could not even be written out. **A `BinaryWithZero` is written in binary digits** under its delimiter `%b`: `1011%b` is eleven, a closed value prints the same way, and a literal with any other digit is refused. `BinaryWithZero` also has the bitwise operations `&&`, `||` and `^^`, `shift_left`, `shift_right` and `test_bit`. Each binary type converts to its unary counterpart by `Binary.to_nat` and `BinaryWithZero.to_nat_with_zero`; the laws are proved through that conversion (`BinaryWithZero.conversion.addition`), and the algebraic laws and the instances are those of `Nat` and `NatWithZero`.
 
 ## Building
 
@@ -104,7 +106,7 @@ The opam file is generated: after regenerating it, commit the rewritten file lik
 
 Layers live under `theories/`, one directory and one `dune` stanza per layer. Each layer has an umbrella module `All` that re-exports the whole layer, and every stanza lists `Ltac2` among its dependencies.
 
-A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/Conjunction.v` is the module `jwa.Core.Logic.Conjunction`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`. `theories/Relation/Order/` groups the order classes the same way, under `From jwa Require Import Relation.Order.All`, and `theories/Data/` has three such groups: `Base/` for the types built from no other type (`Empty`, `Unit`, `Bool`, `Comparison`), `Collection/` for `List` and `NonEmptyList`, and `Number/` for `Nat`, `NatWithZero`, `Integer` and `Rational`.
+A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/Conjunction.v` is the module `jwa.Core.Logic.Conjunction`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`. `theories/Relation/Order/` groups the order classes the same way, under `From jwa Require Import Relation.Order.All`, and `theories/Data/` has three such groups: `Base/` for the types built from no other type (`Empty`, `Unit`, `Bool`, `Comparison`), `Collection/` for `List` and `NonEmptyList`, and `Number/` for `Nat`, `NatWithZero`, `Integer`, `Rational`, `Binary` and `BinaryWithZero`, with `Numeral`, the digit types a literal is read into.
 
 | Layer | Purpose | Depends on |
 |:---|:---|:---|
