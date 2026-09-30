@@ -10,7 +10,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Number.Binary.
+From jwa Require Import Data.Number.Bin.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Number.Numeral.
@@ -23,25 +23,25 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
-(* A module may carry the type's name; its members read [BinaryWithZero.add].
+(* A module may carry the type's name; its members read [BinWithZero.add].
  * The type and its ctors are declared inside it: [NatWithZero] and [Integer]
  * declare [Zero] and [Positive] too, and across files a duplicate ctor name
  * rebinds the bare one silently and with no warning.
  *)
-Module BinaryWithZero. (* BinaryWithZero *)
+Module BinWithZero. (* BinWithZero *)
 
-(* [Positive] wraps a [Binary], so the arithmetic here reduces to the
- * [Binary] operation plus the [Zero] cases, as [NatWithZero] does over [Nat].
+(* [Positive] wraps a [Bin], so the arithmetic here reduces to the
+ * [Bin] operation plus the [Zero] cases, as [NatWithZero] does over [Nat].
  *)
 Inductive T : Type :=
   | Zero     : T
-  | Positive : Binary -> T.
+  | Positive : Bin -> T.
 
-(* The carrier is named [T] so that the type itself reads [BinaryWithZero] on
+(* The carrier is named [T] so that the type itself reads [BinWithZero] on
  * both sides of the module: here through this abbreviation, outside through
- * the one that follows [End BinaryWithZero].
+ * the one that follows [End BinWithZero].
  *)
-Abbreviation BinaryWithZero := T.
+Abbreviation BinWithZero := T.
 
 (* Short spellings for this module only: [Local] keeps them out of every
  * file that imports this one. [+ p] is a prefix, apart from the infix [+].
@@ -50,89 +50,89 @@ Local Notation "0" := Zero (only parsing).
 Local Notation "+ p" := (Positive p)
   (at level 35, right associativity, only parsing).
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition add := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition add := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0   => n
   | + p =>
       match n with
       | 0   => + p
-      | + q => + (p + q)%binary
+      | + q => + (p + q)%bin
       end
   end.
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition mul := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition mul := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0   => 0
   | + p =>
       match n with
       | 0   => 0
-      | + q => + (p * q)%binary
+      | + q => + (p * q)%bin
       end
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End BinaryWithZero] a client writes [(m + n)%b]. [only
+ * module; after [End BinWithZero] a client writes [(m + n)%b]. [only
  * parsing] keeps goals printing the operations by name.
  *)
 Notation "m + n" := (add m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 Notation "m * n" := (mul m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
-Local Open Scope jwa_binary_with_zero_scope.
+Local Open Scope jwa_bin_with_zero_scope.
 
-(* [BinaryWithZero -> BinaryWithZero] *)
-Definition inc := fun (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero] *)
+Definition inc := fun (n : BinWithZero) .
   match n with
-  | 0   => + Binary.One
-  | + p => + (Binary.inc p)
+  | 0   => + Bin.One
+  | + p => + (Bin.inc p)
   end.
 
 Notation "++ n" := (inc n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition power := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition power := fun (m : BinWithZero) (n : BinWithZero) .
   match n with
-  | 0   => + Binary.One
+  | 0   => + Bin.One
   | + q =>
       match m with
       | 0   => 0
-      | + p => + (p ^ q)%binary
+      | + p => + (p ^ q)%bin
       end
   end.
 
 Notation "m ^ n" := (power m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
-(* [BinaryWithZero -> BinaryWithZero -> Prop] *)
-Definition LessThan := fun (m : BinaryWithZero) (n : BinaryWithZero) .
-  forsome (k : Binary) . m + (+ k) = n.
+(* [BinWithZero -> BinWithZero -> Prop] *)
+Definition LessThan := fun (m : BinWithZero) (n : BinWithZero) .
+  forsome (k : Bin) . m + (+ k) = n.
 
 Notation "m < n" := (LessThan m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
-(* [BinaryWithZero -> BinaryWithZero -> Prop] *)
-Definition LessOrEqual := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> Prop] *)
+Definition LessOrEqual := fun (m : BinWithZero) (n : BinWithZero) .
   m = n \/ m < n.
 
 Notation "m <= n" := (LessOrEqual m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
 Notation "m > n" := (LessThan n m) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
 Notation "'(<)'" := LessThan (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 Notation "'(<=)'" := LessOrEqual (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
-(* [BinaryWithZero -> BinaryWithZero -> Comparison] *)
-Definition compare := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> Comparison] *)
+Definition compare := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0 =>
       match n with
@@ -142,25 +142,25 @@ Definition compare := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   | + p =>
       match n with
       | 0   => Comparison.Gt
-      | + q => Binary.compare p q
+      | + q => Bin.compare p q
       end
   end.
 
-(* [BinaryWithZero -> BinaryWithZero -> Bool] *)
+(* [BinWithZero -> BinWithZero -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
 
-(* [BinaryWithZero -> BinaryWithZero -> Bool] *)
+(* [BinWithZero -> BinWithZero -> Bool] *)
 Abbreviation le := (Comparable.le compare).
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
 Abbreviation min := (Comparable.min compare).
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
 Abbreviation max := (Comparable.max compare).
 
 (* [m - n], [None] when [n] is the greater, as [NatWithZero.sub] is. *)
-(* [BinaryWithZero -> BinaryWithZero -> Option BinaryWithZero] *)
-Definition sub := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> Option BinWithZero] *)
+Definition sub := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0 =>
       match n with
@@ -171,24 +171,24 @@ Definition sub := fun (m : BinaryWithZero) (n : BinaryWithZero) .
       match n with
       | 0   => Some (+ p)
       | + q =>
-          match Binary.difference p q with
-          | Binary.Below   => None
-          | Binary.Equal   => Some 0
-          | Binary.Above d => Some (+ d)
+          match Bin.diff p q with
+          | Bin.Lt   => None
+          | Bin.Eq   => Some 0
+          | Bin.Gt d => Some (+ d)
           end
       end
   end.
 
 (* [m - n], and [0] where [sub] has nothing. *)
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition saturating_sub := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition saturating_sub := fun (m : BinWithZero) (n : BinWithZero) .
   match sub m n with
   | Some k => k
   | None   => 0
   end.
 
-(* [BinaryWithZero -> Option Binary] *)
-Definition to_binary := fun (n : BinaryWithZero) .
+(* [BinWithZero -> Option Bin] *)
+Definition to_bin := fun (n : BinWithZero) .
   match n with
   | 0   => None
   | + p => Some p
@@ -197,18 +197,18 @@ Definition to_binary := fun (n : BinaryWithZero) .
 (* [n] with [bit] written after its lowest bit: [2n], or [2n + 1] when [bit]
  * is [true].
  *)
-(* [BinaryWithZero -> Bool -> BinaryWithZero] *)
-Definition append_bit := fun (n : BinaryWithZero) (bit : Bool) .
+(* [Bool -> BinWithZero -> BinWithZero] *)
+Definition append_bit := fun (bit : Bool) (n : BinWithZero) .
   match n with
   | 0 =>
       match bit with
-      | true  => + Binary.One
+      | true  => + Bin.One
       | false => 0
       end
   | + p =>
       match bit with
-      | true  => + Binary.AppendOne p
-      | false => + Binary.AppendZero p
+      | true  => + Bin.b1 p
+      | false => + Bin.b0 p
       end
   end.
 
@@ -216,53 +216,53 @@ Definition append_bit := fun (n : BinaryWithZero) (bit : Bool) .
  * every number once it holds of [0] and survives the appending.
  *)
 Definition induction
-  : forall (P : BinaryWithZero -> Prop) .
+  : forall (P : BinWithZero -> Prop) .
       P 0 ->
-      (forall (bit : Bool) (n : BinaryWithZero) . P n -> P (append_bit n bit)) ->
-      forall (n : BinaryWithZero) . P n
-  := fun (P : BinaryWithZero -> Prop)
+      (forall (bit : Bool) (n : BinWithZero) . P n -> P (append_bit bit n)) ->
+      forall (n : BinWithZero) . P n
+  := fun (P : BinWithZero -> Prop)
          (zero : P 0)
-         (step : forall (bit : Bool) (n : BinaryWithZero) . P n -> P (append_bit n bit))
-         (n : BinaryWithZero) .
+         (step : forall (bit : Bool) (n : BinWithZero) . P n -> P (append_bit bit n))
+         (n : BinWithZero) .
        match n with
        | 0   => zero
        | + p =>
-           Binary.induction (fun (q : Binary) . P (+ q))
+           Bin.induction (fun (q : Bin) . P (+ q))
              (step true 0 zero)
-             (fun (q : Binary) (h : P (+ q)) . step false (+ q) h)
-             (fun (q : Binary) (h : P (+ q)) . step true (+ q) h)
+             (fun (q : Bin) (h : P (+ q)) . step false (+ q) h)
+             (fun (q : Bin) (h : P (+ q)) . step true (+ q) h)
              p
        end.
 
 (* [n] with its lowest bit dropped. *)
-(* [BinaryWithZero -> BinaryWithZero] *)
-Definition halve := fun (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero] *)
+Definition halve := fun (n : BinWithZero) .
   match n with
-  | 0                     => 0
-  | + Binary.One          => 0
-  | + Binary.AppendZero p => + p
-  | + Binary.AppendOne p  => + p
+  | 0          => 0
+  | + Bin.One  => 0
+  | + Bin.b0 p => + p
+  | + Bin.b1 p => + p
   end.
 
 (* Bit by bit from the least significant end, a number reading as 0s past
  * its leading 1; the bits of the result may all be 0.
  *)
-(* [Binary -> Binary -> BinaryWithZero] *)
-Fixpoint and_positive (p : Binary) (q : Binary) : BinaryWithZero :=
+(* [Bin -> Bin -> BinWithZero] *)
+Fixpoint and_positive (p : Bin) (q : Bin) : BinWithZero :=
   match p, q with
-  | Binary.One, Binary.One                     => + Binary.One
-  | Binary.One, Binary.AppendZero _            => 0
-  | Binary.One, Binary.AppendOne _             => + Binary.One
-  | Binary.AppendZero _, Binary.One            => 0
-  | Binary.AppendZero p', Binary.AppendZero q' => append_bit (and_positive p' q') false
-  | Binary.AppendZero p', Binary.AppendOne q'  => append_bit (and_positive p' q') false
-  | Binary.AppendOne _, Binary.One             => + Binary.One
-  | Binary.AppendOne p', Binary.AppendZero q'  => append_bit (and_positive p' q') false
-  | Binary.AppendOne p', Binary.AppendOne q'   => append_bit (and_positive p' q') true
+  | Bin.One, Bin.One     => + Bin.One
+  | Bin.One, Bin.b0 _    => 0
+  | Bin.One, Bin.b1 _    => + Bin.One
+  | Bin.b0 _, Bin.One    => 0
+  | Bin.b0 p', Bin.b0 q' => append_bit false (and_positive p' q')
+  | Bin.b0 p', Bin.b1 q' => append_bit false (and_positive p' q')
+  | Bin.b1 _, Bin.One    => + Bin.One
+  | Bin.b1 p', Bin.b0 q' => append_bit false (and_positive p' q')
+  | Bin.b1 p', Bin.b1 q' => append_bit true (and_positive p' q')
   end.
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition and := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition and := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0   => 0
   | + p =>
@@ -273,25 +273,25 @@ Definition and := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   end.
 
 Notation "m && n" := (and m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
 (* As [and_positive], each bit the disjunction of the two. *)
-(* [Binary -> Binary -> BinaryWithZero] *)
-Fixpoint or_positive (p : Binary) (q : Binary) : BinaryWithZero :=
+(* [Bin -> Bin -> BinWithZero] *)
+Fixpoint or_positive (p : Bin) (q : Bin) : BinWithZero :=
   match p, q with
-  | Binary.One, Binary.One                     => + Binary.One
-  | Binary.One, Binary.AppendZero q'           => + Binary.AppendOne q'
-  | Binary.One, Binary.AppendOne q'            => + Binary.AppendOne q'
-  | Binary.AppendZero p', Binary.One           => + Binary.AppendOne p'
-  | Binary.AppendZero p', Binary.AppendZero q' => append_bit (or_positive p' q') false
-  | Binary.AppendZero p', Binary.AppendOne q'  => append_bit (or_positive p' q') true
-  | Binary.AppendOne p', Binary.One            => + Binary.AppendOne p'
-  | Binary.AppendOne p', Binary.AppendZero q'  => append_bit (or_positive p' q') true
-  | Binary.AppendOne p', Binary.AppendOne q'   => append_bit (or_positive p' q') true
+  | Bin.One, Bin.One     => + Bin.One
+  | Bin.One, Bin.b0 q'   => + Bin.b1 q'
+  | Bin.One, Bin.b1 q'   => + Bin.b1 q'
+  | Bin.b0 p', Bin.One   => + Bin.b1 p'
+  | Bin.b0 p', Bin.b0 q' => append_bit false (or_positive p' q')
+  | Bin.b0 p', Bin.b1 q' => append_bit true (or_positive p' q')
+  | Bin.b1 p', Bin.One   => + Bin.b1 p'
+  | Bin.b1 p', Bin.b0 q' => append_bit true (or_positive p' q')
+  | Bin.b1 p', Bin.b1 q' => append_bit true (or_positive p' q')
   end.
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition or := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition or := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0   => n
   | + p =>
@@ -302,25 +302,25 @@ Definition or := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   end.
 
 Notation "m || n" := (or m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
 (* As [and_positive], each bit the exclusive disjunction of the two. *)
-(* [Binary -> Binary -> BinaryWithZero] *)
-Fixpoint xor_positive (p : Binary) (q : Binary) : BinaryWithZero :=
+(* [Bin -> Bin -> BinWithZero] *)
+Fixpoint xor_positive (p : Bin) (q : Bin) : BinWithZero :=
   match p, q with
-  | Binary.One, Binary.One                     => 0
-  | Binary.One, Binary.AppendZero q'           => + Binary.AppendOne q'
-  | Binary.One, Binary.AppendOne q'            => + Binary.AppendZero q'
-  | Binary.AppendZero p', Binary.One           => + Binary.AppendOne p'
-  | Binary.AppendZero p', Binary.AppendZero q' => append_bit (xor_positive p' q') false
-  | Binary.AppendZero p', Binary.AppendOne q'  => append_bit (xor_positive p' q') true
-  | Binary.AppendOne p', Binary.One            => + Binary.AppendZero p'
-  | Binary.AppendOne p', Binary.AppendZero q'  => append_bit (xor_positive p' q') true
-  | Binary.AppendOne p', Binary.AppendOne q'   => append_bit (xor_positive p' q') false
+  | Bin.One, Bin.One     => 0
+  | Bin.One, Bin.b0 q'   => + Bin.b1 q'
+  | Bin.One, Bin.b1 q'   => + Bin.b0 q'
+  | Bin.b0 p', Bin.One   => + Bin.b1 p'
+  | Bin.b0 p', Bin.b0 q' => append_bit false (xor_positive p' q')
+  | Bin.b0 p', Bin.b1 q' => append_bit true (xor_positive p' q')
+  | Bin.b1 p', Bin.One   => + Bin.b0 p'
+  | Bin.b1 p', Bin.b0 q' => append_bit true (xor_positive p' q')
+  | Bin.b1 p', Bin.b1 q' => append_bit false (xor_positive p' q')
   end.
 
-(* [BinaryWithZero -> BinaryWithZero -> BinaryWithZero] *)
-Definition xor := fun (m : BinaryWithZero) (n : BinaryWithZero) .
+(* [BinWithZero -> BinWithZero -> BinWithZero] *)
+Definition xor := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
   | 0   => n
   | + p =>
@@ -331,61 +331,61 @@ Definition xor := fun (m : BinaryWithZero) (n : BinaryWithZero) .
   end.
 
 Notation "m ^^ n" := (xor m n) (only parsing)
-  : jwa_binary_with_zero_scope.
+  : jwa_bin_with_zero_scope.
 
-(* [BinaryWithZero -> Nat -> BinaryWithZero] *)
-Fixpoint shift_left_nat (n : BinaryWithZero) (k : Nat) : BinaryWithZero :=
+(* [BinWithZero -> Nat -> BinWithZero] *)
+Fixpoint shift_left_nat (n : BinWithZero) (k : Nat) : BinWithZero :=
   match k with
-  | Nat.One          => append_bit n false
-  | Nat.Successor k' => append_bit (shift_left_nat n k') false
+  | Nat.One          => append_bit false n
+  | Nat.Successor k' => append_bit false (shift_left_nat n k')
   end.
 
 (* [n] with [k] 0s appended, [n * 2 ^ k]. *)
-(* [BinaryWithZero -> NatWithZero -> BinaryWithZero] *)
-Definition shift_left := fun (n : BinaryWithZero) (k : NatWithZero) .
+(* [BinWithZero -> NatWithZero -> BinWithZero] *)
+Definition shift_left := fun (n : BinWithZero) (k : NatWithZero) .
   match k with
   | NatWithZero.Zero        => n
   | NatWithZero.Positive k' => shift_left_nat n k'
   end.
 
-(* [BinaryWithZero -> Nat -> BinaryWithZero] *)
-Fixpoint shift_right_nat (n : BinaryWithZero) (k : Nat) : BinaryWithZero :=
+(* [BinWithZero -> Nat -> BinWithZero] *)
+Fixpoint shift_right_nat (n : BinWithZero) (k : Nat) : BinWithZero :=
   match k with
   | Nat.One          => halve n
   | Nat.Successor k' => shift_right_nat (halve n) k'
   end.
 
 (* [n] with its [k] lowest bits dropped. *)
-(* [BinaryWithZero -> NatWithZero -> BinaryWithZero] *)
-Definition shift_right := fun (n : BinaryWithZero) (k : NatWithZero) .
+(* [BinWithZero -> NatWithZero -> BinWithZero] *)
+Definition shift_right := fun (n : BinWithZero) (k : NatWithZero) .
   match k with
   | NatWithZero.Zero        => n
   | NatWithZero.Positive k' => shift_right_nat n k'
   end.
 
 (* Bit [i] of [n], [true] for 1, counted from 0 at the lowest bit. *)
-(* [BinaryWithZero -> NatWithZero -> Bool] *)
-Definition test_bit := fun (n : BinaryWithZero) (i : NatWithZero) .
+(* [BinWithZero -> NatWithZero -> Bool] *)
+Definition test_bit := fun (n : BinWithZero) (i : NatWithZero) .
   match shift_right n i with
-  | 0                     => false
-  | + Binary.One          => true
-  | + Binary.AppendZero _ => false
-  | + Binary.AppendOne _  => true
+  | 0          => false
+  | + Bin.One  => true
+  | + Bin.b0 _ => false
+  | + Bin.b1 _ => true
   end.
 
 (* [n] with the digits [d] appended, [None] once a digit is neither 0 nor 1. *)
-(* [BinaryWithZero -> Numeral.Decimal.Digits -> Option BinaryWithZero] *)
-Fixpoint from_digits (n : BinaryWithZero) (d : Numeral.Decimal.Digits)
-  : Option BinaryWithZero :=
+(* [BinWithZero -> Numeral.Decimal.Digits -> Option BinWithZero] *)
+Fixpoint from_digits (n : BinWithZero) (d : Numeral.Decimal.Digits)
+  : Option BinWithZero :=
   match d with
   | Numeral.Decimal.Digits.End     => Some n
-  | Numeral.Decimal.Digits.Zero d' => from_digits (append_bit n false) d'
-  | Numeral.Decimal.Digits.One d'  => from_digits (append_bit n true) d'
+  | Numeral.Decimal.Digits.Zero d' => from_digits (append_bit false n) d'
+  | Numeral.Decimal.Digits.One d'  => from_digits (append_bit true n) d'
   | _                              => None
   end.
 
 (* The number a literal's digits spell in binary. *)
-(* [Numeral.Unsigned -> Option BinaryWithZero] *)
+(* [Numeral.Unsigned -> Option BinWithZero] *)
 Definition from_numeral := fun (u : Numeral.Unsigned) .
   match u with
   | Numeral.Unsigned.Decimal d     => from_digits 0 d
@@ -393,16 +393,16 @@ Definition from_numeral := fun (u : Numeral.Unsigned) .
   end.
 
 (* The digits of [p] written before [rest]. *)
-(* [Binary -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
-Fixpoint to_digits (p : Binary) (rest : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
+(* [Bin -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
+Fixpoint to_digits (p : Bin) (rest : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
   match p with
-  | Binary.One           => Numeral.Decimal.Digits.One rest
-  | Binary.AppendZero p' => to_digits p' (Numeral.Decimal.Digits.Zero rest)
-  | Binary.AppendOne p'  => to_digits p' (Numeral.Decimal.Digits.One rest)
+  | Bin.One   => Numeral.Decimal.Digits.One rest
+  | Bin.b0 p' => to_digits p' (Numeral.Decimal.Digits.Zero rest)
+  | Bin.b1 p' => to_digits p' (Numeral.Decimal.Digits.One rest)
   end.
 
-(* [BinaryWithZero -> Numeral.Unsigned] *)
-Definition to_numeral := fun (n : BinaryWithZero) .
+(* [BinWithZero -> Numeral.Unsigned] *)
+Definition to_numeral := fun (n : BinWithZero) .
   match n with
   | 0   => Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End)
   | + p => Numeral.Unsigned.Decimal (to_digits p Numeral.Decimal.Digits.End)
@@ -412,25 +412,25 @@ Definition to_numeral := fun (n : BinaryWithZero) .
  * go through [Nat], which is unary, so they are for proofs, not for
  * computing.
  *)
-(* [BinaryWithZero -> NatWithZero] *)
-Definition to_nat_with_zero := fun (n : BinaryWithZero) .
+(* [BinWithZero -> NatWithZero] *)
+Definition to_nat_with_zero := fun (n : BinWithZero) .
   match n with
   | 0   => NatWithZero.Zero
-  | + p => NatWithZero.Positive (Binary.to_nat p)
+  | + p => NatWithZero.Positive (Bin.to_nat p)
   end.
 
-(* [NatWithZero -> BinaryWithZero] *)
+(* [NatWithZero -> BinWithZero] *)
 Definition from_nat_with_zero := fun (n : NatWithZero) .
   match n with
   | NatWithZero.Zero       => 0
-  | NatWithZero.Positive p => + Binary.from_nat p
+  | NatWithZero.Positive p => + Bin.from_nat p
   end.
 
 Module conversion. (* conversion *)
 
 (* conversion.successor *)
 Theorem successor
-  : forall (n : BinaryWithZero) .
+  : forall (n : BinWithZero) .
       to_nat_with_zero (++ n) = NatWithZero.inc (to_nat_with_zero n).
 Proof.
   intro n.
@@ -440,7 +440,7 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    leibniz (Binary.conversion.successor &p) in |- *.
+    leibniz (Bin.conversion.successor &p) in |- *.
     simpl Nat.inc in |- *.
     quod idem est.
 Qed.
@@ -456,13 +456,13 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    leibniz (Binary.conversion.retraction &p) in |- *.
+    leibniz (Bin.conversion.retraction &p) in |- *.
     quod idem est.
 Qed.
 
 (* conversion.section *)
 Theorem section
-  : forall (n : BinaryWithZero) . from_nat_with_zero (to_nat_with_zero n) = n.
+  : forall (n : BinWithZero) . from_nat_with_zero (to_nat_with_zero n) = n.
 Proof.
   intro n.
   match n with | | p end.
@@ -471,13 +471,13 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    leibniz (Binary.conversion.section &p) in |- *.
+    leibniz (Bin.conversion.section &p) in |- *.
     quod idem est.
 Qed.
 
 (* conversion.addition *)
 Theorem addition
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (m + n)
       = (to_nat_with_zero m + to_nat_with_zero n)%nat_with_zero.
 Proof.
@@ -493,7 +493,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   -
-    let proof e := Binary.conversion.addition &p &q.
+    let proof e := Bin.conversion.addition &p &q.
     simpl in |- *.
     leibniz &e in |- *.
     quod idem est.
@@ -501,7 +501,7 @@ Qed.
 
 (* conversion.multiplication *)
 Theorem multiplication
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (m * n)
       = (to_nat_with_zero m * to_nat_with_zero n)%nat_with_zero.
 Proof.
@@ -518,13 +518,13 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    leibniz (Binary.conversion.multiplication &p &q) in |- *.
+    leibniz (Bin.conversion.multiplication &p &q) in |- *.
     quod idem est.
 Qed.
 
 (* conversion.power *)
 Theorem power
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (m ^ n)
       = (to_nat_with_zero m ^ to_nat_with_zero n)%nat_with_zero.
 Proof.
@@ -541,13 +541,13 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    leibniz (Binary.conversion.power &p &q) in |- *.
+    leibniz (Bin.conversion.power &p &q) in |- *.
     quod idem est.
 Qed.
 
 (* conversion.comparison *)
 Theorem comparison
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       compare m n = NatWithZero.compare (to_nat_with_zero m) (to_nat_with_zero n).
 Proof.
   intros m n.
@@ -563,12 +563,12 @@ Proof.
     quod idem est.
   -
     simpl in |- *.
-    ipso (Binary.conversion.comparison &p &q).
+    ipso (Bin.conversion.comparison &p &q).
 Qed.
 
 (* conversion.subtraction *)
 Theorem subtraction
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       Option.map to_nat_with_zero (sub m n)
       = NatWithZero.sub (to_nat_with_zero m) (to_nat_with_zero n).
 Proof.
@@ -592,10 +592,10 @@ Proof.
   -
     simpl in |- *.
     lemma below
-      : (NatWithZero.Zero < NatWithZero.Positive (Binary.to_nat &q))%nat_with_zero.
+      : (NatWithZero.Zero < NatWithZero.Positive (Bin.to_nat &q))%nat_with_zero.
     {
       simpl NatWithZero.LessThan in |- *.
-      exists (Binary.to_nat &q).
+      exists (Bin.to_nat &q).
       simpl in |- *.
       quod idem est.
     }
@@ -604,31 +604,31 @@ Proof.
   -
     simpl in |- *.
     lemma sum
-      : (NatWithZero.Zero + NatWithZero.Positive (Binary.to_nat &p))%nat_with_zero
-        = NatWithZero.Positive (Binary.to_nat &p).
+      : (NatWithZero.Zero + NatWithZero.Positive (Bin.to_nat &p))%nat_with_zero
+        = NatWithZero.Positive (Bin.to_nat &p).
     {
       simpl in |- *.
       quod idem est.
     }
     modus aequans
       (NatWithZero.subtraction.specification
-         (NatWithZero.Positive (Binary.to_nat &p)) NatWithZero.Zero
-         (NatWithZero.Positive (Binary.to_nat &p))),
+         (NatWithZero.Positive (Bin.to_nat &p)) NatWithZero.Zero
+         (NatWithZero.Positive (Bin.to_nat &p))),
       &sum
     |- e.
     leibniz &e in |- *.
     quod idem est.
   -
     simpl in |- *.
-    let proof h := Binary.conversion.difference &p &q.
+    let proof h := Bin.conversion.difference &p &q.
     extro &h.
-    match (Binary.difference &p &q) with | | | d end.
+    match (Bin.diff &p &q) with | | | d end.
     +
       intro h.
       simpl in |- *.
       lemma below
-        : (NatWithZero.Positive (Binary.to_nat &p)
-           < NatWithZero.Positive (Binary.to_nat &q))%nat_with_zero.
+        : (NatWithZero.Positive (Bin.to_nat &p)
+           < NatWithZero.Positive (Bin.to_nat &q))%nat_with_zero.
       {
         simpl NatWithZero.LessThan in |- *.
         simpl Nat.LessThan in &h.
@@ -644,8 +644,8 @@ Proof.
       intro h.
       simpl in |- *.
       lemma sum
-        : (NatWithZero.Positive (Binary.to_nat &q) + NatWithZero.Zero)%nat_with_zero
-          = NatWithZero.Positive (Binary.to_nat &p).
+        : (NatWithZero.Positive (Bin.to_nat &q) + NatWithZero.Zero)%nat_with_zero
+          = NatWithZero.Positive (Bin.to_nat &p).
       {
         simpl in |- *.
         leibniz &h in |- *.
@@ -653,8 +653,8 @@ Proof.
       }
       modus aequans
         (NatWithZero.subtraction.specification
-           (NatWithZero.Positive (Binary.to_nat &p))
-           (NatWithZero.Positive (Binary.to_nat &q)) NatWithZero.Zero),
+           (NatWithZero.Positive (Bin.to_nat &p))
+           (NatWithZero.Positive (Bin.to_nat &q)) NatWithZero.Zero),
         &sum
       |- e.
       leibniz &e in |- *.
@@ -663,9 +663,9 @@ Proof.
       intro h.
       simpl in |- *.
       lemma sum
-        : (NatWithZero.Positive (Binary.to_nat &q)
-           + NatWithZero.Positive (Binary.to_nat &d))%nat_with_zero
-          = NatWithZero.Positive (Binary.to_nat &p).
+        : (NatWithZero.Positive (Bin.to_nat &q)
+           + NatWithZero.Positive (Bin.to_nat &d))%nat_with_zero
+          = NatWithZero.Positive (Bin.to_nat &p).
       {
         simpl in |- *.
         leibniz &h in |- *.
@@ -673,9 +673,9 @@ Proof.
       }
       modus aequans
         (NatWithZero.subtraction.specification
-           (NatWithZero.Positive (Binary.to_nat &p))
-           (NatWithZero.Positive (Binary.to_nat &q))
-           (NatWithZero.Positive (Binary.to_nat &d))),
+           (NatWithZero.Positive (Bin.to_nat &p))
+           (NatWithZero.Positive (Bin.to_nat &q))
+           (NatWithZero.Positive (Bin.to_nat &d))),
         &sum
       |- e.
       leibniz &e in |- *.
@@ -686,7 +686,7 @@ Module subtraction. (* conversion.subtraction *)
 
 (* conversion.subtraction.saturating *)
 Theorem saturating
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (saturating_sub m n)
       = NatWithZero.saturating_sub (to_nat_with_zero m) (to_nat_with_zero n).
 Proof.
@@ -704,20 +704,20 @@ Proof.
   -
     simpl in |- *.
     simpl saturating_sub, sub in |- *.
-    let proof h := Binary.conversion.difference &p &q.
+    let proof h := Bin.conversion.difference &p &q.
     extro &h.
-    match (Binary.difference &p &q) with | | | d end.
+    match (Bin.diff &p &q) with | | | d end.
     +
       intro h.
       simpl in |- *.
-      let proof le : (Binary.to_nat &p <= Binary.to_nat &q)%nat := disjoin _, &h.
+      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%nat := disjoin _, &h.
       leibniz (Nat.subtraction.truncation &le) in |- *.
       simpl in |- *.
       quod idem est.
     +
       intro h.
       simpl in |- *.
-      let proof le : (Binary.to_nat &p <= Binary.to_nat &q)%nat := disjoin &h, _.
+      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%nat := disjoin &h, _.
       leibniz (Nat.subtraction.truncation &le) in |- *.
       simpl in |- *.
       quod idem est.
@@ -725,8 +725,8 @@ Proof.
       intro h.
       simpl in |- *.
       leibniz <- &h in |- *.
-      leibniz (Nat.addition.commutativity (Binary.to_nat &q) (Binary.to_nat &d)) in |- *.
-      leibniz (Nat.subtraction.inversion.of.addition (Binary.to_nat &d) (Binary.to_nat &q))
+      leibniz (Nat.addition.commutativity (Bin.to_nat &q) (Bin.to_nat &d)) in |- *.
+      leibniz (Nat.subtraction.inversion.of.addition (Bin.to_nat &d) (Bin.to_nat &q))
         in |- *.
       simpl in |- *.
       quod idem est.
@@ -736,7 +736,7 @@ End subtraction. (* conversion.subtraction *)
 
 (* conversion.injectivity *)
 Theorem injectivity
-  : forall {m : BinaryWithZero} {n : BinaryWithZero} .
+  : forall {m : BinWithZero} {n : BinWithZero} .
       to_nat_with_zero m = to_nat_with_zero n -> m = n.
 Proof.
   intros m n e.
@@ -747,7 +747,7 @@ Qed.
 
 (* conversion.order *)
 Theorem order
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       m < n <-> (to_nat_with_zero m < to_nat_with_zero n)%nat_with_zero.
 Proof.
   intros m n.
@@ -757,7 +757,7 @@ Proof.
     simpl LessThan in &h.
     match &h with | k e end.
     simpl NatWithZero.LessThan in |- *.
-    exists (Binary.to_nat &k).
+    exists (Bin.to_nat &k).
     leibniz <- &e in |- *.
     leibniz (conversion.addition &m (+ &k)) in |- *.
     simpl in |- *.
@@ -767,12 +767,12 @@ Proof.
     simpl NatWithZero.LessThan in &h.
     match &h with | j e end.
     simpl LessThan in |- *.
-    exists (Binary.from_nat &j).
-    lemma f : to_nat_with_zero (&m + (+ Binary.from_nat &j)) = to_nat_with_zero &n.
+    exists (Bin.from_nat &j).
+    lemma f : to_nat_with_zero (&m + (+ Bin.from_nat &j)) = to_nat_with_zero &n.
     {
-      leibniz (conversion.addition &m (+ Binary.from_nat &j)) in |- *.
+      leibniz (conversion.addition &m (+ Bin.from_nat &j)) in |- *.
       simpl in |- *.
-      leibniz (Binary.conversion.retraction &j) in |- *.
+      leibniz (Bin.conversion.retraction &j) in |- *.
       ipso &e.
     }
     ipso (conversion.injectivity &f).
@@ -780,14 +780,14 @@ Qed.
 
 (* conversion.appending *)
 Theorem appending
-  : forall (n : BinaryWithZero) (bit : Bool) .
-      to_nat_with_zero (append_bit n bit)
+  : forall (bit : Bool) (n : BinWithZero) .
+      to_nat_with_zero (append_bit bit n)
       = match bit with
         | true  => NatWithZero.inc (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
         | false => (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
         end.
 Proof.
-  intros n bit.
+  intros bit n.
   match n with | | p end.
   -
     match bit with | | end.
@@ -812,7 +812,7 @@ Module left. (* conversion.left *)
 
 (* conversion.left.shift *)
 Theorem shift
-  : forall (n : BinaryWithZero) (k : NatWithZero) .
+  : forall (n : BinWithZero) (k : NatWithZero) .
       to_nat_with_zero (shift_left n k)
       = (to_nat_with_zero n
          * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%nat_with_zero.
@@ -836,7 +836,7 @@ Proof.
       *
         simpl in |- *.
         simpl in &IH.
-        leibniz (conversion.appending (shift_left_nat 0 &k'') false) in |- *.
+        leibniz (conversion.appending false (shift_left_nat 0 &k'')) in |- *.
         simpl in |- *.
         leibniz &IH in |- *.
         simpl in |- *.
@@ -846,18 +846,18 @@ Proof.
       *
         simpl in |- *.
         leibniz (Nat.multiplication.commutativity
-                   (Binary.to_nat &p) (Nat.Successor Nat.One)) in |- *.
+                   (Bin.to_nat &p) (Nat.Successor Nat.One)) in |- *.
         simpl in |- *.
         quod idem est.
       *
         simpl in |- *.
         simpl in &IH.
-        leibniz (conversion.appending (shift_left_nat (+ &p) &k'') false) in |- *.
+        leibniz (conversion.appending false (shift_left_nat (+ &p) &k'')) in |- *.
         simpl in |- *.
         leibniz &IH in |- *.
         simpl in |- *.
         leibniz (Nat.multiplication.left.distributivity.over.addition
-                   (Binary.to_nat &p)
+                   (Bin.to_nat &p)
                    (Nat.power (Nat.Successor Nat.One) &k'')
                    (Nat.power (Nat.Successor Nat.One) &k'')) in |- *.
         quod idem est.
@@ -871,7 +871,7 @@ Module addition. (* addition *)
 
 (* addition.associativity *)
 Theorem associativity
-  : forall (l : BinaryWithZero) (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (l : BinWithZero) (m : BinWithZero) (n : BinWithZero) .
       (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
@@ -887,7 +887,7 @@ Qed.
 
 (* addition.commutativity *)
 Theorem commutativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m + n = n + m.
+  : forall (m : BinWithZero) (n : BinWithZero) . m + n = n + m.
 Proof.
   intros m n.
   lemma f : to_nat_with_zero (&m + &n) = to_nat_with_zero (&n + &m).
@@ -900,7 +900,7 @@ Qed.
 
 (* addition.identity *)
 Theorem identity
-  : forall (n : BinaryWithZero) . (0 + n = n) /\ (n + 0 = n).
+  : forall (n : BinWithZero) . (0 + n = n) /\ (n + 0 = n).
 Proof.
   intro n.
   divide et impera.
@@ -913,7 +913,7 @@ Qed.
 
 (* addition.cancellation *)
 Theorem cancellation
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (k : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) (k : BinWithZero) .
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
@@ -939,7 +939,7 @@ Module multiplication. (* multiplication *)
 
 (* multiplication.associativity *)
 Theorem associativity
-  : forall (l : BinaryWithZero) (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (l : BinWithZero) (m : BinWithZero) (n : BinWithZero) .
       (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
@@ -956,7 +956,7 @@ Qed.
 
 (* multiplication.commutativity *)
 Theorem commutativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m * n = n * m.
+  : forall (m : BinWithZero) (n : BinWithZero) . m * n = n * m.
 Proof.
   intros m n.
   lemma f : to_nat_with_zero (&m * &n) = to_nat_with_zero (&n * &m).
@@ -970,7 +970,7 @@ Qed.
 
 (* multiplication.identity *)
 Theorem identity
-  : forall (n : BinaryWithZero) . ((+ Binary.One) * n = n) /\ (n * (+ Binary.One) = n).
+  : forall (n : BinWithZero) . ((+ Bin.One) * n = n) /\ (n * (+ Bin.One) = n).
 Proof.
   intro n.
   divide et impera.
@@ -982,7 +982,7 @@ Proof.
       simpl in |- *.
       quod idem est.
     +
-      let proof i := Binary.multiplication.identity &p.
+      let proof i := Bin.multiplication.identity &p.
       match &i with | l r end.
       simpl in |- *.
       leibniz &r in |- *.
@@ -991,7 +991,7 @@ Qed.
 
 (* multiplication.annihilation *)
 Theorem annihilation
-  : forall (n : BinaryWithZero) . (0 * n = 0) /\ (n * 0 = 0).
+  : forall (n : BinWithZero) . (0 * n = 0) /\ (n * 0 = 0).
 Proof.
   intro n.
   divide et impera.
@@ -1008,7 +1008,7 @@ Module over. (* multiplication.distributivity.over *)
 
 (* multiplication.distributivity.over.addition *)
 Theorem addition
-  : forall (x : BinaryWithZero) (y : BinaryWithZero) (z : BinaryWithZero) .
+  : forall (x : BinWithZero) (y : BinWithZero) (z : BinWithZero) .
       (x * (y + z) = (x * y) + (x * z)) /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
@@ -1047,7 +1047,7 @@ Module order. (* order *)
 Module strict. (* order.strict *)
 
 (* order.strict.irreflexivity *)
-Theorem irreflexivity : forall (n : BinaryWithZero) . ~ (n < n).
+Theorem irreflexivity : forall (n : BinWithZero) . ~ (n < n).
 Proof.
   intros n h.
   ipso (NatWithZero.order.strict.irreflexivity (to_nat_with_zero &n)
@@ -1056,7 +1056,7 @@ Qed.
 
 (* order.strict.transitivity *)
 Theorem transitivity
-  : forall {l : BinaryWithZero} {m : BinaryWithZero} {n : BinaryWithZero} .
+  : forall {l : BinWithZero} {m : BinWithZero} {n : BinWithZero} .
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
@@ -1067,16 +1067,16 @@ Proof.
 Qed.
 
 (* order.strict.wellfoundedness *)
-Theorem wellfoundedness : forall (n : BinaryWithZero) . Accessible (<) n.
+Theorem wellfoundedness : forall (n : BinWithZero) . Accessible (<) n.
 Proof.
   intro n.
   lemma descent
     : Descent.Step (Induced NatWithZero.LessThan to_nat_with_zero)
-        (fun (x : BinaryWithZero) . Accessible (<) x).
+        (fun (x : BinWithZero) . Accessible (<) x).
   {
     intros x recurse.
     ipso (Accessible_introduction
-            (fun (y : BinaryWithZero) (h : y < &x) .
+            (fun (y : BinWithZero) (h : y < &x) .
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }
   ipso (Accessible.recursion &descent &n
@@ -1091,7 +1091,7 @@ Module comparison. (* comparison *)
 
 (* comparison.specification *)
 Theorem specification
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
@@ -1120,7 +1120,7 @@ Qed.
 
 (* comparison.antisymmetry *)
 Theorem antisymmetry
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) .
       compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m n.
@@ -1140,7 +1140,7 @@ Module maximum. (* maximum *)
 
 (* maximum.identity *)
 Theorem identity
-  : forall (n : BinaryWithZero) . (max 0 n = n) /\ (max n 0 = n).
+  : forall (n : BinWithZero) . (max 0 n = n) /\ (max n 0 = n).
 Proof.
   intro n.
   simpl Comparable.max in |- *.
@@ -1155,20 +1155,20 @@ End maximum. (* maximum *)
 
 Module narrowing. (* narrowing *)
 
-Module binary. (* narrowing.binary *)
+Module bin. (* narrowing.bin *)
 
-(* narrowing.binary.retraction *)
+(* narrowing.bin.retraction *)
 Theorem retraction
-  : forall (p : Binary) . to_binary (+ p) = Some p.
+  : forall (p : Bin) . to_bin (+ p) = Some p.
 Proof.
   intro p.
-  simpl to_binary in |- *.
+  simpl to_bin in |- *.
   quod idem est.
 Qed.
 
-(* narrowing.binary.specification *)
+(* narrowing.bin.specification *)
 Theorem specification
-  : forall (n : BinaryWithZero) (p : Binary) . to_binary n = Some p <-> n = + p.
+  : forall (n : BinWithZero) (p : Bin) . to_bin n = Some p <-> n = + p.
 Proof.
   intros n p.
   divide et impera.
@@ -1176,22 +1176,22 @@ Proof.
     intro e.
     match n with | | q end.
     +
-      simpl to_binary in &e.
+      simpl to_bin in &e.
       ex &e quodlibet.
     +
-      simpl to_binary in &e.
+      simpl to_bin in &e.
       let proof f := Option.some.injectivity &e.
       leibniz &f in |- *.
       quod idem est.
   -
     intro e.
     leibniz &e in |- *.
-    ipso (narrowing.binary.retraction &p).
+    ipso (narrowing.bin.retraction &p).
 Qed.
 
-(* narrowing.binary.failure *)
+(* narrowing.bin.failure *)
 Theorem failure
-  : forall (n : BinaryWithZero) . to_binary n = None <-> n = 0.
+  : forall (n : BinWithZero) . to_bin n = None <-> n = 0.
 Proof.
   intro n.
   divide et impera.
@@ -1201,16 +1201,16 @@ Proof.
     +
       quod idem est.
     +
-      simpl to_binary in &e.
+      simpl to_bin in &e.
       ex &e quodlibet.
   -
     intro e.
     leibniz &e in |- *.
-    simpl to_binary in |- *.
+    simpl to_bin in |- *.
     quod idem est.
 Qed.
 
-End binary. (* narrowing.binary *)
+End bin. (* narrowing.bin *)
 
 End narrowing. (* narrowing *)
 
@@ -1218,9 +1218,9 @@ Module halving. (* halving *)
 
 (* halving.retraction *)
 Theorem retraction
-  : forall (n : BinaryWithZero) (bit : Bool) . halve (append_bit n bit) = n.
+  : forall (bit : Bool) (n : BinWithZero) . halve (append_bit bit n) = n.
 Proof.
-  intros n bit.
+  intros bit n.
   match n with | | p end; match bit with | | end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1234,30 +1234,30 @@ Module over. (* appending.distributivity.over *)
 
 (* appending.distributivity.over.conjunction *)
 Theorem conjunction
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (b : Bool) (c : Bool) .
-      append_bit (m && n) (b && c)%bool = append_bit m b && append_bit n c.
+  : forall (b : Bool) (c : Bool) (m : BinWithZero) (n : BinWithZero) .
+      append_bit (b && c)%bool (m && n) = append_bit b m && append_bit c n.
 Proof.
-  intros m n b c.
+  intros b c m n.
   match m with | | p end; match n with | | q end; match b with | | end;
     match c with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* appending.distributivity.over.disjunction *)
 Theorem disjunction
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (b : Bool) (c : Bool) .
-      append_bit (m || n) (b || c)%bool = append_bit m b || append_bit n c.
+  : forall (b : Bool) (c : Bool) (m : BinWithZero) (n : BinWithZero) .
+      append_bit (b || c)%bool (m || n) = append_bit b m || append_bit c n.
 Proof.
-  intros m n b c.
+  intros b c m n.
   match m with | | p end; match n with | | q end; match b with | | end;
     match c with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* appending.distributivity.over.sejunction *)
 Theorem sejunction
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (b : Bool) (c : Bool) .
-      append_bit (m ^^ n) (b ^^ c)%bool = append_bit m b ^^ append_bit n c.
+  : forall (b : Bool) (c : Bool) (m : BinWithZero) (n : BinWithZero) .
+      append_bit (b ^^ c)%bool (m ^^ n) = append_bit b m ^^ append_bit c n.
 Proof.
-  intros m n b c.
+  intros b c m n.
   match m with | | p end; match n with | | q end; match b with | | end;
     match c with | | end; simpl in |- *; quod idem est.
 Qed.
@@ -1272,7 +1272,7 @@ Module conjunction. (* conjunction *)
 
 (* conjunction.annihilation *)
 Theorem annihilation
-  : forall (n : BinaryWithZero) . (0 && n = 0) /\ (n && 0 = 0).
+  : forall (n : BinWithZero) . (0 && n = 0) /\ (n && 0 = 0).
 Proof.
   intro n.
   divide et impera.
@@ -1285,65 +1285,65 @@ Qed.
 
 (* conjunction.commutativity *)
 Theorem commutativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m && n = n && m.
+  : forall (m : BinWithZero) (n : BinWithZero) . m && n = n && m.
 Proof.
   intro m.
-  match m with | | b m' by IH end per BinaryWithZero.induction.
+  match m with | | b m' by IH end per BinWithZero.induction.
   -
     intro n.
     match n with | | q end; simpl in |- *; quod idem est.
   -
     intro n.
-    match n with | | c n' by _ end per BinaryWithZero.induction.
+    match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof a := conjunction.annihilation (append_bit &m' &b).
+      let proof a := conjunction.annihilation (append_bit &b &m').
       match &a with | l r end.
       leibniz &r, &l in |- *.
       quod idem est.
     +
-      leibniz <- (appending.distributivity.over.conjunction &m' &n' &b &c),
-              <- (appending.distributivity.over.conjunction &n' &m' &c &b) in |- *.
+      leibniz <- (appending.distributivity.over.conjunction &b &c &m' &n'),
+              <- (appending.distributivity.over.conjunction &c &b &n' &m') in |- *.
       leibniz (&IH &n'), (Bool.conjunction.commutativity &b &c) in |- *.
       quod idem est.
 Qed.
 
 (* conjunction.associativity *)
 Theorem associativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (o : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) (o : BinWithZero) .
       (m && n) && o = m && (n && o).
 Proof.
   intro m.
-  match m with | | b m' by IH end per BinaryWithZero.induction.
+  match m with | | b m' by IH end per BinWithZero.induction.
   -
     intros n o.
     simpl in |- *.
     quod idem est.
   -
     intros n o.
-    match n with | | c n' by _ end per BinaryWithZero.induction.
+    match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof a := conjunction.annihilation (append_bit &m' &b).
+      let proof a := conjunction.annihilation (append_bit &b &m').
       match &a with | l r end.
       leibniz &r in |- *.
       simpl in |- *.
       leibniz &r in |- *.
       quod idem est.
     +
-      match o with | | d o' by _ end per BinaryWithZero.induction.
+      match o with | | d o' by _ end per BinWithZero.induction.
       *
-        let proof a := conjunction.annihilation (append_bit &m' &b && append_bit &n' &c).
-        let proof a' := conjunction.annihilation (append_bit &n' &c).
-        let proof a'' := conjunction.annihilation (append_bit &m' &b).
+        let proof a := conjunction.annihilation (append_bit &b &m' && append_bit &c &n').
+        let proof a' := conjunction.annihilation (append_bit &c &n').
+        let proof a'' := conjunction.annihilation (append_bit &b &m').
         match &a with | l r end.
         match &a' with | l' r' end.
         match &a'' with | l'' r'' end.
         leibniz &r, &r', &r'' in |- *.
         quod idem est.
       *
-        leibniz <- (appending.distributivity.over.conjunction &m' &n' &b &c),
-                <- (appending.distributivity.over.conjunction (&m' && &n') &o' (&b && &c)%bool &d),
-                <- (appending.distributivity.over.conjunction &n' &o' &c &d),
-                <- (appending.distributivity.over.conjunction &m' (&n' && &o') &b (&c && &d)%bool)
+        leibniz <- (appending.distributivity.over.conjunction &b &c &m' &n'),
+                <- (appending.distributivity.over.conjunction (&b && &c)%bool &d (&m' && &n') &o'),
+                <- (appending.distributivity.over.conjunction &c &d &n' &o'),
+                <- (appending.distributivity.over.conjunction &b (&c && &d)%bool &m' (&n' && &o'))
           in |- *.
         leibniz (&IH &n' &o'), (Bool.conjunction.associativity &b &c &d) in |- *.
         quod idem est.
@@ -1351,15 +1351,15 @@ Qed.
 
 (* conjunction.idempotence *)
 Theorem idempotence
-  : forall (n : BinaryWithZero) . n && n = n.
+  : forall (n : BinWithZero) . n && n = n.
 Proof.
   intro n.
-  match n with | | b n' by IH end per BinaryWithZero.induction.
+  match n with | | b n' by IH end per BinWithZero.induction.
   -
     simpl in |- *.
     quod idem est.
   -
-    leibniz <- (appending.distributivity.over.conjunction &n' &n' &b &b) in |- *.
+    leibniz <- (appending.distributivity.over.conjunction &b &b &n' &n') in |- *.
     leibniz &IH in |- *.
     match b with | | end; simpl in |- *; quod idem est.
 Qed.
@@ -1370,7 +1370,7 @@ Module disjunction. (* disjunction *)
 
 (* disjunction.identity *)
 Theorem identity
-  : forall (n : BinaryWithZero) . (0 || n = n) /\ (n || 0 = n).
+  : forall (n : BinWithZero) . (0 || n = n) /\ (n || 0 = n).
 Proof.
   intro n.
   divide et impera.
@@ -1383,62 +1383,62 @@ Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m || n = n || m.
+  : forall (m : BinWithZero) (n : BinWithZero) . m || n = n || m.
 Proof.
   intro m.
-  match m with | | b m' by IH end per BinaryWithZero.induction.
+  match m with | | b m' by IH end per BinWithZero.induction.
   -
     intro n.
     match n with | | q end; simpl in |- *; quod idem est.
   -
     intro n.
-    match n with | | c n' by _ end per BinaryWithZero.induction.
+    match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := disjunction.identity (append_bit &m' &b).
+      let proof i := disjunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r, &l in |- *.
       quod idem est.
     +
-      leibniz <- (appending.distributivity.over.disjunction &m' &n' &b &c),
-              <- (appending.distributivity.over.disjunction &n' &m' &c &b) in |- *.
+      leibniz <- (appending.distributivity.over.disjunction &b &c &m' &n'),
+              <- (appending.distributivity.over.disjunction &c &b &n' &m') in |- *.
       leibniz (&IH &n'), (Bool.disjunction.commutativity &b &c) in |- *.
       quod idem est.
 Qed.
 
 (* disjunction.associativity *)
 Theorem associativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (o : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) (o : BinWithZero) .
       (m || n) || o = m || (n || o).
 Proof.
   intro m.
-  match m with | | b m' by IH end per BinaryWithZero.induction.
+  match m with | | b m' by IH end per BinWithZero.induction.
   -
     intros n o.
     simpl in |- *.
     quod idem est.
   -
     intros n o.
-    match n with | | c n' by _ end per BinaryWithZero.induction.
+    match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := disjunction.identity (append_bit &m' &b).
+      let proof i := disjunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r in |- *.
       simpl in |- *.
       quod idem est.
     +
-      match o with | | d o' by _ end per BinaryWithZero.induction.
+      match o with | | d o' by _ end per BinWithZero.induction.
       *
-        let proof i := disjunction.identity (append_bit &m' &b || append_bit &n' &c).
-        let proof i' := disjunction.identity (append_bit &n' &c).
+        let proof i := disjunction.identity (append_bit &b &m' || append_bit &c &n').
+        let proof i' := disjunction.identity (append_bit &c &n').
         match &i with | l r end.
         match &i' with | l' r' end.
         leibniz &r, &r' in |- *.
         quod idem est.
       *
-        leibniz <- (appending.distributivity.over.disjunction &m' &n' &b &c),
-                <- (appending.distributivity.over.disjunction (&m' || &n') &o' (&b || &c)%bool &d),
-                <- (appending.distributivity.over.disjunction &n' &o' &c &d),
-                <- (appending.distributivity.over.disjunction &m' (&n' || &o') &b (&c || &d)%bool)
+        leibniz <- (appending.distributivity.over.disjunction &b &c &m' &n'),
+                <- (appending.distributivity.over.disjunction (&b || &c)%bool &d (&m' || &n') &o'),
+                <- (appending.distributivity.over.disjunction &c &d &n' &o'),
+                <- (appending.distributivity.over.disjunction &b (&c || &d)%bool &m' (&n' || &o'))
           in |- *.
         leibniz (&IH &n' &o'), (Bool.disjunction.associativity &b &c &d) in |- *.
         quod idem est.
@@ -1446,15 +1446,15 @@ Qed.
 
 (* disjunction.idempotence *)
 Theorem idempotence
-  : forall (n : BinaryWithZero) . n || n = n.
+  : forall (n : BinWithZero) . n || n = n.
 Proof.
   intro n.
-  match n with | | b n' by IH end per BinaryWithZero.induction.
+  match n with | | b n' by IH end per BinWithZero.induction.
   -
     simpl in |- *.
     quod idem est.
   -
-    leibniz <- (appending.distributivity.over.disjunction &n' &n' &b &b) in |- *.
+    leibniz <- (appending.distributivity.over.disjunction &b &b &n' &n') in |- *.
     leibniz &IH in |- *.
     match b with | | end; simpl in |- *; quod idem est.
 Qed.
@@ -1465,7 +1465,7 @@ Module sejunction. (* sejunction *)
 
 (* sejunction.identity *)
 Theorem identity
-  : forall (n : BinaryWithZero) . (0 ^^ n = n) /\ (n ^^ 0 = n).
+  : forall (n : BinWithZero) . (0 ^^ n = n) /\ (n ^^ 0 = n).
 Proof.
   intro n.
   divide et impera.
@@ -1478,62 +1478,62 @@ Qed.
 
 (* sejunction.commutativity *)
 Theorem commutativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) . m ^^ n = n ^^ m.
+  : forall (m : BinWithZero) (n : BinWithZero) . m ^^ n = n ^^ m.
 Proof.
   intro m.
-  match m with | | b m' by IH end per BinaryWithZero.induction.
+  match m with | | b m' by IH end per BinWithZero.induction.
   -
     intro n.
     match n with | | q end; simpl in |- *; quod idem est.
   -
     intro n.
-    match n with | | c n' by _ end per BinaryWithZero.induction.
+    match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := sejunction.identity (append_bit &m' &b).
+      let proof i := sejunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r, &l in |- *.
       quod idem est.
     +
-      leibniz <- (appending.distributivity.over.sejunction &m' &n' &b &c),
-              <- (appending.distributivity.over.sejunction &n' &m' &c &b) in |- *.
+      leibniz <- (appending.distributivity.over.sejunction &b &c &m' &n'),
+              <- (appending.distributivity.over.sejunction &c &b &n' &m') in |- *.
       leibniz (&IH &n'), (Bool.sejunction.commutativity &b &c) in |- *.
       quod idem est.
 Qed.
 
 (* sejunction.associativity *)
 Theorem associativity
-  : forall (m : BinaryWithZero) (n : BinaryWithZero) (o : BinaryWithZero) .
+  : forall (m : BinWithZero) (n : BinWithZero) (o : BinWithZero) .
       (m ^^ n) ^^ o = m ^^ (n ^^ o).
 Proof.
   intro m.
-  match m with | | b m' by IH end per BinaryWithZero.induction.
+  match m with | | b m' by IH end per BinWithZero.induction.
   -
     intros n o.
     simpl in |- *.
     quod idem est.
   -
     intros n o.
-    match n with | | c n' by _ end per BinaryWithZero.induction.
+    match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := sejunction.identity (append_bit &m' &b).
+      let proof i := sejunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r in |- *.
       simpl in |- *.
       quod idem est.
     +
-      match o with | | d o' by _ end per BinaryWithZero.induction.
+      match o with | | d o' by _ end per BinWithZero.induction.
       *
-        let proof i := sejunction.identity (append_bit &m' &b ^^ append_bit &n' &c).
-        let proof i' := sejunction.identity (append_bit &n' &c).
+        let proof i := sejunction.identity (append_bit &b &m' ^^ append_bit &c &n').
+        let proof i' := sejunction.identity (append_bit &c &n').
         match &i with | l r end.
         match &i' with | l' r' end.
         leibniz &r, &r' in |- *.
         quod idem est.
       *
-        leibniz <- (appending.distributivity.over.sejunction &m' &n' &b &c),
-                <- (appending.distributivity.over.sejunction (&m' ^^ &n') &o' (&b ^^ &c)%bool &d),
-                <- (appending.distributivity.over.sejunction &n' &o' &c &d),
-                <- (appending.distributivity.over.sejunction &m' (&n' ^^ &o') &b (&c ^^ &d)%bool)
+        leibniz <- (appending.distributivity.over.sejunction &b &c &m' &n'),
+                <- (appending.distributivity.over.sejunction (&b ^^ &c)%bool &d (&m' ^^ &n') &o'),
+                <- (appending.distributivity.over.sejunction &c &d &n' &o'),
+                <- (appending.distributivity.over.sejunction &b (&c ^^ &d)%bool &m' (&n' ^^ &o'))
           in |- *.
         leibniz (&IH &n' &o'), (Bool.sejunction.associativity &b &c &d) in |- *.
         quod idem est.
@@ -1541,15 +1541,15 @@ Qed.
 
 (* sejunction.irreflexivity *)
 Theorem irreflexivity
-  : forall (n : BinaryWithZero) . n ^^ n = 0.
+  : forall (n : BinWithZero) . n ^^ n = 0.
 Proof.
   intro n.
-  match n with | | b n' by IH end per BinaryWithZero.induction.
+  match n with | | b n' by IH end per BinWithZero.induction.
   -
     simpl in |- *.
     quod idem est.
   -
-    leibniz <- (appending.distributivity.over.sejunction &n' &n' &b &b) in |- *.
+    leibniz <- (appending.distributivity.over.sejunction &b &b &n' &n') in |- *.
     leibniz &IH, (Bool.sejunction.irreflexivity &b) in |- *.
     simpl in |- *.
     quod idem est.
@@ -1561,7 +1561,7 @@ Module shift. (* shift *)
 
 (* shift.retraction *)
 Theorem retraction
-  : forall (n : BinaryWithZero) (k : NatWithZero) . shift_right (shift_left n k) k = n.
+  : forall (n : BinWithZero) (k : NatWithZero) . shift_right (shift_left n k) k = n.
 Proof.
   intros n k.
   match k with | | k' end.
@@ -1573,11 +1573,11 @@ Proof.
     match k' with | | k'' by IH end per Nat.induction.
     +
       simpl in |- *.
-      leibniz (halving.retraction &n false) in |- *.
+      leibniz (halving.retraction false &n) in |- *.
       quod idem est.
     +
       simpl in |- *.
-      leibniz (halving.retraction (shift_left_nat &n &k'') false) in |- *.
+      leibniz (halving.retraction false (shift_left_nat &n &k'')) in |- *.
       ipso &IH.
 Qed.
 
@@ -1585,7 +1585,7 @@ Module right. (* shift.right *)
 
 (* shift.right.successor *)
 Theorem successor
-  : forall (n : BinaryWithZero) (i : NatWithZero) .
+  : forall (n : BinWithZero) (i : NatWithZero) .
       shift_right n (NatWithZero.inc i) = shift_right (halve n) i.
 Proof.
   intros n i.
@@ -1625,123 +1625,123 @@ Qed.
 
 (* bit.parity *)
 Theorem parity
-  : forall (n : BinaryWithZero) (bit : Bool) .
-      test_bit (append_bit n bit) NatWithZero.Zero = bit.
+  : forall (bit : Bool) (n : BinWithZero) .
+      test_bit (append_bit bit n) NatWithZero.Zero = bit.
 Proof.
-  intros n bit.
+  intros bit n.
   simpl test_bit, shift_right in |- *.
   match n with | | p end; match bit with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* bit.successor *)
 Theorem successor
-  : forall (n : BinaryWithZero) (bit : Bool) (i : NatWithZero) .
-      test_bit (append_bit n bit) (NatWithZero.inc i) = test_bit n i.
+  : forall (bit : Bool) (n : BinWithZero) (i : NatWithZero) .
+      test_bit (append_bit bit n) (NatWithZero.inc i) = test_bit n i.
 Proof.
-  intros n bit i.
+  intros bit n i.
   simpl test_bit in |- *.
-  leibniz (shift.right.successor (append_bit &n &bit) &i) in |- *.
-  leibniz (halving.retraction &n &bit) in |- *.
+  leibniz (shift.right.successor (append_bit &bit &n) &i) in |- *.
+  leibniz (halving.retraction &bit &n) in |- *.
   quod idem est.
 Qed.
 
 End bit. (* bit *)
 
-End BinaryWithZero. (* BinaryWithZero *)
+End BinWithZero. (* BinWithZero *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
- * [BinaryWithZero], not [BinaryWithZero.T]. [Zero] and [Positive] name ctors
+ * [BinWithZero], not [BinWithZero.T]. [Zero] and [Positive] name ctors
  * of [NatWithZero] and [Integer] as well, so all three write theirs with the
  * prefix.
  *)
-Abbreviation BinaryWithZero := BinaryWithZero.T.
+Abbreviation BinWithZero := BinWithZero.T.
 
-(* Makes the notations declared in [Module BinaryWithZero] usable in every
+(* Makes the notations declared in [Module BinWithZero] usable in every
  * file that imports this one, as [(m + n)%b] or under an opened
- * [jwa_binary_with_zero_scope]. Only the notations are exported: [add] and
- * the laws still need the [BinaryWithZero.] prefix, and the local aliases
+ * [jwa_bin_with_zero_scope]. Only the notations are exported: [add] and
+ * the laws still need the [BinWithZero.] prefix, and the local aliases
  * [0] and [+ p] stay inside the module.
  *)
-Export (notations) BinaryWithZero.
+Export (notations) BinWithZero.
 
 (* A number of the type is written in binary digits under its scope, [1011%b]
  * for eleven, and a closed one prints that way; a literal with any other
  * digit is refused.
  *)
-Number Notation BinaryWithZero.T BinaryWithZero.from_numeral BinaryWithZero.to_numeral
-  : jwa_binary_with_zero_scope.
+Number Notation BinWithZero.T BinWithZero.from_numeral BinWithZero.to_numeral
+  : jwa_bin_with_zero_scope.
 
-(* A [Binary] stands wherever a [BinaryWithZero] is expected, read as its
+(* A [Bin] stands wherever a [BinWithZero] is expected, read as its
  * [Positive], and the conversion is printed where it happened.
  *)
-Coercion BinaryWithZero.Positive : Binary >-> BinaryWithZero.
-Add Printing Coercion BinaryWithZero.Positive.
+Coercion BinWithZero.Positive : Bin >-> BinWithZero.
+Add Printing Coercion BinWithZero.Positive.
 
-(* Declared inside [Module BinaryWithZero], whose proofs use it; an instance
+(* Declared inside [Module BinWithZero], whose proofs use it; an instance
  * declared there is dropped at the module's [End], so it is announced again
  * here.
  *)
-Existing Instance BinaryWithZero.comparable.
+Existing Instance BinWithZero.comparable.
 
-Instance BinaryWithZero_less_than_well_founded
+Instance BinWithZero_less_than_well_founded
   : WellFounded (<)%b :=
-  {| accessibility := BinaryWithZero.order.strict.wellfoundedness |}.
+  {| accessibility := BinWithZero.order.strict.wellfoundedness |}.
 
-Instance BinaryWithZero_add_monoid
-  : Monoid BinaryWithZero.add BinaryWithZero.Zero := {|
+Instance BinWithZero_add_monoid
+  : Monoid BinWithZero.add BinWithZero.Zero := {|
     Monoid.semigroup :=
-      {| Semigroup.associativity := BinaryWithZero.addition.associativity |}
-  ; Monoid.identity := BinaryWithZero.addition.identity
+      {| Semigroup.associativity := BinWithZero.addition.associativity |}
+  ; Monoid.identity := BinWithZero.addition.identity
   |}.
 
-Instance BinaryWithZero_add_cancellative
-  : Cancellative BinaryWithZero.add := {|
-    Cancellative.cancellation := BinaryWithZero.addition.cancellation
+Instance BinWithZero_add_cancellative
+  : Cancellative BinWithZero.add := {|
+    Cancellative.cancellation := BinWithZero.addition.cancellation
   |}.
 
-Instance BinaryWithZero_mul_monoid
-  : Monoid BinaryWithZero.mul Binary.One := {|
+Instance BinWithZero_mul_monoid
+  : Monoid BinWithZero.mul Bin.One := {|
     Monoid.semigroup := {|
-      Semigroup.associativity := BinaryWithZero.multiplication.associativity |}
-  ; Monoid.identity := BinaryWithZero.multiplication.identity |}.
+      Semigroup.associativity := BinWithZero.multiplication.associativity |}
+  ; Monoid.identity := BinWithZero.multiplication.identity |}.
 
-Instance BinaryWithZero_add_commutative
-  : Commutative BinaryWithZero.add := {|
-      Commutative.commutativity := BinaryWithZero.addition.commutativity
+Instance BinWithZero_add_commutative
+  : Commutative BinWithZero.add := {|
+      Commutative.commutativity := BinWithZero.addition.commutativity
   |}.
 
-Instance BinaryWithZero_add_abelian_monoid
-  : AbelianMonoid BinaryWithZero.add BinaryWithZero.Zero :=
-  {| AbelianMonoid.monoid      := BinaryWithZero_add_monoid
-   ; AbelianMonoid.commutative := BinaryWithZero_add_commutative |}.
+Instance BinWithZero_add_abelian_monoid
+  : AbelianMonoid BinWithZero.add BinWithZero.Zero :=
+  {| AbelianMonoid.monoid      := BinWithZero_add_monoid
+   ; AbelianMonoid.commutative := BinWithZero_add_commutative |}.
 
-Instance BinaryWithZero_mul_commutative
-  : Commutative BinaryWithZero.mul := {|
-    Commutative.commutativity := BinaryWithZero.multiplication.commutativity
+Instance BinWithZero_mul_commutative
+  : Commutative BinWithZero.mul := {|
+    Commutative.commutativity := BinWithZero.multiplication.commutativity
   |}.
 
-Instance BinaryWithZero_min_semigroup
-  : Semigroup BinaryWithZero.min :=
+Instance BinWithZero_min_semigroup
+  : Semigroup BinWithZero.min :=
   {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
-Instance BinaryWithZero_max_monoid
-  : Monoid BinaryWithZero.max BinaryWithZero.Zero :=
+Instance BinWithZero_max_monoid
+  : Monoid BinWithZero.max BinWithZero.Zero :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Comparable.maximum.associativity |}
-   ; Monoid.identity := BinaryWithZero.maximum.identity |}.
+   ; Monoid.identity := BinWithZero.maximum.identity |}.
 
-Instance BinaryWithZero_min_commutative
-  : Commutative BinaryWithZero.min :=
+Instance BinWithZero_min_commutative
+  : Commutative BinWithZero.min :=
   {| Commutative.commutativity := Comparable.minimum.commutativity |}.
 
-Instance BinaryWithZero_max_commutative
-  : Commutative BinaryWithZero.max :=
+Instance BinWithZero_max_commutative
+  : Commutative BinWithZero.max :=
   {| Commutative.commutativity := Comparable.maximum.commutativity |}.
 
-Instance BinaryWithZero_semiring
-  : Semiring BinaryWithZero.add BinaryWithZero.Zero BinaryWithZero.mul
-      Binary.One :=
-  {| Semiring.abelian_monoid := BinaryWithZero_add_abelian_monoid
-   ; Semiring.monoid         := BinaryWithZero_mul_monoid
-   ; Semiring.distributivity := BinaryWithZero.multiplication.distributivity.over.addition
-   ; Semiring.annihilation   := BinaryWithZero.multiplication.annihilation |}.
+Instance BinWithZero_semiring
+  : Semiring BinWithZero.add BinWithZero.Zero BinWithZero.mul
+      Bin.One :=
+  {| Semiring.abelian_monoid := BinWithZero_add_abelian_monoid
+   ; Semiring.monoid         := BinWithZero_mul_monoid
+   ; Semiring.distributivity := BinWithZero.multiplication.distributivity.over.addition
+   ; Semiring.annihilation   := BinWithZero.multiplication.annihilation |}.

@@ -57,10 +57,10 @@ Declare Scope jwa_integer_scope.
 Delimit Scope jwa_integer_scope with integer.
 Declare Scope jwa_rational_scope.
 Delimit Scope jwa_rational_scope with rational.
-Declare Scope jwa_binary_scope.
-Delimit Scope jwa_binary_scope with binary.
-Declare Scope jwa_binary_with_zero_scope.
-Delimit Scope jwa_binary_with_zero_scope with b.
+Declare Scope jwa_bin_scope.
+Delimit Scope jwa_bin_scope with bin.
+Declare Scope jwa_bin_with_zero_scope.
+Delimit Scope jwa_bin_with_zero_scope with b.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [forsome] beyond them, so a formula reads without parentheses; [_\/_] sits

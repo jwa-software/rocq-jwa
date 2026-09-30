@@ -18,244 +18,274 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
-(* A module may carry the type's name; its members read [Binary.add]. The type
+(* A module may carry the type's name; its members read [Bin.add]. The type
  * and its ctors are declared inside it, so no later file can rebind them.
  *)
-Module Binary. (* Binary *)
+Module Bin. (* Bin *)
 
-(* A positive number in binary, its leading bit innermost: [One] is 1, and
- * [AppendZero] and [AppendOne] append a bit at the low end, so six, 110 in
- * binary, is [AppendZero (AppendOne One)]. The leading bit is always 1, so
- * every positive number has exactly one term; [NatWithZero]'s counterpart
- * [BinaryWithZero] adds zero on top.
+(* A positive number in binary, its leading bit innermost: [One] is 1, [b0]
+ * appends a 0 at the low end and [b1] appends a 1, so six, 110 in binary, is
+ * [b0 (b1 One)]. The leading bit is always 1, so every positive number has
+ * exactly one term; [NatWithZero]'s counterpart [BinWithZero] adds zero on
+ * top.
  *)
 Inductive T : Type :=
-  | One        : T
-  | AppendZero : T -> T
-  | AppendOne  : T -> T.
+  | One : T
+  | b0  : T -> T
+  | b1  : T -> T.
 
-(* The carrier is named [T] so that the type itself reads [Binary] on both
+(* The carrier is named [T] so that the type itself reads [Bin] on both
  * sides of the module: here through this abbreviation, outside through the
- * one that follows [End Binary].
+ * one that follows [End Bin].
  *)
-Abbreviation Binary := T.
+Abbreviation Bin := T.
 
 Definition induction
-  : forall (P : Binary -> Prop) .
+  : forall (P : Bin -> Prop) .
       P One ->
-      (forall (b : Binary) . P b -> P (AppendZero b)) ->
-      (forall (b : Binary) . P b -> P (AppendOne b)) ->
-      forall (b : Binary) . P b
-  := fun (P : Binary -> Prop)
+      (forall (b : Bin) . P b -> P (b0 b)) ->
+      (forall (b : Bin) . P b -> P (b1 b)) ->
+      forall (b : Bin) . P b
+  := fun (P : Bin -> Prop)
          (one : P One)
-         (append_zero : forall (b : Binary) . P b -> P (AppendZero b))
-         (append_one : forall (b : Binary) . P b -> P (AppendOne b)) .
-       fix go (b : Binary) : P b :=
+         (append_zero : forall (b : Bin) . P b -> P (b0 b))
+         (append_one : forall (b : Bin) . P b -> P (b1 b)) .
+       fix go (b : Bin) : P b :=
          match b with
-         | One           => one
-         | AppendZero b' => append_zero b' (go b')
-         | AppendOne b'  => append_one b' (go b')
+         | One   => one
+         | b0 b' => append_zero b' (go b')
+         | b1 b' => append_one b' (go b')
          end.
 
-(* [Binary -> Binary] *)
-Fixpoint inc (b : Binary) : Binary :=
+(* [Bin -> Bin] *)
+Fixpoint inc (b : Bin) : Bin :=
   match b with
-  | One           => AppendZero One
-  | AppendZero b' => AppendOne b'
-  | AppendOne b'  => AppendZero (inc b')
+  | One   => b0 One
+  | b0 b' => b1 b'
+  | b1 b' => b0 (inc b')
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End Binary] a client writes [(a + b)%binary]. [only parsing]
+ * module; after [End Bin] a client writes [(a + b)%bin]. [only parsing]
  * keeps goals printing the operations by name.
  *)
 Notation "++ b" := (inc b) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
+
+(* [b] with [bit] written after its lowest bit: [2b], or [2b + 1] when [bit]
+ * is [true]. [BinWithZero] carries the same operation on its own type, and
+ * takes its arguments in the same order.
+ *)
+(* [Bool -> Bin -> Bin] *)
+Definition append_bit := fun (bit : Bool) (b : Bin) .
+  match bit with
+  | true  => b1 b
+  | false => b0 b
+  end.
+
+(* [b] incremented when [bit] is [true] and left alone when it is [false]:
+ * a carry added to a number, where [append_bit] writes a bit beside one.
+ *)
+(* [Bool -> Bin -> Bin] *)
+Definition inc_if := fun (bit : Bool) (b : Bin) .
+  match bit with
+  | true  => inc b
+  | false => b
+  end.
 
 (* Bit by bit from the least significant end, the carry passed on: [a + b]
  * when [carry] is [false], [a + b + 1] when it is [true]. Each bit is read
  * once, so a sum costs as many steps as the longer operand has bits.
+ *
+ * Every case is [append_bit <this bit> <the rest>], so each reads as the
+ * arithmetic it stands for rather than as an entry in a table. The bit is
+ * [carry] where the two bits taken from [a] and [b] sum to an even number,
+ * and its negation where they sum to an odd one. The rest is what is left
+ * to add, and takes a carry of its own wherever the column can reach two.
+ *
+ * The carry is threaded rather than dropped: [a + b + 1] is [inc (a + b)],
+ * so the carried cases are redundant in principle, but [b1] meeting [b1]
+ * would then call [inc] once per digit and a sum would cost the square of
+ * its length instead of its length.
  *)
-(* [Bool -> Binary -> Binary -> Binary] *)
-Fixpoint add_with_carry (carry : Bool) (a : Binary) (b : Binary) : Binary :=
-  match carry with
-  | false =>
-      match a, b with
-      | One, One                     => AppendZero One
-      | One, AppendZero b'           => AppendOne b'
-      | One, AppendOne b'            => AppendZero (inc b')
-      | AppendZero a', One           => AppendOne a'
-      | AppendZero a', AppendZero b' => AppendZero (add_with_carry false a' b')
-      | AppendZero a', AppendOne b'  => AppendOne (add_with_carry false a' b')
-      | AppendOne a', One            => AppendZero (inc a')
-      | AppendOne a', AppendZero b'  => AppendOne (add_with_carry false a' b')
-      | AppendOne a', AppendOne b'   => AppendZero (add_with_carry true a' b')
-      end
-  | true =>
-      match a, b with
-      | One, One                     => AppendOne One
-      | One, AppendZero b'           => AppendZero (inc b')
-      | One, AppendOne b'            => AppendOne (inc b')
-      | AppendZero a', One           => AppendZero (inc a')
-      | AppendZero a', AppendZero b' => AppendOne (add_with_carry false a' b')
-      | AppendZero a', AppendOne b'  => AppendZero (add_with_carry true a' b')
-      | AppendOne a', One            => AppendOne (inc a')
-      | AppendOne a', AppendZero b'  => AppendZero (add_with_carry true a' b')
-      | AppendOne a', AppendOne b'   => AppendOne (add_with_carry true a' b')
-      end
+(* [Bool -> Bin -> Bin -> Bin] *)
+Fixpoint add_with_carry (carry : Bool) (a : Bin) (b : Bin) : Bin :=
+  match a, b with
+  | One, One     => append_bit carry One
+  | One, b0 b'   => append_bit (Bool.negate carry) (inc_if carry b')
+  | One, b1 b'   => append_bit carry (inc b')
+  | b0 a', One   => append_bit (Bool.negate carry) (inc_if carry a')
+  | b0 a', b0 b' => append_bit carry (add_with_carry false a' b')
+  | b0 a', b1 b' => append_bit (Bool.negate carry) (add_with_carry carry a' b')
+  | b1 a', One   => append_bit carry (inc a')
+  | b1 a', b0 b' => append_bit (Bool.negate carry) (add_with_carry carry a' b')
+  | b1 a', b1 b' => append_bit carry (add_with_carry true a' b')
   end.
 
-(* [Binary -> Binary -> Binary] *)
-Definition add := fun (a : Binary) (b : Binary) . add_with_carry false a b.
+(* [Bin -> Bin -> Bin] *)
+Definition add := fun (a : Bin) (b : Bin) . add_with_carry false a b.
 
 Notation "a + b" := (add a b) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
 (* Shift and add: [2a * b] is [a * b] shifted, [(2a + 1) * b] adds [b]. *)
-(* [Binary -> Binary -> Binary] *)
-Fixpoint mul (a : Binary) (b : Binary) : Binary :=
+(* [Bin -> Bin -> Bin] *)
+Fixpoint mul (a : Bin) (b : Bin) : Bin :=
   match a with
-  | One           => b
-  | AppendZero a' => AppendZero (mul a' b)
-  | AppendOne a'  => add b (AppendZero (mul a' b))
+  | One   => b
+  | b0 a' => b0 (mul a' b)
+  | b1 a' => add b (b0 (mul a' b))
   end.
 
 Notation "a * b" := (mul a b) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
-Local Open Scope jwa_binary_scope.
+Local Open Scope jwa_bin_scope.
 
-(* [Binary -> Binary] *)
-Definition square := fun (b : Binary) . b * b.
+(* [Bin -> Bin] *)
+Definition square := fun (b : Bin) . b * b.
 
 (* Squaring once per bit of the exponent: [a ^ 2n] squares [a ^ n] instead
  * of computing it twice, so a power costs as many steps as [n] has bits.
  *)
-(* [Binary -> Binary -> Binary] *)
-Fixpoint power (a : Binary) (n : Binary) : Binary :=
+(* [Bin -> Bin -> Bin] *)
+Fixpoint power (a : Bin) (n : Bin) : Bin :=
   match n with
-  | One           => a
-  | AppendZero n' => square (power a n')
-  | AppendOne n'  => a * square (power a n')
+  | One   => a
+  | b0 n' => square (power a n')
+  | b1 n' => a * square (power a n')
   end.
 
 Notation "a ^ n" := (power a n) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
-(* The outcome of [a - b] where only positives exist: below zero, zero, or
- * the positive difference.
+(* Where [a] sits relative to [b], which is all [a - b] can report when only
+ * positives exist: less, equal, or greater by this much. [Comparison] gives
+ * the same three answers without the witness, so [compare] below is this type
+ * with its payload forgotten.
  *)
 Inductive Difference : Type :=
-  | Below : Difference
-  | Equal : Difference
-  | Above : Binary -> Difference.
+  | Lt : Difference
+  | Eq : Difference
+  | Gt : Bin -> Difference.
 
 (* [2d] for a difference [d]. *)
 (* [Difference -> Difference] *)
 Definition append_zero_difference := fun (d : Difference) .
   match d with
-  | Below   => Below
-  | Equal   => Equal
-  | Above p => Above (AppendZero p)
+  | Lt   => Lt
+  | Eq   => Eq
+  | Gt p => Gt (b0 p)
   end.
 
 (* [2d + 1]: from zero it reaches one. *)
 (* [Difference -> Difference] *)
 Definition append_one_difference := fun (d : Difference) .
   match d with
-  | Below   => Below
-  | Equal   => Above One
-  | Above p => Above (AppendOne p)
+  | Lt   => Lt
+  | Eq   => Gt One
+  | Gt p => Gt (b1 p)
+  end.
+
+(* [2d], or [2d + 1] when [bit] is [true]: the [Difference] counterpart of
+ * [append_bit], and what lets one arm below answer for both borrows.
+ *)
+(* [Bool -> Difference -> Difference] *)
+Definition append_bit_difference := fun (bit : Bool) (d : Difference) .
+  match bit with
+  | true  => append_one_difference d
+  | false => append_zero_difference d
   end.
 
 (* Bit by bit from the least significant end, the borrow passed on as
  * [add_with_carry] passes its carry: [a - b] when [borrow] is [false],
  * [a - b - 1] when it is [true].
+ *
+ * Seven of the nine cases answer for both borrows at once, in the shape
+ * [append_bit_difference <this bit> <the rest>] that every case of
+ * [add_with_carry] has. Two cannot. At [One] against [One] the answer is
+ * [Eq] or [Lt], and neither is a bit appended to anything. At [b1]
+ * against [One] the borrow decides whether the rest is [a'] or [a' - 1],
+ * which are answers of different shapes rather than one answer under two
+ * bits. Those two keep a [match borrow] of their own.
  *)
-(* [Bool -> Binary -> Binary -> Difference] *)
-Fixpoint difference_with_borrow (borrow : Bool) (a : Binary) (b : Binary) : Difference :=
-  match borrow with
-  | false =>
-      match a, b with
-      | One, One                     => Equal
-      | One, AppendZero _            => Below
-      | One, AppendOne _             => Below
-      | AppendZero a', One           => append_one_difference (difference_with_borrow false a' One)
-      | AppendZero a', AppendZero b' => append_zero_difference (difference_with_borrow false a' b')
-      | AppendZero a', AppendOne b'  => append_one_difference (difference_with_borrow true a' b')
-      | AppendOne a', One            => Above (AppendZero a')
-      | AppendOne a', AppendZero b'  => append_one_difference (difference_with_borrow false a' b')
-      | AppendOne a', AppendOne b'   => append_zero_difference (difference_with_borrow false a' b')
+(* [Bool -> Bin -> Bin -> Difference] *)
+Fixpoint difference_with_borrow (borrow : Bool) (a : Bin) (b : Bin) : Difference :=
+  match a, b with
+  | One, One     =>
+      match borrow with
+      | true  => Lt
+      | false => Eq
       end
-  | true =>
-      match a, b with
-      | One, One                     => Below
-      | One, AppendZero _            => Below
-      | One, AppendOne _             => Below
-      | AppendZero a', One           => append_zero_difference (difference_with_borrow false a' One)
-      | AppendZero a', AppendZero b' => append_one_difference (difference_with_borrow true a' b')
-      | AppendZero a', AppendOne b'  => append_zero_difference (difference_with_borrow true a' b')
-      | AppendOne a', One            => append_one_difference (difference_with_borrow false a' One)
-      | AppendOne a', AppendZero b'  => append_zero_difference (difference_with_borrow false a' b')
-      | AppendOne a', AppendOne b'   => append_one_difference (difference_with_borrow true a' b')
+  | One, b0 _    => Lt
+  | One, b1 _    => Lt
+  | b0 a', One   => append_bit_difference (Bool.negate borrow) (difference_with_borrow false a' One)
+  | b0 a', b0 b' => append_bit_difference borrow (difference_with_borrow borrow a' b')
+  | b0 a', b1 b' => append_bit_difference (Bool.negate borrow) (difference_with_borrow true a' b')
+  | b1 a', One   =>
+      match borrow with
+      | true  => append_bit_difference true (difference_with_borrow false a' One)
+      | false => Gt (b0 a')
       end
+  | b1 a', b0 b' => append_bit_difference (Bool.negate borrow) (difference_with_borrow false a' b')
+  | b1 a', b1 b' => append_bit_difference borrow (difference_with_borrow borrow a' b')
   end.
 
-(* [Binary -> Binary -> Difference] *)
-Definition difference := fun (a : Binary) (b : Binary) . difference_with_borrow false a b.
+(* [Bin -> Bin -> Difference] *)
+Definition diff := fun (a : Bin) (b : Bin) . difference_with_borrow false a b.
 
-(* [Binary -> Binary -> Prop] *)
-Definition LessThan := fun (a : Binary) (b : Binary) . forsome (k : Binary) . a + k = b.
+(* [Bin -> Bin -> Prop] *)
+Definition LessThan := fun (a : Bin) (b : Bin) . forsome (k : Bin) . a + k = b.
 
 Notation "'(<)'" := LessThan (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
 Notation "a < b" := (LessThan a b) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
-(* [Binary -> Binary -> Prop] *)
-Definition LessOrEqual := fun (a : Binary) (b : Binary) . (a = b) \/ (a < b).
+(* [Bin -> Bin -> Prop] *)
+Definition LessOrEqual := fun (a : Bin) (b : Bin) . (a = b) \/ (a < b).
 
 Notation "'(<=)'" := LessOrEqual (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
 Notation "a <= b" := (LessOrEqual a b) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
 Notation "a > b" := (b < a) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
 Notation "a >= b" := (LessOrEqual b a) (only parsing)
-  : jwa_binary_scope.
+  : jwa_bin_scope.
 
-(* [Binary -> Binary -> Comparison] *)
-Definition compare := fun (a : Binary) (b : Binary) .
-  match difference a b with
-  | Below   => Comparison.Lt
-  | Equal   => Comparison.Eq
-  | Above _ => Comparison.Gt
+(* [Bin -> Bin -> Comparison] *)
+Definition compare := fun (a : Bin) (b : Bin) .
+  match diff a b with
+  | Lt   => Comparison.Lt
+  | Eq   => Comparison.Eq
+  | Gt _ => Comparison.Gt
   end.
 
-(* [Binary -> Binary -> Bool] *)
+(* [Bin -> Bin -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
 
-(* [Binary -> Binary -> Binary] *)
+(* [Bin -> Bin -> Bin] *)
 Abbreviation min := (Comparable.min compare).
 
-(* [Binary -> Binary -> Binary] *)
+(* [Bin -> Bin -> Bin] *)
 Abbreviation max := (Comparable.max compare).
 
 (* [a - b], [None] unless it is positive, as [Nat.sub] is. *)
-(* [Binary -> Binary -> Option Binary] *)
-Definition sub := fun (a : Binary) (b : Binary) .
-  match difference a b with
-  | Above p => Some p
-  | _       => None
+(* [Bin -> Bin -> Option Bin] *)
+Definition sub := fun (a : Bin) (b : Bin) .
+  match diff a b with
+  | Gt p => Some p
+  | _    => None
   end.
 
 (* [One] where [sub] has nothing, as [Nat.saturating_sub] does. *)
-(* [Binary -> Binary -> Binary] *)
-Definition saturating_sub := fun (a : Binary) (b : Binary) .
+(* [Bin -> Bin -> Bin] *)
+Definition saturating_sub := fun (a : Bin) (b : Bin) .
   match sub a b with
   | Some k => k
   | None   => One
@@ -264,16 +294,16 @@ Definition saturating_sub := fun (a : Binary) (b : Binary) .
 (* The conversions to and from [Nat], used to state the laws: [to_nat] is
  * unary, so it is for proofs, not for computing.
  *)
-(* [Binary -> Nat] *)
-Fixpoint to_nat (b : Binary) : Nat :=
+(* [Bin -> Nat] *)
+Fixpoint to_nat (b : Bin) : Nat :=
   match b with
-  | One           => Nat.One
-  | AppendZero b' => (to_nat b' + to_nat b')%nat
-  | AppendOne b'  => Nat.Successor (to_nat b' + to_nat b')%nat
+  | One   => Nat.One
+  | b0 b' => (to_nat b' + to_nat b')%nat
+  | b1 b' => Nat.Successor (to_nat b' + to_nat b')%nat
   end.
 
-(* [Nat -> Binary] *)
-Fixpoint from_nat (n : Nat) : Binary :=
+(* [Nat -> Bin] *)
+Fixpoint from_nat (n : Nat) : Bin :=
   match n with
   | Nat.One          => One
   | Nat.Successor n' => ++ from_nat n'
@@ -283,10 +313,10 @@ Module conversion. (* conversion *)
 
 (* conversion.successor *)
 Theorem successor
-  : forall (b : Binary) . to_nat (++ b) = Nat.Successor (to_nat b).
+  : forall (b : Bin) . to_nat (++ b) = Nat.Successor (to_nat b).
 Proof.
   intro b.
-  match b with | | b' by IH | b' by IH end per Binary.induction.
+  match b with | | b' by IH | b' by IH end per Bin.induction.
   -
     simpl in |- *.
     quod idem est.
@@ -319,7 +349,7 @@ Qed.
 
 (* conversion.doubling *)
 Lemma doubling
-  : forall (n : Nat) . from_nat (n + n)%nat = AppendZero (from_nat n).
+  : forall (n : Nat) . from_nat (n + n)%nat = b0 (from_nat n).
 Proof.
   intro n.
   match n with | | n' by IH end per Nat.induction.
@@ -337,10 +367,10 @@ Qed.
 
 (* conversion.section *)
 Theorem section
-  : forall (b : Binary) . from_nat (to_nat b) = b.
+  : forall (b : Bin) . from_nat (to_nat b) = b.
 Proof.
   intro b.
-  match b with | | b' by IH | b' by IH end per Binary.induction.
+  match b with | | b' by IH | b' by IH end per Bin.induction.
   -
     simpl in |- *.
     quod idem est.
@@ -359,7 +389,7 @@ Qed.
 
 (* conversion.carry *)
 Lemma carry
-  : forall (a : Binary) (b : Binary) (carry : Bool) .
+  : forall (a : Bin) (b : Bin) (carry : Bool) .
       to_nat (add_with_carry carry a b)
       = match carry with
         | true  => Nat.Successor (to_nat a + to_nat b)%nat
@@ -367,7 +397,7 @@ Lemma carry
         end.
 Proof.
   intro a.
-  match a with | | a' by IH | a' by IH end per Binary.induction.
+  match a with | | a' by IH | a' by IH end per Bin.induction.
   -
     intros b carry.
     match b with | | b' | b' end.
@@ -548,7 +578,7 @@ Qed.
 
 (* conversion.addition *)
 Theorem addition
-  : forall (a : Binary) (b : Binary) . to_nat (a + b) = (to_nat a + to_nat b)%nat.
+  : forall (a : Bin) (b : Bin) . to_nat (a + b) = (to_nat a + to_nat b)%nat.
 Proof.
   intros a b.
   simpl add in |- *.
@@ -557,10 +587,10 @@ Qed.
 
 (* conversion.multiplication *)
 Theorem multiplication
-  : forall (a : Binary) (b : Binary) . to_nat (a * b) = (to_nat a * to_nat b)%nat.
+  : forall (a : Bin) (b : Bin) . to_nat (a * b) = (to_nat a * to_nat b)%nat.
 Proof.
   intros a b.
-  match a with | | a' by IH | a' by IH end per Binary.induction.
+  match a with | | a' by IH | a' by IH end per Bin.induction.
   -
     simpl in |- *.
     quod idem est.
@@ -571,7 +601,7 @@ Proof.
                (to_nat &b) (to_nat &a') (to_nat &a')) in |- *.
     quod idem est.
   -
-    let proof e := conversion.addition &b (AppendZero (mul &a' &b)).
+    let proof e := conversion.addition &b (b0 (mul &a' &b)).
     simpl in &e |- *.
     leibniz &e in |- *.
     leibniz &IH in |- *.
@@ -582,10 +612,10 @@ Qed.
 
 (* conversion.power *)
 Theorem power
-  : forall (a : Binary) (n : Binary) . to_nat (a ^ n) = (to_nat a ^ to_nat n)%nat.
+  : forall (a : Bin) (n : Bin) . to_nat (a ^ n) = (to_nat a ^ to_nat n)%nat.
 Proof.
   intros a n.
-  match n with | | n' by IH | n' by IH end per Binary.induction.
+  match n with | | n' by IH | n' by IH end per Bin.induction.
   -
     simpl in |- *.
     quod idem est.
@@ -616,14 +646,14 @@ Module difference. (* conversion.difference *)
 Lemma doubling
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Below   => (m < n)%nat
-      | Equal   => m = n
-      | Above p => (n + to_nat p)%nat = m
+      | Lt   => (m < n)%nat
+      | Eq   => m = n
+      | Gt p => (n + to_nat p)%nat = m
       end ->
       match append_zero_difference d with
-      | Below   => (m + m < n + n)%nat
-      | Equal   => (m + m)%nat = (n + n)%nat
-      | Above p => (n + n + to_nat p)%nat = (m + m)%nat
+      | Lt   => (m + m < n + n)%nat
+      | Eq   => (m + m)%nat = (n + n)%nat
+      | Gt p => (n + n + to_nat p)%nat = (m + m)%nat
       end.
 Proof.
   intros d m n.
@@ -656,14 +686,14 @@ Module doubling. (* conversion.difference.doubling *)
 Lemma successor
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Below   => (m < n)%nat
-      | Equal   => m = n
-      | Above p => (n + to_nat p)%nat = m
+      | Lt   => (m < n)%nat
+      | Eq   => m = n
+      | Gt p => (n + to_nat p)%nat = m
       end ->
       match append_one_difference d with
-      | Below   => (Nat.Successor (m + m) < n + n)%nat
-      | Equal   => Nat.Successor (m + m)%nat = (n + n)%nat
-      | Above p => (n + n + to_nat p)%nat = Nat.Successor (m + m)%nat
+      | Lt   => (Nat.Successor (m + m) < n + n)%nat
+      | Eq   => Nat.Successor (m + m)%nat = (n + n)%nat
+      | Gt p => (n + n + to_nat p)%nat = Nat.Successor (m + m)%nat
       end.
 Proof.
   intros d m n.
@@ -713,15 +743,15 @@ End doubling. (* conversion.difference.doubling *)
 Lemma cancellation
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Below   => (Nat.Successor m < Nat.Successor n)%nat
-      | Equal   => Nat.Successor m = Nat.Successor n
-      | Above p => (Nat.Successor n + to_nat p)%nat = Nat.Successor m
+      | Lt   => (Nat.Successor m < Nat.Successor n)%nat
+      | Eq   => Nat.Successor m = Nat.Successor n
+      | Gt p => (Nat.Successor n + to_nat p)%nat = Nat.Successor m
       end
       <->
       match d with
-      | Below   => (m < n)%nat
-      | Equal   => m = n
-      | Above p => (n + to_nat p)%nat = m
+      | Lt   => (m < n)%nat
+      | Eq   => m = n
+      | Gt p => (n + to_nat p)%nat = m
       end.
 Proof.
   intros d m n.
@@ -756,24 +786,24 @@ End difference. (* conversion.difference *)
 
 (* conversion.borrow *)
 Lemma borrow
-  : forall (a : Binary) (b : Binary) (borrow : Bool) .
+  : forall (a : Bin) (b : Bin) (borrow : Bool) .
       match borrow with
       | true  =>
           match difference_with_borrow true a b with
-          | Below   => (to_nat a < Nat.Successor (to_nat b))%nat
-          | Equal   => to_nat a = Nat.Successor (to_nat b)
-          | Above p => (Nat.Successor (to_nat b) + to_nat p)%nat = to_nat a
+          | Lt   => (to_nat a < Nat.Successor (to_nat b))%nat
+          | Eq   => to_nat a = Nat.Successor (to_nat b)
+          | Gt p => (Nat.Successor (to_nat b) + to_nat p)%nat = to_nat a
           end
       | false =>
           match difference_with_borrow false a b with
-          | Below   => (to_nat a < to_nat b)%nat
-          | Equal   => to_nat a = to_nat b
-          | Above p => (to_nat b + to_nat p)%nat = to_nat a
+          | Lt   => (to_nat a < to_nat b)%nat
+          | Eq   => to_nat a = to_nat b
+          | Gt p => (to_nat b + to_nat p)%nat = to_nat a
           end
       end.
 Proof.
   intro a.
-  match a with | | a' by IH | a' by IH end per Binary.induction.
+  match a with | | a' by IH | a' by IH end per Bin.induction.
   -
     intros b borrow.
     match b with | | b' | b' end.
@@ -919,14 +949,14 @@ Proof.
                 &h).
 Qed.
 
-(* What each outcome of [difference] says of the two numbers. *)
+(* What each outcome of [diff] says of the two numbers. *)
 (* conversion.difference *)
 Lemma difference
-  : forall (a : Binary) (b : Binary) .
-      match Binary.difference a b with
-      | Below   => (to_nat a < to_nat b)%nat
-      | Equal   => to_nat a = to_nat b
-      | Above p => (to_nat b + to_nat p)%nat = to_nat a
+  : forall (a : Bin) (b : Bin) .
+      match Bin.diff a b with
+      | Lt   => (to_nat a < to_nat b)%nat
+      | Eq   => to_nat a = to_nat b
+      | Gt p => (to_nat b + to_nat p)%nat = to_nat a
       end.
 Proof.
   intros a b.
@@ -935,14 +965,14 @@ Qed.
 
 (* conversion.comparison *)
 Theorem comparison
-  : forall (a : Binary) (b : Binary) .
+  : forall (a : Bin) (b : Bin) .
       compare a b = Nat.compare (to_nat a) (to_nat b).
 Proof.
   intros a b.
   simpl compare in |- *.
   let proof h := conversion.difference &a &b.
   extro &h.
-  match (Binary.difference &a &b) with | | | p end.
+  match (Bin.diff &a &b) with | | | p end.
   -
     intro h.
     ipso (symm (Nat.comparison.strict.backward.specification &h)).
@@ -965,14 +995,14 @@ Qed.
 
 (* conversion.subtraction *)
 Theorem subtraction
-  : forall (a : Binary) (b : Binary) .
+  : forall (a : Bin) (b : Bin) .
       Option.map to_nat (sub a b) = Nat.sub (to_nat a) (to_nat b).
 Proof.
   intros a b.
   simpl sub in |- *.
   let proof h := conversion.difference &a &b.
   extro &h.
-  match (Binary.difference &a &b) with | | | p end.
+  match (Bin.diff &a &b) with | | | p end.
   -
     intro h.
     simpl in |- *.
@@ -998,7 +1028,7 @@ Module subtraction. (* conversion.subtraction *)
 
 (* conversion.subtraction.saturating *)
 Theorem saturating
-  : forall (a : Binary) (b : Binary) .
+  : forall (a : Bin) (b : Bin) .
       to_nat (saturating_sub a b) = Nat.saturating_sub (to_nat a) (to_nat b).
 Proof.
   intros a b.
@@ -1024,7 +1054,7 @@ End subtraction. (* conversion.subtraction *)
 
 (* conversion.injectivity *)
 Theorem injectivity
-  : forall {a : Binary} {b : Binary} . to_nat a = to_nat b -> a = b.
+  : forall {a : Bin} {b : Bin} . to_nat a = to_nat b -> a = b.
 Proof.
   intros a b e.
   leibniz <- (conversion.section &a), <- (conversion.section &b) in |- *.
@@ -1034,7 +1064,7 @@ Qed.
 
 (* conversion.order *)
 Theorem order
-  : forall (a : Binary) (b : Binary) . a < b <-> (to_nat a < to_nat b)%nat.
+  : forall (a : Bin) (b : Bin) . a < b <-> (to_nat a < to_nat b)%nat.
 Proof.
   intros a b.
   divide et impera.
@@ -1067,7 +1097,7 @@ Module addition. (* addition *)
 
 (* addition.associativity *)
 Theorem associativity
-  : forall (a : Binary) (b : Binary) (c : Binary) . (a + b) + c = a + (b + c).
+  : forall (a : Bin) (b : Bin) (c : Bin) . (a + b) + c = a + (b + c).
 Proof.
   intros a b c.
   lemma f : to_nat ((&a + &b) + &c) = to_nat (&a + (&b + &c)).
@@ -1080,7 +1110,7 @@ Proof.
 Qed.
 
 (* addition.commutativity *)
-Theorem commutativity : forall (a : Binary) (b : Binary) . a + b = b + a.
+Theorem commutativity : forall (a : Bin) (b : Bin) . a + b = b + a.
 Proof.
   intros a b.
   lemma f : to_nat (&a + &b) = to_nat (&b + &a).
@@ -1093,7 +1123,7 @@ Qed.
 
 (* addition.cancellation *)
 Theorem cancellation
-  : forall (a : Binary) (b : Binary) (c : Binary) .
+  : forall (a : Bin) (b : Bin) (c : Bin) .
     (a + b = a + c -> b = c) /\ (a + b = c + b -> a = c).
 Proof.
   intros a b c.
@@ -1118,7 +1148,7 @@ Module multiplication. (* multiplication *)
 
 (* multiplication.associativity *)
 Theorem associativity
-  : forall (a : Binary) (b : Binary) (c : Binary) . (a * b) * c = a * (b * c).
+  : forall (a : Bin) (b : Bin) (c : Bin) . (a * b) * c = a * (b * c).
 Proof.
   intros a b c.
   lemma f : to_nat ((&a * &b) * &c) = to_nat (&a * (&b * &c)).
@@ -1132,7 +1162,7 @@ Proof.
 Qed.
 
 (* multiplication.commutativity *)
-Theorem commutativity : forall (a : Binary) (b : Binary) . a * b = b * a.
+Theorem commutativity : forall (a : Bin) (b : Bin) . a * b = b * a.
 Proof.
   intros a b.
   lemma f : to_nat (&a * &b) = to_nat (&b * &a).
@@ -1145,7 +1175,7 @@ Qed.
 
 (* multiplication.identity *)
 Theorem identity
-  : forall (b : Binary) . (One * b = b) /\ (b * One = b).
+  : forall (b : Bin) . (One * b = b) /\ (b * One = b).
 Proof.
   intro b.
   divide et impera.
@@ -1165,7 +1195,7 @@ Qed.
 
 (* multiplication.cancellation *)
 Theorem cancellation
-  : forall (a : Binary) (b : Binary) (c : Binary) .
+  : forall (a : Bin) (b : Bin) (c : Bin) .
       (a * b = a * c -> b = c) /\ (a * b = c * b -> a = c).
 Proof.
   intros a b c.
@@ -1190,7 +1220,7 @@ Module over. (* multiplication.distributivity.over *)
 
 (* multiplication.distributivity.over.addition *)
 Theorem addition
-  : forall (a : Binary) (b : Binary) (c : Binary) .
+  : forall (a : Bin) (b : Bin) (c : Bin) .
       (a * (b + c) = (a * b) + (a * c)) /\ ((b + c) * a = (b * a) + (c * a)).
 Proof.
   intros a b c.
@@ -1228,7 +1258,7 @@ Module order. (* order *)
 Module strict. (* order.strict *)
 
 (* order.strict.irreflexivity *)
-Theorem irreflexivity : forall (b : Binary) . ~ (b < b).
+Theorem irreflexivity : forall (b : Bin) . ~ (b < b).
 Proof.
   intros b h.
   ipso (Nat.order.strict.irreflexivity (to_nat &b) (modus aequans (conversion.order &b &b), &h)).
@@ -1236,7 +1266,7 @@ Qed.
 
 (* order.strict.transitivity *)
 Theorem transitivity
-  : forall {a : Binary} {b : Binary} {c : Binary} . a < b -> b < c -> a < c.
+  : forall {a : Bin} {b : Bin} {c : Bin} . a < b -> b < c -> a < c.
 Proof.
   intros a b c h1 h2.
   let proof n := Nat.order.strict.transitivity
@@ -1247,7 +1277,7 @@ Qed.
 
 (* order.strict.trichotomy *)
 Theorem trichotomy
-  : forall (a : Binary) (b : Binary) . (a < b) \/ (a = b) \/ (b < a).
+  : forall (a : Bin) (b : Bin) . (a < b) \/ (a = b) \/ (b < a).
 Proof.
   intros a b.
   let proof t := Nat.order.strict.trichotomy (to_nat &a) (to_nat &b).
@@ -1263,15 +1293,15 @@ Proof.
 Qed.
 
 (* order.strict.wellfoundedness *)
-Theorem wellfoundedness : forall (b : Binary) . Accessible (<) b.
+Theorem wellfoundedness : forall (b : Bin) . Accessible (<) b.
 Proof.
   intro b.
   lemma descent
-    : Descent.Step (Induced Nat.LessThan to_nat) (fun (x : Binary) . Accessible (<) x).
+    : Descent.Step (Induced Nat.LessThan to_nat) (fun (x : Bin) . Accessible (<) x).
   {
     intros x recurse.
     ipso (Accessible_introduction
-            (fun (y : Binary) (h : y < &x) .
+            (fun (y : Bin) (h : y < &x) .
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }
   ipso (Accessible.recursion &descent &b
@@ -1286,7 +1316,7 @@ Module comparison. (* comparison *)
 
 (* comparison.specification *)
 Theorem specification
-  : forall (a : Binary) (b : Binary) .
+  : forall (a : Bin) (b : Bin) .
       (compare a b = Comparison.Lt <-> a < b) /\ (compare a b = Comparison.Eq <-> a = b).
 Proof.
   intros a b.
@@ -1314,7 +1344,7 @@ Qed.
 
 (* comparison.antisymmetry *)
 Theorem antisymmetry
-  : forall (a : Binary) (b : Binary) . compare a b = Comparison.transpose (compare b a).
+  : forall (a : Bin) (b : Bin) . compare a b = Comparison.transpose (compare b a).
 Proof.
   intros a b.
   leibniz (conversion.comparison &a &b), (conversion.comparison &b &a) in |- *.
@@ -1325,7 +1355,7 @@ Module maximum. (* comparison.maximum *)
 
 (* comparison.maximum.identity *)
 Theorem identity
-  : forall (b : Binary) . (max One b = b) /\ (max b One = b).
+  : forall (b : Bin) . (max One b = b) /\ (max b One = b).
 Proof.
   intro b.
   divide et impera.
@@ -1356,70 +1386,70 @@ End maximum. (* comparison.maximum *)
 
 End comparison. (* comparison *)
 
-End Binary. (* Binary *)
+End Bin. (* Bin *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
- * [Binary], not [Binary.T].
+ * [Bin], not [Bin.T].
  *)
-Abbreviation Binary := Binary.T.
+Abbreviation Bin := Bin.T.
 
-(* Makes the notations declared in [Module Binary] usable in every file that
- * imports this one, as [(a + b)%binary] or under an opened
- * [jwa_binary_scope]. Only the notations are exported: [add] and the laws
- * still need the [Binary.] prefix.
+(* Makes the notations declared in [Module Bin] usable in every file that
+ * imports this one, as [(a + b)%bin] or under an opened
+ * [jwa_bin_scope]. Only the notations are exported: [add] and the laws
+ * still need the [Bin.] prefix.
  *)
-Export (notations) Binary.
+Export (notations) Bin.
 
-Instance Binary_less_than_well_founded
-  : WellFounded (<)%binary :=
-  {| accessibility := Binary.order.strict.wellfoundedness |}.
+Instance Bin_less_than_well_founded
+  : WellFounded (<)%bin :=
+  {| accessibility := Bin.order.strict.wellfoundedness |}.
 
-Instance Binary_comparable
-  : Comparable Binary.compare (<)%binary :=
-  {| Comparable.transitivity  := @Binary.order.strict.transitivity
-   ; Comparable.specification := Binary.comparison.specification
-   ; Comparable.antisymmetry  := Binary.comparison.antisymmetry |}.
+Instance Bin_comparable
+  : Comparable Bin.compare (<)%bin :=
+  {| Comparable.transitivity  := @Bin.order.strict.transitivity
+   ; Comparable.specification := Bin.comparison.specification
+   ; Comparable.antisymmetry  := Bin.comparison.antisymmetry |}.
 
-Instance Binary_add_semigroup
-  : Semigroup Binary.add :=
-  {| Semigroup.associativity := Binary.addition.associativity |}.
+Instance Bin_add_semigroup
+  : Semigroup Bin.add :=
+  {| Semigroup.associativity := Bin.addition.associativity |}.
 
-Instance Binary_add_cancellative
-  : Cancellative Binary.add :=
-  {| Cancellative.cancellation := Binary.addition.cancellation |}.
+Instance Bin_add_cancellative
+  : Cancellative Bin.add :=
+  {| Cancellative.cancellation := Bin.addition.cancellation |}.
 
-Instance Binary_mul_cancellative
-  : Cancellative Binary.mul :=
-  {| Cancellative.cancellation := Binary.multiplication.cancellation |}.
+Instance Bin_mul_cancellative
+  : Cancellative Bin.mul :=
+  {| Cancellative.cancellation := Bin.multiplication.cancellation |}.
 
-Instance Binary_mul_monoid
-  : Monoid Binary.mul Binary.One :=
+Instance Bin_mul_monoid
+  : Monoid Bin.mul Bin.One :=
   {| Monoid.semigroup :=
-       {| Semigroup.associativity := Binary.multiplication.associativity |}
-   ; Monoid.identity := Binary.multiplication.identity |}.
+       {| Semigroup.associativity := Bin.multiplication.associativity |}
+   ; Monoid.identity := Bin.multiplication.identity |}.
 
-Instance Binary_add_commutative
-  : Commutative Binary.add :=
-  {| Commutative.commutativity := Binary.addition.commutativity |}.
+Instance Bin_add_commutative
+  : Commutative Bin.add :=
+  {| Commutative.commutativity := Bin.addition.commutativity |}.
 
-Instance Binary_mul_commutative
-  : Commutative Binary.mul :=
-  {| Commutative.commutativity := Binary.multiplication.commutativity |}.
+Instance Bin_mul_commutative
+  : Commutative Bin.mul :=
+  {| Commutative.commutativity := Bin.multiplication.commutativity |}.
 
-Instance Binary_min_semigroup
-  : Semigroup Binary.min :=
+Instance Bin_min_semigroup
+  : Semigroup Bin.min :=
   {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
-Instance Binary_max_monoid
-  : Monoid Binary.max Binary.One :=
+Instance Bin_max_monoid
+  : Monoid Bin.max Bin.One :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Comparable.maximum.associativity |}
-   ; Monoid.identity := Binary.comparison.maximum.identity |}.
+   ; Monoid.identity := Bin.comparison.maximum.identity |}.
 
-Instance Binary_min_commutative
-  : Commutative Binary.min :=
+Instance Bin_min_commutative
+  : Commutative Bin.min :=
   {| Commutative.commutativity := Comparable.minimum.commutativity |}.
 
-Instance Binary_max_commutative
-  : Commutative Binary.max :=
+Instance Bin_max_commutative
+  : Commutative Bin.max :=
   {| Commutative.commutativity := Comparable.maximum.commutativity |}.

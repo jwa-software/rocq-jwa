@@ -6,8 +6,8 @@
 
 From jwa Require Export Core.All.
 
-From jwa Require Export Data.Number.Binary.
-From jwa Require Export Data.Number.BinaryWithZero.
+From jwa Require Export Data.Number.Bin.
+From jwa Require Export Data.Number.BinWithZero.
 From jwa Require Export Data.Number.Integer.
 From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.NatWithZero.
