@@ -534,6 +534,322 @@ Qed.
 
 End conversion. (* conversion *)
 
+Module magnitude. (* magnitude *)
+
+Module negative. (* magnitude.negative *)
+
+(* magnitude.negative.injectivity *)
+Lemma injectivity
+  : forall {p : Bin} {q : Bin} . (- p) = - q -> p = q.
+Proof.
+  intros p q e.
+  congru (fun (x : BinWithSign) . match x with | - r => r | 0 => p | + _ => p end), e |- e'.
+  simpl in e'.
+  ipso e'.
+Qed.
+
+End negative. (* magnitude.negative *)
+
+Module positive. (* magnitude.positive *)
+
+(* magnitude.positive.injectivity *)
+Lemma injectivity
+  : forall {p : Bin} {q : Bin} . (+ p) = + q -> p = q.
+Proof.
+  intros p q e.
+  congru (fun (x : BinWithSign) . match x with | - _ => p | 0 => p | + r => r end), e |- e'.
+  simpl in e'.
+  ipso e'.
+Qed.
+
+End positive. (* magnitude.positive *)
+
+(* magnitude.injectivity *)
+Theorem injectivity
+  : forall (p : Bin) (q : Bin) .
+      ((- p) = - q -> p = q) /\ ((+ p) = + q -> p = q).
+Proof.
+  intros p q.
+  divide et impera.
+  - ipso (@magnitude.negative.injectivity p q).
+  - ipso (@magnitude.positive.injectivity p q).
+Qed.
+
+End magnitude. (* magnitude *)
+
+Module embedding. (* embedding *)
+
+(* embedding.injectivity *)
+Theorem injectivity
+  : forall {m : BinWithZero} {n : BinWithZero} .
+      from_bin_with_zero m = from_bin_with_zero n -> m = n.
+Proof.
+  intros m n e.
+  match &m with | | p end; match &n with | | q end.
+  - quod idem est.
+  - simpl in &e.
+    ex &e quodlibet.
+  - simpl in &e.
+    ex &e quodlibet.
+  - simpl in &e.
+    let proof e' := magnitude.positive.injectivity &e.
+    leibniz &e' in |- *.
+    quod idem est.
+Qed.
+
+End embedding. (* embedding *)
+
+Module negation. (* negation *)
+
+(* negation.involution *)
+Theorem involution : forall (x : BinWithSign) . negate (negate x) = x.
+Proof.
+  intro x.
+  match &x with | p | | p end.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+Qed.
+
+(* negation.additivity *)
+Theorem additivity
+  : forall (x : BinWithSign) (y : BinWithSign) .
+      negate (x + y) = negate x + negate y.
+Proof.
+  intros x y.
+  lemma f : to_integer (negate (&x + &y)) = to_integer (negate &x + negate &y).
+  {
+    leibniz (conversion.negation (&x + &y)), (conversion.addition &x &y),
+            (conversion.addition (negate &x) (negate &y)),
+            (conversion.negation &x), (conversion.negation &y) in |- *.
+    ipso (Integer.negation.additivity (to_integer &x) (to_integer &y)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+End negation. (* negation *)
+
+Module addition. (* addition *)
+
+(* addition.associativity *)
+Theorem associativity
+  : forall (x : BinWithSign) (y : BinWithSign) (z : BinWithSign) .
+      (x + y) + z = x + (y + z).
+Proof.
+  intros x y z.
+  lemma f : to_integer ((&x + &y) + &z) = to_integer (&x + (&y + &z)).
+  {
+    leibniz (conversion.addition (&x + &y) &z), (conversion.addition &x &y),
+            (conversion.addition &x (&y + &z)), (conversion.addition &y &z) in |- *.
+    ipso (Integer.addition.associativity
+            (to_integer &x) (to_integer &y) (to_integer &z)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.commutativity *)
+Theorem commutativity
+  : forall (x : BinWithSign) (y : BinWithSign) . x + y = y + x.
+Proof.
+  intros x y.
+  lemma f : to_integer (&x + &y) = to_integer (&y + &x).
+  {
+    leibniz (conversion.addition &x &y), (conversion.addition &y &x) in |- *.
+    ipso (Integer.addition.commutativity (to_integer &x) (to_integer &y)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+Module left. (* addition.left *)
+
+(* addition.left.identity *)
+Theorem identity : forall (x : BinWithSign) . 0 + x = x.
+Proof.
+  intro x.
+  lemma f : to_integer (0 + &x) = to_integer &x.
+  {
+    leibniz (conversion.addition 0 &x) in |- *.
+    ipso (Integer.addition.left.identity (to_integer &x)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.left.inverse *)
+Theorem inverse : forall (x : BinWithSign) . negate x + x = 0.
+Proof.
+  intro x.
+  lemma f : to_integer (negate &x + &x) = to_integer 0.
+  {
+    leibniz (conversion.addition (negate &x) &x), (conversion.negation &x) in |- *.
+    ipso (Integer.addition.left.inverse (to_integer &x)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.left.cancellation *)
+Theorem cancellation
+  : forall {x : BinWithSign} {y : BinWithSign} {z : BinWithSign} .
+      x + y = x + z -> y = z.
+Proof.
+  intros x y z e.
+  let proof f := congru to_integer, &e.
+  leibniz (conversion.addition &x &y), (conversion.addition &x &z) in &f.
+  ipso (conversion.injectivity
+          (@Integer.addition.left.cancellation
+             (to_integer &x) (to_integer &y) (to_integer &z) &f)).
+Qed.
+
+End left. (* addition.left *)
+
+Module right. (* addition.right *)
+
+(* addition.right.identity *)
+Theorem identity : forall (x : BinWithSign) . x + 0 = x.
+Proof.
+  intro x.
+  lemma f : to_integer (&x + 0) = to_integer &x.
+  {
+    leibniz (conversion.addition &x 0) in |- *.
+    ipso (Integer.addition.right.identity (to_integer &x)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.right.inverse *)
+Theorem inverse : forall (x : BinWithSign) . x + negate x = 0.
+Proof.
+  intro x.
+  lemma f : to_integer (&x + negate &x) = to_integer 0.
+  {
+    leibniz (conversion.addition &x (negate &x)), (conversion.negation &x) in |- *.
+    ipso (Integer.addition.right.inverse (to_integer &x)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+(* addition.right.cancellation *)
+Theorem cancellation
+  : forall {x : BinWithSign} {y : BinWithSign} {z : BinWithSign} .
+      x + y = z + y -> x = z.
+Proof.
+  intros x y z e.
+  let proof f := congru to_integer, &e.
+  leibniz (conversion.addition &x &y), (conversion.addition &z &y) in &f.
+  ipso (conversion.injectivity
+          (@Integer.addition.right.cancellation
+             (to_integer &x) (to_integer &z) (to_integer &y) &f)).
+Qed.
+
+End right. (* addition.right *)
+
+(* addition.identity *)
+Theorem identity
+  : forall (x : BinWithSign) . (0 + x = x) /\ (x + 0 = x).
+Proof.
+  intro x.
+  divide et impera.
+  - ipso (addition.left.identity  &x).
+  - ipso (addition.right.identity &x).
+Qed.
+
+(* addition.inverse *)
+Theorem inverse
+  : forall (x : BinWithSign) . (negate x + x = 0) /\ (x + negate x = 0).
+Proof.
+  intro x.
+  divide et impera.
+  - ipso (addition.left.inverse  &x).
+  - ipso (addition.right.inverse &x).
+Qed.
+
+(* addition.cancellation *)
+Theorem cancellation
+  : forall (x : BinWithSign) (y : BinWithSign) (z : BinWithSign) .
+      (x + y = x + z -> y = z) /\ (x + y = z + y -> x = z).
+Proof.
+  intros x y z.
+  divide et impera.
+  - ipso (@addition.left.cancellation  &x &y &z).
+  - ipso (@addition.right.cancellation &x &y &z).
+Qed.
+
+End addition. (* addition *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.irreflexivity *)
+Theorem irreflexivity : forall (x : BinWithSign) . ~ (x < x).
+Proof.
+  simpl (~ _) in |- *.
+  intro x.
+  intro h.
+  ex (Integer.order.strict.irreflexivity (to_integer &x)
+        (modus aequans (conversion.order &x &x), &h)) quodlibet.
+Qed.
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {x : BinWithSign} {y : BinWithSign} {z : BinWithSign} .
+      x < y -> y < z -> x < z.
+Proof.
+  intros x y z h1 h2.
+  ipso (modus aequans (conversion.order &x &z),
+        (Integer.order.strict.transitivity
+           (modus aequans (conversion.order &x &y), &h1)
+           (modus aequans (conversion.order &y &z), &h2))).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (x : BinWithSign) (y : BinWithSign) .
+      compare x y = Comparison.transpose (compare y x).
+Proof.
+  intros x y.
+  leibniz (conversion.comparison &x &y), (conversion.comparison &y &x) in |- *.
+  ipso (Integer.comparison.antisymmetry (to_integer &x) (to_integer &y)).
+Qed.
+
+(* comparison.specification *)
+Theorem specification
+  : forall (x : BinWithSign) (y : BinWithSign) .
+      (compare x y = Comparison.Lt <-> x < y) /\ (compare x y = Comparison.Eq <-> x = y).
+Proof.
+  intros x y.
+  leibniz (conversion.comparison &x &y) in |- *.
+  let proof s := Integer.comparison.specification (to_integer &x) (to_integer &y).
+  match &s with | strict equality end.
+  divide et impera.
+  -
+    divide et impera.
+    +
+      intro c.
+      ipso (modus aequans (conversion.order &x &y), (modus aequans &strict, &c)).
+    +
+      intro h.
+      ipso (modus aequans &strict, (modus aequans (conversion.order &x &y), &h)).
+  -
+    divide et impera.
+    +
+      intro c.
+      ipso (conversion.injectivity (modus aequans &equality, &c)).
+    +
+      intro e.
+      ipso (modus aequans &equality, (congru to_integer, &e)).
+Qed.
+
+End comparison. (* comparison *)
+
 End BinWithSign. (* BinWithSign *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
