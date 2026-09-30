@@ -42,10 +42,14 @@ Definition data_number_binary_all_delivers_bin_with_sign_literal_negative
   : ((-1011) + 1011)%b = 0%b
   := Identity.reflexivity _.
 
-(* [compare]'s result type is not nameable here: neither this umbrella nor
- * [Data.Number.All] re-exports [Data.Base.Comparison]. The orderings are
- * exercised through [min] and [max], which answer in the types themselves.
- *)
+Definition data_number_binary_all_delivers_bin_comparison
+  : Bin.compare (Bin.b1 Bin.One) (Bin.b0 Bin.One) = Comparison.Gt
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_bin_with_sign_comparison
+  : BinWithSign.compare (-1011)%b 1011%b = Comparison.Lt
+  := Identity.reflexivity _.
+
 Definition data_number_binary_all_delivers_bin_maximum_computes
   : Bin.max (Bin.b1 Bin.One) (Bin.b0 Bin.One) = Bin.b1 Bin.One
   := Identity.reflexivity _.
@@ -57,3 +61,34 @@ Definition data_number_binary_all_delivers_bin_with_sign_maximum_computes
 Definition data_number_binary_all_delivers_bin_with_sign_minimum_computes
   : BinWithSign.min (-1011)%b 1011%b = (-1011)%b
   := Identity.reflexivity _.
+
+(* The types the operations above take and return, named rather than merely
+ * produced: a client who cannot write them cannot state anything about them.
+ *)
+Definition data_number_binary_all_delivers_bool
+  : Bool
+  := Bin.eq Bin.One Bin.One.
+
+Definition data_number_binary_all_delivers_option
+  : Option Bin
+  := Bin.sub (Bin.b0 Bin.One) Bin.One.
+
+Definition data_number_binary_all_delivers_nat
+  : Nat
+  := Bin.to_nat Bin.One.
+
+Definition data_number_binary_all_delivers_nat_with_zero
+  : NatWithZero
+  := BinWithZero.to_nat_with_zero 1011%bin_with_zero.
+
+Definition data_number_binary_all_delivers_integer
+  : Integer
+  := BinWithSign.to_integer (-1011)%b.
+
+Definition data_number_binary_all_delivers_numeral
+  : Numeral.Signed
+  := BinWithSign.to_numeral (-1011)%b.
+
+Definition data_number_binary_all_delivers_well_founded
+  : forall (x : BinWithSign) . Accessible (Induced (<)%bin_with_zero BinWithSign.abs) x
+  := fun (x : BinWithSign) . accessibility x.
