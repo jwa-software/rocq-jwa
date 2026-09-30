@@ -10,7 +10,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Number.Bin.
+From jwa Require Import Data.Number.Binary.Bin.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Number.Numeral.
@@ -73,8 +73,8 @@ Definition mul := fun (m : BinWithZero) (n : BinWithZero) .
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End BinWithZero] a client writes [(m + n)%b]. [only
- * parsing] keeps goals printing the operations by name.
+ * module; after [End BinWithZero] a client writes [(m + n)%bin_with_zero].
+ * [only parsing] keeps goals printing the operations by name.
  *)
 Notation "m + n" := (add m n) (only parsing)
   : jwa_bin_with_zero_scope.
@@ -1657,16 +1657,17 @@ End BinWithZero. (* BinWithZero *)
 Abbreviation BinWithZero := BinWithZero.T.
 
 (* Makes the notations declared in [Module BinWithZero] usable in every
- * file that imports this one, as [(m + n)%b] or under an opened
+ * file that imports this one, as [(m + n)%bin_with_zero] or under an opened
  * [jwa_bin_with_zero_scope]. Only the notations are exported: [add] and
  * the laws still need the [BinWithZero.] prefix, and the local aliases
  * [0] and [+ p] stay inside the module.
  *)
 Export (notations) BinWithZero.
 
-(* A number of the type is written in binary digits under its scope, [1011%b]
- * for eleven, and a closed one prints that way; a literal with any other
- * digit is refused.
+(* A number of the type is written in binary digits under its scope,
+ * [1011%bin_with_zero] for eleven, and a closed one prints that way; a
+ * literal with any other digit is refused. The short key [b] belongs to
+ * [BinWithSign], whose literals carry a sign as well.
  *)
 Number Notation BinWithZero.T BinWithZero.from_numeral BinWithZero.to_numeral
   : jwa_bin_with_zero_scope.
@@ -1684,7 +1685,7 @@ Add Printing Coercion BinWithZero.Positive.
 Existing Instance BinWithZero.comparable.
 
 Instance BinWithZero_less_than_well_founded
-  : WellFounded (<)%b :=
+  : WellFounded (<)%bin_with_zero :=
   {| accessibility := BinWithZero.order.strict.wellfoundedness |}.
 
 Instance BinWithZero_add_monoid
