@@ -389,17 +389,18 @@ Qed.
 
 (* conversion.carry *)
 Lemma carry
-  : forall (a : Bin) (b : Bin) (carry : Bool) .
+  : forall (carry : Bool) (a : Bin) (b : Bin) .
       to_nat (add_with_carry carry a b)
       = match carry with
         | true  => Nat.Successor (to_nat a + to_nat b)%n
         | false => (to_nat a + to_nat b)%n
         end.
 Proof.
-  intro a.
+  intros carry a.
+  extro &carry.
   match a with | | a' by IH | a' by IH end per Bin.induction.
   -
-    intros b carry.
+    intros carry b.
     match b with | | b' | b' end.
     +
       match carry with | | end.
@@ -435,7 +436,7 @@ Proof.
         leibniz (Nat.addition.right.successor (to_nat &b') (to_nat &b')) in |- *.
         quod idem est.
   -
-    intros b carry.
+    intros carry b.
     match b with | | b' | b' end.
     +
       match carry with | | end.
@@ -457,7 +458,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
@@ -466,7 +467,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
@@ -478,7 +479,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -492,7 +493,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%n
                                               (to_nat &b' + to_nat &b')%n) in |- *.
@@ -500,7 +501,7 @@ Proof.
           in |- *.
         quod idem est.
   -
-    intros b carry.
+    intros carry b.
     match b with | | b' | b' end.
     +
       match carry with | | end.
@@ -525,7 +526,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -537,7 +538,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
@@ -549,7 +550,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -564,7 +565,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -582,7 +583,7 @@ Theorem addition
 Proof.
   intros a b.
   simpl add in |- *.
-  ipso (conversion.carry &a &b false).
+  ipso (conversion.carry false &a &b).
 Qed.
 
 (* conversion.multiplication *)
@@ -786,7 +787,7 @@ End difference. (* conversion.difference *)
 
 (* conversion.borrow *)
 Lemma borrow
-  : forall (a : Bin) (b : Bin) (borrow : Bool) .
+  : forall (borrow : Bool) (a : Bin) (b : Bin) .
       match borrow with
       | true  =>
           match difference_with_borrow true a b with
@@ -802,10 +803,11 @@ Lemma borrow
           end
       end.
 Proof.
-  intro a.
+  intros borrow a.
+  extro &borrow.
   match a with | | a' by IH | a' by IH end per Bin.induction.
   -
-    intros b borrow.
+    intros borrow b.
     match b with | | b' | b' end.
     +
       match borrow with | | end.
@@ -852,17 +854,17 @@ Proof.
         simpl in |- *.
         quod idem est.
   -
-    intros b borrow.
+    intros borrow b.
     match b with | | b' | b' end.
     +
       match borrow with | | end.
       *
         ipso (conversion.difference.doubling
-                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH One false)).
+                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH false One)).
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow false &a' One) (to_nat &a') Nat.One
-                         (&IH One false).
+                         (&IH false One).
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_one_difference (difference_with_borrow false &a' One))
@@ -873,7 +875,7 @@ Proof.
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso (modus aequans
                 (conversion.difference.cancellation
@@ -884,19 +886,19 @@ Proof.
       *
         ipso (conversion.difference.doubling
                 (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                (&IH &b' false)).
+                (&IH false &b')).
     +
       match borrow with | | end.
       *
         let proof h := conversion.difference.doubling
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso &h.
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso (modus aequans
                 (conversion.difference.cancellation
@@ -905,13 +907,13 @@ Proof.
                    (Nat.Successor (to_nat &b' + to_nat &b')%n)),
                 &h).
   -
-    intros b borrow.
+    intros borrow b.
     match b with | | b' | b' end.
     +
       match borrow with | | end.
       *
         ipso (conversion.difference.doubling.successor
-                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH One false)).
+                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH false One)).
       *
         simpl in |- *.
         quod idem est.
@@ -920,7 +922,7 @@ Proof.
       *
         let proof h := conversion.difference.doubling
                          (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                         (&IH &b' false).
+                         (&IH false &b').
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_zero_difference (difference_with_borrow false &a' &b'))
@@ -929,19 +931,19 @@ Proof.
       *
         ipso (conversion.difference.doubling.successor
                 (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                (&IH &b' false)).
+                (&IH false &b')).
     +
       match borrow with | | end.
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso &h.
       *
         let proof h := conversion.difference.doubling
                          (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                         (&IH &b' false).
+                         (&IH false &b').
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_zero_difference (difference_with_borrow false &a' &b'))
@@ -960,7 +962,7 @@ Lemma difference
       end.
 Proof.
   intros a b.
-  ipso (conversion.borrow &a &b false).
+  ipso (conversion.borrow false &a &b).
 Qed.
 
 (* conversion.comparison *)

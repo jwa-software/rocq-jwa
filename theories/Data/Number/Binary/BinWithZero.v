@@ -252,8 +252,8 @@ Local Open Scope jwa_product_scope.
  * divisor [d] is taken away from the result when it fits, the quotient
  * gaining a 1 in that case and a 0 otherwise.
  *)
-(* [Bin -> Bool -> Product BinWithZero BinWithZero -> Product BinWithZero BinWithZero] *)
-Definition bring_down := fun (d : Bin) (bit : Bool) (x : Product BinWithZero BinWithZero) .
+(* [Bool -> Product BinWithZero BinWithZero -> Bin -> Product BinWithZero BinWithZero] *)
+Definition bring_down := fun (bit : Bool) (x : Product BinWithZero BinWithZero) (d : Bin) .
   match x with
   | (quotient, remainder) =>
       match sub (append_bit bit remainder) (+ d) with
@@ -268,9 +268,9 @@ Definition bring_down := fun (d : Bin) (bit : Bool) (x : Product BinWithZero Bin
 (* [Bin -> Bin -> Product BinWithZero BinWithZero] *)
 Fixpoint div_positive (p : Bin) (d : Bin) : Product BinWithZero BinWithZero :=
   match p with
-  | Bin.One   => bring_down d true (0, 0)
-  | Bin.b0 p' => bring_down d false (div_positive p' d)
-  | Bin.b1 p' => bring_down d true (div_positive p' d)
+  | Bin.One   => bring_down true (0, 0) d
+  | Bin.b0 p' => bring_down false (div_positive p' d) d
+  | Bin.b1 p' => bring_down true (div_positive p' d) d
   end.
 
 (* The quotient and the remainder of [n] by [d]. The divisor is a [Bin], so
@@ -923,16 +923,16 @@ Module division. (* conversion.division *)
 
 (* conversion.division.step *)
 Lemma step
-  : forall (d : Bin) (bit : Bool) (x : Product BinWithZero BinWithZero) (n : BinWithZero) .
+  : forall (bit : Bool) (x : Product BinWithZero BinWithZero) (d : Bin) (n : BinWithZero) .
       ((to_nat_with_zero (pi_1 x) * Bin.to_nat d) + to_nat_with_zero (pi_2 x)
         = to_nat_with_zero n)%n0
       /\ (to_nat_with_zero (pi_2 x) < Bin.to_nat d)%n0 ->
-      ((to_nat_with_zero (pi_1 (bring_down d bit x)) * Bin.to_nat d)
-        + to_nat_with_zero (pi_2 (bring_down d bit x))
+      ((to_nat_with_zero (pi_1 (bring_down bit x d)) * Bin.to_nat d)
+        + to_nat_with_zero (pi_2 (bring_down bit x d))
         = to_nat_with_zero (append_bit bit n))%n0
-      /\ (to_nat_with_zero (pi_2 (bring_down d bit x)) < Bin.to_nat d)%n0.
+      /\ (to_nat_with_zero (pi_2 (bring_down bit x d)) < Bin.to_nat d)%n0.
 Proof.
-  intros d bit x n h.
+  intros bit x d n h.
   match x with | q r end.
   simpl Product.first, Product.second in &h.
   match &h with | e below end.
@@ -1126,11 +1126,11 @@ Proof.
   -
     match p with | | p' by IH | p' by IH end per Bin.induction.
     +
-      ipso (conversion.division.step &d true (div 0 &d) 0 &zero).
+      ipso (conversion.division.step true (div 0 &d) &d 0 &zero).
     +
-      ipso (conversion.division.step &d false (div (+ &p') &d) (+ &p') &IH).
+      ipso (conversion.division.step false (div (+ &p') &d) &d (+ &p') &IH).
     +
-      ipso (conversion.division.step &d true (div (+ &p') &d) (+ &p') &IH).
+      ipso (conversion.division.step true (div (+ &p') &d) &d (+ &p') &IH).
 Qed.
 
 End division. (* conversion.division *)
