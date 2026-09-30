@@ -60,7 +60,15 @@ Delimit Scope jwa_rational_scope with rational.
 Declare Scope jwa_bin_scope.
 Delimit Scope jwa_bin_scope with bin.
 Declare Scope jwa_bin_with_zero_scope.
-Delimit Scope jwa_bin_with_zero_scope with b.
+Delimit Scope jwa_bin_with_zero_scope with bin_with_zero.
+
+(* [b] is the shortest key in the tree and it goes to the type whose literals
+   cover the most ground: [BinWithSign] reads both [1011%b] and [(-1011)%b],
+   where [BinWithZero] could never spell the second. A key is worth its
+   brevity when literals are written under it, not when the type is named
+   briefly. *)
+Declare Scope jwa_bin_with_sign_scope.
+Delimit Scope jwa_bin_with_sign_scope with b.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [forsome] beyond them, so a formula reads without parentheses; [_\/_] sits

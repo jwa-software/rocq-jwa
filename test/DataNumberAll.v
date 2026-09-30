@@ -675,7 +675,7 @@ Definition data_number_all_delivers_bin_with_zero_retraction
 
 Definition data_number_all_delivers_bin_with_zero_addition
   : forall (m : BinWithZero) (n : BinWithZero) .
-      BinWithZero.to_nat_with_zero (m + n)%b
+      BinWithZero.to_nat_with_zero (m + n)%bin_with_zero
       = (BinWithZero.to_nat_with_zero m + BinWithZero.to_nat_with_zero n)%nat_with_zero
   := BinWithZero.conversion.addition.
 
@@ -692,11 +692,11 @@ Definition data_number_all_delivers_bin_with_zero_subtraction_computes
 
 Definition data_number_all_delivers_bin_with_zero_conjunction_commutativity
   : forall (m : BinWithZero) (n : BinWithZero) .
-      (m && n)%b = (n && m)%b
+      (m && n)%bin_with_zero = (n && m)%bin_with_zero
   := BinWithZero.conjunction.commutativity.
 
 Definition data_number_all_delivers_bin_with_zero_sejunction_irreflexivity
-  : forall (n : BinWithZero) . (n ^^ n)%b = BinWithZero.Zero
+  : forall (n : BinWithZero) . (n ^^ n)%bin_with_zero = BinWithZero.Zero
   := BinWithZero.sejunction.irreflexivity.
 
 Definition data_number_all_delivers_bin_with_zero_shift_retraction
@@ -713,19 +713,19 @@ Definition data_number_all_delivers_bin_with_zero_left_shift
 
 Definition data_number_all_delivers_bin_with_zero_conjunction_computes
   : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
-     && Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%b
+     && Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%bin_with_zero
     = Bin.b0 (Bin.b0 (Bin.b0 Bin.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_disjunction_computes
   : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
-     || Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%b
+     || Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%bin_with_zero
     = Bin.b0 (Bin.b1 (Bin.b1 Bin.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_sejunction_computes
   : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
-     ^^ Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%b
+     ^^ Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%bin_with_zero
     = Bin.b0 (Bin.b1 Bin.One)
   := Identity.reflexivity _.
 
@@ -760,7 +760,7 @@ Definition data_number_all_delivers_bin_maximum_computes
 
 Definition data_number_all_delivers_bin_with_zero_distributivity
   : forall (x : BinWithZero) (y : BinWithZero) (z : BinWithZero) .
-      ((x * (y + z)) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%b
+      ((x * (y + z)) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%bin_with_zero
   := BinWithZero.multiplication.distributivity.over.addition.
 
 Definition data_number_all_delivers_bin_with_zero_well_founded
@@ -777,23 +777,24 @@ Definition data_number_all_delivers_bin_with_zero_narrowing_bin_failure
   := BinWithZero.narrowing.bin.failure.
 
 Definition data_number_all_delivers_bin_with_zero_literal
-  : (1011 + 1)%b = 1100%b
+  : (1011 + 1)%bin_with_zero = 1100%bin_with_zero
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_literal_zero
-  : 0%b = BinWithZero.Zero
+  : 0%bin_with_zero = BinWithZero.Zero
   := Identity.reflexivity _.
 
 Fail Definition data_number_all_refuses_bin_with_zero_literal_digit
   : BinWithZero
-  := 1021%b.
+  := 1021%bin_with_zero.
 
 Definition data_number_all_delivers_bin_with_zero_large_power
-  : (10 ^ 11001000)%b = (100 ^ 1100100)%b
+  : (10 ^ 11001000)%bin_with_zero = (100 ^ 1100100)%bin_with_zero
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_large_product
-  : (1111111111111111 * 1111111111111111)%b = 11111111111111100000000000000001%b
+  : (1111111111111111 * 1111111111111111)%bin_with_zero
+    = 11111111111111100000000000000001%bin_with_zero
   := Identity.reflexivity _.
 
 Theorem data_number_all_delivers_coercion_bin_to_bin_with_zero

@@ -8,6 +8,7 @@ From jwa Require Import Data.Number.Bin.
 From jwa Require Import Data.Number.BinWithZero.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
@@ -190,6 +191,44 @@ Definition compare := fun (x : BinWithSign) (y : BinWithSign) .
 (* [BinWithSign -> BinWithSign -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
 
+(* The magnitude is read by [BinWithZero], which already walks decimal digits
+ * as binary ones, and the sign is applied after. [- 0] therefore reads as
+ * zero rather than being refused: this type has one zero, and [negate] sends
+ * it to itself. Hexadecimal is refused as it is there, so the digits a
+ * literal may carry are exactly [0] and [1].
+ *)
+(* [Numeral.Signed -> Option BinWithSign] *)
+Definition from_numeral := fun (s : Numeral.Signed) .
+  match s with
+  | Numeral.Signed.Decimal (Numeral.Decimal.Signed.Positive d) =>
+      Option.map from_bin_with_zero (BinWithZero.from_digits BinWithZero.Zero d)
+  | Numeral.Signed.Decimal (Numeral.Decimal.Signed.Negative d) =>
+      Option.map (fun (n : BinWithZero) . negate (from_bin_with_zero n))
+        (BinWithZero.from_digits BinWithZero.Zero d)
+  | Numeral.Signed.Hexadecimal _ => None
+  end.
+
+(* Zero prints as [0] and not as [-0]: [Numeral.Decimal.Signed] has no third
+ * case for it, so one of the two signs has to carry it and the positive one
+ * is what a reader expects.
+ *)
+(* [BinWithSign -> Numeral.Signed] *)
+Definition to_numeral := fun (x : BinWithSign) .
+  match x with
+  | - p =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Negative
+           (BinWithZero.to_digits p Numeral.Decimal.Digits.End))
+  | 0 =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Positive
+           (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End))
+  | + p =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Positive
+           (BinWithZero.to_digits p Numeral.Decimal.Digits.End))
+  end.
+
 (* Everything here is stated against [Integer], the unary signed type, through
  * [to_integer]. That is where the meaning of a sign and a magnitude is already
  * proved, so a law holds here as soon as the two agree.
@@ -354,3 +393,26 @@ End BinWithSign. (* BinWithSign *)
  * three other number types, so all four write theirs with the prefix.
  *)
 Abbreviation BinWithSign := BinWithSign.T.
+
+(* What makes the minus of a negative literal parse. [Numeral.Signed] lets
+ * [from_numeral] *receive* a sign, but it does not put one in the grammar:
+ * with the prelude off nothing makes [-1011] a term, and without this line
+ * [(-1011)%b] is a syntax error at the [-]. Declared outside the module so it
+ * does not collide with the [Local] [- p] for [Negative] inside it, and
+ * scoped, so [-] keeps whatever else it means elsewhere.
+ *
+ * [only parsing] costs nothing here: a negative value still prints as
+ * [(-1011)%b], because that comes from [to_numeral] below rather than from
+ * this notation, so [negate] goes on printing by name as every other
+ * operation in the tree does.
+ *)
+Notation "- x" := (BinWithSign.negate x)
+  (at level 35, right associativity, only parsing)
+  : jwa_bin_with_sign_scope.
+
+(* A number of the type is written in binary digits under its scope, [1011%b]
+ * for eleven and [(-1011)%b] for minus eleven, and a closed one prints that
+ * way; a literal with any other digit is refused.
+ *)
+Number Notation BinWithSign.T BinWithSign.from_numeral BinWithSign.to_numeral
+  : jwa_bin_with_sign_scope.
