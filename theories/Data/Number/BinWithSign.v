@@ -7,7 +7,12 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Bin.
 From jwa Require Import Data.Number.BinWithZero.
 From jwa Require Import Data.Number.Integer.
+From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Option.
+From jwa Require Import Dialect.ExFalso.
+From jwa Require Import Dialect.Simpl.
+From jwa Require Import Tactics.Equation.
+From jwa Require Import Tactics.Modus.
 
 (* A module may carry the type's name; its members read [BinWithSign.negate].
  * The type and its ctors are declared inside it: [NatWithZero], [Integer] and
@@ -184,6 +189,163 @@ Definition compare := fun (x : BinWithSign) (y : BinWithSign) .
 
 (* [BinWithSign -> BinWithSign -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
+
+(* Everything here is stated against [Integer], the unary signed type, through
+ * [to_integer]. That is where the meaning of a sign and a magnitude is already
+ * proved, so a law holds here as soon as the two agree.
+ *)
+Module conversion. (* conversion *)
+
+(* conversion.injectivity *)
+Theorem injectivity
+  : forall {x : BinWithSign} {y : BinWithSign} .
+      to_integer x = to_integer y -> x = y.
+Proof.
+  intros x y e.
+  match &x with | p | | p end.
+  -
+    match &y with | q | | q end.
+    +
+      simpl to_integer in &e.
+      leibniz (Bin.conversion.injectivity
+                 (Integer.magnitude.negative.injectivity &e)) in |- *.
+      quod idem est.
+    +
+      simpl to_integer in &e.
+      ex &e quodlibet.
+    +
+      simpl to_integer in &e.
+      ex &e quodlibet.
+  -
+    match &y with | q | | q end.
+    +
+      simpl to_integer in &e.
+      ex &e quodlibet.
+    +
+      quod idem est.
+    +
+      simpl to_integer in &e.
+      ex &e quodlibet.
+  -
+    match &y with | q | | q end.
+    +
+      simpl to_integer in &e.
+      ex &e quodlibet.
+    +
+      simpl to_integer in &e.
+      ex &e quodlibet.
+    +
+      simpl to_integer in &e.
+      leibniz (Bin.conversion.injectivity
+                 (Integer.magnitude.positive.injectivity &e)) in |- *.
+      quod idem est.
+Qed.
+
+(* Seven of the nine sign pairs hold by reduction alone, both sides being the
+ * same [Comparison] constructor. The two like-signed pairs are where the
+ * magnitudes are consulted, and between two negatives the arguments arrive at
+ * [Bin.compare] reversed, matching how [Integer.compare] reverses them.
+ *)
+(* conversion.comparison *)
+Theorem comparison
+  : forall (x : BinWithSign) (y : BinWithSign) .
+      compare x y = Integer.compare (to_integer x) (to_integer y).
+Proof.
+  intros x y.
+  match &x with | p | | p end.
+  -
+    match &y with | q | | q end.
+    + ipso (Bin.conversion.comparison &q &p).
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+  -
+    match &y with | q | | q end.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+  -
+    match &y with | q | | q end.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+    + ipso (Bin.conversion.comparison &p &q).
+Qed.
+
+(* The two-pass bridge against the unary one, which settles that taking both
+ * directions of [Bin.diff] recovers what a single pass throws away.
+ *
+ * [Bin.conversion.difference] reports what each direction means in [Nat], and
+ * the two reports together decide each of the nine pairs. A [Gt] in the first
+ * pass answers on its own, so the second is never consulted there. Of the six
+ * pairs left, four cannot arise and are discharged rather than computed: two
+ * strict inequalities facing each other, a strict inequality against an
+ * equation, and -- the one that is not an order fact -- an equation against a
+ * [Gt], which would make [to_nat p + to_nat d] equal [to_nat p], and no [Bin]
+ * is zero.
+ *)
+(* conversion.difference *)
+Theorem difference
+  : forall (p : Bin) (q : Bin) .
+      to_integer (bin_difference p q)
+    = Integer.nat_difference (Bin.to_nat p) (Bin.to_nat q).
+Proof.
+  intros p q.
+  simpl bin_difference in |- *.
+  let proof forward := Bin.conversion.difference &p &q.
+  let proof backward := Bin.conversion.difference &q &p.
+  extros &forward &backward.
+  match (Bin.diff &p &q) with | | | d end.
+  -
+    intro forward.
+    match (Bin.diff &q &p) with | | | d end.
+    +
+      intro backward.
+      ex (Nat.order.strict.irreflexivity (Bin.to_nat &p)
+            (Nat.order.strict.transitivity &forward &backward)) quodlibet.
+    +
+      intro backward.
+      leibniz &backward in &forward.
+      ex (Nat.order.strict.irreflexivity (Bin.to_nat &p) &forward) quodlibet.
+    +
+      intro backward.
+      symm in |- *.
+      ipso (modus aequans
+              (Integer.difference.nat.negative.specification
+                 (Bin.to_nat &p) (Bin.to_nat &q) (Bin.to_nat &d)), &backward).
+  -
+    intro forward.
+    match (Bin.diff &q &p) with | | | d end.
+    +
+      intro backward.
+      leibniz &forward in &backward.
+      ex (Nat.order.strict.irreflexivity (Bin.to_nat &q) &backward) quodlibet.
+    +
+      intro backward.
+      symm in |- *.
+      ipso (modus aequans
+              (Integer.difference.nat.zero.specification
+                 (Bin.to_nat &p) (Bin.to_nat &q)), &forward).
+    +
+      intro backward.
+      leibniz <- &forward in &backward.
+      let proof below := Nat.addition.order.extensivity (Bin.to_nat &p) (Bin.to_nat &d).
+      leibniz &backward in &below.
+      ex (Nat.order.strict.irreflexivity (Bin.to_nat &p) &below) quodlibet.
+  -
+    intros forward backward.
+    symm in |- *.
+    ipso (modus aequans
+            (Integer.difference.nat.positive.specification
+               (Bin.to_nat &p) (Bin.to_nat &q) (Bin.to_nat &d)), &forward).
+Qed.
+
+End conversion. (* conversion *)
 
 End BinWithSign. (* BinWithSign *)
 
