@@ -14,6 +14,7 @@ From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
 From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [BinWithSign.negate].
  * The type and its ctors are declared inside it: [NatWithZero], [Integer] and
@@ -63,8 +64,8 @@ Definition induction
        end.
 
 (* Short spellings for this module only: [Local] keeps them out of every file
- * that imports this one. [+ p] and [- p] are prefixes; this round declares no
- * infix [+] for them to sit beside.
+ * that imports this one. [+ p] and [- p] are prefixes, distinct from the
+ * infix [+] declared below.
  *)
 Local Notation "0"   := Zero (only parsing).
 Local Notation "+ p" := (Positive p) (at level 35, right associativity, only parsing).
@@ -86,9 +87,7 @@ Definition abs := fun (x : BinWithSign) .
   | + p => BinWithZero.Positive p
   end.
 
-(* The positive part, zero below it. It is what lets an addition be written as
- * one difference of two nonnegative numbers rather than as nine sign cases.
- *)
+(* The positive part, zero below it; [add] is written from it. *)
 (* [BinWithSign -> BinWithZero] *)
 Definition ramp := fun (x : BinWithSign) .
   match x with
@@ -161,6 +160,59 @@ Definition bin_with_zero_difference := fun (a : BinWithZero) (b : BinWithZero) .
   | BinWithZero.Positive p, BinWithZero.Positive q => bin_difference p q
   end.
 
+(* Every value is [ramp x] less [ramp (negate x)], one of which is always
+ * zero, so a sum is a single difference of two nonnegative numbers instead of
+ * nine sign cases. [Integer.add] is written the same way over [NatWithZero].
+ *)
+(* [BinWithSign -> BinWithSign -> BinWithSign] *)
+Definition add := fun (x : BinWithSign) (y : BinWithSign) .
+  bin_with_zero_difference (ramp x + ramp y)%bin_with_zero
+                           (ramp (negate x) + ramp (negate y))%bin_with_zero.
+
+(* The scope is declared in [Core.Notations] and opened only inside this
+ * module; after [End BinWithSign] a client writes [(x + y)%b]. [only parsing]
+ * keeps goals printing the operations by name. The prefix [+ p] above is a
+ * separate notation and coexists with this infix one, as in [Integer].
+ *)
+Notation "x + y" := (add x y) (only parsing)
+  : jwa_bin_with_sign_scope.
+
+Local Open Scope jwa_bin_with_sign_scope.
+
+(* No infix [-]: the scope's [-] is the prefix negation that makes [(-1011)%b]
+ * parse, and [Integer] declares none either.
+ *)
+(* [BinWithSign -> BinWithSign -> BinWithSign] *)
+Definition sub := fun (x : BinWithSign) (y : BinWithSign) . x + negate y.
+
+(* The witness is a [Bin], so it is never zero and [<] is strict.
+ *)
+(* [BinWithSign -> BinWithSign -> Prop] *)
+Definition LessThan := fun (x : BinWithSign) (y : BinWithSign) .
+  forsome (k : Bin) . x + (+ k) = y.
+
+Notation "x < y" := (LessThan x y) (only parsing)
+  : jwa_bin_with_sign_scope.
+
+(* [BinWithSign -> BinWithSign -> Prop] *)
+Definition LessOrEqual := fun (x : BinWithSign) (y : BinWithSign) . x = y \/ x < y.
+
+Notation "x <= y" := (LessOrEqual x y) (only parsing)
+  : jwa_bin_with_sign_scope.
+
+(* The reversed spellings name no new relation: [x > y] is [y < x] with the
+ * arguments the other way round, so no law is stated for them.
+ *)
+Notation "x > y" := (LessThan y x) (only parsing)
+  : jwa_bin_with_sign_scope.
+Notation "x >= y" := (LessOrEqual y x) (only parsing)
+  : jwa_bin_with_sign_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_bin_with_sign_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_bin_with_sign_scope.
+
 (* Between two negatives the order reverses, the larger magnitude being the
  * smaller number, so those two arguments reach [Bin.compare] the other way
  * round.
@@ -191,11 +243,9 @@ Definition compare := fun (x : BinWithSign) (y : BinWithSign) .
 (* [BinWithSign -> BinWithSign -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
 
-(* The magnitude is read by [BinWithZero], which already walks decimal digits
- * as binary ones, and the sign is applied after. [- 0] therefore reads as
- * zero rather than being refused: this type has one zero, and [negate] sends
- * it to itself. Hexadecimal is refused as it is there, so the digits a
- * literal may carry are exactly [0] and [1].
+(* [BinWithZero] reads the magnitude, the sign is applied after. [- 0] reads as
+ * zero, this type having one zero and [negate] sending it to itself.
+ * Hexadecimal is refused there too, so a literal carries only [0] and [1].
  *)
 (* [Numeral.Signed -> Option BinWithSign] *)
 Definition from_numeral := fun (s : Numeral.Signed) .
@@ -208,9 +258,8 @@ Definition from_numeral := fun (s : Numeral.Signed) .
   | Numeral.Signed.Hexadecimal _ => None
   end.
 
-(* Zero prints as [0] and not as [-0]: [Numeral.Decimal.Signed] has no third
- * case for it, so one of the two signs has to carry it and the positive one
- * is what a reader expects.
+(* Zero prints as [0], not [-0]: [Numeral.Decimal.Signed] has only the two
+ * signs, so one of them carries zero.
  *)
 (* [BinWithSign -> Numeral.Signed] *)
 Definition to_numeral := fun (x : BinWithSign) .
@@ -229,9 +278,8 @@ Definition to_numeral := fun (x : BinWithSign) .
            (BinWithZero.to_digits p Numeral.Decimal.Digits.End))
   end.
 
-(* Everything here is stated against [Integer], the unary signed type, through
- * [to_integer]. That is where the meaning of a sign and a magnitude is already
- * proved, so a law holds here as soon as the two agree.
+(* The laws state this type against [Integer] through [to_integer]. The signed
+ * laws are proved there, so agreement carries them.
  *)
 Module conversion. (* conversion *)
 
@@ -280,11 +328,6 @@ Proof.
       quod idem est.
 Qed.
 
-(* Seven of the nine sign pairs hold by reduction alone, both sides being the
- * same [Comparison] constructor. The two like-signed pairs are where the
- * magnitudes are consulted, and between two negatives the arguments arrive at
- * [Bin.compare] reversed, matching how [Integer.compare] reverses them.
- *)
 (* conversion.comparison *)
 Theorem comparison
   : forall (x : BinWithSign) (y : BinWithSign) .
@@ -316,17 +359,10 @@ Proof.
     + ipso (Bin.conversion.comparison &p &q).
 Qed.
 
-(* The two-pass bridge against the unary one, which settles that taking both
- * directions of [Bin.diff] recovers what a single pass throws away.
- *
- * [Bin.conversion.difference] reports what each direction means in [Nat], and
- * the two reports together decide each of the nine pairs. A [Gt] in the first
- * pass answers on its own, so the second is never consulted there. Of the six
- * pairs left, four cannot arise and are discharged rather than computed: two
- * strict inequalities facing each other, a strict inequality against an
- * equation, and -- the one that is not an order fact -- an equation against a
- * [Gt], which would make [to_nat p + to_nat d] equal [to_nat p], and no [Bin]
- * is zero.
+(* Of the nine pairs of [Bin.diff] outcomes, a [Gt] in the first answers alone.
+ * Four of the remaining six cannot arise: [Lt] facing [Lt] or [Eq] either way
+ * contradicts the order on [Nat], and [Eq] facing [Gt] would need
+ * [to_nat p + to_nat d] to equal [to_nat p], which no [Bin] permits.
  *)
 (* conversion.difference *)
 Theorem difference
@@ -384,6 +420,118 @@ Proof.
                (Bin.to_nat &p) (Bin.to_nat &q) (Bin.to_nat &d)), &forward).
 Qed.
 
+(* conversion.negation *)
+Theorem negation
+  : forall (x : BinWithSign) .
+      to_integer (negate x) = Integer.negate (to_integer x).
+Proof.
+  intro x.
+  match &x with | p | | p end.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+Qed.
+
+(* [difference] with the zero cases added. *)
+(* conversion.zero_difference *)
+Theorem zero_difference
+  : forall (a : BinWithZero) (b : BinWithZero) .
+      to_integer (bin_with_zero_difference a b)
+    = Integer.nat_with_zero_difference
+        (BinWithZero.to_nat_with_zero a) (BinWithZero.to_nat_with_zero b).
+Proof.
+  intros a b.
+  match &a with | | p end.
+  - match &b with | | q end.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+  - match &b with | | q end.
+    + simpl in |- *.
+      quod idem est.
+    + ipso (conversion.difference &p &q).
+Qed.
+
+(* conversion.addition *)
+Theorem addition
+  : forall (x : BinWithSign) (y : BinWithSign) .
+      to_integer (x + y) = Integer.add (to_integer x) (to_integer y).
+Proof.
+  intros x y.
+  (* [Integer.add]'s body is an application, not a match, so Rocq's [simpl]
+   * leaves it folded.
+   *)
+  simpl add, Integer.add in |- *.
+  match &x with | p | | p end.
+  -
+    match &y with | q | | q end.
+    +
+      simpl in |- *.
+      leibniz (Bin.conversion.addition &p &q) in |- *.
+      quod idem est.
+    +
+      simpl in |- *.
+      quod idem est.
+    +
+      ipso (conversion.difference &q &p).
+  -
+    match &y with | q | | q end.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      quod idem est.
+  -
+    match &y with | q | | q end.
+    +
+      ipso (conversion.difference &p &q).
+    +
+      simpl in |- *.
+      quod idem est.
+    +
+      simpl in |- *.
+      leibniz (Bin.conversion.addition &p &q) in |- *.
+      quod idem est.
+Qed.
+
+(* conversion.order *)
+Theorem order
+  : forall (x : BinWithSign) (y : BinWithSign) .
+      x < y <-> (to_integer x < to_integer y)%integer.
+Proof.
+  intros x y.
+  divide et impera.
+  -
+    intro h.
+    simpl LessThan in &h.
+    match &h with | k e end.
+    simpl Integer.LessThan in |- *.
+    exists (Bin.to_nat &k).
+    leibniz <- &e in |- *.
+    leibniz (conversion.addition &x (Positive &k)) in |- *.
+    simpl to_integer in |- *.
+    quod idem est.
+  -
+    intro h.
+    simpl Integer.LessThan in &h.
+    match &h with | j e end.
+    simpl LessThan in |- *.
+    exists (Bin.from_nat &j).
+    lemma f : to_integer (&x + (+ Bin.from_nat &j)) = to_integer &y.
+    {
+      leibniz (conversion.addition &x (Positive (Bin.from_nat &j))) in |- *.
+      simpl to_integer in |- *.
+      leibniz (Bin.conversion.retraction &j) in |- *.
+      ipso &e.
+    }
+    ipso (conversion.injectivity &f).
+Qed.
+
 End conversion. (* conversion *)
 
 End BinWithSign. (* BinWithSign *)
@@ -394,17 +542,22 @@ End BinWithSign. (* BinWithSign *)
  *)
 Abbreviation BinWithSign := BinWithSign.T.
 
+(* Makes the notations declared in [Module BinWithSign] usable in every file
+ * that imports this one, as [(x + y)%b] or under an opened
+ * [jwa_bin_with_sign_scope]. Without it the notations reach no client while
+ * this file still compiles, being in scope inside the module. Only the
+ * notations are exported: [add] and the laws keep the [BinWithSign.] prefix,
+ * and the local aliases [0], [+ p] and [- p] stay inside.
+ *)
+Export (notations) BinWithSign.
+
 (* What makes the minus of a negative literal parse. [Numeral.Signed] lets
  * [from_numeral] *receive* a sign, but it does not put one in the grammar:
  * with the prelude off nothing makes [-1011] a term, and without this line
- * [(-1011)%b] is a syntax error at the [-]. Declared outside the module so it
- * does not collide with the [Local] [- p] for [Negative] inside it, and
- * scoped, so [-] keeps whatever else it means elsewhere.
- *
- * [only parsing] costs nothing here: a negative value still prints as
- * [(-1011)%b], because that comes from [to_numeral] below rather than from
- * this notation, so [negate] goes on printing by name as every other
- * operation in the tree does.
+ * [(-1011)%b] is a syntax error at the [-]. Declared outside the module, where
+ * it does not collide with the [Local] [- p] for [Negative], and scoped, so
+ * [-] keeps whatever else it means elsewhere. Under [only parsing] a negative
+ * value still prints as [(-1011)%b], that coming from [to_numeral] below.
  *)
 Notation "- x" := (BinWithSign.negate x)
   (at level 35, right associativity, only parsing)
