@@ -28,6 +28,6 @@ From jwa Require Export Relation.WellFounded.
 From jwa Require Export Data.Number.Binary.All.
 From jwa Require Export Data.Number.Integer.
 From jwa Require Export Data.Number.Nat.
-From jwa Require Export Data.Number.NatWithZero.
+From jwa Require Export Data.Number.Nat0.
 From jwa Require Export Data.Number.Numeral.
 From jwa Require Export Data.Number.Rational.

@@ -4,19 +4,19 @@ From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 From jwa Require Import Data.Assert.
 From jwa Require Import Data.Base.Bool.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Dialect.ExFalso.
 
 (* How many elements a container holds. The count is one function taken at
  * every element type at once, which is what makes it a fact about the
  * container's shape rather than about what is stored in it.
  *
- * The class states no law of its own: any [F A -> NatWithZero] fills it. A
+ * The class states no law of its own: any [F A -> Nat0] fills it. A
  * law would have to relate the count to a second operation, so it belongs
  * to whichever class carries that operation, not here.
  *)
 Class Sized (F : Type -> Type) : Type :=
-  { cardinality : forall {A : Type} . F A -> NatWithZero }.
+  { cardinality : forall {A : Type} . F A -> Nat0 }.
 
 Module Sized. (* Sized *)
 
@@ -26,8 +26,8 @@ Local Open Scope jwa_bool_scope.
 (* [forall {F : Type -> Type} {S : Sized F} {A : Type} . F A -> Bool] *)
 Definition is_empty := fun {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) .
   match cardinality x with
-  | NatWithZero.Zero       => true
-  | NatWithZero.Positive _ => false
+  | Nat0.Zero       => true
+  | Nat0.Positive _ => false
   end.
 
 (* [forall {F : Type -> Type} {S : Sized F} {A : Type} . F A -> Bool] *)
@@ -39,7 +39,7 @@ Module emptiness. (* emptiness *)
 Theorem reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type}
       (x : F A) .
-      Assert (is_empty x) <-> cardinality x = NatWithZero.Zero.
+      Assert (is_empty x) <-> cardinality x = Nat0.Zero.
 Proof.
   intros F S A x.
   simpl is_empty in |- *.
@@ -61,7 +61,7 @@ Module inhabitation. (* inhabitation *)
 (* inhabitation.reflection *)
 Theorem reflection
   : forall {F : Type -> Type} {S : Sized F} {A : Type} (x : F A) .
-      Assert (is_not_empty x) <-> ~ (cardinality x = NatWithZero.Zero).
+      Assert (is_not_empty x) <-> ~ (cardinality x = Nat0.Zero).
 Proof.
   intros F S A x.
   simpl is_not_empty in |- *.

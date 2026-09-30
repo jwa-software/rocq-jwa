@@ -55,24 +55,24 @@ Delimit Scope jwa_bool_scope with bool.
    is never abbreviated, being named for the context it disambiguates. *)
 Declare Scope jwa_nat_scope.
 Delimit Scope jwa_nat_scope with n.
-Declare Scope jwa_nat_with_zero_scope.
-Delimit Scope jwa_nat_with_zero_scope with n0.
+Declare Scope jwa_nat0_scope.
+Delimit Scope jwa_nat0_scope with n0.
 Declare Scope jwa_integer_scope.
 Delimit Scope jwa_integer_scope with z.
 Declare Scope jwa_rational_scope.
 Delimit Scope jwa_rational_scope with q.
-Declare Scope jwa_bin_scope.
-Delimit Scope jwa_bin_scope with bin.
+Declare Scope jwa_bin_base_scope.
+Delimit Scope jwa_bin_base_scope with bin_base.
 Declare Scope jwa_bin_with_zero_scope.
 Delimit Scope jwa_bin_with_zero_scope with bin_with_zero.
 
 (* [b] is the shortest key in the tree and it goes to the type whose literals
-   cover the most ground: [BinWithSign] reads both [1011%b] and [(-1011)%b],
+   cover the most ground: [Bin] reads both [1011%b] and [(-1011)%b],
    where [BinWithZero] could never spell the second. A key is worth its
    brevity when literals are written under it, not when the type is named
    briefly. *)
-Declare Scope jwa_bin_with_sign_scope.
-Delimit Scope jwa_bin_with_sign_scope with b.
+Declare Scope jwa_bin_scope.
+Delimit Scope jwa_bin_scope with b.
 
 (* Precedence follows the textbook order, [~] tightest and [->] loosest with
    [forsome] beyond them, so a formula reads without parentheses; [_\/_] sits

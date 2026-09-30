@@ -100,26 +100,26 @@ Definition data_all_delivers_nat
   := Nat.Successor Nat.One.
 
 Definition data_all_delivers_zero
-  : NatWithZero
-  := NatWithZero.Zero.
+  : Nat0
+  := Nat0.Zero.
 
 Definition data_all_delivers_positive
-  : NatWithZero
-  := NatWithZero.Positive Nat.One.
+  : Nat0
+  := Nat0.Positive Nat.One.
 
 Definition data_all_delivers_add
-  : NatWithZero
-  := NatWithZero.add (NatWithZero.Positive (Nat.add Nat.One Nat.One)) NatWithZero.Zero.
+  : Nat0
+  := Nat0.add (Nat0.Positive (Nat.add Nat.One Nat.One)) Nat0.Zero.
 
 Definition data_all_delivers_instances
-  : forall (x : Nat) (y : Nat) (z : Nat) (w : NatWithZero) .
+  : forall (x : Nat) (y : Nat) (z : Nat) (w : Nat0) .
       Nat.add (Nat.add x y) z = Nat.add x (Nat.add y z)
-  := fun (x : Nat) (y : Nat) (z : Nat) (_ : NatWithZero) .
+  := fun (x : Nat) (y : Nat) (z : Nat) (_ : Nat0) .
        Semigroup.associativity x y z.
 
 Definition data_all_delivers_monoid
-  : forall (w : NatWithZero) .
-      NatWithZero.add NatWithZero.Zero w = w /\ NatWithZero.add w NatWithZero.Zero = w
+  : forall (w : Nat0) .
+      Nat0.add Nat0.Zero w = w /\ Nat0.add w Nat0.Zero = w
   := Monoid.identity.
 
 Definition data_all_delivers_cancellative
@@ -128,18 +128,18 @@ Definition data_all_delivers_cancellative
   := Cancellative.cancellation.
 
 Definition data_all_delivers_cancellative_with_zero
-  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero) .
-      (NatWithZero.add x y = NatWithZero.add x z -> y = z)
-      /\ (NatWithZero.add x y = NatWithZero.add z y -> x = z)
+  : forall (x : Nat0) (y : Nat0) (z : Nat0) .
+      (Nat0.add x y = Nat0.add x z -> y = z)
+      /\ (Nat0.add x y = Nat0.add z y -> x = z)
   := Cancellative.cancellation.
 
 Definition data_all_delivers_nat_operations
   : Nat
   := (Nat.One + Nat.One * Nat.Successor Nat.One)%n.
 
-Definition data_all_delivers_nat_with_zero_operations
-  : NatWithZero
-  := (NatWithZero.Zero + NatWithZero.Positive Nat.One * NatWithZero.Positive Nat.One)%n0.
+Definition data_all_delivers_nat0_operations
+  : Nat0
+  := (Nat0.Zero + Nat0.Positive Nat.One * Nat0.Positive Nat.One)%n0.
 
 Definition data_all_delivers_power
   : Nat
@@ -149,9 +149,9 @@ Definition data_all_delivers_power_notation
   : Nat
   := (Nat.Successor Nat.One ^ Nat.One)%n.
 
-Definition data_all_delivers_nat_with_zero_power_notation
-  : NatWithZero
-  := (NatWithZero.Positive Nat.One ^ NatWithZero.Zero)%n0.
+Definition data_all_delivers_nat0_power_notation
+  : Nat0
+  := (Nat0.Positive Nat.One ^ Nat0.Zero)%n0.
 
 Definition data_all_delivers_sub
   : Option Nat
@@ -225,13 +225,13 @@ Definition data_all_delivers_nat_order
   : Prop
   := (Nat.One < Nat.Successor Nat.One)%n.
 
-Definition data_all_delivers_nat_with_zero_order
+Definition data_all_delivers_nat0_order
   : Prop
-  := (NatWithZero.Zero <= NatWithZero.Positive Nat.One)%n0.
+  := (Nat0.Zero <= Nat0.Positive Nat.One)%n0.
 
 Definition data_all_delivers_reversed_order
   : Prop
-  := (Nat.Successor Nat.One > Nat.One)%n /\ (NatWithZero.Positive Nat.One >= NatWithZero.Zero)%n0.
+  := (Nat.Successor Nat.One > Nat.One)%n /\ (Nat0.Positive Nat.One >= Nat0.Zero)%n0.
 
 Definition data_all_delivers_compare
   : Comparison
@@ -239,7 +239,7 @@ Definition data_all_delivers_compare
 
 Definition data_all_delivers_eq
   : Bool
-  := NatWithZero.eq NatWithZero.Zero NatWithZero.Zero.
+  := Nat0.eq Nat0.Zero Nat0.Zero.
 
 Definition data_all_delivers_comparable_specifications
   : forall (m : Nat) (n : Nat) .
@@ -255,8 +255,8 @@ Definition data_all_delivers_comparable
   := Comparable.order.strict.trichotomy.
 
 Definition data_all_delivers_comparable_min
-  : forall (m : NatWithZero) (n : NatWithZero) .
-      NatWithZero.min m n = NatWithZero.min n m
+  : forall (m : Nat0) (n : Nat0) .
+      Nat0.min m n = Nat0.min n m
   := Comparable.minimum.commutativity.
 
 Definition data_all_delivers_total_order
@@ -264,7 +264,7 @@ Definition data_all_delivers_total_order
   := Total.totality.
 
 Definition data_all_delivers_strict_partial_order
-  : forall (n : NatWithZero) . ~ NatWithZero.LessThan n n
+  : forall (n : Nat0) . ~ Nat0.LessThan n n
   := Irreflexive.irreflexivity.
 
 Definition data_all_delivers_strict_total_order
@@ -273,8 +273,8 @@ Definition data_all_delivers_strict_total_order
   := Trichotomous.trichotomy.
 
 Definition data_all_delivers_max_monoid
-  : forall (n : NatWithZero) .
-      NatWithZero.max NatWithZero.Zero n = n /\ NatWithZero.max n NatWithZero.Zero = n
+  : forall (n : Nat0) .
+      Nat0.max Nat0.Zero n = n /\ Nat0.max n Nat0.Zero = n
   := Monoid.identity.
 
 Definition data_all_delivers_nat_max_monoid
@@ -282,42 +282,42 @@ Definition data_all_delivers_nat_max_monoid
   := Monoid.identity.
 
 Definition data_all_delivers_division
-  : NatWithZero * NatWithZero
-  := (NatWithZero.divide (NatWithZero.Positive Nat.One) Nat.One
-     , NatWithZero.modulo (NatWithZero.Positive Nat.One) Nat.One)%product.
+  : Nat0 * Nat0
+  := (Nat0.divide (Nat0.Positive Nat.One) Nat.One
+     , Nat0.modulo (Nat0.Positive Nat.One) Nat.One)%product.
 
 Definition data_all_delivers_nth
   : Option Bool
-  := List.nth (List.Cons true List.Nil) NatWithZero.Zero.
+  := List.nth (List.Cons true List.Nil) Nat0.Zero.
 
 Definition data_all_delivers_split_at
   : List Bool * List Bool
-  := List.split_at (NatWithZero.Positive Nat.One) (List.Cons true (List.Cons false List.Nil)).
+  := List.split_at (Nat0.Positive Nat.One) (List.Cons true (List.Cons false List.Nil)).
 
 Definition data_all_delivers_replicate
   : List Bool
-  := List.replicate (NatWithZero.Positive Nat.One) true.
+  := List.replicate (Nat0.Positive Nat.One) true.
 
 Definition data_all_delivers_list_sum
-  : NatWithZero
-  := NatWithZero.add (List.sum (List.Cons (NatWithZero.Positive Nat.One) List.Nil))
+  : Nat0
+  := Nat0.add (List.sum (List.Cons (Nat0.Positive Nat.One) List.Nil))
                      (List.product List.Nil).
 
 Definition data_all_delivers_count
-  : NatWithZero
+  : Nat0
   := List.count (fun (b : Bool) . b) (List.Cons true List.Nil).
 
 Definition data_all_delivers_sorting
-  : forall (l : List NatWithZero) .
-      List.Sorted NatWithZero.le (List.insertion_sort NatWithZero.le l)
+  : forall (l : List Nat0) .
+      List.Sorted Nat0.le (List.insertion_sort Nat0.le l)
   := List.sorting.sortedness
-       (fun (m : NatWithZero) (n : NatWithZero) .
+       (fun (m : Nat0) (n : Nat0) .
           Biconditional.backward.elimination
             (Disjunction.congruence
                (Comparable.order.reflection m n) (Comparable.order.reflection n m))
             (Comparable.order.totality m n))
-       (fun (a : NatWithZero) (b : NatWithZero) (c : NatWithZero)
-            (h1 : NatWithZero.le a b = true) (h2 : NatWithZero.le b c = true) .
+       (fun (a : Nat0) (b : Nat0) (c : Nat0)
+            (h1 : Nat0.le a b = true) (h2 : Nat0.le b c = true) .
           Biconditional.backward.elimination
             (Comparable.order.reflection a c)
             (Comparable.order.transitivity a b c
@@ -357,52 +357,52 @@ Definition data_all_delivers_integer_total_order
 
 Definition data_all_delivers_integer_embedding
   : Integer
-  := Integer.from_nat_with_zero (NatWithZero.Positive Nat.One).
+  := Integer.from_nat0 (Nat0.Positive Nat.One).
 
 Definition data_all_delivers_integer_eq
   : Bool
   := Integer.eq (Integer.Negative Nat.One) (Integer.negate (Integer.Positive Nat.One)).
 
 Definition data_all_delivers_range_from_zero
-  : List NatWithZero
-  := List.range_from_zero (NatWithZero.Positive Nat.One).
+  : List Nat0
+  := List.range_from_zero (Nat0.Positive Nat.One).
 
 Definition data_all_delivers_range
-  : List NatWithZero
-  := List.range (NatWithZero.Positive Nat.One) (NatWithZero.Positive (Nat.Successor Nat.One)).
+  : List Nat0
+  := List.range (Nat0.Positive Nat.One) (Nat0.Positive (Nat.Successor Nat.One)).
 
 Definition data_all_delivers_range_inclusive
-  : List NatWithZero
-  := List.range_inclusive NatWithZero.Zero (NatWithZero.Positive Nat.One).
+  : List Nat0
+  := List.range_inclusive Nat0.Zero (Nat0.Positive Nat.One).
 
 Definition data_all_delivers_extrema
-  : Option NatWithZero * Option NatWithZero
-  := (List.maximum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil)
-     , List.minimum_of NatWithZero.le (List.Cons NatWithZero.Zero List.Nil))%product.
+  : Option Nat0 * Option Nat0
+  := (List.maximum_of Nat0.le (List.Cons Nat0.Zero List.Nil)
+     , List.minimum_of Nat0.le (List.Cons Nat0.Zero List.Nil))%product.
 
 Definition data_all_delivers_gauss
-  : NatWithZero.mul (NatWithZero.Positive (Nat.Successor Nat.One))
-      (List.sum (List.range_from_zero (NatWithZero.Positive (Nat.Successor Nat.One))))
-    = NatWithZero.mul (NatWithZero.Positive Nat.One) (NatWithZero.Positive (Nat.Successor Nat.One))
+  : Nat0.mul (Nat0.Positive (Nat.Successor Nat.One))
+      (List.sum (List.range_from_zero (Nat0.Positive (Nat.Successor Nat.One))))
+    = Nat0.mul (Nat0.Positive Nat.One) (Nat0.Positive (Nat.Successor Nat.One))
   := List.range.from_zero.sum.closed_form Nat.One.
 
 Definition data_all_delivers_divides
   : Prop
-  := NatWithZero.Divides (NatWithZero.Positive Nat.One) NatWithZero.Zero.
+  := Nat0.Divides (Nat0.Positive Nat.One) Nat0.Zero.
 
 Definition data_all_delivers_divides_partial_order
-  : forall (m : NatWithZero) (n : NatWithZero) .
-      NatWithZero.Divides m n -> NatWithZero.Divides n m -> m = n
+  : forall (m : Nat0) (n : Nat0) .
+      Nat0.Divides m n -> Nat0.Divides n m -> m = n
   := Antisymmetric.antisymmetry.
 
 Definition data_all_delivers_parity
   : Prop
-  := NatWithZero.Even NatWithZero.Zero /\ Integer.Odd (Integer.Negative Nat.One).
+  := Nat0.Even Nat0.Zero /\ Integer.Odd (Integer.Negative Nat.One).
 
 Definition data_all_delivers_semiring
-  : forall (n : NatWithZero) .
-      NatWithZero.mul NatWithZero.Zero n = NatWithZero.Zero
-      /\ NatWithZero.mul n NatWithZero.Zero = NatWithZero.Zero
+  : forall (n : Nat0) .
+      Nat0.mul Nat0.Zero n = Nat0.Zero
+      /\ Nat0.mul n Nat0.Zero = Nat0.Zero
   := Semiring.annihilation.
 
 Definition data_all_delivers_group

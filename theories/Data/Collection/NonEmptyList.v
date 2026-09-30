@@ -7,7 +7,7 @@ From jwa Require Import Data.Collection.Membership.
 From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
@@ -96,7 +96,7 @@ Fixpoint last {A : Type} (x : NonEmptyList A) : A :=
   | Cons _ x' => last x'
   end.
 
-(* The count is a [Nat] rather than a [NatWithZero]: no value of this type
+(* The count is a [Nat] rather than a [Nat0]: no value of this type
  * holds nothing, so the zero would name a case that cannot arise.
  *)
 (* [forall {A : Type} . NonEmptyList A -> Nat] *)
@@ -536,7 +536,7 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
-    simpl NatWithZero.inc, Nat.inc in |- *.
+    simpl Nat0.inc, Nat.inc in |- *.
     quod idem est.
 Qed.
 
@@ -626,7 +626,7 @@ Instance NonEmptyList_functor
    ; Functor.map_composition := @NonEmptyList.mapping.composition |}.
 
 (* The count is a [Nat], which [Sized] takes as the positive case of a
- * [NatWithZero]: the class has to admit an empty container, this type
+ * [Nat0]: the class has to admit an empty container, this type
  * never is one.
  *)
 Instance NonEmptyList_sized

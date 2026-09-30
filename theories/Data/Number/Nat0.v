@@ -27,12 +27,12 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
-(* A module may carry the type's name; its members read [NatWithZero.add].
+(* A module may carry the type's name; its members read [Nat0.add].
  * The type and its ctors are declared inside it: [Integer] declares [Zero]
  * and [Positive] too, and across files a duplicate ctor name rebinds the
  * bare one silently and with no warning.
  *)
-Module NatWithZero. (* NatWithZero *)
+Module Nat0. (* Nat0 *)
 
 (* [Positive] wraps a [Nat], so an operation here reduces to the [Nat] one
  * plus the [Zero] cases.
@@ -41,11 +41,11 @@ Inductive T : Type :=
   | Zero     : T
   | Positive : Nat -> T.
 
-(* The carrier is named [T] so that the type itself reads [NatWithZero] on
+(* The carrier is named [T] so that the type itself reads [Nat0] on
  * both sides of the module: here through this abbreviation, outside through
- * the one that follows [End NatWithZero].
+ * the one that follows [End Nat0].
  *)
-Abbreviation NatWithZero := T.
+Abbreviation Nat0 := T.
 
 (* Short spellings for this module only: [Local] keeps them out of every
  * file that imports this one. [+ p] is a prefix, apart from the infix [+].
@@ -54,8 +54,8 @@ Local Notation "0" := Zero (only parsing).
 Local Notation "+ p" := (Positive p)
   (at level 35, right associativity, only parsing).
 
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition add := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Nat0] *)
+Definition add := fun (m : Nat0) (n : Nat0) .
   match m with
   | 0   => n
   | + p =>
@@ -65,8 +65,8 @@ Definition add := fun (m : NatWithZero) (n : NatWithZero) .
       end
   end.
 
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition mul := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Nat0] *)
+Definition mul := fun (m : Nat0) (n : Nat0) .
   match m with
   | 0   => 0
   | + p =>
@@ -77,28 +77,28 @@ Definition mul := fun (m : NatWithZero) (n : NatWithZero) .
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End NatWithZero] a client writes [(m + n)%n0].
+ * module; after [End Nat0] a client writes [(m + n)%n0].
  * [only parsing] keeps goals printing the operations by name.
  *)
 Notation "m + n" := (add m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 Notation "m * n" := (mul m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
-Local Open Scope jwa_nat_with_zero_scope.
+Local Open Scope jwa_nat0_scope.
 
-(* [NatWithZero -> NatWithZero] *)
-Definition inc := fun (n : NatWithZero) .
+(* [Nat0 -> Nat0] *)
+Definition inc := fun (n : Nat0) .
   match n with
   | 0   => + Nat.One
   | + p => + (Nat.inc p)
   end.
 
 Notation "++ n" := (inc n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition power := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Nat0] *)
+Definition power := fun (m : Nat0) (n : Nat0) .
   match n with
   | 0   => + Nat.One
   | + q =>
@@ -109,37 +109,37 @@ Definition power := fun (m : NatWithZero) (n : NatWithZero) .
   end.
 
 Notation "m ^ n" := (power m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
-(* [NatWithZero -> NatWithZero -> Prop] *)
-Definition LessThan := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Prop] *)
+Definition LessThan := fun (m : Nat0) (n : Nat0) .
   forsome (k : Nat) . m + (+ k) = n.
 
 Notation "m < n" := (LessThan m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
-(* [NatWithZero -> NatWithZero -> Prop] *)
-Definition LessOrEqual := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Prop] *)
+Definition LessOrEqual := fun (m : Nat0) (n : Nat0) .
   m = n \/ m < n.
 
 Notation "m <= n" := (LessOrEqual m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
 (* The reversed spellings name no new relation: [m > n] is [n < m] with the
  * arguments the other way round, so no law is stated for them.
  *)
 Notation "m > n" := (LessThan n m) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 Notation "m >= n" := (LessOrEqual n m) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
 Notation "'(<)'" := LessThan (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 Notation "'(<=)'" := LessOrEqual (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
-(* [NatWithZero -> NatWithZero -> Comparison] *)
-Definition compare := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Comparison] *)
+Definition compare := fun (m : Nat0) (n : Nat0) .
   match m with
   | 0 =>
       match n with
@@ -153,20 +153,20 @@ Definition compare := fun (m : NatWithZero) (n : NatWithZero) .
       end
   end.
 
-(* [NatWithZero -> NatWithZero -> Bool] *)
+(* [Nat0 -> Nat0 -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
 
-(* [NatWithZero -> NatWithZero -> Bool] *)
+(* [Nat0 -> Nat0 -> Bool] *)
 Abbreviation le := (Comparable.le compare).
 
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
+(* [Nat0 -> Nat0 -> Nat0] *)
 Abbreviation min := (Comparable.min compare).
 
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
+(* [Nat0 -> Nat0 -> Nat0] *)
 Abbreviation max := (Comparable.max compare).
 
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
-Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Nat0] *)
+Definition saturating_sub := fun (m : Nat0) (n : Nat0) .
   match m with
   | 0   => 0
   | + p =>
@@ -180,16 +180,16 @@ Definition saturating_sub := fun (m : NatWithZero) (n : NatWithZero) .
       end
   end.
 
-(* [NatWithZero -> NatWithZero -> Option NatWithZero] *)
-Definition sub := fun (m : NatWithZero) (n : NatWithZero) .
+(* [Nat0 -> Nat0 -> Option Nat0] *)
+Definition sub := fun (m : Nat0) (n : Nat0) .
   match le n m with
   | true  => Some (saturating_sub m n)
   | false => None
   end.
 
 (* The conversion down to [Nat], which has no zero: [None] at [0]. *)
-(* [NatWithZero -> Option Nat] *)
-Definition to_nat := fun (n : NatWithZero) .
+(* [Nat0 -> Option Nat] *)
+Definition to_nat := fun (n : Nat0) .
   match n with
   | 0   => None
   | + p => Some p
@@ -204,9 +204,9 @@ Local Open Scope jwa_product_scope.
 
 Module div. (* div *)
 
-(* [Nat -> Nat -> Product NatWithZero NatWithZero] *)
+(* [Nat -> Nat -> Product Nat0 Nat0] *)
 (* div.nat *)
-Fixpoint nat (dividend : Nat) (divisor : Nat) : Product NatWithZero NatWithZero :=
+Fixpoint nat (dividend : Nat) (divisor : Nat) : Product Nat0 Nat0 :=
   match dividend with
   | Nat.One =>
       match divisor with
@@ -228,27 +228,27 @@ End div. (* div *)
 (* Zero is the one dividend [div.nat] cannot take, and it is handled here so
  * that [divide] and [modulo] are projections and nothing else.
  *)
-(* [NatWithZero -> Nat -> Product NatWithZero NatWithZero] *)
-Definition div := fun (n : NatWithZero) (divisor : Nat) .
+(* [Nat0 -> Nat -> Product Nat0 Nat0] *)
+Definition div := fun (n : Nat0) (divisor : Nat) .
   match n with
   | 0          => (0, 0)
   | + dividend => div.nat dividend divisor
   end.
 
-(* [NatWithZero -> Nat -> NatWithZero] *)
-Definition divide := fun (n : NatWithZero) (divisor : Nat) . pi_1 (div n divisor).
+(* [Nat0 -> Nat -> Nat0] *)
+Definition divide := fun (n : Nat0) (divisor : Nat) . pi_1 (div n divisor).
 
-(* [NatWithZero -> Nat -> NatWithZero] *)
-Definition modulo := fun (n : NatWithZero) (divisor : Nat) . pi_2 (div n divisor).
+(* [Nat0 -> Nat -> Nat0] *)
+Definition modulo := fun (n : Nat0) (divisor : Nat) . pi_2 (div n divisor).
 
 (* The levels are reserved in [Core.Notations]; only the meanings belong here.
  * Both are always written in parentheses, so the dot that ends the token is
  * never next to the one that ends a command or separates a binder.
  *)
 Notation "m /. n" := (divide m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 Notation "m %. n" := (modulo m n) (only parsing)
-  : jwa_nat_with_zero_scope.
+  : jwa_nat0_scope.
 
 Local Close Scope jwa_product_scope.
 
@@ -256,16 +256,16 @@ Local Close Scope jwa_product_scope.
  * reflexive with [Positive Nat.One], transitive by multiplying the witnesses,
  * antisymmetric since [Nat.One] is the only unit.
  *)
-(* [NatWithZero -> NatWithZero -> Prop] *)
-Definition Divides := fun (d : NatWithZero) (n : NatWithZero) .
-  forsome (k : NatWithZero) . d * k = n.
+(* [Nat0 -> Nat0 -> Prop] *)
+Definition Divides := fun (d : Nat0) (n : Nat0) .
+  forsome (k : Nat0) . d * k = n.
 
-(* [NatWithZero -> Prop] *)
-Definition Even := fun (n : NatWithZero) . Divides (+ (Nat.Successor Nat.One)) n.
+(* [Nat0 -> Prop] *)
+Definition Even := fun (n : Nat0) . Divides (+ (Nat.Successor Nat.One)) n.
 
-(* [NatWithZero -> Prop] *)
-Definition Odd := fun (n : NatWithZero) .
-  forsome (k : NatWithZero) . (+ Nat.One) + ((+ (Nat.Successor Nat.One)) * k) = n.
+(* [Nat0 -> Prop] *)
+Definition Odd := fun (n : Nat0) .
+  forsome (k : Nat0) . (+ Nat.One) + ((+ (Nat.Successor Nat.One)) * k) = n.
 
 Module positive. (* positive *)
 
@@ -274,7 +274,7 @@ Theorem injectivity
   : forall {m : Nat} {n : Nat} . (+ m) = + n -> m = n.
 Proof.
   intros m n e.
-  congru (fun (x : NatWithZero) . match x with | 0 => m | + y => y end), e |- e'.
+  congru (fun (x : Nat0) . match x with | 0 => m | + y => y end), e |- e'.
   simpl in e'.
   ipso e'.
 Qed.
@@ -313,7 +313,7 @@ End positive. (* positive *)
 Module increment. (* increment *)
 
 (* increment.specification *)
-Lemma specification : forall (n : NatWithZero) . (++ n) = (+ Nat.One) + n.
+Lemma specification : forall (n : Nat0) . (++ n) = (+ Nat.One) + n.
 Proof.
   intros n.
   match n with | | p end; simpl in |- *.
@@ -328,7 +328,7 @@ Module addition. (* addition *)
 
 (* addition.associativity *)
 Theorem associativity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (l : Nat0) (m : Nat0) (n : Nat0) .
     (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
@@ -357,7 +357,7 @@ Qed.
 
 (* addition.commutativity *)
 Theorem commutativity
-  : forall (m : NatWithZero) (n : NatWithZero) . m + n = n + m.
+  : forall (m : Nat0) (n : Nat0) . m + n = n + m.
 Proof.
   intros m n.
   match m with | | m' end; match n with | | n' end.
@@ -374,7 +374,7 @@ Qed.
 
 (* addition.identity *)
 Theorem identity
-  : forall (n : NatWithZero) . (0 + n = n) /\ (n + 0 = n).
+  : forall (n : Nat0) . (0 + n = n) /\ (n + 0 = n).
 Proof.
   intros n.
   divide et impera.
@@ -389,7 +389,7 @@ Module left. (* addition.left *)
 
 (* addition.left.cancellation *)
 Theorem cancellation
-  : forall {n : NatWithZero} {m : NatWithZero} {k : NatWithZero} .
+  : forall {n : Nat0} {m : Nat0} {k : Nat0} .
       n + m = n + k -> m = k.
 Proof.
   intros n m k.
@@ -434,7 +434,7 @@ Qed.
 
 (* addition.left.commutativity *)
 Lemma commutativity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (l : Nat0) (m : Nat0) (n : Nat0) .
       l + (m + n) = m + (l + n).
 Proof.
   intros l m n.
@@ -450,7 +450,7 @@ Module right. (* addition.right *)
 
 (* addition.right.cancellation *)
 Theorem cancellation
-  : forall {m : NatWithZero} {k : NatWithZero} {n : NatWithZero} .
+  : forall {m : Nat0} {k : Nat0} {n : Nat0} .
       m + n = k + n -> m = k.
 Proof.
   intros m k n e.
@@ -463,7 +463,7 @@ Module identity. (* addition.right.identity *)
 
 (* addition.right.identity.absence *)
 Lemma absence
-  : forall (m : NatWithZero) (n : Nat) . ~ (m + (+ n) = 0).
+  : forall (m : Nat0) (n : Nat) . ~ (m + (+ n) = 0).
 Proof.
   intros m n.
   simpl (~ _) in |- *.
@@ -482,7 +482,7 @@ Module order. (* addition.right.order *)
 
 (* addition.right.order.extensivity *)
 Theorem extensivity
-  : forall (m : NatWithZero) (n : NatWithZero) . n <= m + n.
+  : forall (m : Nat0) (n : Nat0) . n <= m + n.
 Proof.
   intros m n.
   simpl ( _ <= _ ) in |- *.
@@ -503,7 +503,7 @@ Qed.
 
 (* addition.right.order.positivity *)
 Theorem positivity
-  : forall (n : NatWithZero) (k : Nat) . 0 < n + (+ k).
+  : forall (n : Nat0) (k : Nat) . 0 < n + (+ k).
 Proof.
   intros n k.
   simpl ( _ < _ ) in |- *.
@@ -525,7 +525,7 @@ End right. (* addition.right *)
 
 (* addition.cancellation *)
 Theorem cancellation
-  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero) .
+  : forall (m : Nat0) (n : Nat0) (k : Nat0) .
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
@@ -536,7 +536,7 @@ Qed.
 
 (* addition.interchange *)
 Theorem interchange
-  : forall (a : NatWithZero) (b : NatWithZero) (c : NatWithZero) (d : NatWithZero) .
+  : forall (a : Nat0) (b : Nat0) (c : Nat0) (d : Nat0) .
       (a + b) + (c + d) = (a + c) + (b + d).
 Proof.
   intros a b c d.
@@ -556,7 +556,7 @@ Module strict. (* addition.order.strict *)
  *)
 (* addition.order.strict.monotonicity *)
 Theorem monotonicity
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) . m < n -> k + m < k + n.
+  : forall (k : Nat0) (m : Nat0) (n : Nat0) . m < n -> k + m < k + n.
 Proof.
   intros k m n h.
   simpl ( _ < _ ) in h.
@@ -570,7 +570,7 @@ Qed.
 
 (* addition.order.strict.cancellation *)
 Theorem cancellation
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) . k + m < k + n -> m < n.
+  : forall (k : Nat0) (m : Nat0) (n : Nat0) . k + m < k + n -> m < n.
 Proof.
   intros k m n h.
   simpl ( _ < _ ) in h.
@@ -585,7 +585,7 @@ End strict. (* addition.order.strict *)
 
 (* addition.order.monotonicity *)
 Theorem monotonicity
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) . m <= n -> k + m <= k + n.
+  : forall (k : Nat0) (m : Nat0) (n : Nat0) . m <= n -> k + m <= k + n.
 Proof.
   intros k m n h.
   simpl ( _ <= _ ) in h.
@@ -605,7 +605,7 @@ Module multiplication. (* multiplication *)
 
 (* multiplication.commutativity *)
 Theorem commutativity
-  : forall (m : NatWithZero) (n : NatWithZero) . m * n = n * m.
+  : forall (m : Nat0) (n : Nat0) . m * n = n * m.
 Proof.
   intros m n.
   match m with | | m' end; match n with | | n' end.
@@ -622,7 +622,7 @@ Qed.
 
 (* multiplication.associativity *)
 Theorem associativity
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) . (l * m) * n = l * (m * n).
+  : forall (l : Nat0) (m : Nat0) (n : Nat0) . (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
   match l with | | l' end.
@@ -641,7 +641,7 @@ Qed.
 
 (* multiplication.annihilation *)
 Theorem annihilation
-  : forall (n : NatWithZero) . (0 * n = 0) /\ (n * 0 = 0).
+  : forall (n : Nat0) . (0 * n = 0) /\ (n * 0 = 0).
 Proof.
   intros n.
   divide et impera.
@@ -655,7 +655,7 @@ Qed.
 Module left. (* multiplication.left *)
 
 (* multiplication.left.identity *)
-Lemma identity : forall (n : NatWithZero) . (+ Nat.One) * n = n.
+Lemma identity : forall (n : Nat0) . (+ Nat.One) * n = n.
 Proof.
   intros n.
   match n with | | n' end.
@@ -671,7 +671,7 @@ Module over. (* multiplication.left.distributivity.over *)
 
 (* multiplication.left.distributivity.over.addition *)
 Theorem addition
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (l : Nat0) (m : Nat0) (n : Nat0) .
       l * (m + n) = (l * m) + (l * n).
 Proof.
   intros l m n.
@@ -711,7 +711,7 @@ Module strict. (* multiplication.left.order.strict *)
 
 (* multiplication.left.order.strict.monotonicity *)
 Theorem monotonicity
-  : forall (k : Nat) (m : NatWithZero) (n : NatWithZero) .
+  : forall (k : Nat) (m : Nat0) (n : Nat0) .
       m < n -> (+ k) * m < (+ k) * n.
 Proof.
   intros k m n h.
@@ -747,7 +747,7 @@ End left. (* multiplication.left *)
 Module right. (* multiplication.right *)
 
 (* multiplication.right.identity *)
-Lemma identity : forall (m : NatWithZero) . m * (+ Nat.One) = m.
+Lemma identity : forall (m : Nat0) . m * (+ Nat.One) = m.
 Proof.
   intros m.
   match m with | | m' end.
@@ -765,7 +765,7 @@ Module over. (* multiplication.right.distributivity.over *)
 
 (* multiplication.right.distributivity.over.addition *)
 Theorem addition
-  : forall (l : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (l : Nat0) (m : Nat0) (n : Nat0) .
       (m + n) * l = (m * l) + (n * l).
 Proof.
   intros l m n.
@@ -784,7 +784,7 @@ Module order. (* multiplication.right.order *)
 
 (* multiplication.right.order.extensivity *)
 Theorem extensivity
-  : forall (k : Nat) (n : NatWithZero) . n <= (+ k) * n.
+  : forall (k : Nat) (n : Nat0) . n <= (+ k) * n.
 Proof.
   intros k n.
   simpl ( _ <= _ ) in |- *.
@@ -817,7 +817,7 @@ End right. (* multiplication.right *)
 
 (* multiplication.identity *)
 Theorem identity
-  : forall (n : NatWithZero) . ((+ Nat.One) * n = n) /\ (n * (+ Nat.One) = n).
+  : forall (n : Nat0) . ((+ Nat.One) * n = n) /\ (n * (+ Nat.One) = n).
 Proof.
   intros n.
   divide et impera.
@@ -831,7 +831,7 @@ Module over. (* multiplication.distributivity.over *)
 
 (* multiplication.distributivity.over.addition *)
 Theorem addition
-  : forall (x : NatWithZero) (y : NatWithZero) (z : NatWithZero) .
+  : forall (x : Nat0) (y : Nat0) (z : Nat0) .
       (x * (y + z) = (x * y) + (x * z)) /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
@@ -855,7 +855,7 @@ Module power. (* power *)
 Module exponent. (* power.exponent *)
 
 (* power.exponent.absence *)
-Lemma absence : forall (m : NatWithZero) . m ^ 0 = + Nat.One.
+Lemma absence : forall (m : Nat0) . m ^ 0 = + Nat.One.
 Proof.
   intros m.
   simpl in |- *.
@@ -864,7 +864,7 @@ Qed.
 
 (* power.exponent.addition *)
 Theorem addition
-  : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero) . m ^ a * m ^ b = m ^ (a + b).
+  : forall (m : Nat0) (a : Nat0) (b : Nat0) . m ^ a * m ^ b = m ^ (a + b).
 Proof.
   intros m a b.
   match a with | | a' end; match b with | | b' end.
@@ -890,7 +890,7 @@ Qed.
 
 (* power.exponent.multiplication *)
 Theorem multiplication
-  : forall (m : NatWithZero) (a : NatWithZero) (b : NatWithZero) .
+  : forall (m : Nat0) (a : Nat0) (b : Nat0) .
       (m ^ a) ^ b = m ^ (a * b).
 Proof.
   intros m a b.
@@ -923,7 +923,7 @@ Module over. (* power.distributivity.over *)
 
 (* power.distributivity.over.multiplication *)
 Theorem multiplication
-  : forall (m : NatWithZero) (n : NatWithZero) (a : NatWithZero) .
+  : forall (m : Nat0) (n : Nat0) (a : Nat0) .
       (m * n) ^ a = m ^ a * n ^ a.
 Proof.
   intros m n a.
@@ -962,7 +962,7 @@ Module order. (* order *)
 Module strict. (* order.strict *)
 
 (* order.strict.irreflexivity *)
-Theorem irreflexivity : forall (n : NatWithZero) . ~ (n < n).
+Theorem irreflexivity : forall (n : Nat0) . ~ (n < n).
 Proof.
   intros n.
   simpl (~ _) in |- *.
@@ -984,7 +984,7 @@ Qed.
 
 (* order.strict.transitivity *)
 Theorem transitivity
-  : forall {l : NatWithZero} {m : NatWithZero} {n : NatWithZero} . l < m -> m < n -> l < n.
+  : forall {l : Nat0} {m : Nat0} {n : Nat0} . l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
   simpl ( _ < _ ) in h1, h2.
@@ -1005,7 +1005,7 @@ Module zero. (* order.strict.zero *)
 Lemma accessibility : Accessible (<) 0.
 Proof.
   lemma below
-  : forall (y : NatWithZero) . (y < 0) -> Accessible (<) y.
+  : forall (y : Nat0) . (y < 0) -> Accessible (<) y.
   {
     intros y h.
     match h with | k e end.
@@ -1020,7 +1020,7 @@ Qed.
 End zero. (* order.strict.zero *)
 
 (* order.strict.wellfoundedness *)
-Theorem wellfoundedness : forall (n : NatWithZero) . Accessible (<) n.
+Theorem wellfoundedness : forall (n : Nat0) . Accessible (<) n.
 Proof.
   intros n.
   match n with
@@ -1033,7 +1033,7 @@ Proof.
     | p' by IH
     end per Nat.induction.
     + lemma below
-      : forall (y : NatWithZero) . (y < (+ Nat.One)) -> Accessible (<) y.
+      : forall (y : Nat0) . (y < (+ Nat.One)) -> Accessible (<) y.
       {
         intros y h.
         match h with | k e end.
@@ -1051,7 +1051,7 @@ Proof.
       }
       ipso (Accessible_introduction &below).
     + lemma below
-        : forall (y : NatWithZero) . y < (+ Nat.Successor &p') -> Accessible (<) y.
+        : forall (y : Nat0) . y < (+ Nat.Successor &p') -> Accessible (<) y.
       {
         intros y h.
         match h with | k e end.
@@ -1087,7 +1087,7 @@ End strict. (* order.strict *)
 
 (* order.discreteness *)
 Theorem discreteness
-  : forall (m : NatWithZero) (n : NatWithZero) .
+  : forall (m : Nat0) (n : Nat0) .
       m < n + (+ Nat.One) <-> m <= n.
 Proof.
   intros m n.
@@ -1147,7 +1147,7 @@ Module comparison. (* comparison *)
 
 (* comparison.antisymmetry *)
 Theorem antisymmetry
-  : forall (m : NatWithZero) (n : NatWithZero) .
+  : forall (m : Nat0) (n : Nat0) .
       compare m n = Comparison.transpose (compare n m).
 Proof.
   intros m n.
@@ -1166,7 +1166,7 @@ Module strict. (* comparison.strict *)
 
 (* comparison.strict.specification *)
 Lemma specification
-  : forall (m : NatWithZero) (n : NatWithZero) . compare m n = Comparison.Lt <-> m < n.
+  : forall (m : Nat0) (n : Nat0) . compare m n = Comparison.Lt <-> m < n.
 Proof.
   intros m n.
   match m with | | m' end; match n with | | n' end; divide et impera.
@@ -1221,7 +1221,7 @@ Module equality. (* comparison.equality *)
 
 (* comparison.equality.specification *)
 Lemma specification
-  : forall (m : NatWithZero) (n : NatWithZero) . (compare m n = Comparison.Eq) <-> m = n.
+  : forall (m : Nat0) (n : Nat0) . (compare m n = Comparison.Eq) <-> m = n.
 Proof.
   intros m n.
   divide et impera.
@@ -1250,7 +1250,7 @@ End equality. (* comparison.equality *)
 
 (* comparison.specification *)
 Theorem specification
-  : forall (m : NatWithZero) (n : NatWithZero) .
+  : forall (m : Nat0) (n : Nat0) .
       (compare m n = Comparison.Lt <-> m < n) /\ (compare m n = Comparison.Eq <-> m = n).
 Proof.
   intros m n.
@@ -1274,7 +1274,7 @@ Module maximum. (* maximum *)
 Module left. (* maximum.left *)
 
 (* maximum.left.identity *)
-Lemma identity : forall (n : NatWithZero) . max 0 n = n.
+Lemma identity : forall (n : Nat0) . max 0 n = n.
 Proof.
   intros n.
   simpl Comparable.max in |- *.
@@ -1286,7 +1286,7 @@ End left. (* maximum.left *)
 Module right. (* maximum.right *)
 
 (* maximum.right.identity *)
-Lemma identity : forall (n : NatWithZero) . max n 0 = n.
+Lemma identity : forall (n : Nat0) . max n 0 = n.
 Proof.
   intros n.
   leibniz
@@ -1299,7 +1299,7 @@ End right. (* maximum.right *)
 
 (* maximum.identity *)
 Theorem identity
-  : forall (n : NatWithZero) . (max 0 n = n) /\ (max n 0 = n).
+  : forall (n : Nat0) . (max 0 n = n) /\ (max n 0 = n).
 Proof.
   intros n.
   divide et impera.
@@ -1314,7 +1314,7 @@ Module minimum. (* minimum *)
 Module left. (* minimum.left *)
 
 (* minimum.left.annihilation *)
-Lemma annihilation : forall (n : NatWithZero) . min 0 n = 0.
+Lemma annihilation : forall (n : Nat0) . min 0 n = 0.
 Proof.
   intros n.
   simpl Comparable.min in |- *.
@@ -1327,7 +1327,7 @@ Module of. (* minimum.left.distributivity.of *)
 
 (* minimum.left.distributivity.of.addition *)
 Theorem addition
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (k : Nat0) (m : Nat0) (n : Nat0) .
       k + min m n = min (k + m) (k + n).
 Proof.
   intros k m n.
@@ -1377,7 +1377,7 @@ End left. (* minimum.left *)
 Module right. (* minimum.right *)
 
 (* minimum.right.annihilation *)
-Lemma annihilation : forall (n : NatWithZero) . min n 0 = 0.
+Lemma annihilation : forall (n : Nat0) . min n 0 = 0.
 Proof.
   intros n.
   leibniz (Comparable.minimum.commutativity n 0) in |- *.
@@ -1388,7 +1388,7 @@ End right. (* minimum.right *)
 
 (* minimum.annihilation *)
 Theorem annihilation
-  : forall (n : NatWithZero) . (min 0 n = 0) /\ (min n 0 = 0).
+  : forall (n : Nat0) . (min 0 n = 0) /\ (min n 0 = 0).
 Proof.
   intros n.
   divide et impera.
@@ -1408,7 +1408,7 @@ Module of. (* subtraction.saturating.inversion.of *)
 
 (* subtraction.saturating.inversion.of.addition *)
 Theorem addition
-  : forall (m : NatWithZero) (n : NatWithZero) . saturating_sub (m + n) n = m.
+  : forall (m : Nat0) (n : Nat0) . saturating_sub (m + n) n = m.
 Proof.
   intros m n.
   match n with
@@ -1445,7 +1445,7 @@ End inversion. (* subtraction.saturating.inversion *)
 
 (* subtraction.saturating.truncation *)
 Theorem truncation
-  : forall {m : NatWithZero} {n : NatWithZero} . m <= n -> saturating_sub m n = 0.
+  : forall {m : Nat0} {n : Nat0} . m <= n -> saturating_sub m n = 0.
 Proof.
   intros m n h.
   simpl ( _ <= _ ) in h.
@@ -1490,7 +1490,7 @@ Qed.
 
 (* subtraction.saturating.specification *)
 Theorem specification
-  : forall {m : NatWithZero} {n : NatWithZero} .
+  : forall {m : Nat0} {n : Nat0} .
       n <= m -> n + saturating_sub m n = m.
 Proof.
   intros m n h.
@@ -1520,7 +1520,7 @@ Qed.
 Module right. (* subtraction.saturating.right *)
 
 (* subtraction.saturating.right.identity *)
-Theorem identity : forall (n : NatWithZero) . saturating_sub n 0 = n.
+Theorem identity : forall (n : Nat0) . saturating_sub n 0 = n.
 Proof.
   intros n.
   match n with | | n' end; simpl in |- *; quod idem est.
@@ -1530,7 +1530,7 @@ End right. (* subtraction.saturating.right *)
 
 (* subtraction.saturating.cancellation *)
 Theorem cancellation
-  : forall (k : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (k : Nat0) (m : Nat0) (n : Nat0) .
       saturating_sub (k + m) (k + n) = saturating_sub m n.
 Proof.
   intros k m n.
@@ -1570,7 +1570,7 @@ End saturating. (* subtraction.saturating *)
 
 (* subtraction.truncation *)
 Theorem truncation
-  : forall {m : NatWithZero} {n : NatWithZero} . m < n -> sub m n = None.
+  : forall {m : Nat0} {n : Nat0} . m < n -> sub m n = None.
 Proof.
   intros m n h.
   simpl sub in |- *.
@@ -1602,7 +1602,7 @@ Module of. (* subtraction.inversion.of *)
 
 (* subtraction.inversion.of.addition *)
 Theorem addition
-  : forall (m : NatWithZero) (n : NatWithZero) . sub (m + n) n = Some m.
+  : forall (m : Nat0) (n : Nat0) . sub (m + n) n = Some m.
 Proof.
   intros m n.
   simpl sub in |- *.
@@ -1623,7 +1623,7 @@ End inversion. (* subtraction.inversion *)
 
 (* subtraction.specification *)
 Theorem specification
-  : forall (m : NatWithZero) (n : NatWithZero) (k : NatWithZero) .
+  : forall (m : Nat0) (n : Nat0) (k : Nat0) .
       sub m n = Some k <-> n + k = m.
 Proof.
   intros m n k.
@@ -1858,7 +1858,7 @@ Module dividend. (* division.dividend *)
 
 (* division.dividend.reconstruction *)
 Theorem reconstruction
-  : forall (n : NatWithZero) (d : Nat) . ((n /. d) * (+ d)) + (n %. d) = n.
+  : forall (n : Nat0) (d : Nat) . ((n /. d) * (+ d)) + (n %. d) = n.
 Proof.
   intros n d.
   match n with | | p end.
@@ -1873,7 +1873,7 @@ End dividend. (* division.dividend *)
 Module remainder. (* division.remainder *)
 
 (* division.remainder.boundedness *)
-Theorem boundedness : forall (n : NatWithZero) (d : Nat) . (n %. d) < + d.
+Theorem boundedness : forall (n : Nat0) (d : Nat) . (n %. d) < + d.
 Proof.
   intros n d.
   match n with | | p end.
@@ -1888,7 +1888,7 @@ End remainder. (* division.remainder *)
 
 (* division.specification *)
 Theorem specification
-  : forall (n : NatWithZero) (d : Nat) .
+  : forall (n : Nat0) (d : Nat) .
       (((n /. d) * (+ d)) + (n %. d) = n)
       /\ (n %. d) < + d.
 Proof.
@@ -1900,7 +1900,7 @@ Qed.
 
 (* division.uniqueness *)
 Theorem uniqueness
-  : forall (n : NatWithZero) (d : Nat) (m : NatWithZero) (r : NatWithZero) .
+  : forall (n : Nat0) (d : Nat) (m : Nat0) (r : Nat0) .
       ((m * (+ d)) + r = n /\ r < (+ d)) -> ((n /. d) = m) /\ ((n %. d) = r).
 Proof.
   intros n d m r h.
@@ -2023,7 +2023,7 @@ Qed.
 
 (* division.invariance *)
 Theorem invariance
-  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+  : forall (n : Nat0) (d : Nat) (k : Nat) .
       (((+ k) * n) /. (k * d)%n) = n /. d.
 Proof.
   intros n d k.
@@ -2080,7 +2080,7 @@ Qed.
 
 (* division.exactness *)
 Theorem exactness
-  : forall (n : NatWithZero) (d : Nat) . Divides (+ d) n -> (n /. d) * (+ d) = n.
+  : forall (n : Nat0) (d : Nat) . Divides (+ d) n -> (n /. d) * (+ d) = n.
 Proof.
   intros n d h.
   simpl Divides in h.
@@ -2108,7 +2108,7 @@ Qed.
 
 (* division.iteration *)
 Theorem iteration
-  : forall (n : NatWithZero) (a : Nat) (b : Nat) .
+  : forall (n : Nat0) (a : Nat) (b : Nat) .
       ((n /. a) /. b) = (n /. (a * b)%n).
 Proof.
   intros n a b.
@@ -2229,7 +2229,7 @@ Module modulo. (* modulo *)
 
 (* modulo.homogeneity *)
 Theorem homogeneity
-  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
+  : forall (n : Nat0) (d : Nat) (k : Nat) .
       (((+ k) * n) %. (k * d)%n) = (+ k) * (n %. d).
 Proof.
   intros n d k.
@@ -2288,20 +2288,20 @@ Module euclid. (* euclid *)
 (* euclid.well_founded *)
 Instance well_founded
   : WellFounded (Induced (<) pi_2) :=
-  WellFounded.induced (<) (@Product.second NatWithZero NatWithZero)
+  WellFounded.induced (<) (@Product.second Nat0 Nat0)
     {| accessibility := order.strict.wellfoundedness |}.
 
 Local Open Scope jwa_type_scope.
 
-(* [forall (x : NatWithZero * NatWithZero) .
- * (forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) -> NatWithZero]
+(* [forall (x : Nat0 * Nat0) .
+ * (forall (y : Nat0 * Nat0) . Induced (<) pi_2 y x -> Nat0) -> Nat0]
  *)
 (* euclid.step *)
 Definition step
-  : Descent.Step (Induced (<) pi_2) (fun (_ : NatWithZero * NatWithZero) . NatWithZero)
+  : Descent.Step (Induced (<) pi_2) (fun (_ : Nat0 * Nat0) . Nat0)
   :=
-  fun (x : NatWithZero * NatWithZero)
-    (recurse : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero) .
+  fun (x : Nat0 * Nat0)
+    (recurse : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y x -> Nat0) .
     match x with
     (* [b = 0] answers [a].
      * [b = + b'] does not answer with the product [((+ b'), (a %. b'))],
@@ -2311,9 +2311,9 @@ Definition step
     | (a, b) =>
         match b with
         | 0 =>
-            fun (_ : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y (a, 0) -> NatWithZero) . a
+            fun (_ : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y (a, 0) -> Nat0) . a
         | + b' =>
-            fun (recurse : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y (a, + b') -> NatWithZero) .
+            fun (recurse : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y (a, + b') -> Nat0) .
               (recurse
                 ((+ b'), (a %. b'))
                 (Induced.introduction (division.remainder.boundedness a b')))
@@ -2323,10 +2323,10 @@ Definition step
 (* euclid.extensionality *)
 Lemma extensionality : Descent.Extensional euclid.step.
 Proof.
-  (* [x : NatWithZero * NatWithZero]
-   * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
-   * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
-   * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
+  (* [x : Nat0 * Nat0]
+   * [f : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y x -> Nat0]
+   * [g : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y x -> Nat0]
+   * [h : forall (y : Nat0 * Nat0) (r : Induced (<) pi_2 y x) . f y r = g y r]
    * :
    * [|- step x f = step x g]
    *)
@@ -2368,14 +2368,14 @@ Proof.
      *  = g y (Induced.introduction bound)]
      *)
     let y
-      : NatWithZero * NatWithZero
+      : Nat0 * Nat0
       := ((+ b'), (a %. b'))
       in |- *.
 
     (* The context gains [x := (a, + b')], and [f], [g] and [h] fold to it:
-     * [f : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
-     * [g : forall (y : NatWithZero * NatWithZero) . Induced (<) pi_2 y x -> NatWithZero]
-     * [h : forall (y : NatWithZero * NatWithZero) (r : Induced (<) pi_2 y x) . f y r = g y r]
+     * [f : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y x -> Nat0]
+     * [g : forall (y : Nat0 * Nat0) . Induced (<) pi_2 y x -> Nat0]
+     * [h : forall (y : Nat0 * Nat0) (r : Induced (<) pi_2 y x) . f y r = g y r]
      *)
     let x := (a, + b') in *.
 
@@ -2402,34 +2402,34 @@ Module nat. (* euclid.nat *)
 
 (* euclid.nat.well_founded *)
 Instance well_founded
-  : WellFounded (Induced (<)%n (@Product.second NatWithZero Nat)) :=
-  WellFounded.induced (<)%n (@Product.second NatWithZero Nat)
+  : WellFounded (Induced (<)%n (@Product.second Nat0 Nat)) :=
+  WellFounded.induced (<)%n (@Product.second Nat0 Nat)
     Nat_less_than_well_founded.
 
 (* The inner [return] carries the bound rather than an equation, so the
  * branch for a positive remainder has [(+ r) < + q] already in hand.
  *)
-(* [forall (p : Product NatWithZero Nat) .
- *    (forall (s : Product NatWithZero Nat) .
- *       Induced (<)%n (@Product.second NatWithZero Nat) s p -> Nat) ->
+(* [forall (p : Product Nat0 Nat) .
+ *    (forall (s : Product Nat0 Nat) .
+ *       Induced (<)%n (@Product.second Nat0 Nat) s p -> Nat) ->
  *    Nat]
  *)
 (* euclid.nat.step *)
 Definition step
   : Descent.Step
-      (Induced (<)%n (@Product.second NatWithZero Nat))
-      (fun (_ : Product NatWithZero Nat) . Nat)
+      (Induced (<)%n (@Product.second Nat0 Nat))
+      (fun (_ : Product Nat0 Nat) . Nat)
   :=
-  fun (p : Product NatWithZero Nat)
-    (recurse : forall (s : Product NatWithZero Nat) .
-                 Induced (<)%n (@Product.second NatWithZero Nat) s p -> Nat) .
+  fun (p : Product Nat0 Nat)
+    (recurse : forall (s : Product Nat0 Nat) .
+                 Induced (<)%n (@Product.second Nat0 Nat) s p -> Nat) .
     match p as t
-      return ((forall (s : Product NatWithZero Nat) .
-                 Induced (<)%n (@Product.second NatWithZero Nat) s t -> Nat) -> Nat)
+      return ((forall (s : Product Nat0 Nat) .
+                 Induced (<)%n (@Product.second Nat0 Nat) s t -> Nat) -> Nat)
     with
     | (a, q) =>
-        fun (descend : forall (s : Product NatWithZero Nat) .
-                       Induced (<)%n (@Product.second NatWithZero Nat) s (a, q) -> Nat) .
+        fun (descend : forall (s : Product Nat0 Nat) .
+                       Induced (<)%n (@Product.second Nat0 Nat) s (a, q) -> Nat) .
           match (a %. q) as m
           return (m < (+ q) -> Nat)
           with
@@ -2438,7 +2438,7 @@ Definition step
               fun (h : (+ r) < (+ q)) .
                 descend ((+ q), r)
                   (Induced.introduction
-                    (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+                    (f := @Product.second Nat0 Nat) (y := ((+ q), r)) (x := (a, q))
                     (Biconditional.forward.elimination (positive.order.embedding r q) h))
           end (division.remainder.boundedness a q)
     end recurse.
@@ -2462,11 +2462,11 @@ Proof.
     let s
       : Induced
           (<)%n
-          (@Product.second NatWithZero Nat)
+          (@Product.second Nat0 Nat)
           ((+ q), r)
           (a, q)
       := Induced.introduction
-          (f := @Product.second NatWithZero Nat) (y := ((+ q), r)) (x := (a, q))
+          (f := @Product.second Nat0 Nat) (y := ((+ q), r)) (x := (a, q))
           (Biconditional.forward.elimination (positive.order.embedding r q) b)
       in |- *.
     let proof H := h ((+ q), r).
@@ -2482,9 +2482,9 @@ Existing Instance euclid.well_founded.
 Existing Instance euclid.nat.well_founded.
 
 (* Greatest Common Divisor *)
-(* [NatWithZero -> NatWithZero -> NatWithZero] *)
+(* [Nat0 -> Nat0 -> Nat0] *)
 Definition gcd :=
-  fun (a : NatWithZero) (b : NatWithZero) .
+  fun (a : Nat0) (b : Nat0) .
     (WellFounded.recursion euclid.step (a, b)).
 
 Local Close Scope jwa_product_scope.
@@ -2492,7 +2492,7 @@ Local Close Scope jwa_product_scope.
 Module divisibility. (* divisibility *)
 
 (* divisibility.reflexivity *)
-Theorem reflexivity : forall (n : NatWithZero) . Divides n n.
+Theorem reflexivity : forall (n : Nat0) . Divides n n.
 Proof.
   intros n.
   simpl Divides in |- *.
@@ -2502,7 +2502,7 @@ Qed.
 
 (* divisibility.transitivity *)
 Theorem transitivity
-  : forall {l : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
+  : forall {l : Nat0} {m : Nat0} {n : Nat0} .
       Divides l m -> Divides m n -> Divides l n.
 Proof.
   intros l m n h1 h2.
@@ -2518,7 +2518,7 @@ Qed.
 
 (* divisibility.antisymmetry *)
 Theorem antisymmetry
-  : forall {m : NatWithZero} {n : NatWithZero} . Divides m n -> Divides n m -> m = n.
+  : forall {m : Nat0} {n : Nat0} . Divides m n -> Divides n m -> m = n.
 Proof.
   intros m n h1 h2.
   simpl Divides in h1, h2.
@@ -2570,7 +2570,7 @@ Proof.
 Qed.
 
 (* divisibility.bottom *)
-Theorem bottom : forall (n : NatWithZero) . Divides (+ Nat.One) n.
+Theorem bottom : forall (n : Nat0) . Divides (+ Nat.One) n.
 Proof.
   intros n.
   simpl Divides in |- *.
@@ -2579,7 +2579,7 @@ Proof.
 Qed.
 
 (* divisibility.top *)
-Theorem top : forall (n : NatWithZero) . Divides n 0.
+Theorem top : forall (n : Nat0) . Divides n 0.
 Proof.
   intros n.
   simpl Divides in |- *.
@@ -2593,7 +2593,7 @@ Module addition. (* divisibility.addition *)
 
 (* divisibility.addition.closure *)
 Theorem closure
-  : forall {d : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
+  : forall {d : Nat0} {m : Nat0} {n : Nat0} .
       Divides d m -> Divides d n -> Divides d (m + n).
 Proof.
   intros d m n h1 h2.
@@ -2613,7 +2613,7 @@ Qed.
  *)
 (* divisibility.addition.cancellation *)
 Theorem cancellation
-  : forall {d : NatWithZero} {m : NatWithZero} {n : NatWithZero} .
+  : forall {d : Nat0} {m : Nat0} {n : Nat0} .
       Divides d m -> Divides d (m + n) -> Divides d n.
 Proof.
   intros d m n h1 h2.
@@ -2691,7 +2691,7 @@ Module multiplication. (* divisibility.multiplication *)
 
 (* divisibility.multiplication.closure *)
 Theorem closure
-  : forall (d : NatWithZero) (m : NatWithZero) (n : NatWithZero) .
+  : forall (d : Nat0) (m : Nat0) (n : Nat0) .
       Divides d m -> Divides d (m * n).
 Proof.
   intros d m n h.
@@ -2714,7 +2714,7 @@ Module gcd. (* gcd *)
 Local Open Scope jwa_product_scope.
 
 (* gcd.zero *)
-Theorem zero : forall (a : NatWithZero) . gcd a 0 = a.
+Theorem zero : forall (a : Nat0) . gcd a 0 = a.
 Proof.
   intros a.
   simpl gcd in |- *.
@@ -2725,7 +2725,7 @@ Qed.
 
 (* gcd.recurrence *)
 Theorem recurrence
-  : forall (a : NatWithZero) (q : Nat) . gcd a (+ q) = gcd (+ q) ((a %. q)).
+  : forall (a : Nat0) (q : Nat) . gcd a (+ q) = gcd (+ q) ((a %. q)).
 Proof.
   intros a q.
   simpl gcd in |- *.
@@ -2736,14 +2736,14 @@ Qed.
 
 (* gcd.divisibility *)
 Theorem divisibility
-  : forall (b : NatWithZero) (a : NatWithZero) .
+  : forall (b : Nat0) (a : Nat0) .
       Divides (gcd a b) a /\ Divides (gcd a b) b.
 Proof.
   intros b.
   lemma descent
   : Descent.Step
       (<)
-      (fun (c : NatWithZero) . forall (a : NatWithZero) . Divides (gcd a c) a /\ Divides (gcd a c) c).
+      (fun (c : Nat0) . forall (a : Nat0) . Divides (gcd a c) a /\ Divides (gcd a c) c).
   {
     intros c recurse a.
     match c with
@@ -2786,7 +2786,7 @@ Module left. (* gcd.left *)
 
 (* gcd.left.divisibility *)
 Theorem divisibility
-  : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) a.
+  : forall (a : Nat0) (b : Nat0) . Divides (gcd a b) a.
 Proof.
   intros a b.
   match (gcd.divisibility b a) with | h1 h2 end.
@@ -2799,14 +2799,14 @@ Module of. (* gcd.left.distributivity.of *)
 
 (* gcd.left.distributivity.of.multiplication *)
 Theorem multiplication
-  : forall (k : Nat) (b : NatWithZero) (a : NatWithZero) .
+  : forall (k : Nat) (b : Nat0) (a : Nat0) .
       (+ k) * gcd a b = gcd ((+ k) * a) ((+ k) * b).
 Proof.
   intros k b.
   lemma descent
     : Descent.Step
         (<)
-        (fun (c : NatWithZero) . forall (a : NatWithZero) . (+ &k) * gcd a c = gcd ((+ &k) * a) ((+ &k) * c)).
+        (fun (c : Nat0) . forall (a : Nat0) . (+ &k) * gcd a c = gcd ((+ &k) * a) ((+ &k) * c)).
   {
     intros c recurse a.
     match c with
@@ -2850,7 +2850,7 @@ Module right. (* gcd.right *)
 
 (* gcd.right.divisibility *)
 Theorem divisibility
-  : forall (a : NatWithZero) (b : NatWithZero) . Divides (gcd a b) b.
+  : forall (a : Nat0) (b : Nat0) . Divides (gcd a b) b.
 Proof.
   intros a b.
   match (gcd.divisibility b a) with | h1 h2 end.
@@ -2861,14 +2861,14 @@ End right. (* gcd.right *)
 
 (* gcd.universality *)
 Theorem universality
-  : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
+  : forall (b : Nat0) (a : Nat0) (d : Nat0) .
       Divides d a -> Divides d b -> Divides d (gcd a b).
 Proof.
   intros b.
   lemma descent
     : Descent.Step
         (<)
-        (fun (c : NatWithZero) . forall (a : NatWithZero) (d : NatWithZero) . Divides d a -> Divides d c -> Divides d (gcd a c)).
+        (fun (c : Nat0) . forall (a : Nat0) (d : Nat0) . Divides d a -> Divides d c -> Divides d (gcd a c)).
   {
     intros c recurse a d h1 h2.
     match c with
@@ -2905,7 +2905,7 @@ Qed.
 
 (* gcd.commutativity *)
 Theorem commutativity
-  : forall (a : NatWithZero) (b : NatWithZero) . gcd a b = gcd b a.
+  : forall (a : Nat0) (b : Nat0) . gcd a b = gcd b a.
 Proof.
   intros a b.
   ipso (divisibility.antisymmetry
@@ -2929,7 +2929,7 @@ Module multiplication. (* gcd.multiplication *)
 
 (* gcd.multiplication.cancellation *)
 Theorem cancellation
-  : forall (p : NatWithZero) (q : NatWithZero) (r : NatWithZero) .
+  : forall (p : Nat0) (q : Nat0) (r : Nat0) .
       Divides p (q * r) -> gcd p q = (+ Nat.One) -> Divides p r.
 Proof.
   intros p q r h coprime.
@@ -2965,17 +2965,17 @@ Qed.
 
 End multiplication. (* gcd.multiplication *)
 
-(* [NatWithZero -> Nat -> Nat] *)
+(* [Nat0 -> Nat -> Nat] *)
 (* gcd.nat *)
 Definition nat :=
-  fun (a : NatWithZero) (q : Nat) .
+  fun (a : Nat0) (q : Nat) .
     (WellFounded.recursion euclid.nat.step (a, q)).
 
 Module nat. (* gcd.nat *)
 
 (* gcd.nat.zero *)
 Theorem zero
-  : forall (a : NatWithZero) (q : Nat) . (a %. q) = 0 -> gcd.nat a q = q.
+  : forall (a : Nat0) (q : Nat) . (a %. q) = 0 -> gcd.nat a q = q.
 Proof.
   intros a q e.
   simpl gcd.nat in |- *.
@@ -2993,7 +2993,7 @@ Qed.
 
 (* gcd.nat.recurrence *)
 Theorem recurrence
-  : forall (a : NatWithZero) (q : Nat) (r : Nat) .
+  : forall (a : Nat0) (q : Nat) (r : Nat) .
       (a %. q) = + r -> gcd.nat a q = gcd.nat (+ q) r.
 Proof.
   intros a q r e.
@@ -3013,13 +3013,13 @@ Qed.
 
 (* gcd.nat.specification *)
 Theorem specification
-  : forall (q : Nat) (a : NatWithZero) . gcd a (+ q) = + (gcd.nat a q).
+  : forall (q : Nat) (a : Nat0) . gcd a (+ q) = + (gcd.nat a q).
 Proof.
   intros q.
   lemma descent
   : Descent.Step
     (<)%n
-    (fun (c : Nat) . forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c)).
+    (fun (c : Nat) . forall (a : Nat0) . gcd a (+ c) = + (gcd.nat a c)).
   {
     intros c recurse a.
     leibniz (gcd.recurrence a c) in |- *.
@@ -3047,7 +3047,7 @@ Module left. (* gcd.nat.left *)
 
 (* gcd.nat.left.divisibility *)
 Theorem divisibility
-  : forall (a : NatWithZero) (q : Nat) . Divides (+ (gcd.nat a q)) a.
+  : forall (a : Nat0) (q : Nat) . Divides (+ (gcd.nat a q)) a.
 Proof.
   intros a q.
   let proof h := gcd.left.divisibility a (+ q).
@@ -3061,7 +3061,7 @@ Module of. (* gcd.nat.left.distributivity.of *)
 
 (* gcd.nat.left.distributivity.of.multiplication *)
 Theorem multiplication
-  : forall (k : Nat) (q : Nat) (a : NatWithZero) .
+  : forall (k : Nat) (q : Nat) (a : Nat0) .
       (k * gcd.nat a q)%n = gcd.nat ((+ k) * a) (k * q)%n.
 Proof.
   intros k q a.
@@ -3088,7 +3088,7 @@ Module right. (* gcd.nat.right *)
 
 (* gcd.nat.right.divisibility *)
 Theorem divisibility
-  : forall (a : NatWithZero) (q : Nat) . Divides (+ (gcd.nat a q)) (+ q).
+  : forall (a : Nat0) (q : Nat) . Divides (+ (gcd.nat a q)) (+ q).
 Proof.
   intros a q.
   let proof h := gcd.right.divisibility a (+ q).
@@ -3098,7 +3098,7 @@ Qed.
 
 (* gcd.nat.right.annihilation *)
 Theorem annihilation
-  : forall (a : NatWithZero) . gcd.nat a Nat.One = Nat.One.
+  : forall (a : Nat0) . gcd.nat a Nat.One = Nat.One.
 Proof.
   intro a.
   let proof down := gcd.nat.right.divisibility a Nat.One.
@@ -3111,7 +3111,7 @@ End right. (* gcd.nat.right *)
 
 (* gcd.nat.divisibility *)
 Theorem divisibility
-  : forall (a : NatWithZero) (q : Nat) .
+  : forall (a : Nat0) (q : Nat) .
       Divides (+ (gcd.nat a q)) a /\ Divides (+ (gcd.nat a q)) (+ q).
 Proof.
   intros a q.
@@ -3122,7 +3122,7 @@ Qed.
 
 (* gcd.nat.exhaustiveness *)
 Theorem exhaustiveness
-  : forall (a : NatWithZero) (q : Nat) .
+  : forall (a : Nat0) (q : Nat) .
       gcd.nat
         (a /. (gcd.nat a q))
         (divide.nat.safe
@@ -3202,7 +3202,7 @@ End gcd. (* gcd *)
 Module parity. (* parity *)
 
 (* parity.totality *)
-Theorem totality : forall (n : NatWithZero) . Even n \/ Odd n.
+Theorem totality : forall (n : Nat0) . Even n \/ Odd n.
 Proof.
   intros n.
   match n with | | p end.
@@ -3270,7 +3270,7 @@ Module addition. (* parity.even.addition *)
 
 (* parity.even.addition.closure *)
 Theorem closure
-  : forall {m : NatWithZero} {n : NatWithZero} . Even m -> Even n -> Even (m + n).
+  : forall {m : Nat0} {n : Nat0} . Even m -> Even n -> Even (m + n).
 Proof.
   intros m n h1 h2.
   simpl Even in h1, h2 |- *.
@@ -3287,7 +3287,7 @@ Module addition. (* parity.odd.addition *)
 
 (* parity.odd.addition.evenness *)
 Theorem evenness
-  : forall {m : NatWithZero} {n : NatWithZero} . Odd m -> Odd n -> Even (m + n).
+  : forall {m : Nat0} {n : Nat0} . Odd m -> Odd n -> Even (m + n).
 Proof.
   intros m n h1 h2.
   simpl Odd in h1, h2.
@@ -3339,7 +3339,7 @@ Qed.
 
 (* narrowing.nat.specification *)
 Theorem specification
-  : forall (n : NatWithZero) (p : Nat) . to_nat n = Some p <-> n = + p.
+  : forall (n : Nat0) (p : Nat) . to_nat n = Some p <-> n = + p.
 Proof.
   intros n p.
   divide et impera.
@@ -3358,7 +3358,7 @@ Qed.
 
 (* narrowing.nat.failure *)
 Theorem failure
-  : forall (n : NatWithZero) . to_nat n = None <-> n = 0.
+  : forall (n : Nat0) . to_nat n = None <-> n = 0.
 Proof.
   intro n.
   divide et impera.
@@ -3377,102 +3377,102 @@ End nat. (* narrowing.nat *)
 
 End narrowing. (* narrowing *)
 
-End NatWithZero. (* NatWithZero *)
+End Nat0. (* Nat0 *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
- * [NatWithZero], not [NatWithZero.T]. [Zero] and [Positive] name ctors of
+ * [Nat0], not [Nat0.T]. [Zero] and [Positive] name ctors of
  * [Integer] as well, so both types write theirs with the prefix.
  *)
-Abbreviation NatWithZero := NatWithZero.T.
+Abbreviation Nat0 := Nat0.T.
 
-(* Makes the notations declared in [Module NatWithZero] usable in every file
+(* Makes the notations declared in [Module Nat0] usable in every file
  * that imports this one, as [(m + n)%n0] or under an opened
- * [jwa_nat_with_zero_scope]. Only the notations are exported: [add] and the
- * laws still need the [NatWithZero.] prefix, and the local aliases [0] and
+ * [jwa_nat0_scope]. Only the notations are exported: [add] and the
+ * laws still need the [Nat0.] prefix, and the local aliases [0] and
  * [+ p] stay inside the module.
  *)
-Export (notations) NatWithZero.
+Export (notations) Nat0.
 
-(* A [Nat] stands wherever a [NatWithZero] is expected, read as its
+(* A [Nat] stands wherever a [Nat0] is expected, read as its
  * [Positive], and the conversion is printed where it happened.
  *)
-Coercion NatWithZero.Positive : Nat >-> NatWithZero.
-Add Printing Coercion NatWithZero.Positive.
+Coercion Nat0.Positive : Nat >-> Nat0.
+Add Printing Coercion Nat0.Positive.
 
-(* Declared inside [Module NatWithZero], whose proofs use it; an instance
+(* Declared inside [Module Nat0], whose proofs use it; an instance
  * declared there is dropped at the module's [End], so it is announced again
  * here.
  *)
-Existing Instance NatWithZero.comparable.
+Existing Instance Nat0.comparable.
 
-Instance NatWithZero_less_than_well_founded
+Instance Nat0_less_than_well_founded
   : WellFounded (<)%n0 :=
-  {| accessibility := NatWithZero.order.strict.wellfoundedness |}.
+  {| accessibility := Nat0.order.strict.wellfoundedness |}.
 
-Instance NatWithZero_add_monoid
-  : Monoid NatWithZero.add NatWithZero.Zero := {|
+Instance Nat0_add_monoid
+  : Monoid Nat0.add Nat0.Zero := {|
     Monoid.semigroup :=
-      {| Semigroup.associativity := NatWithZero.addition.associativity |}
-  ; Monoid.identity := NatWithZero.addition.identity
+      {| Semigroup.associativity := Nat0.addition.associativity |}
+  ; Monoid.identity := Nat0.addition.identity
   |}.
 
-Instance NatWithZero_add_cancellative
-  : Cancellative NatWithZero.add := {|
-    Cancellative.cancellation := NatWithZero.addition.cancellation
+Instance Nat0_add_cancellative
+  : Cancellative Nat0.add := {|
+    Cancellative.cancellation := Nat0.addition.cancellation
   |}.
 
-Instance NatWithZero_mul_monoid
-  : Monoid NatWithZero.mul Nat.One := {|
+Instance Nat0_mul_monoid
+  : Monoid Nat0.mul Nat.One := {|
     Monoid.semigroup := {|
-      Semigroup.associativity := NatWithZero.multiplication.associativity |}
-  ; Monoid.identity := NatWithZero.multiplication.identity |}.
+      Semigroup.associativity := Nat0.multiplication.associativity |}
+  ; Monoid.identity := Nat0.multiplication.identity |}.
 
-Instance NatWithZero_add_commutative
-  : Commutative NatWithZero.add := {|
-      Commutative.commutativity := NatWithZero.addition.commutativity
+Instance Nat0_add_commutative
+  : Commutative Nat0.add := {|
+      Commutative.commutativity := Nat0.addition.commutativity
   |}.
 
-Instance NatWithZero_add_abelian_monoid
-  : AbelianMonoid NatWithZero.add NatWithZero.Zero :=
-  {| AbelianMonoid.monoid      := NatWithZero_add_monoid
-   ; AbelianMonoid.commutative := NatWithZero_add_commutative |}.
+Instance Nat0_add_abelian_monoid
+  : AbelianMonoid Nat0.add Nat0.Zero :=
+  {| AbelianMonoid.monoid      := Nat0_add_monoid
+   ; AbelianMonoid.commutative := Nat0_add_commutative |}.
 
-Instance NatWithZero_mul_commutative
-  : Commutative NatWithZero.mul := {|
-    Commutative.commutativity := NatWithZero.multiplication.commutativity
+Instance Nat0_mul_commutative
+  : Commutative Nat0.mul := {|
+    Commutative.commutativity := Nat0.multiplication.commutativity
   |}.
 
-Instance NatWithZero_min_semigroup
-  : Semigroup NatWithZero.min :=
+Instance Nat0_min_semigroup
+  : Semigroup Nat0.min :=
   {| Semigroup.associativity := Comparable.minimum.associativity |}.
 
-Instance NatWithZero_max_monoid
-  : Monoid NatWithZero.max NatWithZero.Zero :=
+Instance Nat0_max_monoid
+  : Monoid Nat0.max Nat0.Zero :=
   {| Monoid.semigroup :=
        {| Semigroup.associativity := Comparable.maximum.associativity |}
-   ; Monoid.identity := NatWithZero.maximum.identity |}.
+   ; Monoid.identity := Nat0.maximum.identity |}.
 
-Instance NatWithZero_min_commutative
-  : Commutative NatWithZero.min :=
+Instance Nat0_min_commutative
+  : Commutative Nat0.min :=
   {| Commutative.commutativity := Comparable.minimum.commutativity |}.
 
-Instance NatWithZero_max_commutative
-  : Commutative NatWithZero.max :=
+Instance Nat0_max_commutative
+  : Commutative Nat0.max :=
   {| Commutative.commutativity := Comparable.maximum.commutativity |}.
 
-Instance NatWithZero_semiring
-  : Semiring NatWithZero.add NatWithZero.Zero NatWithZero.mul
+Instance Nat0_semiring
+  : Semiring Nat0.add Nat0.Zero Nat0.mul
       Nat.One :=
-  {| Semiring.abelian_monoid := NatWithZero_add_abelian_monoid
-   ; Semiring.monoid         := NatWithZero_mul_monoid
-   ; Semiring.distributivity := NatWithZero.multiplication.distributivity.over.addition
-   ; Semiring.annihilation   := NatWithZero.multiplication.annihilation |}.
+  {| Semiring.abelian_monoid := Nat0_add_abelian_monoid
+   ; Semiring.monoid         := Nat0_mul_monoid
+   ; Semiring.distributivity := Nat0.multiplication.distributivity.over.addition
+   ; Semiring.annihilation   := Nat0.multiplication.annihilation |}.
 
-Instance NatWithZero_divides_partial_order
-  : PartialOrder NatWithZero.Divides :=
+Instance Nat0_divides_partial_order
+  : PartialOrder Nat0.Divides :=
   {| PartialOrder.reflexivity :=
-       {| Reflexive.reflexivity := NatWithZero.divisibility.reflexivity |}
+       {| Reflexive.reflexivity := Nat0.divisibility.reflexivity |}
    ; PartialOrder.antisymmetry :=
-       {| Antisymmetric.antisymmetry := @NatWithZero.divisibility.antisymmetry |}
+       {| Antisymmetric.antisymmetry := @Nat0.divisibility.antisymmetry |}
    ; PartialOrder.transitivity :=
-       {| Transitive.transitivity := @NatWithZero.divisibility.transitivity |} |}.
+       {| Transitive.transitivity := @Nat0.divisibility.transitivity |} |}.

@@ -11,7 +11,7 @@ Definition data_collection_all_delivers_operations
   := fun (A : Type) (l : List A) . (l ++ List.Nil)%list.
 
 Definition data_collection_all_delivers_sized
-  : forall (A : Type) (l : List A) . NatWithZero
+  : forall (A : Type) (l : List A) . Nat0
   := fun (A : Type) (l : List A) . cardinality l.
 
 Definition data_collection_all_delivers_membership
@@ -44,7 +44,7 @@ Definition data_collection_all_delivers_non_empty_list_notations
        ((a :: x) ++ [a])%non_empty_list.
 
 Definition data_collection_all_delivers_non_empty_list_sized
-  : forall (A : Type) (x : NonEmptyList A) . NatWithZero
+  : forall (A : Type) (x : NonEmptyList A) . Nat0
   := fun (A : Type) (x : NonEmptyList A) . cardinality x.
 
 Definition data_collection_all_delivers_non_empty_list_membership

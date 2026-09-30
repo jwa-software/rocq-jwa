@@ -12,7 +12,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
@@ -23,7 +23,7 @@ From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [Integer.add]. The
- * type and its ctors are declared inside it: [NatWithZero] declares [Zero]
+ * type and its ctors are declared inside it: [Nat0] declares [Zero]
  * and [Positive] too, and across files a duplicate ctor name rebinds the
  * bare one silently and with no warning.
  *)
@@ -62,7 +62,7 @@ Definition induction
 
 (* Short spellings for this module only: [Local] keeps them out of every
  * file that imports this one. [+ p] and [- p] are prefixes, apart from the
- * infix [+]; the ctors of [NatWithZero] keep their qualified names.
+ * infix [+]; the ctors of [Nat0] keep their qualified names.
  *)
 Local Notation "0"   := Zero (only parsing).
 Local Notation "+ p" := (Positive p) (at level 35, right associativity, only parsing).
@@ -76,12 +76,12 @@ Definition negate := fun (x : Integer) .
   | + p => - p
   end.
 
-(* [Integer -> NatWithZero] *)
+(* [Integer -> Nat0] *)
 Definition abs := fun (x : Integer) .
   match x with
-  | - p => NatWithZero.Positive p
-  | 0   => NatWithZero.Zero
-  | + p => NatWithZero.Positive p
+  | - p => Nat0.Positive p
+  | 0   => Nat0.Zero
+  | + p => Nat0.Positive p
   end.
 
 (* The bars of the magnitude, in parentheses: a bare [| x |] would be read
@@ -95,30 +95,30 @@ Notation "(| x |)" := (abs x) (only parsing)
 (* [Nat -> Integer] *)
 Definition from_nat := fun (n : Nat) . (+ n).
 
-(* [NatWithZero -> Integer] *)
-Definition from_nat_with_zero := fun (n : NatWithZero) .
+(* [Nat0 -> Integer] *)
+Definition from_nat0 := fun (n : Nat0) .
   match n return Integer with
-  | NatWithZero.Zero       => 0
-  | NatWithZero.Positive p => + p
+  | Nat0.Zero       => 0
+  | Nat0.Positive p => + p
   end.
 
-(* [Integer -> NatWithZero] *)
+(* [Integer -> Nat0] *)
 Definition ramp := fun (x : Integer) .
   match x with
-  | - _ => NatWithZero.Zero
-  | 0   => NatWithZero.Zero
-  | + p => NatWithZero.Positive p
+  | - _ => Nat0.Zero
+  | 0   => Nat0.Zero
+  | + p => Nat0.Positive p
   end.
 
-(* The conversions down: [None] below [0] for [NatWithZero], and at or below
- * it for [Nat], where [ramp] answers [NatWithZero.Zero] instead.
+(* The conversions down: [None] below [0] for [Nat0], and at or below
+ * it for [Nat], where [ramp] answers [Nat0.Zero] instead.
  *)
-(* [Integer -> Option NatWithZero] *)
-Definition to_nat_with_zero := fun (x : Integer) .
+(* [Integer -> Option Nat0] *)
+Definition to_nat0 := fun (x : Integer) .
   match x with
   | - _ => None
-  | 0   => Some NatWithZero.Zero
-  | + p => Some (NatWithZero.Positive p)
+  | 0   => Some Nat0.Zero
+  | + p => Some (Nat0.Positive p)
   end.
 
 (* [Integer -> Option Nat] *)
@@ -138,18 +138,18 @@ Fixpoint nat_difference (p : Nat) (q : Nat) : Integer :=
   | Nat.Successor p', Nat.Successor q' => nat_difference p' q'
   end.
 
-(* [NatWithZero -> NatWithZero -> Integer] *)
-Definition nat_with_zero_difference := fun (a : NatWithZero) (b : NatWithZero) .
+(* [Nat0 -> Nat0 -> Integer] *)
+Definition nat0_difference := fun (a : Nat0) (b : Nat0) .
   match a, b with
-  | NatWithZero.Zero, NatWithZero.Zero             => 0
-  | NatWithZero.Zero, NatWithZero.Positive q       => - q
-  | NatWithZero.Positive p, NatWithZero.Zero       => + p
-  | NatWithZero.Positive p, NatWithZero.Positive q => nat_difference p q
+  | Nat0.Zero, Nat0.Zero             => 0
+  | Nat0.Zero, Nat0.Positive q       => - q
+  | Nat0.Positive p, Nat0.Zero       => + p
+  | Nat0.Positive p, Nat0.Positive q => nat_difference p q
   end.
 
 (* [Integer -> Integer -> Integer] *)
 Definition add := fun (m : Integer) (n : Integer) .
-  nat_with_zero_difference (ramp m + ramp n)%n0
+  nat0_difference (ramp m + ramp n)%n0
                            (ramp (negate m) + ramp (negate n))%n0.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
@@ -191,13 +191,13 @@ Notation "m * n" := (mul m n) (only parsing)
 (* [Integer -> Nat -> Integer] *)
 Definition divide := fun (x : Integer) (d : Nat) .
   match x with
-  | - p => negate (from_nat_with_zero (p /. d)%n0)
+  | - p => negate (from_nat0 (p /. d)%n0)
   | 0   => 0
-  | + p => from_nat_with_zero (p /. d)%n0
+  | + p => from_nat0 (p /. d)%n0
   end.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here,
- * and it is written in parentheses as [NatWithZero]'s is, so the dot that
+ * and it is written in parentheses as [Nat0]'s is, so the dot that
  * ends the token never sits beside the one that ends a command. There is no
  * [%.] to go with it: a remainder on this type needs a sign convention, and
  * none is chosen, so [Integer] carries no [modulo].
@@ -314,8 +314,8 @@ Module embedding. (* embedding *)
 
 (* embedding.injectivity *)
 Theorem injectivity
-  : forall {m : NatWithZero} {n : NatWithZero} .
-      from_nat_with_zero m = from_nat_with_zero n -> m = n.
+  : forall {m : Nat0} {n : Nat0} .
+      from_nat0 m = from_nat0 n -> m = n.
 Proof.
   intros m n e.
   match m with | | p end; match n with | | q end.
@@ -523,7 +523,7 @@ Proof.
     let proof s := difference.nat.specification p q.
     leibniz e in s.
     simpl in s.
-    let proof e' := NatWithZero.positive.injectivity s.
+    let proof e' := Nat0.positive.injectivity s.
     leibniz (Nat.addition.commutativity p k) in |- *.
     ipso (Identity.symmetry e').
   - intro e.
@@ -547,7 +547,7 @@ Proof.
     let proof s := difference.nat.specification p q.
     leibniz e in s.
     simpl in s.
-    let proof e' := NatWithZero.positive.injectivity s.
+    let proof e' := Nat0.positive.injectivity s.
     ipso (Identity.symmetry e').
   - intro e.
     leibniz e in |- *.
@@ -568,7 +568,7 @@ Proof.
     let proof s := difference.nat.specification p q.
     leibniz e in s.
     simpl in s.
-    let proof e' := NatWithZero.positive.injectivity s.
+    let proof e' := Nat0.positive.injectivity s.
     leibniz (Nat.addition.commutativity q k) in |- *.
     ipso e'.
   - intro e.
@@ -620,19 +620,19 @@ Qed.
 
 End nat. (* difference.nat *)
 
-Module nat_with_zero. (* difference.nat_with_zero *)
+Module nat0. (* difference.nat0 *)
 
-(* difference.nat_with_zero.canonicity *)
+(* difference.nat0.canonicity *)
 Lemma canonicity
-  : forall (x : Integer) . nat_with_zero_difference (ramp x) (ramp (negate x)) = x.
+  : forall (x : Integer) . nat0_difference (ramp x) (ramp (negate x)) = x.
 Proof.
   intros x.
   match x with | p | | p end; simpl in |- *; quod idem est.
 Qed.
 
-(* difference.nat_with_zero.reflexivity *)
+(* difference.nat0.reflexivity *)
 Lemma reflexivity
-  : forall (n : NatWithZero) . nat_with_zero_difference n n = 0.
+  : forall (n : Nat0) . nat0_difference n n = 0.
 Proof.
   intros n.
   match n with | | p end.
@@ -642,16 +642,16 @@ Proof.
     ipso (difference.nat.reflexivity p).
 Qed.
 
-Module left. (* difference.nat_with_zero.left *)
+Module left. (* difference.nat0.left *)
 
-Module inversion. (* difference.nat_with_zero.left.inversion *)
+Module inversion. (* difference.nat0.left.inversion *)
 
-Module of. (* difference.nat_with_zero.left.inversion.of *)
+Module of. (* difference.nat0.left.inversion.of *)
 
-(* difference.nat_with_zero.left.inversion.of.addition *)
+(* difference.nat0.left.inversion.of.addition *)
 Lemma addition
-  : forall (k : Nat) (a : NatWithZero) .
-      nat_with_zero_difference (k + a)%n0 a = + k.
+  : forall (k : Nat) (a : Nat0) .
+      nat0_difference (k + a)%n0 a = + k.
 Proof.
   intros k a.
   match a with | | q end.
@@ -661,22 +661,22 @@ Proof.
     ipso (difference.nat.left.inversion.of.addition k q).
 Qed.
 
-End of. (* difference.nat_with_zero.left.inversion.of *)
+End of. (* difference.nat0.left.inversion.of *)
 
-End inversion. (* difference.nat_with_zero.left.inversion *)
+End inversion. (* difference.nat0.left.inversion *)
 
-End left. (* difference.nat_with_zero.left *)
+End left. (* difference.nat0.left *)
 
-Module right. (* difference.nat_with_zero.right *)
+Module right. (* difference.nat0.right *)
 
-Module inversion. (* difference.nat_with_zero.right.inversion *)
+Module inversion. (* difference.nat0.right.inversion *)
 
-Module of. (* difference.nat_with_zero.right.inversion.of *)
+Module of. (* difference.nat0.right.inversion.of *)
 
-(* difference.nat_with_zero.right.inversion.of.addition *)
+(* difference.nat0.right.inversion.of.addition *)
 Lemma addition
-  : forall (k : Nat) (a : NatWithZero) .
-      nat_with_zero_difference a (k + a)%n0 = - k.
+  : forall (k : Nat) (a : Nat0) .
+      nat0_difference a (k + a)%n0 = - k.
 Proof.
   intros k a.
   match a with | | q end.
@@ -686,17 +686,17 @@ Proof.
     ipso (difference.nat.right.inversion.of.addition k q).
 Qed.
 
-End of. (* difference.nat_with_zero.right.inversion.of *)
+End of. (* difference.nat0.right.inversion.of *)
 
-End inversion. (* difference.nat_with_zero.right.inversion *)
+End inversion. (* difference.nat0.right.inversion *)
 
-End right. (* difference.nat_with_zero.right *)
+End right. (* difference.nat0.right *)
 
-(* difference.nat_with_zero.specification *)
+(* difference.nat0.specification *)
 Lemma specification
-  : forall (a : NatWithZero) (b : NatWithZero) .
-      (ramp (nat_with_zero_difference a b) + b)%n0
-      = (ramp (negate (nat_with_zero_difference a b)) + a)%n0.
+  : forall (a : Nat0) (b : Nat0) .
+      (ramp (nat0_difference a b) + b)%n0
+      = (ramp (negate (nat0_difference a b)) + a)%n0.
 Proof.
   intros a b.
   match a with | | p end; match b with | | q end.
@@ -710,43 +710,43 @@ Proof.
     ipso (difference.nat.specification p q).
 Qed.
 
-(* difference.nat_with_zero.well_definedness *)
+(* difference.nat0.well_definedness *)
 Lemma well_definedness
-  : forall {a : NatWithZero} {b : NatWithZero} {c : NatWithZero} {d : NatWithZero} .
+  : forall {a : Nat0} {b : Nat0} {c : Nat0} {d : Nat0} .
       (a + d)%n0 = (c + b)%n0 ->
-      nat_with_zero_difference a b = nat_with_zero_difference c d.
+      nat0_difference a b = nat0_difference c d.
 Proof.
   intros a b c d h.
   match a with | | p end; match b with | | q end.
   - simpl in h.
-    leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
+    leibniz (Nat0.addition.commutativity c Nat0.Zero) in h.
     simpl in h.
     leibniz h in |- *.
-    leibniz (difference.nat_with_zero.reflexivity c) in |- *.
+    leibniz (difference.nat0.reflexivity c) in |- *.
     simpl in |- *.
     quod idem est.
   - simpl in h.
     leibniz h in |- *.
-    leibniz (NatWithZero.addition.commutativity c q) in |- *.
-    leibniz (difference.nat_with_zero.right.inversion.of.addition q c) in |- *.
+    leibniz (Nat0.addition.commutativity c q) in |- *.
+    leibniz (difference.nat0.right.inversion.of.addition q c) in |- *.
     simpl in |- *.
     quod idem est.
-  - leibniz (NatWithZero.addition.commutativity c NatWithZero.Zero) in h.
+  - leibniz (Nat0.addition.commutativity c Nat0.Zero) in h.
     let proof h : (p + d)%n0 = c := &h.
     symm in h.
     leibniz h in |- *.
-    leibniz (difference.nat_with_zero.left.inversion.of.addition p d) in |- *.
+    leibniz (difference.nat0.left.inversion.of.addition p d) in |- *.
     simpl in |- *.
     quod idem est.
   - match c with | | r end; match d with | | s end.
     + simpl in h.
-      let proof e := NatWithZero.positive.injectivity h.
+      let proof e := Nat0.positive.injectivity h.
       leibniz e in |- *.
       simpl in |- *.
       leibniz (difference.nat.reflexivity q) in |- *.
       quod idem est.
     + simpl in h.
-      let proof e := NatWithZero.positive.injectivity h.
+      let proof e := Nat0.positive.injectivity h.
       symm in e.
       leibniz e in |- *.
       simpl in |- *.
@@ -754,21 +754,21 @@ Proof.
       leibniz (difference.nat.right.inversion.of.addition s p) in |- *.
       quod idem est.
     + simpl in h.
-      let proof e := NatWithZero.positive.injectivity h.
+      let proof e := Nat0.positive.injectivity h.
       leibniz e in |- *.
       simpl in |- *.
       leibniz (difference.nat.left.inversion.of.addition r q) in |- *.
       quod idem est.
     + simpl in h.
-      let proof e := NatWithZero.positive.injectivity h.
+      let proof e := Nat0.positive.injectivity h.
       simpl in |- *.
       ipso (difference.nat.well_definedness e).
 Qed.
 
-(* difference.nat_with_zero.negation *)
+(* difference.nat0.negation *)
 Lemma negation
-  : forall (a : NatWithZero) (b : NatWithZero) .
-      negate (nat_with_zero_difference a b) = nat_with_zero_difference b a.
+  : forall (a : Nat0) (b : Nat0) .
+      negate (nat0_difference a b) = nat0_difference b a.
 Proof.
   intros a b.
   match a with | | p end; match b with | | q end.
@@ -782,50 +782,50 @@ Proof.
     ipso (difference.nat.negation p q).
 Qed.
 
-(* difference.nat_with_zero.additivity *)
+(* difference.nat0.additivity *)
 Theorem additivity
-  : forall (a : NatWithZero) (b : NatWithZero) (c : NatWithZero) (d : NatWithZero) .
-      (nat_with_zero_difference a b) + (nat_with_zero_difference c d)
-    = nat_with_zero_difference (a + c)%n0 (b + d)%n0.
+  : forall (a : Nat0) (b : Nat0) (c : Nat0) (d : Nat0) .
+      (nat0_difference a b) + (nat0_difference c d)
+    = nat0_difference (a + c)%n0 (b + d)%n0.
 Proof.
   intros a b c d.
   simpl add in |- *.
   lemma facto
-    : (ramp (nat_with_zero_difference &a &b) + ramp (nat_with_zero_difference &c &d)
+    : (ramp (nat0_difference &a &b) + ramp (nat0_difference &c &d)
        + (&b + &d))%n0
       = (&a + &c
-         + (ramp (negate (nat_with_zero_difference &a &b))
-            + ramp (negate (nat_with_zero_difference &c &d))))%n0.
+         + (ramp (negate (nat0_difference &a &b))
+            + ramp (negate (nat0_difference &c &d))))%n0.
   {
-    leibniz (NatWithZero.addition.interchange
-              (ramp (nat_with_zero_difference a b))
-              (ramp (nat_with_zero_difference c d))
+    leibniz (Nat0.addition.interchange
+              (ramp (nat0_difference a b))
+              (ramp (nat0_difference c d))
               b d) in |- *.
-    leibniz (difference.nat_with_zero.specification a b) in |- *.
-    leibniz (difference.nat_with_zero.specification c d) in |- *.
-    leibniz (NatWithZero.addition.interchange
-               (ramp (negate (nat_with_zero_difference a b))) a
-               (ramp (negate (nat_with_zero_difference c d))) c) in |- *.
-    leibniz (NatWithZero.addition.commutativity
-              (ramp (negate (nat_with_zero_difference a b))
-               + ramp (negate (nat_with_zero_difference c d)))%n0
+    leibniz (difference.nat0.specification a b) in |- *.
+    leibniz (difference.nat0.specification c d) in |- *.
+    leibniz (Nat0.addition.interchange
+               (ramp (negate (nat0_difference a b))) a
+               (ramp (negate (nat0_difference c d))) c) in |- *.
+    leibniz (Nat0.addition.commutativity
+              (ramp (negate (nat0_difference a b))
+               + ramp (negate (nat0_difference c d)))%n0
               (a + c)%n0) in |- *.
     quod idem est.
   }
-  ipso (@difference.nat_with_zero.well_definedness
-          (ramp (nat_with_zero_difference a b) + ramp (nat_with_zero_difference c d))%n0
-          (ramp (negate (nat_with_zero_difference a b))
-           + ramp (negate (nat_with_zero_difference c d)))%n0
+  ipso (@difference.nat0.well_definedness
+          (ramp (nat0_difference a b) + ramp (nat0_difference c d))%n0
+          (ramp (negate (nat0_difference a b))
+           + ramp (negate (nat0_difference c d)))%n0
           (a + c)%n0
           (b + d)%n0
           facto).
 Qed.
 
-(* difference.nat_with_zero.scaling *)
+(* difference.nat0.scaling *)
 Lemma scaling
-  : forall (k : Nat) (a : NatWithZero) (b : NatWithZero) .
-      (+ k) * nat_with_zero_difference a b
-      = nat_with_zero_difference
+  : forall (k : Nat) (a : Nat0) (b : Nat0) .
+      (+ k) * nat0_difference a b
+      = nat0_difference
           (k * a)%n0
           (k * b)%n0.
 Proof.
@@ -843,13 +843,13 @@ Proof.
       ipso (difference.nat.scaling k p q).
     }
     let proof facto
-      : (+ &k) * nat_with_zero_difference p q
+      : (+ &k) * nat0_difference p q
         = nat_difference (&k * &p)%n (&k * &q)%n
       := facto.
     ipso facto.
 Qed.
 
-End nat_with_zero. (* difference.nat_with_zero *)
+End nat0. (* difference.nat0 *)
 
 End difference. (* difference *)
 
@@ -881,7 +881,7 @@ Theorem additivity
 Proof.
   intros m n.
   simpl add in |- *.
-  leibniz (difference.nat_with_zero.negation
+  leibniz (difference.nat0.negation
             (ramp m + ramp n)%n0
             (ramp (negate m) + ramp (negate n))%n0) in |- *.
   leibniz (negation.involution m) in |- *.
@@ -899,37 +899,37 @@ Theorem associativity
       (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  let proof el := Identity.symmetry (difference.nat_with_zero.canonicity l).
-  let proof em := Identity.symmetry (difference.nat_with_zero.canonicity m).
-  let proof en := Identity.symmetry (difference.nat_with_zero.canonicity n).
+  let proof el := Identity.symmetry (difference.nat0.canonicity l).
+  let proof em := Identity.symmetry (difference.nat0.canonicity m).
+  let proof en := Identity.symmetry (difference.nat0.canonicity n).
   leibniz el in |- *.
   leibniz em in |- *.
   leibniz en in |- *.
-  leibniz (difference.nat_with_zero.additivity
+  leibniz (difference.nat0.additivity
             (ramp l)
             (ramp (negate l))
             (ramp m)
             (ramp (negate m))) in |- *.
-  leibniz (difference.nat_with_zero.additivity
+  leibniz (difference.nat0.additivity
             (ramp l + ramp m)%n0
             (ramp (negate l) + ramp (negate m))%n0
             (ramp n)
             (ramp (negate n))) in |- *.
-  leibniz (difference.nat_with_zero.additivity
+  leibniz (difference.nat0.additivity
             (ramp m)
             (ramp (negate m))
             (ramp n)
             (ramp (negate n))) in |- *.
-  leibniz (difference.nat_with_zero.additivity
+  leibniz (difference.nat0.additivity
             (ramp l)
             (ramp (negate l))
             (ramp m + ramp n)%n0
             (ramp (negate m) + ramp (negate n))%n0) in |- *.
-  leibniz (NatWithZero.addition.associativity
+  leibniz (Nat0.addition.associativity
             (ramp l)
             (ramp m)
             (ramp n)) in |- *.
-  leibniz (NatWithZero.addition.associativity
+  leibniz (Nat0.addition.associativity
             (ramp (negate l))
             (ramp (negate m))
             (ramp (negate n))) in |- *.
@@ -942,10 +942,10 @@ Theorem commutativity
 Proof.
   intros m n.
   simpl add in |- *.
-  leibniz (NatWithZero.addition.commutativity
+  leibniz (Nat0.addition.commutativity
             (ramp m)
             (ramp n)) in |- *.
-  leibniz (NatWithZero.addition.commutativity
+  leibniz (Nat0.addition.commutativity
             (ramp (negate m))
             (ramp (negate n))) in |- *.
   quod idem est.
@@ -1265,14 +1265,14 @@ Lemma addition
 Proof.
   intros k m n.
   simpl add in |- *.
-  leibniz (difference.nat_with_zero.scaling k
+  leibniz (difference.nat0.scaling k
             (ramp m + ramp n)%n0
             (ramp (negate m) + ramp (negate n))%n0) in |- *.
-  leibniz (NatWithZero.multiplication.left.distributivity.over.addition
+  leibniz (Nat0.multiplication.left.distributivity.over.addition
             k
             (ramp m)
             (ramp n)) in |- *.
-  leibniz (NatWithZero.multiplication.left.distributivity.over.addition
+  leibniz (Nat0.multiplication.left.distributivity.over.addition
             k
             (ramp (negate m))
             (ramp (negate n))) in |- *.
@@ -1765,59 +1765,59 @@ Proof.
   match x with | p | | p end.
   - simpl divide, abs in |- *.
     match (p /. d)%n0 with | | k end;
-      simpl from_nat_with_zero, negate in |- *; quod idem est.
+      simpl from_nat0, negate in |- *; quod idem est.
   - simpl divide, abs in |- *.
-    simpl NatWithZero.divide, NatWithZero.div in |- *.
+    simpl Nat0.divide, Nat0.div in |- *.
     simpl in |- *.
     quod idem est.
   - simpl divide, abs in |- *.
     match (p /. d)%n0 with | | k end;
-      simpl from_nat_with_zero in |- *; quod idem est.
+      simpl from_nat0 in |- *; quod idem est.
 Qed.
 
 (* division.exactness *)
 Theorem exactness
   : forall (x : Integer) (d : Nat) .
-      NatWithZero.Divides d (| x |)
+      Nat0.Divides d (| x |)
       -> (x /. d) * (+ d) = x.
 Proof.
   intros x d h.
   match x with | x' | | x' end.
   - simpl divide in |- *.
-    let proof e := NatWithZero.division.exactness
+    let proof e := Nat0.division.exactness
                   x' d h.
     match (x' /. d)%n0 with | | m end.
     + simpl in e.
       ex e quodlibet.
     + simpl in |- *.
-      leibniz (NatWithZero.positive.injectivity e) in |- *.
+      leibniz (Nat0.positive.injectivity e) in |- *.
       quod idem est.
   - simpl in |- *.
     quod idem est.
   - simpl divide in |- *.
-    let proof e := NatWithZero.division.exactness
+    let proof e := Nat0.division.exactness
                   x' d h.
     match (x' /. d)%n0 with | | m end.
     + simpl in e.
       ex e quodlibet.
     + simpl in |- *.
-      leibniz (NatWithZero.positive.injectivity e) in |- *.
+      leibniz (Nat0.positive.injectivity e) in |- *.
       quod idem est.
 Qed.
 
 (* division.exhaustiveness *)
 Theorem exhaustiveness
   : forall (x : Integer) (d : Nat) .
-      NatWithZero.gcd.nat
-        (| x /. (NatWithZero.gcd.nat (| x |) d) |)
-        (NatWithZero.divide.nat.safe
-          d (NatWithZero.gcd.nat (| x |) d)
-          (NatWithZero.gcd.nat.right.divisibility (| x |) d))
+      Nat0.gcd.nat
+        (| x /. (Nat0.gcd.nat (| x |) d) |)
+        (Nat0.divide.nat.safe
+          d (Nat0.gcd.nat (| x |) d)
+          (Nat0.gcd.nat.right.divisibility (| x |) d))
       = Nat.One.
 Proof.
   intros x d.
-  leibniz (division.magnitude x (NatWithZero.gcd.nat (| x |) d)) in |- *.
-  ipso (NatWithZero.gcd.nat.exhaustiveness (| x |) d).
+  leibniz (division.magnitude x (Nat0.gcd.nat (| x |) d)) in |- *.
+  ipso (Nat0.gcd.nat.exhaustiveness (| x |) d).
 Qed.
 
 (* division.invariance *)
@@ -1830,7 +1830,7 @@ Proof.
   - lemma facto : (- (&k * &p)%n) /. (&k * &d)%n = (- &p) /. &d.
     {
       simpl divide in |- *.
-      let proof h := NatWithZero.division.invariance
+      let proof h := Nat0.division.invariance
                     p d k.
       let proof h
         : ((k * p)%n /. (k * d)%n)%n0
@@ -1845,7 +1845,7 @@ Proof.
   - lemma facto : (+ (&k * &p)%n) /. (&k * &d)%n = (+ &p) /. &d.
     {
       simpl divide in |- *.
-      let proof h := NatWithZero.division.invariance
+      let proof h := Nat0.division.invariance
                     p d k.
       let proof h
         : ((k * p)%n /. (k * d)%n)%n0
@@ -2122,49 +2122,49 @@ End parity. (* parity *)
 
 Module narrowing. (* narrowing *)
 
-Module nat_with_zero. (* narrowing.nat_with_zero *)
+Module nat0. (* narrowing.nat0 *)
 
-(* narrowing.nat_with_zero.retraction *)
+(* narrowing.nat0.retraction *)
 Theorem retraction
-  : forall (n : NatWithZero) . to_nat_with_zero (from_nat_with_zero n) = Some n.
+  : forall (n : Nat0) . to_nat0 (from_nat0 n) = Some n.
 Proof.
   intro n.
   match n with | Zero | Positive p end.
-  - simpl from_nat_with_zero, to_nat_with_zero in |- *.
+  - simpl from_nat0, to_nat0 in |- *.
     quod idem est.
-  - simpl from_nat_with_zero, to_nat_with_zero in |- *.
+  - simpl from_nat0, to_nat0 in |- *.
     quod idem est.
 Qed.
 
-(* narrowing.nat_with_zero.specification *)
+(* narrowing.nat0.specification *)
 Theorem specification
-  : forall (x : Integer) (n : NatWithZero) .
-      to_nat_with_zero x = Some n <-> x = from_nat_with_zero n.
+  : forall (x : Integer) (n : Nat0) .
+      to_nat0 x = Some n <-> x = from_nat0 n.
 Proof.
   intros x n.
   divide et impera.
   - intro e.
     match x with | Negative p | Zero | Positive p end.
-    + simpl to_nat_with_zero in e.
+    + simpl to_nat0 in e.
       ex e quodlibet.
-    + simpl to_nat_with_zero in e.
+    + simpl to_nat0 in e.
       let proof f := Option.some.injectivity e.
       leibniz <- f in |- *.
-      simpl from_nat_with_zero in |- *.
+      simpl from_nat0 in |- *.
       quod idem est.
-    + simpl to_nat_with_zero in e.
+    + simpl to_nat0 in e.
       let proof f := Option.some.injectivity e.
       leibniz <- f in |- *.
-      simpl from_nat_with_zero in |- *.
+      simpl from_nat0 in |- *.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (narrowing.nat_with_zero.retraction n).
+    ipso (narrowing.nat0.retraction n).
 Qed.
 
-(* narrowing.nat_with_zero.failure *)
+(* narrowing.nat0.failure *)
 Theorem failure
-  : forall (x : Integer) . to_nat_with_zero x = None <-> x < 0.
+  : forall (x : Integer) . to_nat0 x = None <-> x < 0.
 Proof.
   intro x.
   divide et impera.
@@ -2173,13 +2173,13 @@ Proof.
     + simpl ( _ < _ ) in |- *.
       exists p.
       ipso (addition.left.inverse (+ p)).
-    + simpl to_nat_with_zero in e.
+    + simpl to_nat0 in e.
       ex e quodlibet.
-    + simpl to_nat_with_zero in e.
+    + simpl to_nat0 in e.
       ex e quodlibet.
   - intro h.
     match x with | Negative p | Zero | Positive p end.
-    + simpl to_nat_with_zero in |- *.
+    + simpl to_nat0 in |- *.
       quod idem est.
     + ex (order.strict.irreflexivity 0 h) quodlibet.
     + lemma above : 0 < + p.
@@ -2191,7 +2191,7 @@ Proof.
       ex (order.strict.irreflexivity 0 (order.strict.transitivity above h)) quodlibet.
 Qed.
 
-End nat_with_zero. (* narrowing.nat_with_zero *)
+End nat0. (* narrowing.nat0 *)
 
 Module nat. (* narrowing.nat *)
 
@@ -2272,7 +2272,7 @@ End Integer. (* Integer *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
  * [Integer], not [Integer.T]. [Zero] and [Positive] name ctors of
- * [NatWithZero] as well, so both types write theirs with the prefix.
+ * [Nat0] as well, so both types write theirs with the prefix.
  *)
 Abbreviation Integer := Integer.T.
 
@@ -2285,14 +2285,14 @@ Abbreviation Integer := Integer.T.
 Export (notations) Integer.
 
 Coercion Integer.Positive : Nat >-> Integer.
-Coercion Integer.from_nat_with_zero : NatWithZero >-> Integer.
+Coercion Integer.from_nat0 : Nat0 >-> Integer.
 Add Printing Coercion Integer.Positive.
-Add Printing Coercion Integer.from_nat_with_zero.
+Add Printing Coercion Integer.from_nat0.
 
 Instance Integer_magnitude_well_founded
   : WellFounded (Induced (<)%n0 Integer.abs) :=
   WellFounded.induced (<)%n0 Integer.abs
-    NatWithZero_less_than_well_founded.
+    Nat0_less_than_well_founded.
 
 Instance Integer_comparable
   : Comparable Integer.compare (<)%z :=

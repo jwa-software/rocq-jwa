@@ -23,7 +23,7 @@ From jwa Require Import Tactics.Witness.
 Module Nat. (* Nat *)
 
 (* Zero is not a [Nat]; [One] is the smallest.
- * [Data.Number.NatWithZero] is the type that has it.
+ * [Data.Number.Nat0] is the type that has it.
  *)
 Inductive T : Type :=
   | One       : T
