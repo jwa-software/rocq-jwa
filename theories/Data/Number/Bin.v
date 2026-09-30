@@ -72,37 +72,54 @@ Fixpoint inc (b : Bin) : Bin :=
 Notation "++ b" := (inc b) (only parsing)
   : jwa_bin_scope.
 
+(* [b] with [bit] written after its lowest bit: [2b], or [2b + 1] when [bit]
+ * is [true]. [BinWithZero] carries the same operation on its own type, with
+ * its two arguments the other way round.
+ *)
+(* [Bool -> Bin -> Bin] *)
+Definition append_bit := fun (bit : Bool) (b : Bin) .
+  match bit with
+  | true  => b1 b
+  | false => b0 b
+  end.
+
+(* [b] incremented when [bit] is [true] and left alone when it is [false]:
+ * a carry added to a number, where [append_bit] writes a bit beside one.
+ *)
+(* [Bool -> Bin -> Bin] *)
+Definition inc_if := fun (bit : Bool) (b : Bin) .
+  match bit with
+  | true  => inc b
+  | false => b
+  end.
+
 (* Bit by bit from the least significant end, the carry passed on: [a + b]
  * when [carry] is [false], [a + b + 1] when it is [true]. Each bit is read
  * once, so a sum costs as many steps as the longer operand has bits.
+ *
+ * Every case is [append_bit <this bit> <the rest>], so each reads as the
+ * arithmetic it stands for rather than as an entry in a table. The bit is
+ * [carry] where the two bits taken from [a] and [b] sum to an even number,
+ * and its negation where they sum to an odd one. The rest is what is left
+ * to add, and takes a carry of its own wherever the column can reach two.
+ *
+ * The carry is threaded rather than dropped: [a + b + 1] is [inc (a + b)],
+ * so the carried cases are redundant in principle, but [b1] meeting [b1]
+ * would then call [inc] once per digit and a sum would cost the square of
+ * its length instead of its length.
  *)
 (* [Bool -> Bin -> Bin -> Bin] *)
 Fixpoint add_with_carry (carry : Bool) (a : Bin) (b : Bin) : Bin :=
-  match carry with
-  | false =>
-      match a, b with
-      | One, One     => b0 One
-      | One, b0 b'   => b1 b'
-      | One, b1 b'   => b0 (inc b')
-      | b0 a', One   => b1 a'
-      | b0 a', b0 b' => b0 (add_with_carry false a' b')
-      | b0 a', b1 b' => b1 (add_with_carry false a' b')
-      | b1 a', One   => b0 (inc a')
-      | b1 a', b0 b' => b1 (add_with_carry false a' b')
-      | b1 a', b1 b' => b0 (add_with_carry true a' b')
-      end
-  | true =>
-      match a, b with
-      | One, One     => b1 One
-      | One, b0 b'   => b0 (inc b')
-      | One, b1 b'   => b1 (inc b')
-      | b0 a', One   => b0 (inc a')
-      | b0 a', b0 b' => b1 (add_with_carry false a' b')
-      | b0 a', b1 b' => b0 (add_with_carry true a' b')
-      | b1 a', One   => b1 (inc a')
-      | b1 a', b0 b' => b0 (add_with_carry true a' b')
-      | b1 a', b1 b' => b1 (add_with_carry true a' b')
-      end
+  match a, b with
+  | One, One     => append_bit carry One
+  | One, b0 b'   => append_bit (Bool.negate carry) (inc_if carry b')
+  | One, b1 b'   => append_bit carry (inc b')
+  | b0 a', One   => append_bit (Bool.negate carry) (inc_if carry a')
+  | b0 a', b0 b' => append_bit carry (add_with_carry false a' b')
+  | b0 a', b1 b' => append_bit (Bool.negate carry) (add_with_carry carry a' b')
+  | b1 a', One   => append_bit carry (inc a')
+  | b1 a', b0 b' => append_bit (Bool.negate carry) (add_with_carry carry a' b')
+  | b1 a', b1 b' => append_bit carry (add_with_carry true a' b')
   end.
 
 (* [Bin -> Bin -> Bin] *)
