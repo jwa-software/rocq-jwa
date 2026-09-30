@@ -230,7 +230,7 @@ Fixpoint difference_with_borrow (borrow : Bool) (a : Bin) (b : Bin) : Difference
   end.
 
 (* [Bin -> Bin -> Difference] *)
-Definition difference := fun (a : Bin) (b : Bin) . difference_with_borrow false a b.
+Definition diff := fun (a : Bin) (b : Bin) . difference_with_borrow false a b.
 
 (* [Bin -> Bin -> Prop] *)
 Definition LessThan := fun (a : Bin) (b : Bin) . forsome (k : Bin) . a + k = b.
@@ -258,7 +258,7 @@ Notation "a >= b" := (LessOrEqual b a) (only parsing)
 
 (* [Bin -> Bin -> Comparison] *)
 Definition compare := fun (a : Bin) (b : Bin) .
-  match difference a b with
+  match diff a b with
   | Below   => Comparison.Lt
   | Equal   => Comparison.Eq
   | Above _ => Comparison.Gt
@@ -276,7 +276,7 @@ Abbreviation max := (Comparable.max compare).
 (* [a - b], [None] unless it is positive, as [Nat.sub] is. *)
 (* [Bin -> Bin -> Option Bin] *)
 Definition sub := fun (a : Bin) (b : Bin) .
-  match difference a b with
+  match diff a b with
   | Above p => Some p
   | _       => None
   end.
@@ -947,11 +947,11 @@ Proof.
                 &h).
 Qed.
 
-(* What each outcome of [difference] says of the two numbers. *)
+(* What each outcome of [diff] says of the two numbers. *)
 (* conversion.difference *)
 Lemma difference
   : forall (a : Bin) (b : Bin) .
-      match Bin.difference a b with
+      match Bin.diff a b with
       | Below   => (to_nat a < to_nat b)%nat
       | Equal   => to_nat a = to_nat b
       | Above p => (to_nat b + to_nat p)%nat = to_nat a
@@ -970,7 +970,7 @@ Proof.
   simpl compare in |- *.
   let proof h := conversion.difference &a &b.
   extro &h.
-  match (Bin.difference &a &b) with | | | p end.
+  match (Bin.diff &a &b) with | | | p end.
   -
     intro h.
     ipso (symm (Nat.comparison.strict.backward.specification &h)).
@@ -1000,7 +1000,7 @@ Proof.
   simpl sub in |- *.
   let proof h := conversion.difference &a &b.
   extro &h.
-  match (Bin.difference &a &b) with | | | p end.
+  match (Bin.diff &a &b) with | | | p end.
   -
     intro h.
     simpl in |- *.

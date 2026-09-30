@@ -171,7 +171,7 @@ Definition sub := fun (m : BinWithZero) (n : BinWithZero) .
       match n with
       | 0   => Some (+ p)
       | + q =>
-          match Bin.difference p q with
+          match Bin.diff p q with
           | Bin.Below   => None
           | Bin.Equal   => Some 0
           | Bin.Above d => Some (+ d)
@@ -622,7 +622,7 @@ Proof.
     simpl in |- *.
     let proof h := Bin.conversion.difference &p &q.
     extro &h.
-    match (Bin.difference &p &q) with | | | d end.
+    match (Bin.diff &p &q) with | | | d end.
     +
       intro h.
       simpl in |- *.
@@ -706,7 +706,7 @@ Proof.
     simpl saturating_sub, sub in |- *.
     let proof h := Bin.conversion.difference &p &q.
     extro &h.
-    match (Bin.difference &p &q) with | | | d end.
+    match (Bin.diff &p &q) with | | | d end.
     +
       intro h.
       simpl in |- *.
