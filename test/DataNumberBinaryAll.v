@@ -35,6 +35,29 @@ Definition data_number_binary_all_delivers_bin_with_sign_distributivity
       (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%b
   := BinWithSign.multiplication.distributivity.over.addition.
 
+Definition data_number_binary_all_delivers_bin_with_zero_division_specification
+  : forall (n : BinWithZero) (d : Bin) .
+      ((n /. d) * d + (n %. d) = n /\ (n %. d) < d)%bin_with_zero
+  := BinWithZero.division.specification.
+
+Definition data_number_binary_all_delivers_bin_with_zero_gcd_commutativity
+  : forall (a : BinWithZero) (b : BinWithZero) . BinWithZero.gcd a b = BinWithZero.gcd b a
+  := BinWithZero.gcd.commutativity.
+
+Definition data_number_binary_all_delivers_bin_with_zero_shift_quotient
+  : forall (n : BinWithZero) (k : Bin) .
+      BinWithZero.shift_right n (Bin.to_nat k) = (n /. (10 ^ k)%bin)%bin_with_zero
+  := BinWithZero.shift.right.quotient.
+
+Definition data_number_binary_all_delivers_bin_with_sign_division_magnitude
+  : forall (x : BinWithSign) (d : Bin) .
+      BinWithSign.abs (x /. d)%b = (BinWithSign.abs x /. d)%bin_with_zero
+  := BinWithSign.division.magnitude.
+
+Definition data_number_binary_all_delivers_bin_literal
+  : (1011 + 1)%bin = 1100%bin
+  := Identity.reflexivity _.
+
 Definition data_number_binary_all_delivers_bin_with_zero_literal
   : (1011 + 1)%bin_with_zero = 1100%bin_with_zero
   := Identity.reflexivity _.
@@ -49,6 +72,35 @@ Definition data_number_binary_all_delivers_bin_with_sign_literal_negative
 
 Definition data_number_binary_all_delivers_bin_with_sign_multiplication_computes
   : ((-11) * 101)%b = (-1111)%b
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_bin_with_zero_division_computes
+  : (1011 /. 11%bin)%bin_with_zero = 11%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_bin_with_zero_modulo_computes
+  : (1011 %. 11%bin)%bin_with_zero = 10%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_bin_with_zero_gcd_computes
+  : BinWithZero.gcd 1100%bin_with_zero 10010%bin_with_zero = 110%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_bin_with_sign_division_computes
+  : ((-1011) /. 11%bin)%b = (-11)%b
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_large_division_computes
+  : (1111111111111111111111111111111111111111111111111111111111111111
+      /. 100000000000000000000000000000001%bin)%bin_with_zero
+    = 11111111111111111111111111111111%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_large_gcd_computes
+  : BinWithZero.gcd
+      1111111111111111111111111111111111111111111111111111111111111111%bin_with_zero
+      100000000000000000000000000000001%bin_with_zero
+    = 100000000000000000000000000000001%bin_with_zero
   := Identity.reflexivity _.
 
 Definition data_number_binary_all_delivers_bin_comparison
@@ -81,6 +133,10 @@ Definition data_number_binary_all_delivers_bool
 Definition data_number_binary_all_delivers_option
   : Option Bin
   := Bin.sub (Bin.b0 Bin.One) Bin.One.
+
+Definition data_number_binary_all_delivers_product
+  : Product BinWithZero BinWithZero
+  := BinWithZero.div 1011%bin_with_zero 11%bin.
 
 Definition data_number_binary_all_delivers_nat
   : Nat
