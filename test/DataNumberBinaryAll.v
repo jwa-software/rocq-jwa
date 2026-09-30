@@ -30,6 +30,11 @@ Definition data_number_binary_all_delivers_bin_with_sign_involution
       BinWithSign.negate (BinWithSign.negate x) = x
   := BinWithSign.negation.involution.
 
+Definition data_number_binary_all_delivers_bin_with_sign_distributivity
+  : forall (x : BinWithSign) (y : BinWithSign) (z : BinWithSign) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%b
+  := BinWithSign.multiplication.distributivity.over.addition.
+
 Definition data_number_binary_all_delivers_bin_with_zero_literal
   : (1011 + 1)%bin_with_zero = 1100%bin_with_zero
   := Identity.reflexivity _.
@@ -40,6 +45,10 @@ Definition data_number_binary_all_delivers_bin_with_sign_literal
 
 Definition data_number_binary_all_delivers_bin_with_sign_literal_negative
   : ((-1011) + 1011)%b = 0%b
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_bin_with_sign_multiplication_computes
+  : ((-11) * 101)%b = (-1111)%b
   := Identity.reflexivity _.
 
 Definition data_number_binary_all_delivers_bin_comparison
