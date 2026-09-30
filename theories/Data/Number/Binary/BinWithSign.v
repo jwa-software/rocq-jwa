@@ -15,6 +15,7 @@ From jwa Require Import Data.Number.Binary.Bin.
 From jwa Require Import Data.Number.Binary.BinWithZero.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
@@ -218,6 +219,20 @@ Definition mul := fun (x : BinWithSign) (y : BinWithSign) .
 Notation "x * y" := (mul x y) (only parsing)
   : jwa_bin_with_sign_scope.
 
+(* The divisor is a [Bin], so it is never zero: the magnitude is divided and
+ * the sign carried over, so the quotient rounds toward zero.
+ *)
+(* [BinWithSign -> Bin -> BinWithSign] *)
+Definition divide := fun (x : BinWithSign) (d : Bin) .
+  match x with
+  | - p => negate (from_bin_with_zero (p /. d)%bin_with_zero)
+  | 0   => 0
+  | + p => from_bin_with_zero (p /. d)%bin_with_zero
+  end.
+
+Notation "x /. y" := (divide x y) (only parsing)
+  : jwa_bin_with_sign_scope.
+
 (* The witness is a [Bin], so it is never zero and [<] is strict.
  *)
 (* [BinWithSign -> BinWithSign -> Prop] *)
@@ -306,15 +321,15 @@ Definition to_numeral := fun (x : BinWithSign) .
   | - p =>
       Numeral.Signed.Decimal
         (Numeral.Decimal.Signed.Negative
-           (BinWithZero.to_digits p Numeral.Decimal.Digits.End))
+          (Bin.to_digits p Numeral.Decimal.Digits.End))
   | 0 =>
       Numeral.Signed.Decimal
         (Numeral.Decimal.Signed.Positive
-           (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End))
+          (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End))
   | + p =>
       Numeral.Signed.Decimal
         (Numeral.Decimal.Signed.Positive
-           (BinWithZero.to_digits p Numeral.Decimal.Digits.End))
+          (Bin.to_digits p Numeral.Decimal.Digits.End))
   end.
 
 (* The laws state this type against [Integer] through [to_integer]. The signed
@@ -599,6 +614,53 @@ Proof.
     quod idem est.
   -
     leibniz (Bin.conversion.multiplication &p &q) in |- *.
+    quod idem est.
+Qed.
+
+(* conversion.division *)
+Theorem division
+  : forall (x : BinWithSign) (d : Bin) .
+      to_integer (x /. d) = (to_integer x /. Bin.to_nat d)%z.
+Proof.
+  intros x d.
+  lemma embedding
+    : forall (n : BinWithZero) .
+        to_integer (from_bin_with_zero n)
+        = Integer.from_nat_with_zero (BinWithZero.to_nat_with_zero n).
+  {
+    intro n.
+    match n with | | q end.
+    -
+      simpl in |- *.
+      quod idem est.
+    -
+      simpl in |- *.
+      quod idem est.
+  }
+  match &x with | p | | p end.
+  -
+    let proof c
+      : BinWithZero.to_nat_with_zero (p /. &d)%bin_with_zero
+        = (Bin.to_nat &p /. Bin.to_nat &d)%n0
+      := BinWithZero.conversion.division p &d.
+    simpl divide in |- *.
+    simpl to_integer at 2 in |- *.
+    simpl Integer.divide in |- *.
+    leibniz (conversion.negation (from_bin_with_zero (p /. &d)%bin_with_zero)),
+      (&embedding (p /. &d)%bin_with_zero), &c in |- *.
+    quod idem est.
+  -
+    simpl in |- *.
+    quod idem est.
+  -
+    let proof c
+      : BinWithZero.to_nat_with_zero (p /. &d)%bin_with_zero
+        = (Bin.to_nat &p /. Bin.to_nat &d)%n0
+      := BinWithZero.conversion.division p &d.
+    simpl divide in |- *.
+    simpl to_integer at 2 in |- *.
+    simpl Integer.divide in |- *.
+    leibniz (&embedding (p /. &d)%bin_with_zero), &c in |- *.
     quod idem est.
 Qed.
 
@@ -915,20 +977,25 @@ Theorem identity
   : forall (x : BinWithSign) . ((+ Bin.One) * x = x) /\ (x * (+ Bin.One) = x).
 Proof.
   intro x.
+  lemma one : to_integer (+ Bin.One) = Nat.One.
+  {
+    simpl in |- *.
+    quod idem est.
+  }
   let proof i := Integer.multiplication.identity (to_integer &x).
   match &i with | l r end.
   divide et impera.
   -
     lemma f : to_integer ((+ Bin.One) * &x) = to_integer &x.
     {
-      leibniz (conversion.multiplication (+ Bin.One) &x) in |- *.
+      leibniz (conversion.multiplication (+ Bin.One) &x), &one in |- *.
       ipso &l.
     }
     ipso (conversion.injectivity &f).
   -
     lemma f : to_integer (&x * (+ Bin.One)) = to_integer &x.
     {
-      leibniz (conversion.multiplication &x (+ Bin.One)) in |- *.
+      leibniz (conversion.multiplication &x (+ Bin.One)), &one in |- *.
       ipso &r.
     }
     ipso (conversion.injectivity &f).
@@ -1014,6 +1081,53 @@ Proof.
 Qed.
 
 End multiplication. (* multiplication *)
+
+Module division. (* division *)
+
+(* division.magnitude *)
+Theorem magnitude
+  : forall (x : BinWithSign) (d : Bin) .
+      abs (x /. d) = (abs x /. d)%bin_with_zero.
+Proof.
+  intros x d.
+  match &x with | p | | p end.
+  -
+    simpl divide, abs in |- *.
+    match (p /. &d)%bin_with_zero with | | k end;
+      simpl from_bin_with_zero, negate in |- *; quod idem est.
+  -
+    simpl divide, abs in |- *.
+    simpl BinWithZero.divide, BinWithZero.div in |- *.
+    simpl in |- *.
+    quod idem est.
+  -
+    simpl divide, abs in |- *.
+    match (p /. &d)%bin_with_zero with | | k end;
+      simpl from_bin_with_zero in |- *; quod idem est.
+Qed.
+
+(* division.invariance *)
+Theorem invariance
+  : forall (x : BinWithSign) (d : Bin) (k : Bin) .
+      ((+ k) * x) /. (k * d)%bin = x /. d.
+Proof.
+  intros x d k.
+  lemma positive : to_integer (+ &k) = Bin.to_nat &k.
+  {
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma f : to_integer (((+ &k) * &x) /. (&k * &d)%bin) = to_integer (&x /. &d).
+  {
+    leibniz (conversion.division ((+ &k) * &x) (&k * &d)%bin),
+      (conversion.multiplication (+ &k) &x), (Bin.conversion.multiplication &k &d),
+      (conversion.division &x &d), &positive in |- *.
+    ipso (Integer.division.invariance (to_integer &x) (Bin.to_nat &d) (Bin.to_nat &k)).
+  }
+  ipso (conversion.injectivity &f).
+Qed.
+
+End division. (* division *)
 
 Module comparison. (* comparison *)
 
