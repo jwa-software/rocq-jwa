@@ -2106,6 +2106,65 @@ Proof.
   ipso hk.
 Qed.
 
+(* division.iteration *)
+Theorem iteration
+  : forall (n : NatWithZero) (a : Nat) (b : Nat) .
+      ((n /. a) /. b) = (n /. (a * b)%n).
+Proof.
+  intros n a b.
+  match (division.specification &n &a) with | e1 bound1 end.
+  match (division.specification (&n /. &a) &b) with | e2 bound2 end.
+  lemma product : (+ (&b * &a)%n) = (+ &b) * (+ &a).
+  {
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma reconstruction
+    : (((&n /. &a) /. &b) * (+ (&a * &b)%n))
+      + ((((&n /. &a) %. &b) * (+ &a)) + (&n %. &a))
+      = &n.
+  {
+    leibniz (Nat.multiplication.commutativity &a &b), &product in |- *.
+    leibniz <- (multiplication.associativity ((&n /. &a) /. &b) (+ &b) (+ &a)) in |- *.
+    leibniz <- (addition.associativity
+      ((((&n /. &a) /. &b) * (+ &b)) * (+ &a))
+      (((&n /. &a) %. &b) * (+ &a))
+      (&n %. &a)) in |- *.
+    leibniz <- (multiplication.right.distributivity.over.addition
+      (+ &a) (((&n /. &a) /. &b) * (+ &b)) ((&n /. &a) %. &b)) in |- *.
+    leibniz &e2 in |- *.
+    ipso &e1.
+  }
+  lemma bound
+    : ((((&n /. &a) %. &b) * (+ &a)) + (&n %. &a)) < (+ (&a * &b)%n).
+  {
+    simpl ( _ < _ ) in &bound2.
+    match &bound2 with | k ek end.
+    lemma small : (&n %. &a) < (+ &k) * (+ &a).
+    {
+      let proof extension := multiplication.right.order.extensivity &k (+ &a).
+      simpl ( _ <= _ ) in &extension.
+      match &extension with | same | larger end.
+      -
+        leibniz <- &same in |- *.
+        ipso &bound1.
+      -
+        ipso (order.strict.transitivity &bound1 &larger).
+    }
+    leibniz (Nat.multiplication.commutativity &a &b), &product in |- *.
+    leibniz <- &ek in |- *.
+    leibniz (multiplication.right.distributivity.over.addition
+      (+ &a) ((&n /. &a) %. &b) (+ &k)) in |- *.
+    ipso (addition.order.strict.monotonicity
+      (((&n /. &a) %. &b) * (+ &a)) (&n %. &a) ((+ &k) * (+ &a)) &small).
+  }
+  match (division.uniqueness &n (&a * &b)%n ((&n /. &a) /. &b)
+      ((((&n /. &a) %. &b) * (+ &a)) + (&n %. &a))
+      (conjoin &reconstruction, &bound))
+    with | quotient _ end.
+  ipso (symm &quotient).
+Qed.
+
 End division. (* division *)
 
 Module divide. (* divide *)

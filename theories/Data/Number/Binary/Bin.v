@@ -9,6 +9,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Descent.
@@ -291,6 +292,43 @@ Definition saturating_sub := fun (a : Bin) (b : Bin) .
   | None   => One
   end.
 
+(* [b] with the digits [d] appended, [None] once a digit is neither 0 nor 1. *)
+(* [Bin -> Numeral.Decimal.Digits -> Option Bin] *)
+Fixpoint from_digits (b : Bin) (d : Numeral.Decimal.Digits) : Option Bin :=
+  match d with
+  | Numeral.Decimal.Digits.End     => Some b
+  | Numeral.Decimal.Digits.Zero d' => from_digits (b0 b) d'
+  | Numeral.Decimal.Digits.One d'  => from_digits (b1 b) d'
+  | _                              => None
+  end.
+
+(* The number a literal's digits spell in binary. The leading bit of a [Bin]
+ * is 1, so a literal opening with any other digit is refused.
+ *)
+(* [Numeral.Unsigned -> Option Bin] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  match u with
+  | Numeral.Unsigned.Decimal d =>
+      match d with
+      | Numeral.Decimal.Digits.One d' => from_digits One d'
+      | _                             => None
+      end
+  | Numeral.Unsigned.Hexadecimal _ => None
+  end.
+
+(* The digits of [b] written before [rest]. *)
+(* [Bin -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
+Fixpoint to_digits (b : Bin) (rest : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
+  match b with
+  | One   => Numeral.Decimal.Digits.One rest
+  | b0 b' => to_digits b' (Numeral.Decimal.Digits.Zero rest)
+  | b1 b' => to_digits b' (Numeral.Decimal.Digits.One rest)
+  end.
+
+(* [Bin -> Numeral.Unsigned] *)
+Definition to_numeral := fun (b : Bin) .
+  Numeral.Unsigned.Decimal (to_digits b Numeral.Decimal.Digits.End).
+
 (* The conversions to and from [Nat], used to state the laws: [to_nat] is
  * unary, so it is for proofs, not for computing.
  *)
@@ -389,17 +427,18 @@ Qed.
 
 (* conversion.carry *)
 Lemma carry
-  : forall (a : Bin) (b : Bin) (carry : Bool) .
+  : forall (carry : Bool) (a : Bin) (b : Bin) .
       to_nat (add_with_carry carry a b)
       = match carry with
         | true  => Nat.Successor (to_nat a + to_nat b)%n
         | false => (to_nat a + to_nat b)%n
         end.
 Proof.
-  intro a.
+  intros carry a.
+  extro &carry.
   match a with | | a' by IH | a' by IH end per Bin.induction.
   -
-    intros b carry.
+    intros carry b.
     match b with | | b' | b' end.
     +
       match carry with | | end.
@@ -435,7 +474,7 @@ Proof.
         leibniz (Nat.addition.right.successor (to_nat &b') (to_nat &b')) in |- *.
         quod idem est.
   -
-    intros b carry.
+    intros carry b.
     match b with | | b' | b' end.
     +
       match carry with | | end.
@@ -457,7 +496,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
@@ -466,7 +505,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
@@ -478,7 +517,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -492,7 +531,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%n
                                               (to_nat &b' + to_nat &b')%n) in |- *.
@@ -500,7 +539,7 @@ Proof.
           in |- *.
         quod idem est.
   -
-    intros b carry.
+    intros carry b.
     match b with | | b' | b' end.
     +
       match carry with | | end.
@@ -525,7 +564,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -537,7 +576,7 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
-          := &IH &b' false.
+          := &IH false &b'.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
@@ -549,7 +588,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -564,7 +603,7 @@ Proof.
         let proof e
           : to_nat (add_with_carry true &a' &b')
             = Nat.Successor (to_nat &a' + to_nat &b')%n
-          := &IH &b' true.
+          := &IH true &b'.
         leibniz &e in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
@@ -582,7 +621,7 @@ Theorem addition
 Proof.
   intros a b.
   simpl add in |- *.
-  ipso (conversion.carry &a &b false).
+  ipso (conversion.carry false &a &b).
 Qed.
 
 (* conversion.multiplication *)
@@ -786,7 +825,7 @@ End difference. (* conversion.difference *)
 
 (* conversion.borrow *)
 Lemma borrow
-  : forall (a : Bin) (b : Bin) (borrow : Bool) .
+  : forall (borrow : Bool) (a : Bin) (b : Bin) .
       match borrow with
       | true  =>
           match difference_with_borrow true a b with
@@ -802,10 +841,11 @@ Lemma borrow
           end
       end.
 Proof.
-  intro a.
+  intros borrow a.
+  extro &borrow.
   match a with | | a' by IH | a' by IH end per Bin.induction.
   -
-    intros b borrow.
+    intros borrow b.
     match b with | | b' | b' end.
     +
       match borrow with | | end.
@@ -852,17 +892,17 @@ Proof.
         simpl in |- *.
         quod idem est.
   -
-    intros b borrow.
+    intros borrow b.
     match b with | | b' | b' end.
     +
       match borrow with | | end.
       *
         ipso (conversion.difference.doubling
-                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH One false)).
+                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH false One)).
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow false &a' One) (to_nat &a') Nat.One
-                         (&IH One false).
+                         (&IH false One).
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_one_difference (difference_with_borrow false &a' One))
@@ -873,7 +913,7 @@ Proof.
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso (modus aequans
                 (conversion.difference.cancellation
@@ -884,19 +924,19 @@ Proof.
       *
         ipso (conversion.difference.doubling
                 (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                (&IH &b' false)).
+                (&IH false &b')).
     +
       match borrow with | | end.
       *
         let proof h := conversion.difference.doubling
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso &h.
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso (modus aequans
                 (conversion.difference.cancellation
@@ -905,13 +945,13 @@ Proof.
                    (Nat.Successor (to_nat &b' + to_nat &b')%n)),
                 &h).
   -
-    intros b borrow.
+    intros borrow b.
     match b with | | b' | b' end.
     +
       match borrow with | | end.
       *
         ipso (conversion.difference.doubling.successor
-                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH One false)).
+                (difference_with_borrow false &a' One) (to_nat &a') Nat.One (&IH false One)).
       *
         simpl in |- *.
         quod idem est.
@@ -920,7 +960,7 @@ Proof.
       *
         let proof h := conversion.difference.doubling
                          (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                         (&IH &b' false).
+                         (&IH false &b').
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_zero_difference (difference_with_borrow false &a' &b'))
@@ -929,19 +969,19 @@ Proof.
       *
         ipso (conversion.difference.doubling.successor
                 (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                (&IH &b' false)).
+                (&IH false &b')).
     +
       match borrow with | | end.
       *
         let proof h := conversion.difference.doubling.successor
                          (difference_with_borrow true &a' &b') (to_nat &a')
-                         (Nat.Successor (to_nat &b')) (&IH &b' true).
+                         (Nat.Successor (to_nat &b')) (&IH true &b').
         leibniz (Nat.addition.successor (to_nat &b') (to_nat &b')) in &h.
         ipso &h.
       *
         let proof h := conversion.difference.doubling
                          (difference_with_borrow false &a' &b') (to_nat &a') (to_nat &b')
-                         (&IH &b' false).
+                         (&IH false &b').
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_zero_difference (difference_with_borrow false &a' &b'))
@@ -960,7 +1000,7 @@ Lemma difference
       end.
 Proof.
   intros a b.
-  ipso (conversion.borrow &a &b false).
+  ipso (conversion.borrow false &a &b).
 Qed.
 
 (* conversion.comparison *)
@@ -1399,6 +1439,13 @@ Abbreviation Bin := Bin.T.
  * still need the [Bin.] prefix.
  *)
 Export (notations) Bin.
+
+(* A number of the type is written in binary digits under its scope,
+ * [1011%bin] for eleven, and a closed one prints that way; a literal with
+ * any other digit, or opening with 0, is refused.
+ *)
+Number Notation Bin.T Bin.from_numeral Bin.to_numeral
+  : jwa_bin_scope.
 
 Instance Bin_less_than_well_founded
   : WellFounded (<)%bin :=
