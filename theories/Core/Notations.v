@@ -55,8 +55,8 @@ Delimit Scope jwa_bool_scope with bool.
    is never abbreviated, being named for the context it disambiguates. *)
 Declare Scope jwa_nat_scope.
 Delimit Scope jwa_nat_scope with n.
-Declare Scope jwa_nat_with_zero_scope.
-Delimit Scope jwa_nat_with_zero_scope with n0.
+Declare Scope jwa_nat0_scope.
+Delimit Scope jwa_nat0_scope with n0.
 Declare Scope jwa_integer_scope.
 Delimit Scope jwa_integer_scope with z.
 Declare Scope jwa_rational_scope.

@@ -9,7 +9,7 @@ From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Dialect.ExFalso.
@@ -83,13 +83,13 @@ Definition induction
          | Cons a l' => step a l' (go l')
          end.
 
-(* Lengths and counts are [NatWithZero]s, so its scope is opened here too:
+(* Lengths and counts are [Nat0]s, so its scope is opened here too:
  * [length l1 + length l2], [i < length l]. [Nat]'s scope stays closed and
  * its few uses keep the [Nat.] prefix, so [+] is never ambiguous. Inside
- * this module [*] is [NatWithZero.mul]; a product type still parses where
+ * this module [*] is [Nat0.mul]; a product type still parses where
  * a type is expected, as in [List A * List A].
  *)
-Local Open Scope jwa_nat_with_zero_scope.
+Local Open Scope jwa_nat0_scope.
 
 (* [Bool]'s scope is opened for the [!] of [partition]. The [||] it also
  * carries is the infix [Bool.or] and does not disturb [(|| l ||)], whose
@@ -127,10 +127,10 @@ Notation "l1 ++ l2" := (concat l1 l2)
 (* [forall {A : Type} . List A -> A -> List A] *)
 Definition append := fun {A : Type} (l : List A) (a : A) . l ++ (a :: []).
 
-(* [forall {A : Type} . List A -> NatWithZero] *)
-Fixpoint length {A : Type} (l : List A) : NatWithZero :=
+(* [forall {A : Type} . List A -> Nat0] *)
+Fixpoint length {A : Type} (l : List A) : Nat0 :=
   match l with
-  | []      => NatWithZero.Zero
+  | []      => Nat0.Zero
   | _ :: l' => ++ length l'
   end.
 
@@ -296,19 +296,19 @@ Fixpoint partition {A : Type} (p : A -> Bool) (l : List A)
       end
   end.
 
-(* Indexing from [NatWithZero.Zero]: [nth l i] is the element [i] places from the front,
+(* Indexing from [Nat0.Zero]: [nth l i] is the element [i] places from the front,
  * [None] past the end. Recursion is on the list; the index is peeled by
- * one alongside, [NatWithZero.Positive Nat.One] being the last step before [NatWithZero.Zero].
+ * one alongside, [Nat0.Positive Nat.One] being the last step before [Nat0.Zero].
  *)
-(* [forall {A : Type} . List A -> NatWithZero -> Option A] *)
-Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
+(* [forall {A : Type} . List A -> Nat0 -> Option A] *)
+Fixpoint nth {A : Type} (l : List A) (i : Nat0) : Option A :=
   match l with
   | []      => None
   | a :: l' =>
       match i with
-      | NatWithZero.Zero                    => Some a
-      | NatWithZero.Positive Nat.One            => nth l' NatWithZero.Zero
-      | NatWithZero.Positive (Nat.Successor i') => nth l' i'
+      | Nat0.Zero                    => Some a
+      | Nat0.Positive Nat.One            => nth l' Nat0.Zero
+      | Nat0.Positive (Nat.Successor i') => nth l' i'
       end
   end.
 
@@ -316,37 +316,37 @@ Fixpoint nth {A : Type} (l : List A) (i : NatWithZero) : Option A :=
  * [drop n l] is what is left. Both recurse on the list, peeling the count
  * alongside as [nth] does.
  *)
-(* [forall {A : Type} . NatWithZero -> List A -> List A] *)
-Fixpoint take {A : Type} (n : NatWithZero) (l : List A) : List A :=
+(* [forall {A : Type} . Nat0 -> List A -> List A] *)
+Fixpoint take {A : Type} (n : Nat0) (l : List A) : List A :=
   match l with
   | []      => []
   | a :: l' =>
       match n with
-      | NatWithZero.Zero                    => []
-      | NatWithZero.Positive Nat.One            => a :: []
-      | NatWithZero.Positive (Nat.Successor n') => a :: take n' l'
+      | Nat0.Zero                    => []
+      | Nat0.Positive Nat.One            => a :: []
+      | Nat0.Positive (Nat.Successor n') => a :: take n' l'
       end
   end.
 
-(* [forall {A : Type} . NatWithZero -> List A -> List A] *)
-Fixpoint drop {A : Type} (n : NatWithZero) (l : List A) : List A :=
+(* [forall {A : Type} . Nat0 -> List A -> List A] *)
+Fixpoint drop {A : Type} (n : Nat0) (l : List A) : List A :=
   match l with
   | []      => []
   | a :: l' =>
       match n with
-      | NatWithZero.Zero                    => a :: l'
-      | NatWithZero.Positive Nat.One            => l'
-      | NatWithZero.Positive (Nat.Successor n') => drop n' l'
+      | Nat0.Zero                    => a :: l'
+      | Nat0.Positive Nat.One            => l'
+      | Nat0.Positive (Nat.Successor n') => drop n' l'
       end
   end.
 
-(* [forall {A : Type} . NatWithZero -> List A -> List A * List A] *)
-Definition split_at := fun {A : Type} (n : NatWithZero) (l : List A) .
+(* [forall {A : Type} . Nat0 -> List A -> List A * List A] *)
+Definition split_at := fun {A : Type} (n : Nat0) (l : List A) .
   (take n l, drop n l).
 
-(* [replicate n a] is [a] repeated [n] times. A count of [NatWithZero.Zero] gives [Nil];
+(* [replicate n a] is [a] repeated [n] times. A count of [Nat0.Zero] gives [Nil];
  * a positive count recurses on its [Nat], one element per step, since a
- * [NatWithZero] has no step of its own to recurse on.
+ * [Nat0] has no step of its own to recurse on.
  *)
 (* [forall {A : Type} . Nat -> A -> List A] *)
 Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
@@ -355,25 +355,25 @@ Fixpoint replicate_positive {A : Type} (k : Nat) (a : A) : List A :=
   | Nat.Successor k' => a :: replicate_positive k' a
   end.
 
-(* [forall {A : Type} . NatWithZero -> A -> List A] *)
-Definition replicate := fun {A : Type} (n : NatWithZero) (a : A) .
+(* [forall {A : Type} . Nat0 -> A -> List A] *)
+Definition replicate := fun {A : Type} (n : Nat0) (a : A) .
   match n with
-  | NatWithZero.Zero       => []
-  | NatWithZero.Positive k => replicate_positive k a
+  | Nat0.Zero       => []
+  | Nat0.Positive k => replicate_positive k a
   end.
 
-(* [List NatWithZero -> NatWithZero] *)
-Definition sum := fun (l : List NatWithZero) . fold_right NatWithZero.add NatWithZero.Zero l.
+(* [List Nat0 -> Nat0] *)
+Definition sum := fun (l : List Nat0) . fold_right Nat0.add Nat0.Zero l.
 
-(* [List NatWithZero -> NatWithZero] *)
-Definition product := fun (l : List NatWithZero) .
-  fold_right NatWithZero.mul Nat.One l.
+(* [List Nat0 -> Nat0] *)
+Definition product := fun (l : List Nat0) .
+  fold_right Nat0.mul Nat.One l.
 
 (* [count p l] is how many elements [p] answers [true] on. *)
-(* [forall {A : Type} . (A -> Bool) -> List A -> NatWithZero] *)
-Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : NatWithZero :=
+(* [forall {A : Type} . (A -> Bool) -> List A -> Nat0] *)
+Fixpoint count {A : Type} (p : A -> Bool) (l : List A) : Nat0 :=
   match l with
-  | []      => NatWithZero.Zero
+  | []      => Nat0.Zero
   | a :: l' =>
       match p a with
       | true  => ++ count p l'
@@ -414,18 +414,18 @@ Fixpoint Sorted {A : Type} (le : A -> A -> Bool) (l : List A) : Prop :=
   | a :: l' => All (fun (b : A) . le a b = true) l' /\ Sorted le l'
   end.
 
-(* [Nat -> List NatWithZero] *)
-Fixpoint range_positive (p : Nat) : List NatWithZero :=
+(* [Nat -> List Nat0] *)
+Fixpoint range_positive (p : Nat) : List Nat0 :=
   match p with
-  | Nat.One          => NatWithZero.Zero :: []
+  | Nat.One          => Nat0.Zero :: []
   | Nat.Successor p' => append (range_positive p') p'
   end.
 
-(* [NatWithZero -> List NatWithZero] *)
-Definition range_from_zero := fun (n : NatWithZero) .
+(* [Nat0 -> List Nat0] *)
+Definition range_from_zero := fun (n : Nat0) .
   match n with
-  | NatWithZero.Zero       => []
-  | NatWithZero.Positive p => range_positive p
+  | Nat0.Zero       => []
+  | Nat0.Positive p => range_positive p
   end.
 
 (* [range start stop] counts up from [start] and stops before [stop]: it
@@ -433,16 +433,16 @@ Definition range_from_zero := fun (n : NatWithZero) .
  * so a [stop] at or below [start] leaves nothing to shift and the range is
  * empty.
  *)
-(* [NatWithZero -> NatWithZero -> List NatWithZero] *)
-Definition range := fun (start : NatWithZero) (stop : NatWithZero) .
-  map (NatWithZero.add start) (range_from_zero (NatWithZero.saturating_sub stop start)).
+(* [Nat0 -> Nat0 -> List Nat0] *)
+Definition range := fun (start : Nat0) (stop : Nat0) .
+  map (Nat0.add start) (range_from_zero (Nat0.saturating_sub stop start)).
 
 (* [range_inclusive start stop] reaches [stop] itself, so it is [range] run
  * one further.
  *)
-(* [NatWithZero -> NatWithZero -> List NatWithZero] *)
-Definition range_inclusive := fun (start : NatWithZero) (stop : NatWithZero) .
-  range start (NatWithZero.inc stop).
+(* [Nat0 -> Nat0 -> List Nat0] *)
+Definition range_inclusive := fun (start : Nat0) (stop : Nat0) .
+  range start (Nat0.inc stop).
 
 (* [le a b] answers whether [a] may precede [b]; it is the comparison
  * [insert] and [insertion_sort] take. The maximum of a list is the later of
@@ -578,11 +578,11 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
-    leibniz (NatWithZero.increment.specification ((|| l1' ||) + (|| l2 ||)))
+    leibniz (Nat0.increment.specification ((|| l1' ||) + (|| l2 ||)))
       in |- *.
-    leibniz (NatWithZero.increment.specification (|| l1' ||))
+    leibniz (Nat0.increment.specification (|| l1' ||))
       in |- *.
-    leibniz (NatWithZero.addition.associativity Nat.One (|| l1' ||) (|| l2 ||))
+    leibniz (Nat0.addition.associativity Nat.One (|| l1' ||) (|| l2 ||))
       in |- *.
     quod idem est.
 Qed.
@@ -595,8 +595,8 @@ End additivity. (* length.additivity *)
 Theorem catamorphism
   : forall {A : Type} (l : List A) .
       (|| l ||)
-      = fold_right (fun (_ : A) (n : NatWithZero) . (++ n))
-                   NatWithZero.Zero
+      = fold_right (fun (_ : A) (n : Nat0) . (++ n))
+                   Nat0.Zero
                    l.
 Proof.
   intros A l.
@@ -1057,8 +1057,8 @@ Proof.
   leibniz (appending.specification l a) in |- *.
   leibniz (length.additivity.over.concatenation l (a :: [])) in |- *.
   simpl in |- *.
-  leibniz (NatWithZero.increment.specification (|| l ||)) in |- *.
-  leibniz (NatWithZero.addition.commutativity Nat.One (|| l ||)) in |- *.
+  leibniz (Nat0.increment.specification (|| l ||)) in |- *.
+  leibniz (Nat0.addition.commutativity Nat.One (|| l ||)) in |- *.
   quod idem est.
 Qed.
 
@@ -1911,31 +1911,31 @@ End inversion. (* zipping.inversion *)
 (* zipping.length *)
 Theorem length
   : forall {A : Type} {B : Type} (l1 : List A) (l2 : List B) .
-      (|| zip l1 l2 ||) = NatWithZero.min (|| l1 ||) (|| l2 ||).
+      (|| zip l1 l2 ||) = Nat0.min (|| l1 ||) (|| l2 ||).
 Proof.
   intros A B l1.
   match l1 with | | a l1' by IH end per List.induction.
   - intros l2.
     match l2 with | | b l2' end.
     + simpl in |- *.
-      simpl Comparable.min, NatWithZero.compare in |- *.
+      simpl Comparable.min, Nat0.compare in |- *.
       quod idem est.
     + simpl in |- *.
-      leibniz (NatWithZero.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
+      leibniz (Nat0.minimum.left.annihilation (++ (|| l2' ||))) in |- *.
       quod idem est.
   - intros l2.
     match l2 with | | b l2' end.
     + simpl in |- *.
-      leibniz (NatWithZero.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
+      leibniz (Nat0.minimum.right.annihilation (++ (|| l1' ||))) in |- *.
       quod idem est.
     + simpl in |- *.
       leibniz (IH l2') in |- *.
-      leibniz (NatWithZero.increment.specification
-                 (NatWithZero.min (|| l1' ||) (|| l2' ||))) in |- *.
-      leibniz (NatWithZero.minimum.left.distributivity.of.addition
+      leibniz (Nat0.increment.specification
+                 (Nat0.min (|| l1' ||) (|| l2' ||))) in |- *.
+      leibniz (Nat0.minimum.left.distributivity.of.addition
                  Nat.One (|| l1' ||) (|| l2' ||)) in |- *.
-      leibniz (NatWithZero.increment.specification (|| l1' ||)) in |- *.
-      leibniz (NatWithZero.increment.specification (|| l2' ||)) in |- *.
+      leibniz (Nat0.increment.specification (|| l1' ||)) in |- *.
+      leibniz (Nat0.increment.specification (|| l2' ||)) in |- *.
       quod idem est.
 Qed.
 
@@ -1951,8 +1951,8 @@ Module of. (* unzipping.inversion.of *)
  * [zip] stops with the shorter list, so a longer one is not recovered.
  * Induction on [l1] with [l2] kept in the motive, since [zip] and
  * [length] step on both lists at once; the two mismatched cases contradict
- * [NatWithZero.addition.right.identity.absence] and the matched case feeds the
- * hypothesis through [NatWithZero.addition.left.cancellation].
+ * [Nat0.addition.right.identity.absence] and the matched case feeds the
+ * hypothesis through [Nat0.addition.left.cancellation].
  *)
 (* unzipping.inversion.of.zipping *)
 Theorem zipping
@@ -1968,25 +1968,25 @@ Proof.
       quod idem est.
     + simpl in e.
       let proof e' := Identity.symmetry e.
-      leibniz (NatWithZero.increment.specification (|| l2' ||)) in e'.
-      leibniz (NatWithZero.addition.commutativity Nat.One (|| l2' ||)) in e'.
-      let proof h := NatWithZero.addition.right.identity.absence (|| l2' ||) Nat.One.
+      leibniz (Nat0.increment.specification (|| l2' ||)) in e'.
+      leibniz (Nat0.addition.commutativity Nat.One (|| l2' ||)) in e'.
+      let proof h := Nat0.addition.right.identity.absence (|| l2' ||) Nat.One.
       simpl (~ _) in h.
       modus ponens h, e' |- f.
       ex f quodlibet.
   - intros l2 e.
     match l2 with | | b l2' end.
     + simpl in e.
-      leibniz (NatWithZero.increment.specification (|| l1' ||)) in e.
-      leibniz (NatWithZero.addition.commutativity Nat.One (|| l1' ||)) in e.
-      let proof h := NatWithZero.addition.right.identity.absence (|| l1' ||) Nat.One.
+      leibniz (Nat0.increment.specification (|| l1' ||)) in e.
+      leibniz (Nat0.addition.commutativity Nat.One (|| l1' ||)) in e.
+      let proof h := Nat0.addition.right.identity.absence (|| l1' ||) Nat.One.
       simpl (~ _) in h.
       modus ponens h, e |- f.
       ex f quodlibet.
     + simpl in e.
-      leibniz (NatWithZero.increment.specification (|| l1' ||)) in e.
-      leibniz (NatWithZero.increment.specification (|| l2' ||)) in e.
-      let proof e' := NatWithZero.addition.left.cancellation e.
+      leibniz (Nat0.increment.specification (|| l1' ||)) in e.
+      leibniz (Nat0.increment.specification (|| l2' ||)) in e.
+      let proof e' := Nat0.addition.left.cancellation e.
       let proof IH' := IH l2' e'.
       simpl unzip in IH'.
       let proof e'' := Product.introduction.injectivity IH'.
@@ -2030,14 +2030,14 @@ Module indexing. (* indexing *)
 
 (* [nth] answers exactly for the indices below the length. Each step of the
  * index is one step of the list, so the halves lift [IH] through
- * [NatWithZero.Positive Nat.One] added on both sides of the order.
+ * [Nat0.Positive Nat.One] added on both sides of the order.
  *)
 
 Module forward. (* indexing.forward *)
 
 (* indexing.forward.specification *)
 Lemma specification
-  : forall {A : Type} {l : List A} {i : NatWithZero} .
+  : forall {A : Type} {l : List A} {i : Nat0} .
       (forsome (a : A) . nth l i = Some a) -> i < (|| l ||).
 Proof.
   intros A l.
@@ -2049,20 +2049,20 @@ Proof.
   - intros i h.
     match i with | | i' end.
     + simpl in |- *.
-      leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-      leibniz (NatWithZero.addition.commutativity Nat.One (|| l' ||)) in |- *.
-      ipso (NatWithZero.addition.right.order.positivity (|| l' ||) Nat.One).
+      leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
+      leibniz (Nat0.addition.commutativity Nat.One (|| l' ||)) in |- *.
+      ipso (Nat0.addition.right.order.positivity (|| l' ||) Nat.One).
     + match i' with | | i'' end.
       * simpl in h.
-        let proof lt := IH NatWithZero.Zero h.
+        let proof lt := IH Nat0.Zero h.
         simpl in |- *.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        ipso (NatWithZero.addition.order.strict.monotonicity Nat.One NatWithZero.Zero (|| l' ||) lt).
+        leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
+        ipso (Nat0.addition.order.strict.monotonicity Nat.One Nat0.Zero (|| l' ||) lt).
       * simpl in h.
         let proof lt := IH i'' h.
         simpl in |- *.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        ipso (NatWithZero.addition.order.strict.monotonicity
+        leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
+        ipso (Nat0.addition.order.strict.monotonicity
                  Nat.One i'' (|| l' ||) lt).
 Qed.
 
@@ -2072,7 +2072,7 @@ Module backward. (* indexing.backward *)
 
 (* indexing.backward.specification *)
 Lemma specification
-  : forall {A : Type} {l : List A} {i : NatWithZero} .
+  : forall {A : Type} {l : List A} {i : Nat0} .
       i < (|| l ||) -> forsome (a : A) . nth l i = Some a.
 Proof.
   intros A l.
@@ -2081,7 +2081,7 @@ Proof.
     simpl in h.
     simpl ( _ < _ )%n0 in h.
     match h with | k e end.
-    let proof r := NatWithZero.addition.right.identity.absence i k.
+    let proof r := Nat0.addition.right.identity.absence i k.
     simpl (~ _) in r.
     modus ponens r, e |- f.
     ex f quodlibet.
@@ -2092,13 +2092,13 @@ Proof.
       quod idem est.
     + match i' with | | i'' end.
       * simpl in h.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in h.
-        let proof lt := NatWithZero.addition.order.strict.cancellation Nat.One NatWithZero.Zero (|| l' ||) h.
+        leibniz (Nat0.increment.specification (|| l' ||)) in h.
+        let proof lt := Nat0.addition.order.strict.cancellation Nat.One Nat0.Zero (|| l' ||) h.
         simpl in |- *.
-        ipso (IH NatWithZero.Zero lt).
+        ipso (IH Nat0.Zero lt).
       * simpl in h.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in h.
-        let proof lt := NatWithZero.addition.order.strict.cancellation
+        leibniz (Nat0.increment.specification (|| l' ||)) in h.
+        let proof lt := Nat0.addition.order.strict.cancellation
                       Nat.One i'' (|| l' ||) h.
         simpl in |- *.
         ipso (IH i'' lt).
@@ -2108,7 +2108,7 @@ End backward. (* indexing.backward *)
 
 (* indexing.specification *)
 Theorem specification
-  : forall {A : Type} (l : List A) (i : NatWithZero) .
+  : forall {A : Type} (l : List A) (i : Nat0) .
       (forsome (a : A) . nth l i = Some a) <-> i < (|| l ||).
 Proof.
   intros A l i.
@@ -2123,7 +2123,7 @@ Module splitting. (* splitting *)
 
 (* splitting.decomposition *)
 Theorem decomposition
-  : forall {A : Type} (l : List A) (n : NatWithZero) .
+  : forall {A : Type} (l : List A) (n : Nat0) .
       take n l ++ drop n l = l.
 Proof.
   intros A l.
@@ -2149,42 +2149,42 @@ Module taking. (* taking *)
 
 (* taking.length *)
 Theorem length
-  : forall {A : Type} (l : List A) (n : NatWithZero) .
-      (|| take n l ||) = NatWithZero.min n (|| l ||).
+  : forall {A : Type} (l : List A) (n : Nat0) .
+      (|| take n l ||) = Nat0.min n (|| l ||).
 Proof.
   intros A l.
   match l with | | a l' by IH end per List.induction.
   - intros n.
     simpl in |- *.
-    leibniz (NatWithZero.minimum.right.annihilation n) in |- *.
+    leibniz (Nat0.minimum.right.annihilation n) in |- *.
     quod idem est.
   - intros n.
     match n with | | n' end.
     + simpl in |- *.
-      leibniz (NatWithZero.minimum.left.annihilation (++ (|| l' ||))) in |- *.
+      leibniz (Nat0.minimum.left.annihilation (++ (|| l' ||))) in |- *.
       quod idem est.
     + match n' with | | n'' end.
       * simpl in |- *.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        leibniz (NatWithZero.addition.commutativity Nat.One (|| l' ||)) in |- *.
+        leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
+        leibniz (Nat0.addition.commutativity Nat.One (|| l' ||)) in |- *.
         modus aequans
-          (Comparable.minimum.specification (NatWithZero.Positive Nat.One)
+          (Comparable.minimum.specification (Nat0.Positive Nat.One)
             ((|| l' ||) + Nat.One)),
-          (NatWithZero.addition.right.order.extensivity
+          (Nat0.addition.right.order.extensivity
             (|| l' ||) Nat.One) |- e.
         leibniz e in |- *.
         quod idem est.
       * simpl in |- *.
         leibniz (IH n'') in |- *.
-        leibniz (NatWithZero.increment.specification
-                  (NatWithZero.min n'' (|| l' ||))) in |- *.
-        leibniz (NatWithZero.minimum.left.distributivity.of.addition
+        leibniz (Nat0.increment.specification
+                  (Nat0.min n'' (|| l' ||))) in |- *.
+        leibniz (Nat0.minimum.left.distributivity.of.addition
                   Nat.One n'' (|| l' ||)) in |- *.
         lemma facto
-          : NatWithZero.min (Nat.Successor &n'') (Nat.One + (|| &l' ||))
-          = NatWithZero.min (Nat.Successor &n'') (++ (|| &l' ||)).
+          : Nat0.min (Nat.Successor &n'') (Nat.One + (|| &l' ||))
+          = Nat0.min (Nat.Successor &n'') (++ (|| &l' ||)).
         {
-          leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+          leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
           quod idem est.
         }
         ipso facto.
@@ -2196,8 +2196,8 @@ Module dropping. (* dropping *)
 
 (* dropping.length *)
 Theorem length
-  : forall {A : Type} (l : List A) (n : NatWithZero) .
-      (|| drop n l ||) = NatWithZero.saturating_sub (|| l ||) n.
+  : forall {A : Type} (l : List A) (n : Nat0) .
+      (|| drop n l ||) = Nat0.saturating_sub (|| l ||) n.
 Proof.
   intros A l.
   match l with | | a l' by IH end per List.induction.
@@ -2207,24 +2207,24 @@ Proof.
   - intros n.
     match n with | | n' end.
     + simpl in |- *.
-      leibniz (NatWithZero.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
+      leibniz (Nat0.subtraction.saturating.right.identity (++ (|| l' ||))) in |- *.
       quod idem est.
     + match n' with | | n'' end.
       * simpl in |- *.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
-        leibniz (NatWithZero.addition.commutativity Nat.One (|| l' ||)) in |- *.
-        leibniz (NatWithZero.subtraction.saturating.inversion.of.addition
+        leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
+        leibniz (Nat0.addition.commutativity Nat.One (|| l' ||)) in |- *.
+        leibniz (Nat0.subtraction.saturating.inversion.of.addition
                    (|| l' ||) Nat.One) in |- *.
         quod idem est.
       * simpl in |- *.
         leibniz (IH n'') in |- *.
-        leibniz (NatWithZero.increment.specification (|| l' ||)) in |- *.
+        leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
         lemma facto
-          : NatWithZero.saturating_sub (|| &l' ||) n''
-            = NatWithZero.saturating_sub (Nat.One + (|| &l' ||))
+          : Nat0.saturating_sub (|| &l' ||) n''
+            = Nat0.saturating_sub (Nat.One + (|| &l' ||))
                                          (Nat.One + n'').
         {
-          leibniz (NatWithZero.subtraction.saturating.cancellation
+          leibniz (Nat0.subtraction.saturating.cancellation
                      Nat.One (|| l' ||) n'') in |- *.
           quod idem est.
         }
@@ -2256,7 +2256,7 @@ End positive. (* replication.positive *)
 
 (* replication.length *)
 Theorem length
-  : forall {A : Type} (n : NatWithZero) (a : A) . (|| replicate n a ||) = n.
+  : forall {A : Type} (n : Nat0) (a : A) . (|| replicate n a ||) = n.
 Proof.
   intros A n a.
   match n with | | k end.
@@ -2276,7 +2276,7 @@ Module over. (* sum.additivity.over *)
 
 (* sum.additivity.over.concatenation *)
 Theorem concatenation
-  : forall (l1 : List NatWithZero) (l2 : List NatWithZero) .
+  : forall (l1 : List Nat0) (l2 : List Nat0) .
       sum (l1 ++ l2) = sum l1 + sum l2.
 Proof.
   intros l1 l2.
@@ -2286,8 +2286,8 @@ Proof.
     quod idem est.
   - simpl in |- *.
     leibniz IH in |- *.
-    leibniz (NatWithZero.addition.associativity
-               a (fold_right NatWithZero.add NatWithZero.Zero l1') (fold_right NatWithZero.add NatWithZero.Zero l2))
+    leibniz (Nat0.addition.associativity
+               a (fold_right Nat0.add Nat0.Zero l1') (fold_right Nat0.add Nat0.Zero l2))
       in |- *.
     quod idem est.
 Qed.
@@ -2306,7 +2306,7 @@ Module over. (* product.multiplicativity.over *)
 
 (* product.multiplicativity.over.concatenation *)
 Theorem concatenation
-  : forall (l1 : List NatWithZero) (l2 : List NatWithZero) .
+  : forall (l1 : List Nat0) (l2 : List Nat0) .
       product (l1 ++ l2) = product l1 * product l2.
 Proof.
   intros l1 l2.
@@ -2314,21 +2314,21 @@ Proof.
   match l1 with | | a l1' by IH end per List.induction.
   - leibniz (concatenation.left.identity l2) in |- *.
     lemma facto
-      : fold_right NatWithZero.mul Nat.One &l2
+      : fold_right Nat0.mul Nat.One &l2
         = Nat.One
-          * fold_right NatWithZero.mul Nat.One &l2.
+          * fold_right Nat0.mul Nat.One &l2.
     {
-      leibniz (NatWithZero.multiplication.left.identity
-                 (fold_right NatWithZero.mul Nat.One l2))
+      leibniz (Nat0.multiplication.left.identity
+                 (fold_right Nat0.mul Nat.One l2))
         in |- *.
       quod idem est.
     }
     ipso facto.
   - simpl in |- *.
     leibniz IH in |- *.
-    leibniz (NatWithZero.multiplication.associativity
-               a (fold_right NatWithZero.mul Nat.One l1')
-               (fold_right NatWithZero.mul Nat.One l2)) in |- *.
+    leibniz (Nat0.multiplication.associativity
+               a (fold_right Nat0.mul Nat.One l1')
+               (fold_right Nat0.mul Nat.One l2)) in |- *.
     quod idem est.
 Qed.
 
@@ -2361,7 +2361,7 @@ Module zero. (* counting.zero *)
 (* counting.zero.specification *)
 Theorem specification
   : forall {A : Type} (p : A -> Bool) (l : List A) .
-      count p l = NatWithZero.Zero <-> All (fun (a : A) . p a = false) l.
+      count p l = Nat0.Zero <-> All (fun (a : A) . p a = false) l.
 Proof.
   intros A p l.
   match l with | | a l' by IH end per List.induction.
@@ -2375,9 +2375,9 @@ Proof.
     match (p a) with | | end.
     + divide et impera.
       * intro e.
-        leibniz (NatWithZero.increment.specification (count p l')) in e.
-        leibniz (NatWithZero.addition.commutativity Nat.One (count p l')) in e.
-        let proof r := NatWithZero.addition.right.identity.absence (count p l') Nat.One.
+        leibniz (Nat0.increment.specification (count p l')) in e.
+        leibniz (Nat0.addition.commutativity Nat.One (count p l')) in e.
+        let proof r := Nat0.addition.right.identity.absence (count p l') Nat.One.
         simpl (~ _) in r.
         modus ponens r, e |- f.
         ex f quodlibet.
@@ -2693,7 +2693,7 @@ Module forward. (* range.positive.forward *)
 
 (* range.positive.forward.membership *)
 Lemma membership
-  : forall {p : Nat} {i : NatWithZero} .
+  : forall {p : Nat} {i : Nat0} .
       range_positive p contains_member i -> i < p.
 Proof.
   intros p.
@@ -2714,11 +2714,11 @@ Proof.
         .distributivity
         .over
         .concatenation
-          (i) (range_positive p') (NatWithZero.Positive p' :: [])),
+          (i) (range_positive p') (Nat0.Positive p' :: [])),
       h |- h'.
     lemma facto : &i < Nat.One + p'.
     {
-      leibniz (NatWithZero.addition.commutativity Nat.One p') in |- *.
+      leibniz (Nat0.addition.commutativity Nat.One p') in |- *.
       lemma below : i <= p'.
       {
         simpl ( _ <= _ )%n0 in |- *.
@@ -2730,7 +2730,7 @@ Proof.
           * ex f quodlibet.
       }
       ipso (modus aequans
-            (NatWithZero.order.discreteness i p'),
+            (Nat0.order.discreteness i p'),
             below).
     }
     ipso facto.
@@ -2742,7 +2742,7 @@ Module backward. (* range.positive.backward *)
 
 (* range.positive.backward.membership *)
 Lemma membership
-  : forall {p : Nat} {i : NatWithZero} .
+  : forall {p : Nat} {i : Nat0} .
       i < p -> range_positive p contains_member i.
 Proof.
   intros p.
@@ -2752,21 +2752,21 @@ Proof.
     match h with | k e end.
     match i with | | q end.
     + simpl in |- *.
-      ipso (disjoin (Identity.reflexivity NatWithZero.Zero), _).
+      ipso (disjoin (Identity.reflexivity Nat0.Zero), _).
     + simpl in e.
-      let proof e' := NatWithZero.positive.injectivity e.
+      let proof e' := Nat0.positive.injectivity e.
       match q with | | q' end; simpl in e'; ex e' quodlibet.
   - intros i h.
     let proof h : i < Nat.One + p' := &h.
-    leibniz (NatWithZero.addition.commutativity Nat.One p') in h.
-    modus aequans (NatWithZero.order.discreteness i p'), h |- h'.
+    leibniz (Nat0.addition.commutativity Nat.One p') in h.
+    modus aequans (Nat0.order.discreteness i p'), h |- h'.
     simpl in |- *.
     lemma side : range_positive p' contains_member i
-                   \/ (NatWithZero.Positive p' :: []) contains_member i.
+                   \/ (Nat0.Positive p' :: []) contains_member i.
     {
       simpl ( _ <= _ )%n0 in h'.
       match h' with | e | lt end.
-      + lemma singleton : (NatWithZero.Positive &p' :: []) contains_member &i.
+      + lemma singleton : (Nat0.Positive &p' :: []) contains_member &i.
         {
           simpl in |- *.
           ipso (disjoin e, _).
@@ -2776,7 +2776,7 @@ Proof.
     }
     ipso (modus aequans
              (membership.distributivity.over.concatenation
-                i (range_positive p') (NatWithZero.Positive p' :: [])),
+                i (range_positive p') (Nat0.Positive p' :: [])),
            side).
 Qed.
 
@@ -2787,7 +2787,7 @@ End positive. (* range.positive *)
 Module from_zero. (* range.from_zero *)
 
 (* range.from_zero.length *)
-Theorem length : forall (n : NatWithZero) . (|| range_from_zero n ||) = n.
+Theorem length : forall (n : Nat0) . (|| range_from_zero n ||) = n.
 Proof.
   intros n.
   match n with | | p end.
@@ -2801,7 +2801,7 @@ Module membership. (* range.from_zero.membership *)
 
 (* range.from_zero.membership.specification *)
 Theorem specification
-  : forall (n : NatWithZero) (i : NatWithZero) .
+  : forall (n : Nat0) (i : Nat0) .
       range_from_zero n contains_member i <-> i < n.
 Proof.
   intros n i.
@@ -2813,7 +2813,7 @@ Proof.
     + intro h.
       simpl ( _ < _ )%n0 in h.
       match h with | k e end.
-      let proof r := NatWithZero.addition.right.identity.absence i k.
+      let proof r := Nat0.addition.right.identity.absence i k.
       simpl (~ _) in r.
       modus ponens r, e |- f.
       ex f quodlibet.
@@ -2858,7 +2858,7 @@ Proof.
                  (Nat.Successor p')) in |- *.
       leibniz (sum.additivity.over.concatenation
                  (range_from_zero (Nat.Successor p'))
-                 (NatWithZero.Positive (Nat.Successor p') :: []))
+                 (Nat0.Positive (Nat.Successor p') :: []))
         in |- *.
       lemma facto
         : Nat.Successor Nat.One
@@ -2867,12 +2867,12 @@ Proof.
           = Nat.Successor &p'
             * Nat.Successor (Nat.Successor &p').
       {
-        leibniz (NatWithZero.multiplication.left.distributivity.over.addition
+        leibniz (Nat0.multiplication.left.distributivity.over.addition
                    (Nat.Successor Nat.One)
                    (sum (range_from_zero (Nat.Successor p')))
                    (Nat.Successor p')) in |- *.
         leibniz IH in |- *.
-        leibniz <- (NatWithZero.multiplication.right.distributivity.over.addition
+        leibniz <- (Nat0.multiplication.right.distributivity.over.addition
                       (Nat.Successor p') p' (Nat.Successor Nat.One))
           in |- *.
         lemma facto
@@ -2888,7 +2888,7 @@ Proof.
               = Nat.Successor &p'
                 * Nat.Successor (Nat.Successor &p').
           {
-            leibniz (NatWithZero.multiplication.commutativity
+            leibniz (Nat0.multiplication.commutativity
                        (Nat.Successor p') (Nat.Successor (Nat.Successor p'))) in |- *.
             quod idem est.
           }
@@ -2907,84 +2907,84 @@ End from_zero. (* range.from_zero *)
 
 (* range.length *)
 Theorem length
-  : forall (start : NatWithZero) (stop : NatWithZero) .
-      (|| range start stop ||) = NatWithZero.saturating_sub stop start.
+  : forall (start : Nat0) (stop : Nat0) .
+      (|| range start stop ||) = Nat0.saturating_sub stop start.
 Proof.
   intros start stop.
   simpl range in |- *.
   leibniz (mapping.preservation.of.length
-             (NatWithZero.add start)
-             (range_from_zero (NatWithZero.saturating_sub stop start))) in |- *.
-  ipso (range.from_zero.length (NatWithZero.saturating_sub stop start)).
+             (Nat0.add start)
+             (range_from_zero (Nat0.saturating_sub stop start))) in |- *.
+  ipso (range.from_zero.length (Nat0.saturating_sub stop start)).
 Qed.
 
 Module membership. (* range.membership *)
 
 (* range.membership.specification *)
 Theorem specification
-  : forall (start : NatWithZero) (stop : NatWithZero) (i : NatWithZero) .
+  : forall (start : Nat0) (stop : Nat0) (i : Nat0) .
       range start stop contains_member i <-> start <= i /\ i < stop.
 Proof.
   intros start stop i.
   simpl range in |- *.
   match (Comparable.order.totality start stop) with | below | above end.
-  - let proof reach := NatWithZero.subtraction.saturating.specification below.
+  - let proof reach := Nat0.subtraction.saturating.specification below.
     divide et impera.
     + intro h.
       modus aequans
         (mapping.membership.specification
-           (NatWithZero.add start) i
-           (range_from_zero (NatWithZero.saturating_sub stop start))),
+           (Nat0.add start) i
+           (range_from_zero (Nat0.saturating_sub stop start))),
         h |- w.
       match w with | j c end.
       match c with | m e end.
       modus aequans
         (range.from_zero.membership.specification
-           (NatWithZero.saturating_sub stop start) j),
+           (Nat0.saturating_sub stop start) j),
         m |- lt.
       divide et impera.
       * leibniz e in |- *.
-        leibniz (NatWithZero.addition.commutativity start j) in |- *.
-        ipso (NatWithZero.addition.right.order.extensivity j start).
+        leibniz (Nat0.addition.commutativity start j) in |- *.
+        ipso (Nat0.addition.right.order.extensivity j start).
       * leibniz e in |- *.
         leibniz <- reach in |- *.
-        ipso (NatWithZero.addition.order.strict.monotonicity
-                 start j (NatWithZero.saturating_sub stop start) lt).
+        ipso (Nat0.addition.order.strict.monotonicity
+                 start j (Nat0.saturating_sub stop start) lt).
     + intro c.
       match c with | low high end.
-      let proof step := NatWithZero.subtraction.saturating.specification low.
-      lemma inside : NatWithZero.saturating_sub i start
-                       < NatWithZero.saturating_sub stop start.
+      let proof step := Nat0.subtraction.saturating.specification low.
+      lemma inside : Nat0.saturating_sub i start
+                       < Nat0.saturating_sub stop start.
       {
-        lemma shifted : &start + NatWithZero.saturating_sub &i &start
-                          < &start + NatWithZero.saturating_sub &stop &start.
+        lemma shifted : &start + Nat0.saturating_sub &i &start
+                          < &start + Nat0.saturating_sub &stop &start.
         {
           leibniz step in |- *.
           leibniz reach in |- *.
           ipso high.
         }
-        ipso (NatWithZero.addition.order.strict.cancellation &start _ _ &shifted).
+        ipso (Nat0.addition.order.strict.cancellation &start _ _ &shifted).
       }
-      lemma witness : forsome (j : NatWithZero) .
-                range_from_zero (NatWithZero.saturating_sub stop start) contains_member j
+      lemma witness : forsome (j : Nat0) .
+                range_from_zero (Nat0.saturating_sub stop start) contains_member j
                 /\ i = (start + j)%n0.
       {
-        exists (NatWithZero.saturating_sub i start).
+        exists (Nat0.saturating_sub i start).
         divide et impera.
         * ipso (modus aequans
                    (range.from_zero.membership.specification
-                      (NatWithZero.saturating_sub stop start)
-                      (NatWithZero.saturating_sub i start)),
+                      (Nat0.saturating_sub stop start)
+                      (Nat0.saturating_sub i start)),
                  inside).
         * symm in step.
           ipso step.
       }
       ipso (modus aequans
                (mapping.membership.specification
-                  (NatWithZero.add start) i
-                  (range_from_zero (NatWithZero.saturating_sub stop start))),
+                  (Nat0.add start) i
+                  (range_from_zero (Nat0.saturating_sub stop start))),
              witness).
-  - let proof empty := NatWithZero.subtraction.saturating.truncation above.
+  - let proof empty := Nat0.subtraction.saturating.truncation above.
     leibniz empty in |- *.
     simpl in |- *.
     divide et impera.
@@ -2995,7 +2995,7 @@ Proof.
       let proof reached := Comparable.order.transitivity stop start i above low.
       match reached with | e | lt end.
       * leibniz e in high.
-        ipso (NatWithZero.order.strict.irreflexivity i high).
+        ipso (Nat0.order.strict.irreflexivity i high).
       * ipso (Comparable.order.strict.asymmetry i stop high lt).
 Qed.
 
@@ -3005,26 +3005,26 @@ Module inclusive. (* range.inclusive *)
 
 (* range.inclusive.length *)
 Theorem length
-  : forall (start : NatWithZero) (stop : NatWithZero) .
+  : forall (start : Nat0) (stop : Nat0) .
       (|| range_inclusive start stop ||)
-      = NatWithZero.saturating_sub (NatWithZero.inc stop) start.
+      = Nat0.saturating_sub (Nat0.inc stop) start.
 Proof.
   intros start stop.
   simpl range_inclusive in |- *.
-  ipso (range.length start (NatWithZero.inc stop)).
+  ipso (range.length start (Nat0.inc stop)).
 Qed.
 
 Module membership. (* range.inclusive.membership *)
 
 (* range.inclusive.membership.specification *)
 Theorem specification
-  : forall (start : NatWithZero) (stop : NatWithZero) (i : NatWithZero) .
+  : forall (start : Nat0) (stop : Nat0) (i : Nat0) .
       range_inclusive start stop contains_member i <-> start <= i /\ i <= stop.
 Proof.
   intros start stop i.
   simpl range_inclusive in |- *.
-  leibniz (NatWithZero.increment.specification stop) in |- *.
-  leibniz (NatWithZero.addition.commutativity
+  leibniz (Nat0.increment.specification stop) in |- *.
+  leibniz (Nat0.addition.commutativity
              Nat.One stop) in |- *.
   divide et impera.
   - intro h.
@@ -3035,14 +3035,14 @@ Proof.
     match c with | low high end.
     divide et impera.
     + ipso low.
-    + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
+    + ipso (modus aequans (Nat0.order.discreteness i stop), high).
   - intro c.
     match c with | low high end.
     lemma bounds : start <= i /\ i < stop + Nat.One.
     {
       divide et impera.
       + ipso low.
-      + ipso (modus aequans (NatWithZero.order.discreteness i stop), high).
+      + ipso (modus aequans (Nat0.order.discreteness i stop), high).
     }
     ipso (modus aequans
              (range.membership.specification

@@ -12,7 +12,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
@@ -29,7 +29,7 @@ Module Rational. (* Rational *)
 Inductive T : Type :=
   | Rational_introduction
       : forall (n : Integer) (d : Nat) .
-          NatWithZero.gcd.nat (Integer.abs n) d = Nat.One -> T.
+          Nat0.gcd.nat (Integer.abs n) d = Nat.One -> T.
 
 Abbreviation Rational := T.
 
@@ -37,11 +37,11 @@ Abbreviation Rational := T.
 Definition make := fun (n : Integer) (d : Nat) .
   let n' := Integer.abs n
   in
-  let g  := NatWithZero.gcd.nat n' d
+  let g  := Nat0.gcd.nat n' d
   in
   let numerator   := (n /. g)%z
   in
-  let denominator := NatWithZero.divide.nat.safe d g (NatWithZero.gcd.nat.right.divisibility n' d)
+  let denominator := Nat0.divide.nat.safe d g (Nat0.gcd.nat.right.divisibility n' d)
   in
   Rational_introduction numerator denominator (Integer.division.exhaustiveness n d).
 
@@ -60,20 +60,20 @@ end.
 (* [Rational] *)
 Definition Zero :=
   Rational_introduction Integer.Zero Nat.One
-    (NatWithZero.gcd.nat.zero
+    (Nat0.gcd.nat.zero
       (Integer.abs Integer.Zero)
       (Nat.One)
-      ((Identity.reflexivity NatWithZero.Zero)
-        : (Integer.abs Integer.Zero %. Nat.One)%n0 = NatWithZero.Zero)).
+      ((Identity.reflexivity Nat0.Zero)
+        : (Integer.abs Integer.Zero %. Nat.One)%n0 = Nat0.Zero)).
 
 (* [Rational] *)
 Definition One :=
   Rational_introduction Nat.One Nat.One
-    (NatWithZero.gcd.nat.zero
+    (Nat0.gcd.nat.zero
       (Integer.abs Nat.One)
       (Nat.One)
-      ((Identity.reflexivity NatWithZero.Zero)
-        : (Integer.abs Nat.One %. Nat.One)%n0 = NatWithZero.Zero)).
+      ((Identity.reflexivity Nat0.Zero)
+        : (Integer.abs Nat.One %. Nat.One)%n0 = Nat0.Zero)).
 
 (* [Rational -> Rational] *)
 Definition negate := fun (x : Rational) .
@@ -155,7 +155,7 @@ Definition compare := fun (x : Rational) (y : Rational) .
 Definition from_integer := fun (n : Integer) . make n Nat.One.
 
 (* The conversions down: an [Integer] only from a denominator of one, and
- * from there as [Integer.to_nat_with_zero] and [Integer.to_nat] go on.
+ * from there as [Integer.to_nat0] and [Integer.to_nat] go on.
  *)
 (* [Rational -> Option Integer] *)
 Definition to_integer := fun (x : Rational) .
@@ -164,11 +164,11 @@ Definition to_integer := fun (x : Rational) .
   | Nat.Successor _ => None
   end.
 
-(* [Rational -> Option NatWithZero] *)
-Definition to_nat_with_zero := fun (x : Rational) .
+(* [Rational -> Option Nat0] *)
+Definition to_nat0 := fun (x : Rational) .
   match to_integer x with
   | None   => None
-  | Some z => Integer.to_nat_with_zero z
+  | Some z => Integer.to_nat0 z
   end.
 
 (* [Rational -> Option Nat] *)
@@ -194,13 +194,13 @@ Proof.
   match e1 with end.
   match e2 with end.
   leibniz (Nat.equality.uniqueness
-             (NatWithZero.gcd.nat (Integer.abs n1) d1) Nat.One h1 h2) in |- *.
+             (Nat0.gcd.nat (Integer.abs n1) d1) Nat.One h1 h2) in |- *.
   quod idem est.
 Qed.
 
 Theorem irreducibility
   : forall (x : Rational) .
-      NatWithZero.gcd.nat (Integer.abs (numerator x)) (denominator x)
+      Nat0.gcd.nat (Integer.abs (numerator x)) (denominator x)
       = Nat.One.
 Proof.
   intro x.
@@ -224,7 +224,7 @@ Proof.
   {
     let proof e := Integer.division.exactness
                   n Nat.One
-                  (NatWithZero.divisibility.bottom (Integer.abs n)).
+                  (Nat0.divisibility.bottom (Integer.abs n)).
     let proof i := Integer.multiplication.right.identity
                   (n /. Nat.One)%z.
     symm in i.
@@ -234,16 +234,16 @@ Proof.
   lemma undivided : (d /. (Nat.One))%n0
           = d.
   {
-    let proof e := NatWithZero.division.exactness
+    let proof e := Nat0.division.exactness
                   d (Nat.One)
-                  (NatWithZero.divisibility.bottom d).
-    let proof i := NatWithZero.multiplication.right.identity
+                  (Nat0.divisibility.bottom d).
+    let proof i := Nat0.multiplication.right.identity
                   (d /. (Nat.One))%n0.
     symm in i.
     ipso (Identity.transitivity i e).
   }
 
-  lemma same : (d /. NatWithZero.gcd.nat (Integer.abs n) d)%n0
+  lemma same : (d /. Nat0.gcd.nat (Integer.abs n) d)%n0
           = (d /. (Nat.One))%n0.
   {
     leibniz h in |- *.
@@ -261,17 +261,17 @@ Proof.
   {
     simpl make        in |- *.
     simpl denominator in |- *.
-    let proof c := NatWithZero.divide.nat.safe.congruence
-                  d (NatWithZero.gcd.nat (Integer.abs n) d)
-                  (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d)
+    let proof c := Nat0.divide.nat.safe.congruence
+                  d (Nat0.gcd.nat (Integer.abs n) d)
+                  (Nat0.gcd.nat.right.divisibility (Integer.abs n) d)
                   d Nat.One
-                  (NatWithZero.divisibility.bottom d)
+                  (Nat0.divisibility.bottom d)
                   same.
-    let proof s := NatWithZero.divide.nat.safe.specification
+    let proof s := Nat0.divide.nat.safe.specification
                   d Nat.One
-                  (NatWithZero.divisibility.bottom d).
+                  (Nat0.divisibility.bottom d).
     leibniz undivided in s.
-    let proof inj := NatWithZero.positive.injectivity s.
+    let proof inj := Nat0.positive.injectivity s.
     ipso (Identity.transitivity c inj).
   }
   ipso (extensionality _ _ &top &bottom).
@@ -284,10 +284,10 @@ Theorem invariance
 Proof.
   intros n d k.
 
-  lemma common : NatWithZero.gcd.nat
+  lemma common : Nat0.gcd.nat
               (Integer.abs (k * n)%z)
               (k * d)%n
-          = (k * NatWithZero.gcd.nat (Integer.abs n) d)%n.
+          = (k * Nat0.gcd.nat (Integer.abs n) d)%n.
   {
     let proof am := Integer.multiplication.magnitude k n.
     let proof am
@@ -295,7 +295,7 @@ Proof.
         = (k * Integer.abs n)%n0
       := &am.
     leibniz am in |- *.
-    let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
+    let proof gd := Nat0.gcd.nat.left.distributivity.of.multiplication
                   k d (Integer.abs n).
     symm in gd.
     ipso gd.
@@ -303,46 +303,46 @@ Proof.
 
   simpl make in |- *.
 
-  lemma top : (k * n /. NatWithZero.gcd.nat
+  lemma top : (k * n /. Nat0.gcd.nat
                 (Integer.abs (k * n))
                 (k * d)%n)%z
-          = (n /. NatWithZero.gcd.nat (Integer.abs n) d)%z.
+          = (n /. Nat0.gcd.nat (Integer.abs n) d)%z.
   {
     leibniz common in |- *.
     ipso (Integer.division.invariance
-             n (NatWithZero.gcd.nat (Integer.abs n) d) k).
+             n (Nat0.gcd.nat (Integer.abs n) d) k).
   }
 
-  lemma bottom : NatWithZero.divide.nat.safe
+  lemma bottom : Nat0.divide.nat.safe
                 (k * d)%n
-                (NatWithZero.gcd.nat
+                (Nat0.gcd.nat
                   (Integer.abs (k * n)%z)
                   (k * d)%n)
-                (NatWithZero.gcd.nat.right.divisibility
+                (Nat0.gcd.nat.right.divisibility
                   (Integer.abs (k * n)%z)
                   (k * d)%n)
-          = NatWithZero.divide.nat.safe
+          = Nat0.divide.nat.safe
                 d
-                (NatWithZero.gcd.nat (Integer.abs n) d)
-                (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d).
+                (Nat0.gcd.nat (Integer.abs n) d)
+                (Nat0.gcd.nat.right.divisibility (Integer.abs n) d).
   {
     lemma quotients
       : ((&k * &d)%n
-         /. NatWithZero.gcd.nat (Integer.abs (k * &n)%z) (&k * &d)%n)%n0
-        = (d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%n0.
+         /. Nat0.gcd.nat (Integer.abs (k * &n)%z) (&k * &d)%n)%n0
+        = (d /. Nat0.gcd.nat (Integer.abs &n) &d)%n0.
     {
       leibniz common in |- *.
-      let proof inv := NatWithZero.division.invariance
+      let proof inv := Nat0.division.invariance
                     d
-                    (NatWithZero.gcd.nat (Integer.abs n) d) k.
+                    (Nat0.gcd.nat (Integer.abs n) d) k.
       let proof inv
         : ((k * d)%n
-           /. (k * NatWithZero.gcd.nat (Integer.abs n) d)%n)%n0
-          = (d /. NatWithZero.gcd.nat (Integer.abs n) d)%n0
+           /. (k * Nat0.gcd.nat (Integer.abs n) d)%n)%n0
+          = (d /. Nat0.gcd.nat (Integer.abs n) d)%n0
         := &inv.
       ipso inv.
     }
-    ipso (NatWithZero.divide.nat.safe.congruence _ _ _ _ _ _ &quotients).
+    ipso (Nat0.divide.nat.safe.congruence _ _ _ _ _ _ &quotients).
   }
 
   ipso (extensionality
@@ -361,31 +361,31 @@ Proof.
   simpl make in |- *.
   simpl numerator, denominator in |- *.
 
-  lemma bottom : (NatWithZero.divide.nat.safe
-                b (NatWithZero.gcd.nat (Integer.abs a) b)
-                (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b)
-              * NatWithZero.gcd.nat (Integer.abs a) b)%n
+  lemma bottom : (Nat0.divide.nat.safe
+                b (Nat0.gcd.nat (Integer.abs a) b)
+                (Nat0.gcd.nat.right.divisibility (Integer.abs a) b)
+              * Nat0.gcd.nat (Integer.abs a) b)%n
           = b.
   {
-    let proof s := NatWithZero.divide.nat.safe.specification
-                  b (NatWithZero.gcd.nat (Integer.abs a) b)
-                  (NatWithZero.gcd.nat.right.divisibility
+    let proof s := Nat0.divide.nat.safe.specification
+                  b (Nat0.gcd.nat (Integer.abs a) b)
+                  (Nat0.gcd.nat.right.divisibility
                     (Integer.abs a) b).
-    let proof e := NatWithZero.division.exactness
+    let proof e := Nat0.division.exactness
                   b
-                  (NatWithZero.gcd.nat (Integer.abs a) b)
-                  (NatWithZero.gcd.nat.right.divisibility
+                  (Nat0.gcd.nat (Integer.abs a) b)
+                  (Nat0.gcd.nat.right.divisibility
                     (Integer.abs a) b).
     symm in s.
     leibniz s in e.
-    ipso (NatWithZero.positive.injectivity e).
+    ipso (Nat0.positive.injectivity e).
   }
 
   lemma lifted : Integer.Positive b
-          = (NatWithZero.divide.nat.safe
-                    b (NatWithZero.gcd.nat (Integer.abs a) b)
-                    (NatWithZero.gcd.nat.right.divisibility
-                      (Integer.abs a) b) * NatWithZero.gcd.nat (Integer.abs a) b)%z.
+          = (Nat0.divide.nat.safe
+                    b (Nat0.gcd.nat (Integer.abs a) b)
+                    (Nat0.gcd.nat.right.divisibility
+                      (Integer.abs a) b) * Nat0.gcd.nat (Integer.abs a) b)%z.
   {
     congru Integer.Positive, bottom |- c.
     symm in c.
@@ -394,29 +394,29 @@ Proof.
     quod idem est.
   }
 
-  lemma whole : ((a /. NatWithZero.gcd.nat (Integer.abs a) b)
-                 * NatWithZero.gcd.nat (Integer.abs a) b)%z
+  lemma whole : ((a /. Nat0.gcd.nat (Integer.abs a) b)
+                 * Nat0.gcd.nat (Integer.abs a) b)%z
           = a.
   {
     ipso (Integer.division.exactness
-            a (NatWithZero.gcd.nat (Integer.abs a) b)
-            (NatWithZero.gcd.nat.left.divisibility (Integer.abs a) b)).
+            a (Nat0.gcd.nat (Integer.abs a) b)
+            (Nat0.gcd.nat.left.divisibility (Integer.abs a) b)).
   }
 
   leibniz lifted in |- *.
   leibniz (Integer.multiplication.commutativity
-            (NatWithZero.divide.nat.safe
-                b (NatWithZero.gcd.nat (Integer.abs a) b)
-                (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b))
-            (NatWithZero.gcd.nat (Integer.abs a) b))
+            (Nat0.divide.nat.safe
+                b (Nat0.gcd.nat (Integer.abs a) b)
+                (Nat0.gcd.nat.right.divisibility (Integer.abs a) b))
+            (Nat0.gcd.nat (Integer.abs a) b))
     in |- *.
   let proof assoc := Identity.symmetry
                 (Integer.multiplication.associativity
-                  (a /. NatWithZero.gcd.nat (Integer.abs a) b)%z
-                  (NatWithZero.gcd.nat (Integer.abs a) b)
-                  (NatWithZero.divide.nat.safe
-                      b (NatWithZero.gcd.nat (Integer.abs a) b)
-                      (NatWithZero.gcd.nat.right.divisibility
+                  (a /. Nat0.gcd.nat (Integer.abs a) b)%z
+                  (Nat0.gcd.nat (Integer.abs a) b)
+                  (Nat0.divide.nat.safe
+                      b (Nat0.gcd.nat (Integer.abs a) b)
+                      (Nat0.gcd.nat.right.divisibility
                         (Integer.abs a) b))).
   leibniz assoc in |- *.
   leibniz whole in |- *.
@@ -560,56 +560,56 @@ Proof.
         = (Integer.abs r * q)%n0
       := &m.
 
-    lemma coprime1 : NatWithZero.gcd q (Integer.abs p)
+    lemma coprime1 : Nat0.gcd q (Integer.abs p)
             = Nat.One.
     {
-      let proof g := NatWithZero.gcd.nat.specification q (Integer.abs p).
+      let proof g := Nat0.gcd.nat.specification q (Integer.abs p).
       leibniz I1 in g.
-      leibniz (NatWithZero.gcd.commutativity
+      leibniz (Nat0.gcd.commutativity
                 (Integer.abs p) q) in g.
       ipso g.
     }
 
-    lemma coprime2 : NatWithZero.gcd s (Integer.abs r)
+    lemma coprime2 : Nat0.gcd s (Integer.abs r)
             = Nat.One.
     {
-      let proof g := NatWithZero.gcd.nat.specification s (Integer.abs r).
+      let proof g := Nat0.gcd.nat.specification s (Integer.abs r).
       leibniz I2 in g.
-      leibniz (NatWithZero.gcd.commutativity (Integer.abs r)
+      leibniz (Nat0.gcd.commutativity (Integer.abs r)
                  s) in g.
       ipso g.
     }
 
-    lemma qs : NatWithZero.Divides q s.
+    lemma qs : Nat0.Divides q s.
     {
-      let proof h := NatWithZero.divisibility.multiplication.closure
+      let proof h := Nat0.divisibility.multiplication.closure
                     q q
                     (Integer.abs r)
-                    (NatWithZero.divisibility.reflexivity q).
-      leibniz (NatWithZero.multiplication.commutativity
+                    (Nat0.divisibility.reflexivity q).
+      leibniz (Nat0.multiplication.commutativity
                 q (Integer.abs r)) in h.
       let proof m' := Identity.symmetry m.
       leibniz m' in h.
-      ipso (NatWithZero.gcd.multiplication.cancellation
+      ipso (Nat0.gcd.multiplication.cancellation
               q (Integer.abs p)
               s h coprime1).
     }
 
-    lemma sq : NatWithZero.Divides s q.
+    lemma sq : Nat0.Divides s q.
     {
-      let proof h := NatWithZero.divisibility.multiplication.closure
+      let proof h := Nat0.divisibility.multiplication.closure
                     s s
                     (Integer.abs p)
-                    (NatWithZero.divisibility.reflexivity s).
-      leibniz (NatWithZero.multiplication.commutativity
+                    (Nat0.divisibility.reflexivity s).
+      leibniz (Nat0.multiplication.commutativity
                  s (Integer.abs p)) in h.
       leibniz m in h.
-      ipso (NatWithZero.gcd.multiplication.cancellation
+      ipso (Nat0.gcd.multiplication.cancellation
                s (Integer.abs r)
                q h coprime2).
     }
 
-    let proof hq := NatWithZero.positive.injectivity (NatWithZero.divisibility.antisymmetry qs sq).
+    let proof hq := Nat0.positive.injectivity (Nat0.divisibility.antisymmetry qs sq).
     leibniz hq in cross.
     leibniz (Integer.multiplication.commutativity p s) in cross.
     leibniz (Integer.multiplication.commutativity r s) in cross.
@@ -1980,13 +1980,13 @@ Lemma introduction
   : forall (n : Integer) .
       from_integer n
       = Rational_introduction n Nat.One
-          (NatWithZero.gcd.nat.right.annihilation (Integer.abs n)).
+          (Nat0.gcd.nat.right.annihilation (Integer.abs n)).
 Proof.
   intro n.
   simpl from_integer in |- *.
   ipso (make.retraction
           (Rational_introduction n Nat.One
-             (NatWithZero.gcd.nat.right.annihilation (Integer.abs n)))).
+             (Nat0.gcd.nat.right.annihilation (Integer.abs n)))).
 Qed.
 
 End embedding. (* embedding *)
@@ -2025,7 +2025,7 @@ Proof.
       ipso (extensionality
               (Rational_introduction m Nat.One h)
               (Rational_introduction n Nat.One
-                 (NatWithZero.gcd.nat.right.annihilation (Integer.abs n)))
+                 (Nat0.gcd.nat.right.annihilation (Integer.abs n)))
               f (Identity.reflexivity Nat.One)).
     + ex e quodlibet.
   - intro e.
@@ -2057,53 +2057,53 @@ Qed.
 
 End integer. (* narrowing.integer *)
 
-Module nat_with_zero. (* narrowing.nat_with_zero *)
+Module nat0. (* narrowing.nat0 *)
 
-(* narrowing.nat_with_zero.retraction *)
+(* narrowing.nat0.retraction *)
 Theorem retraction
-  : forall (n : NatWithZero) . to_nat_with_zero (from_integer n) = Some n.
+  : forall (n : Nat0) . to_nat0 (from_integer n) = Some n.
 Proof.
   intro n.
-  simpl to_nat_with_zero in |- *.
+  simpl to_nat0 in |- *.
   leibniz (narrowing.integer.retraction n) in |- *.
   simpl in |- *.
-  ipso (Integer.narrowing.nat_with_zero.retraction n).
+  ipso (Integer.narrowing.nat0.retraction n).
 Qed.
 
-(* narrowing.nat_with_zero.specification *)
+(* narrowing.nat0.specification *)
 Theorem specification
-  : forall (x : Rational) (n : NatWithZero) .
-      to_nat_with_zero x = Some n <-> x = from_integer n.
+  : forall (x : Rational) (n : Nat0) .
+      to_nat0 x = Some n <-> x = from_integer n.
 Proof.
   intros x n.
   divide et impera.
   - intro e.
-    simpl to_nat_with_zero in e.
+    simpl to_nat0 in e.
     match (to_integer x) with | None | Some z end |- t.
     + ex e quodlibet.
     + modus aequans (narrowing.integer.specification x z), t |- ex.
-      modus aequans (Integer.narrowing.nat_with_zero.specification z n), e |- ez.
+      modus aequans (Integer.narrowing.nat0.specification z n), e |- ez.
       leibniz ex, ez in |- *.
       quod idem est.
   - intro e.
     leibniz e in |- *.
-    ipso (narrowing.nat_with_zero.retraction n).
+    ipso (narrowing.nat0.retraction n).
 Qed.
 
-(* narrowing.nat_with_zero.failure *)
+(* narrowing.nat0.failure *)
 Theorem failure
   : forall (x : Rational) .
-      to_nat_with_zero x = None
+      to_nat0 x = None
       <-> ~ (denominator x = Nat.One) \/ (numerator x < Integer.Zero)%z.
 Proof.
   intro x.
-  simpl to_nat_with_zero in |- *.
+  simpl to_nat0 in |- *.
   divide et impera.
   - intro e.
     match (to_integer x) with | None | Some z end |- t.
     + modus aequans (narrowing.integer.failure x), t |- nd.
       ipso (disjoin nd, _).
-    + modus aequans (Integer.narrowing.nat_with_zero.failure z), e |- neg.
+    + modus aequans (Integer.narrowing.nat0.failure z), e |- neg.
       modus aequans (narrowing.integer.specification x z), t |- ex.
       leibniz ex, (embedding.introduction z) in |- *.
       simpl numerator in |- *.
@@ -2119,11 +2119,11 @@ Proof.
       * modus aequans (narrowing.integer.specification x z), t |- ex.
         leibniz ex, (embedding.introduction z) in neg.
         simpl numerator in neg.
-        modus aequans (Integer.narrowing.nat_with_zero.failure z), neg |- f.
+        modus aequans (Integer.narrowing.nat0.failure z), neg |- f.
         ipso f.
 Qed.
 
-End nat_with_zero. (* narrowing.nat_with_zero *)
+End nat0. (* narrowing.nat0 *)
 
 Module nat. (* narrowing.nat *)
 
@@ -2208,7 +2208,7 @@ Abbreviation Rational := Rational.T.
 Export (notations) Rational.
 
 (* An [Integer] stands wherever a [Rational] is expected, and through it a
- * [Nat] or a [NatWithZero]; the conversion is printed where it happened.
+ * [Nat] or a [Nat0]; the conversion is printed where it happened.
  *)
 Coercion Rational.from_integer : Integer >-> Rational.
 Add Printing Coercion Rational.from_integer.

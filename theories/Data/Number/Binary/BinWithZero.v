@@ -12,7 +12,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Binary.Bin.
 From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
@@ -25,7 +25,7 @@ From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [BinWithZero.add].
- * The type and its ctors are declared inside it: [NatWithZero] and [Integer]
+ * The type and its ctors are declared inside it: [Nat0] and [Integer]
  * declare [Zero] and [Positive] too, and across files a duplicate ctor name
  * rebinds the bare one silently and with no warning.
  *)
@@ -33,7 +33,7 @@ Module BinWithZero. (* BinWithZero *)
 
 (* [Positive] wraps a [Bin], so addition, multiplication, powers, comparison
  * and subtraction here reduce to the [Bin] operation plus the [Zero] cases,
- * as [NatWithZero] does over [Nat].
+ * as [Nat0] does over [Nat].
  *)
 Inductive T : Type :=
   | Zero     : T
@@ -160,7 +160,7 @@ Abbreviation min := (Comparable.min compare).
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
 Abbreviation max := (Comparable.max compare).
 
-(* [m - n], [None] when [n] is the greater, as [NatWithZero.sub] is. *)
+(* [m - n], [None] when [n] is the greater, as [Nat0.sub] is. *)
 (* [BinWithZero -> BinWithZero -> Option BinWithZero] *)
 Definition sub := fun (m : BinWithZero) (n : BinWithZero) .
   match m with
@@ -426,11 +426,11 @@ Fixpoint shift_left_nat (n : BinWithZero) (k : Nat) : BinWithZero :=
   end.
 
 (* [n] with [k] 0s appended, [n * 2 ^ k]. *)
-(* [BinWithZero -> NatWithZero -> BinWithZero] *)
-Definition shift_left := fun (n : BinWithZero) (k : NatWithZero) .
+(* [BinWithZero -> Nat0 -> BinWithZero] *)
+Definition shift_left := fun (n : BinWithZero) (k : Nat0) .
   match k with
-  | NatWithZero.Zero        => n
-  | NatWithZero.Positive k' => shift_left_nat n k'
+  | Nat0.Zero        => n
+  | Nat0.Positive k' => shift_left_nat n k'
   end.
 
 (* [BinWithZero -> Nat -> BinWithZero] *)
@@ -441,16 +441,16 @@ Fixpoint shift_right_nat (n : BinWithZero) (k : Nat) : BinWithZero :=
   end.
 
 (* [n] with its [k] lowest bits dropped. *)
-(* [BinWithZero -> NatWithZero -> BinWithZero] *)
-Definition shift_right := fun (n : BinWithZero) (k : NatWithZero) .
+(* [BinWithZero -> Nat0 -> BinWithZero] *)
+Definition shift_right := fun (n : BinWithZero) (k : Nat0) .
   match k with
-  | NatWithZero.Zero        => n
-  | NatWithZero.Positive k' => shift_right_nat n k'
+  | Nat0.Zero        => n
+  | Nat0.Positive k' => shift_right_nat n k'
   end.
 
 (* Bit [i] of [n], [true] for 1, counted from 0 at the lowest bit. *)
-(* [BinWithZero -> NatWithZero -> Bool] *)
-Definition test_bit := fun (n : BinWithZero) (i : NatWithZero) .
+(* [BinWithZero -> Nat0 -> Bool] *)
+Definition test_bit := fun (n : BinWithZero) (i : Nat0) .
   match shift_right n i with
   | 0          => false
   | + Bin.One  => true
@@ -484,22 +484,22 @@ Definition to_numeral := fun (n : BinWithZero) .
   | + p => Bin.to_numeral p
   end.
 
-(* The conversions to and from [NatWithZero], used to state the laws: they
+(* The conversions to and from [Nat0], used to state the laws: they
  * go through [Nat], which is unary, so they are for proofs, not for
  * computing.
  *)
-(* [BinWithZero -> NatWithZero] *)
-Definition to_nat_with_zero := fun (n : BinWithZero) .
+(* [BinWithZero -> Nat0] *)
+Definition to_nat0 := fun (n : BinWithZero) .
   match n with
-  | 0   => NatWithZero.Zero
-  | + p => NatWithZero.Positive (Bin.to_nat p)
+  | 0   => Nat0.Zero
+  | + p => Nat0.Positive (Bin.to_nat p)
   end.
 
-(* [NatWithZero -> BinWithZero] *)
-Definition from_nat_with_zero := fun (n : NatWithZero) .
+(* [Nat0 -> BinWithZero] *)
+Definition from_nat0 := fun (n : Nat0) .
   match n with
-  | NatWithZero.Zero       => 0
-  | NatWithZero.Positive p => + Bin.from_nat p
+  | Nat0.Zero       => 0
+  | Nat0.Positive p => + Bin.from_nat p
   end.
 
 Module conversion. (* conversion *)
@@ -507,7 +507,7 @@ Module conversion. (* conversion *)
 (* conversion.successor *)
 Theorem successor
   : forall (n : BinWithZero) .
-      to_nat_with_zero (++ n) = NatWithZero.inc (to_nat_with_zero n).
+      to_nat0 (++ n) = Nat0.inc (to_nat0 n).
 Proof.
   intro n.
   match n with | | p end.
@@ -523,7 +523,7 @@ Qed.
 
 (* conversion.retraction *)
 Theorem retraction
-  : forall (n : NatWithZero) . to_nat_with_zero (from_nat_with_zero n) = n.
+  : forall (n : Nat0) . to_nat0 (from_nat0 n) = n.
 Proof.
   intro n.
   match n with | | p end.
@@ -538,7 +538,7 @@ Qed.
 
 (* conversion.section *)
 Theorem section
-  : forall (n : BinWithZero) . from_nat_with_zero (to_nat_with_zero n) = n.
+  : forall (n : BinWithZero) . from_nat0 (to_nat0 n) = n.
 Proof.
   intro n.
   match n with | | p end.
@@ -554,8 +554,8 @@ Qed.
 (* conversion.addition *)
 Theorem addition
   : forall (m : BinWithZero) (n : BinWithZero) .
-      to_nat_with_zero (m + n)
-      = (to_nat_with_zero m + to_nat_with_zero n)%n0.
+      to_nat0 (m + n)
+      = (to_nat0 m + to_nat0 n)%n0.
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
@@ -578,8 +578,8 @@ Qed.
 (* conversion.multiplication *)
 Theorem multiplication
   : forall (m : BinWithZero) (n : BinWithZero) .
-      to_nat_with_zero (m * n)
-      = (to_nat_with_zero m * to_nat_with_zero n)%n0.
+      to_nat0 (m * n)
+      = (to_nat0 m * to_nat0 n)%n0.
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
@@ -601,8 +601,8 @@ Qed.
 (* conversion.power *)
 Theorem power
   : forall (m : BinWithZero) (n : BinWithZero) .
-      to_nat_with_zero (m ^ n)
-      = (to_nat_with_zero m ^ to_nat_with_zero n)%n0.
+      to_nat0 (m ^ n)
+      = (to_nat0 m ^ to_nat0 n)%n0.
 Proof.
   intros m n.
   match n with | | q end; match m with | | p end.
@@ -624,7 +624,7 @@ Qed.
 (* conversion.comparison *)
 Theorem comparison
   : forall (m : BinWithZero) (n : BinWithZero) .
-      compare m n = NatWithZero.compare (to_nat_with_zero m) (to_nat_with_zero n).
+      compare m n = Nat0.compare (to_nat0 m) (to_nat0 n).
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
@@ -645,22 +645,22 @@ Qed.
 (* conversion.subtraction *)
 Theorem subtraction
   : forall (m : BinWithZero) (n : BinWithZero) .
-      Option.map to_nat_with_zero (sub m n)
-      = NatWithZero.sub (to_nat_with_zero m) (to_nat_with_zero n).
+      Option.map to_nat0 (sub m n)
+      = Nat0.sub (to_nat0 m) (to_nat0 n).
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
   -
     simpl in |- *.
     lemma sum
-      : (NatWithZero.Zero + NatWithZero.Zero)%n0 = NatWithZero.Zero.
+      : (Nat0.Zero + Nat0.Zero)%n0 = Nat0.Zero.
     {
       simpl in |- *.
       quod idem est.
     }
     modus aequans
-      (NatWithZero.subtraction.specification
-         NatWithZero.Zero NatWithZero.Zero NatWithZero.Zero),
+      (Nat0.subtraction.specification
+         Nat0.Zero Nat0.Zero Nat0.Zero),
       &sum
     |- e.
     leibniz &e in |- *.
@@ -668,28 +668,28 @@ Proof.
   -
     simpl in |- *.
     lemma below
-      : (NatWithZero.Zero < NatWithZero.Positive (Bin.to_nat &q))%n0.
+      : (Nat0.Zero < Nat0.Positive (Bin.to_nat &q))%n0.
     {
-      simpl NatWithZero.LessThan in |- *.
+      simpl Nat0.LessThan in |- *.
       exists (Bin.to_nat &q).
       simpl in |- *.
       quod idem est.
     }
-    leibniz (NatWithZero.subtraction.truncation &below) in |- *.
+    leibniz (Nat0.subtraction.truncation &below) in |- *.
     quod idem est.
   -
     simpl in |- *.
     lemma sum
-      : (NatWithZero.Zero + NatWithZero.Positive (Bin.to_nat &p))%n0
-        = NatWithZero.Positive (Bin.to_nat &p).
+      : (Nat0.Zero + Nat0.Positive (Bin.to_nat &p))%n0
+        = Nat0.Positive (Bin.to_nat &p).
     {
       simpl in |- *.
       quod idem est.
     }
     modus aequans
-      (NatWithZero.subtraction.specification
-         (NatWithZero.Positive (Bin.to_nat &p)) NatWithZero.Zero
-         (NatWithZero.Positive (Bin.to_nat &p))),
+      (Nat0.subtraction.specification
+         (Nat0.Positive (Bin.to_nat &p)) Nat0.Zero
+         (Nat0.Positive (Bin.to_nat &p))),
       &sum
     |- e.
     leibniz &e in |- *.
@@ -703,10 +703,10 @@ Proof.
       intro h.
       simpl in |- *.
       lemma below
-        : (NatWithZero.Positive (Bin.to_nat &p)
-           < NatWithZero.Positive (Bin.to_nat &q))%n0.
+        : (Nat0.Positive (Bin.to_nat &p)
+           < Nat0.Positive (Bin.to_nat &q))%n0.
       {
-        simpl NatWithZero.LessThan in |- *.
+        simpl Nat0.LessThan in |- *.
         simpl Nat.LessThan in &h.
         match &h with | k e end.
         exists &k.
@@ -714,23 +714,23 @@ Proof.
         leibniz &e in |- *.
         quod idem est.
       }
-      leibniz (NatWithZero.subtraction.truncation &below) in |- *.
+      leibniz (Nat0.subtraction.truncation &below) in |- *.
       quod idem est.
     +
       intro h.
       simpl in |- *.
       lemma sum
-        : (NatWithZero.Positive (Bin.to_nat &q) + NatWithZero.Zero)%n0
-          = NatWithZero.Positive (Bin.to_nat &p).
+        : (Nat0.Positive (Bin.to_nat &q) + Nat0.Zero)%n0
+          = Nat0.Positive (Bin.to_nat &p).
       {
         simpl in |- *.
         leibniz &h in |- *.
         quod idem est.
       }
       modus aequans
-        (NatWithZero.subtraction.specification
-           (NatWithZero.Positive (Bin.to_nat &p))
-           (NatWithZero.Positive (Bin.to_nat &q)) NatWithZero.Zero),
+        (Nat0.subtraction.specification
+           (Nat0.Positive (Bin.to_nat &p))
+           (Nat0.Positive (Bin.to_nat &q)) Nat0.Zero),
         &sum
       |- e.
       leibniz &e in |- *.
@@ -739,19 +739,19 @@ Proof.
       intro h.
       simpl in |- *.
       lemma sum
-        : (NatWithZero.Positive (Bin.to_nat &q)
-           + NatWithZero.Positive (Bin.to_nat &d))%n0
-          = NatWithZero.Positive (Bin.to_nat &p).
+        : (Nat0.Positive (Bin.to_nat &q)
+           + Nat0.Positive (Bin.to_nat &d))%n0
+          = Nat0.Positive (Bin.to_nat &p).
       {
         simpl in |- *.
         leibniz &h in |- *.
         quod idem est.
       }
       modus aequans
-        (NatWithZero.subtraction.specification
-           (NatWithZero.Positive (Bin.to_nat &p))
-           (NatWithZero.Positive (Bin.to_nat &q))
-           (NatWithZero.Positive (Bin.to_nat &d))),
+        (Nat0.subtraction.specification
+           (Nat0.Positive (Bin.to_nat &p))
+           (Nat0.Positive (Bin.to_nat &q))
+           (Nat0.Positive (Bin.to_nat &d))),
         &sum
       |- e.
       leibniz &e in |- *.
@@ -763,8 +763,8 @@ Module subtraction. (* conversion.subtraction *)
 (* conversion.subtraction.saturating *)
 Theorem saturating
   : forall (m : BinWithZero) (n : BinWithZero) .
-      to_nat_with_zero (saturating_sub m n)
-      = NatWithZero.saturating_sub (to_nat_with_zero m) (to_nat_with_zero n).
+      to_nat0 (saturating_sub m n)
+      = Nat0.saturating_sub (to_nat0 m) (to_nat0 n).
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
@@ -813,7 +813,7 @@ End subtraction. (* conversion.subtraction *)
 (* conversion.injectivity *)
 Theorem injectivity
   : forall {m : BinWithZero} {n : BinWithZero} .
-      to_nat_with_zero m = to_nat_with_zero n -> m = n.
+      to_nat0 m = to_nat0 n -> m = n.
 Proof.
   intros m n e.
   leibniz <- (conversion.section &m), <- (conversion.section &n) in |- *.
@@ -824,7 +824,7 @@ Qed.
 (* conversion.order *)
 Theorem order
   : forall (m : BinWithZero) (n : BinWithZero) .
-      m < n <-> (to_nat_with_zero m < to_nat_with_zero n)%n0.
+      m < n <-> (to_nat0 m < to_nat0 n)%n0.
 Proof.
   intros m n.
   divide et impera.
@@ -832,7 +832,7 @@ Proof.
     intro h.
     simpl LessThan in &h.
     match &h with | k e end.
-    simpl NatWithZero.LessThan in |- *.
+    simpl Nat0.LessThan in |- *.
     exists (Bin.to_nat &k).
     leibniz <- &e in |- *.
     leibniz (conversion.addition &m (+ &k)) in |- *.
@@ -840,11 +840,11 @@ Proof.
     quod idem est.
   -
     intro h.
-    simpl NatWithZero.LessThan in &h.
+    simpl Nat0.LessThan in &h.
     match &h with | j e end.
     simpl LessThan in |- *.
     exists (Bin.from_nat &j).
-    lemma f : to_nat_with_zero (&m + (+ Bin.from_nat &j)) = to_nat_with_zero &n.
+    lemma f : to_nat0 (&m + (+ Bin.from_nat &j)) = to_nat0 &n.
     {
       leibniz (conversion.addition &m (+ Bin.from_nat &j)) in |- *.
       simpl in |- *.
@@ -857,10 +857,10 @@ Qed.
 (* conversion.appending *)
 Theorem appending
   : forall (bit : Bool) (n : BinWithZero) .
-      to_nat_with_zero (append_bit bit n)
+      to_nat0 (append_bit bit n)
       = match bit with
-        | true  => NatWithZero.inc (to_nat_with_zero n + to_nat_with_zero n)%n0
-        | false => (to_nat_with_zero n + to_nat_with_zero n)%n0
+        | true  => Nat0.inc (to_nat0 n + to_nat0 n)%n0
+        | false => (to_nat0 n + to_nat0 n)%n0
         end.
 Proof.
   intros bit n.
@@ -887,25 +887,25 @@ Qed.
 (* conversion.halving *)
 Theorem halving
   : forall (n : BinWithZero) .
-      to_nat_with_zero (halve n) = (to_nat_with_zero n /. Nat.Successor Nat.One)%n0.
+      to_nat0 (halve n) = (to_nat0 n /. Nat.Successor Nat.One)%n0.
 Proof.
   intro n.
   match n with | | p end.
   -
-    simpl NatWithZero.divide, NatWithZero.div in |- *.
+    simpl Nat0.divide, Nat0.div in |- *.
     simpl in |- *.
     quod idem est.
   -
     match p with | | p' | p' end.
     +
-      simpl NatWithZero.divide, NatWithZero.div in |- *.
+      simpl Nat0.divide, Nat0.div in |- *.
       simpl in |- *.
       quod idem est.
     +
       lemma witness
-        : ((to_nat_with_zero (+ &p') * Nat.Successor Nat.One) + NatWithZero.Zero
-            = to_nat_with_zero (+ Bin.b0 &p'))%n0
-          /\ (NatWithZero.Zero < Nat.Successor Nat.One)%n0.
+        : ((to_nat0 (+ &p') * Nat.Successor Nat.One) + Nat0.Zero
+            = to_nat0 (+ Bin.b0 &p'))%n0
+          /\ (Nat0.Zero < Nat.Successor Nat.One)%n0.
       {
         divide et impera.
         -
@@ -915,21 +915,21 @@ Proof.
           simpl in |- *.
           quod idem est.
         -
-          simpl NatWithZero.LessThan in |- *.
+          simpl Nat0.LessThan in |- *.
           exists (Nat.Successor Nat.One).
           simpl in |- *.
           quod idem est.
       }
-      match (NatWithZero.division.uniqueness
-          (to_nat_with_zero (+ Bin.b0 &p')) (Nat.Successor Nat.One)
-          (to_nat_with_zero (+ &p')) NatWithZero.Zero &witness)
+      match (Nat0.division.uniqueness
+          (to_nat0 (+ Bin.b0 &p')) (Nat.Successor Nat.One)
+          (to_nat0 (+ &p')) Nat0.Zero &witness)
         with | quotient _ end.
       simpl halve in |- *.
       ipso (symm &quotient).
     +
       lemma witness
-        : ((to_nat_with_zero (+ &p') * Nat.Successor Nat.One) + Nat.One
-            = to_nat_with_zero (+ Bin.b1 &p'))%n0
+        : ((to_nat0 (+ &p') * Nat.Successor Nat.One) + Nat.One
+            = to_nat0 (+ Bin.b1 &p'))%n0
           /\ (Nat.One < Nat.Successor Nat.One)%n0.
       {
         divide et impera.
@@ -941,14 +941,14 @@ Proof.
           simpl in |- *.
           quod idem est.
         -
-          simpl NatWithZero.LessThan in |- *.
+          simpl Nat0.LessThan in |- *.
           exists Nat.One.
           simpl in |- *.
           quod idem est.
       }
-      match (NatWithZero.division.uniqueness
-          (to_nat_with_zero (+ Bin.b1 &p')) (Nat.Successor Nat.One)
-          (to_nat_with_zero (+ &p')) Nat.One &witness)
+      match (Nat0.division.uniqueness
+          (to_nat0 (+ Bin.b1 &p')) (Nat.Successor Nat.One)
+          (to_nat0 (+ &p')) Nat.One &witness)
         with | quotient _ end.
       simpl halve in |- *.
       ipso (symm &quotient).
@@ -958,16 +958,16 @@ Module left. (* conversion.left *)
 
 (* conversion.left.shift *)
 Theorem shift
-  : forall (n : BinWithZero) (k : NatWithZero) .
-      to_nat_with_zero (shift_left n k)
-      = (to_nat_with_zero n
-         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%n0.
+  : forall (n : BinWithZero) (k : Nat0) .
+      to_nat0 (shift_left n k)
+      = (to_nat0 n
+         * Nat0.Positive (Nat.Successor Nat.One) ^ k)%n0.
 Proof.
   intros n k.
   match k with | | k' end.
   -
-    simpl shift_left, NatWithZero.power in |- *.
-    let proof i := NatWithZero.multiplication.identity (to_nat_with_zero &n).
+    simpl shift_left, Nat0.power in |- *.
+    let proof i := Nat0.multiplication.identity (to_nat0 &n).
     match &i with | l r end.
     leibniz &r in |- *.
     quod idem est.
@@ -1016,8 +1016,8 @@ Module right. (* conversion.right *)
 (* conversion.right.shift *)
 Theorem shift
   : forall (n : BinWithZero) (k : Nat) .
-      to_nat_with_zero (shift_right n k)
-      = (to_nat_with_zero n /. (Nat.Successor Nat.One ^ k)%n)%n0.
+      to_nat0 (shift_right n k)
+      = (to_nat0 n /. (Nat.Successor Nat.One ^ k)%n)%n0.
 Proof.
   intros n k.
   extro &n.
@@ -1041,8 +1041,8 @@ Proof.
       quod idem est.
     }
     leibniz &unfolding, (&IH (halve &n)), (conversion.halving &n), &power in |- *.
-    ipso (NatWithZero.division.iteration
-      (to_nat_with_zero &n) (Nat.Successor Nat.One) (Nat.Successor Nat.One ^ &k')%n).
+    ipso (Nat0.division.iteration
+      (to_nat0 &n) (Nat.Successor Nat.One) (Nat.Successor Nat.One ^ &k')%n).
 Qed.
 
 End right. (* conversion.right *)
@@ -1054,69 +1054,69 @@ Module division. (* conversion.division *)
 (* conversion.division.step *)
 Lemma step
   : forall (bit : Bool) (x : Product BinWithZero BinWithZero) (d : Bin) (n : BinWithZero) .
-      ((to_nat_with_zero (pi_1 x) * Bin.to_nat d) + to_nat_with_zero (pi_2 x)
-        = to_nat_with_zero n)%n0
-      /\ (to_nat_with_zero (pi_2 x) < Bin.to_nat d)%n0 ->
-      ((to_nat_with_zero (pi_1 (bring_down bit x d)) * Bin.to_nat d)
-        + to_nat_with_zero (pi_2 (bring_down bit x d))
-        = to_nat_with_zero (append_bit bit n))%n0
-      /\ (to_nat_with_zero (pi_2 (bring_down bit x d)) < Bin.to_nat d)%n0.
+      ((to_nat0 (pi_1 x) * Bin.to_nat d) + to_nat0 (pi_2 x)
+        = to_nat0 n)%n0
+      /\ (to_nat0 (pi_2 x) < Bin.to_nat d)%n0 ->
+      ((to_nat0 (pi_1 (bring_down bit x d)) * Bin.to_nat d)
+        + to_nat0 (pi_2 (bring_down bit x d))
+        = to_nat0 (append_bit bit n))%n0
+      /\ (to_nat0 (pi_2 (bring_down bit x d)) < Bin.to_nat d)%n0.
 Proof.
   intros bit x d n h.
   match x with | q r end.
   simpl Product.first, Product.second in &h.
   match &h with | e below end.
   lemma doubling
-    : (((to_nat_with_zero &q + to_nat_with_zero &q) * Bin.to_nat &d)
-        + (to_nat_with_zero &r + to_nat_with_zero &r)
-        = to_nat_with_zero &n + to_nat_with_zero &n)%n0.
+    : (((to_nat0 &q + to_nat0 &q) * Bin.to_nat &d)
+        + (to_nat0 &r + to_nat0 &r)
+        = to_nat0 &n + to_nat0 &n)%n0.
   {
-    leibniz (NatWithZero.multiplication.right.distributivity.over.addition
-      (Bin.to_nat &d) (to_nat_with_zero &q) (to_nat_with_zero &q)) in |- *.
-    leibniz (NatWithZero.addition.interchange
-      (to_nat_with_zero &q * Bin.to_nat &d)%n0 (to_nat_with_zero &q * Bin.to_nat &d)%n0
-      (to_nat_with_zero &r) (to_nat_with_zero &r)) in |- *.
+    leibniz (Nat0.multiplication.right.distributivity.over.addition
+      (Bin.to_nat &d) (to_nat0 &q) (to_nat0 &q)) in |- *.
+    leibniz (Nat0.addition.interchange
+      (to_nat0 &q * Bin.to_nat &d)%n0 (to_nat0 &q * Bin.to_nat &d)%n0
+      (to_nat0 &r) (to_nat0 &r)) in |- *.
     leibniz &e in |- *.
     quod idem est.
   }
   lemma sum
-    : (((to_nat_with_zero &q + to_nat_with_zero &q) * Bin.to_nat &d)
-        + to_nat_with_zero (append_bit &bit &r)
-        = to_nat_with_zero (append_bit &bit &n))%n0.
+    : (((to_nat0 &q + to_nat0 &q) * Bin.to_nat &d)
+        + to_nat0 (append_bit &bit &r)
+        = to_nat0 (append_bit &bit &n))%n0.
   {
     leibniz (conversion.appending &bit &r), (conversion.appending &bit &n) in |- *.
     match bit with | | end.
     -
-      leibniz (NatWithZero.increment.specification
-          (to_nat_with_zero &r + to_nat_with_zero &r)%n0),
-        (NatWithZero.increment.specification
-          (to_nat_with_zero &n + to_nat_with_zero &n)%n0) in |- *.
-      leibniz (NatWithZero.addition.left.commutativity
-        ((to_nat_with_zero &q + to_nat_with_zero &q) * Bin.to_nat &d)%n0 Nat.One
-        (to_nat_with_zero &r + to_nat_with_zero &r)%n0) in |- *.
+      leibniz (Nat0.increment.specification
+          (to_nat0 &r + to_nat0 &r)%n0),
+        (Nat0.increment.specification
+          (to_nat0 &n + to_nat0 &n)%n0) in |- *.
+      leibniz (Nat0.addition.left.commutativity
+        ((to_nat0 &q + to_nat0 &q) * Bin.to_nat &d)%n0 Nat.One
+        (to_nat0 &r + to_nat0 &r)%n0) in |- *.
       leibniz &doubling in |- *.
       quod idem est.
     -
       ipso &doubling.
   }
   lemma bound
-    : (to_nat_with_zero (append_bit &bit &r) < Bin.to_nat &d + Bin.to_nat &d)%n0.
+    : (to_nat0 (append_bit &bit &r) < Bin.to_nat &d + Bin.to_nat &d)%n0.
   {
-    simpl NatWithZero.LessThan in &below.
+    simpl Nat0.LessThan in &below.
     match &below with | k ek end.
     leibniz <- &ek in |- *.
-    leibniz (NatWithZero.addition.interchange (to_nat_with_zero &r) k (to_nat_with_zero &r) k)
+    leibniz (Nat0.addition.interchange (to_nat0 &r) k (to_nat0 &r) k)
       in |- *.
     leibniz (conversion.appending &bit &r) in |- *.
     match bit with | | end.
     -
-      leibniz (NatWithZero.increment.specification
-          (to_nat_with_zero &r + to_nat_with_zero &r)%n0),
-        (NatWithZero.addition.commutativity Nat.One
-          (to_nat_with_zero &r + to_nat_with_zero &r)%n0) in |- *.
+      leibniz (Nat0.increment.specification
+          (to_nat0 &r + to_nat0 &r)%n0),
+        (Nat0.addition.commutativity Nat.One
+          (to_nat0 &r + to_nat0 &r)%n0) in |- *.
       lemma one : (Nat.One < k + k)%n0.
       {
-        simpl NatWithZero.LessThan in |- *.
+        simpl Nat0.LessThan in |- *.
         match k with | | k' end.
         +
           exists Nat.One.
@@ -1126,10 +1126,10 @@ Proof.
           simpl in |- *.
           quod idem est.
       }
-      ipso (NatWithZero.addition.order.strict.monotonicity
-        (to_nat_with_zero &r + to_nat_with_zero &r)%n0 Nat.One (k + k)%n0 &one).
+      ipso (Nat0.addition.order.strict.monotonicity
+        (to_nat0 &r + to_nat0 &r)%n0 Nat.One (k + k)%n0 &one).
     -
-      simpl NatWithZero.LessThan in |- *.
+      simpl Nat0.LessThan in |- *.
       exists (&k + &k)%n.
       simpl in |- *.
       quod idem est.
@@ -1141,11 +1141,11 @@ Proof.
   -
     intro s.
     let proof s
-      : None = NatWithZero.sub (to_nat_with_zero (append_bit &bit &r)) (Bin.to_nat &d)
+      : None = Nat0.sub (to_nat0 (append_bit &bit &r)) (Bin.to_nat &d)
       := &s.
     simpl Product.first, Product.second in |- *.
     let proof a
-      : to_nat_with_zero (append_bit false &q) = (to_nat_with_zero &q + to_nat_with_zero &q)%n0
+      : to_nat0 (append_bit false &q) = (to_nat0 &q + to_nat0 &q)%n0
       := conversion.appending false &q.
     leibniz &a in |- *.
     divide et impera.
@@ -1153,7 +1153,7 @@ Proof.
       ipso &sum.
     +
       match (Comparable.order.strict.trichotomy
-          (to_nat_with_zero (append_bit &bit &r)) (Bin.to_nat &d))
+          (to_nat0 (append_bit &bit &r)) (Bin.to_nat &d))
         with | less | rest end.
       *
         ipso &less.
@@ -1161,26 +1161,26 @@ Proof.
         match &rest with | same | greater end.
         {
           lemma plus
-            : (Bin.to_nat &d + NatWithZero.Zero = to_nat_with_zero (append_bit &bit &r))%n0.
+            : (Bin.to_nat &d + Nat0.Zero = to_nat0 (append_bit &bit &r))%n0.
           {
             leibniz &same in |- *.
             simpl in |- *.
             quod idem est.
           }
           modus aequans
-            (NatWithZero.subtraction.specification
-              (to_nat_with_zero (append_bit &bit &r)) (Bin.to_nat &d) NatWithZero.Zero),
+            (Nat0.subtraction.specification
+              (to_nat0 (append_bit &bit &r)) (Bin.to_nat &d) Nat0.Zero),
             &plus
           |- f.
           leibniz &f in &s.
           ex &s quodlibet.
         }
         {
-          simpl NatWithZero.LessThan in &greater.
+          simpl Nat0.LessThan in &greater.
           match &greater with | k ek end.
           modus aequans
-            (NatWithZero.subtraction.specification
-              (to_nat_with_zero (append_bit &bit &r)) (Bin.to_nat &d) k),
+            (Nat0.subtraction.specification
+              (to_nat0 (append_bit &bit &r)) (Bin.to_nat &d) k),
             &ek
           |- f.
           leibniz &f in &s.
@@ -1189,61 +1189,61 @@ Proof.
   -
     intro s.
     let proof s
-      : NatWithZero.sub (to_nat_with_zero (append_bit &bit &r)) (Bin.to_nat &d)
-        = Some (to_nat_with_zero &r')
+      : Nat0.sub (to_nat0 (append_bit &bit &r)) (Bin.to_nat &d)
+        = Some (to_nat0 &r')
       := symm &s.
     modus aequans
-      (NatWithZero.subtraction.specification
-        (to_nat_with_zero (append_bit &bit &r)) (Bin.to_nat &d) (to_nat_with_zero &r')),
+      (Nat0.subtraction.specification
+        (to_nat0 (append_bit &bit &r)) (Bin.to_nat &d) (to_nat0 &r')),
       &s
     |- f.
     simpl Product.first, Product.second in |- *.
     let proof a
-      : to_nat_with_zero (append_bit true &q)
-        = NatWithZero.inc (to_nat_with_zero &q + to_nat_with_zero &q)%n0
+      : to_nat0 (append_bit true &q)
+        = Nat0.inc (to_nat0 &q + to_nat0 &q)%n0
       := conversion.appending true &q.
     leibniz &a in |- *.
     divide et impera.
     +
-      leibniz (NatWithZero.increment.specification
-        (to_nat_with_zero &q + to_nat_with_zero &q)%n0) in |- *.
-      leibniz (NatWithZero.multiplication.right.distributivity.over.addition
-        (Bin.to_nat &d) Nat.One (to_nat_with_zero &q + to_nat_with_zero &q)%n0) in |- *.
-      leibniz (NatWithZero.multiplication.left.identity (Bin.to_nat &d)) in |- *.
-      leibniz (NatWithZero.addition.commutativity
-        (Bin.to_nat &d) ((to_nat_with_zero &q + to_nat_with_zero &q) * Bin.to_nat &d)%n0)
+      leibniz (Nat0.increment.specification
+        (to_nat0 &q + to_nat0 &q)%n0) in |- *.
+      leibniz (Nat0.multiplication.right.distributivity.over.addition
+        (Bin.to_nat &d) Nat.One (to_nat0 &q + to_nat0 &q)%n0) in |- *.
+      leibniz (Nat0.multiplication.left.identity (Bin.to_nat &d)) in |- *.
+      leibniz (Nat0.addition.commutativity
+        (Bin.to_nat &d) ((to_nat0 &q + to_nat0 &q) * Bin.to_nat &d)%n0)
         in |- *.
-      leibniz (NatWithZero.addition.associativity
-        ((to_nat_with_zero &q + to_nat_with_zero &q) * Bin.to_nat &d)%n0
-        (Bin.to_nat &d) (to_nat_with_zero &r')) in |- *.
+      leibniz (Nat0.addition.associativity
+        ((to_nat0 &q + to_nat0 &q) * Bin.to_nat &d)%n0
+        (Bin.to_nat &d) (to_nat0 &r')) in |- *.
       leibniz &f in |- *.
       ipso &sum.
     +
       leibniz <- &f in &bound.
-      ipso (NatWithZero.addition.order.strict.cancellation
-        (Bin.to_nat &d) (to_nat_with_zero &r') (Bin.to_nat &d) &bound).
+      ipso (Nat0.addition.order.strict.cancellation
+        (Bin.to_nat &d) (to_nat0 &r') (Bin.to_nat &d) &bound).
 Qed.
 
 (* conversion.division.specification *)
 Lemma specification
   : forall (n : BinWithZero) (d : Bin) .
-      ((to_nat_with_zero (n /. d)%bin_with_zero * Bin.to_nat d)
-        + to_nat_with_zero (n %. d)%bin_with_zero
-        = to_nat_with_zero n)%n0
-      /\ (to_nat_with_zero (n %. d)%bin_with_zero < Bin.to_nat d)%n0.
+      ((to_nat0 (n /. d)%bin_with_zero * Bin.to_nat d)
+        + to_nat0 (n %. d)%bin_with_zero
+        = to_nat0 n)%n0
+      /\ (to_nat0 (n %. d)%bin_with_zero < Bin.to_nat d)%n0.
 Proof.
   intros n d.
   lemma base
-    : ((to_nat_with_zero (pi_1 (0, 0)) * Bin.to_nat &d) + to_nat_with_zero (pi_2 (0, 0))
-        = to_nat_with_zero 0)%n0
-      /\ (to_nat_with_zero (pi_2 (0, 0)) < Bin.to_nat &d)%n0.
+    : ((to_nat0 (pi_1 (0, 0)) * Bin.to_nat &d) + to_nat0 (pi_2 (0, 0))
+        = to_nat0 0)%n0
+      /\ (to_nat0 (pi_2 (0, 0)) < Bin.to_nat &d)%n0.
   {
     simpl in |- *.
     divide et impera.
     -
       quod idem est.
     -
-      simpl NatWithZero.LessThan in |- *.
+      simpl Nat0.LessThan in |- *.
       exists (Bin.to_nat &d).
       simpl in |- *.
       quod idem est.
@@ -1305,12 +1305,12 @@ Local Close Scope jwa_product_scope.
 (* conversion.division *)
 Theorem division
   : forall (n : BinWithZero) (d : Bin) .
-      to_nat_with_zero (n /. d) = (to_nat_with_zero n /. Bin.to_nat d)%n0.
+      to_nat0 (n /. d) = (to_nat0 n /. Bin.to_nat d)%n0.
 Proof.
   intros n d.
-  let proof u := NatWithZero.division.uniqueness
-    (to_nat_with_zero &n) (Bin.to_nat &d)
-    (to_nat_with_zero (&n /. &d)) (to_nat_with_zero (&n %. &d))
+  let proof u := Nat0.division.uniqueness
+    (to_nat0 &n) (Bin.to_nat &d)
+    (to_nat0 (&n /. &d)) (to_nat0 (&n %. &d))
     (conversion.division.specification &n &d).
   match &u with | quotient _ end.
   ipso (symm &quotient).
@@ -1319,12 +1319,12 @@ Qed.
 (* conversion.modulo *)
 Theorem modulo
   : forall (n : BinWithZero) (d : Bin) .
-      to_nat_with_zero (n %. d) = (to_nat_with_zero n %. Bin.to_nat d)%n0.
+      to_nat0 (n %. d) = (to_nat0 n %. Bin.to_nat d)%n0.
 Proof.
   intros n d.
-  let proof u := NatWithZero.division.uniqueness
-    (to_nat_with_zero &n) (Bin.to_nat &d)
-    (to_nat_with_zero (&n /. &d)) (to_nat_with_zero (&n %. &d))
+  let proof u := Nat0.division.uniqueness
+    (to_nat0 &n) (Bin.to_nat &d)
+    (to_nat0 (&n /. &d)) (to_nat0 (&n %. &d))
     (conversion.division.specification &n &d).
   match &u with | _ remainder end.
   ipso (symm &remainder).
@@ -1333,7 +1333,7 @@ Qed.
 (* conversion.divisibility *)
 Theorem divisibility
   : forall (d : BinWithZero) (n : BinWithZero) .
-      Divides d n <-> NatWithZero.Divides (to_nat_with_zero d) (to_nat_with_zero n).
+      Divides d n <-> Nat0.Divides (to_nat0 d) (to_nat0 n).
 Proof.
   intros d n.
   divide et impera.
@@ -1341,19 +1341,19 @@ Proof.
     intro h.
     simpl Divides in &h.
     match &h with | k e end.
-    simpl NatWithZero.Divides in |- *.
-    exists (to_nat_with_zero &k).
+    simpl Nat0.Divides in |- *.
+    exists (to_nat0 &k).
     leibniz <- (conversion.multiplication &d &k), &e in |- *.
     quod idem est.
   -
     intro h.
-    simpl NatWithZero.Divides in &h.
+    simpl Nat0.Divides in &h.
     match &h with | k e end.
     simpl Divides in |- *.
-    exists (from_nat_with_zero &k).
-    lemma f : to_nat_with_zero (&d * from_nat_with_zero &k) = to_nat_with_zero &n.
+    exists (from_nat0 &k).
+    lemma f : to_nat0 (&d * from_nat0 &k) = to_nat0 &n.
     {
-      leibniz (conversion.multiplication &d (from_nat_with_zero &k)), (conversion.retraction &k)
+      leibniz (conversion.multiplication &d (from_nat0 &k)), (conversion.retraction &k)
         in |- *.
       ipso &e.
     }
@@ -1365,17 +1365,17 @@ Module gcd. (* conversion.gcd *)
 (* conversion.gcd.sufficiency *)
 Lemma sufficiency
   : forall (fuel : Bin) (a : BinWithZero) (b : BinWithZero) .
-      (to_nat_with_zero b <= Bin.to_nat fuel)%n0 ->
-      to_nat_with_zero (gcd_with_fuel fuel a b)
-      = NatWithZero.gcd (to_nat_with_zero a) (to_nat_with_zero b).
+      (to_nat0 b <= Bin.to_nat fuel)%n0 ->
+      to_nat0 (gcd_with_fuel fuel a b)
+      = Nat0.gcd (to_nat0 a) (to_nat0 b).
 Proof.
   intro fuel.
-  lemma nothing : to_nat_with_zero 0 = NatWithZero.Zero.
+  lemma nothing : to_nat0 0 = Nat0.Zero.
   {
     simpl in |- *.
     quod idem est.
   }
-  lemma magnitude : forall (p : Bin) . to_nat_with_zero (+ p) = Bin.to_nat p.
+  lemma magnitude : forall (p : Bin) . to_nat0 (+ p) = Bin.to_nat p.
   {
     intro p.
     simpl in |- *.
@@ -1384,24 +1384,24 @@ Proof.
   lemma odd
     : forall (f : Bin) .
         (forall (a : BinWithZero) (b : BinWithZero) .
-          (to_nat_with_zero b <= Bin.to_nat f)%n0 ->
-          to_nat_with_zero (gcd_with_fuel f a b)
-          = NatWithZero.gcd (to_nat_with_zero a) (to_nat_with_zero b)) ->
+          (to_nat0 b <= Bin.to_nat f)%n0 ->
+          to_nat0 (gcd_with_fuel f a b)
+          = Nat0.gcd (to_nat0 a) (to_nat0 b)) ->
         forall (a : BinWithZero) (b : BinWithZero) .
-          (to_nat_with_zero b <= Bin.to_nat (Bin.b1 f))%n0 ->
-          to_nat_with_zero (gcd_with_fuel (Bin.b1 f) a b)
-          = NatWithZero.gcd (to_nat_with_zero a) (to_nat_with_zero b).
+          (to_nat0 b <= Bin.to_nat (Bin.b1 f))%n0 ->
+          to_nat0 (gcd_with_fuel (Bin.b1 f) a b)
+          = Nat0.gcd (to_nat0 a) (to_nat0 b).
   {
     intros f IH a b h.
     match b with | | q end.
     -
-      lemma facto : to_nat_with_zero (gcd_with_fuel (Bin.b1 &f) &a 0) = to_nat_with_zero &a.
+      lemma facto : to_nat0 (gcd_with_fuel (Bin.b1 &f) &a 0) = to_nat0 &a.
       {
         simpl in |- *.
         quod idem est.
       }
       leibniz &facto, &nothing in |- *.
-      ipso (symm (NatWithZero.gcd.zero (to_nat_with_zero &a))).
+      ipso (symm (Nat0.gcd.zero (to_nat0 &a))).
     -
       leibniz (&magnitude &q) in &h.
       lemma unfolding
@@ -1416,52 +1416,52 @@ Proof.
       }
       leibniz &unfolding in |- *.
       let proof rec
-        : NatWithZero.gcd (to_nat_with_zero &a) (to_nat_with_zero (+ &q))
-          = NatWithZero.gcd (to_nat_with_zero (+ &q)) (to_nat_with_zero &a %. Bin.to_nat &q)%n0
-        := NatWithZero.gcd.recurrence (to_nat_with_zero &a) (Bin.to_nat &q).
+        : Nat0.gcd (to_nat0 &a) (to_nat0 (+ &q))
+          = Nat0.gcd (to_nat0 (+ &q)) (to_nat0 &a %. Bin.to_nat &q)%n0
+        := Nat0.gcd.recurrence (to_nat0 &a) (Bin.to_nat &q).
       leibniz <- (conversion.modulo &a &q) in &rec.
       leibniz &rec in |- *.
       let proof s
-        := NatWithZero.division.remainder.boundedness (to_nat_with_zero &a) (Bin.to_nat &q).
+        := Nat0.division.remainder.boundedness (to_nat0 &a) (Bin.to_nat &q).
       leibniz <- (conversion.modulo &a &q) in &s.
       extro &s.
       match (&a %. &q) with | | r end.
       +
         intro s.
         leibniz &nothing in |- *.
-        ipso (symm (NatWithZero.gcd.zero (to_nat_with_zero (+ &q)))).
+        ipso (symm (Nat0.gcd.zero (to_nat0 (+ &q)))).
       +
         intro s.
         leibniz (&magnitude &r) in &s.
         let proof m
-          : to_nat_with_zero ((+ &q) %. &r) = (Bin.to_nat &q %. Bin.to_nat &r)%n0
+          : to_nat0 ((+ &q) %. &r) = (Bin.to_nat &q %. Bin.to_nat &r)%n0
           := conversion.modulo (+ &q) &r.
         lemma halving
           : ((Bin.to_nat &q %. Bin.to_nat &r) + (Bin.to_nat &q %. Bin.to_nat &r)
               < Bin.to_nat &q)%n0.
         {
-          match (NatWithZero.division.specification (Bin.to_nat &q) (Bin.to_nat &r))
+          match (Nat0.division.specification (Bin.to_nat &q) (Bin.to_nat &r))
             with | e t end.
           extro &e.
           match (Bin.to_nat &q /. Bin.to_nat &r)%n0 with | | k end.
           *
             intro e.
             let proof e
-              : (Bin.to_nat &q %. Bin.to_nat &r)%n0 = NatWithZero.Positive (Bin.to_nat &q)
+              : (Bin.to_nat &q %. Bin.to_nat &r)%n0 = Nat0.Positive (Bin.to_nat &q)
               := &e.
-            let proof c := NatWithZero.order.strict.transitivity &t &s.
+            let proof c := Nat0.order.strict.transitivity &t &s.
             leibniz &e in &c.
-            ex (NatWithZero.order.strict.irreflexivity (Bin.to_nat &q) &c) quodlibet.
+            ex (Nat0.order.strict.irreflexivity (Bin.to_nat &q) &c) quodlibet.
           *
             intro e.
-            let proof one := NatWithZero.addition.order.strict.monotonicity
+            let proof one := Nat0.addition.order.strict.monotonicity
               (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &q %. Bin.to_nat &r)%n0
               (Bin.to_nat &r) &t.
-            leibniz (NatWithZero.addition.commutativity
+            leibniz (Nat0.addition.commutativity
               (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &r)) in &one.
             let proof extension
-              := NatWithZero.multiplication.right.order.extensivity &k (Bin.to_nat &r).
-            simpl NatWithZero.LessOrEqual in &extension.
+              := Nat0.multiplication.right.order.extensivity &k (Bin.to_nat &r).
+            simpl Nat0.LessOrEqual in &extension.
             match &extension with | same | larger end.
             {
               leibniz <- &same in &e.
@@ -1469,15 +1469,15 @@ Proof.
               ipso &one.
             }
             {
-              let proof two := NatWithZero.addition.order.strict.monotonicity
+              let proof two := Nat0.addition.order.strict.monotonicity
                 (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &r) (k * Bin.to_nat &r)%n0
                 &larger.
-              leibniz (NatWithZero.addition.commutativity
+              leibniz (Nat0.addition.commutativity
                   (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &r)),
-                (NatWithZero.addition.commutativity
+                (Nat0.addition.commutativity
                   (Bin.to_nat &q %. Bin.to_nat &r)%n0 (k * Bin.to_nat &r)%n0) in &two.
               leibniz &e in &two.
-              ipso (NatWithZero.order.strict.transitivity &one &two).
+              ipso (Nat0.order.strict.transitivity &one &two).
             }
         }
         lemma bound : ((Bin.to_nat &q %. Bin.to_nat &r) <= Bin.to_nat &f)%n0.
@@ -1486,16 +1486,16 @@ Proof.
             : ((Bin.to_nat &q %. Bin.to_nat &r) + (Bin.to_nat &q %. Bin.to_nat &r)
                 < Bin.to_nat (Bin.b1 &f))%n0.
           {
-            simpl NatWithZero.LessOrEqual in &h.
+            simpl Nat0.LessOrEqual in &h.
             match &h with | same | less end.
             -
               leibniz <- &same in |- *.
               ipso &halving.
             -
-              ipso (NatWithZero.order.strict.transitivity &halving &less).
+              ipso (Nat0.order.strict.transitivity &halving &less).
           }
           lemma twice
-            : NatWithZero.Positive (Bin.to_nat (Bin.b1 &f))
+            : Nat0.Positive (Bin.to_nat (Bin.b1 &f))
               = ((Bin.to_nat &f + Bin.to_nat &f) + Nat.One)%n0.
           {
             simpl in |- *.
@@ -1506,12 +1506,12 @@ Proof.
           }
           leibniz &twice in &below.
           modus aequans
-            (NatWithZero.order.discreteness
+            (Nat0.order.discreteness
               ((Bin.to_nat &q %. Bin.to_nat &r) + (Bin.to_nat &q %. Bin.to_nat &r))%n0
               (Bin.to_nat &f + Bin.to_nat &f)%n0),
             &below
           |- doubled.
-          simpl NatWithZero.LessOrEqual in |- *.
+          simpl Nat0.LessOrEqual in |- *.
           match (Comparable.order.strict.trichotomy
               (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &f))
             with | less | rest end.
@@ -1523,30 +1523,30 @@ Proof.
               ipso (disjoin &same, _).
             }
             {
-              let proof one := NatWithZero.addition.order.strict.monotonicity
+              let proof one := Nat0.addition.order.strict.monotonicity
                 (Bin.to_nat &f) (Bin.to_nat &f) (Bin.to_nat &q %. Bin.to_nat &r)%n0 &greater.
-              let proof two := NatWithZero.addition.order.strict.monotonicity
+              let proof two := Nat0.addition.order.strict.monotonicity
                 (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &f)
                 (Bin.to_nat &q %. Bin.to_nat &r)%n0 &greater.
-              leibniz (NatWithZero.addition.commutativity
+              leibniz (Nat0.addition.commutativity
                 (Bin.to_nat &q %. Bin.to_nat &r)%n0 (Bin.to_nat &f)) in &two.
-              let proof three := NatWithZero.order.strict.transitivity &one &two.
-              simpl NatWithZero.LessOrEqual in &doubled.
+              let proof three := Nat0.order.strict.transitivity &one &two.
+              simpl Nat0.LessOrEqual in &doubled.
               match &doubled with | equal | smaller end.
               -
                 leibniz &equal in &three.
-                ex (NatWithZero.order.strict.irreflexivity _ &three) quodlibet.
+                ex (Nat0.order.strict.irreflexivity _ &three) quodlibet.
               -
-                ex (NatWithZero.order.strict.irreflexivity _
-                  (NatWithZero.order.strict.transitivity &three &smaller)) quodlibet.
+                ex (Nat0.order.strict.irreflexivity _
+                  (Nat0.order.strict.transitivity &three &smaller)) quodlibet.
             }
         }
         leibniz <- &m in &bound.
         leibniz (&IH (+ &r) ((+ &q) %. &r) &bound) in |- *.
         let proof rec
-          : NatWithZero.gcd (to_nat_with_zero (+ &q)) (to_nat_with_zero (+ &r))
-            = NatWithZero.gcd (to_nat_with_zero (+ &r)) (Bin.to_nat &q %. Bin.to_nat &r)%n0
-          := NatWithZero.gcd.recurrence (to_nat_with_zero (+ &q)) (Bin.to_nat &r).
+          : Nat0.gcd (to_nat0 (+ &q)) (to_nat0 (+ &r))
+            = Nat0.gcd (to_nat0 (+ &r)) (Bin.to_nat &q %. Bin.to_nat &r)%n0
+          := Nat0.gcd.recurrence (to_nat0 (+ &q)) (Bin.to_nat &r).
         leibniz <- &m in &rec.
         ipso (symm &rec).
   }
@@ -1555,13 +1555,13 @@ Proof.
     intros a b h.
     match b with | | q end.
     +
-      lemma facto : to_nat_with_zero (gcd_with_fuel Bin.One &a 0) = to_nat_with_zero &a.
+      lemma facto : to_nat0 (gcd_with_fuel Bin.One &a 0) = to_nat0 &a.
       {
         simpl in |- *.
         quod idem est.
       }
       leibniz &facto, &nothing in |- *.
-      ipso (symm (NatWithZero.gcd.zero (to_nat_with_zero &a))).
+      ipso (symm (Nat0.gcd.zero (to_nat0 &a))).
     +
       lemma unfolding : gcd_with_fuel Bin.One &a (+ &q) = + &q.
       {
@@ -1570,36 +1570,36 @@ Proof.
       }
       leibniz &unfolding in |- *.
       let proof s
-        := NatWithZero.division.remainder.boundedness (to_nat_with_zero &a) (Bin.to_nat &q).
+        := Nat0.division.remainder.boundedness (to_nat0 &a) (Bin.to_nat &q).
       lemma unit : Bin.to_nat Bin.One = Nat.One.
       {
         simpl in |- *.
         quod idem est.
       }
       leibniz (&magnitude &q), &unit in &h.
-      lemma one : ((to_nat_with_zero &a %. Bin.to_nat &q) < Nat.One)%n0.
+      lemma one : ((to_nat0 &a %. Bin.to_nat &q) < Nat.One)%n0.
       {
-        simpl NatWithZero.LessOrEqual in &h.
+        simpl Nat0.LessOrEqual in &h.
         match &h with | same | less end.
         -
           leibniz &same in &s.
           ipso &s.
         -
-          ipso (NatWithZero.order.strict.transitivity &s &less).
+          ipso (Nat0.order.strict.transitivity &s &less).
       }
-      lemma vanishing : (to_nat_with_zero &a %. Bin.to_nat &q)%n0 = NatWithZero.Zero.
+      lemma vanishing : (to_nat0 &a %. Bin.to_nat &q)%n0 = Nat0.Zero.
       {
-        simpl NatWithZero.LessThan in &one.
+        simpl Nat0.LessThan in &one.
         match &one with | k e end.
         extro &e.
-        match (to_nat_with_zero &a %. Bin.to_nat &q)%n0 with | | x end.
+        match (to_nat0 &a %. Bin.to_nat &q)%n0 with | | x end.
         -
           intro e.
           quod idem est.
         -
           intro e.
-          let proof e : NatWithZero.Positive (&x + &k)%n = NatWithZero.Positive Nat.One := &e.
-          let proof e := NatWithZero.positive.injectivity &e.
+          let proof e : Nat0.Positive (&x + &k)%n = Nat0.Positive Nat.One := &e.
+          let proof e := Nat0.positive.injectivity &e.
           match x with | | x' end.
           +
             simpl in &e.
@@ -1609,31 +1609,31 @@ Proof.
             ex &e quodlibet.
       }
       let proof rec
-        : NatWithZero.gcd (to_nat_with_zero &a) (to_nat_with_zero (+ &q))
-          = NatWithZero.gcd (to_nat_with_zero (+ &q)) (to_nat_with_zero &a %. Bin.to_nat &q)%n0
-        := NatWithZero.gcd.recurrence (to_nat_with_zero &a) (Bin.to_nat &q).
+        : Nat0.gcd (to_nat0 &a) (to_nat0 (+ &q))
+          = Nat0.gcd (to_nat0 (+ &q)) (to_nat0 &a %. Bin.to_nat &q)%n0
+        := Nat0.gcd.recurrence (to_nat0 &a) (Bin.to_nat &q).
       leibniz &rec, &vanishing in |- *.
-      ipso (symm (NatWithZero.gcd.zero (to_nat_with_zero (+ &q)))).
+      ipso (symm (Nat0.gcd.zero (to_nat0 (+ &q)))).
   -
     intros a b h.
     lemma step : (Bin.to_nat (Bin.b0 &f) < Bin.to_nat (Bin.b1 &f))%n0.
     {
-      simpl NatWithZero.LessThan in |- *.
+      simpl Nat0.LessThan in |- *.
       exists Nat.One.
       simpl in |- *.
       leibniz (Nat.addition.commutativity (Bin.to_nat &f + Bin.to_nat &f)%n Nat.One) in |- *.
       simpl in |- *.
       quod idem est.
     }
-    lemma weaker : (to_nat_with_zero &b <= Bin.to_nat (Bin.b1 &f))%n0.
+    lemma weaker : (to_nat0 &b <= Bin.to_nat (Bin.b1 &f))%n0.
     {
-      simpl NatWithZero.LessOrEqual in &h |- *.
+      simpl Nat0.LessOrEqual in &h |- *.
       match &h with | same | less end.
       -
         leibniz &same in |- *.
         ipso (disjoin _, &step).
       -
-        ipso (disjoin _, (NatWithZero.order.strict.transitivity &less &step)).
+        ipso (disjoin _, (Nat0.order.strict.transitivity &less &step)).
     }
     lemma same : gcd_with_fuel (Bin.b0 &f) &a &b = gcd_with_fuel (Bin.b1 &f) &a &b.
     {
@@ -1656,28 +1656,28 @@ End gcd. (* conversion.gcd *)
 (* conversion.gcd *)
 Theorem gcd
   : forall (a : BinWithZero) (b : BinWithZero) .
-      to_nat_with_zero (gcd a b) = NatWithZero.gcd (to_nat_with_zero a) (to_nat_with_zero b).
+      to_nat0 (gcd a b) = Nat0.gcd (to_nat0 a) (to_nat0 b).
 Proof.
   intros a b.
   match b with | | q end.
   -
-    lemma facto : to_nat_with_zero (gcd &a 0) = to_nat_with_zero &a.
+    lemma facto : to_nat0 (gcd &a 0) = to_nat0 &a.
     {
       simpl gcd in |- *.
       quod idem est.
     }
-    lemma nothing : to_nat_with_zero 0 = NatWithZero.Zero.
+    lemma nothing : to_nat0 0 = Nat0.Zero.
     {
       simpl in |- *.
       quod idem est.
     }
     leibniz &facto, &nothing in |- *.
-    ipso (symm (NatWithZero.gcd.zero (to_nat_with_zero &a))).
+    ipso (symm (Nat0.gcd.zero (to_nat0 &a))).
   -
-    lemma enough : (to_nat_with_zero (+ &q) <= Bin.to_nat &q)%n0.
+    lemma enough : (to_nat0 (+ &q) <= Bin.to_nat &q)%n0.
     {
-      simpl NatWithZero.LessOrEqual in |- *.
-      lemma same : to_nat_with_zero (+ &q) = Bin.to_nat &q.
+      simpl Nat0.LessOrEqual in |- *.
+      lemma same : to_nat0 (+ &q) = Bin.to_nat &q.
       {
         simpl in |- *.
         quod idem est.
@@ -1698,12 +1698,12 @@ Theorem associativity
       (l + m) + n = l + (m + n).
 Proof.
   intros l m n.
-  lemma f : to_nat_with_zero ((&l + &m) + &n) = to_nat_with_zero (&l + (&m + &n)).
+  lemma f : to_nat0 ((&l + &m) + &n) = to_nat0 (&l + (&m + &n)).
   {
     leibniz (conversion.addition (&l + &m) &n), (conversion.addition &l &m),
             (conversion.addition &l (&m + &n)), (conversion.addition &m &n) in |- *.
-    ipso (NatWithZero.addition.associativity
-            (to_nat_with_zero &l) (to_nat_with_zero &m) (to_nat_with_zero &n)).
+    ipso (Nat0.addition.associativity
+            (to_nat0 &l) (to_nat0 &m) (to_nat0 &n)).
   }
   ipso (conversion.injectivity &f).
 Qed.
@@ -1713,10 +1713,10 @@ Theorem commutativity
   : forall (m : BinWithZero) (n : BinWithZero) . m + n = n + m.
 Proof.
   intros m n.
-  lemma f : to_nat_with_zero (&m + &n) = to_nat_with_zero (&n + &m).
+  lemma f : to_nat0 (&m + &n) = to_nat0 (&n + &m).
   {
     leibniz (conversion.addition &m &n), (conversion.addition &n &m) in |- *.
-    ipso (NatWithZero.addition.commutativity (to_nat_with_zero &m) (to_nat_with_zero &n)).
+    ipso (Nat0.addition.commutativity (to_nat0 &m) (to_nat0 &n)).
   }
   ipso (conversion.injectivity &f).
 Qed.
@@ -1740,18 +1740,18 @@ Theorem cancellation
     (m + n = m + k -> n = k) /\ (m + n = k + n -> m = k).
 Proof.
   intros m n k.
-  let proof c := NatWithZero.addition.cancellation
-                   (to_nat_with_zero &m) (to_nat_with_zero &n) (to_nat_with_zero &k).
+  let proof c := Nat0.addition.cancellation
+                   (to_nat0 &m) (to_nat0 &n) (to_nat0 &k).
   match &c with | l r end.
   divide et impera.
   -
     intro e.
-    let proof f := congru to_nat_with_zero, &e.
+    let proof f := congru to_nat0, &e.
     leibniz (conversion.addition &m &n), (conversion.addition &m &k) in &f.
     ipso (conversion.injectivity (&l &f)).
   -
     intro e.
-    let proof f := congru to_nat_with_zero, &e.
+    let proof f := congru to_nat0, &e.
     leibniz (conversion.addition &m &n), (conversion.addition &k &n) in &f.
     ipso (conversion.injectivity (&r &f)).
 Qed.
@@ -1766,13 +1766,13 @@ Theorem associativity
       (l * m) * n = l * (m * n).
 Proof.
   intros l m n.
-  lemma f : to_nat_with_zero ((&l * &m) * &n) = to_nat_with_zero (&l * (&m * &n)).
+  lemma f : to_nat0 ((&l * &m) * &n) = to_nat0 (&l * (&m * &n)).
   {
     leibniz (conversion.multiplication (&l * &m) &n), (conversion.multiplication &l &m),
             (conversion.multiplication &l (&m * &n)), (conversion.multiplication &m &n)
       in |- *.
-    ipso (NatWithZero.multiplication.associativity
-            (to_nat_with_zero &l) (to_nat_with_zero &m) (to_nat_with_zero &n)).
+    ipso (Nat0.multiplication.associativity
+            (to_nat0 &l) (to_nat0 &m) (to_nat0 &n)).
   }
   ipso (conversion.injectivity &f).
 Qed.
@@ -1782,11 +1782,11 @@ Theorem commutativity
   : forall (m : BinWithZero) (n : BinWithZero) . m * n = n * m.
 Proof.
   intros m n.
-  lemma f : to_nat_with_zero (&m * &n) = to_nat_with_zero (&n * &m).
+  lemma f : to_nat0 (&m * &n) = to_nat0 (&n * &m).
   {
     leibniz (conversion.multiplication &m &n), (conversion.multiplication &n &m) in |- *.
-    ipso (NatWithZero.multiplication.commutativity
-            (to_nat_with_zero &m) (to_nat_with_zero &n)).
+    ipso (Nat0.multiplication.commutativity
+            (to_nat0 &m) (to_nat0 &n)).
   }
   ipso (conversion.injectivity &f).
 Qed.
@@ -1835,12 +1835,12 @@ Theorem addition
       (x * (y + z) = (x * y) + (x * z)) /\ ((y + z) * x = (y * x) + (z * x)).
 Proof.
   intros x y z.
-  let proof d := NatWithZero.multiplication.distributivity.over.addition
-                   (to_nat_with_zero &x) (to_nat_with_zero &y) (to_nat_with_zero &z).
+  let proof d := Nat0.multiplication.distributivity.over.addition
+                   (to_nat0 &x) (to_nat0 &y) (to_nat0 &z).
   match &d with | l r end.
   divide et impera.
   -
-    lemma f : to_nat_with_zero (&x * (&y + &z)) = to_nat_with_zero ((&x * &y) + (&x * &z)).
+    lemma f : to_nat0 (&x * (&y + &z)) = to_nat0 ((&x * &y) + (&x * &z)).
     {
       leibniz (conversion.multiplication &x (&y + &z)), (conversion.addition &y &z),
               (conversion.addition (&x * &y) (&x * &z)),
@@ -1849,7 +1849,7 @@ Proof.
     }
     ipso (conversion.injectivity &f).
   -
-    lemma f : to_nat_with_zero ((&y + &z) * &x) = to_nat_with_zero ((&y * &x) + (&z * &x)).
+    lemma f : to_nat0 ((&y + &z) * &x) = to_nat0 ((&y * &x) + (&z * &x)).
     {
       leibniz (conversion.multiplication (&y + &z) &x), (conversion.addition &y &z),
               (conversion.addition (&y * &x) (&z * &x)),
@@ -1873,7 +1873,7 @@ Module strict. (* order.strict *)
 Theorem irreflexivity : forall (n : BinWithZero) . ~ (n < n).
 Proof.
   intros n h.
-  ipso (NatWithZero.order.strict.irreflexivity (to_nat_with_zero &n)
+  ipso (Nat0.order.strict.irreflexivity (to_nat0 &n)
           (modus aequans (conversion.order &n &n), &h)).
 Qed.
 
@@ -1883,7 +1883,7 @@ Theorem transitivity
       l < m -> m < n -> l < n.
 Proof.
   intros l m n h1 h2.
-  let proof k := NatWithZero.order.strict.transitivity
+  let proof k := Nat0.order.strict.transitivity
                    (modus aequans (conversion.order &l &m), &h1)
                    (modus aequans (conversion.order &m &n), &h2).
   ipso (modus aequans (conversion.order &l &n), &k).
@@ -1894,7 +1894,7 @@ Theorem wellfoundedness : forall (n : BinWithZero) . Accessible (<) n.
 Proof.
   intro n.
   lemma descent
-    : Descent.Step (Induced NatWithZero.LessThan to_nat_with_zero)
+    : Descent.Step (Induced Nat0.LessThan to_nat0)
         (fun (x : BinWithZero) . Accessible (<) x).
   {
     intros x recurse.
@@ -1903,7 +1903,7 @@ Proof.
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }
   ipso (Accessible.recursion &descent &n
-          (@accessibility _ _ (WellFounded.induced NatWithZero.LessThan to_nat_with_zero _) &n)).
+          (@accessibility _ _ (WellFounded.induced Nat0.LessThan to_nat0 _) &n)).
 Qed.
 
 End strict. (* order.strict *)
@@ -1919,8 +1919,8 @@ Theorem specification
 Proof.
   intros m n.
   leibniz (conversion.comparison &m &n) in |- *.
-  let proof s := NatWithZero.comparison.specification
-                   (to_nat_with_zero &m) (to_nat_with_zero &n).
+  let proof s := Nat0.comparison.specification
+                   (to_nat0 &m) (to_nat0 &n).
   match &s with | strict equality end.
   divide et impera.
   -
@@ -1938,7 +1938,7 @@ Proof.
       ipso (conversion.injectivity (modus aequans &equality, &c)).
     +
       intro e.
-      ipso (modus aequans &equality, (congru to_nat_with_zero, &e)).
+      ipso (modus aequans &equality, (congru to_nat0, &e)).
 Qed.
 
 (* comparison.antisymmetry *)
@@ -1948,7 +1948,7 @@ Theorem antisymmetry
 Proof.
   intros m n.
   leibniz (conversion.comparison &m &n), (conversion.comparison &n &m) in |- *.
-  ipso (NatWithZero.comparison.antisymmetry (to_nat_with_zero &m) (to_nat_with_zero &n)).
+  ipso (Nat0.comparison.antisymmetry (to_nat0 &m) (to_nat0 &n)).
 Qed.
 
 End comparison. (* comparison *)
@@ -1984,16 +1984,16 @@ Theorem specification
       (((n /. d) * (+ d)) + (n %. d) = n) /\ (n %. d) < + d.
 Proof.
   intros n d.
-  lemma divisor : to_nat_with_zero (+ &d) = Bin.to_nat &d.
+  lemma divisor : to_nat0 (+ &d) = Bin.to_nat &d.
   {
     simpl in |- *.
     quod idem est.
   }
-  let proof s := NatWithZero.division.specification (to_nat_with_zero &n) (Bin.to_nat &d).
+  let proof s := Nat0.division.specification (to_nat0 &n) (Bin.to_nat &d).
   match &s with | e below end.
   divide et impera.
   -
-    lemma f : to_nat_with_zero (((&n /. &d) * (+ &d)) + (&n %. &d)) = to_nat_with_zero &n.
+    lemma f : to_nat0 (((&n /. &d) * (+ &d)) + (&n %. &d)) = to_nat0 &n.
     {
       leibniz (conversion.addition ((&n /. &d) * (+ &d)) (&n %. &d)),
         (conversion.multiplication (&n /. &d) (+ &d)),
@@ -2012,19 +2012,19 @@ Theorem uniqueness
       ((m * (+ d)) + r = n /\ r < (+ d)) -> ((n /. d) = m) /\ ((n %. d) = r).
 Proof.
   intros n d m r h.
-  lemma divisor : to_nat_with_zero (+ &d) = Bin.to_nat &d.
+  lemma divisor : to_nat0 (+ &d) = Bin.to_nat &d.
   {
     simpl in |- *.
     quod idem est.
   }
   match &h with | e below end.
-  let proof f := congru to_nat_with_zero, &e.
+  let proof f := congru to_nat0, &e.
   leibniz (conversion.addition (&m * (+ &d)) &r), (conversion.multiplication &m (+ &d)),
     &divisor in &f.
   let proof bound := modus aequans (conversion.order &r (+ &d)), &below.
   leibniz &divisor in &bound.
-  let proof u := NatWithZero.division.uniqueness
-    (to_nat_with_zero &n) (Bin.to_nat &d) (to_nat_with_zero &m) (to_nat_with_zero &r)
+  let proof u := Nat0.division.uniqueness
+    (to_nat0 &n) (Bin.to_nat &d) (to_nat0 &m) (to_nat0 &r)
     (conjoin &f, &bound).
   match &u with | quotient remainder end.
   leibniz <- (conversion.division &n &d) in &quotient.
@@ -2053,12 +2053,12 @@ Theorem recurrence
   : forall (a : BinWithZero) (q : Bin) . gcd a (+ q) = gcd (+ q) (a %. q).
 Proof.
   intros a q.
-  lemma f : to_nat_with_zero (gcd &a (+ &q)) = to_nat_with_zero (gcd (+ &q) (&a %. &q)).
+  lemma f : to_nat0 (gcd &a (+ &q)) = to_nat0 (gcd (+ &q) (&a %. &q)).
   {
     let proof rec
-      : NatWithZero.gcd (to_nat_with_zero &a) (to_nat_with_zero (+ &q))
-        = NatWithZero.gcd (to_nat_with_zero (+ &q)) (to_nat_with_zero &a %. Bin.to_nat &q)%n0
-      := NatWithZero.gcd.recurrence (to_nat_with_zero &a) (Bin.to_nat &q).
+      : Nat0.gcd (to_nat0 &a) (to_nat0 (+ &q))
+        = Nat0.gcd (to_nat0 (+ &q)) (to_nat0 &a %. Bin.to_nat &q)%n0
+      := Nat0.gcd.recurrence (to_nat0 &a) (Bin.to_nat &q).
     leibniz (conversion.gcd &a (+ &q)), (conversion.gcd (+ &q) (&a %. &q)),
       (conversion.modulo &a &q) in |- *.
     ipso &rec.
@@ -2071,7 +2071,7 @@ Theorem divisibility
   : forall (a : BinWithZero) (b : BinWithZero) . Divides (gcd a b) a /\ Divides (gcd a b) b.
 Proof.
   intros a b.
-  let proof s := NatWithZero.gcd.divisibility (to_nat_with_zero &b) (to_nat_with_zero &a).
+  let proof s := Nat0.gcd.divisibility (to_nat0 &b) (to_nat0 &a).
   leibniz <- (conversion.gcd &a &b) in &s.
   match &s with | of_a of_b end.
   divide et impera.
@@ -2087,8 +2087,8 @@ Theorem universality
       Divides d a -> Divides d b -> Divides d (gcd a b).
 Proof.
   intros a b d ha hb.
-  let proof u := NatWithZero.gcd.universality
-    (to_nat_with_zero &b) (to_nat_with_zero &a) (to_nat_with_zero &d)
+  let proof u := Nat0.gcd.universality
+    (to_nat0 &b) (to_nat0 &a) (to_nat0 &d)
     (modus aequans (conversion.divisibility &d &a), &ha)
     (modus aequans (conversion.divisibility &d &b), &hb).
   leibniz <- (conversion.gcd &a &b) in &u.
@@ -2100,10 +2100,10 @@ Theorem commutativity
   : forall (a : BinWithZero) (b : BinWithZero) . gcd a b = gcd b a.
 Proof.
   intros a b.
-  lemma f : to_nat_with_zero (gcd &a &b) = to_nat_with_zero (gcd &b &a).
+  lemma f : to_nat0 (gcd &a &b) = to_nat0 (gcd &b &a).
   {
     leibniz (conversion.gcd &a &b), (conversion.gcd &b &a) in |- *.
-    ipso (NatWithZero.gcd.commutativity (to_nat_with_zero &a) (to_nat_with_zero &b)).
+    ipso (Nat0.gcd.commutativity (to_nat0 &a) (to_nat0 &b)).
   }
   ipso (conversion.injectivity &f).
 Qed.
@@ -2518,7 +2518,7 @@ Module shift. (* shift *)
 
 (* shift.retraction *)
 Theorem retraction
-  : forall (n : BinWithZero) (k : NatWithZero) . shift_right (shift_left n k) k = n.
+  : forall (n : BinWithZero) (k : Nat0) . shift_right (shift_left n k) k = n.
 Proof.
   intros n k.
   match k with | | k' end.
@@ -2542,8 +2542,8 @@ Module right. (* shift.right *)
 
 (* shift.right.successor *)
 Theorem successor
-  : forall (n : BinWithZero) (i : NatWithZero) .
-      shift_right n (NatWithZero.inc i) = shift_right (halve n) i.
+  : forall (n : BinWithZero) (i : Nat0) .
+      shift_right n (Nat0.inc i) = shift_right (halve n) i.
 Proof.
   intros n i.
   match i with | | k end.
@@ -2568,8 +2568,8 @@ Proof.
     quod idem est.
   }
   lemma f
-    : to_nat_with_zero (shift_right &n (Bin.to_nat &k))
-      = to_nat_with_zero (&n /. (10 ^ &k)%bin).
+    : to_nat0 (shift_right &n (Bin.to_nat &k))
+      = to_nat0 (&n /. (10 ^ &k)%bin).
   {
     leibniz (conversion.right.shift &n (Bin.to_nat &k)), (conversion.division &n (10 ^ &k)%bin),
       &power in |- *.
@@ -2586,7 +2586,7 @@ Module bit. (* bit *)
 
 (* bit.absence *)
 Theorem absence
-  : forall (i : NatWithZero) . test_bit 0 i = false.
+  : forall (i : Nat0) . test_bit 0 i = false.
 Proof.
   intro i.
   simpl test_bit, shift_right in |- *.
@@ -2606,7 +2606,7 @@ Qed.
 (* bit.parity *)
 Theorem parity
   : forall (bit : Bool) (n : BinWithZero) .
-      test_bit (append_bit bit n) NatWithZero.Zero = bit.
+      test_bit (append_bit bit n) Nat0.Zero = bit.
 Proof.
   intros bit n.
   simpl test_bit, shift_right in |- *.
@@ -2615,8 +2615,8 @@ Qed.
 
 (* bit.successor *)
 Theorem successor
-  : forall (bit : Bool) (n : BinWithZero) (i : NatWithZero) .
-      test_bit (append_bit bit n) (NatWithZero.inc i) = test_bit n i.
+  : forall (bit : Bool) (n : BinWithZero) (i : Nat0) .
+      test_bit (append_bit bit n) (Nat0.inc i) = test_bit n i.
 Proof.
   intros bit n i.
   simpl test_bit in |- *.
@@ -2631,7 +2631,7 @@ End BinWithZero. (* BinWithZero *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
  * [BinWithZero], not [BinWithZero.T]. [Zero] and [Positive] name ctors
- * of [NatWithZero] and [Integer] as well, so all three write theirs with the
+ * of [Nat0] and [Integer] as well, so all three write theirs with the
  * prefix.
  *)
 Abbreviation BinWithZero := BinWithZero.T.

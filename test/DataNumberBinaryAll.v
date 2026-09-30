@@ -142,9 +142,9 @@ Definition data_number_binary_all_delivers_nat
   : Nat
   := Bin.to_nat Bin.One.
 
-Definition data_number_binary_all_delivers_nat_with_zero
-  : NatWithZero
-  := BinWithZero.to_nat_with_zero 1011%bin_with_zero.
+Definition data_number_binary_all_delivers_nat0
+  : Nat0
+  := BinWithZero.to_nat0 1011%bin_with_zero.
 
 Definition data_number_binary_all_delivers_integer
   : Integer

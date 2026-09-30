@@ -673,33 +673,33 @@ Proof.
 Qed.
 
 Theorem tactics_all_delivers_simpl_four_definitions
-  : forall (m : NatWithZero) (n : NatWithZero) .
-      NatWithZero.Even m /\ NatWithZero.Odd n
-      /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n
-      -> NatWithZero.Even m /\ NatWithZero.Odd n
-         /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n.
+  : forall (m : Nat0) (n : Nat0) .
+      Nat0.Even m /\ Nat0.Odd n
+      /\ Nat0.Divides m n /\ Nat0.LessThan m n
+      -> Nat0.Even m /\ Nat0.Odd n
+         /\ Nat0.Divides m n /\ Nat0.LessThan m n.
 Proof.
   intros m n e.
-  simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
-      NatWithZero.LessThan in e.
+  simpl Nat0.Even, Nat0.Odd, Nat0.Divides,
+      Nat0.LessThan in e.
   ipso e.
 Qed.
 
 Theorem tactics_all_delivers_simpl_ten_definitions
-  : forall (m : NatWithZero) (n : NatWithZero) .
-      NatWithZero.Even m /\ NatWithZero.Odd n
-      /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n
-      /\ NatWithZero.LessOrEqual m n /\ NatWithZero.add m n = NatWithZero.mul m n
-      /\ NatWithZero.sub m n = None /\ NatWithZero.le m n = true /\ NatWithZero.min m n = m
-      -> NatWithZero.Even m /\ NatWithZero.Odd n
-         /\ NatWithZero.Divides m n /\ NatWithZero.LessThan m n
-         /\ NatWithZero.LessOrEqual m n /\ NatWithZero.add m n = NatWithZero.mul m n
-         /\ NatWithZero.sub m n = None /\ NatWithZero.le m n = true /\ NatWithZero.min m n = m.
+  : forall (m : Nat0) (n : Nat0) .
+      Nat0.Even m /\ Nat0.Odd n
+      /\ Nat0.Divides m n /\ Nat0.LessThan m n
+      /\ Nat0.LessOrEqual m n /\ Nat0.add m n = Nat0.mul m n
+      /\ Nat0.sub m n = None /\ Nat0.le m n = true /\ Nat0.min m n = m
+      -> Nat0.Even m /\ Nat0.Odd n
+         /\ Nat0.Divides m n /\ Nat0.LessThan m n
+         /\ Nat0.LessOrEqual m n /\ Nat0.add m n = Nat0.mul m n
+         /\ Nat0.sub m n = None /\ Nat0.le m n = true /\ Nat0.min m n = m.
 Proof.
   intros m n e.
-  simpl NatWithZero.Even, NatWithZero.Odd, NatWithZero.Divides,
-      NatWithZero.LessThan, NatWithZero.LessOrEqual, NatWithZero.add,
-      NatWithZero.mul, NatWithZero.sub, NatWithZero.le, NatWithZero.min in e.
+  simpl Nat0.Even, Nat0.Odd, Nat0.Divides,
+      Nat0.LessThan, Nat0.LessOrEqual, Nat0.add,
+      Nat0.mul, Nat0.sub, Nat0.le, Nat0.min in e.
   ipso e.
 Qed.
 

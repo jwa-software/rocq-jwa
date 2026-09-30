@@ -9,21 +9,21 @@ From jwa Require Import Data.Number.All.
 From jwa Require Import Tactics.Equation.
 
 Definition data_number_all_delivers
-  : Nat -> NatWithZero -> Integer -> ~ Falsum -> Verum
-  := fun (_ : Nat) (_ : NatWithZero) (_ : Integer) (_ : ~ Falsum) . I.
+  : Nat -> Nat0 -> Integer -> ~ Falsum -> Verum
+  := fun (_ : Nat) (_ : Nat0) (_ : Integer) (_ : ~ Falsum) . I.
 
 Definition data_number_all_delivers_operations
   : Integer
   := (Integer.Zero + Integer.Negative Nat.One * Integer.Positive Nat.One)%z.
 
 Definition data_number_all_delivers_well_founded
-  : forall (m : Nat) (n : NatWithZero) (x : Integer) .
+  : forall (m : Nat) (n : Nat0) (x : Integer) .
       Accessible Nat.LessThan m
-  := fun (m : Nat) (n : NatWithZero) (x : Integer) . accessibility m.
+  := fun (m : Nat) (n : Nat0) (x : Integer) . accessibility m.
 
 Definition data_number_all_delivers_well_founded_with_zero
-  : forall (n : NatWithZero) . Accessible NatWithZero.LessThan n
-  := fun (n : NatWithZero) . accessibility n.
+  : forall (n : Nat0) . Accessible Nat0.LessThan n
+  := fun (n : Nat0) . accessibility n.
 
 Definition data_number_all_delivers_nat_equality_decidability
   : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n)
@@ -34,161 +34,161 @@ Definition data_number_all_delivers_nat_equality_uniqueness
   := Nat.equality.uniqueness.
 
 Definition data_number_all_delivers_gcd_zero
-  : forall (a : NatWithZero) . NatWithZero.gcd a NatWithZero.Zero = a
-  := NatWithZero.gcd.zero.
+  : forall (a : Nat0) . Nat0.gcd a Nat0.Zero = a
+  := Nat0.gcd.zero.
 
 Definition data_number_all_delivers_gcd_recurrence
-  : forall (a : NatWithZero) (q : Nat) .
-      NatWithZero.gcd a (NatWithZero.Positive q)
-      = NatWithZero.gcd (NatWithZero.Positive q) (NatWithZero.modulo a q)
-  := NatWithZero.gcd.recurrence.
+  : forall (a : Nat0) (q : Nat) .
+      Nat0.gcd a (Nat0.Positive q)
+      = Nat0.gcd (Nat0.Positive q) (Nat0.modulo a q)
+  := Nat0.gcd.recurrence.
 
 Definition data_number_all_delivers_gcd_divisibility
-  : forall (b : NatWithZero) (a : NatWithZero) .
-      NatWithZero.Divides (NatWithZero.gcd a b) a
-      /\ NatWithZero.Divides (NatWithZero.gcd a b) b
-  := NatWithZero.gcd.divisibility.
+  : forall (b : Nat0) (a : Nat0) .
+      Nat0.Divides (Nat0.gcd a b) a
+      /\ Nat0.Divides (Nat0.gcd a b) b
+  := Nat0.gcd.divisibility.
 
 Definition data_number_all_delivers_gcd_left_right_divisibility
-  : forall (a : NatWithZero) (b : NatWithZero) .
-      NatWithZero.Divides (NatWithZero.gcd a b) a
-      /\ NatWithZero.Divides (NatWithZero.gcd a b) b
-  := fun (a : NatWithZero) (b : NatWithZero) .
+  : forall (a : Nat0) (b : Nat0) .
+      Nat0.Divides (Nat0.gcd a b) a
+      /\ Nat0.Divides (Nat0.gcd a b) b
+  := fun (a : Nat0) (b : Nat0) .
        conjoin
-         (NatWithZero.gcd.left.divisibility a b), (NatWithZero.gcd.right.divisibility a b).
+         (Nat0.gcd.left.divisibility a b), (Nat0.gcd.right.divisibility a b).
 
 Definition data_number_all_delivers_gcd_universality
-  : forall (b : NatWithZero) (a : NatWithZero) (d : NatWithZero) .
-      NatWithZero.Divides d a ->
-      NatWithZero.Divides d b -> NatWithZero.Divides d (NatWithZero.gcd a b)
-  := NatWithZero.gcd.universality.
+  : forall (b : Nat0) (a : Nat0) (d : Nat0) .
+      Nat0.Divides d a ->
+      Nat0.Divides d b -> Nat0.Divides d (Nat0.gcd a b)
+  := Nat0.gcd.universality.
 
 Definition data_number_all_delivers_gcd_nat
-  : forall (q : Nat) (a : NatWithZero) .
-      NatWithZero.gcd a (NatWithZero.Positive q)
-      = NatWithZero.Positive (NatWithZero.gcd.nat a q)
-  := NatWithZero.gcd.nat.specification.
+  : forall (q : Nat) (a : Nat0) .
+      Nat0.gcd a (Nat0.Positive q)
+      = Nat0.Positive (Nat0.gcd.nat a q)
+  := Nat0.gcd.nat.specification.
 
 Definition data_number_all_delivers_integer_divide
   : forall (x : Integer) (d : Nat) .
-      Integer.abs (Integer.divide x d) = NatWithZero.divide (Integer.abs x) d
+      Integer.abs (Integer.divide x d) = Nat0.divide (Integer.abs x) d
   := Integer.division.magnitude.
 
 Definition data_number_all_delivers_well_founded_magnitude
   : forall (x : Integer) .
-      Accessible (Induced NatWithZero.LessThan Integer.abs) x
+      Accessible (Induced Nat0.LessThan Integer.abs) x
   := fun (x : Integer) . accessibility x.
 
 Definition data_number_all_delivers_divide_nat_safe
   : forall (d : Nat) (g : Nat)
-      (h : NatWithZero.Divides (NatWithZero.Positive g) (NatWithZero.Positive d)) .
-      NatWithZero.Positive (NatWithZero.divide.nat.safe d g h)
-      = NatWithZero.divide (NatWithZero.Positive d) g
-  := NatWithZero.divide.nat.safe.specification.
+      (h : Nat0.Divides (Nat0.Positive g) (Nat0.Positive d)) .
+      Nat0.Positive (Nat0.divide.nat.safe d g h)
+      = Nat0.divide (Nat0.Positive d) g
+  := Nat0.divide.nat.safe.specification.
 
 Definition data_number_all_delivers_gcd_nat_left_divisibility
-  : forall (a : NatWithZero) (q : Nat) .
-      NatWithZero.Divides (NatWithZero.Positive (NatWithZero.gcd.nat a q)) a
-  := NatWithZero.gcd.nat.left.divisibility.
+  : forall (a : Nat0) (q : Nat) .
+      Nat0.Divides (Nat0.Positive (Nat0.gcd.nat a q)) a
+  := Nat0.gcd.nat.left.divisibility.
 
 Definition data_number_all_delivers_gcd_nat_right_divisibility
-  : forall (a : NatWithZero) (q : Nat) .
-      NatWithZero.Divides
-        (NatWithZero.Positive (NatWithZero.gcd.nat a q)) (NatWithZero.Positive q)
-  := NatWithZero.gcd.nat.right.divisibility.
+  : forall (a : Nat0) (q : Nat) .
+      Nat0.Divides
+        (Nat0.Positive (Nat0.gcd.nat a q)) (Nat0.Positive q)
+  := Nat0.gcd.nat.right.divisibility.
 
 Definition data_number_all_delivers_gcd_nat_divisibility
-  : forall (a : NatWithZero) (q : Nat) .
-      NatWithZero.Divides (NatWithZero.Positive (NatWithZero.gcd.nat a q)) a
-      /\ NatWithZero.Divides
-           (NatWithZero.Positive (NatWithZero.gcd.nat a q)) (NatWithZero.Positive q)
-  := NatWithZero.gcd.nat.divisibility.
+  : forall (a : Nat0) (q : Nat) .
+      Nat0.Divides (Nat0.Positive (Nat0.gcd.nat a q)) a
+      /\ Nat0.Divides
+           (Nat0.Positive (Nat0.gcd.nat a q)) (Nat0.Positive q)
+  := Nat0.gcd.nat.divisibility.
 
 Definition data_number_all_delivers_multiplication_right_order_extensivity
-  : forall (k : Nat) (n : NatWithZero) .
-      NatWithZero.LessOrEqual n (NatWithZero.mul (NatWithZero.Positive k) n)
-  := NatWithZero.multiplication.right.order.extensivity.
+  : forall (k : Nat) (n : Nat0) .
+      Nat0.LessOrEqual n (Nat0.mul (Nat0.Positive k) n)
+  := Nat0.multiplication.right.order.extensivity.
 
 Definition data_number_all_delivers_division_uniqueness
-  : forall (n : NatWithZero) (d : Nat) (m : NatWithZero) (r : NatWithZero) .
-      (NatWithZero.add (NatWithZero.mul m (NatWithZero.Positive d)) r = n
-       /\ NatWithZero.LessThan r (NatWithZero.Positive d))
-      -> NatWithZero.divide n d = m /\ NatWithZero.modulo n d = r
-  := NatWithZero.division.uniqueness.
+  : forall (n : Nat0) (d : Nat) (m : Nat0) (r : Nat0) .
+      (Nat0.add (Nat0.mul m (Nat0.Positive d)) r = n
+       /\ Nat0.LessThan r (Nat0.Positive d))
+      -> Nat0.divide n d = m /\ Nat0.modulo n d = r
+  := Nat0.division.uniqueness.
 
 Definition data_number_all_delivers_division_invariance
-  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
-      NatWithZero.divide
-        (NatWithZero.mul (NatWithZero.Positive k) n) (Nat.mul k d)
-      = NatWithZero.divide n d
-  := NatWithZero.division.invariance.
+  : forall (n : Nat0) (d : Nat) (k : Nat) .
+      Nat0.divide
+        (Nat0.mul (Nat0.Positive k) n) (Nat.mul k d)
+      = Nat0.divide n d
+  := Nat0.division.invariance.
 
 Definition data_number_all_delivers_modulo_homogeneity
-  : forall (n : NatWithZero) (d : Nat) (k : Nat) .
-      NatWithZero.modulo
-        (NatWithZero.mul (NatWithZero.Positive k) n) (Nat.mul k d)
-      = NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.modulo n d)
-  := NatWithZero.modulo.homogeneity.
+  : forall (n : Nat0) (d : Nat) (k : Nat) .
+      Nat0.modulo
+        (Nat0.mul (Nat0.Positive k) n) (Nat.mul k d)
+      = Nat0.mul (Nat0.Positive k) (Nat0.modulo n d)
+  := Nat0.modulo.homogeneity.
 
 Definition data_number_all_delivers_gcd_left_distributivity_of_multiplication
-  : forall (k : Nat) (b : NatWithZero) (a : NatWithZero) .
-      NatWithZero.mul (NatWithZero.Positive k) (NatWithZero.gcd a b)
-      = NatWithZero.gcd
-          (NatWithZero.mul (NatWithZero.Positive k) a)
-          (NatWithZero.mul (NatWithZero.Positive k) b)
-  := NatWithZero.gcd.left.distributivity.of.multiplication.
+  : forall (k : Nat) (b : Nat0) (a : Nat0) .
+      Nat0.mul (Nat0.Positive k) (Nat0.gcd a b)
+      = Nat0.gcd
+          (Nat0.mul (Nat0.Positive k) a)
+          (Nat0.mul (Nat0.Positive k) b)
+  := Nat0.gcd.left.distributivity.of.multiplication.
 
 Definition data_number_all_delivers_gcd_nat_left_distributivity_of_multiplication
-  : forall (k : Nat) (q : Nat) (a : NatWithZero) .
-      Nat.mul k (NatWithZero.gcd.nat a q)
-      = NatWithZero.gcd.nat
-          (NatWithZero.mul (NatWithZero.Positive k) a) (Nat.mul k q)
-  := NatWithZero.gcd.nat.left.distributivity.of.multiplication.
+  : forall (k : Nat) (q : Nat) (a : Nat0) .
+      Nat.mul k (Nat0.gcd.nat a q)
+      = Nat0.gcd.nat
+          (Nat0.mul (Nat0.Positive k) a) (Nat.mul k q)
+  := Nat0.gcd.nat.left.distributivity.of.multiplication.
 
 Definition data_number_all_delivers_divide_nat_safe_congruence
   : forall (d1 : Nat) (g1 : Nat)
-      (h1 : NatWithZero.Divides
-              (NatWithZero.Positive g1) (NatWithZero.Positive d1))
+      (h1 : Nat0.Divides
+              (Nat0.Positive g1) (Nat0.Positive d1))
       (d2 : Nat) (g2 : Nat)
-      (h2 : NatWithZero.Divides
-              (NatWithZero.Positive g2) (NatWithZero.Positive d2)) .
-      NatWithZero.divide (NatWithZero.Positive d1) g1
-      = NatWithZero.divide (NatWithZero.Positive d2) g2
-      -> NatWithZero.divide.nat.safe d1 g1 h1
-         = NatWithZero.divide.nat.safe d2 g2 h2
-  := NatWithZero.divide.nat.safe.congruence.
+      (h2 : Nat0.Divides
+              (Nat0.Positive g2) (Nat0.Positive d2)) .
+      Nat0.divide (Nat0.Positive d1) g1
+      = Nat0.divide (Nat0.Positive d2) g2
+      -> Nat0.divide.nat.safe d1 g1 h1
+         = Nat0.divide.nat.safe d2 g2 h2
+  := Nat0.divide.nat.safe.congruence.
 
 Definition data_number_all_delivers_division_exactness
-  : forall (n : NatWithZero) (d : Nat) .
-      NatWithZero.Divides (NatWithZero.Positive d) n
-      -> NatWithZero.mul (NatWithZero.divide n d) (NatWithZero.Positive d) = n
-  := NatWithZero.division.exactness.
+  : forall (n : Nat0) (d : Nat) .
+      Nat0.Divides (Nat0.Positive d) n
+      -> Nat0.mul (Nat0.divide n d) (Nat0.Positive d) = n
+  := Nat0.division.exactness.
 
 Definition data_number_all_delivers_gcd_nat_exhaustiveness
-  : forall (a : NatWithZero) (q : Nat) .
-      NatWithZero.gcd.nat
-        (NatWithZero.divide a (NatWithZero.gcd.nat a q))
-        (NatWithZero.divide.nat.safe q (NatWithZero.gcd.nat a q)
-           (NatWithZero.gcd.nat.right.divisibility a q))
+  : forall (a : Nat0) (q : Nat) .
+      Nat0.gcd.nat
+        (Nat0.divide a (Nat0.gcd.nat a q))
+        (Nat0.divide.nat.safe q (Nat0.gcd.nat a q)
+           (Nat0.gcd.nat.right.divisibility a q))
       = Nat.One
-  := NatWithZero.gcd.nat.exhaustiveness.
+  := Nat0.gcd.nat.exhaustiveness.
 
 Definition data_number_all_delivers_gcd_multiplication_cancellation
-  : forall (p : NatWithZero) (q : NatWithZero) (r : NatWithZero) .
-      NatWithZero.Divides p (NatWithZero.mul q r)
-      -> NatWithZero.gcd p q = NatWithZero.Positive Nat.One
-      -> NatWithZero.Divides p r
-  := NatWithZero.gcd.multiplication.cancellation.
+  : forall (p : Nat0) (q : Nat0) (r : Nat0) .
+      Nat0.Divides p (Nat0.mul q r)
+      -> Nat0.gcd p q = Nat0.Positive Nat.One
+      -> Nat0.Divides p r
+  := Nat0.gcd.multiplication.cancellation.
 
 Definition data_number_all_delivers_gcd_commutativity
-  : forall (a : NatWithZero) (b : NatWithZero) .
-      NatWithZero.gcd a b = NatWithZero.gcd b a
-  := NatWithZero.gcd.commutativity.
+  : forall (a : Nat0) (b : Nat0) .
+      Nat0.gcd a b = Nat0.gcd b a
+  := Nat0.gcd.commutativity.
 
 Definition data_number_all_delivers_integer_multiplication_magnitude
   : forall (m : Integer) (n : Integer) .
       Integer.abs (Integer.mul m n)
-      = NatWithZero.mul (Integer.abs m) (Integer.abs n)
+      = Nat0.mul (Integer.abs m) (Integer.abs n)
   := Integer.multiplication.magnitude.
 
 Definition data_number_all_delivers_integer_division_invariance
@@ -199,18 +199,18 @@ Definition data_number_all_delivers_integer_division_invariance
 
 Definition data_number_all_delivers_integer_division_exactness
   : forall (x : Integer) (d : Nat) .
-      NatWithZero.Divides (NatWithZero.Positive d) (Integer.abs x)
+      Nat0.Divides (Nat0.Positive d) (Integer.abs x)
       -> Integer.mul (Integer.divide x d) (Integer.Positive d) = x
   := Integer.division.exactness.
 
 Definition data_number_all_delivers_integer_division_exhaustiveness
   : forall (x : Integer) (d : Nat) .
-      NatWithZero.gcd.nat
+      Nat0.gcd.nat
         (Integer.abs
-           (Integer.divide x (NatWithZero.gcd.nat (Integer.abs x) d)))
-        (NatWithZero.divide.nat.safe d
-           (NatWithZero.gcd.nat (Integer.abs x) d)
-           (NatWithZero.gcd.nat.right.divisibility (Integer.abs x) d))
+           (Integer.divide x (Nat0.gcd.nat (Integer.abs x) d)))
+        (Nat0.divide.nat.safe d
+           (Nat0.gcd.nat (Integer.abs x) d)
+           (Nat0.gcd.nat.right.divisibility (Integer.abs x) d))
       = Nat.One
   := Integer.division.exhaustiveness.
 
@@ -280,7 +280,7 @@ Definition data_number_all_delivers_rational_make_proportionality
 
 Definition data_number_all_delivers_rational_irreducibility
   : forall (x : Rational) .
-      NatWithZero.gcd.nat
+      Nat0.gcd.nat
         (Integer.abs (Rational.numerator x))
         (Rational.denominator x)
       = Nat.One
@@ -477,32 +477,32 @@ Definition data_number_all_delivers_rational_embedding_order
   := Rational.embedding.order.
 
 Definition data_number_all_delivers_gcd_nat_right_annihilation
-  : forall (a : NatWithZero) . NatWithZero.gcd.nat a Nat.One = Nat.One
-  := NatWithZero.gcd.nat.right.annihilation.
+  : forall (a : Nat0) . Nat0.gcd.nat a Nat.One = Nat.One
+  := Nat0.gcd.nat.right.annihilation.
 
-Definition data_number_all_delivers_nat_with_zero_narrowing_nat_retraction
-  : forall (p : Nat) . NatWithZero.to_nat p = Some p
-  := NatWithZero.narrowing.nat.retraction.
+Definition data_number_all_delivers_nat0_narrowing_nat_retraction
+  : forall (p : Nat) . Nat0.to_nat p = Some p
+  := Nat0.narrowing.nat.retraction.
 
-Definition data_number_all_delivers_nat_with_zero_narrowing_nat_specification
-  : forall (n : NatWithZero) (p : Nat) . NatWithZero.to_nat n = Some p <-> n = p
-  := NatWithZero.narrowing.nat.specification.
+Definition data_number_all_delivers_nat0_narrowing_nat_specification
+  : forall (n : Nat0) (p : Nat) . Nat0.to_nat n = Some p <-> n = p
+  := Nat0.narrowing.nat.specification.
 
-Definition data_number_all_delivers_nat_with_zero_narrowing_nat_failure
-  : forall (n : NatWithZero) . NatWithZero.to_nat n = None <-> n = NatWithZero.Zero
-  := NatWithZero.narrowing.nat.failure.
+Definition data_number_all_delivers_nat0_narrowing_nat_failure
+  : forall (n : Nat0) . Nat0.to_nat n = None <-> n = Nat0.Zero
+  := Nat0.narrowing.nat.failure.
 
-Definition data_number_all_delivers_integer_narrowing_nat_with_zero_retraction
-  : forall (n : NatWithZero) . Integer.to_nat_with_zero n = Some n
-  := Integer.narrowing.nat_with_zero.retraction.
+Definition data_number_all_delivers_integer_narrowing_nat0_retraction
+  : forall (n : Nat0) . Integer.to_nat0 n = Some n
+  := Integer.narrowing.nat0.retraction.
 
-Definition data_number_all_delivers_integer_narrowing_nat_with_zero_specification
-  : forall (x : Integer) (n : NatWithZero) . Integer.to_nat_with_zero x = Some n <-> x = n
-  := Integer.narrowing.nat_with_zero.specification.
+Definition data_number_all_delivers_integer_narrowing_nat0_specification
+  : forall (x : Integer) (n : Nat0) . Integer.to_nat0 x = Some n <-> x = n
+  := Integer.narrowing.nat0.specification.
 
-Definition data_number_all_delivers_integer_narrowing_nat_with_zero_failure
-  : forall (x : Integer) . Integer.to_nat_with_zero x = None <-> (x < Integer.Zero)%z
-  := Integer.narrowing.nat_with_zero.failure.
+Definition data_number_all_delivers_integer_narrowing_nat0_failure
+  : forall (x : Integer) . Integer.to_nat0 x = None <-> (x < Integer.Zero)%z
+  := Integer.narrowing.nat0.failure.
 
 Definition data_number_all_delivers_integer_narrowing_nat_retraction
   : forall (p : Nat) . Integer.to_nat p = Some p
@@ -529,20 +529,20 @@ Definition data_number_all_delivers_rational_narrowing_integer_failure
       Rational.to_integer x = None <-> ~ (Rational.denominator x = Nat.One)
   := Rational.narrowing.integer.failure.
 
-Definition data_number_all_delivers_rational_narrowing_nat_with_zero_retraction
-  : forall (n : NatWithZero) . Rational.to_nat_with_zero n = Some n
-  := Rational.narrowing.nat_with_zero.retraction.
+Definition data_number_all_delivers_rational_narrowing_nat0_retraction
+  : forall (n : Nat0) . Rational.to_nat0 n = Some n
+  := Rational.narrowing.nat0.retraction.
 
-Definition data_number_all_delivers_rational_narrowing_nat_with_zero_specification
-  : forall (x : Rational) (n : NatWithZero) . Rational.to_nat_with_zero x = Some n <-> x = n
-  := Rational.narrowing.nat_with_zero.specification.
+Definition data_number_all_delivers_rational_narrowing_nat0_specification
+  : forall (x : Rational) (n : Nat0) . Rational.to_nat0 x = Some n <-> x = n
+  := Rational.narrowing.nat0.specification.
 
-Definition data_number_all_delivers_rational_narrowing_nat_with_zero_failure
+Definition data_number_all_delivers_rational_narrowing_nat0_failure
   : forall (x : Rational) .
-      Rational.to_nat_with_zero x = None
+      Rational.to_nat0 x = None
       <-> ~ (Rational.denominator x = Nat.One)
           \/ (Rational.numerator x < Integer.Zero)%z
-  := Rational.narrowing.nat_with_zero.failure.
+  := Rational.narrowing.nat0.failure.
 
 Definition data_number_all_delivers_rational_narrowing_nat_retraction
   : forall (p : Nat) . Rational.to_nat p = Some p
@@ -568,9 +568,9 @@ Proof.
   ipso (Option.some.injectivity (trans r, (Rational.narrowing.integer.retraction n))).
 Qed.
 
-Theorem data_number_all_delivers_coercion_nat_to_nat_with_zero
+Theorem data_number_all_delivers_coercion_nat_to_nat0
   : forall (n : Nat) .
-      NatWithZero.add n n = NatWithZero.add (NatWithZero.Positive n) (NatWithZero.Positive n).
+      Nat0.add n n = Nat0.add (Nat0.Positive n) (Nat0.Positive n).
 Proof.
   intro n.
   quod idem est.
@@ -583,8 +583,8 @@ Proof.
   quod idem est.
 Qed.
 
-Theorem data_number_all_delivers_coercion_nat_with_zero_to_integer
-  : forall (w : NatWithZero) . Integer.negate w = Integer.negate (Integer.from_nat_with_zero w).
+Theorem data_number_all_delivers_coercion_nat0_to_integer
+  : forall (w : Nat0) . Integer.negate w = Integer.negate (Integer.from_nat0 w).
 Proof.
   intro w.
   quod idem est.
@@ -605,9 +605,9 @@ Proof.
   quod idem est.
 Qed.
 
-Theorem data_number_all_delivers_coercion_nat_with_zero_to_rational
-  : forall (w : NatWithZero) .
-      Rational.negate w = Rational.negate (Rational.from_integer (Integer.from_nat_with_zero w)).
+Theorem data_number_all_delivers_coercion_nat0_to_rational
+  : forall (w : Nat0) .
+      Rational.negate w = Rational.negate (Rational.from_integer (Integer.from_nat0 w)).
 Proof.
   intro w.
   quod idem est.
@@ -668,20 +668,20 @@ Definition data_number_all_delivers_bin_comparison_computes
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_retraction
-  : forall (n : NatWithZero) .
-      BinWithZero.to_nat_with_zero (BinWithZero.from_nat_with_zero n) = n
+  : forall (n : Nat0) .
+      BinWithZero.to_nat0 (BinWithZero.from_nat0 n) = n
   := BinWithZero.conversion.retraction.
 
 Definition data_number_all_delivers_bin_with_zero_addition
   : forall (m : BinWithZero) (n : BinWithZero) .
-      BinWithZero.to_nat_with_zero (m + n)%bin_with_zero
-      = (BinWithZero.to_nat_with_zero m + BinWithZero.to_nat_with_zero n)%n0
+      BinWithZero.to_nat0 (m + n)%bin_with_zero
+      = (BinWithZero.to_nat0 m + BinWithZero.to_nat0 n)%n0
   := BinWithZero.conversion.addition.
 
 Definition data_number_all_delivers_bin_with_zero_subtraction
   : forall (m : BinWithZero) (n : BinWithZero) .
-      Option.map BinWithZero.to_nat_with_zero (BinWithZero.sub m n)
-      = NatWithZero.sub (BinWithZero.to_nat_with_zero m) (BinWithZero.to_nat_with_zero n)
+      Option.map BinWithZero.to_nat0 (BinWithZero.sub m n)
+      = Nat0.sub (BinWithZero.to_nat0 m) (BinWithZero.to_nat0 n)
   := BinWithZero.conversion.subtraction.
 
 Definition data_number_all_delivers_bin_with_zero_subtraction_computes
@@ -699,15 +699,15 @@ Definition data_number_all_delivers_bin_with_zero_sejunction_irreflexivity
   := BinWithZero.sejunction.irreflexivity.
 
 Definition data_number_all_delivers_bin_with_zero_shift_retraction
-  : forall (n : BinWithZero) (k : NatWithZero) .
+  : forall (n : BinWithZero) (k : Nat0) .
       BinWithZero.shift_right (BinWithZero.shift_left n k) k = n
   := BinWithZero.shift.retraction.
 
 Definition data_number_all_delivers_bin_with_zero_left_shift
-  : forall (n : BinWithZero) (k : NatWithZero) .
-      BinWithZero.to_nat_with_zero (BinWithZero.shift_left n k)
-      = (BinWithZero.to_nat_with_zero n
-         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%n0
+  : forall (n : BinWithZero) (k : Nat0) .
+      BinWithZero.to_nat0 (BinWithZero.shift_left n k)
+      = (BinWithZero.to_nat0 n
+         * Nat0.Positive (Nat.Successor Nat.One) ^ k)%n0
   := BinWithZero.conversion.left.shift.
 
 Definition data_number_all_delivers_bin_with_zero_conjunction_computes

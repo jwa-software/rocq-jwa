@@ -27,7 +27,7 @@ Module Bin. (* Bin *)
 (* A positive number in binary, its leading bit innermost: [One] is 1, [b0]
  * appends a 0 at the low end and [b1] appends a 1, so six, 110 in binary, is
  * [b0 (b1 One)]. The leading bit is always 1, so every positive number has
- * exactly one term; [NatWithZero]'s counterpart [BinWithZero] adds zero on
+ * exactly one term; [Nat0]'s counterpart [BinWithZero] adds zero on
  * top.
  *)
 Inductive T : Type :=

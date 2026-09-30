@@ -15,7 +15,7 @@ From jwa Require Import Data.Number.Binary.Bin.
 From jwa Require Import Data.Number.Binary.BinWithZero.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
+From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
@@ -27,7 +27,7 @@ From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [BinWithSign.negate].
- * The type and its ctors are declared inside it: [NatWithZero], [Integer] and
+ * The type and its ctors are declared inside it: [Nat0], [Integer] and
  * [BinWithZero] declare [Zero] and [Positive] too, and across files a
  * duplicate ctor name rebinds the bare one silently and with no warning.
  *)
@@ -172,7 +172,7 @@ Definition bin_with_zero_difference := fun (a : BinWithZero) (b : BinWithZero) .
 
 (* Every value is [ramp x] less [ramp (negate x)], one of which is always
  * zero, so a sum is a single difference of two nonnegative numbers instead of
- * nine sign cases. [Integer.add] is written the same way over [NatWithZero].
+ * nine sign cases. [Integer.add] is written the same way over [Nat0].
  *)
 (* [BinWithSign -> BinWithSign -> BinWithSign] *)
 Definition add := fun (x : BinWithSign) (y : BinWithSign) .
@@ -496,8 +496,8 @@ Module difference. (* conversion.difference *)
 Theorem extension
   : forall (a : BinWithZero) (b : BinWithZero) .
       to_integer (bin_with_zero_difference a b)
-    = Integer.nat_with_zero_difference
-        (BinWithZero.to_nat_with_zero a) (BinWithZero.to_nat_with_zero b).
+    = Integer.nat0_difference
+        (BinWithZero.to_nat0 a) (BinWithZero.to_nat0 b).
 Proof.
   intros a b.
   match &a with | | p end.
@@ -630,7 +630,7 @@ Proof.
   lemma embedding
     : forall (n : BinWithZero) .
         to_integer (from_bin_with_zero n)
-        = Integer.from_nat_with_zero (BinWithZero.to_nat_with_zero n).
+        = Integer.from_nat0 (BinWithZero.to_nat0 n).
   {
     intro n.
     match n with | | q end.
@@ -644,7 +644,7 @@ Proof.
   match &x with | p | | p end.
   -
     let proof c
-      : BinWithZero.to_nat_with_zero (p /. &d)%bin_with_zero
+      : BinWithZero.to_nat0 (p /. &d)%bin_with_zero
         = (Bin.to_nat &p /. Bin.to_nat &d)%n0
       := BinWithZero.conversion.division p &d.
     simpl divide in |- *.
@@ -658,7 +658,7 @@ Proof.
     quod idem est.
   -
     let proof c
-      : BinWithZero.to_nat_with_zero (p /. &d)%bin_with_zero
+      : BinWithZero.to_nat0 (p /. &d)%bin_with_zero
         = (Bin.to_nat &p /. Bin.to_nat &d)%n0
       := BinWithZero.conversion.division p &d.
     simpl divide in |- *.
@@ -1224,7 +1224,7 @@ Add Printing Coercion BinWithSign.from_bin_with_zero.
 (* [<] is not well founded on a signed type, there being no least value, so
  * the descent is on the magnitude: [abs] lands in [BinWithZero], where [<]
  * is well founded, and [Induced] pulls that back. [Integer] descends the same
- * way over [NatWithZero].
+ * way over [Nat0].
  *)
 Instance BinWithSign_magnitude_well_founded
   : WellFounded (Induced (<)%bin_with_zero BinWithSign.abs) :=
