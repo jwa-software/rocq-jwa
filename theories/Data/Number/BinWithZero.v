@@ -780,14 +780,14 @@ Qed.
 
 (* conversion.appending *)
 Theorem appending
-  : forall (n : BinWithZero) (bit : Bool) .
+  : forall (bit : Bool) (n : BinWithZero) .
       to_nat_with_zero (append_bit bit n)
       = match bit with
         | true  => NatWithZero.inc (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
         | false => (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
         end.
 Proof.
-  intros n bit.
+  intros bit n.
   match n with | | p end.
   -
     match bit with | | end.
@@ -836,7 +836,7 @@ Proof.
       *
         simpl in |- *.
         simpl in &IH.
-        leibniz (conversion.appending (shift_left_nat 0 &k'') false) in |- *.
+        leibniz (conversion.appending false (shift_left_nat 0 &k'')) in |- *.
         simpl in |- *.
         leibniz &IH in |- *.
         simpl in |- *.
@@ -852,7 +852,7 @@ Proof.
       *
         simpl in |- *.
         simpl in &IH.
-        leibniz (conversion.appending (shift_left_nat (+ &p) &k'') false) in |- *.
+        leibniz (conversion.appending false (shift_left_nat (+ &p) &k'')) in |- *.
         simpl in |- *.
         leibniz &IH in |- *.
         simpl in |- *.
@@ -1218,9 +1218,9 @@ Module halving. (* halving *)
 
 (* halving.retraction *)
 Theorem retraction
-  : forall (n : BinWithZero) (bit : Bool) . halve (append_bit bit n) = n.
+  : forall (bit : Bool) (n : BinWithZero) . halve (append_bit bit n) = n.
 Proof.
-  intros n bit.
+  intros bit n.
   match n with | | p end; match bit with | | end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1234,30 +1234,30 @@ Module over. (* appending.distributivity.over *)
 
 (* appending.distributivity.over.conjunction *)
 Theorem conjunction
-  : forall (m : BinWithZero) (n : BinWithZero) (b : Bool) (c : Bool) .
+  : forall (b : Bool) (c : Bool) (m : BinWithZero) (n : BinWithZero) .
       append_bit (b && c)%bool (m && n) = append_bit b m && append_bit c n.
 Proof.
-  intros m n b c.
+  intros b c m n.
   match m with | | p end; match n with | | q end; match b with | | end;
     match c with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* appending.distributivity.over.disjunction *)
 Theorem disjunction
-  : forall (m : BinWithZero) (n : BinWithZero) (b : Bool) (c : Bool) .
+  : forall (b : Bool) (c : Bool) (m : BinWithZero) (n : BinWithZero) .
       append_bit (b || c)%bool (m || n) = append_bit b m || append_bit c n.
 Proof.
-  intros m n b c.
+  intros b c m n.
   match m with | | p end; match n with | | q end; match b with | | end;
     match c with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* appending.distributivity.over.sejunction *)
 Theorem sejunction
-  : forall (m : BinWithZero) (n : BinWithZero) (b : Bool) (c : Bool) .
+  : forall (b : Bool) (c : Bool) (m : BinWithZero) (n : BinWithZero) .
       append_bit (b ^^ c)%bool (m ^^ n) = append_bit b m ^^ append_bit c n.
 Proof.
-  intros m n b c.
+  intros b c m n.
   match m with | | p end; match n with | | q end; match b with | | end;
     match c with | | end; simpl in |- *; quod idem est.
 Qed.
@@ -1301,8 +1301,8 @@ Proof.
       leibniz &r, &l in |- *.
       quod idem est.
     +
-      leibniz <- (appending.distributivity.over.conjunction &m' &n' &b &c),
-              <- (appending.distributivity.over.conjunction &n' &m' &c &b) in |- *.
+      leibniz <- (appending.distributivity.over.conjunction &b &c &m' &n'),
+              <- (appending.distributivity.over.conjunction &c &b &n' &m') in |- *.
       leibniz (&IH &n'), (Bool.conjunction.commutativity &b &c) in |- *.
       quod idem est.
 Qed.
@@ -1340,10 +1340,10 @@ Proof.
         leibniz &r, &r', &r'' in |- *.
         quod idem est.
       *
-        leibniz <- (appending.distributivity.over.conjunction &m' &n' &b &c),
-                <- (appending.distributivity.over.conjunction (&m' && &n') &o' (&b && &c)%bool &d),
-                <- (appending.distributivity.over.conjunction &n' &o' &c &d),
-                <- (appending.distributivity.over.conjunction &m' (&n' && &o') &b (&c && &d)%bool)
+        leibniz <- (appending.distributivity.over.conjunction &b &c &m' &n'),
+                <- (appending.distributivity.over.conjunction (&b && &c)%bool &d (&m' && &n') &o'),
+                <- (appending.distributivity.over.conjunction &c &d &n' &o'),
+                <- (appending.distributivity.over.conjunction &b (&c && &d)%bool &m' (&n' && &o'))
           in |- *.
         leibniz (&IH &n' &o'), (Bool.conjunction.associativity &b &c &d) in |- *.
         quod idem est.
@@ -1359,7 +1359,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   -
-    leibniz <- (appending.distributivity.over.conjunction &n' &n' &b &b) in |- *.
+    leibniz <- (appending.distributivity.over.conjunction &b &b &n' &n') in |- *.
     leibniz &IH in |- *.
     match b with | | end; simpl in |- *; quod idem est.
 Qed.
@@ -1399,8 +1399,8 @@ Proof.
       leibniz &r, &l in |- *.
       quod idem est.
     +
-      leibniz <- (appending.distributivity.over.disjunction &m' &n' &b &c),
-              <- (appending.distributivity.over.disjunction &n' &m' &c &b) in |- *.
+      leibniz <- (appending.distributivity.over.disjunction &b &c &m' &n'),
+              <- (appending.distributivity.over.disjunction &c &b &n' &m') in |- *.
       leibniz (&IH &n'), (Bool.disjunction.commutativity &b &c) in |- *.
       quod idem est.
 Qed.
@@ -1435,10 +1435,10 @@ Proof.
         leibniz &r, &r' in |- *.
         quod idem est.
       *
-        leibniz <- (appending.distributivity.over.disjunction &m' &n' &b &c),
-                <- (appending.distributivity.over.disjunction (&m' || &n') &o' (&b || &c)%bool &d),
-                <- (appending.distributivity.over.disjunction &n' &o' &c &d),
-                <- (appending.distributivity.over.disjunction &m' (&n' || &o') &b (&c || &d)%bool)
+        leibniz <- (appending.distributivity.over.disjunction &b &c &m' &n'),
+                <- (appending.distributivity.over.disjunction (&b || &c)%bool &d (&m' || &n') &o'),
+                <- (appending.distributivity.over.disjunction &c &d &n' &o'),
+                <- (appending.distributivity.over.disjunction &b (&c || &d)%bool &m' (&n' || &o'))
           in |- *.
         leibniz (&IH &n' &o'), (Bool.disjunction.associativity &b &c &d) in |- *.
         quod idem est.
@@ -1454,7 +1454,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   -
-    leibniz <- (appending.distributivity.over.disjunction &n' &n' &b &b) in |- *.
+    leibniz <- (appending.distributivity.over.disjunction &b &b &n' &n') in |- *.
     leibniz &IH in |- *.
     match b with | | end; simpl in |- *; quod idem est.
 Qed.
@@ -1494,8 +1494,8 @@ Proof.
       leibniz &r, &l in |- *.
       quod idem est.
     +
-      leibniz <- (appending.distributivity.over.sejunction &m' &n' &b &c),
-              <- (appending.distributivity.over.sejunction &n' &m' &c &b) in |- *.
+      leibniz <- (appending.distributivity.over.sejunction &b &c &m' &n'),
+              <- (appending.distributivity.over.sejunction &c &b &n' &m') in |- *.
       leibniz (&IH &n'), (Bool.sejunction.commutativity &b &c) in |- *.
       quod idem est.
 Qed.
@@ -1530,10 +1530,10 @@ Proof.
         leibniz &r, &r' in |- *.
         quod idem est.
       *
-        leibniz <- (appending.distributivity.over.sejunction &m' &n' &b &c),
-                <- (appending.distributivity.over.sejunction (&m' ^^ &n') &o' (&b ^^ &c)%bool &d),
-                <- (appending.distributivity.over.sejunction &n' &o' &c &d),
-                <- (appending.distributivity.over.sejunction &m' (&n' ^^ &o') &b (&c ^^ &d)%bool)
+        leibniz <- (appending.distributivity.over.sejunction &b &c &m' &n'),
+                <- (appending.distributivity.over.sejunction (&b ^^ &c)%bool &d (&m' ^^ &n') &o'),
+                <- (appending.distributivity.over.sejunction &c &d &n' &o'),
+                <- (appending.distributivity.over.sejunction &b (&c ^^ &d)%bool &m' (&n' ^^ &o'))
           in |- *.
         leibniz (&IH &n' &o'), (Bool.sejunction.associativity &b &c &d) in |- *.
         quod idem est.
@@ -1549,7 +1549,7 @@ Proof.
     simpl in |- *.
     quod idem est.
   -
-    leibniz <- (appending.distributivity.over.sejunction &n' &n' &b &b) in |- *.
+    leibniz <- (appending.distributivity.over.sejunction &b &b &n' &n') in |- *.
     leibniz &IH, (Bool.sejunction.irreflexivity &b) in |- *.
     simpl in |- *.
     quod idem est.
@@ -1573,11 +1573,11 @@ Proof.
     match k' with | | k'' by IH end per Nat.induction.
     +
       simpl in |- *.
-      leibniz (halving.retraction &n false) in |- *.
+      leibniz (halving.retraction false &n) in |- *.
       quod idem est.
     +
       simpl in |- *.
-      leibniz (halving.retraction (shift_left_nat &n &k'') false) in |- *.
+      leibniz (halving.retraction false (shift_left_nat &n &k'')) in |- *.
       ipso &IH.
 Qed.
 
@@ -1625,23 +1625,23 @@ Qed.
 
 (* bit.parity *)
 Theorem parity
-  : forall (n : BinWithZero) (bit : Bool) .
+  : forall (bit : Bool) (n : BinWithZero) .
       test_bit (append_bit bit n) NatWithZero.Zero = bit.
 Proof.
-  intros n bit.
+  intros bit n.
   simpl test_bit, shift_right in |- *.
   match n with | | p end; match bit with | | end; simpl in |- *; quod idem est.
 Qed.
 
 (* bit.successor *)
 Theorem successor
-  : forall (n : BinWithZero) (bit : Bool) (i : NatWithZero) .
+  : forall (bit : Bool) (n : BinWithZero) (i : NatWithZero) .
       test_bit (append_bit bit n) (NatWithZero.inc i) = test_bit n i.
 Proof.
-  intros n bit i.
+  intros bit n i.
   simpl test_bit in |- *.
   leibniz (shift.right.successor (append_bit &bit &n) &i) in |- *.
-  leibniz (halving.retraction &n &bit) in |- *.
+  leibniz (halving.retraction &bit &n) in |- *.
   quod idem est.
 Qed.
 
