@@ -197,8 +197,8 @@ Definition to_bin := fun (n : BinWithZero) .
 (* [n] with [bit] written after its lowest bit: [2n], or [2n + 1] when [bit]
  * is [true].
  *)
-(* [BinWithZero -> Bool -> BinWithZero] *)
-Definition append_bit := fun (n : BinWithZero) (bit : Bool) .
+(* [Bool -> BinWithZero -> BinWithZero] *)
+Definition append_bit := fun (bit : Bool) (n : BinWithZero) .
   match n with
   | 0 =>
       match bit with
@@ -218,11 +218,11 @@ Definition append_bit := fun (n : BinWithZero) (bit : Bool) .
 Definition induction
   : forall (P : BinWithZero -> Prop) .
       P 0 ->
-      (forall (bit : Bool) (n : BinWithZero) . P n -> P (append_bit n bit)) ->
+      (forall (bit : Bool) (n : BinWithZero) . P n -> P (append_bit bit n)) ->
       forall (n : BinWithZero) . P n
   := fun (P : BinWithZero -> Prop)
          (zero : P 0)
-         (step : forall (bit : Bool) (n : BinWithZero) . P n -> P (append_bit n bit))
+         (step : forall (bit : Bool) (n : BinWithZero) . P n -> P (append_bit bit n))
          (n : BinWithZero) .
        match n with
        | 0   => zero
@@ -254,11 +254,11 @@ Fixpoint and_positive (p : Bin) (q : Bin) : BinWithZero :=
   | Bin.One, Bin.b0 _    => 0
   | Bin.One, Bin.b1 _    => + Bin.One
   | Bin.b0 _, Bin.One    => 0
-  | Bin.b0 p', Bin.b0 q' => append_bit (and_positive p' q') false
-  | Bin.b0 p', Bin.b1 q' => append_bit (and_positive p' q') false
+  | Bin.b0 p', Bin.b0 q' => append_bit false (and_positive p' q')
+  | Bin.b0 p', Bin.b1 q' => append_bit false (and_positive p' q')
   | Bin.b1 _, Bin.One    => + Bin.One
-  | Bin.b1 p', Bin.b0 q' => append_bit (and_positive p' q') false
-  | Bin.b1 p', Bin.b1 q' => append_bit (and_positive p' q') true
+  | Bin.b1 p', Bin.b0 q' => append_bit false (and_positive p' q')
+  | Bin.b1 p', Bin.b1 q' => append_bit true (and_positive p' q')
   end.
 
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
@@ -283,11 +283,11 @@ Fixpoint or_positive (p : Bin) (q : Bin) : BinWithZero :=
   | Bin.One, Bin.b0 q'   => + Bin.b1 q'
   | Bin.One, Bin.b1 q'   => + Bin.b1 q'
   | Bin.b0 p', Bin.One   => + Bin.b1 p'
-  | Bin.b0 p', Bin.b0 q' => append_bit (or_positive p' q') false
-  | Bin.b0 p', Bin.b1 q' => append_bit (or_positive p' q') true
+  | Bin.b0 p', Bin.b0 q' => append_bit false (or_positive p' q')
+  | Bin.b0 p', Bin.b1 q' => append_bit true (or_positive p' q')
   | Bin.b1 p', Bin.One   => + Bin.b1 p'
-  | Bin.b1 p', Bin.b0 q' => append_bit (or_positive p' q') true
-  | Bin.b1 p', Bin.b1 q' => append_bit (or_positive p' q') true
+  | Bin.b1 p', Bin.b0 q' => append_bit true (or_positive p' q')
+  | Bin.b1 p', Bin.b1 q' => append_bit true (or_positive p' q')
   end.
 
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
@@ -312,11 +312,11 @@ Fixpoint xor_positive (p : Bin) (q : Bin) : BinWithZero :=
   | Bin.One, Bin.b0 q'   => + Bin.b1 q'
   | Bin.One, Bin.b1 q'   => + Bin.b0 q'
   | Bin.b0 p', Bin.One   => + Bin.b1 p'
-  | Bin.b0 p', Bin.b0 q' => append_bit (xor_positive p' q') false
-  | Bin.b0 p', Bin.b1 q' => append_bit (xor_positive p' q') true
+  | Bin.b0 p', Bin.b0 q' => append_bit false (xor_positive p' q')
+  | Bin.b0 p', Bin.b1 q' => append_bit true (xor_positive p' q')
   | Bin.b1 p', Bin.One   => + Bin.b0 p'
-  | Bin.b1 p', Bin.b0 q' => append_bit (xor_positive p' q') true
-  | Bin.b1 p', Bin.b1 q' => append_bit (xor_positive p' q') false
+  | Bin.b1 p', Bin.b0 q' => append_bit true (xor_positive p' q')
+  | Bin.b1 p', Bin.b1 q' => append_bit false (xor_positive p' q')
   end.
 
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
@@ -336,8 +336,8 @@ Notation "m ^^ n" := (xor m n) (only parsing)
 (* [BinWithZero -> Nat -> BinWithZero] *)
 Fixpoint shift_left_nat (n : BinWithZero) (k : Nat) : BinWithZero :=
   match k with
-  | Nat.One          => append_bit n false
-  | Nat.Successor k' => append_bit (shift_left_nat n k') false
+  | Nat.One          => append_bit false n
+  | Nat.Successor k' => append_bit false (shift_left_nat n k')
   end.
 
 (* [n] with [k] 0s appended, [n * 2 ^ k]. *)
@@ -379,8 +379,8 @@ Fixpoint from_digits (n : BinWithZero) (d : Numeral.Decimal.Digits)
   : Option BinWithZero :=
   match d with
   | Numeral.Decimal.Digits.End     => Some n
-  | Numeral.Decimal.Digits.Zero d' => from_digits (append_bit n false) d'
-  | Numeral.Decimal.Digits.One d'  => from_digits (append_bit n true) d'
+  | Numeral.Decimal.Digits.Zero d' => from_digits (append_bit false n) d'
+  | Numeral.Decimal.Digits.One d'  => from_digits (append_bit true n) d'
   | _                              => None
   end.
 
@@ -781,7 +781,7 @@ Qed.
 (* conversion.appending *)
 Theorem appending
   : forall (n : BinWithZero) (bit : Bool) .
-      to_nat_with_zero (append_bit n bit)
+      to_nat_with_zero (append_bit bit n)
       = match bit with
         | true  => NatWithZero.inc (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
         | false => (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
@@ -1218,7 +1218,7 @@ Module halving. (* halving *)
 
 (* halving.retraction *)
 Theorem retraction
-  : forall (n : BinWithZero) (bit : Bool) . halve (append_bit n bit) = n.
+  : forall (n : BinWithZero) (bit : Bool) . halve (append_bit bit n) = n.
 Proof.
   intros n bit.
   match n with | | p end; match bit with | | end; simpl in |- *; quod idem est.
@@ -1235,7 +1235,7 @@ Module over. (* appending.distributivity.over *)
 (* appending.distributivity.over.conjunction *)
 Theorem conjunction
   : forall (m : BinWithZero) (n : BinWithZero) (b : Bool) (c : Bool) .
-      append_bit (m && n) (b && c)%bool = append_bit m b && append_bit n c.
+      append_bit (b && c)%bool (m && n) = append_bit b m && append_bit c n.
 Proof.
   intros m n b c.
   match m with | | p end; match n with | | q end; match b with | | end;
@@ -1245,7 +1245,7 @@ Qed.
 (* appending.distributivity.over.disjunction *)
 Theorem disjunction
   : forall (m : BinWithZero) (n : BinWithZero) (b : Bool) (c : Bool) .
-      append_bit (m || n) (b || c)%bool = append_bit m b || append_bit n c.
+      append_bit (b || c)%bool (m || n) = append_bit b m || append_bit c n.
 Proof.
   intros m n b c.
   match m with | | p end; match n with | | q end; match b with | | end;
@@ -1255,7 +1255,7 @@ Qed.
 (* appending.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (m : BinWithZero) (n : BinWithZero) (b : Bool) (c : Bool) .
-      append_bit (m ^^ n) (b ^^ c)%bool = append_bit m b ^^ append_bit n c.
+      append_bit (b ^^ c)%bool (m ^^ n) = append_bit b m ^^ append_bit c n.
 Proof.
   intros m n b c.
   match m with | | p end; match n with | | q end; match b with | | end;
@@ -1296,7 +1296,7 @@ Proof.
     intro n.
     match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof a := conjunction.annihilation (append_bit &m' &b).
+      let proof a := conjunction.annihilation (append_bit &b &m').
       match &a with | l r end.
       leibniz &r, &l in |- *.
       quod idem est.
@@ -1322,7 +1322,7 @@ Proof.
     intros n o.
     match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof a := conjunction.annihilation (append_bit &m' &b).
+      let proof a := conjunction.annihilation (append_bit &b &m').
       match &a with | l r end.
       leibniz &r in |- *.
       simpl in |- *.
@@ -1331,9 +1331,9 @@ Proof.
     +
       match o with | | d o' by _ end per BinWithZero.induction.
       *
-        let proof a := conjunction.annihilation (append_bit &m' &b && append_bit &n' &c).
-        let proof a' := conjunction.annihilation (append_bit &n' &c).
-        let proof a'' := conjunction.annihilation (append_bit &m' &b).
+        let proof a := conjunction.annihilation (append_bit &b &m' && append_bit &c &n').
+        let proof a' := conjunction.annihilation (append_bit &c &n').
+        let proof a'' := conjunction.annihilation (append_bit &b &m').
         match &a with | l r end.
         match &a' with | l' r' end.
         match &a'' with | l'' r'' end.
@@ -1394,7 +1394,7 @@ Proof.
     intro n.
     match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := disjunction.identity (append_bit &m' &b).
+      let proof i := disjunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r, &l in |- *.
       quod idem est.
@@ -1420,7 +1420,7 @@ Proof.
     intros n o.
     match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := disjunction.identity (append_bit &m' &b).
+      let proof i := disjunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r in |- *.
       simpl in |- *.
@@ -1428,8 +1428,8 @@ Proof.
     +
       match o with | | d o' by _ end per BinWithZero.induction.
       *
-        let proof i := disjunction.identity (append_bit &m' &b || append_bit &n' &c).
-        let proof i' := disjunction.identity (append_bit &n' &c).
+        let proof i := disjunction.identity (append_bit &b &m' || append_bit &c &n').
+        let proof i' := disjunction.identity (append_bit &c &n').
         match &i with | l r end.
         match &i' with | l' r' end.
         leibniz &r, &r' in |- *.
@@ -1489,7 +1489,7 @@ Proof.
     intro n.
     match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := sejunction.identity (append_bit &m' &b).
+      let proof i := sejunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r, &l in |- *.
       quod idem est.
@@ -1515,7 +1515,7 @@ Proof.
     intros n o.
     match n with | | c n' by _ end per BinWithZero.induction.
     +
-      let proof i := sejunction.identity (append_bit &m' &b).
+      let proof i := sejunction.identity (append_bit &b &m').
       match &i with | l r end.
       leibniz &r in |- *.
       simpl in |- *.
@@ -1523,8 +1523,8 @@ Proof.
     +
       match o with | | d o' by _ end per BinWithZero.induction.
       *
-        let proof i := sejunction.identity (append_bit &m' &b ^^ append_bit &n' &c).
-        let proof i' := sejunction.identity (append_bit &n' &c).
+        let proof i := sejunction.identity (append_bit &b &m' ^^ append_bit &c &n').
+        let proof i' := sejunction.identity (append_bit &c &n').
         match &i with | l r end.
         match &i' with | l' r' end.
         leibniz &r, &r' in |- *.
@@ -1626,7 +1626,7 @@ Qed.
 (* bit.parity *)
 Theorem parity
   : forall (n : BinWithZero) (bit : Bool) .
-      test_bit (append_bit n bit) NatWithZero.Zero = bit.
+      test_bit (append_bit bit n) NatWithZero.Zero = bit.
 Proof.
   intros n bit.
   simpl test_bit, shift_right in |- *.
@@ -1636,11 +1636,11 @@ Qed.
 (* bit.successor *)
 Theorem successor
   : forall (n : BinWithZero) (bit : Bool) (i : NatWithZero) .
-      test_bit (append_bit n bit) (NatWithZero.inc i) = test_bit n i.
+      test_bit (append_bit bit n) (NatWithZero.inc i) = test_bit n i.
 Proof.
   intros n bit i.
   simpl test_bit in |- *.
-  leibniz (shift.right.successor (append_bit &n &bit) &i) in |- *.
+  leibniz (shift.right.successor (append_bit &bit &n) &i) in |- *.
   leibniz (halving.retraction &n &bit) in |- *.
   quod idem est.
 Qed.

@@ -73,8 +73,8 @@ Notation "++ b" := (inc b) (only parsing)
   : jwa_bin_scope.
 
 (* [b] with [bit] written after its lowest bit: [2b], or [2b + 1] when [bit]
- * is [true]. [BinWithZero] carries the same operation on its own type, with
- * its two arguments the other way round.
+ * is [true]. [BinWithZero] carries the same operation on its own type, and
+ * takes its arguments in the same order.
  *)
 (* [Bool -> Bin -> Bin] *)
 Definition append_bit := fun (bit : Bool) (b : Bin) .
