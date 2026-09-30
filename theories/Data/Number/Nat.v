@@ -70,7 +70,7 @@ Fixpoint mul (m : Nat) (n : Nat) : Nat :=
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End Nat] a client writes [(m + n)%nat]. [only parsing]
+ * module; after [End Nat] a client writes [(m + n)%n]. [only parsing]
  * keeps goals printing the operations by name.
  *)
 Notation "m + n" := (add m n) (only parsing)
@@ -1339,18 +1339,18 @@ End Nat. (* Nat *)
 Abbreviation Nat := Nat.T.
 
 (* Makes the notations declared in [Module Nat] usable in every file that
- * imports this one, as [(m + n)%nat] or under an opened [jwa_nat_scope].
+ * imports this one, as [(m + n)%n] or under an opened [jwa_nat_scope].
  * Only the notations are exported: [add] and the laws still need the
  * [Nat.] prefix, and the local aliases [1] and [S] stay inside the module.
  *)
 Export (notations) Nat.
 
 Instance Nat_less_than_well_founded
-  : WellFounded (<)%nat :=
+  : WellFounded (<)%n :=
   {| accessibility := Nat.order.strict.wellfoundedness |}.
 
 Instance Nat_comparable
-  : Comparable Nat.compare (<)%nat :=
+  : Comparable Nat.compare (<)%n :=
   {| Comparable.transitivity  := @Nat.order.strict.transitivity
    ; Comparable.specification := Nat.comparison.specification
    ; Comparable.antisymmetry  := Nat.comparison.antisymmetry |}.

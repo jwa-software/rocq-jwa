@@ -710,14 +710,14 @@ Proof.
     +
       intro h.
       simpl in |- *.
-      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%nat := disjoin _, &h.
+      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%n := disjoin _, &h.
       leibniz (Nat.subtraction.truncation &le) in |- *.
       simpl in |- *.
       quod idem est.
     +
       intro h.
       simpl in |- *.
-      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%nat := disjoin &h, _.
+      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%n := disjoin &h, _.
       leibniz (Nat.subtraction.truncation &le) in |- *.
       simpl in |- *.
       quod idem est.

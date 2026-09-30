@@ -2876,7 +2876,7 @@ Proof.
                       (Nat.Successor p') p' (Nat.Successor Nat.One))
           in |- *.
         lemma facto
-          : (&p' + Nat.Successor Nat.One)%nat
+          : (&p' + Nat.Successor Nat.One)%n
             * Nat.Successor &p'
             = Nat.Successor &p'
               * Nat.Successor (Nat.Successor &p').

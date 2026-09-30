@@ -298,8 +298,8 @@ Definition saturating_sub := fun (a : Bin) (b : Bin) .
 Fixpoint to_nat (b : Bin) : Nat :=
   match b with
   | One   => Nat.One
-  | b0 b' => (to_nat b' + to_nat b')%nat
-  | b1 b' => Nat.Successor (to_nat b' + to_nat b')%nat
+  | b0 b' => (to_nat b' + to_nat b')%n
+  | b1 b' => Nat.Successor (to_nat b' + to_nat b')%n
   end.
 
 (* [Nat -> Bin] *)
@@ -349,7 +349,7 @@ Qed.
 
 (* conversion.doubling *)
 Lemma doubling
-  : forall (n : Nat) . from_nat (n + n)%nat = b0 (from_nat n).
+  : forall (n : Nat) . from_nat (n + n)%n = b0 (from_nat n).
 Proof.
   intro n.
   match n with | | n' by IH end per Nat.induction.
@@ -392,8 +392,8 @@ Lemma carry
   : forall (a : Bin) (b : Bin) (carry : Bool) .
       to_nat (add_with_carry carry a b)
       = match carry with
-        | true  => Nat.Successor (to_nat a + to_nat b)%nat
-        | false => (to_nat a + to_nat b)%nat
+        | true  => Nat.Successor (to_nat a + to_nat b)%n
+        | false => (to_nat a + to_nat b)%n
         end.
 Proof.
   intro a.
@@ -442,13 +442,13 @@ Proof.
       *
         simpl in |- *.
         leibniz (conversion.successor &a') in |- *.
-        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%nat Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%n Nat.One) in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a') (to_nat &a')) in |- *.
         quod idem est.
       *
         simpl in |- *.
-        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%nat Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%n Nat.One) in |- *.
         simpl in |- *.
         quod idem est.
     +
@@ -456,7 +456,7 @@ Proof.
       *
         simpl in |- *.
         let proof e
-          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%nat
+          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
           := &IH &b' false.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
@@ -465,7 +465,7 @@ Proof.
       *
         simpl in |- *.
         let proof e
-          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%nat
+          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
           := &IH &b' false.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
@@ -477,25 +477,25 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry true &a' &b')
-            = Nat.Successor (to_nat &a' + to_nat &b')%nat
+            = Nat.Successor (to_nat &a' + to_nat &b')%n
           := &IH &b' true.
         leibniz &e in |- *.
         simpl in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%nat
-                                              (to_nat &a' + to_nat &b')%nat) in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%nat
-                                              (to_nat &b' + to_nat &b')%nat) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
+                                              (to_nat &a' + to_nat &b')%n) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%n
+                                              (to_nat &b' + to_nat &b')%n) in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
         quod idem est.
       *
         simpl in |- *.
         let proof e
-          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%nat
+          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
           := &IH &b' false.
         leibniz &e in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%nat
-                                              (to_nat &b' + to_nat &b')%nat) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%n
+                                              (to_nat &b' + to_nat &b')%n) in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
         quod idem est.
@@ -507,14 +507,14 @@ Proof.
       *
         simpl in |- *.
         leibniz (conversion.successor &a') in |- *.
-        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%nat Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%n Nat.One) in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a') (to_nat &a')) in |- *.
         quod idem est.
       *
         simpl in |- *.
         leibniz (conversion.successor &a') in |- *.
-        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%nat Nat.One) in |- *.
+        leibniz (Nat.addition.commutativity (to_nat &a' + to_nat &a')%n Nat.One) in |- *.
         simpl in |- *.
         leibniz (Nat.addition.right.successor (to_nat &a') (to_nat &a')) in |- *.
         quod idem est.
@@ -524,19 +524,19 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry true &a' &b')
-            = Nat.Successor (to_nat &a' + to_nat &b')%nat
+            = Nat.Successor (to_nat &a' + to_nat &b')%n
           := &IH &b' true.
         leibniz &e in |- *.
         simpl in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%nat
-                                              (to_nat &a' + to_nat &b')%nat) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
+                                              (to_nat &a' + to_nat &b')%n) in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
         quod idem est.
       *
         simpl in |- *.
         let proof e
-          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%nat
+          : to_nat (add_with_carry false &a' &b') = (to_nat &a' + to_nat &b')%n
           := &IH &b' false.
         leibniz &e in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
@@ -548,14 +548,14 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry true &a' &b')
-            = Nat.Successor (to_nat &a' + to_nat &b')%nat
+            = Nat.Successor (to_nat &a' + to_nat &b')%n
           := &IH &b' true.
         leibniz &e in |- *.
         simpl in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%nat
-                                              (to_nat &a' + to_nat &b')%nat) in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%nat
-                                              (to_nat &b' + to_nat &b')%nat) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
+                                              (to_nat &a' + to_nat &b')%n) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%n
+                                              (to_nat &b' + to_nat &b')%n) in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
         quod idem est.
@@ -563,14 +563,14 @@ Proof.
         simpl in |- *.
         let proof e
           : to_nat (add_with_carry true &a' &b')
-            = Nat.Successor (to_nat &a' + to_nat &b')%nat
+            = Nat.Successor (to_nat &a' + to_nat &b')%n
           := &IH &b' true.
         leibniz &e in |- *.
         simpl in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%nat
-                                              (to_nat &a' + to_nat &b')%nat) in |- *.
-        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%nat
-                                              (to_nat &b' + to_nat &b')%nat) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &b')%n
+                                              (to_nat &a' + to_nat &b')%n) in |- *.
+        leibniz (Nat.addition.right.successor (to_nat &a' + to_nat &a')%n
+                                              (to_nat &b' + to_nat &b')%n) in |- *.
         leibniz (Nat.addition.interchange (to_nat &a') (to_nat &a') (to_nat &b') (to_nat &b'))
           in |- *.
         quod idem est.
@@ -578,7 +578,7 @@ Qed.
 
 (* conversion.addition *)
 Theorem addition
-  : forall (a : Bin) (b : Bin) . to_nat (a + b) = (to_nat a + to_nat b)%nat.
+  : forall (a : Bin) (b : Bin) . to_nat (a + b) = (to_nat a + to_nat b)%n.
 Proof.
   intros a b.
   simpl add in |- *.
@@ -587,7 +587,7 @@ Qed.
 
 (* conversion.multiplication *)
 Theorem multiplication
-  : forall (a : Bin) (b : Bin) . to_nat (a * b) = (to_nat a * to_nat b)%nat.
+  : forall (a : Bin) (b : Bin) . to_nat (a * b) = (to_nat a * to_nat b)%n.
 Proof.
   intros a b.
   match a with | | a' by IH | a' by IH end per Bin.induction.
@@ -612,7 +612,7 @@ Qed.
 
 (* conversion.power *)
 Theorem power
-  : forall (a : Bin) (n : Bin) . to_nat (a ^ n) = (to_nat a ^ to_nat n)%nat.
+  : forall (a : Bin) (n : Bin) . to_nat (a ^ n) = (to_nat a ^ to_nat n)%n.
 Proof.
   intros a n.
   match n with | | n' by IH | n' by IH end per Bin.induction.
@@ -646,14 +646,14 @@ Module difference. (* conversion.difference *)
 Lemma doubling
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Lt   => (m < n)%nat
+      | Lt   => (m < n)%n
       | Eq   => m = n
-      | Gt p => (n + to_nat p)%nat = m
+      | Gt p => (n + to_nat p)%n = m
       end ->
       match append_zero_difference d with
-      | Lt   => (m + m < n + n)%nat
-      | Eq   => (m + m)%nat = (n + n)%nat
-      | Gt p => (n + n + to_nat p)%nat = (m + m)%nat
+      | Lt   => (m + m < n + n)%n
+      | Eq   => (m + m)%n = (n + n)%n
+      | Gt p => (n + n + to_nat p)%n = (m + m)%n
       end.
 Proof.
   intros d m n.
@@ -663,7 +663,7 @@ Proof.
     simpl in |- *.
     simpl Nat.LessThan in &h |- *.
     match &h with | k e end.
-    exists (&k + &k)%nat.
+    exists (&k + &k)%n.
     leibniz <- &e in |- *.
     leibniz (Nat.addition.interchange &m &k &m &k) in |- *.
     quod idem est.
@@ -686,14 +686,14 @@ Module doubling. (* conversion.difference.doubling *)
 Lemma successor
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Lt   => (m < n)%nat
+      | Lt   => (m < n)%n
       | Eq   => m = n
-      | Gt p => (n + to_nat p)%nat = m
+      | Gt p => (n + to_nat p)%n = m
       end ->
       match append_one_difference d with
-      | Lt   => (Nat.Successor (m + m) < n + n)%nat
-      | Eq   => Nat.Successor (m + m)%nat = (n + n)%nat
-      | Gt p => (n + n + to_nat p)%nat = Nat.Successor (m + m)%nat
+      | Lt   => (Nat.Successor (m + m) < n + n)%n
+      | Eq   => Nat.Successor (m + m)%n = (n + n)%n
+      | Gt p => (n + n + to_nat p)%n = Nat.Successor (m + m)%n
       end.
 Proof.
   intros d m n.
@@ -710,28 +710,28 @@ Proof.
       leibniz <- &e in |- *.
       leibniz (Nat.addition.interchange &m Nat.One &m Nat.One) in |- *.
       simpl in |- *.
-      leibniz (Nat.addition.right.successor (&m + &m)%nat Nat.One) in |- *.
+      leibniz (Nat.addition.right.successor (&m + &m)%n Nat.One) in |- *.
       quod idem est.
     +
-      exists (&k' + Nat.Successor &k')%nat.
+      exists (&k' + Nat.Successor &k')%n.
       simpl in |- *.
       leibniz <- &e in |- *.
       leibniz (Nat.addition.interchange &m (Nat.Successor &k') &m (Nat.Successor &k')) in |- *.
       simpl in |- *.
-      leibniz (Nat.addition.right.successor (&m + &m)%nat (&k' + Nat.Successor &k')%nat)
+      leibniz (Nat.addition.right.successor (&m + &m)%n (&k' + Nat.Successor &k')%n)
         in |- *.
       quod idem est.
   -
     intro h.
     simpl in |- *.
     leibniz &h in |- *.
-    leibniz (Nat.addition.commutativity (&n + &n)%nat Nat.One) in |- *.
+    leibniz (Nat.addition.commutativity (&n + &n)%n Nat.One) in |- *.
     simpl in |- *.
     quod idem est.
   -
     intro h.
     simpl in |- *.
-    leibniz (Nat.addition.right.successor (&n + &n)%nat (to_nat &p + to_nat &p)%nat) in |- *.
+    leibniz (Nat.addition.right.successor (&n + &n)%n (to_nat &p + to_nat &p)%n) in |- *.
     leibniz <- &h in |- *.
     leibniz (Nat.addition.interchange &n (to_nat &p) &n (to_nat &p)) in |- *.
     quod idem est.
@@ -743,15 +743,15 @@ End doubling. (* conversion.difference.doubling *)
 Lemma cancellation
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Lt   => (Nat.Successor m < Nat.Successor n)%nat
+      | Lt   => (Nat.Successor m < Nat.Successor n)%n
       | Eq   => Nat.Successor m = Nat.Successor n
-      | Gt p => (Nat.Successor n + to_nat p)%nat = Nat.Successor m
+      | Gt p => (Nat.Successor n + to_nat p)%n = Nat.Successor m
       end
       <->
       match d with
-      | Lt   => (m < n)%nat
+      | Lt   => (m < n)%n
       | Eq   => m = n
-      | Gt p => (n + to_nat p)%nat = m
+      | Gt p => (n + to_nat p)%n = m
       end.
 Proof.
   intros d m n.
@@ -790,15 +790,15 @@ Lemma borrow
       match borrow with
       | true  =>
           match difference_with_borrow true a b with
-          | Lt   => (to_nat a < Nat.Successor (to_nat b))%nat
+          | Lt   => (to_nat a < Nat.Successor (to_nat b))%n
           | Eq   => to_nat a = Nat.Successor (to_nat b)
-          | Gt p => (Nat.Successor (to_nat b) + to_nat p)%nat = to_nat a
+          | Gt p => (Nat.Successor (to_nat b) + to_nat p)%n = to_nat a
           end
       | false =>
           match difference_with_borrow false a b with
-          | Lt   => (to_nat a < to_nat b)%nat
+          | Lt   => (to_nat a < to_nat b)%n
           | Eq   => to_nat a = to_nat b
-          | Gt p => (to_nat b + to_nat p)%nat = to_nat a
+          | Gt p => (to_nat b + to_nat p)%n = to_nat a
           end
       end.
 Proof.
@@ -823,7 +823,7 @@ Proof.
       *
         simpl in |- *.
         simpl Nat.LessThan in |- *.
-        exists (to_nat &b' + to_nat &b')%nat.
+        exists (to_nat &b' + to_nat &b')%n.
         simpl in |- *.
         quod idem est.
       *
@@ -834,7 +834,7 @@ Proof.
           exists Nat.One.
           quod idem est.
         --
-          exists (&k + Nat.Successor &k)%nat.
+          exists (&k + Nat.Successor &k)%n.
           simpl in |- *.
           quod idem est.
     +
@@ -842,13 +842,13 @@ Proof.
       *
         simpl in |- *.
         simpl Nat.LessThan in |- *.
-        exists (Nat.Successor (to_nat &b' + to_nat &b')%nat).
+        exists (Nat.Successor (to_nat &b' + to_nat &b')%n).
         simpl in |- *.
         quod idem est.
       *
         simpl in |- *.
         simpl Nat.LessThan in |- *.
-        exists (to_nat &b' + to_nat &b')%nat.
+        exists (to_nat &b' + to_nat &b')%n.
         simpl in |- *.
         quod idem est.
   -
@@ -866,7 +866,7 @@ Proof.
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_one_difference (difference_with_borrow false &a' One))
-                   (to_nat &a' + to_nat &a')%nat Nat.One),
+                   (to_nat &a' + to_nat &a')%n Nat.One),
                 &h).
     +
       match borrow with | | end.
@@ -878,8 +878,8 @@ Proof.
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_one_difference (difference_with_borrow true &a' &b'))
-                   (to_nat &a' + to_nat &a')%nat
-                   (Nat.Successor (to_nat &b' + to_nat &b')%nat)),
+                   (to_nat &a' + to_nat &a')%n
+                   (Nat.Successor (to_nat &b' + to_nat &b')%n)),
                 &h).
       *
         ipso (conversion.difference.doubling
@@ -901,8 +901,8 @@ Proof.
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_one_difference (difference_with_borrow true &a' &b'))
-                   (to_nat &a' + to_nat &a')%nat
-                   (Nat.Successor (to_nat &b' + to_nat &b')%nat)),
+                   (to_nat &a' + to_nat &a')%n
+                   (Nat.Successor (to_nat &b' + to_nat &b')%n)),
                 &h).
   -
     intros b borrow.
@@ -924,7 +924,7 @@ Proof.
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_zero_difference (difference_with_borrow false &a' &b'))
-                   (to_nat &a' + to_nat &a')%nat (to_nat &b' + to_nat &b')%nat),
+                   (to_nat &a' + to_nat &a')%n (to_nat &b' + to_nat &b')%n),
                 &h).
       *
         ipso (conversion.difference.doubling.successor
@@ -945,7 +945,7 @@ Proof.
         ipso (modus aequans
                 (conversion.difference.cancellation
                    (append_zero_difference (difference_with_borrow false &a' &b'))
-                   (to_nat &a' + to_nat &a')%nat (to_nat &b' + to_nat &b')%nat),
+                   (to_nat &a' + to_nat &a')%n (to_nat &b' + to_nat &b')%n),
                 &h).
 Qed.
 
@@ -954,9 +954,9 @@ Qed.
 Lemma difference
   : forall (a : Bin) (b : Bin) .
       match Bin.diff a b with
-      | Lt   => (to_nat a < to_nat b)%nat
+      | Lt   => (to_nat a < to_nat b)%n
       | Eq   => to_nat a = to_nat b
-      | Gt p => (to_nat b + to_nat p)%nat = to_nat a
+      | Gt p => (to_nat b + to_nat p)%n = to_nat a
       end.
 Proof.
   intros a b.
@@ -981,7 +981,7 @@ Proof.
     ipso (symm (Nat.comparison.equality.backward.specification &h)).
   -
     intro h.
-    lemma below : (to_nat &b < to_nat &a)%nat.
+    lemma below : (to_nat &b < to_nat &a)%n.
     {
       simpl Nat.LessThan in |- *.
       exists (to_nat &p).
@@ -1006,13 +1006,13 @@ Proof.
   -
     intro h.
     simpl in |- *.
-    let proof le : (to_nat &a <= to_nat &b)%nat := disjoin _, &h.
+    let proof le : (to_nat &a <= to_nat &b)%n := disjoin _, &h.
     leibniz (Nat.subtraction.truncation &le) in |- *.
     quod idem est.
   -
     intro h.
     simpl in |- *.
-    let proof le : (to_nat &a <= to_nat &b)%nat := disjoin &h, _.
+    let proof le : (to_nat &a <= to_nat &b)%n := disjoin &h, _.
     leibniz (Nat.subtraction.truncation &le) in |- *.
     quod idem est.
   -
@@ -1064,7 +1064,7 @@ Qed.
 
 (* conversion.order *)
 Theorem order
-  : forall (a : Bin) (b : Bin) . a < b <-> (to_nat a < to_nat b)%nat.
+  : forall (a : Bin) (b : Bin) . a < b <-> (to_nat a < to_nat b)%n.
 Proof.
   intros a b.
   divide et impera.

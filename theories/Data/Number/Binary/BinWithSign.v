@@ -516,7 +516,7 @@ Qed.
 (* conversion.order *)
 Theorem order
   : forall (x : BinWithSign) (y : BinWithSign) .
-      x < y <-> (to_integer x < to_integer y)%integer.
+      x < y <-> (to_integer x < to_integer y)%z.
 Proof.
   intros x y.
   divide et impera.

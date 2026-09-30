@@ -15,7 +15,7 @@ Definition data_number_all_delivers
 
 Definition data_number_all_delivers_operations
   : Integer
-  := (Integer.Zero + Integer.Negative Nat.One * Integer.Positive Nat.One)%integer.
+  := (Integer.Zero + Integer.Negative Nat.One * Integer.Positive Nat.One)%z.
 
 Definition data_number_all_delivers_well_founded
   : forall (m : Nat) (n : NatWithZero) (x : Integer) .
@@ -502,7 +502,7 @@ Definition data_number_all_delivers_integer_narrowing_nat_with_zero_specificatio
   := Integer.narrowing.nat_with_zero.specification.
 
 Definition data_number_all_delivers_integer_narrowing_nat_with_zero_failure
-  : forall (x : Integer) . Integer.to_nat_with_zero x = None <-> (x < Integer.Zero)%integer
+  : forall (x : Integer) . Integer.to_nat_with_zero x = None <-> (x < Integer.Zero)%z
   := Integer.narrowing.nat_with_zero.failure.
 
 Definition data_number_all_delivers_integer_narrowing_nat_retraction
@@ -514,7 +514,7 @@ Definition data_number_all_delivers_integer_narrowing_nat_specification
   := Integer.narrowing.nat.specification.
 
 Definition data_number_all_delivers_integer_narrowing_nat_failure
-  : forall (x : Integer) . Integer.to_nat x = None <-> (x <= Integer.Zero)%integer
+  : forall (x : Integer) . Integer.to_nat x = None <-> (x <= Integer.Zero)%z
   := Integer.narrowing.nat.failure.
 
 Definition data_number_all_delivers_rational_narrowing_integer_retraction
@@ -542,7 +542,7 @@ Definition data_number_all_delivers_rational_narrowing_nat_with_zero_failure
   : forall (x : Rational) .
       Rational.to_nat_with_zero x = None
       <-> ~ (Rational.denominator x = Nat.One)
-          \/ (Rational.numerator x < Integer.Zero)%integer
+          \/ (Rational.numerator x < Integer.Zero)%z
   := Rational.narrowing.nat_with_zero.failure.
 
 Definition data_number_all_delivers_rational_narrowing_nat_retraction
@@ -557,7 +557,7 @@ Definition data_number_all_delivers_rational_narrowing_nat_failure
   : forall (x : Rational) .
       Rational.to_nat x = None
       <-> ~ (Rational.denominator x = Nat.One)
-          \/ (Rational.numerator x <= Integer.Zero)%integer
+          \/ (Rational.numerator x <= Integer.Zero)%z
   := Rational.narrowing.nat.failure.
 
 Theorem data_number_all_delivers_unwrap_of_a_narrowing
@@ -628,17 +628,17 @@ Definition data_number_all_delivers_bin_successor
 
 Definition data_number_all_delivers_bin_addition
   : forall (a : Bin) (b : Bin) .
-      Bin.to_nat (a + b)%bin = (Bin.to_nat a + Bin.to_nat b)%nat
+      Bin.to_nat (a + b)%bin = (Bin.to_nat a + Bin.to_nat b)%n
   := Bin.conversion.addition.
 
 Definition data_number_all_delivers_bin_multiplication
   : forall (a : Bin) (b : Bin) .
-      Bin.to_nat (a * b)%bin = (Bin.to_nat a * Bin.to_nat b)%nat
+      Bin.to_nat (a * b)%bin = (Bin.to_nat a * Bin.to_nat b)%n
   := Bin.conversion.multiplication.
 
 Definition data_number_all_delivers_bin_power
   : forall (a : Bin) (n : Bin) .
-      Bin.to_nat (a ^ n)%bin = (Bin.to_nat a ^ Bin.to_nat n)%nat
+      Bin.to_nat (a ^ n)%bin = (Bin.to_nat a ^ Bin.to_nat n)%n
   := Bin.conversion.power.
 
 Definition data_number_all_delivers_bin_comparison
@@ -746,7 +746,7 @@ Definition data_number_all_delivers_bin_addition_commutativity
 
 Definition data_number_all_delivers_bin_order
   : forall (a : Bin) (b : Bin) .
-      (a < b)%bin <-> (Bin.to_nat a < Bin.to_nat b)%nat
+      (a < b)%bin <-> (Bin.to_nat a < Bin.to_nat b)%n
   := Bin.conversion.order.
 
 Definition data_number_all_delivers_bin_well_founded
@@ -811,7 +811,7 @@ Definition data_number_all_delivers_bin_with_sign
 Definition data_number_all_delivers_bin_with_sign_addition
   : forall (x : BinWithSign) (y : BinWithSign) .
       BinWithSign.to_integer (x + y)%b
-      = (BinWithSign.to_integer x + BinWithSign.to_integer y)%integer
+      = (BinWithSign.to_integer x + BinWithSign.to_integer y)%z
   := BinWithSign.conversion.addition.
 
 Definition data_number_all_delivers_bin_with_sign_difference
@@ -822,7 +822,7 @@ Definition data_number_all_delivers_bin_with_sign_difference
 
 Definition data_number_all_delivers_bin_with_sign_order
   : forall (x : BinWithSign) (y : BinWithSign) .
-      (x < y)%b <-> (BinWithSign.to_integer x < BinWithSign.to_integer y)%integer
+      (x < y)%b <-> (BinWithSign.to_integer x < BinWithSign.to_integer y)%z
   := BinWithSign.conversion.order.
 
 Definition data_number_all_delivers_bin_with_sign_associativity

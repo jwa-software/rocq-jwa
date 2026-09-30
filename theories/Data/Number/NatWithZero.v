@@ -61,7 +61,7 @@ Definition add := fun (m : NatWithZero) (n : NatWithZero) .
   | + p =>
       match n with
       | 0   => + p
-      | + q => + (p + q)%nat
+      | + q => + (p + q)%n
       end
   end.
 
@@ -72,7 +72,7 @@ Definition mul := fun (m : NatWithZero) (n : NatWithZero) .
   | + p =>
       match n with
       | 0   => 0
-      | + q => + (p * q)%nat
+      | + q => + (p * q)%n
       end
   end.
 
@@ -104,7 +104,7 @@ Definition power := fun (m : NatWithZero) (n : NatWithZero) .
   | + q =>
       match m with
       | 0   => 0
-      | + p => + (p ^ q)%nat
+      | + p => + (p ^ q)%n
       end
   end.
 
@@ -284,7 +284,7 @@ Module order. (* positive.order *)
 (* positive.order.embedding *)
 Lemma embedding
   : forall (m : Nat) (n : Nat) .
-      (+ m) < + n <-> (m < n)%nat.
+      (+ m) < + n <-> (m < n)%n.
 Proof.
   intros m n.
   divide et impera.
@@ -293,11 +293,11 @@ Proof.
     match h with | k e end.
     simpl in e.
     let proof e' := positive.injectivity e.
-    simpl ( _ < _ )%nat in |- *.
+    simpl ( _ < _ )%n in |- *.
     exists &k.
     ipso &e'.
   - intro h.
-    simpl ( _ < _ )%nat in h.
+    simpl ( _ < _ )%n in h.
     match h with | k e end.
     simpl ( _ < _ ) in |- *.
     exists k.
@@ -515,7 +515,7 @@ Proof.
     exists k.
     quod idem est.
   - simpl in |- *.
-    exists (n' + k)%nat.
+    exists (n' + k)%n.
     quod idem est.
 Qed.
 
@@ -719,7 +719,7 @@ Proof.
   match h with | d e end.
   symm in e.
   simpl ( _ < _ ) in |- *.
-  exists (k * d)%nat.
+  exists (k * d)%n.
   match m with
   |
   | m'
@@ -804,7 +804,7 @@ Proof.
       : (+ &p) < (+ Nat.Successor &k') * (+ &p).
       {
         simpl ( _ < _ ) in |- *.
-        exists (k' * p)%nat.
+        exists (k' * p)%n.
         simpl in |- *.
         quod idem est.
       }
@@ -876,7 +876,7 @@ Proof.
       quod idem est.
     * simpl in |- *.
       leibniz
-        (Nat.multiplication.commutativity (m' ^ a')%nat Nat.One) in |- *.
+        (Nat.multiplication.commutativity (m' ^ a')%n Nat.One) in |- *.
       simpl in |- *.
       quod idem est.
   - match m with | | m' end.
@@ -991,7 +991,7 @@ Proof.
   match h1 with | k1 e1 end.
   match h2 with | k2 e2 end.
   simpl ( _ < _ ) in |- *.
-  exists (k1 + k2)%nat.
+  exists (k1 + k2)%n.
   symm in e1, e2.
   leibniz e2, e1 in |- *.
   leibniz (addition.associativity l (+ k1) (+ k2)) in |- *.
@@ -2024,7 +2024,7 @@ Qed.
 (* division.invariance *)
 Theorem invariance
   : forall (n : NatWithZero) (d : Nat) (k : Nat) .
-      (((+ k) * n) /. (k * d)%nat) = n /. d.
+      (((+ k) * n) /. (k * d)%n) = n /. d.
 Proof.
   intros n d k.
 
@@ -2034,8 +2034,8 @@ Proof.
     := division.remainder.boundedness n d.
 
   lemma witness
-  : (((n /. d) * (+ (k * d)%nat)) + ((+ k) * (n %. d)) = (+ k) * n)
-  /\ ((+ k) * (n %. d)) < (+ (k * d)%nat).
+  : (((n /. d) * (+ (k * d)%n)) + ((+ k) * (n %. d)) = (+ k) * n)
+  /\ ((+ k) * (n %. d)) < (+ (k * d)%n).
   {
     divide et impera.
     -
@@ -2070,7 +2070,7 @@ Proof.
 
   match (division.uniqueness
           ((+ k) * n)
-          (k * d)%nat
+          (k * d)%n
           (n /. d)
           ((+ k) * (n %. d))
           witness)
@@ -2171,7 +2171,7 @@ Module modulo. (* modulo *)
 (* modulo.homogeneity *)
 Theorem homogeneity
   : forall (n : NatWithZero) (d : Nat) (k : Nat) .
-      (((+ k) * n) %. (k * d)%nat) = (+ k) * (n %. d).
+      (((+ k) * n) %. (k * d)%n) = (+ k) * (n %. d).
 Proof.
   intros n d k.
 
@@ -2181,8 +2181,8 @@ Proof.
     := division.remainder.boundedness n d.
 
   lemma witness
-  : (((n /. d) * (+ (k * d)%nat)) + ((+ k) * (n %. d)) = (+ k) * n)
-  /\ ((+ k) * (n %. d)) < (+ (k * d)%nat).
+  : (((n /. d) * (+ (k * d)%n)) + ((+ k) * (n %. d)) = (+ k) * n)
+  /\ ((+ k) * (n %. d)) < (+ (k * d)%n).
   {
     divide et impera.
     - lemma facto
@@ -2212,7 +2212,7 @@ Proof.
 
   match (division.uniqueness
           ((+ k) * n)
-          (k * d)%nat
+          (k * d)%n
           (n /. d)
           ((+ k) * (n %. d))
           witness)
@@ -2343,8 +2343,8 @@ Module nat. (* euclid.nat *)
 
 (* euclid.nat.well_founded *)
 Instance well_founded
-  : WellFounded (Induced (<)%nat (@Product.second NatWithZero Nat)) :=
-  WellFounded.induced (<)%nat (@Product.second NatWithZero Nat)
+  : WellFounded (Induced (<)%n (@Product.second NatWithZero Nat)) :=
+  WellFounded.induced (<)%n (@Product.second NatWithZero Nat)
     Nat_less_than_well_founded.
 
 (* The inner [return] carries the bound rather than an equation, so the
@@ -2352,25 +2352,25 @@ Instance well_founded
  *)
 (* [forall (p : Product NatWithZero Nat) .
  *    (forall (s : Product NatWithZero Nat) .
- *       Induced (<)%nat (@Product.second NatWithZero Nat) s p -> Nat) ->
+ *       Induced (<)%n (@Product.second NatWithZero Nat) s p -> Nat) ->
  *    Nat]
  *)
 (* euclid.nat.step *)
 Definition step
   : Descent.Step
-      (Induced (<)%nat (@Product.second NatWithZero Nat))
+      (Induced (<)%n (@Product.second NatWithZero Nat))
       (fun (_ : Product NatWithZero Nat) . Nat)
   :=
   fun (p : Product NatWithZero Nat)
     (recurse : forall (s : Product NatWithZero Nat) .
-                 Induced (<)%nat (@Product.second NatWithZero Nat) s p -> Nat) .
+                 Induced (<)%n (@Product.second NatWithZero Nat) s p -> Nat) .
     match p as t
       return ((forall (s : Product NatWithZero Nat) .
-                 Induced (<)%nat (@Product.second NatWithZero Nat) s t -> Nat) -> Nat)
+                 Induced (<)%n (@Product.second NatWithZero Nat) s t -> Nat) -> Nat)
     with
     | (a, q) =>
         fun (descend : forall (s : Product NatWithZero Nat) .
-                       Induced (<)%nat (@Product.second NatWithZero Nat) s (a, q) -> Nat) .
+                       Induced (<)%n (@Product.second NatWithZero Nat) s (a, q) -> Nat) .
           match (a %. q) as m
           return (m < (+ q) -> Nat)
           with
@@ -2402,7 +2402,7 @@ Proof.
   - intros b.
     let s
       : Induced
-          (<)%nat
+          (<)%n
           (@Product.second NatWithZero Nat)
           ((+ q), r)
           (a, q)
@@ -2764,9 +2764,9 @@ Proof.
       ipso facto.
     + leibniz (gcd.recurrence a q) in |- *.
       lemma facto
-      : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * &a) (+ (&k * &q)%nat).
+      : (+ &k) * gcd (+ &q) (&a %. &q) = gcd ((+ &k) * &a) (+ (&k * &q)%n).
       {
-        leibniz (gcd.recurrence ((+ k) * a) (k * q)%nat) in |- *.
+        leibniz (gcd.recurrence ((+ k) * a) (k * q)%n) in |- *.
         leibniz (modulo.homogeneity a q k) in |- *.
         lemma facto
         : (+ &k) * gcd (+ &q) (&a %. &q)
@@ -2959,7 +2959,7 @@ Proof.
   intros q.
   lemma descent
   : Descent.Step
-    (<)%nat
+    (<)%n
     (fun (c : Nat) . forall (a : NatWithZero) . gcd a (+ c) = + (gcd.nat a c)).
   {
     intros c recurse a.
@@ -3003,18 +3003,18 @@ Module of. (* gcd.nat.left.distributivity.of *)
 (* gcd.nat.left.distributivity.of.multiplication *)
 Theorem multiplication
   : forall (k : Nat) (q : Nat) (a : NatWithZero) .
-      (k * gcd.nat a q)%nat = gcd.nat ((+ k) * a) (k * q)%nat.
+      (k * gcd.nat a q)%n = gcd.nat ((+ k) * a) (k * q)%n.
 Proof.
   intros k q a.
   let proof h
     := gcd.left.distributivity.of.multiplication k (+ q) a.
   leibniz (gcd.nat.specification q a) in h.
   let proof h
-    : (+ k) * (+ (gcd.nat a q)) = gcd ((+ k) * a) (+ (k * q)%nat)
+    : (+ k) * (+ (gcd.nat a q)) = gcd ((+ k) * a) (+ (k * q)%n)
     := &h.
-  leibniz (gcd.nat.specification (k * q)%nat ((+ k) * a)) in h.
+  leibniz (gcd.nat.specification (k * q)%n ((+ k) * a)) in h.
   let proof h
-    : (+ (k * gcd.nat a q)%nat) = (+ (gcd.nat ((+ k) * a) (k * q)%nat))
+    : (+ (k * gcd.nat a q)%n) = (+ (gcd.nat ((+ k) * a) (k * q)%n))
     := &h.
   ipso (positive.injectivity h).
 Qed.
@@ -3085,7 +3085,7 @@ Proof.
     ipso e.
   }
   lemma bottom
-  : (gcd.nat a q * divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))%nat
+  : (gcd.nat a q * divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))%n
   = q.
   {
     let proof s
