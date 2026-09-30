@@ -77,7 +77,10 @@ Ltac2 universal_negation (a : constr) (p : constr) : constr :=
   | _ => constr:(forall (x : $a) . ~ $p x)
   end.
 
-(* The unfolded proof of what <h> proves. *)
+(* The unfolded proof of what <h> proves. The law is cast to the statement
+ * [universal_negation] builds, not the proof: [let proof] refuses a value
+ * cast at its top.
+ *)
 Ltac2 de_morgan_of (h : constr) : constr :=
   let t := Constr.type h in
   lazy_match! t with
@@ -85,8 +88,8 @@ Ltac2 de_morgan_of (h : constr) : constr :=
       constr:(Biconditional.forward.elimination (Negation.de_morgan.disjunction $a $b) $h)
   | ~ (@Exists ?a ?p) =>
       let after := universal_negation a p in
-      constr:(Biconditional.forward.elimination (Negation.de_morgan.existential $a $p) $h
-        : $after)
+      constr:(Biconditional.forward.elimination
+        (Negation.de_morgan.existential $a $p : ~ (@Exists $a $p) <-> $after) $h)
   | _ => de_morgan_refuse t
   end.
 
