@@ -9,6 +9,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Relation.Accessible.
 From jwa Require Import Relation.Descent.
@@ -290,6 +291,43 @@ Definition saturating_sub := fun (a : Bin) (b : Bin) .
   | Some k => k
   | None   => One
   end.
+
+(* [b] with the digits [d] appended, [None] once a digit is neither 0 nor 1. *)
+(* [Bin -> Numeral.Decimal.Digits -> Option Bin] *)
+Fixpoint from_digits (b : Bin) (d : Numeral.Decimal.Digits) : Option Bin :=
+  match d with
+  | Numeral.Decimal.Digits.End     => Some b
+  | Numeral.Decimal.Digits.Zero d' => from_digits (b0 b) d'
+  | Numeral.Decimal.Digits.One d'  => from_digits (b1 b) d'
+  | _                              => None
+  end.
+
+(* The number a literal's digits spell in binary. The leading bit of a [Bin]
+ * is 1, so a literal opening with any other digit is refused.
+ *)
+(* [Numeral.Unsigned -> Option Bin] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  match u with
+  | Numeral.Unsigned.Decimal d =>
+      match d with
+      | Numeral.Decimal.Digits.One d' => from_digits One d'
+      | _                             => None
+      end
+  | Numeral.Unsigned.Hexadecimal _ => None
+  end.
+
+(* The digits of [b] written before [rest]. *)
+(* [Bin -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
+Fixpoint to_digits (b : Bin) (rest : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
+  match b with
+  | One   => Numeral.Decimal.Digits.One rest
+  | b0 b' => to_digits b' (Numeral.Decimal.Digits.Zero rest)
+  | b1 b' => to_digits b' (Numeral.Decimal.Digits.One rest)
+  end.
+
+(* [Bin -> Numeral.Unsigned] *)
+Definition to_numeral := fun (b : Bin) .
+  Numeral.Unsigned.Decimal (to_digits b Numeral.Decimal.Digits.End).
 
 (* The conversions to and from [Nat], used to state the laws: [to_nat] is
  * unary, so it is for proofs, not for computing.
@@ -1401,6 +1439,13 @@ Abbreviation Bin := Bin.T.
  * still need the [Bin.] prefix.
  *)
 Export (notations) Bin.
+
+(* A number of the type is written in binary digits under its scope,
+ * [1011%bin] for eleven, and a closed one prints that way; a literal with
+ * any other digit, or opening with 0, is refused.
+ *)
+Number Notation Bin.T Bin.from_numeral Bin.to_numeral
+  : jwa_bin_scope.
 
 Instance Bin_less_than_well_founded
   : WellFounded (<)%bin :=
