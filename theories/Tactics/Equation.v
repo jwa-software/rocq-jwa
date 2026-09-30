@@ -1,5 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Dialect.Context.
 From jwa Require Import Core.Identity.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.Local.
@@ -7,9 +8,9 @@ From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std.
 
-(* [Ltac2.Notations] is imported for [apply] and [lazy_match!] inside this
- * file; an [Import] does not travel, so a file importing this one still sees
- * none of Rocq's tactic syntax.
+(* [Ltac2.Notations] is imported for [lazy_match!] inside this file; an
+ * [Import] does not travel, so a file importing this one still sees none of
+ * Rocq's tactic syntax.
  *)
 
 Ltac2 refuse (parts : message list) :=
@@ -72,16 +73,18 @@ Ltac2 Notation "symm" h(thunk(constr)) "|-" p(intropattern) :=
 Ltac2 symm_in_hypothesis (h : ident) :=
   if Local.local_in_context h
   then
-    lazy_match! Constr.type (Control.hyp h) with
-    | _ = _ => apply Identity.symmetry in $h
-    | _ => not_an_equation "symm" (Control.hyp h)
+    let p := Control.hyp h in
+    lazy_match! Constr.type p with
+    | _ = _ => Context.replace_hypothesis h constr:(Identity.symmetry $p)
+    | _ => not_an_equation "symm" p
     end
   else refuse [Message.of_string "symm: "; Message.of_ident h;
                Message.of_string " is not in the context"].
 
 Ltac2 symm_in_goal () :=
   lazy_match! goal with
-  | [ |- _ = _ ] => apply Identity.symmetry
+  | [ |- ?a = ?b ] =>
+      Control.refine (fun () => open_constr:(Identity.symmetry (_ : $b = $a)))
   | [ |- _ ] => refuse [Message.of_string "symm: the goal is not an equation"]
   end.
 

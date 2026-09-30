@@ -1,9 +1,10 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Dialect.Context.
 From jwa Require Export Dialect.Ltac.
 From jwa Require Import Dialect.Idem.
 From jwa Require Import Dialect.Local.
-From Ltac2 Require Array Bool Constr Control Fresh Ident Int List Message Std.
+From Ltac2 Require Array Bool Constr Control Ident Int List Message Std.
 
 (* Leibniz's law, x = y, P x |- P y: what is equal may be put for what it
  * equals. Below, <e> is a proof of an equation and <hypotheses> a
@@ -132,33 +133,6 @@ Ltac2 carry
                     (fun w : $after => w) $p
                   : $after).
 
-Ltac2 rec next_after (h : ident) (hyps : (ident * constr option * constr) list) : ident option :=
-  match hyps with
-  | [] => None
-  | x :: rest =>
-      match x with
-      | (y, _, _) =>
-          if Ident.equal y h
-          then match rest with (z, _, _) :: _ => Some z | [] => None end
-          else next_after h rest
-      end
-  end.
-
-(* The new [h] goes back where the old one stood, unless its statement now
- * names something that stands later. [Std.MoveAfter n] puts it just above
- * [n] as the context is printed: Ltac2 counts from the other end.
- *)
-Ltac2 replace_hypothesis (h : ident) (proof : constr) :=
-  let next := next_after h (Control.hyps ()) in
-  let y := Fresh.in_goal h in
-  Std.specialize (proof, Std.NoBindings) (Some (Std.IntroNaming (Std.IntroIdentifier y)));
-  Std.clear [h];
-  Std.rename [(y, h)];
-  match next with
-  | Some n => Control.once_plus (fun () => Std.move h (Std.MoveAfter n)) (fun _ => ())
-  | None => ()
-  end.
-
 (* The step as it applies to one hypothesis; [false] when <from> does not
  * occur in it.
  *)
@@ -166,11 +140,12 @@ Ltac2 in_hypothesis
   (forward : bool) (ty : constr) (a : constr) (b : constr) (e : constr) (h : ident) : bool :=
   let from := if forward then a else b in
   let to := if forward then b else a in
-  let t := Constr.type (Control.hyp h) in
+  let p := Control.hyp h in
+  let t := Constr.type p in
   match rewritten ty from to t with
   | Some (motive, after) =>
       if well_typed motive
-      then (replace_hypothesis h (carry forward ty a b e motive after (Control.hyp h)); true)
+      then (Context.replace_hypothesis h (carry forward ty a b e motive after p); true)
       else ill_typed from to (Message.of_ident h)
   | None => false
   end.

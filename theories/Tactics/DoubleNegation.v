@@ -1,5 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Dialect.Context.
 From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.Local.
@@ -7,9 +8,9 @@ From jwa Require Import Dialect.Ltac.
 From Ltac2 Require Import Notations.
 From Ltac2 Require Constr Control List Message Std.
 
-(* [Ltac2.Notations] is imported for [apply] and [lazy_match!] inside this
- * file; an [Import] does not travel, so a file importing this one still sees
- * none of Rocq's tactic syntax.
+(* [Ltac2.Notations] is imported for [lazy_match!] inside this file; an
+ * [Import] does not travel, so a file importing this one still sees none of
+ * Rocq's tactic syntax.
  *)
 
 Ltac2 refuse (message : string) :=
@@ -52,11 +53,13 @@ Ltac2 Notation "dni" h(preterm) "|-" p(intropattern) :=
  * provable, [A \/ ~ A] is not.
  *)
 Ltac2 dni_in_hypothesis (h : ident) :=
-  apply Negation.double.introduction in $h.
+  let p := Control.hyp h in
+  Context.replace_hypothesis h constr:(Negation.double.introduction $p).
 
 Ltac2 dni_in_goal () :=
   lazy_match! goal with
-  | [ |- ~ ~ _ ] => apply Negation.double.introduction
+  | [ |- ~ ~ ?a ] =>
+      Control.refine (fun () => open_constr:(Negation.double.introduction (_ : $a)))
   | [ |- _ ] => refuse "dni: expects a goal of the shape ~ ~ A"
   end.
 
@@ -109,14 +112,16 @@ Ltac2 Notation "dne" h(preterm) "|-" p(intropattern) :=
  * first, so that a refusal says why.
  *)
 Ltac2 dne_in_hypothesis (h : ident) :=
-  lazy_match! Constr.type (Control.hyp h) with
-  | ~ ~ ~ _ => apply Negation.triple.reduction in $h
+  let p := Control.hyp h in
+  lazy_match! Constr.type p with
+  | ~ ~ ~ _ => Context.replace_hypothesis h constr:(Negation.triple.reduction $p)
   | _ => refuse "dne: expects ~ ~ ~ A, since ~ ~ A |- A in general is not constructive"
   end.
 
 Ltac2 dne_in_goal () :=
   lazy_match! goal with
-  | [ |- ~ _ ] => apply Negation.triple.reduction
+  | [ |- ~ ?a ] =>
+      Control.refine (fun () => open_constr:(Negation.triple.reduction (_ : ~ ~ ~ $a)))
   | [ |- _ ] => refuse "dne: expects a goal of the shape ~ A"
   end.
 

@@ -56,6 +56,15 @@ Proof.
   ipso (facto a).
 Qed.
 
+Theorem tactics_all_delivers_de_morgan_existential_let_proof
+  : forall (A : Type) (Q : A -> Prop) (R : Prop) (a : A) .
+      ~ (forsome (x : A) . Q x \/ R) -> ~ (Q a \/ R).
+Proof.
+  intros A Q R a h.
+  let proof p := de morgan &h.
+  ipso (&p &a).
+Qed.
+
 Theorem tactics_all_delivers_de_morgan_refusing_a_universal
   : forall (A : Type) (P : A -> Prop) . ~ (forall (x : A) . P x) -> ~ (forall (x : A) . P x).
 Proof.
@@ -101,6 +110,17 @@ Proof.
   intros A B C D h k.
   de morgan in &h, &k.
   ipso (conjoin &h, &k).
+Qed.
+
+Theorem tactics_all_delivers_de_morgan_in_existential_hypothesis
+  : forall (A : Type) (Q : A -> Prop) (R : Prop) .
+      ~ (forsome (x : A) . Q x \/ R) -> forall (x : A) . ~ (Q x \/ R).
+Proof.
+  intros A Q R h.
+  de morgan in &h.
+  lazy_match! Constr.type &h with
+  | forall (x : A) . ~ (Q x \/ R) => ipso &h
+  end.
 Qed.
 
 Theorem tactics_all_delivers_de_morgan_in_refusing_a_conjunction

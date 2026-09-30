@@ -1,5 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Dialect.Context.
 From jwa Require Import Core.Logic.Biconditional.
 From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Logic.Conjunction.
@@ -38,9 +39,9 @@ From Ltac2 Require Constr Control List Message Std String.
  * and [forsome x . ~ P x] would prove them, but may not be provable where the
  * original is, as [~ (A /\ ~ A)] shows.
  *
- * [Ltac2.Notations] is imported for [apply] and [lazy_match!] inside this
- * file; an [Import] does not travel, so a file importing this one still sees
- * none of Rocq's tactic syntax.
+ * [Ltac2.Notations] is imported for [lazy_match!] inside this file; an
+ * [Import] does not travel, so a file importing this one still sees none of
+ * Rocq's tactic syntax.
  *)
 
 Ltac2 refuse (message : string) :=
@@ -64,14 +65,31 @@ Ltac2 de_morgan_refuse (t : constr) :=
       refuse "de morgan: expects a hypothesis of the shape ~ (A \/ B) or ~ (forsome x . P x)"
   end.
 
-(* The unfolded proof of what <h> proves. *)
+(* [forall x . ~ P x] for the predicate <p> over <a>. A <p> written as a
+ * [fun] has its body put under the binder, as [exists] does in [Witness.v],
+ * so the statement carries no beta-redex.
+ *)
+Ltac2 universal_negation (a : constr) (p : constr) : constr :=
+  match Constr.Unsafe.kind p with
+  | Constr.Unsafe.Lambda b body =>
+      Constr.Unsafe.make
+        (Constr.Unsafe.Prod b (Constr.Unsafe.make (Constr.Unsafe.App constr:(Negation) [| body |])))
+  | _ => constr:(forall (x : $a) . ~ $p x)
+  end.
+
+(* The unfolded proof of what <h> proves. The law is cast to the statement
+ * [universal_negation] builds, not the proof: [let proof] refuses a value
+ * cast at its top.
+ *)
 Ltac2 de_morgan_of (h : constr) : constr :=
   let t := Constr.type h in
   lazy_match! t with
-  | ~ (_ \/ _) =>
-      constr:(Biconditional.forward.elimination (Negation.de_morgan.disjunction _ _) $h)
-  | ~ (Exists _) =>
-      constr:(Biconditional.forward.elimination (Negation.de_morgan.existential _ _) $h)
+  | ~ (?a \/ ?b) =>
+      constr:(Biconditional.forward.elimination (Negation.de_morgan.disjunction $a $b) $h)
+  | ~ (@Exists ?a ?p) =>
+      let after := universal_negation a p in
+      constr:(Biconditional.forward.elimination
+        (Negation.de_morgan.existential $a $p : ~ (@Exists $a $p) <-> $after) $h)
   | _ => de_morgan_refuse t
   end.
 
@@ -92,24 +110,22 @@ Ltac2 Notation "de" "morgan" h(thunk(constr)) "|-" p(intropattern) :=
     Std.specialize (de_morgan_of (Local.checked "de morgan" h), Std.NoBindings) (Some p)).
 
 Ltac2 de_morgan_in_hypothesis (h : ident) :=
-  let t := Constr.type (Control.hyp h) in
-  lazy_match! t with
-  | ~ (_ \/ _) =>
-      apply (Biconditional.forward.elimination (Negation.de_morgan.disjunction _ _)) in $h
-  | ~ (Exists _) =>
-      apply (Biconditional.forward.elimination (Negation.de_morgan.existential _ _)) in $h
-  | _ => de_morgan_refuse t
-  end.
+  Context.replace_hypothesis h (de_morgan_of (Control.hyp h)).
 
 (* The goal is rewritten backward, from the new statement to the old, which
  * is why only the two equivalences are allowed here.
  *)
 Ltac2 de_morgan_in_goal () :=
   lazy_match! goal with
-  | [ |- ~ (_ \/ _) ] =>
-      apply (Biconditional.backward.elimination (Negation.de_morgan.disjunction _ _))
-  | [ |- ~ (Exists _) ] =>
-      apply (Biconditional.backward.elimination (Negation.de_morgan.existential _ _))
+  | [ |- ~ (?a \/ ?b) ] =>
+      Control.refine (fun () =>
+        open_constr:(Biconditional.backward.elimination (Negation.de_morgan.disjunction $a $b)
+          (_ : ~ $a /\ ~ $b)))
+  | [ |- ~ (@Exists ?a ?p) ] =>
+      let after := universal_negation a p in
+      Control.refine (fun () =>
+        open_constr:(Biconditional.backward.elimination (Negation.de_morgan.existential $a $p)
+          (_ : $after)))
   | [ |- ~ (_ /\ _) ] =>
       refuse (String.app "de morgan: a goal ~ (A /\ B) is left alone,"
                          " since ~ A \/ ~ B may not be provable where it is")
