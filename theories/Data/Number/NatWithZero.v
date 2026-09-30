@@ -77,7 +77,7 @@ Definition mul := fun (m : NatWithZero) (n : NatWithZero) .
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
- * module; after [End NatWithZero] a client writes [(m + n)%nat_with_zero].
+ * module; after [End NatWithZero] a client writes [(m + n)%n0].
  * [only parsing] keeps goals printing the operations by name.
  *)
 Notation "m + n" := (add m n) (only parsing)
@@ -3327,7 +3327,7 @@ End NatWithZero. (* NatWithZero *)
 Abbreviation NatWithZero := NatWithZero.T.
 
 (* Makes the notations declared in [Module NatWithZero] usable in every file
- * that imports this one, as [(m + n)%nat_with_zero] or under an opened
+ * that imports this one, as [(m + n)%n0] or under an opened
  * [jwa_nat_with_zero_scope]. Only the notations are exported: [add] and the
  * laws still need the [NatWithZero.] prefix, and the local aliases [0] and
  * [+ p] stay inside the module.
@@ -3347,7 +3347,7 @@ Add Printing Coercion NatWithZero.Positive.
 Existing Instance NatWithZero.comparable.
 
 Instance NatWithZero_less_than_well_founded
-  : WellFounded (<)%nat_with_zero :=
+  : WellFounded (<)%n0 :=
   {| accessibility := NatWithZero.order.strict.wellfoundedness |}.
 
 Instance NatWithZero_add_monoid

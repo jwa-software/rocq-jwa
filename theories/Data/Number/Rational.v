@@ -64,7 +64,7 @@ Definition Zero :=
       (Integer.abs Integer.Zero)
       (Nat.One)
       ((Identity.reflexivity NatWithZero.Zero)
-        : (Integer.abs Integer.Zero %. Nat.One)%nat_with_zero = NatWithZero.Zero)).
+        : (Integer.abs Integer.Zero %. Nat.One)%n0 = NatWithZero.Zero)).
 
 (* [Rational] *)
 Definition One :=
@@ -73,7 +73,7 @@ Definition One :=
       (Integer.abs Nat.One)
       (Nat.One)
       ((Identity.reflexivity NatWithZero.Zero)
-        : (Integer.abs Nat.One %. Nat.One)%nat_with_zero = NatWithZero.Zero)).
+        : (Integer.abs Nat.One %. Nat.One)%n0 = NatWithZero.Zero)).
 
 (* [Rational -> Rational] *)
 Definition negate := fun (x : Rational) .
@@ -231,20 +231,20 @@ Proof.
     ipso (Identity.transitivity i e).
   }
 
-  lemma undivided : (d /. (Nat.One))%nat_with_zero
+  lemma undivided : (d /. (Nat.One))%n0
           = d.
   {
     let proof e := NatWithZero.division.exactness
                   d (Nat.One)
                   (NatWithZero.divisibility.bottom d).
     let proof i := NatWithZero.multiplication.right.identity
-                  (d /. (Nat.One))%nat_with_zero.
+                  (d /. (Nat.One))%n0.
     symm in i.
     ipso (Identity.transitivity i e).
   }
 
-  lemma same : (d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
-          = (d /. (Nat.One))%nat_with_zero.
+  lemma same : (d /. NatWithZero.gcd.nat (Integer.abs n) d)%n0
+          = (d /. (Nat.One))%n0.
   {
     leibniz h in |- *.
     quod idem est.
@@ -292,7 +292,7 @@ Proof.
     let proof am := Integer.multiplication.magnitude k n.
     let proof am
       : Integer.abs (k * n)%integer
-        = (k * Integer.abs n)%nat_with_zero
+        = (k * Integer.abs n)%n0
       := &am.
     leibniz am in |- *.
     let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
@@ -328,8 +328,8 @@ Proof.
   {
     lemma quotients
       : ((&k * &d)%nat
-         /. NatWithZero.gcd.nat (Integer.abs (k * &n)%integer) (&k * &d)%nat)%nat_with_zero
-        = (d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%nat_with_zero.
+         /. NatWithZero.gcd.nat (Integer.abs (k * &n)%integer) (&k * &d)%nat)%n0
+        = (d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%n0.
     {
       leibniz common in |- *.
       let proof inv := NatWithZero.division.invariance
@@ -337,8 +337,8 @@ Proof.
                     (NatWithZero.gcd.nat (Integer.abs n) d) k.
       let proof inv
         : ((k * d)%nat
-           /. (k * NatWithZero.gcd.nat (Integer.abs n) d)%nat)%nat_with_zero
-          = (d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
+           /. (k * NatWithZero.gcd.nat (Integer.abs n) d)%nat)%n0
+          = (d /. NatWithZero.gcd.nat (Integer.abs n) d)%n0
         := &inv.
       ipso inv.
     }
@@ -556,8 +556,8 @@ Proof.
     leibniz (Integer.multiplication.magnitude p s) in m.
     leibniz (Integer.multiplication.magnitude r q) in m.
     let proof m
-      : (Integer.abs p * s)%nat_with_zero
-        = (Integer.abs r * q)%nat_with_zero
+      : (Integer.abs p * s)%n0
+        = (Integer.abs r * q)%n0
       := &m.
 
     lemma coprime1 : NatWithZero.gcd q (Integer.abs p)

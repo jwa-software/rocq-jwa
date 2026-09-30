@@ -676,7 +676,7 @@ Definition data_number_all_delivers_bin_with_zero_retraction
 Definition data_number_all_delivers_bin_with_zero_addition
   : forall (m : BinWithZero) (n : BinWithZero) .
       BinWithZero.to_nat_with_zero (m + n)%bin_with_zero
-      = (BinWithZero.to_nat_with_zero m + BinWithZero.to_nat_with_zero n)%nat_with_zero
+      = (BinWithZero.to_nat_with_zero m + BinWithZero.to_nat_with_zero n)%n0
   := BinWithZero.conversion.addition.
 
 Definition data_number_all_delivers_bin_with_zero_subtraction
@@ -708,7 +708,7 @@ Definition data_number_all_delivers_bin_with_zero_left_shift
   : forall (n : BinWithZero) (k : NatWithZero) .
       BinWithZero.to_nat_with_zero (BinWithZero.shift_left n k)
       = (BinWithZero.to_nat_with_zero n
-         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%nat_with_zero
+         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%n0
   := BinWithZero.conversion.left.shift.
 
 Definition data_number_all_delivers_bin_with_zero_conjunction_computes
