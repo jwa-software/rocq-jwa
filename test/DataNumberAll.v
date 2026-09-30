@@ -1,12 +1,11 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Data.Base.Bool.
-From jwa Require Import Data.Base.Comparison.
+(* The umbrella under guard, and nothing else that it owes a client. The one
+ * other import is a tactic language, not a type: some guards below are proved
+ * rather than stated, and [Tactics.Equation] is what writes them. A type this
+ * file can name only because it imported it would defeat the guard.
+ *)
 From jwa Require Import Data.Number.All.
-From jwa Require Import Data.Option.
-From jwa Require Import Relation.Accessible.
-From jwa Require Import Relation.Induced.
-From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Equation.
 
 Definition data_number_all_delivers
@@ -879,3 +878,23 @@ Proof.
   intro b.
   quod idem est.
 Qed.
+
+(* The types the operations above return, named rather than merely produced. A
+ * client who cannot write [Comparison] cannot state anything about [compare],
+ * and every guard here would still have passed while that was true.
+ *)
+Definition data_number_all_delivers_comparison
+  : Comparison
+  := Bin.compare Bin.One Bin.One.
+
+Definition data_number_all_delivers_bool
+  : Bool
+  := Bin.eq Bin.One Bin.One.
+
+Definition data_number_all_delivers_option
+  : Option Bin
+  := Bin.sub (Bin.b0 Bin.One) Bin.One.
+
+Definition data_number_all_delivers_numeral
+  : Numeral.Unsigned
+  := BinWithZero.to_numeral 1011%bin_with_zero.

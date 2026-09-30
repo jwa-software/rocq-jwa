@@ -1,10 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
-From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Collection.All.
-From jwa Require Import Data.Number.Nat.
-From jwa Require Import Data.Number.NatWithZero.
-From jwa Require Import Data.Option.
 
 Definition data_collection_all_delivers
   : forall (A : Type) (a : A) . List A

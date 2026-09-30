@@ -5,11 +5,29 @@
  * three binary ones arrive through their own group umbrella.
  *)
 
+(* The modules below only [Import] [Core.All], so the open scope reaches a
+ * client of this umbrella only from here.
+ *)
 From jwa Require Export Core.All.
+
+(* An umbrella exports every type the interfaces under it name, so that a
+ * client can write down what they take and return: [Comparison] for
+ * [compare], [Bool] for [eq], [Option] for [sub] and the narrowings, and
+ * [Accessible], [Induced] and [WellFounded] for the descent theorems and the
+ * instances -- [Nat.order.strict.wellfoundedness] states [Accessible (<) n]
+ * outright. Without them a client can call an operation and still be unable
+ * to name its result.
+ *)
+From jwa Require Export Data.Base.Bool.
+From jwa Require Export Data.Base.Comparison.
+From jwa Require Export Data.Option.
+From jwa Require Export Relation.Accessible.
+From jwa Require Export Relation.Induced.
+From jwa Require Export Relation.WellFounded.
 
 From jwa Require Export Data.Number.Binary.All.
 From jwa Require Export Data.Number.Integer.
 From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.NatWithZero.
+From jwa Require Export Data.Number.Numeral.
 From jwa Require Export Data.Number.Rational.
-From jwa Require Export Data.Option.
