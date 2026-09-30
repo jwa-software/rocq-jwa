@@ -159,30 +159,32 @@ Fixpoint power (a : Bin) (n : Bin) : Bin :=
 Notation "a ^ n" := (power a n) (only parsing)
   : jwa_bin_scope.
 
-(* The outcome of [a - b] where only positives exist: below zero, zero, or
- * the positive difference.
+(* Where [a] sits relative to [b], which is all [a - b] can report when only
+ * positives exist: less, equal, or greater by this much. [Comparison] gives
+ * the same three answers without the witness, so [compare] below is this type
+ * with its payload forgotten.
  *)
 Inductive Difference : Type :=
-  | Below : Difference
-  | Equal : Difference
-  | Above : Bin -> Difference.
+  | Lt : Difference
+  | Eq : Difference
+  | Gt : Bin -> Difference.
 
 (* [2d] for a difference [d]. *)
 (* [Difference -> Difference] *)
 Definition append_zero_difference := fun (d : Difference) .
   match d with
-  | Below   => Below
-  | Equal   => Equal
-  | Above p => Above (b0 p)
+  | Lt   => Lt
+  | Eq   => Eq
+  | Gt p => Gt (b0 p)
   end.
 
 (* [2d + 1]: from zero it reaches one. *)
 (* [Difference -> Difference] *)
 Definition append_one_difference := fun (d : Difference) .
   match d with
-  | Below   => Below
-  | Equal   => Above One
-  | Above p => Above (b1 p)
+  | Lt   => Lt
+  | Eq   => Gt One
+  | Gt p => Gt (b1 p)
   end.
 
 (* [2d], or [2d + 1] when [bit] is [true]: the [Difference] counterpart of
@@ -202,7 +204,7 @@ Definition append_bit_difference := fun (bit : Bool) (d : Difference) .
  * Seven of the nine cases answer for both borrows at once, in the shape
  * [append_bit_difference <this bit> <the rest>] that every case of
  * [add_with_carry] has. Two cannot. At [One] against [One] the answer is
- * [Equal] or [Below], and neither is a bit appended to anything. At [b1]
+ * [Eq] or [Lt], and neither is a bit appended to anything. At [b1]
  * against [One] the borrow decides whether the rest is [a'] or [a' - 1],
  * which are answers of different shapes rather than one answer under two
  * bits. Those two keep a [match borrow] of their own.
@@ -212,18 +214,18 @@ Fixpoint difference_with_borrow (borrow : Bool) (a : Bin) (b : Bin) : Difference
   match a, b with
   | One, One     =>
       match borrow with
-      | true  => Below
-      | false => Equal
+      | true  => Lt
+      | false => Eq
       end
-  | One, b0 _    => Below
-  | One, b1 _    => Below
+  | One, b0 _    => Lt
+  | One, b1 _    => Lt
   | b0 a', One   => append_bit_difference (Bool.negate borrow) (difference_with_borrow false a' One)
   | b0 a', b0 b' => append_bit_difference borrow (difference_with_borrow borrow a' b')
   | b0 a', b1 b' => append_bit_difference (Bool.negate borrow) (difference_with_borrow true a' b')
   | b1 a', One   =>
       match borrow with
       | true  => append_bit_difference true (difference_with_borrow false a' One)
-      | false => Above (b0 a')
+      | false => Gt (b0 a')
       end
   | b1 a', b0 b' => append_bit_difference (Bool.negate borrow) (difference_with_borrow false a' b')
   | b1 a', b1 b' => append_bit_difference borrow (difference_with_borrow borrow a' b')
@@ -259,9 +261,9 @@ Notation "a >= b" := (LessOrEqual b a) (only parsing)
 (* [Bin -> Bin -> Comparison] *)
 Definition compare := fun (a : Bin) (b : Bin) .
   match diff a b with
-  | Below   => Comparison.Lt
-  | Equal   => Comparison.Eq
-  | Above _ => Comparison.Gt
+  | Lt   => Comparison.Lt
+  | Eq   => Comparison.Eq
+  | Gt _ => Comparison.Gt
   end.
 
 (* [Bin -> Bin -> Bool] *)
@@ -277,8 +279,8 @@ Abbreviation max := (Comparable.max compare).
 (* [Bin -> Bin -> Option Bin] *)
 Definition sub := fun (a : Bin) (b : Bin) .
   match diff a b with
-  | Above p => Some p
-  | _       => None
+  | Gt p => Some p
+  | _    => None
   end.
 
 (* [One] where [sub] has nothing, as [Nat.saturating_sub] does. *)
@@ -644,14 +646,14 @@ Module difference. (* conversion.difference *)
 Lemma doubling
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Below   => (m < n)%nat
-      | Equal   => m = n
-      | Above p => (n + to_nat p)%nat = m
+      | Lt   => (m < n)%nat
+      | Eq   => m = n
+      | Gt p => (n + to_nat p)%nat = m
       end ->
       match append_zero_difference d with
-      | Below   => (m + m < n + n)%nat
-      | Equal   => (m + m)%nat = (n + n)%nat
-      | Above p => (n + n + to_nat p)%nat = (m + m)%nat
+      | Lt   => (m + m < n + n)%nat
+      | Eq   => (m + m)%nat = (n + n)%nat
+      | Gt p => (n + n + to_nat p)%nat = (m + m)%nat
       end.
 Proof.
   intros d m n.
@@ -684,14 +686,14 @@ Module doubling. (* conversion.difference.doubling *)
 Lemma successor
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Below   => (m < n)%nat
-      | Equal   => m = n
-      | Above p => (n + to_nat p)%nat = m
+      | Lt   => (m < n)%nat
+      | Eq   => m = n
+      | Gt p => (n + to_nat p)%nat = m
       end ->
       match append_one_difference d with
-      | Below   => (Nat.Successor (m + m) < n + n)%nat
-      | Equal   => Nat.Successor (m + m)%nat = (n + n)%nat
-      | Above p => (n + n + to_nat p)%nat = Nat.Successor (m + m)%nat
+      | Lt   => (Nat.Successor (m + m) < n + n)%nat
+      | Eq   => Nat.Successor (m + m)%nat = (n + n)%nat
+      | Gt p => (n + n + to_nat p)%nat = Nat.Successor (m + m)%nat
       end.
 Proof.
   intros d m n.
@@ -741,15 +743,15 @@ End doubling. (* conversion.difference.doubling *)
 Lemma cancellation
   : forall (d : Difference) (m : Nat) (n : Nat) .
       match d with
-      | Below   => (Nat.Successor m < Nat.Successor n)%nat
-      | Equal   => Nat.Successor m = Nat.Successor n
-      | Above p => (Nat.Successor n + to_nat p)%nat = Nat.Successor m
+      | Lt   => (Nat.Successor m < Nat.Successor n)%nat
+      | Eq   => Nat.Successor m = Nat.Successor n
+      | Gt p => (Nat.Successor n + to_nat p)%nat = Nat.Successor m
       end
       <->
       match d with
-      | Below   => (m < n)%nat
-      | Equal   => m = n
-      | Above p => (n + to_nat p)%nat = m
+      | Lt   => (m < n)%nat
+      | Eq   => m = n
+      | Gt p => (n + to_nat p)%nat = m
       end.
 Proof.
   intros d m n.
@@ -788,15 +790,15 @@ Lemma borrow
       match borrow with
       | true  =>
           match difference_with_borrow true a b with
-          | Below   => (to_nat a < Nat.Successor (to_nat b))%nat
-          | Equal   => to_nat a = Nat.Successor (to_nat b)
-          | Above p => (Nat.Successor (to_nat b) + to_nat p)%nat = to_nat a
+          | Lt   => (to_nat a < Nat.Successor (to_nat b))%nat
+          | Eq   => to_nat a = Nat.Successor (to_nat b)
+          | Gt p => (Nat.Successor (to_nat b) + to_nat p)%nat = to_nat a
           end
       | false =>
           match difference_with_borrow false a b with
-          | Below   => (to_nat a < to_nat b)%nat
-          | Equal   => to_nat a = to_nat b
-          | Above p => (to_nat b + to_nat p)%nat = to_nat a
+          | Lt   => (to_nat a < to_nat b)%nat
+          | Eq   => to_nat a = to_nat b
+          | Gt p => (to_nat b + to_nat p)%nat = to_nat a
           end
       end.
 Proof.
@@ -952,9 +954,9 @@ Qed.
 Lemma difference
   : forall (a : Bin) (b : Bin) .
       match Bin.diff a b with
-      | Below   => (to_nat a < to_nat b)%nat
-      | Equal   => to_nat a = to_nat b
-      | Above p => (to_nat b + to_nat p)%nat = to_nat a
+      | Lt   => (to_nat a < to_nat b)%nat
+      | Eq   => to_nat a = to_nat b
+      | Gt p => (to_nat b + to_nat p)%nat = to_nat a
       end.
 Proof.
   intros a b.

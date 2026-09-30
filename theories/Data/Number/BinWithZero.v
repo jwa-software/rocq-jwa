@@ -172,9 +172,9 @@ Definition sub := fun (m : BinWithZero) (n : BinWithZero) .
       | 0   => Some (+ p)
       | + q =>
           match Bin.diff p q with
-          | Bin.Below   => None
-          | Bin.Equal   => Some 0
-          | Bin.Above d => Some (+ d)
+          | Bin.Lt   => None
+          | Bin.Eq   => Some 0
+          | Bin.Gt d => Some (+ d)
           end
       end
   end.
