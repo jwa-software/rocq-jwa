@@ -207,8 +207,8 @@ Definition append_bit := fun (n : BinWithZero) (bit : Bool) .
       end
   | + p =>
       match bit with
-      | true  => + Bin.AppendOne p
-      | false => + Bin.AppendZero p
+      | true  => + Bin.b1 p
+      | false => + Bin.b0 p
       end
   end.
 
@@ -238,10 +238,10 @@ Definition induction
 (* [BinWithZero -> BinWithZero] *)
 Definition halve := fun (n : BinWithZero) .
   match n with
-  | 0                     => 0
-  | + Bin.One          => 0
-  | + Bin.AppendZero p => + p
-  | + Bin.AppendOne p  => + p
+  | 0          => 0
+  | + Bin.One  => 0
+  | + Bin.b0 p => + p
+  | + Bin.b1 p => + p
   end.
 
 (* Bit by bit from the least significant end, a number reading as 0s past
@@ -250,15 +250,15 @@ Definition halve := fun (n : BinWithZero) .
 (* [Bin -> Bin -> BinWithZero] *)
 Fixpoint and_positive (p : Bin) (q : Bin) : BinWithZero :=
   match p, q with
-  | Bin.One, Bin.One                     => + Bin.One
-  | Bin.One, Bin.AppendZero _            => 0
-  | Bin.One, Bin.AppendOne _             => + Bin.One
-  | Bin.AppendZero _, Bin.One            => 0
-  | Bin.AppendZero p', Bin.AppendZero q' => append_bit (and_positive p' q') false
-  | Bin.AppendZero p', Bin.AppendOne q'  => append_bit (and_positive p' q') false
-  | Bin.AppendOne _, Bin.One             => + Bin.One
-  | Bin.AppendOne p', Bin.AppendZero q'  => append_bit (and_positive p' q') false
-  | Bin.AppendOne p', Bin.AppendOne q'   => append_bit (and_positive p' q') true
+  | Bin.One, Bin.One     => + Bin.One
+  | Bin.One, Bin.b0 _    => 0
+  | Bin.One, Bin.b1 _    => + Bin.One
+  | Bin.b0 _, Bin.One    => 0
+  | Bin.b0 p', Bin.b0 q' => append_bit (and_positive p' q') false
+  | Bin.b0 p', Bin.b1 q' => append_bit (and_positive p' q') false
+  | Bin.b1 _, Bin.One    => + Bin.One
+  | Bin.b1 p', Bin.b0 q' => append_bit (and_positive p' q') false
+  | Bin.b1 p', Bin.b1 q' => append_bit (and_positive p' q') true
   end.
 
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
@@ -279,15 +279,15 @@ Notation "m && n" := (and m n) (only parsing)
 (* [Bin -> Bin -> BinWithZero] *)
 Fixpoint or_positive (p : Bin) (q : Bin) : BinWithZero :=
   match p, q with
-  | Bin.One, Bin.One                     => + Bin.One
-  | Bin.One, Bin.AppendZero q'           => + Bin.AppendOne q'
-  | Bin.One, Bin.AppendOne q'            => + Bin.AppendOne q'
-  | Bin.AppendZero p', Bin.One           => + Bin.AppendOne p'
-  | Bin.AppendZero p', Bin.AppendZero q' => append_bit (or_positive p' q') false
-  | Bin.AppendZero p', Bin.AppendOne q'  => append_bit (or_positive p' q') true
-  | Bin.AppendOne p', Bin.One            => + Bin.AppendOne p'
-  | Bin.AppendOne p', Bin.AppendZero q'  => append_bit (or_positive p' q') true
-  | Bin.AppendOne p', Bin.AppendOne q'   => append_bit (or_positive p' q') true
+  | Bin.One, Bin.One     => + Bin.One
+  | Bin.One, Bin.b0 q'   => + Bin.b1 q'
+  | Bin.One, Bin.b1 q'   => + Bin.b1 q'
+  | Bin.b0 p', Bin.One   => + Bin.b1 p'
+  | Bin.b0 p', Bin.b0 q' => append_bit (or_positive p' q') false
+  | Bin.b0 p', Bin.b1 q' => append_bit (or_positive p' q') true
+  | Bin.b1 p', Bin.One   => + Bin.b1 p'
+  | Bin.b1 p', Bin.b0 q' => append_bit (or_positive p' q') true
+  | Bin.b1 p', Bin.b1 q' => append_bit (or_positive p' q') true
   end.
 
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
@@ -308,15 +308,15 @@ Notation "m || n" := (or m n) (only parsing)
 (* [Bin -> Bin -> BinWithZero] *)
 Fixpoint xor_positive (p : Bin) (q : Bin) : BinWithZero :=
   match p, q with
-  | Bin.One, Bin.One                     => 0
-  | Bin.One, Bin.AppendZero q'           => + Bin.AppendOne q'
-  | Bin.One, Bin.AppendOne q'            => + Bin.AppendZero q'
-  | Bin.AppendZero p', Bin.One           => + Bin.AppendOne p'
-  | Bin.AppendZero p', Bin.AppendZero q' => append_bit (xor_positive p' q') false
-  | Bin.AppendZero p', Bin.AppendOne q'  => append_bit (xor_positive p' q') true
-  | Bin.AppendOne p', Bin.One            => + Bin.AppendZero p'
-  | Bin.AppendOne p', Bin.AppendZero q'  => append_bit (xor_positive p' q') true
-  | Bin.AppendOne p', Bin.AppendOne q'   => append_bit (xor_positive p' q') false
+  | Bin.One, Bin.One     => 0
+  | Bin.One, Bin.b0 q'   => + Bin.b1 q'
+  | Bin.One, Bin.b1 q'   => + Bin.b0 q'
+  | Bin.b0 p', Bin.One   => + Bin.b1 p'
+  | Bin.b0 p', Bin.b0 q' => append_bit (xor_positive p' q') false
+  | Bin.b0 p', Bin.b1 q' => append_bit (xor_positive p' q') true
+  | Bin.b1 p', Bin.One   => + Bin.b0 p'
+  | Bin.b1 p', Bin.b0 q' => append_bit (xor_positive p' q') true
+  | Bin.b1 p', Bin.b1 q' => append_bit (xor_positive p' q') false
   end.
 
 (* [BinWithZero -> BinWithZero -> BinWithZero] *)
@@ -367,10 +367,10 @@ Definition shift_right := fun (n : BinWithZero) (k : NatWithZero) .
 (* [BinWithZero -> NatWithZero -> Bool] *)
 Definition test_bit := fun (n : BinWithZero) (i : NatWithZero) .
   match shift_right n i with
-  | 0                     => false
-  | + Bin.One          => true
-  | + Bin.AppendZero _ => false
-  | + Bin.AppendOne _  => true
+  | 0          => false
+  | + Bin.One  => true
+  | + Bin.b0 _ => false
+  | + Bin.b1 _ => true
   end.
 
 (* [n] with the digits [d] appended, [None] once a digit is neither 0 nor 1. *)
@@ -396,9 +396,9 @@ Definition from_numeral := fun (u : Numeral.Unsigned) .
 (* [Bin -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
 Fixpoint to_digits (p : Bin) (rest : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
   match p with
-  | Bin.One           => Numeral.Decimal.Digits.One rest
-  | Bin.AppendZero p' => to_digits p' (Numeral.Decimal.Digits.Zero rest)
-  | Bin.AppendOne p'  => to_digits p' (Numeral.Decimal.Digits.One rest)
+  | Bin.One   => Numeral.Decimal.Digits.One rest
+  | Bin.b0 p' => to_digits p' (Numeral.Decimal.Digits.Zero rest)
+  | Bin.b1 p' => to_digits p' (Numeral.Decimal.Digits.One rest)
   end.
 
 (* [BinWithZero -> Numeral.Unsigned] *)

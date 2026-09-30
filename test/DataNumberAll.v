@@ -658,13 +658,13 @@ Definition data_number_all_delivers_bin_saturating_subtraction
   := Bin.conversion.subtraction.saturating.
 
 Definition data_number_all_delivers_bin_multiplication_computes
-  : (Bin.AppendOne Bin.One * Bin.AppendZero (Bin.AppendOne Bin.One))%bin
-    = Bin.AppendZero (Bin.AppendOne (Bin.AppendZero (Bin.AppendZero Bin.One)))
+  : (Bin.b1 Bin.One * Bin.b0 (Bin.b1 Bin.One))%bin
+    = Bin.b0 (Bin.b1 (Bin.b0 (Bin.b0 Bin.One)))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_comparison_computes
-  : Bin.compare (Bin.AppendOne Bin.One)
-                   (Bin.AppendZero (Bin.AppendOne Bin.One))
+  : Bin.compare (Bin.b1 Bin.One)
+                   (Bin.b0 (Bin.b1 Bin.One))
     = Comparison.Lt
   := Identity.reflexivity _.
 
@@ -686,7 +686,7 @@ Definition data_number_all_delivers_bin_with_zero_subtraction
   := BinWithZero.conversion.subtraction.
 
 Definition data_number_all_delivers_bin_with_zero_subtraction_computes
-  : BinWithZero.sub (Bin.AppendZero Bin.One) (Bin.AppendZero Bin.One)
+  : BinWithZero.sub (Bin.b0 Bin.One) (Bin.b0 Bin.One)
     = Some BinWithZero.Zero
   := Identity.reflexivity _.
 
@@ -712,30 +712,30 @@ Definition data_number_all_delivers_bin_with_zero_left_shift
   := BinWithZero.conversion.left.shift.
 
 Definition data_number_all_delivers_bin_with_zero_conjunction_computes
-  : (Bin.AppendZero (Bin.AppendZero (Bin.AppendOne Bin.One))
-     && Bin.AppendZero (Bin.AppendOne (Bin.AppendZero Bin.One)))%b
-    = Bin.AppendZero (Bin.AppendZero (Bin.AppendZero Bin.One))
+  : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
+     && Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%b
+    = Bin.b0 (Bin.b0 (Bin.b0 Bin.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_disjunction_computes
-  : (Bin.AppendZero (Bin.AppendZero (Bin.AppendOne Bin.One))
-     || Bin.AppendZero (Bin.AppendOne (Bin.AppendZero Bin.One)))%b
-    = Bin.AppendZero (Bin.AppendOne (Bin.AppendOne Bin.One))
+  : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
+     || Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%b
+    = Bin.b0 (Bin.b1 (Bin.b1 Bin.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_sejunction_computes
-  : (Bin.AppendZero (Bin.AppendZero (Bin.AppendOne Bin.One))
-     ^^ Bin.AppendZero (Bin.AppendOne (Bin.AppendZero Bin.One)))%b
-    = Bin.AppendZero (Bin.AppendOne Bin.One)
+  : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
+     ^^ Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%b
+    = Bin.b0 (Bin.b1 Bin.One)
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_shift_computes
-  : BinWithZero.shift_left (Bin.AppendOne Bin.One) (Nat.Successor Nat.One)
-    = Bin.AppendZero (Bin.AppendZero (Bin.AppendOne Bin.One))
+  : BinWithZero.shift_left (Bin.b1 Bin.One) (Nat.Successor Nat.One)
+    = Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_bit_computes
-  : BinWithZero.test_bit (Bin.AppendZero (Bin.AppendOne (Bin.AppendZero Bin.One)))
+  : BinWithZero.test_bit (Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))
                             Nat.One
     = true
   := Identity.reflexivity _.
@@ -754,8 +754,8 @@ Definition data_number_all_delivers_bin_well_founded
   := fun (b : Bin) . accessibility b.
 
 Definition data_number_all_delivers_bin_maximum_computes
-  : Bin.max (Bin.AppendOne Bin.One) (Bin.AppendZero Bin.One)
-    = Bin.AppendOne Bin.One
+  : Bin.max (Bin.b1 Bin.One) (Bin.b0 Bin.One)
+    = Bin.b1 Bin.One
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_distributivity

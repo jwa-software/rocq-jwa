@@ -23,16 +23,16 @@ From jwa Require Import Tactics.Witness.
  *)
 Module Bin. (* Bin *)
 
-(* A positive number in binary, its leading bit innermost: [One] is 1, and
- * [AppendZero] and [AppendOne] append a bit at the low end, so six, 110 in
- * binary, is [AppendZero (AppendOne One)]. The leading bit is always 1, so
- * every positive number has exactly one term; [NatWithZero]'s counterpart
- * [BinWithZero] adds zero on top.
+(* A positive number in binary, its leading bit innermost: [One] is 1, [b0]
+ * appends a 0 at the low end and [b1] appends a 1, so six, 110 in binary, is
+ * [b0 (b1 One)]. The leading bit is always 1, so every positive number has
+ * exactly one term; [NatWithZero]'s counterpart [BinWithZero] adds zero on
+ * top.
  *)
 Inductive T : Type :=
-  | One        : T
-  | AppendZero : T -> T
-  | AppendOne  : T -> T.
+  | One : T
+  | b0  : T -> T
+  | b1  : T -> T.
 
 (* The carrier is named [T] so that the type itself reads [Bin] on both
  * sides of the module: here through this abbreviation, outside through the
@@ -43,26 +43,26 @@ Abbreviation Bin := T.
 Definition induction
   : forall (P : Bin -> Prop) .
       P One ->
-      (forall (b : Bin) . P b -> P (AppendZero b)) ->
-      (forall (b : Bin) . P b -> P (AppendOne b)) ->
+      (forall (b : Bin) . P b -> P (b0 b)) ->
+      (forall (b : Bin) . P b -> P (b1 b)) ->
       forall (b : Bin) . P b
   := fun (P : Bin -> Prop)
          (one : P One)
-         (append_zero : forall (b : Bin) . P b -> P (AppendZero b))
-         (append_one : forall (b : Bin) . P b -> P (AppendOne b)) .
+         (append_zero : forall (b : Bin) . P b -> P (b0 b))
+         (append_one : forall (b : Bin) . P b -> P (b1 b)) .
        fix go (b : Bin) : P b :=
          match b with
-         | One           => one
-         | AppendZero b' => append_zero b' (go b')
-         | AppendOne b'  => append_one b' (go b')
+         | One   => one
+         | b0 b' => append_zero b' (go b')
+         | b1 b' => append_one b' (go b')
          end.
 
 (* [Bin -> Bin] *)
 Fixpoint inc (b : Bin) : Bin :=
   match b with
-  | One           => AppendZero One
-  | AppendZero b' => AppendOne b'
-  | AppendOne b'  => AppendZero (inc b')
+  | One   => b0 One
+  | b0 b' => b1 b'
+  | b1 b' => b0 (inc b')
   end.
 
 (* The scope is declared in [Core.Notations] and opened only inside this
@@ -81,27 +81,27 @@ Fixpoint add_with_carry (carry : Bool) (a : Bin) (b : Bin) : Bin :=
   match carry with
   | false =>
       match a, b with
-      | One, One                     => AppendZero One
-      | One, AppendZero b'           => AppendOne b'
-      | One, AppendOne b'            => AppendZero (inc b')
-      | AppendZero a', One           => AppendOne a'
-      | AppendZero a', AppendZero b' => AppendZero (add_with_carry false a' b')
-      | AppendZero a', AppendOne b'  => AppendOne (add_with_carry false a' b')
-      | AppendOne a', One            => AppendZero (inc a')
-      | AppendOne a', AppendZero b'  => AppendOne (add_with_carry false a' b')
-      | AppendOne a', AppendOne b'   => AppendZero (add_with_carry true a' b')
+      | One, One     => b0 One
+      | One, b0 b'   => b1 b'
+      | One, b1 b'   => b0 (inc b')
+      | b0 a', One   => b1 a'
+      | b0 a', b0 b' => b0 (add_with_carry false a' b')
+      | b0 a', b1 b' => b1 (add_with_carry false a' b')
+      | b1 a', One   => b0 (inc a')
+      | b1 a', b0 b' => b1 (add_with_carry false a' b')
+      | b1 a', b1 b' => b0 (add_with_carry true a' b')
       end
   | true =>
       match a, b with
-      | One, One                     => AppendOne One
-      | One, AppendZero b'           => AppendZero (inc b')
-      | One, AppendOne b'            => AppendOne (inc b')
-      | AppendZero a', One           => AppendZero (inc a')
-      | AppendZero a', AppendZero b' => AppendOne (add_with_carry false a' b')
-      | AppendZero a', AppendOne b'  => AppendZero (add_with_carry true a' b')
-      | AppendOne a', One            => AppendOne (inc a')
-      | AppendOne a', AppendZero b'  => AppendZero (add_with_carry true a' b')
-      | AppendOne a', AppendOne b'   => AppendOne (add_with_carry true a' b')
+      | One, One     => b1 One
+      | One, b0 b'   => b0 (inc b')
+      | One, b1 b'   => b1 (inc b')
+      | b0 a', One   => b0 (inc a')
+      | b0 a', b0 b' => b1 (add_with_carry false a' b')
+      | b0 a', b1 b' => b0 (add_with_carry true a' b')
+      | b1 a', One   => b1 (inc a')
+      | b1 a', b0 b' => b0 (add_with_carry true a' b')
+      | b1 a', b1 b' => b1 (add_with_carry true a' b')
       end
   end.
 
@@ -115,9 +115,9 @@ Notation "a + b" := (add a b) (only parsing)
 (* [Bin -> Bin -> Bin] *)
 Fixpoint mul (a : Bin) (b : Bin) : Bin :=
   match a with
-  | One           => b
-  | AppendZero a' => AppendZero (mul a' b)
-  | AppendOne a'  => add b (AppendZero (mul a' b))
+  | One   => b
+  | b0 a' => b0 (mul a' b)
+  | b1 a' => add b (b0 (mul a' b))
   end.
 
 Notation "a * b" := (mul a b) (only parsing)
@@ -134,9 +134,9 @@ Definition square := fun (b : Bin) . b * b.
 (* [Bin -> Bin -> Bin] *)
 Fixpoint power (a : Bin) (n : Bin) : Bin :=
   match n with
-  | One           => a
-  | AppendZero n' => square (power a n')
-  | AppendOne n'  => a * square (power a n')
+  | One   => a
+  | b0 n' => square (power a n')
+  | b1 n' => a * square (power a n')
   end.
 
 Notation "a ^ n" := (power a n) (only parsing)
@@ -156,7 +156,7 @@ Definition append_zero_difference := fun (d : Difference) .
   match d with
   | Below   => Below
   | Equal   => Equal
-  | Above p => Above (AppendZero p)
+  | Above p => Above (b0 p)
   end.
 
 (* [2d + 1]: from zero it reaches one. *)
@@ -165,7 +165,7 @@ Definition append_one_difference := fun (d : Difference) .
   match d with
   | Below   => Below
   | Equal   => Above One
-  | Above p => Above (AppendOne p)
+  | Above p => Above (b1 p)
   end.
 
 (* Bit by bit from the least significant end, the borrow passed on as
@@ -177,27 +177,27 @@ Fixpoint difference_with_borrow (borrow : Bool) (a : Bin) (b : Bin) : Difference
   match borrow with
   | false =>
       match a, b with
-      | One, One                     => Equal
-      | One, AppendZero _            => Below
-      | One, AppendOne _             => Below
-      | AppendZero a', One           => append_one_difference (difference_with_borrow false a' One)
-      | AppendZero a', AppendZero b' => append_zero_difference (difference_with_borrow false a' b')
-      | AppendZero a', AppendOne b'  => append_one_difference (difference_with_borrow true a' b')
-      | AppendOne a', One            => Above (AppendZero a')
-      | AppendOne a', AppendZero b'  => append_one_difference (difference_with_borrow false a' b')
-      | AppendOne a', AppendOne b'   => append_zero_difference (difference_with_borrow false a' b')
+      | One, One     => Equal
+      | One, b0 _    => Below
+      | One, b1 _    => Below
+      | b0 a', One   => append_one_difference (difference_with_borrow false a' One)
+      | b0 a', b0 b' => append_zero_difference (difference_with_borrow false a' b')
+      | b0 a', b1 b' => append_one_difference (difference_with_borrow true a' b')
+      | b1 a', One   => Above (b0 a')
+      | b1 a', b0 b' => append_one_difference (difference_with_borrow false a' b')
+      | b1 a', b1 b' => append_zero_difference (difference_with_borrow false a' b')
       end
   | true =>
       match a, b with
-      | One, One                     => Below
-      | One, AppendZero _            => Below
-      | One, AppendOne _             => Below
-      | AppendZero a', One           => append_zero_difference (difference_with_borrow false a' One)
-      | AppendZero a', AppendZero b' => append_one_difference (difference_with_borrow true a' b')
-      | AppendZero a', AppendOne b'  => append_zero_difference (difference_with_borrow true a' b')
-      | AppendOne a', One            => append_one_difference (difference_with_borrow false a' One)
-      | AppendOne a', AppendZero b'  => append_zero_difference (difference_with_borrow false a' b')
-      | AppendOne a', AppendOne b'   => append_one_difference (difference_with_borrow true a' b')
+      | One, One     => Below
+      | One, b0 _    => Below
+      | One, b1 _    => Below
+      | b0 a', One   => append_zero_difference (difference_with_borrow false a' One)
+      | b0 a', b0 b' => append_one_difference (difference_with_borrow true a' b')
+      | b0 a', b1 b' => append_zero_difference (difference_with_borrow true a' b')
+      | b1 a', One   => append_one_difference (difference_with_borrow false a' One)
+      | b1 a', b0 b' => append_zero_difference (difference_with_borrow false a' b')
+      | b1 a', b1 b' => append_one_difference (difference_with_borrow true a' b')
       end
   end.
 
@@ -267,9 +267,9 @@ Definition saturating_sub := fun (a : Bin) (b : Bin) .
 (* [Bin -> Nat] *)
 Fixpoint to_nat (b : Bin) : Nat :=
   match b with
-  | One           => Nat.One
-  | AppendZero b' => (to_nat b' + to_nat b')%nat
-  | AppendOne b'  => Nat.Successor (to_nat b' + to_nat b')%nat
+  | One   => Nat.One
+  | b0 b' => (to_nat b' + to_nat b')%nat
+  | b1 b' => Nat.Successor (to_nat b' + to_nat b')%nat
   end.
 
 (* [Nat -> Bin] *)
@@ -319,7 +319,7 @@ Qed.
 
 (* conversion.doubling *)
 Lemma doubling
-  : forall (n : Nat) . from_nat (n + n)%nat = AppendZero (from_nat n).
+  : forall (n : Nat) . from_nat (n + n)%nat = b0 (from_nat n).
 Proof.
   intro n.
   match n with | | n' by IH end per Nat.induction.
@@ -571,7 +571,7 @@ Proof.
                (to_nat &b) (to_nat &a') (to_nat &a')) in |- *.
     quod idem est.
   -
-    let proof e := conversion.addition &b (AppendZero (mul &a' &b)).
+    let proof e := conversion.addition &b (b0 (mul &a' &b)).
     simpl in &e |- *.
     leibniz &e in |- *.
     leibniz &IH in |- *.
