@@ -1,0 +1,18 @@
+(* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
+
+(* Umbrella for [jwa.Data.Number.Binary]: re-exports the three binary number
+ * types, so a client imports them with
+ * [From jwa Require Import Data.Number.Binary.All].
+ *
+ * A binary number carries its digits, where the unary types carry their value
+ * in units, so an operation costs a step per digit rather than per unit.
+ * [Bin] is the positives, [BinWithZero] adds zero, [BinWithSign] adds a sign.
+ *)
+(* The modules below only [Import] [Core.All], so the open scope reaches a
+ * client of this umbrella only from here.
+ *)
+From jwa Require Export Core.All.
+
+From jwa Require Export Data.Number.Binary.Bin.
+From jwa Require Export Data.Number.Binary.BinWithSign.
+From jwa Require Export Data.Number.Binary.BinWithZero.
