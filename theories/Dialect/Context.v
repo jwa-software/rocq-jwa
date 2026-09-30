@@ -2,7 +2,7 @@
 
 From jwa Require Export Dialect.Ltac.
 From jwa Require Import Dialect.Local.
-From Ltac2 Require Constr Control Ident Int List Message Ref Std.
+From Ltac2 Require Constr Control Fresh Ident Int List Message Ref Std.
 
 (* Tidying the context:
  *
@@ -192,6 +192,35 @@ Ltac2 extro_names (who : string) (xs : ident list) :=
                 Message.of_string " would be left depending on what goes back; write extros";
                 names_message gathered "&"]
     end).
+
+Ltac2 rec next_after (h : ident) (hyps : (ident * constr option * constr) list) : ident option :=
+  match hyps with
+  | [] => None
+  | x :: rest =>
+      match x with
+      | (y, _, _) =>
+          if Ident.equal y h
+          then match rest with (z, _, _) :: _ => Some z | [] => None end
+          else next_after h rest
+      end
+  end.
+
+(* <h> replaced by <proof>, for the tactics that rewrite a hypothesis in
+ * place. The new [h] goes back where the old one stood, unless its
+ * statement now names something that stands later. [Std.MoveAfter n] puts
+ * it just above [n] as the context is printed: Ltac2 counts from the other
+ * end.
+ *)
+Ltac2 replace_hypothesis (h : ident) (proof : constr) :=
+  let next := next_after h (Control.hyps ()) in
+  let y := Fresh.in_goal h in
+  Std.specialize (proof, Std.NoBindings) (Some (Std.IntroNaming (Std.IntroIdentifier y)));
+  Std.clear [h];
+  Std.rename [(y, h)];
+  match next with
+  | Some n => Control.once_plus (fun () => Std.move h (Std.MoveAfter n)) (fun _ => ())
+  | None => ()
+  end.
 
 Ltac2 Notation "mv" h(context_name) name(ident) :=
   rename (Local.context_ident "mv" h) name.
