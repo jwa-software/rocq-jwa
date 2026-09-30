@@ -489,9 +489,11 @@ Proof.
     quod idem est.
 Qed.
 
+Module difference. (* conversion.difference *)
+
 (* [difference] with the zero cases added. *)
-(* conversion.zero_difference *)
-Theorem zero_difference
+(* conversion.difference.extension *)
+Theorem extension
   : forall (a : BinWithZero) (b : BinWithZero) .
       to_integer (bin_with_zero_difference a b)
     = Integer.nat_with_zero_difference
@@ -509,6 +511,8 @@ Proof.
       quod idem est.
     + ipso (conversion.difference &p &q).
 Qed.
+
+End difference. (* conversion.difference *)
 
 (* conversion.addition *)
 Theorem addition
