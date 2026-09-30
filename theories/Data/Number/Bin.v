@@ -185,37 +185,48 @@ Definition append_one_difference := fun (d : Difference) .
   | Above p => Above (b1 p)
   end.
 
+(* [2d], or [2d + 1] when [bit] is [true]: the [Difference] counterpart of
+ * [append_bit], and what lets one arm below answer for both borrows.
+ *)
+(* [Bool -> Difference -> Difference] *)
+Definition append_bit_difference := fun (bit : Bool) (d : Difference) .
+  match bit with
+  | true  => append_one_difference d
+  | false => append_zero_difference d
+  end.
+
 (* Bit by bit from the least significant end, the borrow passed on as
  * [add_with_carry] passes its carry: [a - b] when [borrow] is [false],
  * [a - b - 1] when it is [true].
+ *
+ * Seven of the nine cases answer for both borrows at once, in the shape
+ * [append_bit_difference <this bit> <the rest>] that every case of
+ * [add_with_carry] has. Two cannot. At [One] against [One] the answer is
+ * [Equal] or [Below], and neither is a bit appended to anything. At [b1]
+ * against [One] the borrow decides whether the rest is [a'] or [a' - 1],
+ * which are answers of different shapes rather than one answer under two
+ * bits. Those two keep a [match borrow] of their own.
  *)
 (* [Bool -> Bin -> Bin -> Difference] *)
 Fixpoint difference_with_borrow (borrow : Bool) (a : Bin) (b : Bin) : Difference :=
-  match borrow with
-  | false =>
-      match a, b with
-      | One, One     => Equal
-      | One, b0 _    => Below
-      | One, b1 _    => Below
-      | b0 a', One   => append_one_difference (difference_with_borrow false a' One)
-      | b0 a', b0 b' => append_zero_difference (difference_with_borrow false a' b')
-      | b0 a', b1 b' => append_one_difference (difference_with_borrow true a' b')
-      | b1 a', One   => Above (b0 a')
-      | b1 a', b0 b' => append_one_difference (difference_with_borrow false a' b')
-      | b1 a', b1 b' => append_zero_difference (difference_with_borrow false a' b')
+  match a, b with
+  | One, One     =>
+      match borrow with
+      | true  => Below
+      | false => Equal
       end
-  | true =>
-      match a, b with
-      | One, One     => Below
-      | One, b0 _    => Below
-      | One, b1 _    => Below
-      | b0 a', One   => append_zero_difference (difference_with_borrow false a' One)
-      | b0 a', b0 b' => append_one_difference (difference_with_borrow true a' b')
-      | b0 a', b1 b' => append_zero_difference (difference_with_borrow true a' b')
-      | b1 a', One   => append_one_difference (difference_with_borrow false a' One)
-      | b1 a', b0 b' => append_zero_difference (difference_with_borrow false a' b')
-      | b1 a', b1 b' => append_one_difference (difference_with_borrow true a' b')
+  | One, b0 _    => Below
+  | One, b1 _    => Below
+  | b0 a', One   => append_bit_difference (Bool.negate borrow) (difference_with_borrow false a' One)
+  | b0 a', b0 b' => append_bit_difference borrow (difference_with_borrow borrow a' b')
+  | b0 a', b1 b' => append_bit_difference (Bool.negate borrow) (difference_with_borrow true a' b')
+  | b1 a', One   =>
+      match borrow with
+      | true  => append_bit_difference true (difference_with_borrow false a' One)
+      | false => Above (b0 a')
       end
+  | b1 a', b0 b' => append_bit_difference (Bool.negate borrow) (difference_with_borrow false a' b')
+  | b1 a', b1 b' => append_bit_difference borrow (difference_with_borrow borrow a' b')
   end.
 
 (* [Bin -> Bin -> Difference] *)
