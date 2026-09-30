@@ -135,11 +135,11 @@ Definition data_all_delivers_cancellative_with_zero
 
 Definition data_all_delivers_nat_operations
   : Nat
-  := (Nat.One + Nat.One * Nat.Successor Nat.One)%nat.
+  := (Nat.One + Nat.One * Nat.Successor Nat.One)%n.
 
 Definition data_all_delivers_nat_with_zero_operations
   : NatWithZero
-  := (NatWithZero.Zero + NatWithZero.Positive Nat.One * NatWithZero.Positive Nat.One)%nat_with_zero.
+  := (NatWithZero.Zero + NatWithZero.Positive Nat.One * NatWithZero.Positive Nat.One)%n0.
 
 Definition data_all_delivers_power
   : Nat
@@ -147,11 +147,11 @@ Definition data_all_delivers_power
 
 Definition data_all_delivers_power_notation
   : Nat
-  := (Nat.Successor Nat.One ^ Nat.One)%nat.
+  := (Nat.Successor Nat.One ^ Nat.One)%n.
 
 Definition data_all_delivers_nat_with_zero_power_notation
   : NatWithZero
-  := (NatWithZero.Positive Nat.One ^ NatWithZero.Zero)%nat_with_zero.
+  := (NatWithZero.Positive Nat.One ^ NatWithZero.Zero)%n0.
 
 Definition data_all_delivers_sub
   : Option Nat
@@ -223,15 +223,15 @@ Definition data_all_delivers_does_not_belong_to
 
 Definition data_all_delivers_nat_order
   : Prop
-  := (Nat.One < Nat.Successor Nat.One)%nat.
+  := (Nat.One < Nat.Successor Nat.One)%n.
 
 Definition data_all_delivers_nat_with_zero_order
   : Prop
-  := (NatWithZero.Zero <= NatWithZero.Positive Nat.One)%nat_with_zero.
+  := (NatWithZero.Zero <= NatWithZero.Positive Nat.One)%n0.
 
 Definition data_all_delivers_reversed_order
   : Prop
-  := (Nat.Successor Nat.One > Nat.One)%nat /\ (NatWithZero.Positive Nat.One >= NatWithZero.Zero)%nat_with_zero.
+  := (Nat.Successor Nat.One > Nat.One)%n /\ (NatWithZero.Positive Nat.One >= NatWithZero.Zero)%n0.
 
 Definition data_all_delivers_compare
   : Comparison
@@ -330,11 +330,11 @@ Definition data_all_delivers_integer
 
 Definition data_all_delivers_integer_operations
   : Integer
-  := (Integer.Zero + Integer.Negative Nat.One * Integer.Positive Nat.One)%integer.
+  := (Integer.Zero + Integer.Negative Nat.One * Integer.Positive Nat.One)%z.
 
 Definition data_all_delivers_integer_order
   : Prop
-  := (Integer.Negative Nat.One < Integer.Zero)%integer /\ (Integer.Positive Nat.One >= Integer.Zero)%integer.
+  := (Integer.Negative Nat.One < Integer.Zero)%z /\ (Integer.Positive Nat.One >= Integer.Zero)%z.
 
 Definition data_all_delivers_integer_monoid
   : forall (x : Integer) . Integer.add Integer.Zero x = x /\ Integer.add x Integer.Zero = x

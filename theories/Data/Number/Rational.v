@@ -39,7 +39,7 @@ Definition make := fun (n : Integer) (d : Nat) .
   in
   let g  := NatWithZero.gcd.nat n' d
   in
-  let numerator   := (n /. g)%integer
+  let numerator   := (n /. g)%z
   in
   let denominator := NatWithZero.divide.nat.safe d g (NatWithZero.gcd.nat.right.divisibility n' d)
   in
@@ -64,7 +64,7 @@ Definition Zero :=
       (Integer.abs Integer.Zero)
       (Nat.One)
       ((Identity.reflexivity NatWithZero.Zero)
-        : (Integer.abs Integer.Zero %. Nat.One)%nat_with_zero = NatWithZero.Zero)).
+        : (Integer.abs Integer.Zero %. Nat.One)%n0 = NatWithZero.Zero)).
 
 (* [Rational] *)
 Definition One :=
@@ -73,7 +73,7 @@ Definition One :=
       (Integer.abs Nat.One)
       (Nat.One)
       ((Identity.reflexivity NatWithZero.Zero)
-        : (Integer.abs Nat.One %. Nat.One)%nat_with_zero = NatWithZero.Zero)).
+        : (Integer.abs Nat.One %. Nat.One)%n0 = NatWithZero.Zero)).
 
 (* [Rational -> Rational] *)
 Definition negate := fun (x : Rational) .
@@ -89,8 +89,8 @@ Definition add := fun (x : Rational) (y : Rational) .
   let dy := denominator y in
   let dx' : Integer := dx in
   let dy' : Integer := dy in
-  let n := (nx * dy' + ny * dx')%integer in
-  let d := (dx * dy)%nat in
+  let n := (nx * dy' + ny * dx')%z in
+  let d := (dx * dy)%n in
   make n d.
 
 Notation "x + y" := (add x y) (only parsing)
@@ -101,9 +101,9 @@ Definition sub := fun (x : Rational) (y : Rational) . let y := negate y in add x
 
 (* [Rational -> Rational -> Rational] *)
 Definition mul := fun (x : Rational) (y : Rational) .
-  let n := (numerator x * numerator y)%integer
+  let n := (numerator x * numerator y)%z
   in
-  let d := (denominator x *  denominator y)%nat
+  let d := (denominator x *  denominator y)%n
   in
   make n d.
 
@@ -124,14 +124,14 @@ Definition inverse := fun (x : Rational) .
 (* [Rational -> Rational -> Prop] *)
 Definition LessThan := fun (x : Rational) (y : Rational) .
   (numerator x * denominator y
-   < numerator y * denominator x)%integer.
+   < numerator y * denominator x)%z.
 
 Notation "x < y" := (LessThan x y) (only parsing)
   : jwa_rational_scope.
 
 (* [Rational -> Rational -> Prop] *)
 Definition LessOrEqual := fun (x : Rational) (y : Rational) .
-  x = y \/ (x < y)%rational.
+  x = y \/ (x < y)%q.
 
 Notation "x <= y" := (LessOrEqual x y) (only parsing)
   : jwa_rational_scope.
@@ -148,8 +148,8 @@ Notation "'(<=)'" := LessOrEqual (only parsing)
 (* [Rational -> Rational -> Comparison] *)
 Definition compare := fun (x : Rational) (y : Rational) .
   Integer.compare
-    (numerator x * denominator y)%integer
-    (numerator y * denominator x)%integer.
+    (numerator x * denominator y)%z
+    (numerator y * denominator x)%z.
 
 (* [Integer -> Rational] *)
 Definition from_integer := fun (n : Integer) . make n Nat.One.
@@ -220,31 +220,31 @@ Proof.
   match x with | n d h end.
   simpl numerator, denominator in |- *.
 
-  lemma whole : (n /. Nat.One)%integer = n.
+  lemma whole : (n /. Nat.One)%z = n.
   {
     let proof e := Integer.division.exactness
                   n Nat.One
                   (NatWithZero.divisibility.bottom (Integer.abs n)).
     let proof i := Integer.multiplication.right.identity
-                  (n /. Nat.One)%integer.
+                  (n /. Nat.One)%z.
     symm in i.
     ipso (Identity.transitivity i e).
   }
 
-  lemma undivided : (d /. (Nat.One))%nat_with_zero
+  lemma undivided : (d /. (Nat.One))%n0
           = d.
   {
     let proof e := NatWithZero.division.exactness
                   d (Nat.One)
                   (NatWithZero.divisibility.bottom d).
     let proof i := NatWithZero.multiplication.right.identity
-                  (d /. (Nat.One))%nat_with_zero.
+                  (d /. (Nat.One))%n0.
     symm in i.
     ipso (Identity.transitivity i e).
   }
 
-  lemma same : (d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
-          = (d /. (Nat.One))%nat_with_zero.
+  lemma same : (d /. NatWithZero.gcd.nat (Integer.abs n) d)%n0
+          = (d /. (Nat.One))%n0.
   {
     leibniz h in |- *.
     quod idem est.
@@ -280,19 +280,19 @@ Qed.
 (* make.invariance *)
 Theorem invariance
   : forall (n : Integer) (d : Nat) (k : Nat) .
-      make (k * n)%integer (k * d)%nat = make n d.
+      make (k * n)%z (k * d)%n = make n d.
 Proof.
   intros n d k.
 
   lemma common : NatWithZero.gcd.nat
-              (Integer.abs (k * n)%integer)
-              (k * d)%nat
-          = (k * NatWithZero.gcd.nat (Integer.abs n) d)%nat.
+              (Integer.abs (k * n)%z)
+              (k * d)%n
+          = (k * NatWithZero.gcd.nat (Integer.abs n) d)%n.
   {
     let proof am := Integer.multiplication.magnitude k n.
     let proof am
-      : Integer.abs (k * n)%integer
-        = (k * Integer.abs n)%nat_with_zero
+      : Integer.abs (k * n)%z
+        = (k * Integer.abs n)%n0
       := &am.
     leibniz am in |- *.
     let proof gd := NatWithZero.gcd.nat.left.distributivity.of.multiplication
@@ -305,8 +305,8 @@ Proof.
 
   lemma top : (k * n /. NatWithZero.gcd.nat
                 (Integer.abs (k * n))
-                (k * d)%nat)%integer
-          = (n /. NatWithZero.gcd.nat (Integer.abs n) d)%integer.
+                (k * d)%n)%z
+          = (n /. NatWithZero.gcd.nat (Integer.abs n) d)%z.
   {
     leibniz common in |- *.
     ipso (Integer.division.invariance
@@ -314,31 +314,31 @@ Proof.
   }
 
   lemma bottom : NatWithZero.divide.nat.safe
-                (k * d)%nat
+                (k * d)%n
                 (NatWithZero.gcd.nat
-                  (Integer.abs (k * n)%integer)
-                  (k * d)%nat)
+                  (Integer.abs (k * n)%z)
+                  (k * d)%n)
                 (NatWithZero.gcd.nat.right.divisibility
-                  (Integer.abs (k * n)%integer)
-                  (k * d)%nat)
+                  (Integer.abs (k * n)%z)
+                  (k * d)%n)
           = NatWithZero.divide.nat.safe
                 d
                 (NatWithZero.gcd.nat (Integer.abs n) d)
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs n) d).
   {
     lemma quotients
-      : ((&k * &d)%nat
-         /. NatWithZero.gcd.nat (Integer.abs (k * &n)%integer) (&k * &d)%nat)%nat_with_zero
-        = (d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%nat_with_zero.
+      : ((&k * &d)%n
+         /. NatWithZero.gcd.nat (Integer.abs (k * &n)%z) (&k * &d)%n)%n0
+        = (d /. NatWithZero.gcd.nat (Integer.abs &n) &d)%n0.
     {
       leibniz common in |- *.
       let proof inv := NatWithZero.division.invariance
                     d
                     (NatWithZero.gcd.nat (Integer.abs n) d) k.
       let proof inv
-        : ((k * d)%nat
-           /. (k * NatWithZero.gcd.nat (Integer.abs n) d)%nat)%nat_with_zero
-          = (d /. NatWithZero.gcd.nat (Integer.abs n) d)%nat_with_zero
+        : ((k * d)%n
+           /. (k * NatWithZero.gcd.nat (Integer.abs n) d)%n)%n0
+          = (d /. NatWithZero.gcd.nat (Integer.abs n) d)%n0
         := &inv.
       ipso inv.
     }
@@ -346,7 +346,7 @@ Proof.
   }
 
   ipso (extensionality
-          (make (k * &n)%integer (&k * &d)%nat)
+          (make (k * &n)%z (&k * &d)%n)
           (make &n &d)
           &top &bottom).
 Qed.
@@ -354,8 +354,8 @@ Qed.
 (* make.proportionality *)
 Theorem proportionality
   : forall (a : Integer) (b : Nat) .
-      (numerator (make a b) * b)%integer
-      = (a * denominator (make a b))%integer.
+      (numerator (make a b) * b)%z
+      = (a * denominator (make a b))%z.
 Proof.
   intros a b.
   simpl make in |- *.
@@ -364,7 +364,7 @@ Proof.
   lemma bottom : (NatWithZero.divide.nat.safe
                 b (NatWithZero.gcd.nat (Integer.abs a) b)
                 (NatWithZero.gcd.nat.right.divisibility (Integer.abs a) b)
-              * NatWithZero.gcd.nat (Integer.abs a) b)%nat
+              * NatWithZero.gcd.nat (Integer.abs a) b)%n
           = b.
   {
     let proof s := NatWithZero.divide.nat.safe.specification
@@ -385,7 +385,7 @@ Proof.
           = (NatWithZero.divide.nat.safe
                     b (NatWithZero.gcd.nat (Integer.abs a) b)
                     (NatWithZero.gcd.nat.right.divisibility
-                      (Integer.abs a) b) * NatWithZero.gcd.nat (Integer.abs a) b)%integer.
+                      (Integer.abs a) b) * NatWithZero.gcd.nat (Integer.abs a) b)%z.
   {
     congru Integer.Positive, bottom |- c.
     symm in c.
@@ -395,7 +395,7 @@ Proof.
   }
 
   lemma whole : ((a /. NatWithZero.gcd.nat (Integer.abs a) b)
-                 * NatWithZero.gcd.nat (Integer.abs a) b)%integer
+                 * NatWithZero.gcd.nat (Integer.abs a) b)%z
           = a.
   {
     ipso (Integer.division.exactness
@@ -412,7 +412,7 @@ Proof.
     in |- *.
   let proof assoc := Identity.symmetry
                 (Integer.multiplication.associativity
-                  (a /. NatWithZero.gcd.nat (Integer.abs a) b)%integer
+                  (a /. NatWithZero.gcd.nat (Integer.abs a) b)%z
                   (NatWithZero.gcd.nat (Integer.abs a) b)
                   (NatWithZero.divide.nat.safe
                       b (NatWithZero.gcd.nat (Integer.abs a) b)
@@ -427,14 +427,14 @@ Qed.
 Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       make a b = make c d
-      <-> (a * d)%integer
-        = (c * b)%integer.
+      <-> (a * d)%z
+        = (c * b)%z.
 Proof.
   intros a b c d.
 
   lemma swap : forall (x : Integer) (y : Integer) (z : Integer) .
-              (x * y * z)%integer
-              = (x * z * y)%integer.
+              (x * y * z)%z
+              = (x * z * y)%z.
   {
     intros x y z.
     leibniz (Integer.multiplication.associativity x y z) in |- *.
@@ -478,15 +478,15 @@ Proof.
     leibniz hp in P1.
     leibniz hq in P1.
 
-    lemma Q1 : (r * b * d)%integer
-                 = (a * s * d)%integer.
+    lemma Q1 : (r * b * d)%z
+                 = (a * s * d)%z.
     {
       leibniz P1 in |- *.
       quod idem est.
     }
 
-    lemma Q2 : (r * d * b)%integer
-                 = (c * s * b)%integer.
+    lemma Q2 : (r * d * b)%z
+                 = (c * s * b)%z.
     {
       leibniz P2 in |- *.
       quod idem est.
@@ -498,18 +498,18 @@ Proof.
     leibniz (swap a s d) in Q.
     leibniz (swap c s b) in Q.
     leibniz (Integer.multiplication.commutativity
-              (a * d)%integer
+              (a * d)%z
               s) in Q.
     leibniz (Integer.multiplication.commutativity
-              (c * b)%integer
+              (c * b)%z
               s) in Q.
     ipso (Integer.multiplication.cancellation
-            s (a * d)%integer
-            (c * b)%integer nzs Q).
+            s (a * d)%z
+            (c * b)%z nzs Q).
 
   - intro e.
 
-    lemma nzbd : ~ ((b * d)%integer
+    lemma nzbd : ~ ((b * d)%z
             = Integer.Zero).
     {
       simpl (~ _) in |- *.
@@ -518,8 +518,8 @@ Proof.
       ex z quodlibet.
     }
 
-    lemma widened : (p * s * (b * d))%integer
-            = (r * q * (b * d))%integer.
+    lemma widened : (p * s * (b * d))%z
+            = (r * q * (b * d))%z.
     {
       leibniz (Integer.multiplication.interchange
                 p s b d) in |- *.
@@ -541,23 +541,23 @@ Proof.
     }
 
     leibniz (Integer.multiplication.commutativity
-              (p * s)%integer
-              (b * d)%integer) in widened.
+              (p * s)%z
+              (b * d)%z) in widened.
     leibniz (Integer.multiplication.commutativity
-              (r * q)%integer
-              (b * d)%integer) in widened.
+              (r * q)%z
+              (b * d)%z) in widened.
     let proof cross := Integer.multiplication.cancellation
-                  (b * d)%integer
-                  (p * s)%integer
-                  (r * q)%integer
+                  (b * d)%z
+                  (p * s)%z
+                  (r * q)%z
                   nzbd widened.
 
     congru Integer.abs, cross |- m.
     leibniz (Integer.multiplication.magnitude p s) in m.
     leibniz (Integer.multiplication.magnitude r q) in m.
     let proof m
-      : (Integer.abs p * s)%nat_with_zero
-        = (Integer.abs r * q)%nat_with_zero
+      : (Integer.abs p * s)%n0
+        = (Integer.abs r * q)%n0
       := &m.
 
     lemma coprime1 : NatWithZero.gcd q (Integer.abs p)
@@ -632,8 +632,8 @@ Proof.
     ipso r.
   }
 
-  lemma cross : (Integer.Zero * Nat.One)%integer
-          = (Integer.Zero * b)%integer.
+  lemma cross : (Integer.Zero * Nat.One)%z
+          = (Integer.Zero * b)%z.
   {
     leibniz (Integer.multiplication.left.annihilation Nat.One) in |- *.
     leibniz (Integer.multiplication.left.annihilation b)     in |- *.
@@ -651,8 +651,8 @@ Module addition. (* make.addition *)
 Theorem homomorphism
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       (make a b) + (make c d)
-      = make (a * d + c * b)%integer
-             (b * d)%nat.
+      = make (a * d + c * b)%z
+             (b * d)%n.
 Proof.
   intros a b c d.
   simpl add in |- *.
@@ -670,8 +670,8 @@ Proof.
   let q' : Integer := q in *.
   let s' : Integer := s in *.
 
-  lemma first : (p * s' * (b' * d'))%integer
-          = (a * d' * (q' * s'))%integer.
+  lemma first : (p * s' * (b' * d'))%z
+          = (a * d' * (q' * s'))%z.
   {
     leibniz (Integer.multiplication.interchange p s' b' d') in |- *.
     leibniz P1 in |- *.
@@ -680,8 +680,8 @@ Proof.
     quod idem est.
   }
 
-  lemma second : (r * q' * (b' * d'))%integer
-          = (c * b' * (q' * s'))%integer.
+  lemma second : (r * q' * (b' * d'))%z
+          = (c * b' * (q' * s'))%z.
   {
     leibniz (Integer.multiplication.commutativity b' d') in |- *.
     leibniz (Integer.multiplication.interchange r q' d' b') in |- *.
@@ -692,33 +692,33 @@ Proof.
     quod idem est.
   }
 
-  lemma cross : ((p * s' + r * q') * (b * d)%nat)%integer
-          = ((a * d' + c * b') * (q * s)%nat)%integer.
+  lemma cross : ((p * s' + r * q') * (b * d)%n)%z
+          = ((a * d' + c * b') * (q * s)%n)%z.
   {
     lemma facto
-      : ((&p * &s' + &r * &q') * (&b' * &d'))%integer
-        = ((&a * &d' + &c * &b') * (&q' * &s'))%integer.
+      : ((&p * &s' + &r * &q') * (&b' * &d'))%z
+        = ((&a * &d' + &c * &b') * (&q' * &s'))%z.
     {
       leibniz (Integer.multiplication.right.distributivity.over.addition
-                (b' * d')%integer (p * s')%integer (r * q')%integer) in |- *.
+                (b' * d')%z (p * s')%z (r * q')%z) in |- *.
       leibniz (Integer.multiplication.right.distributivity.over.addition
-                (q' * s')%integer (a * d')%integer (c * b')%integer) in |- *.
+                (q' * s')%z (a * d')%z (c * b')%z) in |- *.
       leibniz first  in |- *.
       leibniz second in |- *.
       quod idem est.
     }
     let proof facto
-      : ((&p * &s' + &r * &q') * (&b' * &d'))%integer
-        = ((&a * &d' + &c * &b') * (&q * &s)%nat)%integer
+      : ((&p * &s' + &r * &q') * (&b' * &d'))%z
+        = ((&a * &d' + &c * &b') * (&q * &s)%n)%z
       := facto.
     ipso facto.
   }
 
   let proof criterion := make.characterisation
-                (p * s' + r * q')%integer
-                (q * s)%nat
-                (a * d' + c * b')%integer
-                (b * d)%nat.
+                (p * s' + r * q')%z
+                (q * s)%n
+                (a * d' + c * b')%z
+                (b * d)%n.
   modus aequans criterion, cross |- joined.
   ipso joined.
 Qed.
@@ -730,7 +730,7 @@ Module multiplication. (* make.multiplication *)
 (* make.multiplication.homomorphism *)
 Theorem homomorphism
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
-    (make a b) * (make c d) = make (a * c)%integer (b * d)%nat.
+    (make a b) * (make c d) = make (a * c)%z (b * d)%n.
 Proof.
   intros a b c d.
   simpl mul in |- *.
@@ -743,12 +743,12 @@ Proof.
   simpl numerator, denominator in P1, P2.
   simpl numerator, denominator in |- *.
 
-  lemma cross : (p * r * (b * d)%nat)%integer
-          = (a * c * (q * s)%nat)%integer.
+  lemma cross : (p * r * (b * d)%n)%z
+          = (a * c * (q * s)%n)%z.
   {
     lemma facto
-      : (&p * &r * (b * d))%integer
-        = (&a * &c * (q * s))%integer.
+      : (&p * &r * (b * d))%z
+        = (&a * &c * (q * s))%z.
     {
       leibniz (Integer.multiplication.interchange
                 p r b d) in |- *.
@@ -759,15 +759,15 @@ Proof.
       quod idem est.
     }
     let proof facto
-      : (&p * &r * (b * d))%integer
-        = (&a * &c * (&q * &s)%nat)%integer
+      : (&p * &r * (b * d))%z
+        = (&a * &c * (&q * &s)%n)%z
       := facto.
     ipso facto.
   }
 
   let proof criterion := make.characterisation
-                (p * r)%integer (q * s)%nat
-                (a * c)%integer (b * d)%nat.
+                (p * r)%z (q * s)%n
+                (a * c)%z (b * d)%n.
   modus aequans criterion, cross |- joined.
   ipso joined.
 Qed.
@@ -790,8 +790,8 @@ Proof.
   simpl numerator, denominator in P1.
   simpl numerator, denominator in |- *.
 
-  lemma cross : (Integer.negate p * b)%integer
-          = (Integer.negate a * q)%integer.
+  lemma cross : (Integer.negate p * b)%z
+          = (Integer.negate a * q)%z.
   {
     leibniz (Integer.multiplication.left.negation p b) in |- *.
     leibniz (Integer.multiplication.left.negation a q) in |- *.
@@ -815,7 +815,7 @@ Module strict. (* make.order.strict *)
 Theorem characterisation
   : forall (a : Integer) (b : Nat) (c : Integer) (d : Nat) .
       make a b < make c d
-      <-> (a * d < c * b)%integer.
+      <-> (a * d < c * b)%z.
 Proof.
   intros a b c d.
   let proof P1 := make.proportionality a b.
@@ -827,9 +827,9 @@ Proof.
   let s := denominator (make &c &d) in *.
 
   lemma scaling : forall (m : Integer) (n : Integer) (k : Nat) .
-              (m < n)%integer
+              (m < n)%z
               <-> (m * k
-                   < n * k)%integer.
+                   < n * k)%z.
   {
     intros m n k.
     divide et impera.
@@ -843,19 +843,19 @@ Proof.
       + ipso &below.
       + match &rest with | equal | above end.
         * leibniz &equal in &h.
-          ex (Integer.order.strict.irreflexivity (&n * k)%integer &h)
+          ex (Integer.order.strict.irreflexivity (&n * k)%z &h)
             quodlibet.
         * let proof back := Integer.multiplication.left.order.strict.monotonicity &k &n &m &above.
           leibniz (Integer.multiplication.commutativity k &n),
                   (Integer.multiplication.commutativity k &m) in &back.
           let proof loop := Integer.order.strict.transitivity &h &back.
-          ex (Integer.order.strict.irreflexivity (&m * k)%integer &loop)
+          ex (Integer.order.strict.irreflexivity (&m * k)%z &loop)
             quodlibet.
   }
 
   lemma left_side
-    : (&p * s * (&b * &d)%nat)%integer
-      = (&a * d * (&q * &s)%nat)%integer.
+    : (&p * s * (&b * &d)%n)%z
+      = (&a * d * (&q * &s)%n)%z.
   {
     leibniz <- (Integer.multiplication.positive.homomorphism &b &d),
             <- (Integer.multiplication.positive.homomorphism &q &s) in |- *.
@@ -870,8 +870,8 @@ Proof.
   }
 
   lemma right_side
-    : (&r * q * (&b * &d)%nat)%integer
-      = (&c * b * (&q * &s)%nat)%integer.
+    : (&r * q * (&b * &d)%n)%z
+      = (&c * b * (&q * &s)%n)%z.
   {
     leibniz <- (Integer.multiplication.positive.homomorphism &b &d),
             <- (Integer.multiplication.positive.homomorphism &q &s) in |- *.
@@ -892,24 +892,24 @@ Proof.
   divide et impera.
   - intro h.
     modus aequans
-      (&scaling (&p * s)%integer (&r * q)%integer
-                (&b * &d)%nat),
+      (&scaling (&p * s)%z (&r * q)%z
+                (&b * &d)%n),
       &h |- scaled.
     leibniz &left_side, &right_side in &scaled.
     modus aequans
-      (&scaling (&a * d)%integer (&c * b)%integer
-                (&q * &s)%nat),
+      (&scaling (&a * d)%z (&c * b)%z
+                (&q * &s)%n),
       &scaled |- facto.
     ipso facto.
   - intro h.
     modus aequans
-      (&scaling (&a * d)%integer (&c * b)%integer
-                (&q * &s)%nat),
+      (&scaling (&a * d)%z (&c * b)%z
+                (&q * &s)%n),
       &h |- scaled.
     leibniz <- &left_side, <- &right_side in &scaled.
     modus aequans
-      (&scaling (&p * s)%integer (&r * q)%integer
-                (&b * &d)%nat),
+      (&scaling (&p * s)%z (&r * q)%z
+                (&b * &d)%n),
       &scaled |- facto.
     ipso facto.
 Qed.
@@ -923,8 +923,8 @@ End make. (* make *)
 Theorem characterisation
   : forall (x : Rational) (y : Rational) .
       x = y
-      <-> (numerator x * denominator y)%integer
-        = (numerator y * denominator x)%integer.
+      <-> (numerator x * denominator y)%z
+        = (numerator y * denominator x)%z.
 Proof.
   intros x y.
   let proof c := make.characterisation
@@ -952,35 +952,35 @@ Proof.
     leibniz (make.addition.homomorphism a b c d) in |- *.
     leibniz (make.addition.homomorphism c d e f) in |- *.
     leibniz (make.addition.homomorphism
-               (a * d + c * b)%integer
-               (b * d)%nat
+               (a * d + c * b)%z
+               (b * d)%n
                e f) in |- *.
     leibniz (make.addition.homomorphism
                a b
-               (c * f + e * d)%integer
-               (d * f)%nat) in |- *.
+               (c * f + e * d)%z
+               (d * f)%n) in |- *.
 
     let b' : Integer := b in *.
     let d' : Integer := d in *.
     let f' : Integer := f in *.
 
     lemma facto
-      : make ((&a * &d' + &c * &b') * &f' + &e * (&b' * &d'))%integer
-             (&b * &d * &f)%nat
-        = make (&a * (&d' * &f') + (&c * &f' + &e * &d') * &b')%integer
-               (&b * (&d * &f))%nat.
+      : make ((&a * &d' + &c * &b') * &f' + &e * (&b' * &d'))%z
+             (&b * &d * &f)%n
+        = make (&a * (&d' * &f') + (&c * &f' + &e * &d') * &b')%z
+               (&b * (&d * &f))%n.
     {
-      lemma tops : ((a * d' + c * b') * (f') + (e) * (b' * d'))%integer
-              = ((a) * (d' * f') + (c * f' + e * d') * (b'))%integer.
+      lemma tops : ((a * d' + c * b') * (f') + (e) * (b' * d'))%z
+              = ((a) * (d' * f') + (c * f' + e * d') * (b'))%z.
       {
         leibniz (Integer.multiplication.right.distributivity.over.addition
-                  f' (a * d')%integer (c * b')%integer) in |- *.
+                  f' (a * d')%z (c * b')%z) in |- *.
         leibniz (Integer.multiplication.right.distributivity.over.addition
-                  b' (c * f')%integer (e * d')%integer) in |- *.
+                  b' (c * f')%z (e * d')%z) in |- *.
         leibniz (Integer.addition.associativity
-                  (a * d' * f')%integer
-                  (c * b' * f')%integer
-                  (e * (b' * d'))%integer) in |- *.
+                  (a * d' * f')%z
+                  (c * b' * f')%z
+                  (e * (b' * d'))%z) in |- *.
         leibniz (Integer.multiplication.associativity a d' f') in |- *.
         leibniz (Integer.multiplication.associativity c b' f') in |- *.
         leibniz (Integer.multiplication.associativity c f' b') in |- *.
@@ -995,10 +995,10 @@ Proof.
       quod idem est.
     }
     let proof facto
-      : make ((&a * &d' + &c * &b') * &f' + &e * (&b' * &d'))%integer
-             (&b * &d * &f)%nat
-        = make (&a * (&d * &f)%nat + (&c * &f' + &e * &d') * &b')%integer
-               (&b * (&d * &f))%nat
+      : make ((&a * &d' + &c * &b') * &f' + &e * (&b' * &d'))%z
+             (&b * &d * &f)%n
+        = make (&a * (&d * &f)%n + (&c * &f' + &e * &d') * &b')%z
+               (&b * (&d * &f))%n
       := facto.
     ipso facto.
   }
@@ -1020,8 +1020,8 @@ Proof.
   intros x y.
   simpl add in |- *.
   leibniz (Integer.addition.commutativity
-            (numerator x * denominator y)%integer
-            (numerator y * denominator x)%integer) in |- *.
+            (numerator x * denominator y)%z
+            (numerator y * denominator x)%z) in |- *.
   leibniz (Nat.multiplication.commutativity (denominator x) (denominator y)) in |- *.
   quod idem est.
 Qed.
@@ -1034,30 +1034,30 @@ Proof.
   intro x.
   simpl add in |- *.
   lemma facto
-    : make (Integer.Zero * denominator &x + numerator &x * Nat.One)%integer
+    : make (Integer.Zero * denominator &x + numerator &x * Nat.One)%z
            (denominator &x)
       = &x.
   {
     leibniz (Integer.multiplication.left.annihilation
                (denominator x)) in |- *.
     leibniz (Integer.addition.left.identity
-               (numerator x * Nat.One)%integer) in |- *.
+               (numerator x * Nat.One)%z) in |- *.
     leibniz (Integer.multiplication.right.identity (numerator x)) in |- *.
     ipso (make.retraction x).
   }
   let proof facto
-    : make (Integer.Zero * denominator &x + numerator &x * Nat.One)%integer
-           (Nat.One * denominator &x)%nat
+    : make (Integer.Zero * denominator &x + numerator &x * Nat.One)%z
+           (Nat.One * denominator &x)%n
       = &x
     := facto.
   let proof facto
-    : make (Integer.Zero * denominator &x + numerator &x * Nat.One)%integer
-           (Nat.One * denominator &x)%nat
+    : make (Integer.Zero * denominator &x + numerator &x * Nat.One)%z
+           (Nat.One * denominator &x)%n
       = &x
     := facto.
   let proof facto
-    : make (Integer.Zero * denominator &x + numerator &x * denominator Zero)%integer
-           (denominator Zero * denominator &x)%nat
+    : make (Integer.Zero * denominator &x + numerator &x * denominator Zero)%z
+           (denominator Zero * denominator &x)%n
       = &x
     := facto.
   ipso facto.
@@ -1074,8 +1074,8 @@ Proof.
     leibniz (make.negation.homomorphism a b) in |- *.
     leibniz (make.addition.homomorphism (Integer.negate a) b a b) in |- *.
     leibniz (Integer.multiplication.left.negation (a) b) in |- *.
-    leibniz (Integer.addition.left.inverse (a * b)%integer) in |- *.
-    ipso (make.annihilation (b * b)%nat).
+    leibniz (Integer.addition.left.inverse (a * b)%z) in |- *.
+    ipso (make.annihilation (b * b)%n).
   }
 
   let proof g := general (numerator x) (denominator x).
@@ -1115,8 +1115,8 @@ Proof.
   intro x.
   simpl add in |- *.
   lemma facto
-    : make (numerator &x * Nat.One + Integer.Zero * denominator &x)%integer
-           (denominator &x * Nat.One)%nat
+    : make (numerator &x * Nat.One + Integer.Zero * denominator &x)%z
+           (denominator &x * Nat.One)%n
       = &x.
   {
     leibniz (Integer.multiplication.right.identity (numerator x)) in |- *.
@@ -1127,13 +1127,13 @@ Proof.
     ipso (make.retraction x).
   }
   let proof facto
-    : make (numerator &x * Nat.One + Integer.Zero * denominator &x)%integer
-           (denominator &x * Nat.One)%nat
+    : make (numerator &x * Nat.One + Integer.Zero * denominator &x)%z
+           (denominator &x * Nat.One)%n
       = &x
     := facto.
   let proof facto
-    : make (numerator &x * denominator Zero + Integer.Zero * denominator &x)%integer
-           (denominator &x * denominator Zero)%nat
+    : make (numerator &x * denominator Zero + Integer.Zero * denominator &x)%z
+           (denominator &x * denominator Zero)%n
       = &x
     := facto.
   ipso facto.
@@ -1153,8 +1153,8 @@ Proof.
     leibniz (Integer.multiplication.left.negation
                a b) in |- *.
     leibniz (Integer.addition.right.inverse
-               (a * b)%integer) in |- *.
-    ipso (make.annihilation (b * b)%nat).
+               (a * b)%z) in |- *.
+    ipso (make.annihilation (b * b)%n).
   }
 
   let proof g := general (numerator x) (denominator x).
@@ -1241,13 +1241,13 @@ Proof.
           (make.addition.homomorphism &e &f &c &d) in |- *.
 
   lemma lower
-    : ((&e * b + &a * f) * (&f * &d)%nat)%integer
-      = (&e * b * (&f * &d)%nat + (&f * &f)%nat * (&a * d))%integer.
+    : ((&e * b + &a * f) * (&f * &d)%n)%z
+      = (&e * b * (&f * &d)%n + (&f * &f)%n * (&a * d))%z.
   {
     leibniz (Integer.multiplication.right.distributivity.over.addition
-               (&f * &d)%nat
-               (&e * b)%integer
-               (&a * f)%integer) in |- *.
+               (&f * &d)%n
+               (&e * b)%z
+               (&a * f)%z) in |- *.
     leibniz <- (Integer.multiplication.positive.homomorphism &f &d),
             <- (Integer.multiplication.positive.homomorphism &f &f) in |- *.
     leibniz (Integer.multiplication.commutativity &a f) in |- *.
@@ -1257,13 +1257,13 @@ Proof.
   }
 
   lemma upper
-    : ((&e * d + &c * f) * (&f * &b)%nat)%integer
-      = (&e * b * (&f * &d)%nat + (&f * &f)%nat * (&c * b))%integer.
+    : ((&e * d + &c * f) * (&f * &b)%n)%z
+      = (&e * b * (&f * &d)%n + (&f * &f)%n * (&c * b))%z.
   {
     leibniz (Integer.multiplication.right.distributivity.over.addition
-               (&f * &b)%nat
-               (&e * d)%integer
-               (&c * f)%integer) in |- *.
+               (&f * &b)%n
+               (&e * d)%z
+               (&c * f)%z) in |- *.
     leibniz <- (Integer.multiplication.positive.homomorphism &f &b),
             <- (Integer.multiplication.positive.homomorphism &f &d),
             <- (Integer.multiplication.positive.homomorphism &f &f) in |- *.
@@ -1280,16 +1280,16 @@ Proof.
   }
 
   lemma cross
-    : ((&e * b + &a * f) * (&f * &d)%nat
-       < (&e * d + &c * f) * (&f * &b)%nat)%integer.
+    : ((&e * b + &a * f) * (&f * &d)%n
+       < (&e * d + &c * f) * (&f * &b)%n)%z.
   {
     let proof scaled := Integer.multiplication.left.order.strict.monotonicity
-                          (&f * &f)%nat
-                          (&a * d)%integer
-                          (&c * b)%integer
+                          (&f * &f)%n
+                          (&a * d)%z
+                          (&c * b)%z
                           &h.
     let proof shifted := Integer.addition.order.strict.monotonicity
-                           (&e * b * (&f * &d)%nat)%integer
+                           (&e * b * (&f * &d)%n)%z
                            _ _ &scaled.
     leibniz <- &lower, <- &upper in &shifted.
     ipso &shifted.
@@ -1334,9 +1334,9 @@ Proof.
     leibniz (make.multiplication.homomorphism a b c d) in |- *.
     leibniz (make.multiplication.homomorphism c d e f) in |- *.
     leibniz (make.multiplication.homomorphism
-              (a * c)%integer (b * d)%nat e f) in |- *.
+              (a * c)%z (b * d)%n e f) in |- *.
     leibniz (make.multiplication.homomorphism
-              a b (c * e)%integer (d * f)%nat) in |- *.
+              a b (c * e)%z (d * f)%n) in |- *.
     leibniz (Integer.multiplication.associativity a c e) in |- *.
     leibniz (Nat.multiplication.associativity b d f) in |- *.
     quod idem est.
@@ -1360,19 +1360,19 @@ Proof.
   intro x.
   simpl mul in |- *.
   lemma facto
-    : make (Nat.One * numerator &x)%integer (denominator &x) = &x.
+    : make (Nat.One * numerator &x)%z (denominator &x) = &x.
   {
     leibniz (Integer.multiplication.left.identity (numerator x)) in |- *.
     ipso (make.retraction x).
   }
   let proof facto
-    : make (Nat.One * numerator &x)%integer
-           (Nat.One * denominator &x)%nat
+    : make (Nat.One * numerator &x)%z
+           (Nat.One * denominator &x)%n
       = &x
     := facto.
   let proof facto
-    : make (Nat.One * numerator &x)%integer
-           (denominator One * denominator &x)%nat
+    : make (Nat.One * numerator &x)%z
+           (denominator One * denominator &x)%n
       = &x
     := facto.
   ipso facto.
@@ -1384,17 +1384,17 @@ Proof.
   intro x.
   simpl mul in |- *.
   lemma facto
-    : make (Integer.Zero * numerator &x)%integer (denominator &x) = Zero.
+    : make (Integer.Zero * numerator &x)%z (denominator &x) = Zero.
   {
     leibniz (Integer.multiplication.left.annihilation (numerator x)) in |- *.
     ipso (make.annihilation (denominator x)).
   }
   let proof facto
-    : make (Integer.Zero * numerator &x)%integer (Nat.One * denominator &x)%nat = Zero
+    : make (Integer.Zero * numerator &x)%z (Nat.One * denominator &x)%n = Zero
     := facto.
   let proof facto
-    : make (Integer.Zero * numerator &x)%integer
-           (denominator Zero * denominator &x)%nat
+    : make (Integer.Zero * numerator &x)%z
+           (denominator Zero * denominator &x)%n
       = Zero
     := facto.
   ipso facto.
@@ -1420,48 +1420,48 @@ Proof.
     leibniz (make.addition.homomorphism c d e f) in |- *.
     leibniz (make.multiplication.homomorphism
               a b
-              (c * f + e * d)%integer
-              (d * f)%nat) in |- *.
+              (c * f + e * d)%z
+              (d * f)%n) in |- *.
     leibniz (make.multiplication.homomorphism a b c d) in |- *.
     leibniz (make.multiplication.homomorphism a b e f) in |- *.
     leibniz (make.addition.homomorphism
-              (a * c)%integer (b * d)%nat
-              (a * e)%integer (b * f)%nat) in |- *.
+              (a * c)%z (b * d)%n
+              (a * e)%z (b * f)%n) in |- *.
 
     let b' : Integer := b.
     let d' : Integer := d in *.
     let f' : Integer := f in *.
 
     lemma facto
-      : make (&a * (&c * &f' + &e * &d'))%integer
-             (&b * (&d * &f))%nat
-        = make (&a * &c * (&b' * &f') + &a * &e * (&b' * &d'))%integer
-               (&b * &d * (&b * &f))%nat.
+      : make (&a * (&c * &f' + &e * &d'))%z
+             (&b * (&d * &f))%n
+        = make (&a * &c * (&b' * &f') + &a * &e * (&b' * &d'))%z
+               (&b * &d * (&b * &f))%n.
     {
-      lemma tops : (a * c * (b' * f') + a * e * (b' * d'))%integer
-              = (b' * ((a) * (c * f' + e * d')))%integer.
+      lemma tops : (a * c * (b' * f') + a * e * (b' * d'))%z
+              = (b' * ((a) * (c * f' + e * d')))%z.
       {
         leibniz (Integer.multiplication.left.distributivity.over.addition
-                  a (c * f')%integer (e * d')%integer) in |- *.
+                  a (c * f')%z (e * d')%z) in |- *.
         leibniz (Integer.multiplication.left.distributivity.over.addition
                   b'
-                  (a * (c * f'))%integer
-                  (a * (e * d'))%integer) in |- *.
+                  (a * (c * f'))%z
+                  (a * (e * d'))%z) in |- *.
         leibniz (Integer.multiplication.interchange a c b' f') in |- *.
         leibniz (Integer.multiplication.interchange a e b' d') in |- *.
         leibniz (Integer.multiplication.commutativity a b') in |- *.
         leibniz (Integer.multiplication.associativity
-                  b' a (c * f')%integer) in |- *.
+                  b' a (c * f')%z) in |- *.
         leibniz (Integer.multiplication.associativity
-                  b' a (e * d')%integer) in |- *.
+                  b' a (e * d')%z) in |- *.
         quod idem est.
       }
 
-      lemma bots : (b * d * (b * f))%nat
-              = ((b) * (b * (d * f)))%nat.
+      lemma bots : (b * d * (b * f))%n
+              = ((b) * (b * (d * f)))%n.
       {
-        leibniz (Nat.multiplication.associativity b d (b * f)%nat) in |- *.
-        leibniz (Nat.multiplication.commutativity d (b * f)%nat) in |- *.
+        leibniz (Nat.multiplication.associativity b d (b * f)%n) in |- *.
+        leibniz (Nat.multiplication.commutativity d (b * f)%n) in |- *.
         leibniz (Nat.multiplication.associativity b f d) in |- *.
         leibniz (Nat.multiplication.commutativity f d) in |- *.
         quod idem est.
@@ -1471,15 +1471,15 @@ Proof.
       leibniz bots in |- *.
       symm in |- *.
       ipso (make.invariance
-              ((a) * (c * f' + e * d'))%integer
-              ((b) * (d * f))%nat
+              ((a) * (c * f' + e * d'))%z
+              ((b) * (d * f))%n
               (b)).
     }
     let proof facto
-      : make (&a * (&c * &f' + &e * &d'))%integer
-             (&b * (&d * &f))%nat
-        = make (&a * &c * (&b' * &f') + &a * &e * (&b * &d)%nat)%integer
-               (&b * &d * (&b * &f))%nat
+      : make (&a * (&c * &f' + &e * &d'))%z
+             (&b * (&d * &f))%n
+        = make (&a * &c * (&b' * &f') + &a * &e * (&b * &d)%n)%z
+               (&b * &d * (&b * &f))%n
       := facto.
     ipso facto.
   }
@@ -1530,8 +1530,8 @@ Proof.
             (make.multiplication.homomorphism k &f &c &d) in |- *.
 
     lemma lower
-      : (k * &a * (&f * &d)%nat)%integer
-        = ((&k * &f)%nat * (&a * d))%integer.
+      : (k * &a * (&f * &d)%n)%z
+        = ((&k * &f)%n * (&a * d))%z.
     {
       leibniz <- (Integer.multiplication.positive.homomorphism &f &d),
               <- (Integer.multiplication.positive.homomorphism &k &f) in |- *.
@@ -1541,8 +1541,8 @@ Proof.
     }
 
     lemma upper
-      : (k * &c * (&f * &b)%nat)%integer
-        = ((&k * &f)%nat * (&c * b))%integer.
+      : (k * &c * (&f * &b)%n)%z
+        = ((&k * &f)%n * (&c * b))%z.
     {
       leibniz <- (Integer.multiplication.positive.homomorphism &f &b),
               <- (Integer.multiplication.positive.homomorphism &k &f) in |- *.
@@ -1552,13 +1552,13 @@ Proof.
     }
 
     lemma cross
-      : (k * &a * (&f * &d)%nat
-         < k * &c * (&f * &b)%nat)%integer.
+      : (k * &a * (&f * &d)%n
+         < k * &c * (&f * &b)%n)%z.
     {
       let proof scaled := Integer.multiplication.left.order.strict.monotonicity
-                            (&k * &f)%nat
-                            (&a * d)%integer
-                            (&c * b)%integer
+                            (&k * &f)%n
+                            (&a * d)%z
+                            (&c * b)%z
                             &h.
       leibniz <- &lower, <- &upper in &scaled.
       ipso &scaled.
@@ -1674,32 +1674,32 @@ Proof.
     leibniz hy in |- *.
     let d := denominator x in *.
     leibniz (make.multiplication.homomorphism (Integer.Negative p) (d) (Integer.Negative d) (p)) in |- *.
-    lemma facto : make (&p * &d)%nat (&d * &p)%nat = One.
+    lemma facto : make (&p * &d)%n (&d * &p)%n = One.
     {
-      lemma cross : ((p * d)%nat * Nat.One)%integer
-              = (Nat.One * (d * p)%nat)%integer.
+      lemma cross : ((p * d)%n * Nat.One)%z
+              = (Nat.One * (d * p)%n)%z.
       {
         lemma facto
-          : ((&p * &d)%nat * Nat.One)%integer
-            = (Nat.One * (&d * &p)%nat)%integer.
+          : ((&p * &d)%n * Nat.One)%z
+            = (Nat.One * (&d * &p)%n)%z.
         {
           leibniz (Integer.multiplication.right.identity
-                    (p * d)%nat) in |- *.
+                    (p * d)%n) in |- *.
           leibniz (Integer.multiplication.left.identity
-                    (d * p)%nat) in |- *.
+                    (d * p)%n) in |- *.
           leibniz (Nat.multiplication.commutativity p d) in |- *.
           quod idem est.
         }
         let proof facto
-          : ((&p * &d)%nat * Nat.One)%integer
-            = (Nat.One * (&d * &p)%nat)%integer
+          : ((&p * &d)%n * Nat.One)%z
+            = (Nat.One * (&d * &p)%n)%z
           := facto.
         ipso facto.
       }
 
       let proof criterion := make.characterisation
-                    (p * d)%nat
-                    (d * p)%nat
+                    (p * d)%n
+                    (d * p)%n
                     Nat.One
                     (Nat.One).
       modus aequans criterion, cross |- joined.
@@ -1718,30 +1718,30 @@ Proof.
     leibniz (make.multiplication.homomorphism
               p (d)
               d (p)) in |- *.
-    lemma facto : make (&p * &d)%nat (&d * &p)%nat = One.
+    lemma facto : make (&p * &d)%n (&d * &p)%n = One.
     {
-      lemma cross : ((p * d)%nat * Nat.One)%integer
-              = (Nat.One * (d * p)%nat)%integer.
+      lemma cross : ((p * d)%n * Nat.One)%z
+              = (Nat.One * (d * p)%n)%z.
       {
         lemma facto
-          : ((&p * &d)%nat * Nat.One)%integer
-            = (Nat.One * (&d * &p)%nat)%integer.
+          : ((&p * &d)%n * Nat.One)%z
+            = (Nat.One * (&d * &p)%n)%z.
         {
-          leibniz (Integer.multiplication.right.identity (p * d)%nat) in |- *.
-          leibniz (Integer.multiplication.left.identity (d * p)%nat) in |- *.
+          leibniz (Integer.multiplication.right.identity (p * d)%n) in |- *.
+          leibniz (Integer.multiplication.left.identity (d * p)%n) in |- *.
           leibniz (Nat.multiplication.commutativity p d) in |- *.
           quod idem est.
         }
         let proof facto
-          : ((&p * &d)%nat * Nat.One)%integer
-            = (Nat.One * (&d * &p)%nat)%integer
+          : ((&p * &d)%n * Nat.One)%z
+            = (Nat.One * (&d * &p)%n)%z
           := facto.
         ipso facto.
       }
 
       let proof criterion := make.characterisation
-                    (p * d)%nat
-                    (d * p)%nat
+                    (p * d)%n
+                    (d * p)%n
                     Nat.One
                     (Nat.One).
       modus aequans criterion, cross |- joined.
@@ -1771,8 +1771,8 @@ Proof.
   let e := numerator   z in *.
   let f := denominator z in *.
 
-  lemma bridge : (f * (c * b))%integer
-          = (b * (c * f))%integer.
+  lemma bridge : (f * (c * b))%z
+          = (b * (c * f))%z.
   {
     let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
@@ -1781,13 +1781,13 @@ Proof.
     leibniz (Integer.multiplication.commutativity
                f c) in |- *.
     leibniz (Integer.multiplication.commutativity
-               (c * f)%integer
+               (c * f)%z
                b) in |- *.
     quod idem est.
   }
 
-  lemma leftward : (f * (a * d))%integer
-          = (d * (a * f))%integer.
+  lemma leftward : (f * (a * d))%z
+          = (d * (a * f))%z.
   {
     let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
@@ -1797,13 +1797,13 @@ Proof.
               f
               (a)) in |- *.
     leibniz (Integer.multiplication.commutativity
-              (a * f)%integer
+              (a * f)%z
               d) in |- *.
     quod idem est.
   }
 
-  lemma rightward : (b * (e * d))%integer
-          = (d * (e * b))%integer.
+  lemma rightward : (b * (e * d))%z
+          = (d * (e * b))%z.
   {
     let proof h := Identity.symmetry
                   (Integer.multiplication.associativity
@@ -1813,17 +1813,17 @@ Proof.
     leibniz h in |- *.
     leibniz (Integer.multiplication.commutativity b e) in |- *.
     leibniz (Integer.multiplication.commutativity
-               (e * b)%integer
+               (e * b)%z
                d) in |- *.
     quod idem est.
   }
 
   let proof S1 := Integer.multiplication.left.order.strict.monotonicity
-                f (a * d)%integer
-                  (c * b)%integer H1.
+                f (a * d)%z
+                  (c * b)%z H1.
   let proof S2 := Integer.multiplication.left.order.strict.monotonicity
-                b (c * f)%integer
-                  (e * d)%integer H2.
+                b (c * f)%z
+                  (e * d)%z H2.
 
   leibniz bridge    in S1.
   leibniz leftward  in S1.
@@ -1832,8 +1832,8 @@ Proof.
   let proof chain := Integer.order.strict.transitivity S1 S2.
 
   match (Comparable.order.strict.trichotomy
-           (a * f)%integer
-           (e * b)%integer)
+           (a * f)%z
+           (e * b)%z)
         with | lt | rest end.
 
   - ipso lt.
@@ -1842,15 +1842,15 @@ Proof.
 
     + leibniz eq in chain.
       let proof ir := Integer.order.strict.irreflexivity
-                    (d * (e * b))%integer.
+                    (d * (e * b))%z.
       ex (ir chain) quodlibet.
 
     + let proof back := Integer.multiplication.left.order.strict.monotonicity
-                    d (e * b)%integer
-                      (a * f)%integer gt.
+                    d (e * b)%z
+                      (a * f)%z gt.
       let proof loop := Integer.order.strict.transitivity chain back.
       let proof ir := Integer.order.strict.irreflexivity
-                    (d * (a * f))%integer.
+                    (d * (a * f))%z.
       ex (ir loop) quodlibet.
 Qed.
 
@@ -1869,8 +1869,8 @@ Proof.
   intros x y.
 
   match (Integer.comparison.specification
-              (numerator x * denominator y)%integer
-              (numerator y * denominator x)%integer)
+              (numerator x * denominator y)%z
+              (numerator y * denominator x)%z)
         with | below equal end.
 
   divide et impera.
@@ -1893,8 +1893,8 @@ Theorem antisymmetry
 Proof.
   intros x y.
   ipso (Integer.comparison.antisymmetry
-          (numerator x * denominator y)%integer
-          (numerator y * denominator x)%integer).
+          (numerator x * denominator y)%z
+          (numerator y * denominator x)%z).
 Qed.
 
 End comparison. (* comparison *)
@@ -1910,7 +1910,7 @@ Proof.
   simpl from_integer in e.
   modus aequans (make.characterisation m Nat.One n Nat.One), e |- cross.
   let proof cross
-    : (m * Nat.One)%integer = (n * Nat.One)%integer
+    : (m * Nat.One)%z = (n * Nat.One)%z
     := &cross.
   leibniz (Integer.multiplication.right.identity m) in cross.
   leibniz (Integer.multiplication.right.identity n) in cross.
@@ -1920,20 +1920,20 @@ Qed.
 (* embedding.addition *)
 Theorem addition
   : forall (m : Integer) (n : Integer) .
-      from_integer (m + n)%integer
+      from_integer (m + n)%z
     = (from_integer m) + (from_integer n).
 Proof.
   intros m n.
   simpl from_integer in |- *.
   leibniz (make.addition.homomorphism m Nat.One n Nat.One) in |- *.
   lemma facto
-    : make (&m + &n)%integer Nat.One
-      = make (&m * Nat.One + &n * Nat.One)%integer
-             (Nat.One * Nat.One)%nat.
+    : make (&m + &n)%z Nat.One
+      = make (&m * Nat.One + &n * Nat.One)%z
+             (Nat.One * Nat.One)%n.
   {
     leibniz (Integer.multiplication.right.identity m) in |- *.
     leibniz (Integer.multiplication.right.identity n) in |- *.
-    lemma facto : make (&m + &n)%integer Nat.One = make (&m + &n)%integer Nat.One.
+    lemma facto : make (&m + &n)%z Nat.One = make (&m + &n)%z Nat.One.
     {
       quod idem est.
     }
@@ -1945,13 +1945,13 @@ Qed.
 (* embedding.multiplication *)
 Theorem multiplication
   : forall (m : Integer) (n : Integer) .
-      from_integer (m * n)%integer
+      from_integer (m * n)%z
     = (from_integer m) * (from_integer n).
 Proof.
   intros m n.
   simpl from_integer in |- *.
   leibniz (make.multiplication.homomorphism m Nat.One n Nat.One) in |- *.
-  lemma facto : make (&m * &n)%integer Nat.One = make (&m * &n)%integer Nat.One.
+  lemma facto : make (&m * &n)%z Nat.One = make (&m * &n)%z Nat.One.
   {
     quod idem est.
   }
@@ -1961,7 +1961,7 @@ Qed.
 (* embedding.order *)
 Theorem order
   : forall (m : Integer) (n : Integer) .
-      (m < n)%integer
+      (m < n)%z
       <-> from_integer m < from_integer n.
 Proof.
   intros m n.
@@ -2094,7 +2094,7 @@ Qed.
 Theorem failure
   : forall (x : Rational) .
       to_nat_with_zero x = None
-      <-> ~ (denominator x = Nat.One) \/ (numerator x < Integer.Zero)%integer.
+      <-> ~ (denominator x = Nat.One) \/ (numerator x < Integer.Zero)%z.
 Proof.
   intro x.
   simpl to_nat_with_zero in |- *.
@@ -2162,7 +2162,7 @@ Qed.
 Theorem failure
   : forall (x : Rational) .
       to_nat x = None
-      <-> ~ (denominator x = Nat.One) \/ (numerator x <= Integer.Zero)%integer.
+      <-> ~ (denominator x = Nat.One) \/ (numerator x <= Integer.Zero)%z.
 Proof.
   intro x.
   simpl to_nat in |- *.
@@ -2202,7 +2202,7 @@ End Rational. (* Rational *)
 Abbreviation Rational := Rational.T.
 
 (* Makes the notations declared in [Module Rational] usable in every file
- * that imports this one, as [(x + y)%rational]. Only the notations are
+ * that imports this one, as [(x + y)%q]. Only the notations are
  * exported: [add] and the laws still need the [Rational.] prefix.
  *)
 Export (notations) Rational.
@@ -2214,7 +2214,7 @@ Coercion Rational.from_integer : Integer >-> Rational.
 Add Printing Coercion Rational.from_integer.
 
 Instance Rational_comparable
-  : Comparable Rational.compare (<)%rational :=
+  : Comparable Rational.compare (<)%q :=
   {| Comparable.transitivity  := Rational.order.strict.transitivity
    ; Comparable.specification := Rational.comparison.specification
    ; Comparable.antisymmetry  := Rational.comparison.antisymmetry |}.

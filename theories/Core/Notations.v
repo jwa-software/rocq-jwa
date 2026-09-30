@@ -46,17 +46,21 @@ Declare Scope jwa_bool_scope.
 Delimit Scope jwa_bool_scope with bool.
 
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
-   name that type's operations only under its delimiter: [(m + n)%nat],
-   [(m + n)%nat_with_zero]. Two types cannot share a scope, since one
-   spelling would then have two meanings. *)
+   name that type's operations only under its delimiter: [(m + n)%n],
+   [(m + n)%n0]. Two types cannot share a scope, since one spelling would
+   then have two meanings.
+
+   A key is short where it is written often: the scope name says which type
+   it is for, so the key only has to be unambiguous. The scope name itself
+   is never abbreviated, being named for the context it disambiguates. *)
 Declare Scope jwa_nat_scope.
-Delimit Scope jwa_nat_scope with nat.
+Delimit Scope jwa_nat_scope with n.
 Declare Scope jwa_nat_with_zero_scope.
-Delimit Scope jwa_nat_with_zero_scope with nat_with_zero.
+Delimit Scope jwa_nat_with_zero_scope with n0.
 Declare Scope jwa_integer_scope.
-Delimit Scope jwa_integer_scope with integer.
+Delimit Scope jwa_integer_scope with z.
 Declare Scope jwa_rational_scope.
-Delimit Scope jwa_rational_scope with rational.
+Delimit Scope jwa_rational_scope with q.
 Declare Scope jwa_bin_scope.
 Delimit Scope jwa_bin_scope with bin.
 Declare Scope jwa_bin_with_zero_scope.

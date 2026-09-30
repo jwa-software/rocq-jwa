@@ -479,7 +479,7 @@ Qed.
 Theorem addition
   : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (m + n)
-      = (to_nat_with_zero m + to_nat_with_zero n)%nat_with_zero.
+      = (to_nat_with_zero m + to_nat_with_zero n)%n0.
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
@@ -503,7 +503,7 @@ Qed.
 Theorem multiplication
   : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (m * n)
-      = (to_nat_with_zero m * to_nat_with_zero n)%nat_with_zero.
+      = (to_nat_with_zero m * to_nat_with_zero n)%n0.
 Proof.
   intros m n.
   match m with | | p end; match n with | | q end.
@@ -526,7 +526,7 @@ Qed.
 Theorem power
   : forall (m : BinWithZero) (n : BinWithZero) .
       to_nat_with_zero (m ^ n)
-      = (to_nat_with_zero m ^ to_nat_with_zero n)%nat_with_zero.
+      = (to_nat_with_zero m ^ to_nat_with_zero n)%n0.
 Proof.
   intros m n.
   match n with | | q end; match m with | | p end.
@@ -577,7 +577,7 @@ Proof.
   -
     simpl in |- *.
     lemma sum
-      : (NatWithZero.Zero + NatWithZero.Zero)%nat_with_zero = NatWithZero.Zero.
+      : (NatWithZero.Zero + NatWithZero.Zero)%n0 = NatWithZero.Zero.
     {
       simpl in |- *.
       quod idem est.
@@ -592,7 +592,7 @@ Proof.
   -
     simpl in |- *.
     lemma below
-      : (NatWithZero.Zero < NatWithZero.Positive (Bin.to_nat &q))%nat_with_zero.
+      : (NatWithZero.Zero < NatWithZero.Positive (Bin.to_nat &q))%n0.
     {
       simpl NatWithZero.LessThan in |- *.
       exists (Bin.to_nat &q).
@@ -604,7 +604,7 @@ Proof.
   -
     simpl in |- *.
     lemma sum
-      : (NatWithZero.Zero + NatWithZero.Positive (Bin.to_nat &p))%nat_with_zero
+      : (NatWithZero.Zero + NatWithZero.Positive (Bin.to_nat &p))%n0
         = NatWithZero.Positive (Bin.to_nat &p).
     {
       simpl in |- *.
@@ -628,7 +628,7 @@ Proof.
       simpl in |- *.
       lemma below
         : (NatWithZero.Positive (Bin.to_nat &p)
-           < NatWithZero.Positive (Bin.to_nat &q))%nat_with_zero.
+           < NatWithZero.Positive (Bin.to_nat &q))%n0.
       {
         simpl NatWithZero.LessThan in |- *.
         simpl Nat.LessThan in &h.
@@ -644,7 +644,7 @@ Proof.
       intro h.
       simpl in |- *.
       lemma sum
-        : (NatWithZero.Positive (Bin.to_nat &q) + NatWithZero.Zero)%nat_with_zero
+        : (NatWithZero.Positive (Bin.to_nat &q) + NatWithZero.Zero)%n0
           = NatWithZero.Positive (Bin.to_nat &p).
       {
         simpl in |- *.
@@ -664,7 +664,7 @@ Proof.
       simpl in |- *.
       lemma sum
         : (NatWithZero.Positive (Bin.to_nat &q)
-           + NatWithZero.Positive (Bin.to_nat &d))%nat_with_zero
+           + NatWithZero.Positive (Bin.to_nat &d))%n0
           = NatWithZero.Positive (Bin.to_nat &p).
       {
         simpl in |- *.
@@ -710,14 +710,14 @@ Proof.
     +
       intro h.
       simpl in |- *.
-      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%nat := disjoin _, &h.
+      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%n := disjoin _, &h.
       leibniz (Nat.subtraction.truncation &le) in |- *.
       simpl in |- *.
       quod idem est.
     +
       intro h.
       simpl in |- *.
-      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%nat := disjoin &h, _.
+      let proof le : (Bin.to_nat &p <= Bin.to_nat &q)%n := disjoin &h, _.
       leibniz (Nat.subtraction.truncation &le) in |- *.
       simpl in |- *.
       quod idem est.
@@ -748,7 +748,7 @@ Qed.
 (* conversion.order *)
 Theorem order
   : forall (m : BinWithZero) (n : BinWithZero) .
-      m < n <-> (to_nat_with_zero m < to_nat_with_zero n)%nat_with_zero.
+      m < n <-> (to_nat_with_zero m < to_nat_with_zero n)%n0.
 Proof.
   intros m n.
   divide et impera.
@@ -783,8 +783,8 @@ Theorem appending
   : forall (bit : Bool) (n : BinWithZero) .
       to_nat_with_zero (append_bit bit n)
       = match bit with
-        | true  => NatWithZero.inc (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
-        | false => (to_nat_with_zero n + to_nat_with_zero n)%nat_with_zero
+        | true  => NatWithZero.inc (to_nat_with_zero n + to_nat_with_zero n)%n0
+        | false => (to_nat_with_zero n + to_nat_with_zero n)%n0
         end.
 Proof.
   intros bit n.
@@ -815,7 +815,7 @@ Theorem shift
   : forall (n : BinWithZero) (k : NatWithZero) .
       to_nat_with_zero (shift_left n k)
       = (to_nat_with_zero n
-         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%nat_with_zero.
+         * NatWithZero.Positive (Nat.Successor Nat.One) ^ k)%n0.
 Proof.
   intros n k.
   match k with | | k' end.
