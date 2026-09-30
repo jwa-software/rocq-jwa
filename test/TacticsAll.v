@@ -103,6 +103,17 @@ Proof.
   ipso (conjoin &h, &k).
 Qed.
 
+Theorem tactics_all_delivers_de_morgan_in_existential_hypothesis
+  : forall (A : Type) (Q : A -> Prop) (R : Prop) .
+      ~ (forsome (x : A) . Q x \/ R) -> forall (x : A) . ~ (Q x \/ R).
+Proof.
+  intros A Q R h.
+  de morgan in &h.
+  lazy_match! Constr.type &h with
+  | forall (x : A) . ~ (Q x \/ R) => ipso &h
+  end.
+Qed.
+
 Theorem tactics_all_delivers_de_morgan_in_refusing_a_conjunction
   : forall (A : Prop) (B : Prop) . ~ (A /\ B) -> ~ (A /\ B).
 Proof.
