@@ -1,5 +1,11 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
+From jwa Require Import Algebra.AbelianGroup.
+From jwa Require Import Algebra.Cancellative.
+From jwa Require Import Algebra.Commutative.
+From jwa Require Import Algebra.Group.
+From jwa Require Import Algebra.Monoid.
+From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
@@ -12,6 +18,8 @@ From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
+From jwa Require Import Relation.Induced.
+From jwa Require Import Relation.WellFounded.
 From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 From jwa Require Import Tactics.Witness.
@@ -242,6 +250,12 @@ Definition compare := fun (x : BinWithSign) (y : BinWithSign) .
 
 (* [BinWithSign -> BinWithSign -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
+
+(* [BinWithSign -> BinWithSign -> BinWithSign] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [BinWithSign -> BinWithSign -> BinWithSign] *)
+Abbreviation max := (Comparable.max compare).
 
 (* [BinWithZero] reads the magnitude, the sign is applied after. [- 0] reads as
  * zero, this type having one zero and [negate] sending it to itself.
@@ -885,3 +899,54 @@ Notation "- x" := (BinWithSign.negate x)
  *)
 Number Notation BinWithSign.T BinWithSign.from_numeral BinWithSign.to_numeral
   : jwa_bin_with_sign_scope.
+
+(* A [Bin] stands wherever a [BinWithSign] is expected, read as its [Positive],
+ * and a [BinWithZero] through [from_bin_with_zero]; both are printed where
+ * they happened. The direct [Bin >-> BinWithSign] and the indirect one through
+ * [BinWithZero] give the same term, as [Nat]'s two paths into [Integer] do.
+ *)
+Coercion BinWithSign.Positive : Bin >-> BinWithSign.
+Coercion BinWithSign.from_bin_with_zero : BinWithZero >-> BinWithSign.
+Add Printing Coercion BinWithSign.Positive.
+Add Printing Coercion BinWithSign.from_bin_with_zero.
+
+(* [<] is not well founded on a signed type, there being no least value, so
+ * the descent is on the magnitude: [abs] lands in [BinWithZero], where [<]
+ * is well founded, and [Induced] pulls that back. [Integer] descends the same
+ * way over [NatWithZero].
+ *)
+Instance BinWithSign_magnitude_well_founded
+  : WellFounded (Induced (<)%bin_with_zero BinWithSign.abs) :=
+  WellFounded.induced (<)%bin_with_zero BinWithSign.abs
+    BinWithZero_less_than_well_founded.
+
+Instance BinWithSign_comparable
+  : Comparable BinWithSign.compare (<)%b :=
+  {| Comparable.transitivity  := @BinWithSign.order.strict.transitivity
+   ; Comparable.specification := BinWithSign.comparison.specification
+   ; Comparable.antisymmetry  := BinWithSign.comparison.antisymmetry |}.
+
+Instance BinWithSign_add_monoid
+  : Monoid BinWithSign.add BinWithSign.Zero :=
+  {| Monoid.semigroup :=
+      {| Semigroup.associativity := BinWithSign.addition.associativity |}
+   ; Monoid.identity := BinWithSign.addition.identity |}.
+
+Instance BinWithSign_add_cancellative : Cancellative BinWithSign.add :=
+  {| Cancellative.cancellation := BinWithSign.addition.cancellation |}.
+
+Instance BinWithSign_add_commutative : Commutative BinWithSign.add :=
+  {| Commutative.commutativity := BinWithSign.addition.commutativity |}.
+
+(* What the signed type buys over [BinWithZero]: every value has an inverse,
+ * so the additive monoid becomes a group.
+ *)
+Instance BinWithSign_add_group
+  : Group BinWithSign.add BinWithSign.Zero BinWithSign.negate :=
+  {| Group.monoid  := BinWithSign_add_monoid
+   ; Group.inverse := BinWithSign.addition.inverse |}.
+
+Instance BinWithSign_add_abelian_group
+  : AbelianGroup BinWithSign.add BinWithSign.Zero BinWithSign.negate :=
+  {| AbelianGroup.group       := BinWithSign_add_group
+   ; AbelianGroup.commutative := BinWithSign_add_commutative |}.

@@ -862,3 +862,20 @@ Definition data_number_all_delivers_bin_with_sign_literal_zero
 Fail Definition data_number_all_refuses_bin_with_sign_literal_digit
   : BinWithSign
   := 1021%b.
+
+Definition data_number_all_delivers_bin_with_sign_well_founded_magnitude
+  : forall (x : BinWithSign) .
+      Accessible (Induced BinWithZero.LessThan BinWithSign.abs) x
+  := fun (x : BinWithSign) . accessibility x.
+
+Definition data_number_all_delivers_bin_with_sign_maximum_computes
+  : BinWithSign.max 1011%b (-1011)%b = 1011%b
+  := Identity.reflexivity _.
+
+Theorem data_number_all_delivers_coercion_bin_to_bin_with_sign
+  : forall (b : Bin) .
+      BinWithSign.negate b = BinWithSign.negate (BinWithSign.Positive b).
+Proof.
+  intro b.
+  quod idem est.
+Qed.
