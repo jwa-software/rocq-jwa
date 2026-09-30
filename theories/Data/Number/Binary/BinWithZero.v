@@ -10,7 +10,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
-From jwa Require Import Data.Number.Bin.
+From jwa Require Import Data.Number.Binary.Bin.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.NatWithZero.
 From jwa Require Import Data.Number.Numeral.
