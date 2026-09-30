@@ -613,57 +613,57 @@ Proof.
   quod idem est.
 Qed.
 
-Definition data_number_all_delivers_bin_retraction
-  : forall (n : Nat) . Bin.to_nat (Bin.from_nat n) = n
-  := Bin.conversion.retraction.
+Definition data_number_all_delivers_bin_base_retraction
+  : forall (n : Nat) . BinBase.to_nat (BinBase.from_nat n) = n
+  := BinBase.conversion.retraction.
 
-Definition data_number_all_delivers_bin_section
-  : forall (b : Bin) . Bin.from_nat (Bin.to_nat b) = b
-  := Bin.conversion.section.
+Definition data_number_all_delivers_bin_base_section
+  : forall (b : BinBase) . BinBase.from_nat (BinBase.to_nat b) = b
+  := BinBase.conversion.section.
 
-Definition data_number_all_delivers_bin_successor
-  : forall (b : Bin) . Bin.to_nat (++ b)%bin = Nat.Successor (Bin.to_nat b)
-  := Bin.conversion.successor.
+Definition data_number_all_delivers_bin_base_successor
+  : forall (b : BinBase) . BinBase.to_nat (++ b)%bin_base = Nat.Successor (BinBase.to_nat b)
+  := BinBase.conversion.successor.
 
-Definition data_number_all_delivers_bin_addition
-  : forall (a : Bin) (b : Bin) .
-      Bin.to_nat (a + b)%bin = (Bin.to_nat a + Bin.to_nat b)%n
-  := Bin.conversion.addition.
+Definition data_number_all_delivers_bin_base_addition
+  : forall (a : BinBase) (b : BinBase) .
+      BinBase.to_nat (a + b)%bin_base = (BinBase.to_nat a + BinBase.to_nat b)%n
+  := BinBase.conversion.addition.
 
-Definition data_number_all_delivers_bin_multiplication
-  : forall (a : Bin) (b : Bin) .
-      Bin.to_nat (a * b)%bin = (Bin.to_nat a * Bin.to_nat b)%n
-  := Bin.conversion.multiplication.
+Definition data_number_all_delivers_bin_base_multiplication
+  : forall (a : BinBase) (b : BinBase) .
+      BinBase.to_nat (a * b)%bin_base = (BinBase.to_nat a * BinBase.to_nat b)%n
+  := BinBase.conversion.multiplication.
 
-Definition data_number_all_delivers_bin_power
-  : forall (a : Bin) (n : Bin) .
-      Bin.to_nat (a ^ n)%bin = (Bin.to_nat a ^ Bin.to_nat n)%n
-  := Bin.conversion.power.
+Definition data_number_all_delivers_bin_base_power
+  : forall (a : BinBase) (n : BinBase) .
+      BinBase.to_nat (a ^ n)%bin_base = (BinBase.to_nat a ^ BinBase.to_nat n)%n
+  := BinBase.conversion.power.
 
-Definition data_number_all_delivers_bin_comparison
-  : forall (a : Bin) (b : Bin) .
-      Bin.compare a b = Nat.compare (Bin.to_nat a) (Bin.to_nat b)
-  := Bin.conversion.comparison.
+Definition data_number_all_delivers_bin_base_comparison
+  : forall (a : BinBase) (b : BinBase) .
+      BinBase.compare a b = Nat.compare (BinBase.to_nat a) (BinBase.to_nat b)
+  := BinBase.conversion.comparison.
 
-Definition data_number_all_delivers_bin_subtraction
-  : forall (a : Bin) (b : Bin) .
-      Option.map Bin.to_nat (Bin.sub a b) = Nat.sub (Bin.to_nat a) (Bin.to_nat b)
-  := Bin.conversion.subtraction.
+Definition data_number_all_delivers_bin_base_subtraction
+  : forall (a : BinBase) (b : BinBase) .
+      Option.map BinBase.to_nat (BinBase.sub a b) = Nat.sub (BinBase.to_nat a) (BinBase.to_nat b)
+  := BinBase.conversion.subtraction.
 
-Definition data_number_all_delivers_bin_saturating_subtraction
-  : forall (a : Bin) (b : Bin) .
-      Bin.to_nat (Bin.saturating_sub a b)
-      = Nat.saturating_sub (Bin.to_nat a) (Bin.to_nat b)
-  := Bin.conversion.subtraction.saturating.
+Definition data_number_all_delivers_bin_base_saturating_subtraction
+  : forall (a : BinBase) (b : BinBase) .
+      BinBase.to_nat (BinBase.saturating_sub a b)
+      = Nat.saturating_sub (BinBase.to_nat a) (BinBase.to_nat b)
+  := BinBase.conversion.subtraction.saturating.
 
-Definition data_number_all_delivers_bin_multiplication_computes
-  : (Bin.b1 Bin.One * Bin.b0 (Bin.b1 Bin.One))%bin
-    = Bin.b0 (Bin.b1 (Bin.b0 (Bin.b0 Bin.One)))
+Definition data_number_all_delivers_bin_base_multiplication_computes
+  : (BinBase.b1 BinBase.One * BinBase.b0 (BinBase.b1 BinBase.One))%bin_base
+    = BinBase.b0 (BinBase.b1 (BinBase.b0 (BinBase.b0 BinBase.One)))
   := Identity.reflexivity _.
 
-Definition data_number_all_delivers_bin_comparison_computes
-  : Bin.compare (Bin.b1 Bin.One)
-                   (Bin.b0 (Bin.b1 Bin.One))
+Definition data_number_all_delivers_bin_base_comparison_computes
+  : BinBase.compare (BinBase.b1 BinBase.One)
+                   (BinBase.b0 (BinBase.b1 BinBase.One))
     = Comparison.Lt
   := Identity.reflexivity _.
 
@@ -685,7 +685,7 @@ Definition data_number_all_delivers_bin_with_zero_subtraction
   := BinWithZero.conversion.subtraction.
 
 Definition data_number_all_delivers_bin_with_zero_subtraction_computes
-  : BinWithZero.sub (Bin.b0 Bin.One) (Bin.b0 Bin.One)
+  : BinWithZero.sub (BinBase.b0 BinBase.One) (BinBase.b0 BinBase.One)
     = Some BinWithZero.Zero
   := Identity.reflexivity _.
 
@@ -711,50 +711,50 @@ Definition data_number_all_delivers_bin_with_zero_left_shift
   := BinWithZero.conversion.left.shift.
 
 Definition data_number_all_delivers_bin_with_zero_conjunction_computes
-  : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
-     && Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%bin_with_zero
-    = Bin.b0 (Bin.b0 (Bin.b0 Bin.One))
+  : (BinBase.b0 (BinBase.b0 (BinBase.b1 BinBase.One))
+     && BinBase.b0 (BinBase.b1 (BinBase.b0 BinBase.One)))%bin_with_zero
+    = BinBase.b0 (BinBase.b0 (BinBase.b0 BinBase.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_disjunction_computes
-  : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
-     || Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%bin_with_zero
-    = Bin.b0 (Bin.b1 (Bin.b1 Bin.One))
+  : (BinBase.b0 (BinBase.b0 (BinBase.b1 BinBase.One))
+     || BinBase.b0 (BinBase.b1 (BinBase.b0 BinBase.One)))%bin_with_zero
+    = BinBase.b0 (BinBase.b1 (BinBase.b1 BinBase.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_sejunction_computes
-  : (Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
-     ^^ Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))%bin_with_zero
-    = Bin.b0 (Bin.b1 Bin.One)
+  : (BinBase.b0 (BinBase.b0 (BinBase.b1 BinBase.One))
+     ^^ BinBase.b0 (BinBase.b1 (BinBase.b0 BinBase.One)))%bin_with_zero
+    = BinBase.b0 (BinBase.b1 BinBase.One)
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_shift_computes
-  : BinWithZero.shift_left (Bin.b1 Bin.One) (Nat.Successor Nat.One)
-    = Bin.b0 (Bin.b0 (Bin.b1 Bin.One))
+  : BinWithZero.shift_left (BinBase.b1 BinBase.One) (Nat.Successor Nat.One)
+    = BinBase.b0 (BinBase.b0 (BinBase.b1 BinBase.One))
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_bit_computes
-  : BinWithZero.test_bit (Bin.b0 (Bin.b1 (Bin.b0 Bin.One)))
+  : BinWithZero.test_bit (BinBase.b0 (BinBase.b1 (BinBase.b0 BinBase.One)))
                             Nat.One
     = true
   := Identity.reflexivity _.
 
-Definition data_number_all_delivers_bin_addition_commutativity
-  : forall (a : Bin) (b : Bin) . (a + b)%bin = (b + a)%bin
-  := Bin.addition.commutativity.
+Definition data_number_all_delivers_bin_base_addition_commutativity
+  : forall (a : BinBase) (b : BinBase) . (a + b)%bin_base = (b + a)%bin_base
+  := BinBase.addition.commutativity.
 
-Definition data_number_all_delivers_bin_order
-  : forall (a : Bin) (b : Bin) .
-      (a < b)%bin <-> (Bin.to_nat a < Bin.to_nat b)%n
-  := Bin.conversion.order.
+Definition data_number_all_delivers_bin_base_order
+  : forall (a : BinBase) (b : BinBase) .
+      (a < b)%bin_base <-> (BinBase.to_nat a < BinBase.to_nat b)%n
+  := BinBase.conversion.order.
 
-Definition data_number_all_delivers_bin_well_founded
-  : forall (b : Bin) . Accessible Bin.LessThan b
-  := fun (b : Bin) . accessibility b.
+Definition data_number_all_delivers_bin_base_well_founded
+  : forall (b : BinBase) . Accessible BinBase.LessThan b
+  := fun (b : BinBase) . accessibility b.
 
-Definition data_number_all_delivers_bin_maximum_computes
-  : Bin.max (Bin.b1 Bin.One) (Bin.b0 Bin.One)
-    = Bin.b1 Bin.One
+Definition data_number_all_delivers_bin_base_maximum_computes
+  : BinBase.max (BinBase.b1 BinBase.One) (BinBase.b0 BinBase.One)
+    = BinBase.b1 BinBase.One
   := Identity.reflexivity _.
 
 Definition data_number_all_delivers_bin_with_zero_distributivity
@@ -766,14 +766,14 @@ Definition data_number_all_delivers_bin_with_zero_well_founded
   : forall (n : BinWithZero) . Accessible BinWithZero.LessThan n
   := fun (n : BinWithZero) . accessibility n.
 
-Definition data_number_all_delivers_bin_with_zero_narrowing_bin_specification
-  : forall (n : BinWithZero) (p : Bin) . BinWithZero.to_bin n = Some p <-> n = p
-  := BinWithZero.narrowing.bin.specification.
+Definition data_number_all_delivers_bin_with_zero_narrowing_base_specification
+  : forall (n : BinWithZero) (p : BinBase) . BinWithZero.to_bin_base n = Some p <-> n = p
+  := BinWithZero.narrowing.base.specification.
 
-Definition data_number_all_delivers_bin_with_zero_narrowing_bin_failure
+Definition data_number_all_delivers_bin_with_zero_narrowing_base_failure
   : forall (n : BinWithZero) .
-      BinWithZero.to_bin n = None <-> n = BinWithZero.Zero
-  := BinWithZero.narrowing.bin.failure.
+      BinWithZero.to_bin_base n = None <-> n = BinWithZero.Zero
+  := BinWithZero.narrowing.base.failure.
 
 Definition data_number_all_delivers_bin_with_zero_literal
   : (1011 + 1)%bin_with_zero = 1100%bin_with_zero
@@ -796,84 +796,84 @@ Definition data_number_all_delivers_bin_with_zero_large_product
     = 11111111111111100000000000000001%bin_with_zero
   := Identity.reflexivity _.
 
-Theorem data_number_all_delivers_coercion_bin_to_bin_with_zero
-  : forall (b : Bin) . BinWithZero.inc b = BinWithZero.inc (BinWithZero.Positive b).
+Theorem data_number_all_delivers_coercion_bin_base_to_bin_with_zero
+  : forall (b : BinBase) . BinWithZero.inc b = BinWithZero.inc (BinWithZero.Positive b).
 Proof.
   intro b.
   quod idem est.
 Qed.
 
-Definition data_number_all_delivers_bin_with_sign
-  : BinWithSign -> Verum
-  := fun (_ : BinWithSign) . I.
+Definition data_number_all_delivers_bin
+  : Bin -> Verum
+  := fun (_ : Bin) . I.
 
-Definition data_number_all_delivers_bin_with_sign_addition
-  : forall (x : BinWithSign) (y : BinWithSign) .
-      BinWithSign.to_integer (x + y)%b
-      = (BinWithSign.to_integer x + BinWithSign.to_integer y)%z
-  := BinWithSign.conversion.addition.
+Definition data_number_all_delivers_bin_addition
+  : forall (x : Bin) (y : Bin) .
+      Bin.to_integer (x + y)%b
+      = (Bin.to_integer x + Bin.to_integer y)%z
+  := Bin.conversion.addition.
 
-Definition data_number_all_delivers_bin_with_sign_difference
-  : forall (p : Bin) (q : Bin) .
-      BinWithSign.to_integer (BinWithSign.bin_difference p q)
-      = Integer.nat_difference (Bin.to_nat p) (Bin.to_nat q)
-  := BinWithSign.conversion.difference.
+Definition data_number_all_delivers_bin_difference
+  : forall (p : BinBase) (q : BinBase) .
+      Bin.to_integer (Bin.bin_base_difference p q)
+      = Integer.nat_difference (BinBase.to_nat p) (BinBase.to_nat q)
+  := Bin.conversion.difference.
 
-Definition data_number_all_delivers_bin_with_sign_order
-  : forall (x : BinWithSign) (y : BinWithSign) .
-      (x < y)%b <-> (BinWithSign.to_integer x < BinWithSign.to_integer y)%z
-  := BinWithSign.conversion.order.
+Definition data_number_all_delivers_bin_order
+  : forall (x : Bin) (y : Bin) .
+      (x < y)%b <-> (Bin.to_integer x < Bin.to_integer y)%z
+  := Bin.conversion.order.
 
-Definition data_number_all_delivers_bin_with_sign_associativity
-  : forall (x : BinWithSign) (y : BinWithSign) (z : BinWithSign) .
+Definition data_number_all_delivers_bin_associativity
+  : forall (x : Bin) (y : Bin) (z : Bin) .
       ((x + y) + z = x + (y + z))%b
-  := BinWithSign.addition.associativity.
+  := Bin.addition.associativity.
 
-Definition data_number_all_delivers_bin_with_sign_inverse
-  : forall (x : BinWithSign) .
-      ((BinWithSign.negate x + x = BinWithSign.Zero)
-       /\ (x + BinWithSign.negate x = BinWithSign.Zero))%b
-  := BinWithSign.addition.inverse.
+Definition data_number_all_delivers_bin_inverse
+  : forall (x : Bin) .
+      ((Bin.negate x + x = Bin.Zero)
+       /\ (x + Bin.negate x = Bin.Zero))%b
+  := Bin.addition.inverse.
 
-Definition data_number_all_delivers_bin_with_sign_involution
-  : forall (x : BinWithSign) .
-      BinWithSign.negate (BinWithSign.negate x) = x
-  := BinWithSign.negation.involution.
+Definition data_number_all_delivers_bin_involution
+  : forall (x : Bin) .
+      Bin.negate (Bin.negate x) = x
+  := Bin.negation.involution.
 
-Definition data_number_all_delivers_bin_with_sign_comparison
-  : forall (x : BinWithSign) (y : BinWithSign) .
-      (BinWithSign.compare x y = Comparison.Lt <-> (x < y)%b)
-      /\ (BinWithSign.compare x y = Comparison.Eq <-> x = y)
-  := BinWithSign.comparison.specification.
+Definition data_number_all_delivers_bin_comparison
+  : forall (x : Bin) (y : Bin) .
+      (Bin.compare x y = Comparison.Lt <-> (x < y)%b)
+      /\ (Bin.compare x y = Comparison.Eq <-> x = y)
+  := Bin.comparison.specification.
 
-Definition data_number_all_delivers_bin_with_sign_literal
+Definition data_number_all_delivers_bin_literal
   : (1011 + 1)%b = 1100%b
   := Identity.reflexivity _.
 
-Definition data_number_all_delivers_bin_with_sign_literal_negative
+Definition data_number_all_delivers_bin_literal_negative
   : ((-1011) + 1011)%b = 0%b
   := Identity.reflexivity _.
 
-Definition data_number_all_delivers_bin_with_sign_literal_zero
-  : (-0)%b = BinWithSign.Zero
+Definition data_number_all_delivers_bin_literal_zero
+  : (-0)%b = Bin.Zero
   := Identity.reflexivity _.
 
-Fail Definition data_number_all_refuses_bin_with_sign_literal_digit
-  : BinWithSign
+Fail Definition data_number_all_refuses_bin_literal_digit
+  : Bin
   := 1021%b.
 
-Definition data_number_all_delivers_bin_with_sign_well_founded_magnitude
-  : forall (x : BinWithSign) .
-      Accessible (Induced BinWithZero.LessThan BinWithSign.abs) x
-  := fun (x : BinWithSign) . accessibility x.
+Definition data_number_all_delivers_bin_well_founded_magnitude
+  : forall (x : Bin) .
+      Accessible (Induced BinWithZero.LessThan Bin.abs) x
+  := fun (x : Bin) . accessibility x.
 
-Definition data_number_all_delivers_bin_with_sign_maximum_computes
-  : BinWithSign.max 1011%b (-1011)%b = 1011%b
+Definition data_number_all_delivers_bin_maximum_computes
+  : Bin.max 1011%b (-1011)%b = 1011%b
   := Identity.reflexivity _.
 
-Theorem data_number_all_delivers_coercion_bin_to_bin_with_sign
-  : forall (b : Bin) .
-      BinWithSign.negate b = BinWithSign.negate (BinWithSign.Positive b).
+Theorem data_number_all_delivers_coercion_bin_base_to_bin
+  : forall (b : BinBase) .
+      Bin.negate b = Bin.negate (Bin.Positive b).
 Proof.
   intro b.
   quod idem est.
@@ -885,15 +885,15 @@ Qed.
  *)
 Definition data_number_all_delivers_comparison
   : Comparison
-  := Bin.compare Bin.One Bin.One.
+  := BinBase.compare BinBase.One BinBase.One.
 
 Definition data_number_all_delivers_bool
   : Bool
-  := Bin.eq Bin.One Bin.One.
+  := BinBase.eq BinBase.One BinBase.One.
 
 Definition data_number_all_delivers_option
-  : Option Bin
-  := Bin.sub (Bin.b0 Bin.One) Bin.One.
+  : Option BinBase
+  := BinBase.sub (BinBase.b0 BinBase.One) BinBase.One.
 
 Definition data_number_all_delivers_numeral
   : Numeral.Unsigned
