@@ -96,7 +96,7 @@ Definition to_nat0 := fun (b : Bit) .
   end.
 
 (* The carry out and the sum of [carry + a + b], the carry first on both
- * sides, so that adders chain carry to carry.
+ * sides.
  *)
 (* [Bit -> Bit -> Bit -> Product Bit Bit] *)
 Definition add_with_carry := fun (carry : Bit) (a : Bit) (b : Bit) .
