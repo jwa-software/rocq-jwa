@@ -60,3 +60,61 @@ Definition data_machine_all_computes_byte_rotate_left
       = Byte.Byte_introduction
           Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One
   := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_bit_carry
+  : forall (carry : Bit) (a : Bit) (b : Bit) .
+      (Bit.to_nat0 carry + Bit.to_nat0 a + Bit.to_nat0 b
+        = 2 * Bit.to_nat0 (pi_1 (Bit.add_with_carry carry a b))%product
+          + Bit.to_nat0 (pi_2 (Bit.add_with_carry carry a b))%product)%n0
+  := Bit.conversion.carry.
+
+Definition data_machine_all_delivers_byte_carry
+  : forall (carry : Bit) (x : Byte) (y : Byte) .
+      (Bit.to_nat0 carry + Byte.to_nat0 x + Byte.to_nat0 y
+        = 256 * Bit.to_nat0 (pi_1 (Byte.add_with_carry carry x y))%product
+          + Byte.to_nat0 (pi_2 (Byte.add_with_carry carry x y))%product)%n0
+  := Byte.conversion.carry.
+
+Definition data_machine_all_delivers_byte_addition
+  : forall (x : Byte) (y : Byte) .
+      Byte.to_nat0 (x + y)%byte = ((Byte.to_nat0 x + Byte.to_nat0 y) %. 256)%n0
+  := Byte.conversion.addition.
+
+Definition data_machine_all_delivers_byte_multiplication
+  : forall (x : Byte) (y : Byte) .
+      Byte.to_nat0 (x * y)%byte = ((Byte.to_nat0 x * Byte.to_nat0 y) %. 256)%n0
+  := Byte.conversion.multiplication.
+
+Definition data_machine_all_delivers_byte_negation
+  : forall (x : Byte) . ((Byte.to_nat0 (- x)%byte + Byte.to_nat0 x) %. 256 = 0)%n0
+  := Byte.conversion.negation.
+
+Definition data_machine_all_delivers_byte_left_shift
+  : forall (x : Byte) (k : Nat0) .
+      Byte.to_nat0 (Byte.shift_left x k) = ((Byte.to_nat0 x * 2 ^ k) %. 256)%n0
+  := Byte.conversion.left.shift.
+
+Definition data_machine_all_delivers_byte_distributivity
+  : forall (x : Byte) (y : Byte) (z : Byte) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%byte
+  := Byte.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_computes_byte_reduction
+  : Byte.to_nat0 (Byte.from_nat0 300%n0) = 44%n0
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_byte_multiplication
+  : Byte.to_nat0 (Byte.from_nat0 20%n0 * Byte.from_nat0 13%n0)%byte = 4%n0
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_byte_negation
+  : Byte.to_nat0 (- Byte.One)%byte = 255%n0
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_byte_carry_out
+  : (pi_1 (Byte.add_with_carry Bit.Zero (Byte.flip Byte.Zero) Byte.One))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_byte_comparison
+  : Byte.compare Byte.Zero Byte.One = Comparison.Lt
+  := Identity.reflexivity _.
