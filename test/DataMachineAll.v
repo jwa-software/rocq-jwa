@@ -453,3 +453,157 @@ Fail Definition data_machine_all_refuses_word_literal_large
 Fail Definition data_machine_all_refuses_word_literal_large_big_endian
   : Word
   := 0x100000000%word_big.
+
+Definition data_machine_all_delivers_dword
+  : DWord
+  := DWord.Zero Endian.Big.
+
+Definition data_machine_all_delivers_dword_notation
+  : forall (x : DWord) (y : DWord) .
+      DWord.endian x = Endian.Little ->
+      DWord.endian y = Endian.Little ->
+      (x ^. y)%dword = (y ^. x)%dword
+  := DWord.sejunction.endian.little.commutativity.
+
+Definition data_machine_all_binds_dword_scope
+  : forall (x : DWord) . DWord.flip (~. x) = x
+  := DWord.flipping.involution.
+
+Definition data_machine_all_delivers_dword_conversion
+  : forall (x : DWord) (y : DWord) .
+      (x &. y)%dword = (x &. DWord.with_endian (DWord.endian x) y)%dword
+  := DWord.conjunction.endian.conversion.
+
+Definition data_machine_all_delivers_dword_endianness_specification
+  : forall (e : Endian) (x : DWord) . DWord.endian (DWord.with_endian e x) = e
+  := DWord.endianness.specification.
+
+Definition data_machine_all_delivers_dword_rotation_inverse
+  : forall (x : DWord) (k : Nat0) . DWord.rotate_right (DWord.rotate_left x k) k = x
+  := DWord.rotation.left.inverse.
+
+Definition data_machine_all_reads_dword_literal_little_endian
+  : 0x0123456789ABCDEF%dword
+    = DWord.DWord_introduction Endian.Little
+        0xEF%byte 0xCD%byte 0xAB%byte 0x89%byte 0x67%byte 0x45%byte 0x23%byte 0x01%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_dword_literal_big_endian
+  : 0x0123456789ABCDEF%dword_big
+    = DWord.DWord_introduction Endian.Big
+        0x01%byte 0x23%byte 0x45%byte 0x67%byte 0x89%byte 0xAB%byte 0xCD%byte 0xEF%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_dword_with_endian
+  : DWord.with_endian Endian.Big 0x0123456789ABCDEF = 0x0123456789ABCDEF%dword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_dword_mixed_conjunction
+  : (0x00000000FFFFFFFF &. 0x0F0F0F0F0F0F0F0F%dword_big)%dword = 0x000000000F0F0F0F%dword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_dword_or_big_endian
+  : DWord.or_big_endian 0x00000000000000F0 0x000000000000000F = 0x00000000000000FF%dword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_dword_shift_left
+  : DWord.shift_left 0x0080808080808080 1%n0 = 0x0101010101010100%dword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_dword_rotate_right_big_endian
+  : DWord.rotate_right 0x0000000000000001%dword_big 1%n0 = 0x8000000000000000%dword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_dword_to_bytes_big_endian
+  : DWord.to_bytes 0x0123456789ABCDEF%dword_big
+    = (0x01%byte :: 0x23%byte :: 0x45%byte :: 0x67%byte
+        :: 0x89%byte :: 0xAB%byte :: 0xCD%byte :: 0xEF%byte :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_dword_bytes_retraction
+  : forall (x : DWord) . DWord.from_bytes (DWord.endian x) (DWord.to_bytes x) = Some x
+  := DWord.conversion.bytes.retraction.
+
+Fail Definition data_machine_all_refuses_dword_literal_decimal
+  : DWord
+  := 200%dword.
+
+Fail Definition data_machine_all_refuses_dword_literal_large
+  : DWord
+  := 0x10000000000000000%dword.
+
+Definition data_machine_all_delivers_qword
+  : QWord
+  := QWord.Zero Endian.Little.
+
+Definition data_machine_all_delivers_qword_notation
+  : forall (x : QWord) (y : QWord) .
+      QWord.endian x = Endian.Big ->
+      QWord.endian y = Endian.Big ->
+      (x |. y)%qword = (y |. x)%qword
+  := QWord.disjunction.endian.big.commutativity.
+
+Definition data_machine_all_binds_qword_scope
+  : forall (x : QWord) . QWord.flip (~. x) = x
+  := QWord.flipping.involution.
+
+Definition data_machine_all_delivers_qword_conversion
+  : forall (x : QWord) (y : QWord) .
+      (x |. y)%qword = (x |. QWord.with_endian (QWord.endian x) y)%qword
+  := QWord.disjunction.endian.conversion.
+
+Definition data_machine_all_delivers_qword_endianness_identity
+  : forall (x : QWord) . QWord.with_endian (QWord.endian x) x = x
+  := QWord.endianness.identity.
+
+Definition data_machine_all_delivers_qword_rotation_inverse
+  : forall (x : QWord) (k : Nat0) . QWord.rotate_left (QWord.rotate_right x k) k = x
+  := QWord.rotation.right.inverse.
+
+Definition data_machine_all_reads_qword_literal_little_endian
+  : 0x000102030405060708090A0B0C0D0E0F%qword
+    = QWord.QWord_introduction Endian.Little
+        0x0F%byte 0x0E%byte 0x0D%byte 0x0C%byte 0x0B%byte 0x0A%byte 0x09%byte 0x08%byte
+        0x07%byte 0x06%byte 0x05%byte 0x04%byte 0x03%byte 0x02%byte 0x01%byte 0x00%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_qword_literal_big_endian
+  : 0x000102030405060708090A0B0C0D0E0F%qword_big
+    = QWord.QWord_introduction Endian.Big
+        0x00%byte 0x01%byte 0x02%byte 0x03%byte 0x04%byte 0x05%byte 0x06%byte 0x07%byte
+        0x08%byte 0x09%byte 0x0A%byte 0x0B%byte 0x0C%byte 0x0D%byte 0x0E%byte 0x0F%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_qword_with_endian
+  : QWord.with_endian Endian.Big 0x000102030405060708090A0B0C0D0E0F
+    = 0x000102030405060708090A0B0C0D0E0F%qword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_qword_mixed_sejunction
+  : (0x0123456789ABCDEF0123456789ABCDEF ^. 0x0123456789ABCDEF0123456789ABCDEF%qword_big)%qword
+    = 0x0%qword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_qword_xor_big_endian
+  : QWord.xor_big_endian 0xFF 0xF0 = 0x0F%qword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_qword_shift_right
+  : QWord.shift_right 0x80000000000000000000000000000000 127%n0 = 0x1%qword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_qword_rotate_left
+  : QWord.rotate_left 0x80000000000000000000000000000001 1%n0 = 0x3%qword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_qword_bytes_retraction
+  : forall (x : QWord) . QWord.from_bytes (QWord.endian x) (QWord.to_bytes x) = Some x
+  := QWord.conversion.bytes.retraction.
+
+Fail Definition data_machine_all_refuses_qword_literal_decimal
+  : QWord
+  := 200%qword.
+
+Fail Definition data_machine_all_refuses_qword_literal_large
+  : QWord
+  := 0x100000000000000000000000000000000%qword.
