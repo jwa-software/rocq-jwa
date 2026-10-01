@@ -36,7 +36,7 @@ Inductive T : Type :=
 
 Abbreviation Int8 := T.
 
-(* The number of values, the arithmetic wrapping modulo it. *)
+(* The number of values, 256 (2^8), the arithmetic wrapping modulo it. *)
 (* [BinBase] *)
 Definition modulus := 100000000%bin_base.
 

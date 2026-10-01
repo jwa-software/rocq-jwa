@@ -36,7 +36,7 @@ Inductive T : Type :=
 
 Abbreviation UInt16 := T.
 
-(* The number of values, the arithmetic wrapping modulo it. *)
+(* The number of values, 65536 (2^16), the arithmetic wrapping modulo it. *)
 (* [BinBase] *)
 Definition modulus := 10000000000000000%bin_base.
 

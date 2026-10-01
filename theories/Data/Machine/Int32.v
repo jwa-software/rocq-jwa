@@ -39,7 +39,7 @@ Inductive T : Type :=
 
 Abbreviation Int32 := T.
 
-(* The number of values, the arithmetic wrapping modulo it. *)
+(* The number of values, 4294967296 (2^32), the arithmetic wrapping modulo it. *)
 (* [BinBase] *)
 Definition modulus := 100000000000000000000000000000000%bin_base.
 
