@@ -4,7 +4,8 @@
  * imports them with [From jwa Require Import Data.Machine.All].
  *
  * A machine unit is a value of fixed width, the shape a machine stores and
- * moves. [Bit] is one binary digit, [Byte] eight.
+ * moves. [Bit] is one binary digit, [Byte] eight, and [UInt8] a [Byte] read
+ * as a number from 0 to 255.
  *)
 (* The modules below only [Import] [Core.All], so the open scope reaches a
  * client of this umbrella only from here.
@@ -14,7 +15,7 @@ From jwa Require Export Core.All.
 (* An umbrella exports every type the interfaces under it name: [Bool] for
  * [Bit.from_bool] and [Bit.to_bool], [Nat] and [Nat0] for the counts of the
  * shifts and rotations and for the values, [Product] for the carry and the
- * borrow, [Comparison] for [Byte.compare], [Numeral] and [Option] for the
+ * borrow, [Comparison] for [UInt8.compare], [Numeral] and [Option] for the
  * literals.
  *)
 From jwa Require Export Data.Base.Bool.
@@ -27,3 +28,4 @@ From jwa Require Export Data.Product.
 
 From jwa Require Export Data.Machine.Bit.
 From jwa Require Export Data.Machine.Byte.
+From jwa Require Export Data.Machine.UInt8.
