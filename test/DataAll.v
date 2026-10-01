@@ -55,6 +55,10 @@ Definition data_all_delivers_product
   : Bool * Bool
   := (true , false)%product.
 
+Definition data_all_delivers_bit
+  : forall (b : Bit) . (b ^. b)%bit = Bit.Zero
+  := Bit.sejunction.irreflexivity.
+
 Definition data_all_delivers_first
   : forall (A : Type) (a : A) (b : A) . Product.first (a , b)%product = a
   := fun (A : Type) (a : A) (b : A) . Identity.reflexivity a.
