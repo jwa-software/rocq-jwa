@@ -2298,6 +2298,135 @@ Proof.
   ipso facto.
 Qed.
 
+(* modulo.identity *)
+Theorem identity : forall (n : Nat0) (d : Nat) . n < + d -> n %. d = n.
+Proof.
+  intros n d h.
+  lemma witness : (0 * (+ &d)) + &n = &n /\ &n < + &d.
+  {
+    divide et impera.
+    - simpl in |- *.
+      quod idem est.
+    - ipso &h.
+  }
+  match (division.uniqueness &n &d 0 &n &witness) with | _ facto end.
+  ipso facto.
+Qed.
+
+Module sum. (* modulo.sum *)
+
+Module left. (* modulo.sum.left *)
+
+(* modulo.sum.left.absorption *)
+Theorem absorption
+  : forall (a : Nat0) (b : Nat0) (d : Nat) . ((a %. d) + b) %. d = (a + b) %. d.
+Proof.
+  intros a b d.
+  lemma witness
+    : ((&a /. &d + (&a %. &d + &b) /. &d) * (+ &d)) + (&a %. &d + &b) %. &d = &a + &b
+      /\ (&a %. &d + &b) %. &d < + &d.
+  {
+    divide et impera.
+    - leibniz
+        (multiplication.right.distributivity.over.addition
+          (+ &d) (&a /. &d) ((&a %. &d + &b) /. &d)),
+        (addition.associativity
+          ((&a /. &d) * (+ &d)) (((&a %. &d + &b) /. &d) * (+ &d))
+          ((&a %. &d + &b) %. &d)),
+        (division.dividend.reconstruction (&a %. &d + &b) &d),
+        <- (addition.associativity ((&a /. &d) * (+ &d)) (&a %. &d) &b),
+        (division.dividend.reconstruction &a &d)
+        in |- *.
+      quod idem est.
+    - ipso (division.remainder.boundedness (&a %. &d + &b) &d).
+  }
+  match (division.uniqueness
+          (&a + &b) &d (&a /. &d + (&a %. &d + &b) /. &d) ((&a %. &d + &b) %. &d)
+          &witness)
+  with | _ facto end.
+  ipso (symm &facto).
+Qed.
+
+End left. (* modulo.sum.left *)
+
+Module right. (* modulo.sum.right *)
+
+(* modulo.sum.right.absorption *)
+Theorem absorption
+  : forall (a : Nat0) (b : Nat0) (d : Nat) . (a + (b %. d)) %. d = (a + b) %. d.
+Proof.
+  intros a b d.
+  leibniz
+    (addition.commutativity &a (&b %. &d)),
+    (modulo.sum.left.absorption &b &a &d),
+    (addition.commutativity &b &a)
+    in |- *.
+  quod idem est.
+Qed.
+
+End right. (* modulo.sum.right *)
+
+End sum. (* modulo.sum *)
+
+Module product. (* modulo.product *)
+
+Module left. (* modulo.product.left *)
+
+(* modulo.product.left.absorption *)
+Theorem absorption
+  : forall (a : Nat0) (b : Nat0) (d : Nat) . ((a %. d) * b) %. d = (a * b) %. d.
+Proof.
+  intros a b d.
+  lemma witness
+    : ((&a /. &d * &b + (&a %. &d * &b) /. &d) * (+ &d)) + (&a %. &d * &b) %. &d = &a * &b
+      /\ (&a %. &d * &b) %. &d < + &d.
+  {
+    divide et impera.
+    - leibniz
+        (multiplication.right.distributivity.over.addition
+          (+ &d) (&a /. &d * &b) ((&a %. &d * &b) /. &d)),
+        (addition.associativity
+          ((&a /. &d * &b) * (+ &d)) (((&a %. &d * &b) /. &d) * (+ &d))
+          ((&a %. &d * &b) %. &d)),
+        (division.dividend.reconstruction (&a %. &d * &b) &d),
+        (multiplication.associativity (&a /. &d) &b (+ &d)),
+        (multiplication.commutativity &b (+ &d)),
+        <- (multiplication.associativity (&a /. &d) (+ &d) &b),
+        <- (multiplication.right.distributivity.over.addition
+          &b ((&a /. &d) * (+ &d)) (&a %. &d)),
+        (division.dividend.reconstruction &a &d)
+        in |- *.
+      quod idem est.
+    - ipso (division.remainder.boundedness (&a %. &d * &b) &d).
+  }
+  match (division.uniqueness
+          (&a * &b) &d (&a /. &d * &b + (&a %. &d * &b) /. &d) ((&a %. &d * &b) %. &d)
+          &witness)
+  with | _ facto end.
+  ipso (symm &facto).
+Qed.
+
+End left. (* modulo.product.left *)
+
+Module right. (* modulo.product.right *)
+
+(* modulo.product.right.absorption *)
+Theorem absorption
+  : forall (a : Nat0) (b : Nat0) (d : Nat) . (a * (b %. d)) %. d = (a * b) %. d.
+Proof.
+  intros a b d.
+  leibniz
+    (multiplication.commutativity &a (&b %. &d)),
+    (modulo.product.left.absorption &b &a &d),
+    (multiplication.commutativity &b &a)
+    in |- *.
+  quod idem est.
+Qed.
+
+End right. (* modulo.product.right *)
+
+End product. (* modulo.product *)
+
 End modulo. (* modulo *)
 
 Local Open Scope jwa_product_scope.
