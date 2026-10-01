@@ -1,7 +1,11 @@
+<!-- Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. -->
+
 # rocq-jwa
 Library for Rocq
 
-A general-purpose Rocq library organised in layers. Each layer is its own dune theory under the logical root `jwa`, so a client imports one layer with `From jwa Require Import Data.All`, or everything at once with `From jwa Require Import All`.
+A general-purpose Rocq library in layers, under the logical root `jwa`. Import a layer with `From jwa Require Import <Layer>.All`, or everything with `From jwa Require Import All`.
+
+---
 
 ## Requirements
 
@@ -24,80 +28,7 @@ make
 
 `make deps` installs what `opam/rocq-jwa.opam` declares into the active switch. Every other `make` target runs its command inside the switch through `opam exec`, so the shell need not have run `opam env` for those.
 
-## No prelude
-
-The root `dune` builds every theory with `-noinit`, so `Corelib.Init.Prelude` is not loaded anywhere in this tree. A file has nothing in scope that it did not require by name.
-
-That is wider than the datatypes. There are no notations, including `->`, which is spelled `forall _ : A, B`. Numerals parse only where this library declares them, under `%n`, `%n0` and `%z`, for the binary numbers `%bin_base`, `%bin_with_zero` and `%b` (see *Numbers*), and for the machine units `%bit`, `%byte`, `%uint8` and `%int8` (see *Machine units*), so a bare `0` elaborates only where a `Nat0`, an `Integer`, a `Bit`, a `UInt8` or an `Int8` is expected, or under `Data.Number.All`, which reads it as an `Integer`. And there are none of Rocq's tactics: see the next section.
-
-Nothing in this tree requires anything from `Corelib`. The notations, the connectives, equality and the data types are all defined here. Two pieces are not rebuilt, being compiled plugins rather than theories. The tactic engine: `theories/Dialect/Ltac.v` loads the core of Ltac2, `Ltac2.Init`, and makes Ltac2 the proof mode. And the reader of numerals behind `Number Notation`: `theories/Data/Number/Numeral.v` loads it and registers the library's own digit types, into which it reads a literal.
-
-## The tactic language
-
-Proofs are written in Ltac2 with Rocq's own tactic syntax hidden. `theories/Dialect/Ltac.v` exports `Ltac2.Init` and never `Ltac2.Notations`, so `exact` is `Unbound value exact`: a tactic exists only once this library declares it. Two layers declare them. `jwa.Dialect` holds the tactics that name no definition of the library; `jwa.Tactics` holds those that apply laws of `jwa.Core`. Every file with a proof imports the language, through `Core.All` or `Dialect.All`; a file that does not falls back to Rocq's default proof mode, where every built-in tactic is open again.
-
-```
-Theorem commutativity
-  : forall {A : Prop} {B : Prop} . A \/ B -> B \/ A.
-Proof.
-  intros A B h.
-  match &h with | a | b end.
-  - ipso (disjoin _, &a).
-  - ipso (disjoin &b, _).
-Qed.
-```
-
-Each tactic file opens with its grammar in a comment. In outline, against the Rocq tactic each one takes the place of:
-
-| Rocq | Here | Declared in |
-|:---|:---|:---|
-| `intro`, `intros` | the same, borrowed from `Ltac2.Notations` | `Dialect/Loanword.v` |
-| `exact h` | `ipso &h` | `Dialect/Ipso.v` |
-| `reflexivity` | `quod idem est` | `Dialect/Idem.v` |
-| `split` | `divide et impera` | `Dialect/DivideEtImpera.v` |
-| `contradiction h`, `discriminate h` | `ex &h quodlibet` | `Dialect/ExFalso.v` |
-| `destruct h as [a \| b] eqn:e` | `match &h with \| a \| b end \|- e` | `Dialect/Match.v` |
-| `induction n as [\| n' IH] using Nat.induction` | `match &n with \| One \| Successor (n' by IH) end per Nat.induction` | `Dialect/Match.v` |
-| `rewrite e in h \|- *` | `leibniz &e in &h \|- *` | `Dialect/Leibniz.v` |
-| `unfold d in h`, `simpl in h` | `simpl d in &h`, `simpl in &h` | `Dialect/Simpl.v` |
-| `pose (x := t)`, `set (x := t) in h` | `let x := t`, `let x := t in &h` | `Dialect/Let.v` |
-| `pose proof t as p` | `let proof p := t` | `Dialect/Let.v` |
-| `assert (h : T)` | `lemma h : T.` | `Dialect/Lemma.v` |
-| `rename h into g`, `clear h` | `mv &h g`, `rm &h` (also `rm -f`, `rm -r`) | `Dialect/Context.v` |
-| `revert h`, `generalize dependent h` | `extro &h`, `extros &h1 &h2` | `Dialect/Context.v` |
-| `symmetry in h`, `symmetry` | `symm in &h`, `symm in \|- *` | `Tactics/Equation.v` |
-| `exists w` | `exists &w` | `Tactics/Witness.v` |
-| `left`, `right` | the terms `disjoin a, _` and `disjoin _, b` | `Core/Logic/Disjunction.v` |
-
-`jwa.Tactics` also names the rules of inference: `modus ponens`, `modus tollens`, `modus tollendo ponens`, `modus ponendo tollens`, `modus aequans`, `hs` (hypothetical syllogism), `barbara`, `dni` and `dne` (double negation), `de morgan`, `trans` and `congru` (the transitivity and the congruence of `=`), and the introductions `conjoin`, `sejoin` and `abjoin`. Bare, each is a term, `ipso (modus ponens &hab, &a)`; followed by `as <p>` or `|- <p>` it is a tactic that adds the conclusion as `<p>`.
-
-**Nothing is reduced on the user's behalf.** `quod idem est` closes `a = b` only when the two sides are the same term as written; `ex &h quodlibet` needs the empty type or the clash of constructors as written; `leibniz` takes an equation given whole, never a law left to be instantiated. A step that computes is written out before, with `simpl`, or on the proof itself as the term `simpl &h`, which is `&h` with its type reduced: `leibniz (simpl &e) in |- *`. **Every refusal says what and where**, in the tactic's own words: `simpl: negate does not occur in h`, `rm: the goal depends on n, so it cannot be cleared`.
-
-**A name of the context is written `&h`**: a hypothesis, a local definition and a type introduced by `intros` alike. A global name is written bare, and a name being introduced takes no `&` (`intro a`, `let proof x`, the names of a `match` branch). By default a bare name of the context is accepted too; `Ltac2 Set Local.checking := Strict` makes every tactic refuse it with `<tactic>: h is in the context; write &h`.
-
-**`let` and `match` take over Ltac2's own `let ... in` and `match ... with ... end`.** In a proof, and in any file that imports `Dialect.All` or `Core.All`, those two Ltac2 constructs no longer parse. Ltac2 code is therefore written only in files that import `Dialect.Ltac` alone, as the files of `jwa.Dialect` and `jwa.Tactics` do, with each helper declared before any notation of the same file that shadows what it uses.
-
-## Numbers
-
-`jwa.Data` holds seven number types: `Nat`, which starts at one, `Nat0`, `Integer` and `Rational`, and the binary `BinBase`, which starts at one, `BinWithZero` and `Bin`. **Each converts upward without being written**: a `Nat` stands wherever a `Nat0`, an `Integer` or a `Rational` is expected, and so on up, so `(numerator x * denominator y)%z` multiplies an `Integer` by a `Nat`; a `BinBase` stands wherever a `BinWithZero` or a `Bin` is expected. **Every such conversion is still printed** in the goal, as `Integer.Positive (denominator y)`, so a `leibniz` step can be aimed at what the goal shows.
-
-**A conversion downward may have no answer, so it is written and returns an `Option`**: `Nat0.to_nat`, `Integer.to_nat0`, `Integer.to_nat`, `Rational.to_integer`, `Rational.to_nat0` and `Rational.to_nat`, each `None` exactly where the value has no counterpart below (`Integer.to_nat0` below zero, `Rational.to_integer` at a denominator other than one). Each comes with its laws in a `narrowing` module: going up then down gives the value back (`Rational.narrowing.integer.retraction`), `to_integer x = Some n` holds exactly when `x` is `n` (`specification`), and `failure` says when the answer is `None`. The value is taken out with `Option.unwrap_or d o`, which falls back to `d`, or with `Option.unwrap o h`, where `h` proves `~ (o = None)`: there is no failing at run time, so the proof takes its place.
-
-Arithmetic is written with each type's notation and scope delimiter, `(a + b)%n`, `(p /. q)%n0`, `(x * y)%q`, `(m && n)%bin_with_zero`, and goals print the operations by name, `Rational.mul x y`.
-
-**`Nat`, `Nat0` and `Integer` are written in decimal or hexadecimal** under their delimiters, `3%n`, `0x1F%n0`, `(-5)%z`, and a closed value prints back in decimal; `0%n` is refused, `Nat` having no zero. Where one of the three types is expected the delimiter can go, as in `Nat0.add 3 4`, and under `Data.Number.All` a numeral with none is an `Integer`, `3` and `-3` alike; the integer scope opened there brings `Integer`'s operators with it, so a bare `a + b` is `Integer.add`. These types count one constructor per unit, so a `Nat0` or `Integer` literal of 5000 or more stays a call to its parsing function until something computes it, and a `Nat` literal of that size, which has to be built in full, draws a warning.
-
-**The binary numbers compute.** A `BinBase` is `One` with bits appended after it at the low end, by `b0` for a 0 and `b1` for a 1; `BinWithZero` adds zero, and `Bin` adds a sign. Their arithmetic works bit by bit, so `(10 ^ 11001000)%bin_with_zero`, two to the power two hundred, reduces in the kernel at once, where a `Nat` of that size could not even be written out. **The binary numbers are written in binary digits** under their delimiters: `1011%bin_base` is eleven as a `BinBase`, `1011%bin_with_zero` as a `BinWithZero`, `1011%b` as a `Bin` and `(-1011)%b` is minus eleven, a closed value prints the same way, and a literal with any other digit is refused, as is a `BinBase` literal opening with 0. The short `%b` goes to the signed type because its literals are the only ones that can carry a sign. **Division takes a `BinBase` divisor, which is never zero**: `(1011 /. 11%bin_base)%bin_with_zero` is three and `(1011 %. 11%bin_base)%bin_with_zero` is two, a `BinBase` dividend standing as a `BinWithZero`; `Bin` divides the magnitude and keeps the sign, so `((-1011) /. 11%bin_base)%b` is minus three, and has no remainder, as `Integer` has none. `BinWithZero.gcd` runs Euclid's algorithm, and a quotient or a gcd of two 64-bit numbers reduces in the kernel at once as well. `BinWithZero` also has the bitwise operations `&&`, `||` and `^^`, `shift_left`, `shift_right` and `test_bit`, and `shift_right` is division by a power of two (`BinWithZero.shift.right.quotient`). Each binary type converts to its unary counterpart by `BinBase.to_nat`, `BinWithZero.to_nat0` and `Bin.to_integer`, and the laws are proved through that conversion (`BinWithZero.conversion.addition`, `Bin.conversion.difference`); the algebraic laws and the instances are those of `Nat`, `Nat0` and `Integer`, and `Bin` is a ring, its addition an abelian group, every value having an inverse.
-
-## Machine units
-
-`jwa.Data` holds the units of fixed width under `Data/Machine/`: `Bit`, one binary digit, `Byte`, eight bits with the most significant first, `UInt8`, a byte read as a number from 0 to 255, and `Int8`, a byte read in two's complement, from -128 to 127. **A bit is a datum, not a truth value**: `Bit` and `Bool` are separate types, crossed by `Bit.from_bool` and `Bit.to_bool`. The bitwise operations of both units carry a dot, `~.`, `&.`, `|.` and `^.`, apart from `Bool`'s `!`, `&&`, `||` and `^^`, and group as in C, `~.` tightest, then `&.`, `^.` and `|.`, so `(~. x &. y |. z)%byte` is `((~. x) &. y) |. z`. A `Byte` also shifts and rotates by a `Nat0` count, and a rotation by eight places gives the byte back (`Byte.rotation.left.period`).
-
-**A byte is bits, and a `UInt8` is a byte read as a number from 0 to 255.** `Byte` has no arithmetic; `UInt8` wraps a `Byte` and carries it. `UInt8.add_with_carry` and `UInt8.sub_with_borrow` ripple a carry or a borrow through the eight places and return it, so that they chain into wider numbers; `+`, `UInt8.sub`, `-` (two's complement) and `*` wrap modulo 256. Each operation is stated against the value `UInt8.to_nat0`: `UInt8.conversion.addition` is `to_nat0 (x + y) = (to_nat0 x + to_nat0 y) %. 256`, and `UInt8.conversion.left.shift` makes a shift to the left a multiplication by a power of two. `+` and `*` form a ring, `UInt8.from_nat0` reads a `Nat0` modulo 256, and `UInt8.compare` orders by value. **A bit is written `0%bit` or `1%bit`, a byte in hexadecimal only, `0xFF%byte`, and a `UInt8` in decimal or hexadecimal**, `200%uint8` or `0xFF%uint8`; a literal too wide for its type is refused when the file is compiled, whatever its length, and a closed value prints back as a literal, a byte in hexadecimal and a `UInt8` in decimal. Under `%uint8`, `- 1` is read as a negative literal and refused, so the negation of a literal is written `- UInt8.One` or `UInt8.negate 1`.
-
-**An `Int8` is a byte read in two's complement, from -128 to 127.** It wraps a `Byte` of its own and shares no code with `UInt8`: its ripple adder and subtractor, `+`, `Int8.sub`, `-` and `*` are its own and wrap modulo 256, so `(127 + 1)%int8` is `-128` and `(- (-128))%int8` is `-128`. Each operation is stated against the signed value `Int8.to_integer`. `Int8.add_with_overflow` returns the sum with a flag, set when the operands share a sign that the sum does not, and `Int8.conversion.addition` makes `to_integer (x + y)` the sum `to_integer x + to_integer y` whenever that flag is clear. `Int8.shift_right` is arithmetic: it copies the sign bit, so a shift by one place halves the value rounding down (`Int8.conversion.right.halving`), and `Int8.shift_right (-1) 3` is still `-1`. `+` and `*` form a ring, `Int8.from_integer` reads an `Integer` modulo 256, and `Int8.compare` orders by the signed value, `-1` before `1`. **An `Int8` is written in decimal or hexadecimal, with a sign**, `100%int8`, `(-100)%int8` or `0x7F%int8`, and a literal outside -128 to 127 is refused when the file is compiled.
-
-**`UInt8` and `Int8` meet only at `Byte`.** Each converts to and from it, by `to_byte` and `from_byte`, and a byte is read the other way through it: `Int8.from_byte (UInt8.to_byte 255)` is `-1`. Both also convert upward without being written, as the number types do: a `UInt8` stands wherever a `Nat0` or an `Integer` is expected, as its `UInt8.to_nat0`, and an `Int8` wherever an `Integer` is, as its `Int8.to_integer`, each conversion printed in the goal. The operators are then the numbers' own, so `(x + y)%n0` with `x` and `y` of type `UInt8` adds their values without wrapping, where `(x + y)%uint8` wraps.
+---
 
 ## Building
 
@@ -112,32 +43,30 @@ Arithmetic is written with each type's notation and scope delimiter, `(a + b)%n`
 | `make clean` | Deletes `_build/`. | When a build result looks stale or inconsistent. |
 | `make deps` | Installs the dependencies declared in `opam/rocq-jwa.opam` into the active switch. | Once, on a new switch. |
 
-The opam file is generated: after regenerating it, commit the rewritten file like any other change. CI fails when it is out of date.
+---
 
-## Layout
+## No prelude
 
-Layers live under `theories/`, one directory and one `dune` stanza per layer. Each layer has an umbrella module `All` that re-exports the whole layer, and every stanza lists `Ltac2` among its dependencies.
+Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a file sees only what it requires by name. The library defines its own notations, connectives, equality and data types, and requires nothing from `Corelib`. Two compiled plugins are used as they are:
 
-A layer may group related modules in a subdirectory. `theories/Core/dune` carries `(include_subdirs qualified)`, which makes a subdirectory a segment of the module path, so `theories/Core/Logic/Conjunction.v` is the module `jwa.Core.Logic.Conjunction`. Such a group carries its own umbrella, imported as `From jwa Require Import Core.Logic.All`. `theories/Relation/Order/` groups the order classes the same way, under `From jwa Require Import Relation.Order.All`, and `theories/Data/` groups its types the same way: `Base/` for the types built from no other type (`Empty`, `Unit`, `Bool`, `Comparison`), `Collection/` for `List` and `NonEmptyList`, `Machine/` for the fixed-width units a machine stores, `Bit` and `Byte`, and `Number/` for `Nat`, `Nat0`, `Integer` and `Rational`, with `Numeral`, the digit types a literal is read into. `Number/` in turn groups the binary types under `Binary/` -- `BinBase`, `BinWithZero` and `Bin` -- reached as `From jwa Require Import Data.Number.Binary.All` or through `Data.Number.All`, which forwards them.
+- **Ltac2**, the tactic engine, loaded by `theories/Dialect/Ltac.v`;
+- **the numeral reader** behind `Number Notation`, loaded by `theories/Data/Number/Numeral.v`.
 
-| Layer | Purpose | Depends on |
-|:---|:---|:---|
-| `jwa.Dialect` | The tactic language: Ltac2 with Rocq's tactic syntax hidden, and the tactics that name no definition of the library | -- |
-| `jwa.Core` | Base definitions, notations, the connectives and equality, the instance hint database and the minimal lemmas everything else shares | Dialect |
-| `jwa.Tactics` | Tactics that apply the laws of Core: the rules of inference by name, symmetry and transitivity, witnesses | Dialect, Core |
-| `jwa.Algebra` | Algebraic structures, from semigroups to rings, and their theory | Dialect, Core |
-| `jwa.Relation` | Orders, well-founded and equivalence relations | Dialect, Core, Tactics |
-| `jwa.Data` | Concrete data types: the base types, the machine units, products, coproducts, options, the numbers, lists, and the functor class they instantiate | Dialect, Core, Tactics, Algebra, Relation |
-| `jwa.Assumption` | Axioms: classical principles, extensionality, decidability; the layer holds only its umbrella | Dialect, Core |
-| `jwa.Programming` | Monad instances, effects, extraction-oriented code; the layer holds only its umbrella | Dialect, Core, Tactics, Algebra, Relation, Data |
-| `jwa.All` | `From jwa Require Import All` brings in every layer except Assumption | every layer but Assumption |
+---
 
-`Assumption` is the only layer that may introduce axioms, and no other layer depends on it; its name is the one `Print Assumptions` uses for them. Import it explicitly with `From jwa Require Import Assumption.All` when a development needs them; everything else stays axiom-free under `Print Assumptions`.
+## Documentation
+
+- [Usage](docs/usage.md): installing the library and using it in a project of your own.
+- [The tactic language](docs/tactic.md): Ltac2 with Rocq's own tactics hidden, and the tactics that take their place.
+- [Numbers](docs/numbers.md): the number types, their conversions, arithmetic and literals.
+- [Machine units](docs/machine.md): `Bit`, `Byte`, `UInt8` and `Int8`.
+- [Layout](docs/layout.md): the layers, their directories and what each depends on.
+
+---
 
 ## Tests
 
-`test/` is a theory of its own, `jwa_test`, and is not part of the library: its `dune` declares no package, so `dune build` compiles it while `dune build @install` leaves it out.
+`test/` is the theory `jwa_test`, **not part of the library**: `make` builds it, an opam installation leaves it out.
 
-It holds one file per umbrella that re-exports anything, each importing that umbrella and nothing else. An umbrella defines nothing, so it cannot fail to compile on its own -- it either forwards what its modules hold or silently does not, and importing one in isolation is what makes the difference visible. A file importing two would receive from one whatever the other fails to forward.
-
-`TacticsAll.v` goes further, and imports `Data.All` beside `Tactics.All` to have something to prove. It holds a guard for every form of every tactic of the language, and one for each refusal, written with `Fail`. A guard that checks the shape a tactic leaves behind uses `lazy_match!`, which that file declares for itself.
+- **One file per umbrella** (`DataAll.v`, `DataMachineAll.v`, ...), each importing that umbrella alone. An umbrella defines nothing, so only an import in isolation shows whether it forwards everything it should.
+- **`TacticsAll.v`** checks every form of every tactic, and every refusal with `Fail`.

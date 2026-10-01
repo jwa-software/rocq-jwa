@@ -6,9 +6,18 @@ on:
   push:
     branches: [main]
   pull_request:
+    # edited runs the check again when a pull request is retitled, so the
+    # condition on build below always reads the current title.
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
   build:
+    # A pull request titled docs skips the build. The condition sits on the
+    # job, not on the triggers: a skipped job reports success to a required
+    # check, while a workflow skipped by a filter leaves it pending.
+    if: >-
+      github.event_name != 'pull_request'
+      || !startsWith(github.event.pull_request.title, 'docs')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
