@@ -13,11 +13,14 @@ From jwa Require Export Core.All.
 
 (* An umbrella exports every type the interfaces under it name: [Bool] for
  * [Bit.from_bool] and [Bit.to_bool], [Nat] and [Nat0] for the counts of the
- * shifts and rotations.
+ * shifts and rotations and for the values, [Product] for the carry and the
+ * borrow, [Comparison] for [Byte.compare].
  *)
 From jwa Require Export Data.Base.Bool.
+From jwa Require Export Data.Base.Comparison.
 From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.Nat0.
+From jwa Require Export Data.Product.
 
 From jwa Require Export Data.Machine.Bit.
 From jwa Require Export Data.Machine.Byte.
