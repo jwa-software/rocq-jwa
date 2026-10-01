@@ -1,3 +1,5 @@
+<!-- Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. -->
+
 # rocq-jwa
 Library for Rocq
 
