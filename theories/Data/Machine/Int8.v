@@ -24,8 +24,9 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 
 (* A signed integer of eight bits: a [Byte] read in two's complement, from
- * -128 to 127, its arithmetic wrapping modulo 256. In this file [100000000]
- * is 256, [10000000] is 128 and [1111111] is 127, written in binary digits.
+ * -128 (-2^7) to 127 (2^7 - 1), its arithmetic wrapping modulo 256 (2^8). In
+ * this file [100000000] is 2^8, [10000000] is 2^7 and [1111111] is 2^7 - 1,
+ * written in binary digits.
  *)
 
 Module Int8. (* Int8 *)

@@ -26,9 +26,9 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 
 (* A signed integer of sixteen bits: two [Byte]s read in two's complement, from
- * -32768 to 32767, its arithmetic wrapping modulo 65536. In this file
- * [10000000000000000] is 65536, [1000000000000000] is 32768 and
- * [111111111111111] is 32767, written in binary digits.
+ * -32768 (-2^15) to 32767 (2^15 - 1), its arithmetic wrapping modulo 65536
+ * (2^16). In this file [10000000000000000] is 2^16, [1000000000000000] is 2^15
+ * and [111111111111111] is 2^15 - 1, written in binary digits.
  *)
 
 Module Int16. (* Int16 *)

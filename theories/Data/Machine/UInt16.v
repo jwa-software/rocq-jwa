@@ -25,8 +25,8 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 
 (* An unsigned integer of sixteen bits: two [Byte]s read as a number from 0 to
- * 65535, its arithmetic wrapping modulo 65536. In this file [10000000000000000]
- * is 65536, written in binary digits.
+ * 65535 (2^16 - 1), its arithmetic wrapping modulo 65536 (2^16). In this file
+ * [10000000000000000] is 2^16, written in binary digits.
  *)
 
 Module UInt16. (* UInt16 *)

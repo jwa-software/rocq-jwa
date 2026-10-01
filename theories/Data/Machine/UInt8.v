@@ -23,8 +23,8 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 
 (* An unsigned integer of eight bits: a [Byte] read as a number from 0 to
- * 255, its arithmetic wrapping modulo 256. In this file [100000000] is 256,
- * written in binary digits.
+ * 255 (2^8 - 1), its arithmetic wrapping modulo 256 (2^8). In this file
+ * [100000000] is 2^8, written in binary digits.
  *)
 
 Module UInt8. (* UInt8 *)
