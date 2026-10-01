@@ -6,8 +6,10 @@
  * A machine unit is a value of fixed width, the shape a machine stores and
  * moves. [Bit] is one binary digit, [Byte] eight, [HWord] sixteen, [Word]
  * thirty-two, [DWord] sixty-four, [QWord] a hundred and twenty-eight, [UInt8]
- * a [Byte] read as a number from 0 to 255, and [Int8] a [Byte] read in two's
- * complement, from -128 to 127.
+ * a [Byte] read as a number from 0 to 255, [Int8] a [Byte] read in two's
+ * complement, from -128 to 127, [UInt16] two [Byte]s read as a number from 0
+ * to 65535, and [Int16] two [Byte]s read in two's complement, from -32768 to
+ * 32767.
  *)
 (* The modules below only [Import] [Core.All], so the open scope reaches a
  * client of this umbrella only from here.
@@ -40,7 +42,9 @@ From jwa Require Export Data.Machine.Byte.
 From jwa Require Export Data.Machine.DWord.
 From jwa Require Export Data.Machine.Endian.
 From jwa Require Export Data.Machine.HWord.
+From jwa Require Export Data.Machine.Int16.
 From jwa Require Export Data.Machine.Int8.
 From jwa Require Export Data.Machine.QWord.
+From jwa Require Export Data.Machine.UInt16.
 From jwa Require Export Data.Machine.UInt8.
 From jwa Require Export Data.Machine.Word.
