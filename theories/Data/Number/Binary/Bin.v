@@ -668,7 +668,102 @@ Proof.
     quod idem est.
 Qed.
 
+(* conversion.ramp *)
+Theorem ramp
+  : forall (x : Bin) . BinWithZero.to_nat0 (ramp x) = Integer.ramp (to_integer x).
+Proof.
+  intros x.
+  match &x with | Negative p | Zero | Positive p end; simpl in |- *; quod idem est.
+Qed.
+
 End conversion. (* conversion *)
+
+(* The laws of [bin_with_zero_difference], read through [to_integer] as those
+ * of [Integer.nat0_difference].
+ *)
+Module difference. (* difference *)
+
+(* Two differences agree when their sides balance crosswise. *)
+(* difference.invariance *)
+Theorem invariance
+  : forall {a : BinWithZero} {b : BinWithZero} {c : BinWithZero} {d : BinWithZero} .
+      (a + d = c + b)%bin_with_zero ->
+      bin_with_zero_difference a b = bin_with_zero_difference c d.
+Proof.
+  intros a b c d e.
+  let proof f := congru BinWithZero.to_nat0, &e.
+  leibniz
+    (BinWithZero.conversion.addition &a &d),
+    (BinWithZero.conversion.addition &c &b)
+    in &f.
+  lemma facto
+    : to_integer (bin_with_zero_difference &a &b) = to_integer (bin_with_zero_difference &c &d).
+  {
+    leibniz
+      (conversion.difference.extension &a &b),
+      (conversion.difference.extension &c &d)
+      in |- *.
+    ipso (Integer.difference.nat0.well_definedness &f).
+  }
+  ipso (conversion.injectivity &facto).
+Qed.
+
+(* difference.additivity *)
+Theorem additivity
+  : forall (a : BinWithZero) (b : BinWithZero) (c : BinWithZero) (d : BinWithZero) .
+      bin_with_zero_difference a b + bin_with_zero_difference c d
+      = bin_with_zero_difference (a + c)%bin_with_zero (b + d)%bin_with_zero.
+Proof.
+  intros a b c d.
+  lemma facto
+    : to_integer (bin_with_zero_difference &a &b + bin_with_zero_difference &c &d)
+      = to_integer
+          (bin_with_zero_difference (&a + &c)%bin_with_zero (&b + &d)%bin_with_zero).
+  {
+    leibniz
+      (conversion.addition (bin_with_zero_difference &a &b) (bin_with_zero_difference &c &d)),
+      (conversion.difference.extension &a &b),
+      (conversion.difference.extension &c &d),
+      (conversion.difference.extension (&a + &c)%bin_with_zero (&b + &d)%bin_with_zero),
+      (BinWithZero.conversion.addition &a &c),
+      (BinWithZero.conversion.addition &b &d)
+      in |- *.
+    ipso
+      (Integer.difference.nat0.additivity
+        (BinWithZero.to_nat0 &a) (BinWithZero.to_nat0 &b)
+        (BinWithZero.to_nat0 &c) (BinWithZero.to_nat0 &d)).
+  }
+  ipso (conversion.injectivity &facto).
+Qed.
+
+(* The difference's positive part with [b] is its negative part with [a]. *)
+(* difference.specification *)
+Theorem specification
+  : forall (a : BinWithZero) (b : BinWithZero) .
+      (ramp (bin_with_zero_difference a b) + b
+        = ramp (negate (bin_with_zero_difference a b)) + a)%bin_with_zero.
+Proof.
+  intros a b.
+  lemma facto
+    : BinWithZero.to_nat0 (ramp (bin_with_zero_difference &a &b) + &b)%bin_with_zero
+      = BinWithZero.to_nat0
+          (ramp (negate (bin_with_zero_difference &a &b)) + &a)%bin_with_zero.
+  {
+    leibniz
+      (BinWithZero.conversion.addition (ramp (bin_with_zero_difference &a &b)) &b),
+      (BinWithZero.conversion.addition (ramp (negate (bin_with_zero_difference &a &b))) &a),
+      (conversion.ramp (bin_with_zero_difference &a &b)),
+      (conversion.ramp (negate (bin_with_zero_difference &a &b))),
+      (conversion.negation (bin_with_zero_difference &a &b)),
+      (conversion.difference.extension &a &b)
+      in |- *.
+    ipso
+      (Integer.difference.nat0.specification (BinWithZero.to_nat0 &a) (BinWithZero.to_nat0 &b)).
+  }
+  ipso (BinWithZero.conversion.injectivity &facto).
+Qed.
+
+End difference. (* difference *)
 
 Module magnitude. (* magnitude *)
 

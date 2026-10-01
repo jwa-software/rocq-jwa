@@ -38,6 +38,6 @@ In `Core`, `Relation` and `Data`, whose `dune` files carry `(include_subdirs qua
 | `Relation/Order/` | The order classes |
 | `Data/Base/` | The types built from no other type: `Empty`, `Unit`, `Bool`, `Comparison` |
 | `Data/Collection/` | `List` and `NonEmptyList` |
-| `Data/Machine/` | The fixed-width units a machine stores: `Bit`, `Byte`, `HWord`, `Word`, `DWord`, `QWord`, `UInt8`, `Int8`, and `Endian`, the byte order of a word |
+| `Data/Machine/` | The fixed-width units a machine stores: `Bit`, `Byte`, `HWord`, `Word`, `DWord`, `QWord`, the integers `UInt8` to `UInt64` and `Int8` to `Int64`, and `Endian`, the byte order of a word |
 | `Data/Number/` | `Nat`, `Nat0`, `Integer`, `Rational`, and `Numeral`, the digit types a literal is read into |
 | `Data/Number/Binary/` | `BinBase`, `BinWithZero`, `Bin`, also forwarded by `Data.Number.All` |

@@ -123,6 +123,53 @@ Definition data_number_binary_all_delivers_bin_minimum_computes
   : Bin.min (-1011)%b 1011%b = (-1011)%b
   := Identity.reflexivity _.
 
+Definition data_number_binary_all_delivers_modulo_identity
+  : forall (n : BinWithZero) (d : BinBase) .
+      (n < BinWithZero.Positive d -> n %. d = n)%bin_with_zero
+  := BinWithZero.modulo.identity.
+
+Definition data_number_binary_all_delivers_modulo_sum_absorption
+  : forall (a : BinWithZero) (b : BinWithZero) (d : BinBase) .
+      (((a %. d) + b) %. d = (a + b) %. d)%bin_with_zero
+  := BinWithZero.modulo.sum.left.absorption.
+
+Definition data_number_binary_all_delivers_modulo_product_absorption
+  : forall (a : BinWithZero) (b : BinWithZero) (d : BinBase) .
+      (((a %. d) * b) %. d = (a * b) %. d)%bin_with_zero
+  := BinWithZero.modulo.product.left.absorption.
+
+Definition data_number_binary_all_delivers_shift_left_multiplication
+  : forall (n : BinWithZero) (k : Nat0) .
+      BinWithZero.shift_left n k = (n * BinWithZero.shift_left 1 k)%bin_with_zero
+  := BinWithZero.shift.left.multiplication.
+
+Definition data_number_binary_all_delivers_decimal_reading_computes
+  : BinWithZero.from_decimal 0%bin_with_zero
+      (Numeral.Decimal.Digits.Two
+        (Numeral.Decimal.Digits.Five
+          (Numeral.Decimal.Digits.Five Numeral.Decimal.Digits.End)))
+    = 11111111%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_decimal_printing_computes
+  : BinWithZero.to_decimal 11111111%bin_with_zero
+    = Numeral.Decimal.Digits.Two
+        (Numeral.Decimal.Digits.Five
+          (Numeral.Decimal.Digits.Five Numeral.Decimal.Digits.End))
+  := Identity.reflexivity _.
+
+Definition data_number_binary_all_delivers_difference_additivity
+  : forall (a : BinWithZero) (b : BinWithZero) (c : BinWithZero) (d : BinWithZero) .
+      (Bin.bin_with_zero_difference a b + Bin.bin_with_zero_difference c d
+        = Bin.bin_with_zero_difference (a + c)%bin_with_zero (b + d)%bin_with_zero)%b
+  := Bin.difference.additivity.
+
+Definition data_number_binary_all_delivers_difference_invariance
+  : forall (a : BinWithZero) (b : BinWithZero) (c : BinWithZero) (d : BinWithZero) .
+      (a + d = c + b)%bin_with_zero ->
+      Bin.bin_with_zero_difference a b = Bin.bin_with_zero_difference c d
+  := @Bin.difference.invariance.
+
 (* The types the operations above take and return, named rather than merely
  * produced: a client who cannot write them cannot state anything about them.
  *)

@@ -484,6 +484,160 @@ Definition to_numeral := fun (n : BinWithZero) .
   | + p => BinBase.to_numeral p
   end.
 
+(* [n] with the decimal digits [d] appended, the most significant first, each
+ * step [n * 1010 + d] in binary digits.
+ *)
+(* [BinWithZero -> Numeral.Decimal.Digits -> BinWithZero] *)
+Fixpoint from_decimal (n : BinWithZero) (d : Numeral.Decimal.Digits) : BinWithZero :=
+  match d with
+  | Numeral.Decimal.Digits.End      => n
+  | Numeral.Decimal.Digits.Zero d'  => from_decimal (n * (+ 1010%bin_base)) d'
+  | Numeral.Decimal.Digits.One d'   => from_decimal (n * (+ 1010%bin_base) + (+ 1%bin_base)) d'
+  | Numeral.Decimal.Digits.Two d'   => from_decimal (n * (+ 1010%bin_base) + (+ 10%bin_base)) d'
+  | Numeral.Decimal.Digits.Three d' => from_decimal (n * (+ 1010%bin_base) + (+ 11%bin_base)) d'
+  | Numeral.Decimal.Digits.Four d'  =>
+      from_decimal (n * (+ 1010%bin_base) + (+ 100%bin_base)) d'
+  | Numeral.Decimal.Digits.Five d'  =>
+      from_decimal (n * (+ 1010%bin_base) + (+ 101%bin_base)) d'
+  | Numeral.Decimal.Digits.Six d'   =>
+      from_decimal (n * (+ 1010%bin_base) + (+ 110%bin_base)) d'
+  | Numeral.Decimal.Digits.Seven d' =>
+      from_decimal (n * (+ 1010%bin_base) + (+ 111%bin_base)) d'
+  | Numeral.Decimal.Digits.Eight d' =>
+      from_decimal (n * (+ 1010%bin_base) + (+ 1000%bin_base)) d'
+  | Numeral.Decimal.Digits.Nine d'  =>
+      from_decimal (n * (+ 1010%bin_base) + (+ 1001%bin_base)) d'
+  end.
+
+(* [n] with the hexadecimal digits [h] appended, the most significant first,
+ * each step [n * 10000 + h] in binary digits.
+ *)
+(* [BinWithZero -> Numeral.Hexadecimal.Digits -> BinWithZero] *)
+Fixpoint from_hexadecimal (n : BinWithZero) (h : Numeral.Hexadecimal.Digits) : BinWithZero :=
+  match h with
+  | Numeral.Hexadecimal.Digits.End         => n
+  | Numeral.Hexadecimal.Digits.Zero h'     =>
+      from_hexadecimal (n * (+ 10000%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.One h'      =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Two h'      =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 10%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Three h'    =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 11%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Four h'     =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 100%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Five h'     =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 101%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Six h'      =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 110%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Seven h'    =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 111%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Eight h'    =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1000%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Nine h'     =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1001%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Ten h'      =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1010%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Eleven h'   =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1011%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Twelve h'   =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1100%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Thirteen h' =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1101%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Fourteen h' =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1110%bin_base)) h'
+  | Numeral.Hexadecimal.Digits.Fifteen h'  =>
+      from_hexadecimal (n * (+ 10000%bin_base) + (+ 1111%bin_base)) h'
+  end.
+
+(* The digit [high] before [rest] when [carry] is set, [low] otherwise. *)
+(* [Bool -> (Numeral.Decimal.Digits -> Numeral.Decimal.Digits)
+ *   -> (Numeral.Decimal.Digits -> Numeral.Decimal.Digits)
+ *   -> Numeral.Decimal.Digits -> Numeral.Decimal.Digits]
+ *)
+Definition select_digit :=
+  fun (carry : Bool)
+      (low : Numeral.Decimal.Digits -> Numeral.Decimal.Digits)
+      (high : Numeral.Decimal.Digits -> Numeral.Decimal.Digits)
+      (rest : Numeral.Decimal.Digits) .
+    match carry with
+    | true  => high rest
+    | false => low rest
+    end.
+
+(* The carry out and the digits of twice [d] plus [carry], [d] the most
+ * significant digit first: [carry] goes in at the lowest digit and each
+ * digit passes its own carry up.
+ *)
+(* [Bool -> Numeral.Decimal.Digits -> Product Bool Numeral.Decimal.Digits] *)
+Fixpoint double_decimal (carry : Bool) (d : Numeral.Decimal.Digits)
+  : Product Bool Numeral.Decimal.Digits :=
+  match d with
+  | Numeral.Decimal.Digits.End      => (carry, Numeral.Decimal.Digits.End)
+  | Numeral.Decimal.Digits.Zero d'  =>
+      let r := double_decimal carry d' in
+      (false,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.One (pi_2 r))
+  | Numeral.Decimal.Digits.One d'   =>
+      let r := double_decimal carry d' in
+      (false,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Two Numeral.Decimal.Digits.Three (pi_2 r))
+  | Numeral.Decimal.Digits.Two d'   =>
+      let r := double_decimal carry d' in
+      (false,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Four Numeral.Decimal.Digits.Five (pi_2 r))
+  | Numeral.Decimal.Digits.Three d' =>
+      let r := double_decimal carry d' in
+      (false,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Six Numeral.Decimal.Digits.Seven (pi_2 r))
+  | Numeral.Decimal.Digits.Four d'  =>
+      let r := double_decimal carry d' in
+      (false,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Eight Numeral.Decimal.Digits.Nine (pi_2 r))
+  | Numeral.Decimal.Digits.Five d'  =>
+      let r := double_decimal carry d' in
+      (true,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.One (pi_2 r))
+  | Numeral.Decimal.Digits.Six d'   =>
+      let r := double_decimal carry d' in
+      (true,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Two Numeral.Decimal.Digits.Three (pi_2 r))
+  | Numeral.Decimal.Digits.Seven d' =>
+      let r := double_decimal carry d' in
+      (true,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Four Numeral.Decimal.Digits.Five (pi_2 r))
+  | Numeral.Decimal.Digits.Eight d' =>
+      let r := double_decimal carry d' in
+      (true,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Six Numeral.Decimal.Digits.Seven (pi_2 r))
+  | Numeral.Decimal.Digits.Nine d'  =>
+      let r := double_decimal carry d' in
+      (true,
+        select_digit (pi_1 r) Numeral.Decimal.Digits.Eight Numeral.Decimal.Digits.Nine (pi_2 r))
+  end%product.
+
+(* The decimal digits of [p], built bit by bit from the most significant: each
+ * bit doubles the digits so far and adds itself, so no division is needed.
+ *)
+(* [BinBase -> Numeral.Decimal.Digits] *)
+Fixpoint to_decimal_positive (p : BinBase) : Numeral.Decimal.Digits :=
+  let grow := fun (r : Product Bool Numeral.Decimal.Digits) .
+    (select_digit (pi_1 r) (fun (rest : Numeral.Decimal.Digits) . rest)
+      Numeral.Decimal.Digits.One (pi_2 r))%product in
+  match p with
+  | BinBase.One   => Numeral.Decimal.Digits.One Numeral.Decimal.Digits.End
+  | BinBase.b0 p' => grow (double_decimal false (to_decimal_positive p'))
+  | BinBase.b1 p' => grow (double_decimal true (to_decimal_positive p'))
+  end.
+
+(* [n] in decimal digits, the most significant first. *)
+(* [BinWithZero -> Numeral.Decimal.Digits] *)
+Definition to_decimal := fun (n : BinWithZero) .
+  match n with
+  | 0   => Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End
+  | + p => to_decimal_positive p
+  end.
+
 (* The conversions to and from [Nat0], used to state the laws: they
  * go through [Nat], which is unary, so they are for proofs, not for
  * computing.
@@ -2038,6 +2192,116 @@ Qed.
 
 End division. (* division *)
 
+Module modulo. (* modulo *)
+
+(* modulo.identity *)
+Theorem identity : forall (n : BinWithZero) (d : BinBase) . n < + d -> n %. d = n.
+Proof.
+  intros n d h.
+  let proof g := modus aequans (conversion.order &n (+ &d)), &h.
+  lemma facto : to_nat0 (&n %. &d) = to_nat0 &n.
+  {
+    leibniz (conversion.modulo &n &d) in |- *.
+    ipso (Nat0.modulo.identity (to_nat0 &n) (BinBase.to_nat &d) &g).
+  }
+  ipso (conversion.injectivity &facto).
+Qed.
+
+Module sum. (* modulo.sum *)
+
+Module left. (* modulo.sum.left *)
+
+(* modulo.sum.left.absorption *)
+Theorem absorption
+  : forall (a : BinWithZero) (b : BinWithZero) (d : BinBase) .
+      ((a %. d) + b) %. d = (a + b) %. d.
+Proof.
+  intros a b d.
+  lemma facto : to_nat0 ((&a %. &d + &b) %. &d) = to_nat0 ((&a + &b) %. &d).
+  {
+    leibniz
+      (conversion.modulo (&a %. &d + &b) &d),
+      (conversion.addition (&a %. &d) &b),
+      (conversion.modulo &a &d),
+      (conversion.modulo (&a + &b) &d),
+      (conversion.addition &a &b)
+      in |- *.
+    ipso (Nat0.modulo.sum.left.absorption (to_nat0 &a) (to_nat0 &b) (BinBase.to_nat &d)).
+  }
+  ipso (conversion.injectivity &facto).
+Qed.
+
+End left. (* modulo.sum.left *)
+
+Module right. (* modulo.sum.right *)
+
+(* modulo.sum.right.absorption *)
+Theorem absorption
+  : forall (a : BinWithZero) (b : BinWithZero) (d : BinBase) .
+      (a + (b %. d)) %. d = (a + b) %. d.
+Proof.
+  intros a b d.
+  leibniz
+    (addition.commutativity &a (&b %. &d)),
+    (modulo.sum.left.absorption &b &a &d),
+    (addition.commutativity &b &a)
+    in |- *.
+  quod idem est.
+Qed.
+
+End right. (* modulo.sum.right *)
+
+End sum. (* modulo.sum *)
+
+Module product. (* modulo.product *)
+
+Module left. (* modulo.product.left *)
+
+(* modulo.product.left.absorption *)
+Theorem absorption
+  : forall (a : BinWithZero) (b : BinWithZero) (d : BinBase) .
+      ((a %. d) * b) %. d = (a * b) %. d.
+Proof.
+  intros a b d.
+  lemma facto : to_nat0 ((&a %. &d * &b) %. &d) = to_nat0 ((&a * &b) %. &d).
+  {
+    leibniz
+      (conversion.modulo (&a %. &d * &b) &d),
+      (conversion.multiplication (&a %. &d) &b),
+      (conversion.modulo &a &d),
+      (conversion.modulo (&a * &b) &d),
+      (conversion.multiplication &a &b)
+      in |- *.
+    ipso
+      (Nat0.modulo.product.left.absorption (to_nat0 &a) (to_nat0 &b) (BinBase.to_nat &d)).
+  }
+  ipso (conversion.injectivity &facto).
+Qed.
+
+End left. (* modulo.product.left *)
+
+Module right. (* modulo.product.right *)
+
+(* modulo.product.right.absorption *)
+Theorem absorption
+  : forall (a : BinWithZero) (b : BinWithZero) (d : BinBase) .
+      (a * (b %. d)) %. d = (a * b) %. d.
+Proof.
+  intros a b d.
+  leibniz
+    (multiplication.commutativity &a (&b %. &d)),
+    (modulo.product.left.absorption &b &a &d),
+    (multiplication.commutativity &b &a)
+    in |- *.
+  quod idem est.
+Qed.
+
+End right. (* modulo.product.right *)
+
+End product. (* modulo.product *)
+
+End modulo. (* modulo *)
+
 Module gcd. (* gcd *)
 
 (* gcd.zero *)
@@ -2537,6 +2801,78 @@ Proof.
       leibniz (halving.retraction false (shift_left_nat &n &k'')) in |- *.
       ipso &IH.
 Qed.
+
+Module left. (* shift.left *)
+
+(* shift.left.doubling *)
+Theorem doubling : forall (n : BinWithZero) . shift_left n 1%n0 = (+ 10%bin_base) * n.
+Proof.
+  intros n.
+  match &n with | Zero | Positive p end; simpl in |- *; quod idem est.
+Qed.
+
+(* shift.left.successor *)
+Theorem successor
+  : forall (n : BinWithZero) (k : Nat) .
+      shift_left n (Nat0.Positive (Nat.Successor k))
+      = shift_left ((+ 10%bin_base) * n) (Nat0.Positive k).
+Proof.
+  intros n k.
+  simpl shift_left in |- *.
+  match k with | One | Successor (k' by IH) end per Nat.induction.
+  - lemma once : append_bit false &n = shift_left &n 1%n0.
+    {
+      simpl in |- *.
+      quod idem est.
+    }
+    simpl shift_left_nat in |- *.
+    leibniz &once, (shift.left.doubling &n) in |- *.
+    quod idem est.
+  - lemma left
+      : shift_left_nat &n (Nat.Successor (Nat.Successor &k'))
+        = append_bit false (shift_left_nat &n (Nat.Successor &k')).
+    {
+      simpl in |- *.
+      quod idem est.
+    }
+    lemma right
+      : shift_left_nat ((+ 10%bin_base) * &n) (Nat.Successor &k')
+        = append_bit false (shift_left_nat ((+ 10%bin_base) * &n) &k').
+    {
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &left, &right, &IH in |- *.
+    quod idem est.
+Qed.
+
+(* shift.left.multiplication *)
+Theorem multiplication
+  : forall (n : BinWithZero) (k : Nat0) . shift_left n k = n * shift_left (+ BinBase.One) k.
+Proof.
+  intros n k.
+  lemma facto : to_nat0 (shift_left &n &k) = to_nat0 (&n * shift_left (+ BinBase.One) &k).
+  {
+    lemma one : to_nat0 (+ BinBase.One) = 1%n0.
+    {
+      simpl in |- *.
+      quod idem est.
+    }
+    match (Nat0.multiplication.identity (Nat0.Positive (Nat.Successor Nat.One) ^ &k)%n0)
+    with | unit _ end.
+    leibniz
+      (conversion.left.shift &n &k),
+      (conversion.multiplication &n (shift_left (+ BinBase.One) &k)),
+      (conversion.left.shift (+ BinBase.One) &k),
+      &one,
+      &unit
+      in |- *.
+    quod idem est.
+  }
+  ipso (conversion.injectivity &facto).
+Qed.
+
+End left. (* shift.left *)
 
 Module right. (* shift.right *)
 
