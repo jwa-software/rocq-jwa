@@ -78,6 +78,20 @@ Delimit Scope jwa_hword_little_scope with hword_little.
 Declare Scope jwa_hword_big_scope.
 Delimit Scope jwa_hword_big_scope with hword_big.
 
+(* The [Word] operations, the [Byte] ones taken byte by byte, delimited but
+ * not opened under the same spellings; a literal under it is little-endian.
+ *)
+Declare Scope jwa_word_scope.
+Delimit Scope jwa_word_scope with word.
+
+(* [Word] literals laid out little-endian. *)
+Declare Scope jwa_word_little_scope.
+Delimit Scope jwa_word_little_scope with word_little.
+
+(* [Word] literals laid out big-endian. *)
+Declare Scope jwa_word_big_scope.
+Delimit Scope jwa_word_big_scope with word_big.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
    [(m + n)%n0]. Two types cannot share a scope, since one spelling would

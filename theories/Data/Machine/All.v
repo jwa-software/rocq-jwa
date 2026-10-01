@@ -4,9 +4,9 @@
  * imports them with [From jwa Require Import Data.Machine.All].
  *
  * A machine unit is a value of fixed width, the shape a machine stores and
- * moves. [Bit] is one binary digit, [Byte] eight, [HWord] sixteen, [UInt8]
- * a [Byte] read as a number from 0 to 255, and [Int8] a [Byte] read in two's
- * complement, from -128 to 127.
+ * moves. [Bit] is one binary digit, [Byte] eight, [HWord] sixteen, [Word]
+ * thirty-two, [UInt8] a [Byte] read as a number from 0 to 255, and [Int8] a
+ * [Byte] read in two's complement, from -128 to 127.
  *)
 (* The modules below only [Import] [Core.All], so the open scope reaches a
  * client of this umbrella only from here.
@@ -36,3 +36,4 @@ From jwa Require Export Data.Machine.Endian.
 From jwa Require Export Data.Machine.HWord.
 From jwa Require Export Data.Machine.Int8.
 From jwa Require Export Data.Machine.UInt8.
+From jwa Require Export Data.Machine.Word.
