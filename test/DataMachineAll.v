@@ -79,10 +79,14 @@ Definition data_machine_all_delivers_uint8
   : UInt8
   := UInt8.One.
 
+Definition data_machine_all_computes_uint8_modulus
+  : UInt8.modulus = 100000000%bin_base
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_uint8_carry
   : forall (carry : Bit) (x : UInt8) (y : UInt8) .
       (Bit.to_bin_with_zero carry + UInt8.to_bin_with_zero x + UInt8.to_bin_with_zero y
-        = 100000000 * Bit.to_bin_with_zero (pi_1 (UInt8.add_with_carry carry x y))%product
+        = UInt8.modulus * Bit.to_bin_with_zero (pi_1 (UInt8.add_with_carry carry x y))%product
           + UInt8.to_bin_with_zero (pi_2 (UInt8.add_with_carry carry x y))%product)%bin_with_zero
   := UInt8.conversion.carry.
 
@@ -90,27 +94,27 @@ Definition data_machine_all_delivers_uint8_addition
   : forall (x : UInt8) (y : UInt8) .
       (UInt8.to_bin_with_zero (x + y)%uint8
         = (UInt8.to_bin_with_zero x + UInt8.to_bin_with_zero y)
-          %. 100000000%bin_base)%bin_with_zero
+          %. UInt8.modulus)%bin_with_zero
   := UInt8.conversion.addition.
 
 Definition data_machine_all_delivers_uint8_multiplication
   : forall (x : UInt8) (y : UInt8) .
       (UInt8.to_bin_with_zero (x * y)%uint8
         = (UInt8.to_bin_with_zero x * UInt8.to_bin_with_zero y)
-          %. 100000000%bin_base)%bin_with_zero
+          %. UInt8.modulus)%bin_with_zero
   := UInt8.conversion.multiplication.
 
 Definition data_machine_all_delivers_uint8_negation
   : forall (x : UInt8) .
       ((UInt8.to_bin_with_zero (- x)%uint8 + UInt8.to_bin_with_zero x)
-        %. 100000000%bin_base = 0)%bin_with_zero
+        %. UInt8.modulus = 0)%bin_with_zero
   := UInt8.conversion.negation.
 
 Definition data_machine_all_delivers_uint8_left_shift
   : forall (x : UInt8) (k : Nat0) .
       (UInt8.to_bin_with_zero (UInt8.shift_left x k)
         = BinWithZero.shift_left (UInt8.to_bin_with_zero x) k
-          %. 100000000%bin_base)%bin_with_zero
+          %. UInt8.modulus)%bin_with_zero
   := UInt8.conversion.left.shift.
 
 Definition data_machine_all_delivers_uint8_right_shift
@@ -234,6 +238,10 @@ Qed.
 Definition data_machine_all_delivers_int8
   : Int8
   := Int8.One.
+
+Definition data_machine_all_computes_int8_modulus
+  : Int8.modulus = 100000000%bin_base
+  := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_int8_addition
   : forall (x : Int8) (y : Int8) .
@@ -425,10 +433,14 @@ Definition data_machine_all_delivers_uint16
   : UInt16
   := UInt16.One.
 
+Definition data_machine_all_computes_uint16_modulus
+  : UInt16.modulus = 10000000000000000%bin_base
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_uint16_carry
   : forall (carry : Bit) (x : UInt16) (y : UInt16) .
       (Bit.to_bin_with_zero carry + UInt16.to_bin_with_zero x + UInt16.to_bin_with_zero y
-        = 10000000000000000 * Bit.to_bin_with_zero (pi_1 (UInt16.add_with_carry carry x y))%product
+        = UInt16.modulus * Bit.to_bin_with_zero (pi_1 (UInt16.add_with_carry carry x y))%product
           + UInt16.to_bin_with_zero (pi_2 (UInt16.add_with_carry carry x y))%product)%bin_with_zero
   := UInt16.conversion.carry.
 
@@ -436,27 +448,27 @@ Definition data_machine_all_delivers_uint16_addition
   : forall (x : UInt16) (y : UInt16) .
       (UInt16.to_bin_with_zero (x + y)%uint16
         = (UInt16.to_bin_with_zero x + UInt16.to_bin_with_zero y)
-          %. 10000000000000000%bin_base)%bin_with_zero
+          %. UInt16.modulus)%bin_with_zero
   := UInt16.conversion.addition.
 
 Definition data_machine_all_delivers_uint16_multiplication
   : forall (x : UInt16) (y : UInt16) .
       (UInt16.to_bin_with_zero (x * y)%uint16
         = (UInt16.to_bin_with_zero x * UInt16.to_bin_with_zero y)
-          %. 10000000000000000%bin_base)%bin_with_zero
+          %. UInt16.modulus)%bin_with_zero
   := UInt16.conversion.multiplication.
 
 Definition data_machine_all_delivers_uint16_negation
   : forall (x : UInt16) .
       ((UInt16.to_bin_with_zero (- x)%uint16 + UInt16.to_bin_with_zero x)
-        %. 10000000000000000%bin_base = 0)%bin_with_zero
+        %. UInt16.modulus = 0)%bin_with_zero
   := UInt16.conversion.negation.
 
 Definition data_machine_all_delivers_uint16_left_shift
   : forall (x : UInt16) (k : Nat0) .
       (UInt16.to_bin_with_zero (UInt16.shift_left x k)
         = BinWithZero.shift_left (UInt16.to_bin_with_zero x) k
-          %. 10000000000000000%bin_base)%bin_with_zero
+          %. UInt16.modulus)%bin_with_zero
   := UInt16.conversion.left.shift.
 
 Definition data_machine_all_delivers_uint16_right_shift
@@ -557,6 +569,10 @@ Qed.
 Definition data_machine_all_delivers_int16
   : Int16
   := Int16.One.
+
+Definition data_machine_all_computes_int16_modulus
+  : Int16.modulus = 10000000000000000%bin_base
+  := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_int16_addition
   : forall (x : Int16) (y : Int16) .
