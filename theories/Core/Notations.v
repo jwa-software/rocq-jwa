@@ -50,6 +50,12 @@ Delimit Scope jwa_bool_scope with bool.
 Declare Scope jwa_bit_scope.
 Delimit Scope jwa_bit_scope with bit.
 
+(* The [Byte] operations, the [Bit] ones taken field by field, delimited but
+ * not opened under the same spellings.
+ *)
+Declare Scope jwa_byte_scope.
+Delimit Scope jwa_byte_scope with byte.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
    [(m + n)%n0]. Two types cannot share a scope, since one spelling would
