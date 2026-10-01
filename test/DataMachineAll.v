@@ -279,3 +279,88 @@ Qed.
 Definition data_machine_all_computes_byte_reinterpretation
   : Int8.from_byte (UInt8.to_byte 255) = (-1)%int8
   := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_hword
+  : HWord
+  := HWord.Zero Endian.Little.
+
+Definition data_machine_all_delivers_hword_notation
+  : forall (x : HWord) (y : HWord) .
+      HWord.endian x = Endian.Little ->
+      HWord.endian y = Endian.Little ->
+      (x &. y)%hword = (y &. x)%hword
+  := HWord.conjunction.endian.little.commutativity.
+
+Definition data_machine_all_binds_hword_scope
+  : forall (x : HWord) . HWord.flip (~. x) = x
+  := HWord.flipping.involution.
+
+Definition data_machine_all_delivers_hword_conversion
+  : forall (x : HWord) (y : HWord) .
+      (x &. y)%hword = (x &. HWord.with_endian (HWord.endian x) y)%hword
+  := HWord.conjunction.endian.conversion.
+
+Definition data_machine_all_delivers_hword_endianness_identity
+  : forall (x : HWord) . HWord.with_endian (HWord.endian x) x = x
+  := HWord.endianness.identity.
+
+Definition data_machine_all_delivers_hword_rotation_inverse
+  : forall (x : HWord) (k : Nat0) . HWord.rotate_right (HWord.rotate_left x k) k = x
+  := HWord.rotation.left.inverse.
+
+Definition data_machine_all_reads_hword_literal_little_endian
+  : 0x1234%hword = HWord.HWord_introduction Endian.Little 0x34%byte 0x12%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_hword_literal_little_endian_key
+  : 0x1234%hword_little = 0x1234%hword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_hword_literal_big_endian
+  : 0x1234%hword_big = HWord.HWord_introduction Endian.Big 0x12%byte 0x34%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_with_endian
+  : HWord.with_endian Endian.Big 0x1234 = 0x1234%hword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_mixed_conjunction
+  : (0x00FF &. 0x0F0F%hword_big)%hword = 0x000F%hword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_and_big_endian
+  : HWord.and_big_endian 0x00FF 0x0F0F = 0x000F%hword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_shift_left
+  : HWord.shift_left 0x0080 1%n0 = 0x0100%hword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_shift_left_big_endian
+  : HWord.shift_left 0x0080%hword_big 1%n0 = 0x0100%hword_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_rotate_left
+  : HWord.rotate_left 0x8001 1%n0 = 0x0003%hword
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_hword_to_bytes
+  : HWord.to_bytes 0x1234 = (0x34%byte :: 0x12%byte :: [])%list
+    /\ HWord.to_bytes 0x1234%hword_big = (0x12%byte :: 0x34%byte :: [])%list
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_delivers_hword_bytes_retraction
+  : forall (x : HWord) . HWord.from_bytes (HWord.endian x) (HWord.to_bytes x) = Some x
+  := HWord.conversion.bytes.retraction.
+
+Fail Definition data_machine_all_refuses_hword_literal_decimal
+  : HWord
+  := 200%hword.
+
+Fail Definition data_machine_all_refuses_hword_literal_large
+  : HWord
+  := 0x10000%hword.
+
+Fail Definition data_machine_all_refuses_hword_literal_large_big_endian
+  : HWord
+  := 0x10000%hword_big.
