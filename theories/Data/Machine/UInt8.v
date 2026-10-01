@@ -22,7 +22,8 @@ From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
 
 (* An unsigned integer of eight bits: a [Byte] read as a number from 0 to
- * 255, its arithmetic wrapping modulo 256.
+ * 255, its arithmetic wrapping modulo 256. In this file [100000000] is 256,
+ * written in binary digits.
  *)
 
 Module UInt8. (* UInt8 *)
@@ -31,6 +32,10 @@ Inductive T : Type :=
   | UInt8_introduction : Byte -> T.
 
 Abbreviation UInt8 := T.
+
+(* The number of values, the arithmetic wrapping modulo it. *)
+(* [BinBase] *)
+Definition modulus := 100000000%bin_base.
 
 (* [UInt8 -> Byte] *)
 Definition to_byte := fun (x : UInt8) .
@@ -247,7 +252,7 @@ Definition from_numeral := fun (u : Numeral.Unsigned) .
     | Numeral.Unsigned.Decimal d     => BinWithZero.from_decimal 0%bin_with_zero d
     | Numeral.Unsigned.Hexadecimal h => BinWithZero.from_hexadecimal 0%bin_with_zero h
     end in
-  match BinWithZero.compare value 100000000%bin_with_zero with
+  match BinWithZero.compare value modulus with
   | Comparison.Lt => Some (from_bin_with_zero value)
   | Comparison.Eq => None
   | Comparison.Gt => None
@@ -277,7 +282,7 @@ Proof.
 Qed.
 
 (* conversion.boundedness *)
-Theorem boundedness : forall (x : UInt8) . (to_bin_with_zero x < 100000000)%bin_with_zero.
+Theorem boundedness : forall (x : UInt8) . (to_bin_with_zero x < modulus)%bin_with_zero.
 Proof.
   intros x.
   match &x with | UInt8_introduction xb end.
@@ -325,7 +330,7 @@ Qed.
 Theorem carry
   : forall (carry : Bit) (x : UInt8) (y : UInt8) .
       (Bit.to_bin_with_zero carry + to_bin_with_zero x + to_bin_with_zero y
-        = 100000000 * Bit.to_bin_with_zero (pi_1 (add_with_carry carry x y))%product
+        = modulus * Bit.to_bin_with_zero (pi_1 (add_with_carry carry x y))%product
           + to_bin_with_zero (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
 Proof.
   intros carry x y.
@@ -349,7 +354,7 @@ Qed.
 Theorem borrow
   : forall (borrow : Bit) (x : UInt8) (y : UInt8) .
       (to_bin_with_zero x
-        + 100000000 * Bit.to_bin_with_zero (pi_1 (sub_with_borrow borrow x y))%product
+        + modulus * Bit.to_bin_with_zero (pi_1 (sub_with_borrow borrow x y))%product
         = to_bin_with_zero y + Bit.to_bin_with_zero borrow
           + to_bin_with_zero (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
 Proof.
@@ -374,21 +379,21 @@ Qed.
 Theorem addition
   : forall (x : UInt8) (y : UInt8) .
       (to_bin_with_zero (x + y)%uint8
-        = (to_bin_with_zero x + to_bin_with_zero y) %. 100000000%bin_base)%bin_with_zero.
+        = (to_bin_with_zero x + to_bin_with_zero y) %. modulus)%bin_with_zero.
 Proof.
   intros x y.
   lemma witness
-    : (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product * 100000000
+    : (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product * modulus
         + to_bin_with_zero (&x + &y)%uint8
         = to_bin_with_zero &x + to_bin_with_zero &y
-      /\ to_bin_with_zero (&x + &y)%uint8 < 100000000)%bin_with_zero.
+      /\ to_bin_with_zero (&x + &y)%uint8 < modulus)%bin_with_zero.
   {
     divide et impera.
     - simpl add in |- *.
       leibniz
         (BinWithZero.multiplication.commutativity
           (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
-          100000000%bin_with_zero),
+          modulus),
         <- (conversion.carry Bit.Zero &x &y)
         in |- *.
       simpl in |- *.
@@ -396,7 +401,7 @@ Proof.
     - ipso (conversion.boundedness (&x + &y)).
   }
   match (BinWithZero.division.uniqueness
-          (to_bin_with_zero &x + to_bin_with_zero &y)%bin_with_zero 100000000%bin_base
+          (to_bin_with_zero &x + to_bin_with_zero &y)%bin_with_zero modulus
           (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
           (to_bin_with_zero (&x + &y)%uint8)
           &witness)
@@ -407,24 +412,24 @@ Qed.
 (* conversion.subtraction *)
 Theorem subtraction
   : forall (x : UInt8) (y : UInt8) .
-      ((to_bin_with_zero (sub x y) + to_bin_with_zero y) %. 100000000%bin_base
+      ((to_bin_with_zero (sub x y) + to_bin_with_zero y) %. modulus
         = to_bin_with_zero x)%bin_with_zero.
 Proof.
   intros x y.
   lemma witness
-    : (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product * 100000000
+    : (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product * modulus
         + to_bin_with_zero &x
         = to_bin_with_zero (sub &x &y) + to_bin_with_zero &y
-      /\ to_bin_with_zero &x < 100000000)%bin_with_zero.
+      /\ to_bin_with_zero &x < modulus)%bin_with_zero.
   {
     divide et impera.
     - simpl sub in |- *.
       leibniz
         (BinWithZero.multiplication.commutativity
           (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
-          100000000%bin_with_zero),
+          modulus),
         (BinWithZero.addition.commutativity
-          (100000000
+          (modulus
             * Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)%bin_with_zero
           (to_bin_with_zero &x)),
         (conversion.borrow Bit.Zero &x &y),
@@ -441,7 +446,7 @@ Proof.
     - ipso (conversion.boundedness &x).
   }
   match (BinWithZero.division.uniqueness
-          (to_bin_with_zero (sub &x &y) + to_bin_with_zero &y)%bin_with_zero 100000000%bin_base
+          (to_bin_with_zero (sub &x &y) + to_bin_with_zero &y)%bin_with_zero modulus
           (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
           (to_bin_with_zero &x)
           &witness)
@@ -452,7 +457,7 @@ Qed.
 (* conversion.negation *)
 Theorem negation
   : forall (x : UInt8) .
-      ((to_bin_with_zero (- x)%uint8 + to_bin_with_zero x) %. 100000000%bin_base
+      ((to_bin_with_zero (- x)%uint8 + to_bin_with_zero x) %. modulus
         = 0)%bin_with_zero.
 Proof.
   intros x.
@@ -469,13 +474,13 @@ Qed.
 Theorem appending
   : forall (b : Bit) (x : UInt8) .
       (to_bin_with_zero (append_bit b x)
-        = (10 * to_bin_with_zero x + Bit.to_bin_with_zero b) %. 100000000%bin_base)%bin_with_zero.
+        = (10 * to_bin_with_zero x + Bit.to_bin_with_zero b) %. modulus)%bin_with_zero.
 Proof.
   intros b x.
   match &x with | UInt8_introduction xb end.
   match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   lemma witness
-    : (Bit.to_bin_with_zero &x7 * 100000000
+    : (Bit.to_bin_with_zero &x7 * modulus
         + to_bin_with_zero
             (append_bit &b
               (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
@@ -486,7 +491,7 @@ Proof.
       /\ to_bin_with_zero
           (append_bit &b
             (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
-        < 100000000)%bin_with_zero.
+        < modulus)%bin_with_zero.
   {
     divide et impera.
     - lemma top
@@ -520,7 +525,7 @@ Proof.
           (10 * to_bin_with_zero
                   (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
             + Bit.to_bin_with_zero &b)%bin_with_zero
-          100000000%bin_base
+          modulus
           (Bit.to_bin_with_zero &x7)
           (to_bin_with_zero
             (append_bit &b
@@ -533,7 +538,7 @@ Qed.
 (* conversion.reduction *)
 Theorem reduction
   : forall (n : BinWithZero) .
-      to_bin_with_zero (from_bin_with_zero n) = (n %. 100000000%bin_base)%bin_with_zero.
+      to_bin_with_zero (from_bin_with_zero n) = (n %. modulus)%bin_with_zero.
 Proof.
   intros n.
   match &n with | Zero | Positive p end.
@@ -556,13 +561,13 @@ Proof.
         (conversion.appending Bit.Zero (from_bin_base &p')),
         &IH,
         <- (BinWithZero.modulo.sum.left.absorption
-          (10 * (BinWithZero.Positive &p' %. 100000000%bin_base))%bin_with_zero
-          (Bit.to_bin_with_zero Bit.Zero) 100000000%bin_base),
+          (10 * (BinWithZero.Positive &p' %. modulus))%bin_with_zero
+          (Bit.to_bin_with_zero Bit.Zero) modulus),
         (BinWithZero.modulo.product.right.absorption
-          10%bin_with_zero (BinWithZero.Positive &p') 100000000%bin_base),
+          10%bin_with_zero (BinWithZero.Positive &p') modulus),
         (BinWithZero.modulo.sum.left.absorption
           (10 * BinWithZero.Positive &p')%bin_with_zero
-          (Bit.to_bin_with_zero Bit.Zero) 100000000%bin_base)
+          (Bit.to_bin_with_zero Bit.Zero) modulus)
         in |- *.
       simpl in |- *.
       quod idem est.
@@ -577,13 +582,13 @@ Proof.
         (conversion.appending Bit.One (from_bin_base &p')),
         &IH,
         <- (BinWithZero.modulo.sum.left.absorption
-          (10 * (BinWithZero.Positive &p' %. 100000000%bin_base))%bin_with_zero
-          (Bit.to_bin_with_zero Bit.One) 100000000%bin_base),
+          (10 * (BinWithZero.Positive &p' %. modulus))%bin_with_zero
+          (Bit.to_bin_with_zero Bit.One) modulus),
         (BinWithZero.modulo.product.right.absorption
-          10%bin_with_zero (BinWithZero.Positive &p') 100000000%bin_base),
+          10%bin_with_zero (BinWithZero.Positive &p') modulus),
         (BinWithZero.modulo.sum.left.absorption
           (10 * BinWithZero.Positive &p')%bin_with_zero
-          (Bit.to_bin_with_zero Bit.One) 100000000%bin_base)
+          (Bit.to_bin_with_zero Bit.One) modulus)
         in |- *.
       simpl in |- *.
       simpl BinBase.add in |- *.
@@ -601,7 +606,7 @@ Proof.
     leibniz
       (conversion.reduction (to_bin_with_zero &x)),
       (BinWithZero.modulo.identity
-        (to_bin_with_zero &x) 100000000%bin_base (conversion.boundedness &x))
+        (to_bin_with_zero &x) modulus (conversion.boundedness &x))
       in |- *.
     quod idem est.
   }
@@ -614,7 +619,7 @@ Module left. (* conversion.left *)
 Lemma doubling
   : forall (x : UInt8) .
       (to_bin_with_zero (shift_left x 1%n0)
-        = (10 * to_bin_with_zero x) %. 100000000%bin_base)%bin_with_zero.
+        = (10 * to_bin_with_zero x) %. modulus)%bin_with_zero.
 Proof.
   intros x.
   lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
@@ -636,7 +641,7 @@ Qed.
 Theorem shift
   : forall (x : UInt8) (k : Nat0) .
       (to_bin_with_zero (shift_left x k)
-        = BinWithZero.shift_left (to_bin_with_zero x) k %. 100000000%bin_base)%bin_with_zero.
+        = BinWithZero.shift_left (to_bin_with_zero x) k %. modulus)%bin_with_zero.
 Proof.
   intros x k.
   match &k with | Zero | Positive n end.
@@ -650,7 +655,7 @@ Proof.
     simpl BinWithZero.shift_left in |- *.
     leibniz
       (BinWithZero.modulo.identity
-        (to_bin_with_zero &x) 100000000%bin_base (conversion.boundedness &x))
+        (to_bin_with_zero &x) modulus (conversion.boundedness &x))
       in |- *.
     quod idem est.
   - extro &x.
@@ -675,12 +680,12 @@ Proof.
         (&IH (shift_left &x 1%n0)),
         (conversion.left.doubling &x),
         (BinWithZero.shift.left.multiplication
-          ((10 * to_bin_with_zero &x) %. 100000000%bin_base)%bin_with_zero
+          ((10 * to_bin_with_zero &x) %. modulus)%bin_with_zero
           (Nat0.Positive &n')),
         (BinWithZero.modulo.product.left.absorption
           (10 * to_bin_with_zero &x)%bin_with_zero
           (BinWithZero.shift_left 1%bin_with_zero (Nat0.Positive &n'))
-          100000000%bin_base),
+          modulus),
         <- (BinWithZero.shift.left.multiplication
           (10 * to_bin_with_zero &x)%bin_with_zero (Nat0.Positive &n')),
         <- (BinWithZero.shift.left.successor (to_bin_with_zero &x) &n')
@@ -766,7 +771,7 @@ Module multiplication. (* conversion.multiplication *)
 (* conversion.multiplication.step *)
 Lemma step
   : forall (x : UInt8) (p : UInt8) (h : BinWithZero) (b : Bit) .
-      (to_bin_with_zero p = (to_bin_with_zero x * h) %. 100000000%bin_base)%bin_with_zero ->
+      (to_bin_with_zero p = (to_bin_with_zero x * h) %. modulus)%bin_with_zero ->
       to_bin_with_zero
         (add (shift_left p 1%n0)
           match b with
@@ -774,17 +779,17 @@ Lemma step
           | Bit.One  => x
           end)
       = ((to_bin_with_zero x * (10 * h + Bit.to_bin_with_zero b))
-          %. 100000000%bin_base)%bin_with_zero.
+          %. modulus)%bin_with_zero.
 Proof.
   intros x p h b e.
   lemma doubled
-    : ((10 * to_bin_with_zero &p) %. 100000000%bin_base
-        = (10 * (to_bin_with_zero &x * &h)) %. 100000000%bin_base)%bin_with_zero.
+    : ((10 * to_bin_with_zero &p) %. modulus
+        = (10 * (to_bin_with_zero &x * &h)) %. modulus)%bin_with_zero.
   {
     leibniz
       &e,
       (BinWithZero.modulo.product.right.absorption
-        10%bin_with_zero (to_bin_with_zero &x * &h)%bin_with_zero 100000000%bin_base)
+        10%bin_with_zero (to_bin_with_zero &x * &h)%bin_with_zero modulus)
       in |- *.
     quod idem est.
   }
@@ -802,7 +807,7 @@ Proof.
   - lemma facto
       : to_bin_with_zero (add (shift_left &p 1%n0) Zero)
         = ((to_bin_with_zero &x * (10 * &h + Bit.to_bin_with_zero Bit.Zero))
-            %. 100000000%bin_base)%bin_with_zero.
+            %. modulus)%bin_with_zero.
     {
       match (BinWithZero.addition.identity (10 * to_bin_with_zero &p)%bin_with_zero)
       with | _ right end.
@@ -812,7 +817,7 @@ Proof.
         (conversion.left.doubling &p),
         conversion.zero,
         (BinWithZero.modulo.sum.left.absorption
-          (10 * to_bin_with_zero &p)%bin_with_zero 0%bin_with_zero 100000000%bin_base),
+          (10 * to_bin_with_zero &p)%bin_with_zero 0%bin_with_zero modulus),
         &right,
         &doubled
         in |- *.
@@ -824,7 +829,7 @@ Proof.
   - lemma facto
       : to_bin_with_zero (add (shift_left &p 1%n0) &x)
         = ((to_bin_with_zero &x * (10 * &h + Bit.to_bin_with_zero Bit.One))
-            %. 100000000%bin_base)%bin_with_zero.
+            %. modulus)%bin_with_zero.
     {
       match (BinWithZero.multiplication.identity (to_bin_with_zero &x)) with | _ right end.
       match (BinWithZero.multiplication.distributivity.over.addition
@@ -836,7 +841,7 @@ Proof.
         &doubled,
         (BinWithZero.modulo.sum.left.absorption
           (10 * (to_bin_with_zero &x * &h))%bin_with_zero (to_bin_with_zero &x)
-          100000000%bin_base)
+          modulus)
         in |- *.
       simpl Bit.to_bin_with_zero in |- *.
       leibniz &spread, &right, &regrouped in |- *.
@@ -851,12 +856,12 @@ End multiplication. (* conversion.multiplication *)
 Theorem multiplication
   : forall (x : UInt8) (y : UInt8) .
       (to_bin_with_zero (x * y)%uint8
-        = (to_bin_with_zero x * to_bin_with_zero y) %. 100000000%bin_base)%bin_with_zero.
+        = (to_bin_with_zero x * to_bin_with_zero y) %. modulus)%bin_with_zero.
 Proof.
   intros x y.
   lemma base
     : (to_bin_with_zero Zero
-        = (to_bin_with_zero &x * 0) %. 100000000%bin_base)%bin_with_zero.
+        = (to_bin_with_zero &x * 0) %. modulus)%bin_with_zero.
   {
     match (BinWithZero.multiplication.annihilation (to_bin_with_zero &x)) with | _ right end.
     leibniz &right, conversion.zero in |- *.
@@ -914,12 +919,12 @@ Proof.
       (conversion.addition &x &y),
       (BinWithZero.modulo.sum.left.absorption
         (to_bin_with_zero &x + to_bin_with_zero &y)%bin_with_zero (to_bin_with_zero &z)
-        100000000%bin_base),
+        modulus),
       (conversion.addition &x (&y + &z)),
       (conversion.addition &y &z),
       (BinWithZero.modulo.sum.right.absorption
         (to_bin_with_zero &x) (to_bin_with_zero &y + to_bin_with_zero &z)%bin_with_zero
-        100000000%bin_base),
+        modulus),
       (BinWithZero.addition.associativity
         (to_bin_with_zero &x) (to_bin_with_zero &y) (to_bin_with_zero &z))
       in |- *.
@@ -958,7 +963,7 @@ Proof.
         conversion.zero,
         &left,
         (BinWithZero.modulo.identity
-          (to_bin_with_zero &x) 100000000%bin_base (conversion.boundedness &x))
+          (to_bin_with_zero &x) modulus (conversion.boundedness &x))
         in |- *.
       quod idem est.
     }
@@ -1009,12 +1014,12 @@ Proof.
       (conversion.multiplication &x &y),
       (BinWithZero.modulo.product.left.absorption
         (to_bin_with_zero &x * to_bin_with_zero &y)%bin_with_zero (to_bin_with_zero &z)
-        100000000%bin_base),
+        modulus),
       (conversion.multiplication &x (&y * &z)),
       (conversion.multiplication &y &z),
       (BinWithZero.modulo.product.right.absorption
         (to_bin_with_zero &x) (to_bin_with_zero &y * to_bin_with_zero &z)%bin_with_zero
-        100000000%bin_base),
+        modulus),
       (BinWithZero.multiplication.associativity
         (to_bin_with_zero &x) (to_bin_with_zero &y) (to_bin_with_zero &z))
       in |- *.
@@ -1053,7 +1058,7 @@ Proof.
         conversion.one,
         &left,
         (BinWithZero.modulo.identity
-          (to_bin_with_zero &x) 100000000%bin_base (conversion.boundedness &x))
+          (to_bin_with_zero &x) modulus (conversion.boundedness &x))
         in |- *.
       quod idem est.
     }
@@ -1087,18 +1092,18 @@ Proof.
       (conversion.addition &y &z),
       (BinWithZero.modulo.product.right.absorption
         (to_bin_with_zero &x) (to_bin_with_zero &y + to_bin_with_zero &z)%bin_with_zero
-        100000000%bin_base),
+        modulus),
       &spread,
       (conversion.addition (&x * &y) (&x * &z)),
       (conversion.multiplication &x &y),
       (conversion.multiplication &x &z),
       (BinWithZero.modulo.sum.left.absorption
         (to_bin_with_zero &x * to_bin_with_zero &y)%bin_with_zero
-        ((to_bin_with_zero &x * to_bin_with_zero &z) %. 100000000%bin_base)%bin_with_zero
-        100000000%bin_base),
+        ((to_bin_with_zero &x * to_bin_with_zero &z) %. modulus)%bin_with_zero
+        modulus),
       (BinWithZero.modulo.sum.right.absorption
         (to_bin_with_zero &x * to_bin_with_zero &y)%bin_with_zero
-        (to_bin_with_zero &x * to_bin_with_zero &z)%bin_with_zero 100000000%bin_base)
+        (to_bin_with_zero &x * to_bin_with_zero &z)%bin_with_zero modulus)
       in |- *.
     quod idem est.
   }
