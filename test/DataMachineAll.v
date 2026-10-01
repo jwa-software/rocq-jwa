@@ -759,6 +759,252 @@ Fail Definition data_machine_all_refuses_word_literal_large_big_endian
   : Word
   := 0x100000000%word_big.
 
+Definition data_machine_all_delivers_uint32
+  : UInt32
+  := UInt32.One.
+
+Definition data_machine_all_computes_uint32_modulus
+  : UInt32.modulus = 100000000000000000000000000000000%bin_base
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_uint32_carry
+  : forall (carry : Bit) (x : UInt32) (y : UInt32) .
+      (Bit.to_bin_with_zero carry + x + y
+        = UInt32.modulus * Bit.to_bin_with_zero (pi_1 (UInt32.add_with_carry carry x y))%product
+          + (pi_2 (UInt32.add_with_carry carry x y))%product)%bin_with_zero
+  := UInt32.conversion.carry.
+
+Definition data_machine_all_delivers_uint32_addition
+  : forall (x : UInt32) (y : UInt32) .
+      (UInt32.to_bin_with_zero (x + y)%uint32 = (x + y) %. UInt32.modulus)%bin_with_zero
+  := UInt32.conversion.addition.
+
+Definition data_machine_all_delivers_uint32_multiplication
+  : forall (x : UInt32) (y : UInt32) .
+      (UInt32.to_bin_with_zero (x * y)%uint32 = (x * y) %. UInt32.modulus)%bin_with_zero
+  := UInt32.conversion.multiplication.
+
+Definition data_machine_all_delivers_uint32_negation
+  : forall (x : UInt32) .
+      (((- x)%uint32 + x) %. UInt32.modulus = 0)%bin_with_zero
+  := UInt32.conversion.negation.
+
+Definition data_machine_all_delivers_uint32_left_shift
+  : forall (x : UInt32) (k : Nat0) .
+      (UInt32.to_bin_with_zero (UInt32.shift_left x k)
+        = BinWithZero.shift_left x k %. UInt32.modulus)%bin_with_zero
+  := UInt32.conversion.left.shift.
+
+Definition data_machine_all_delivers_uint32_right_shift
+  : forall (x : UInt32) (k : Nat0) .
+      UInt32.to_bin_with_zero (UInt32.shift_right x k) = BinWithZero.shift_right x k
+  := UInt32.conversion.right.shift.
+
+Definition data_machine_all_delivers_uint32_section
+  : forall (x : UInt32) . UInt32.from_bin_with_zero (UInt32.to_bin_with_zero x) = x
+  := UInt32.conversion.section.
+
+Definition data_machine_all_computes_uint32_value
+  : UInt32.to_bin_with_zero 3000000000%uint32 = 10110010110100000101111000000000%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_to_bin
+  : UInt32.to_bin 3000000000%uint32 = 10110010110100000101111000000000%b
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_uint32_distributivity
+  : forall (x : UInt32) (y : UInt32) (z : UInt32) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%uint32
+  := UInt32.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_computes_uint32_reduction
+  : UInt32.from_bin_with_zero 100000000000000000001000101110000%bin_with_zero = 4464%uint32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_multiplication
+  : (70000 * 70000 = 605032704)%uint32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_negation
+  : (- UInt32.One = 4294967295)%uint32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_carry_out
+  : (pi_1 (UInt32.add_with_carry Bit.Zero 4294967295 1))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_comparison
+  : UInt32.compare 65535 65536 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_uint32_literal_hexadecimal
+  : 0xFFFFFFFF%uint32
+    = UInt32.UInt32_introduction
+        (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_uint32_literal_arithmetic
+  : (4000000000 + 300000000 = 5032704)%uint32
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_uint32_literal_large
+  : UInt32
+  := 4294967296%uint32.
+
+Fail Definition data_machine_all_refuses_uint32_literal_long
+  : UInt32
+  := 99999999999999999999%uint32.
+
+Definition data_machine_all_computes_uint32_to_word
+  : UInt32.to_word Endian.Little 0x12345678 = 0x12345678%word
+    /\ UInt32.to_word Endian.Big 0x12345678 = 0x12345678%word_big
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_computes_uint32_from_word
+  : UInt32.from_word 0x12345678%word_big = 0x12345678%uint32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_uint32_word_retraction
+  : forall (e : Endian) (x : UInt32) . UInt32.from_word (UInt32.to_word e x) = x
+  := UInt32.conversion.word.retraction.
+
+Definition data_machine_all_delivers_uint32_word_section
+  : forall (w : Word) . UInt32.to_word (Word.endian w) (UInt32.from_word w) = w
+  := UInt32.conversion.word.section.
+
+Theorem data_machine_all_delivers_coercion_uint32_to_bin_with_zero
+  : forall (x : UInt32) .
+      BinWithZero.add x x = BinWithZero.add (UInt32.to_bin_with_zero x) (UInt32.to_bin_with_zero x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_uint32_to_nat0
+  : forall (x : UInt32) . Nat0.add x x = Nat0.add (UInt32.to_nat0 x) (UInt32.to_nat0 x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_uint32_to_integer
+  : forall (x : UInt32) .
+      Integer.negate x = Integer.negate (Integer.from_nat0 (UInt32.to_nat0 x)).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_delivers_int32
+  : Int32
+  := Int32.One.
+
+Definition data_machine_all_computes_int32_modulus
+  : Int32.modulus = 100000000000000000000000000000000%bin_base
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_int32_addition
+  : forall (x : Int32) (y : Int32) .
+      (pi_1 (Int32.add_with_overflow x y))%product = Bit.Zero ->
+      Int32.to_bin (x + y)%int32 = (x + y)%b
+  := Int32.conversion.addition.
+
+Definition data_machine_all_delivers_int32_section
+  : forall (x : Int32) . Int32.from_bin (Int32.to_bin x) = x
+  := Int32.conversion.section.
+
+Definition data_machine_all_delivers_int32_valuation_section
+  : forall (x : Int32) . Int32.from_bin_with_zero (Int32.unsigned_value x) = x
+  := Int32.valuation.section.
+
+Definition data_machine_all_computes_int32_value
+  : Int32.to_bin (-1000000)%int32 = (-11110100001001000000)%b
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_from_bin
+  : Int32.from_bin 10110010110100000101111000000000%b = (-1294967296)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_int32_distributivity
+  : forall (x : Int32) (y : Int32) (z : Int32) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%int32
+  := Int32.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_reads_int32_literal_bounds
+  : Int32.to_bin (-2147483648)%int32 = (-10000000000000000000000000000000)%b
+    /\ Int32.to_bin 2147483647%int32 = 1111111111111111111111111111111%b
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_computes_int32_wrap
+  : (2147483647 + 1 = -2147483648)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_overflow
+  : (pi_1 (Int32.add_with_overflow 2147483647 1))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_no_overflow
+  : (pi_1 (Int32.add_with_overflow 1000000 (-500000)))%product = Bit.Zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_multiplication
+  : ((-70000) * 70000 = -605032704)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_negation
+  : (- (-2147483648) = -2147483648)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_signed_comparison
+  : Int32.compare (-1) 1 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_arithmetic_shift
+  : Int32.shift_right (-4) 1%n0 = (-2)%int32 /\ Int32.shift_right (-1) 31%n0 = (-1)%int32
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_reads_int32_literal_hexadecimal
+  : 0x7FFFFFFF%int32 = 2147483647%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_from_integer
+  : Int32.from_integer (-1000) = (-1000)%int32
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_int32_literal_large
+  : Int32
+  := 2147483648%int32.
+
+Fail Definition data_machine_all_refuses_int32_literal_small
+  : Int32
+  := (-2147483649)%int32.
+
+Definition data_machine_all_delivers_int32_word_retraction
+  : forall (e : Endian) (x : Int32) . Int32.from_word (Int32.to_word e x) = x
+  := Int32.conversion.word.retraction.
+
+Definition data_machine_all_delivers_int32_word_section
+  : forall (w : Word) . Int32.to_word (Word.endian w) (Int32.from_word w) = w
+  := Int32.conversion.word.section.
+
+Theorem data_machine_all_delivers_coercion_int32_to_bin
+  : forall (x : Int32) . Bin.negate x = Bin.negate (Int32.to_bin x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_int32_to_integer
+  : forall (x : Int32) . Integer.negate x = Integer.negate (Int32.to_integer x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_computes_word_reinterpretation
+  : Int32.from_word (UInt32.to_word Endian.Big 4294967295) = (-1)%int32
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_dword
   : DWord
   := DWord.Zero Endian.Big.
