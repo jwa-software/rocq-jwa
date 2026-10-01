@@ -12,6 +12,8 @@ From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.Nat0.
+From jwa Require Import Data.Number.Numeral.
+From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
@@ -330,6 +332,101 @@ Abbreviation min := (Comparable.min compare).
 
 (* [Byte -> Byte -> Byte] *)
 Abbreviation max := (Comparable.max compare).
+
+(* [n] followed by the digit [d] in base [base], [None] once the value
+ * passes 255 and from then on, so that a literal of any length is refused
+ * without its value being built.
+ *)
+(* [Nat0 -> Option Nat0 -> Option Nat -> Option Nat0] *)
+Definition append_digit := fun (base : Nat0) (n : Option Nat0) (d : Option Nat) .
+  match n with
+  | None   => None
+  | Some m =>
+      let v :=
+        (m * base
+          + match d with
+            | Some k => Nat0.Positive k
+            | None   => 0
+            end)%n0 in
+      match Nat0.compare v 256%n0 with
+      | Comparison.Lt => Some v
+      | Comparison.Eq => None
+      | Comparison.Gt => None
+      end
+  end.
+
+(* [n] with the decimal digits [d] appended, most significant first. *)
+(* [Option Nat0 -> Numeral.Decimal.Digits -> Option Nat0] *)
+Fixpoint from_decimal (n : Option Nat0) (d : Numeral.Decimal.Digits) : Option Nat0 :=
+  match d with
+  | Numeral.Decimal.Digits.End      => n
+  | Numeral.Decimal.Digits.Zero d'  => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.One d'   => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Two d'   => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Three d' => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Four d'  => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Five d'  => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Six d'   => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Seven d' => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Eight d' => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  | Numeral.Decimal.Digits.Nine d'  => from_decimal (append_digit 10%n0 n (Nat.decimal_value d)) d'
+  end.
+
+(* [n] with the hexadecimal digits [h] appended, most significant first. *)
+(* [Option Nat0 -> Numeral.Hexadecimal.Digits -> Option Nat0] *)
+Fixpoint from_hexadecimal (n : Option Nat0) (h : Numeral.Hexadecimal.Digits) : Option Nat0 :=
+  match h with
+  | Numeral.Hexadecimal.Digits.End         => n
+  | Numeral.Hexadecimal.Digits.Zero h'     =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.One h'      =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Two h'      =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Three h'    =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Four h'     =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Five h'     =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Six h'      =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Seven h'    =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Eight h'    =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Nine h'     =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Ten h'      =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Eleven h'   =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Twelve h'   =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Thirteen h' =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Fourteen h' =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Fifteen h'  =>
+      from_hexadecimal (append_digit 16%n0 n (Nat.hexadecimal_value h)) h'
+  end.
+
+(* A literal of 0 to 255, in decimal or hexadecimal; any larger is refused. *)
+(* [Numeral.Unsigned -> Option Byte] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  let value :=
+    match u with
+    | Numeral.Unsigned.Decimal d     => from_decimal (Some 0%n0) d
+    | Numeral.Unsigned.Hexadecimal h => from_hexadecimal (Some 0%n0) h
+    end in
+  match value with
+  | Some v => Some (from_nat0 v)
+  | None   => None
+  end.
+
+(* [x] as a literal, in decimal. *)
+(* [Byte -> Numeral.Unsigned] *)
+Definition to_numeral := fun (x : Byte) . Nat0.to_numeral (to_nat0 x).
 
 Local Open Scope jwa_byte_scope.
 
@@ -1538,8 +1635,14 @@ Abbreviation Byte := Byte.T.
  *)
 Export (notations) Byte.
 
-(* Where a [Byte] is expected, a notation reads in this scope without its
- * [%byte].
+(* A byte is written in decimal or hexadecimal under its scope, [200%byte]
+ * or [0xFF%byte], and a closed one prints in decimal.
+ *)
+Number Notation Byte.T Byte.from_numeral Byte.to_numeral
+  : jwa_byte_scope.
+
+(* Where a [Byte] is expected, a literal or a notation reads in this scope
+ * without its [%byte].
  *)
 Bind Scope jwa_byte_scope with Byte.T.
 

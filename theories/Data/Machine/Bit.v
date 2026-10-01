@@ -10,6 +10,8 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.Nat0.
+From jwa Require Import Data.Number.Numeral.
+From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Witness.
 
@@ -106,6 +108,24 @@ Definition add_with_carry := fun (carry : Bit) (a : Bit) (b : Bit) .
 (* [Bit -> Bit -> Bit -> Product Bit Bit] *)
 Definition sub_with_borrow := fun (borrow : Bit) (a : Bit) (b : Bit) .
   (or (and (flip a) b) (and borrow (flip (xor a b))), xor (xor a b) borrow)%product.
+
+(* The literals [0] and [1], one decimal digit each; any other is refused. *)
+(* [Numeral.Unsigned -> Option Bit] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  match u with
+  | Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End) =>
+      Some Zero
+  | Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.One Numeral.Decimal.Digits.End) =>
+      Some One
+  | _ => None
+  end.
+
+(* [Bit -> Numeral.Unsigned] *)
+Definition to_numeral := fun (b : Bit) .
+  match b with
+  | Zero => Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End)
+  | One  => Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.One Numeral.Decimal.Digits.End)
+  end.
 
 Local Open Scope jwa_bit_scope.
 
@@ -619,8 +639,12 @@ Abbreviation Bit := Bit.T.
 
 Export (notations) Bit.
 
-(* Where a [Bit] is expected, a notation reads in this scope without its
- * [%bit].
+(* A bit is written [0%bit] or [1%bit], and a closed one prints the same way. *)
+Number Notation Bit.T Bit.from_numeral Bit.to_numeral
+  : jwa_bit_scope.
+
+(* Where a [Bit] is expected, a literal or a notation reads in this scope
+ * without its [%bit].
  *)
 Bind Scope jwa_bit_scope with Bit.T.
 
