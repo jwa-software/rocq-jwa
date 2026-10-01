@@ -245,6 +245,14 @@ Definition data_machine_all_computes_int8_arithmetic_shift
   : Int8.shift_right (-4) 1%n0 = (-2)%int8 /\ Int8.shift_right (-1) 3%n0 = (-1)%int8
   := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
+Definition data_machine_all_reads_int8_literal_hexadecimal
+  : 0x7F%int8 = 127%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_from_integer
+  : Int8.from_integer 200 = (-56)%int8
+  := Identity.reflexivity _.
+
 Fail Definition data_machine_all_refuses_int8_literal_large
   : Int8
   := 128%int8.
