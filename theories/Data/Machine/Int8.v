@@ -78,6 +78,12 @@ Definition to_bin := fun (x : Int8) .
   Bin.bin_with_zero_difference
     (unsigned_value x) (modulus * Bit.to_bin_with_zero (sign_bit x))%bin_with_zero.
 
+(* From here to the end of the module an [Int8] stands where a [Bin] is expected,
+ * read as its value; the conversion is printed.
+ *)
+Local Coercion to_bin : T >-> Bin.
+Add Printing Coercion to_bin.
+
 (* The value in [Integer], through [to_bin]; [Integer] is unary, so it is for
  * stating and proving, and computing goes through [to_bin].
  *)
@@ -1258,7 +1264,7 @@ Qed.
 Theorem addition
   : forall (x : Int8) (y : Int8) .
       (pi_1 (add_with_overflow x y))%product = Bit.Zero ->
-      to_bin (x + y) = (to_bin x + to_bin y)%b.
+      to_bin (x + y) = (x + y)%b.
 Proof.
   intros x y o.
   let proof t := conversion.sign &x &y &o.
@@ -1320,11 +1326,8 @@ Theorem halving
       (x3 : Bit) (x2 : Bit) (x1 : Bit) (x0 : Bit) .
       to_bin (Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
       = (10
-          * to_bin
-              (shift_right
-                (Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
-                1%n0)
-          + Bin.from_bin_with_zero (Bit.to_bin_with_zero x0))%b.
+          * shift_right (Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)) 1%n0
+          + Bit.to_bin_with_zero x0)%b.
 Proof.
   intros x7 x6 x5 x4 x3 x2 x1 x0.
   lemma shifted

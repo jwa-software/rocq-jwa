@@ -68,6 +68,12 @@ Definition to_bin_with_zero := fun (x : UInt16) .
         + Bit.to_bin_with_zero x0)%bin_with_zero
   end.
 
+(* From here to the end of the module a [UInt16] stands where a [BinWithZero] is
+ * expected, read as its value; the conversion is printed.
+ *)
+Local Coercion to_bin_with_zero : T >-> BinWithZero.
+Add Printing Coercion to_bin_with_zero.
+
 (* The value as a [Bin], through [to_bin_with_zero]. *)
 (* [UInt16 -> Bin] *)
 Definition to_bin := fun (x : UInt16) . Bin.from_bin_with_zero (to_bin_with_zero x).
@@ -362,7 +368,7 @@ Proof.
 Qed.
 
 (* conversion.boundedness *)
-Theorem boundedness : forall (x : UInt16) . (to_bin_with_zero x < modulus)%bin_with_zero.
+Theorem boundedness : forall (x : UInt16) . (x < modulus)%bin_with_zero.
 Proof.
   intros x.
   match &x with | UInt16_introduction xb1 xb0 end.
@@ -429,9 +435,9 @@ Qed.
 (* conversion.carry *)
 Theorem carry
   : forall (carry : Bit) (x : UInt16) (y : UInt16) .
-      (Bit.to_bin_with_zero carry + to_bin_with_zero x + to_bin_with_zero y
+      (Bit.to_bin_with_zero carry + x + y
         = modulus * Bit.to_bin_with_zero (pi_1 (add_with_carry carry x y))%product
-          + to_bin_with_zero (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
+          + (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
 Proof.
   intros carry x y.
   match &x with | UInt16_introduction xb1 xb0 end.
@@ -463,10 +469,9 @@ Qed.
 (* conversion.borrow *)
 Theorem borrow
   : forall (borrow : Bit) (x : UInt16) (y : UInt16) .
-      (to_bin_with_zero x
-        + modulus * Bit.to_bin_with_zero (pi_1 (sub_with_borrow borrow x y))%product
-        = to_bin_with_zero y + Bit.to_bin_with_zero borrow
-          + to_bin_with_zero (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
+      (x + modulus * Bit.to_bin_with_zero (pi_1 (sub_with_borrow borrow x y))%product
+        = y + Bit.to_bin_with_zero borrow
+          + (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
 Proof.
   intros borrow x y.
   match &x with | UInt16_introduction xb1 xb0 end.
@@ -498,8 +503,7 @@ Qed.
 (* conversion.addition *)
 Theorem addition
   : forall (x : UInt16) (y : UInt16) .
-      (to_bin_with_zero (x + y)%uint16
-        = (to_bin_with_zero x + to_bin_with_zero y) %. modulus)%bin_with_zero.
+      (to_bin_with_zero (x + y)%uint16 = (x + y) %. modulus)%bin_with_zero.
 Proof.
   intros x y.
   lemma witness
@@ -532,8 +536,7 @@ Qed.
 (* conversion.subtraction *)
 Theorem subtraction
   : forall (x : UInt16) (y : UInt16) .
-      ((to_bin_with_zero (sub x y) + to_bin_with_zero y) %. modulus
-        = to_bin_with_zero x)%bin_with_zero.
+      ((sub x y + y) %. modulus = x)%bin_with_zero.
 Proof.
   intros x y.
   lemma witness
@@ -577,8 +580,7 @@ Qed.
 (* conversion.negation *)
 Theorem negation
   : forall (x : UInt16) .
-      ((to_bin_with_zero (- x)%uint16 + to_bin_with_zero x) %. modulus
-        = 0)%bin_with_zero.
+      (((- x)%uint16 + x) %. modulus = 0)%bin_with_zero.
 Proof.
   intros x.
   simpl negate in |- *.
@@ -594,7 +596,7 @@ Qed.
 Theorem appending
   : forall (b : Bit) (x : UInt16) .
       (to_bin_with_zero (append_bit b x)
-        = (10 * to_bin_with_zero x + Bit.to_bin_with_zero b) %. modulus)%bin_with_zero.
+        = (10 * x + Bit.to_bin_with_zero b) %. modulus)%bin_with_zero.
 Proof.
   intros b x.
   match &x with | UInt16_introduction xb1 xb0 end.
@@ -754,8 +756,7 @@ Module left. (* conversion.left *)
 (* conversion.left.doubling *)
 Lemma doubling
   : forall (x : UInt16) .
-      (to_bin_with_zero (shift_left x 1%n0)
-        = (10 * to_bin_with_zero x) %. modulus)%bin_with_zero.
+      (to_bin_with_zero (shift_left x 1%n0) = (10 * x) %. modulus)%bin_with_zero.
 Proof.
   intros x.
   lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
@@ -777,8 +778,7 @@ Qed.
 (* conversion.left.shift *)
 Theorem shift
   : forall (x : UInt16) (k : Nat0) .
-      (to_bin_with_zero (shift_left x k)
-        = BinWithZero.shift_left (to_bin_with_zero x) k %. modulus)%bin_with_zero.
+      (to_bin_with_zero (shift_left x k) = BinWithZero.shift_left x k %. modulus)%bin_with_zero.
 Proof.
   intros x k.
   match &k with | Zero | Positive n end.
@@ -837,7 +837,7 @@ Module right. (* conversion.right *)
 (* conversion.right.halving *)
 Lemma halving
   : forall (x : UInt16) .
-      to_bin_with_zero (shift_right x 1%n0) = BinWithZero.halve (to_bin_with_zero x).
+      to_bin_with_zero (shift_right x 1%n0) = BinWithZero.halve x.
 Proof.
   intros x.
   match &x with | UInt16_introduction xb1 xb0 end.
@@ -857,7 +857,7 @@ Qed.
 (* conversion.right.shift *)
 Theorem shift
   : forall (x : UInt16) (k : Nat0) .
-      to_bin_with_zero (shift_right x k) = BinWithZero.shift_right (to_bin_with_zero x) k.
+      to_bin_with_zero (shift_right x k) = BinWithZero.shift_right x k.
 Proof.
   intros x k.
   match &k with | Zero | Positive n end.
@@ -910,15 +910,14 @@ Module multiplication. (* conversion.multiplication *)
 (* conversion.multiplication.step *)
 Lemma step
   : forall (x : UInt16) (p : UInt16) (h : BinWithZero) (b : Bit) .
-      (to_bin_with_zero p = (to_bin_with_zero x * h) %. modulus)%bin_with_zero ->
+      (to_bin_with_zero p = (x * h) %. modulus)%bin_with_zero ->
       to_bin_with_zero
         (add (shift_left p 1%n0)
           match b with
           | Bit.Zero => Zero
           | Bit.One  => x
           end)
-      = ((to_bin_with_zero x * (10 * h + Bit.to_bin_with_zero b))
-          %. modulus)%bin_with_zero.
+      = ((x * (10 * h + Bit.to_bin_with_zero b)) %. modulus)%bin_with_zero.
 Proof.
   intros x p h b e.
   lemma doubled
@@ -994,8 +993,7 @@ End multiplication. (* conversion.multiplication *)
 (* conversion.multiplication *)
 Theorem multiplication
   : forall (x : UInt16) (y : UInt16) .
-      (to_bin_with_zero (x * y)%uint16
-        = (to_bin_with_zero x * to_bin_with_zero y) %. modulus)%bin_with_zero.
+      (to_bin_with_zero (x * y)%uint16 = (x * y) %. modulus)%bin_with_zero.
 Proof.
   intros x y.
   lemma base
