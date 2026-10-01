@@ -8,6 +8,10 @@ From jwa Require Import Algebra.Ring.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.Nat0.
+From jwa Require Import Data.Product.
+From jwa Require Import Tactics.Witness.
 
 (* A bit is a binary digit, a datum, where a [Bool] is a truth value; the two
  * are separate types so that neither stands where the other is meant, and
@@ -81,6 +85,27 @@ Definition to_bool := fun (b : Bit) .
   | Zero => false
   | One  => true
   end.
+
+(* [Bit -> Nat0] *)
+Definition to_nat0 := fun (b : Bit) .
+  match b with
+  | Zero => 0%n0
+  | One  => 1%n0
+  end.
+
+(* The carry out and the sum of [carry + a + b], the carry first on both
+ * sides, so that adders chain carry to carry.
+ *)
+(* [Bit -> Bit -> Bit -> Product Bit Bit] *)
+Definition add_with_carry := fun (carry : Bit) (a : Bit) (b : Bit) .
+  (or (and a b) (and carry (xor a b)), xor (xor a b) carry)%product.
+
+(* The borrow out and the difference of [a - b - borrow], the borrow first
+ * on both sides, as for [add_with_carry].
+ *)
+(* [Bit -> Bit -> Bit -> Product Bit Bit] *)
+Definition sub_with_borrow := fun (borrow : Bit) (a : Bit) (b : Bit) .
+  (or (and (flip a) b) (and borrow (flip (xor a b))), xor (xor a b) borrow)%product.
 
 Local Open Scope jwa_bit_scope.
 
@@ -348,6 +373,243 @@ Proof.
   intros b.
   match b with | Zero | One end; simpl in |- *; quod idem est.
 Qed.
+
+(* conversion.carry *)
+Theorem carry
+  : forall (carry : Bit) (a : Bit) (b : Bit) .
+      (to_nat0 carry + to_nat0 a + to_nat0 b
+        = 2 * to_nat0 (pi_1 (add_with_carry carry a b))%product
+          + to_nat0 (pi_2 (add_with_carry carry a b))%product)%n0.
+Proof.
+  intros carry a b.
+  match &carry with | Zero | One end;
+    match &a with | Zero | One end;
+    match &b with | Zero | One end;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+Module carry. (* conversion.carry *)
+
+(* Bits [a] and [b] appended below [x] and [y], whose sum with the carry out
+ * of [a + b] is [m * o + s], sum with [carry] to [(2 * m) * o] and the sum
+ * bit appended below [s]: an adder of [n + 1] places from one of [n].
+ *)
+(* conversion.carry.propagation *)
+Theorem propagation
+  : forall (carry : Bit) (a : Bit) (b : Bit)
+      (x : Nat0) (y : Nat0) (m : Nat0) (o : Nat0) (s : Nat0) .
+      (to_nat0 (pi_1 (add_with_carry carry a b))%product + x + y = m * o + s)%n0 ->
+      (to_nat0 carry + (2 * x + to_nat0 a) + (2 * y + to_nat0 b)
+        = (2 * m) * o + (2 * s + to_nat0 (pi_2 (add_with_carry carry a b))%product))%n0.
+Proof.
+  intros carry a b x y m o s h.
+  leibniz
+    (Nat0.addition.left.commutativity (to_nat0 &carry) (2 * &x)%n0 (to_nat0 &a)),
+    (Nat0.addition.interchange
+      (2 * &x)%n0 (to_nat0 &carry + to_nat0 &a)%n0 (2 * &y)%n0 (to_nat0 &b)),
+    (conversion.carry &carry &a &b),
+    <- (Nat0.addition.associativity
+      (2 * &x + 2 * &y)%n0
+      (2 * to_nat0 (pi_1 (add_with_carry &carry &a &b))%product)%n0
+      (to_nat0 (pi_2 (add_with_carry &carry &a &b))%product)),
+    <- (Nat0.multiplication.left.distributivity.over.addition 2%n0 &x &y),
+    <- (Nat0.multiplication.left.distributivity.over.addition
+      2%n0 (&x + &y)%n0 (to_nat0 (pi_1 (add_with_carry &carry &a &b))%product)),
+    (Nat0.addition.commutativity
+      (&x + &y)%n0 (to_nat0 (pi_1 (add_with_carry &carry &a &b))%product)),
+    <- (Nat0.addition.associativity
+      (to_nat0 (pi_1 (add_with_carry &carry &a &b))%product) &x &y),
+    &h,
+    (Nat0.multiplication.left.distributivity.over.addition 2%n0 (&m * &o)%n0 &s),
+    (Nat0.addition.associativity
+      (2 * (&m * &o))%n0 (2 * &s)%n0
+      (to_nat0 (pi_2 (add_with_carry &carry &a &b))%product)),
+    <- (Nat0.multiplication.associativity 2%n0 &m &o)
+    in |- *.
+  quod idem est.
+Qed.
+
+End carry. (* conversion.carry *)
+
+(* conversion.borrow *)
+Theorem borrow
+  : forall (borrow : Bit) (a : Bit) (b : Bit) .
+      (to_nat0 a + 2 * to_nat0 (pi_1 (sub_with_borrow borrow a b))%product
+        = to_nat0 b + to_nat0 borrow
+          + to_nat0 (pi_2 (sub_with_borrow borrow a b))%product)%n0.
+Proof.
+  intros borrow a b.
+  match &borrow with | Zero | One end;
+    match &a with | Zero | One end;
+    match &b with | Zero | One end;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+Module borrow. (* conversion.borrow *)
+
+(* [conversion.carry.propagation] for a subtractor: [a] and [b] appended
+ * below [x] and [y], whose difference less the borrow out of [a - b] is
+ * [s] with [m * o] borrowed, take [borrow] off to the difference bit
+ * appended below [s], with [(2 * m) * o] borrowed.
+ *)
+(* conversion.borrow.propagation *)
+Theorem propagation
+  : forall (borrow : Bit) (a : Bit) (b : Bit)
+      (x : Nat0) (y : Nat0) (m : Nat0) (o : Nat0) (s : Nat0) .
+      (x + m * o = y + to_nat0 (pi_1 (sub_with_borrow borrow a b))%product + s)%n0 ->
+      (2 * x + to_nat0 a + (2 * m) * o
+        = 2 * y + to_nat0 b + to_nat0 borrow
+          + (2 * s + to_nat0 (pi_2 (sub_with_borrow borrow a b))%product))%n0.
+Proof.
+  intros borrow a b x y m o s h.
+  leibniz
+    (Nat0.multiplication.associativity 2%n0 &m &o),
+    (Nat0.addition.associativity (2 * &x)%n0 (to_nat0 &a) (2 * (&m * &o))%n0),
+    (Nat0.addition.commutativity (to_nat0 &a) (2 * (&m * &o))%n0),
+    <- (Nat0.addition.associativity (2 * &x)%n0 (2 * (&m * &o))%n0 (to_nat0 &a)),
+    <- (Nat0.multiplication.left.distributivity.over.addition 2%n0 &x (&m * &o)%n0),
+    &h,
+    (Nat0.multiplication.left.distributivity.over.addition
+      2%n0 (&y + to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)%n0 &s),
+    (Nat0.multiplication.left.distributivity.over.addition
+      2%n0 &y (to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)),
+    (Nat0.addition.associativity
+      (2 * &y)%n0
+      (2 * to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)%n0
+      (2 * &s)%n0),
+    (Nat0.addition.commutativity
+      (2 * to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)%n0 (2 * &s)%n0),
+    <- (Nat0.addition.associativity
+      (2 * &y)%n0 (2 * &s)%n0
+      (2 * to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)%n0),
+    (Nat0.addition.associativity
+      (2 * &y + 2 * &s)%n0
+      (2 * to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)%n0
+      (to_nat0 &a)),
+    (Nat0.addition.commutativity
+      (2 * to_nat0 (pi_1 (sub_with_borrow &borrow &a &b))%product)%n0 (to_nat0 &a)),
+    (conversion.borrow &borrow &a &b),
+    (Nat0.addition.interchange
+      (2 * &y)%n0 (2 * &s)%n0 (to_nat0 &b + to_nat0 &borrow)%n0
+      (to_nat0 (pi_2 (sub_with_borrow &borrow &a &b))%product)),
+    <- (Nat0.addition.associativity (2 * &y)%n0 (to_nat0 &b) (to_nat0 &borrow))
+    in |- *.
+  quod idem est.
+Qed.
+
+End borrow. (* conversion.borrow *)
+
+(* conversion.injectivity *)
+Theorem injectivity
+  : forall {a : Bit} {b : Bit} . to_nat0 a = to_nat0 b -> a = b.
+Proof.
+  intros a b e.
+  match &a with | Zero | One end;
+    match &b with | Zero | One end;
+    simpl in &e.
+  - quod idem est.
+  - ex &e quodlibet.
+  - ex &e quodlibet.
+  - quod idem est.
+Qed.
+
+(* conversion.boundedness *)
+Theorem boundedness : forall (b : Bit) . (to_nat0 b < 2)%n0.
+Proof.
+  intros b.
+  simpl Nat0.LessThan in |- *.
+  match &b with | Zero | One end.
+  - exists (Nat.Successor Nat.One).
+    simpl in |- *.
+    quod idem est.
+  - exists Nat.One.
+    simpl in |- *.
+    quod idem est.
+Qed.
+
+Module boundedness. (* conversion.boundedness *)
+
+(* A bit appended below a number less than [m] gives one less than
+ * [2 * m].
+ *)
+(* conversion.boundedness.propagation *)
+Theorem propagation
+  : forall (h : Nat0) (m : Nat0) (b : Bit) .
+      (h < m -> 2 * h + to_nat0 b < 2 * m)%n0.
+Proof.
+  intros h m b e.
+  simpl Nat0.LessThan in &e.
+  match &e with | k ek end.
+  lemma bound : (to_nat0 &b < 2 * Nat0.Positive &k)%n0.
+  {
+    simpl Nat0.LessThan in |- *.
+    match &b with | Zero | One end.
+    - exists (2 * &k)%n.
+      simpl in |- *.
+      quod idem est.
+    - match &k with | One | Successor k' end.
+      + exists Nat.One.
+        simpl in |- *.
+        quod idem est.
+      + exists (&k' + Nat.Successor &k')%n.
+        simpl in |- *.
+        quod idem est.
+  }
+  leibniz
+    <- &ek,
+    (Nat0.multiplication.left.distributivity.over.addition
+      2%n0 &h (Nat0.Positive &k))
+    in |- *.
+  ipso
+    (Nat0.addition.order.strict.monotonicity
+      (2 * &h)%n0 (to_nat0 &b) (2 * Nat0.Positive &k)%n0 &bound).
+Qed.
+
+End boundedness. (* conversion.boundedness *)
+
+(* conversion.halving *)
+Theorem halving
+  : forall (h : Nat0) (b : Bit) .
+      (((2 * h + to_nat0 b) /. 2) = h /\ ((2 * h + to_nat0 b) %. 2) = to_nat0 b)%n0.
+Proof.
+  intros h b.
+  lemma witness
+    : (&h * 2 + to_nat0 &b = 2 * &h + to_nat0 &b /\ to_nat0 &b < 2)%n0.
+  {
+    divide et impera.
+    - leibniz (Nat0.multiplication.commutativity &h 2%n0) in |- *.
+      quod idem est.
+    - ipso (conversion.boundedness &b).
+  }
+  ipso
+    (Nat0.division.uniqueness
+      (2 * &h + to_nat0 &b)%n0 2%n &h (to_nat0 &b) &witness).
+Qed.
+
+Module halving. (* conversion.halving *)
+
+(* conversion.halving.injectivity *)
+Theorem injectivity
+  : forall {h : Nat0} {k : Nat0} {a : Bit} {b : Bit} .
+      (2 * h + to_nat0 a = 2 * k + to_nat0 b)%n0 -> h = k /\ a = b.
+Proof.
+  intros h k a b e.
+  match (conversion.halving &h &a) with | qa ra end.
+  match (conversion.halving &k &b) with | qb rb end.
+  divide et impera.
+  - leibniz <- &qa, <- &qb, &e in |- *.
+    quod idem est.
+  - lemma facto : to_nat0 &a = to_nat0 &b.
+    {
+      leibniz <- &ra, <- &rb, &e in |- *.
+      quod idem est.
+    }
+    ipso (conversion.injectivity &facto).
+Qed.
+
+End halving. (* conversion.halving *)
 
 End conversion. (* conversion *)
 
