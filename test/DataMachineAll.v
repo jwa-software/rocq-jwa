@@ -68,35 +68,64 @@ Definition data_machine_all_delivers_bit_carry
           + Bit.to_nat0 (pi_2 (Bit.add_with_carry carry a b))%product)%n0
   := Bit.conversion.carry.
 
+Definition data_machine_all_delivers_bit_binary_carry
+  : forall (carry : Bit) (a : Bit) (b : Bit) .
+      (Bit.to_bin_with_zero carry + Bit.to_bin_with_zero a + Bit.to_bin_with_zero b
+        = 10 * Bit.to_bin_with_zero (pi_1 (Bit.add_with_carry carry a b))%product
+          + Bit.to_bin_with_zero (pi_2 (Bit.add_with_carry carry a b))%product)%bin_with_zero
+  := Bit.conversion.binary.carry.
+
 Definition data_machine_all_delivers_uint8
   : UInt8
   := UInt8.One.
 
 Definition data_machine_all_delivers_uint8_carry
   : forall (carry : Bit) (x : UInt8) (y : UInt8) .
-      (Bit.to_nat0 carry + UInt8.to_nat0 x + UInt8.to_nat0 y
-        = 256 * Bit.to_nat0 (pi_1 (UInt8.add_with_carry carry x y))%product
-          + UInt8.to_nat0 (pi_2 (UInt8.add_with_carry carry x y))%product)%n0
+      (Bit.to_bin_with_zero carry + UInt8.to_bin_with_zero x + UInt8.to_bin_with_zero y
+        = 100000000 * Bit.to_bin_with_zero (pi_1 (UInt8.add_with_carry carry x y))%product
+          + UInt8.to_bin_with_zero (pi_2 (UInt8.add_with_carry carry x y))%product)%bin_with_zero
   := UInt8.conversion.carry.
 
 Definition data_machine_all_delivers_uint8_addition
   : forall (x : UInt8) (y : UInt8) .
-      UInt8.to_nat0 (x + y)%uint8 = ((UInt8.to_nat0 x + UInt8.to_nat0 y) %. 256)%n0
+      (UInt8.to_bin_with_zero (x + y)%uint8
+        = (UInt8.to_bin_with_zero x + UInt8.to_bin_with_zero y)
+          %. 100000000%bin_base)%bin_with_zero
   := UInt8.conversion.addition.
 
 Definition data_machine_all_delivers_uint8_multiplication
   : forall (x : UInt8) (y : UInt8) .
-      UInt8.to_nat0 (x * y)%uint8 = ((UInt8.to_nat0 x * UInt8.to_nat0 y) %. 256)%n0
+      (UInt8.to_bin_with_zero (x * y)%uint8
+        = (UInt8.to_bin_with_zero x * UInt8.to_bin_with_zero y)
+          %. 100000000%bin_base)%bin_with_zero
   := UInt8.conversion.multiplication.
 
 Definition data_machine_all_delivers_uint8_negation
-  : forall (x : UInt8) . ((UInt8.to_nat0 (- x)%uint8 + UInt8.to_nat0 x) %. 256 = 0)%n0
+  : forall (x : UInt8) .
+      ((UInt8.to_bin_with_zero (- x)%uint8 + UInt8.to_bin_with_zero x)
+        %. 100000000%bin_base = 0)%bin_with_zero
   := UInt8.conversion.negation.
 
 Definition data_machine_all_delivers_uint8_left_shift
   : forall (x : UInt8) (k : Nat0) .
-      UInt8.to_nat0 (UInt8.shift_left x k) = ((UInt8.to_nat0 x * 2 ^ k) %. 256)%n0
+      (UInt8.to_bin_with_zero (UInt8.shift_left x k)
+        = BinWithZero.shift_left (UInt8.to_bin_with_zero x) k
+          %. 100000000%bin_base)%bin_with_zero
   := UInt8.conversion.left.shift.
+
+Definition data_machine_all_delivers_uint8_right_shift
+  : forall (x : UInt8) (k : Nat0) .
+      UInt8.to_bin_with_zero (UInt8.shift_right x k)
+      = BinWithZero.shift_right (UInt8.to_bin_with_zero x) k
+  := UInt8.conversion.right.shift.
+
+Definition data_machine_all_delivers_uint8_section
+  : forall (x : UInt8) . UInt8.from_bin_with_zero (UInt8.to_bin_with_zero x) = x
+  := UInt8.conversion.section.
+
+Definition data_machine_all_computes_uint8_value
+  : UInt8.to_bin_with_zero 200%uint8 = 11001000%bin_with_zero
+  := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_uint8_distributivity
   : forall (x : UInt8) (y : UInt8) (z : UInt8) .
@@ -179,6 +208,14 @@ Definition data_machine_all_delivers_uint8_byte_section
   : forall (x : UInt8) . UInt8.from_byte (UInt8.to_byte x) = x
   := UInt8.conversion.byte.section.
 
+Theorem data_machine_all_delivers_coercion_uint8_to_bin_with_zero
+  : forall (x : UInt8) .
+      BinWithZero.add x x = BinWithZero.add (UInt8.to_bin_with_zero x) (UInt8.to_bin_with_zero x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
 Theorem data_machine_all_delivers_coercion_uint8_to_nat0
   : forall (x : UInt8) . Nat0.add x x = Nat0.add (UInt8.to_nat0 x) (UInt8.to_nat0 x).
 Proof.
@@ -201,12 +238,24 @@ Definition data_machine_all_delivers_int8
 Definition data_machine_all_delivers_int8_addition
   : forall (x : Int8) (y : Int8) .
       (pi_1 (Int8.add_with_overflow x y))%product = Bit.Zero ->
-      Int8.to_integer (x + y)%int8 = (Int8.to_integer x + Int8.to_integer y)%z
+      Int8.to_bin (x + y)%int8 = (Int8.to_bin x + Int8.to_bin y)%b
   := Int8.conversion.addition.
 
 Definition data_machine_all_delivers_int8_section
-  : forall (x : Int8) . Int8.from_integer (Int8.to_integer x) = x
+  : forall (x : Int8) . Int8.from_bin (Int8.to_bin x) = x
   := Int8.conversion.section.
+
+Definition data_machine_all_delivers_int8_valuation_section
+  : forall (x : Int8) . Int8.from_bin_with_zero (Int8.unsigned_value x) = x
+  := Int8.valuation.section.
+
+Definition data_machine_all_computes_int8_value
+  : Int8.to_bin (-128)%int8 = (-10000000)%b
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_from_bin
+  : Int8.from_bin 11001000%b = (-56)%int8
+  := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_int8_distributivity
   : forall (x : Int8) (y : Int8) (z : Int8) .
@@ -268,6 +317,13 @@ Definition data_machine_all_delivers_int8_byte_retraction
 Definition data_machine_all_delivers_int8_byte_section
   : forall (x : Int8) . Int8.from_byte (Int8.to_byte x) = x
   := Int8.conversion.byte.section.
+
+Theorem data_machine_all_delivers_coercion_int8_to_bin
+  : forall (x : Int8) . Bin.negate x = Bin.negate (Int8.to_bin x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
 
 Theorem data_machine_all_delivers_coercion_int8_to_integer
   : forall (x : Int8) . Integer.negate x = Integer.negate (Int8.to_integer x).
