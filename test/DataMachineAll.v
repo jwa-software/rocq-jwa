@@ -29,3 +29,34 @@ Definition data_machine_all_delivers_bit_conversion_section
 Definition data_machine_all_computes_bit_xor
   : (Bit.One ^^ Bit.One)%bit = Bit.Zero
   := Identity.reflexivity Bit.Zero.
+
+Definition data_machine_all_delivers_byte
+  : Byte
+  := Byte.Zero.
+
+Definition data_machine_all_delivers_byte_notation
+  : forall (x : Byte) (y : Byte) . (x && y)%byte = (y && x)%byte
+  := Byte.conjunction.commutativity.
+
+Definition data_machine_all_binds_byte_scope
+  : forall (x : Byte) . Byte.negate (! x) = x
+  := Byte.negation.involution.
+
+Definition data_machine_all_delivers_byte_rotation_inverse
+  : forall (x : Byte) (k : Nat0) . Byte.rotate_right (Byte.rotate_left x k) k = x
+  := Byte.rotation.left.inverse.
+
+Definition data_machine_all_computes_byte_shift_right
+  : Byte.shift_right (Byte.negate Byte.Zero) 3%n0
+      = Byte.Byte_introduction
+          Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One Bit.One Bit.One Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_byte_rotate_left
+  : Byte.rotate_left
+      (Byte.Byte_introduction
+        Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One)
+      1%n0
+      = Byte.Byte_introduction
+          Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One
+  := Identity.reflexivity _.
