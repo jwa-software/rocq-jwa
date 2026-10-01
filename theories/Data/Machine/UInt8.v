@@ -11,6 +11,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
+From jwa Require Import Data.Number.Binary.Bin.
 From jwa Require Import Data.Number.Binary.BinBase.
 From jwa Require Import Data.Number.Binary.BinWithZero.
 From jwa Require Import Data.Number.Nat.
@@ -58,6 +59,10 @@ Definition to_bin_with_zero := fun (x : UInt8) .
         + Bit.to_bin_with_zero x3) + Bit.to_bin_with_zero x2) + Bit.to_bin_with_zero x1)
         + Bit.to_bin_with_zero x0)%bin_with_zero
   end.
+
+(* The value as a [Bin], through [to_bin_with_zero]. *)
+(* [UInt8 -> Bin] *)
+Definition to_bin := fun (x : UInt8) . Bin.from_bin_with_zero (to_bin_with_zero x).
 
 (* The value in [Nat0], through [to_bin_with_zero]; [Nat0] is unary, so it is
  * for stating and proving, and computing goes through [to_bin_with_zero].
