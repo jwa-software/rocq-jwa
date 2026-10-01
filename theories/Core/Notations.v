@@ -80,6 +80,14 @@ Delimit Scope jwa_uint32_scope with uint32.
 Declare Scope jwa_int32_scope.
 Delimit Scope jwa_int32_scope with int32.
 
+(* The [UInt64] arithmetic, delimited but not opened. *)
+Declare Scope jwa_uint64_scope.
+Delimit Scope jwa_uint64_scope with uint64.
+
+(* The [Int64] arithmetic, delimited but not opened. *)
+Declare Scope jwa_int64_scope.
+Delimit Scope jwa_int64_scope with int64.
+
 (* The [HWord] operations, the [Byte] ones taken byte by byte, delimited but
  * not opened under the same spellings; a literal under it is little-endian.
  *)

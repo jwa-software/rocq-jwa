@@ -9,9 +9,11 @@
  * a [Byte] read as a number from 0 to 255, [Int8] a [Byte] read in two's
  * complement, from -128 to 127, [UInt16] two [Byte]s read as a number from 0
  * to 65535, [Int16] two [Byte]s read in two's complement, from -32768 to
- * 32767, [UInt32] four [Byte]s read as a number from 0 to 4294967295, and
+ * 32767, [UInt32] four [Byte]s read as a number from 0 to 4294967295,
  * [Int32] four [Byte]s read in two's complement, from -2147483648 to
- * 2147483647.
+ * 2147483647, [UInt64] eight [Byte]s read as a number from 0 to
+ * 18446744073709551615, and [Int64] eight [Byte]s read in two's complement,
+ * from -9223372036854775808 to 9223372036854775807.
  *)
 (* The modules below only [Import] [Core.All], so the open scope reaches a
  * client of this umbrella only from here.
@@ -46,9 +48,11 @@ From jwa Require Export Data.Machine.Endian.
 From jwa Require Export Data.Machine.HWord.
 From jwa Require Export Data.Machine.Int16.
 From jwa Require Export Data.Machine.Int32.
+From jwa Require Export Data.Machine.Int64.
 From jwa Require Export Data.Machine.Int8.
 From jwa Require Export Data.Machine.QWord.
 From jwa Require Export Data.Machine.UInt16.
 From jwa Require Export Data.Machine.UInt32.
+From jwa Require Export Data.Machine.UInt64.
 From jwa Require Export Data.Machine.UInt8.
 From jwa Require Export Data.Machine.Word.
