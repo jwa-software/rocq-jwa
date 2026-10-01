@@ -131,6 +131,10 @@ Definition data_machine_all_computes_uint8_value
   : UInt8.to_bin_with_zero 200%uint8 = 11001000%bin_with_zero
   := Identity.reflexivity _.
 
+Definition data_machine_all_computes_uint8_to_bin
+  : UInt8.to_bin 200%uint8 = 11001000%b
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_uint8_distributivity
   : forall (x : UInt8) (y : UInt8) (z : UInt8) .
       (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%uint8
@@ -483,6 +487,10 @@ Definition data_machine_all_delivers_uint16_section
 
 Definition data_machine_all_computes_uint16_value
   : UInt16.to_bin_with_zero 50000%uint16 = 1100001101010000%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_to_bin
+  : UInt16.to_bin 50000%uint16 = 1100001101010000%b
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_uint16_distributivity
