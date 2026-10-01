@@ -7,7 +7,7 @@ Definition data_machine_all_delivers_bit
   := Bit.One.
 
 Definition data_machine_all_delivers_bit_notation
-  : forall (b1 : Bit) (b2 : Bit) . (b1 && b2)%bit = (b2 && b1)%bit
+  : forall (b1 : Bit) (b2 : Bit) . (b1 &. b2)%bit = (b2 &. b1)%bit
   := Bit.conjunction.commutativity.
 
 Definition data_machine_all_binds_bit_scope
@@ -27,7 +27,7 @@ Definition data_machine_all_delivers_bit_conversion_section
   := Bit.conversion.section.
 
 Definition data_machine_all_computes_bit_xor
-  : (Bit.One ^^ Bit.One)%bit = Bit.Zero
+  : (Bit.One ^. Bit.One)%bit = Bit.Zero
   := Identity.reflexivity Bit.Zero.
 
 Definition data_machine_all_delivers_byte
@@ -35,7 +35,7 @@ Definition data_machine_all_delivers_byte
   := Byte.Zero.
 
 Definition data_machine_all_delivers_byte_notation
-  : forall (x : Byte) (y : Byte) . (x && y)%byte = (y && x)%byte
+  : forall (x : Byte) (y : Byte) . (x &. y)%byte = (y &. x)%byte
   := Byte.conjunction.commutativity.
 
 Definition data_machine_all_binds_byte_scope

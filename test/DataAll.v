@@ -56,7 +56,7 @@ Definition data_all_delivers_product
   := (true , false)%product.
 
 Definition data_all_delivers_bit
-  : forall (b : Bit) . (b ^^ b)%bit = Bit.Zero
+  : forall (b : Bit) . (b ^. b)%bit = Bit.Zero
   := Bit.sejunction.irreflexivity.
 
 Definition data_all_delivers_first
