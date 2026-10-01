@@ -118,3 +118,35 @@ Definition data_machine_all_computes_byte_carry_out
 Definition data_machine_all_computes_byte_comparison
   : Byte.compare Byte.Zero Byte.One = Comparison.Lt
   := Identity.reflexivity _.
+
+Definition data_machine_all_reads_bit_literal
+  : Bit.xor 1 1 = 0%bit
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_bit_literal_two
+  : Bit
+  := 2%bit.
+
+Definition data_machine_all_reads_byte_literal
+  : Byte.to_nat0 200%byte = 200%n0
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_byte_literal_hexadecimal
+  : 0xFF%byte = Byte.flip Byte.Zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_byte_literal_zero
+  : 0%byte = Byte.Zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_byte_literal_arithmetic
+  : (100 + 200 = 44)%byte
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_byte_literal_large
+  : Byte
+  := 256%byte.
+
+Fail Definition data_machine_all_refuses_byte_literal_long
+  : Byte
+  := 99999999999999999999%byte.
