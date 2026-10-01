@@ -26,17 +26,17 @@ Inductive T : Type :=
 Abbreviation Bit := T.
 
 (* [Bit -> Bit] *)
-Definition negate := fun (b : Bit) .
+Definition flip := fun (b : Bit) .
   match b with
   | Zero => One
   | One  => Zero
   end.
 
-(* The spellings and levels are those of [jwa_bool_scope], reserved in
- * [Core.Notations]; [only parsing] keeps goals printing the operations by
- * name.
+(* The levels are reserved in [Core.Notations], and the binary operations
+ * take the spellings of [jwa_bool_scope]; [only parsing] keeps goals printing
+ * the operations by name.
  *)
-Notation "! b" := (negate b) (only parsing)
+Notation "~. b" := (flip b) (only parsing)
   : jwa_bit_scope.
 
 (* [Bit -> Bit -> Bit] *)
@@ -63,7 +63,7 @@ Notation "b1 || b2" := (or b1 b2) (only parsing)
 Definition xor := fun (b1 : Bit) (b2 : Bit) .
   match b1 with
   | Zero => b2
-  | One  => negate b2
+  | One  => flip b2
   end.
 
 Notation "b1 ^^ b2" := (xor b1 b2) (only parsing)
@@ -113,16 +113,16 @@ Proof.
   - ipso distinctness.backward.
 Qed.
 
-Module negation. (* negation *)
+Module flipping. (* flipping *)
 
-(* negation.involution *)
-Theorem involution : forall (b : Bit) . ! ! b = b.
+(* flipping.involution *)
+Theorem involution : forall (b : Bit) . ~. ~. b = b.
 Proof.
   intros b.
   match b with | Zero | One end; simpl in |- *; quod idem est.
 Qed.
 
-End negation. (* negation *)
+End flipping. (* flipping *)
 
 Module conjunction. (* conjunction *)
 

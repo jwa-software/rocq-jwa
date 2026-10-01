@@ -25,18 +25,18 @@ Definition Zero :=
     Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero.
 
 (* [Byte -> Byte] *)
-Definition negate := fun (x : Byte) .
+Definition flip := fun (x : Byte) .
   match x with
   | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
       Byte_introduction
-        (Bit.negate x7) (Bit.negate x6) (Bit.negate x5) (Bit.negate x4)
-        (Bit.negate x3) (Bit.negate x2) (Bit.negate x1) (Bit.negate x0)
+        (Bit.flip x7) (Bit.flip x6) (Bit.flip x5) (Bit.flip x4)
+        (Bit.flip x3) (Bit.flip x2) (Bit.flip x1) (Bit.flip x0)
   end.
 
 (* The spellings and levels are those of [jwa_bit_scope]; [only parsing]
  * keeps goals printing the operations by name.
  *)
-Notation "! x" := (negate x) (only parsing)
+Notation "~. x" := (flip x) (only parsing)
   : jwa_byte_scope.
 
 (* [Byte -> Byte -> Byte] *)
@@ -195,23 +195,23 @@ Proof.
   quod idem est.
 Qed.
 
-Module negation. (* negation *)
+Module flipping. (* flipping *)
 
-(* negation.involution *)
-Theorem involution : forall (x : Byte) . ! ! x = x.
+(* flipping.involution *)
+Theorem involution : forall (x : Byte) . ~. ~. x = x.
 Proof.
   intros x.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl in |- *.
   ipso
     (congruence
-      (Bit.negation.involution &x7) (Bit.negation.involution &x6)
-      (Bit.negation.involution &x5) (Bit.negation.involution &x4)
-      (Bit.negation.involution &x3) (Bit.negation.involution &x2)
-      (Bit.negation.involution &x1) (Bit.negation.involution &x0)).
+      (Bit.flipping.involution &x7) (Bit.flipping.involution &x6)
+      (Bit.flipping.involution &x5) (Bit.flipping.involution &x4)
+      (Bit.flipping.involution &x3) (Bit.flipping.involution &x2)
+      (Bit.flipping.involution &x1) (Bit.flipping.involution &x0)).
 Qed.
 
-End negation. (* negation *)
+End flipping. (* flipping *)
 
 Module conjunction. (* conjunction *)
 
@@ -259,14 +259,14 @@ Qed.
 
 (* conjunction.identity *)
 Theorem identity
-  : forall (x : Byte) . (! Zero && x = x) /\ (x && ! Zero = x).
+  : forall (x : Byte) . (~. Zero && x = x) /\ (x && ~. Zero = x).
 Proof.
   intros x.
   divide et impera.
   - match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
-  - leibniz (conjunction.commutativity &x (! Zero)) in |- *.
+  - leibniz (conjunction.commutativity &x (~. Zero)) in |- *.
     match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
@@ -598,7 +598,7 @@ Export (notations) Byte.
 Bind Scope jwa_byte_scope with Byte.T.
 
 Instance Byte_and_monoid
-  : Monoid Byte.and (Byte.negate Byte.Zero) :=
+  : Monoid Byte.and (Byte.flip Byte.Zero) :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Byte.conjunction.associativity |}
   ; Monoid.identity := Byte.conjunction.identity |}.
@@ -638,7 +638,7 @@ Instance Byte_xor_abelian_group
   ; AbelianGroup.commutative := Byte_xor_commutative |}.
 
 Instance Byte_ring
-  : Ring Byte.xor Byte.Zero (fun (x : Byte) . x) Byte.and (Byte.negate Byte.Zero) :=
+  : Ring Byte.xor Byte.Zero (fun (x : Byte) . x) Byte.and (Byte.flip Byte.Zero) :=
   {| Ring.abelian_group := Byte_xor_abelian_group
   ; Ring.monoid := Byte_and_monoid
   ; Ring.distributivity := Byte.conjunction.distributivity.over.sejunction |}.

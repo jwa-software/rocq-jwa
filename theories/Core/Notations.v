@@ -43,9 +43,9 @@ Delimit Scope jwa_product_scope with product.
 Declare Scope jwa_bool_scope.
 Delimit Scope jwa_bool_scope with bool.
 
-(* The [Bit] operations, delimited but not opened, under the spellings of
- * [jwa_bool_scope]: the operations are the same, while a bit is a binary
- * digit and a [Bool] a truth value.
+(* The [Bit] operations, delimited but not opened: [&&], [||] and [^^] as for
+ * [Bool], and [~.] for the complement, since a bit is flipped where a truth
+ * value is negated.
  *)
 Declare Scope jwa_bit_scope.
 Delimit Scope jwa_bit_scope with bit.
@@ -117,6 +117,11 @@ Reserved Notation "~ x"
 Reserved Notation "x ^ y"
   (at level 30, right associativity).
 Reserved Notation "! b"
+  (at level 35, right associativity).
+(* [~] is reserved below [=] for propositions, so the bit complement takes a
+ * token of its own at the level of [!].
+ *)
+Reserved Notation "~. b"
   (at level 35, right associativity).
 Reserved Notation "x && y"
   (at level 40, left associativity).
