@@ -13,7 +13,7 @@ Delimit Scope jwa_type_scope with jwa_type.
 Bind Scope jwa_type_scope with Sortclass.
 Open Scope jwa_type_scope.
 
-(* A second scope for the list notations, delimited but not opened: [[]] is
+(* The list notations, delimited but not opened: [[]] is
    the empty list and [++] is [List.concat] only where a file opens the
    scope or writes [(...)%list], so the same spellings stay free for other
    containers in scopes of their own. *)
@@ -29,21 +29,26 @@ Delimit Scope jwa_list_scope with list.
 Declare Scope jwa_non_empty_list_scope.
 Delimit Scope jwa_non_empty_list_scope with non_empty_list.
 
-(* A third scope for the product notations, delimited but not opened like
- * the list one. [A * B] is not in it: a type former belongs in
- * [jwa_type_scope] beside [->].
+(* The product notations, delimited but not opened. [A * B] is not in it: a
+ * type former belongs in [jwa_type_scope] beside [->].
  *)
 Declare Scope jwa_product_scope.
 Delimit Scope jwa_product_scope with product.
 
-(* A fourth scope, for the [Bool] operations, delimited but not opened like
- * the two above. The spellings are contested: [&&] and [||] are what a
- * closed notation elsewhere would take away, and [!] is the boolean
- * negation beside the logical [~], which stays in [jwa_type_scope] because
- * a proposition is what the tree is mostly about.
+(* The [Bool] operations, delimited but not opened. The spellings are
+ * contested: [&&] and [||] are what a closed notation elsewhere would take
+ * away, and [!] is the boolean negation beside the logical [~], which stays
+ * in [jwa_type_scope] because a proposition is what the tree is mostly about.
  *)
 Declare Scope jwa_bool_scope.
 Delimit Scope jwa_bool_scope with bool.
+
+(* The [Bit] operations, delimited but not opened, under the spellings of
+ * [jwa_bool_scope]: the operations are the same, while a bit is a binary
+ * digit and a [Bool] a truth value.
+ *)
+Declare Scope jwa_bit_scope.
+Delimit Scope jwa_bit_scope with bit.
 
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
