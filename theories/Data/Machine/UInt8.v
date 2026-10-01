@@ -30,6 +30,15 @@ Inductive T : Type :=
 
 Abbreviation UInt8 := T.
 
+(* [UInt8 -> Byte] *)
+Definition to_byte := fun (x : UInt8) .
+  match x with
+  | UInt8_introduction b => b
+  end.
+
+(* [Byte -> UInt8] *)
+Definition from_byte := fun (b : Byte) . UInt8_introduction b.
+
 (* The bits read as a number in base two, the most significant first. *)
 (* [UInt8 -> Nat0] *)
 Definition to_nat0 := fun (x : UInt8) .
@@ -806,6 +815,27 @@ Proof.
                   (conversion.multiplication.step _ _ _ _ &base)))))))).
 Qed.
 
+Module byte. (* conversion.byte *)
+
+(* conversion.byte.retraction *)
+Theorem retraction : forall (b : Byte) . to_byte (from_byte b) = b.
+Proof.
+  intros b.
+  simpl to_byte, from_byte in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.byte.section *)
+Theorem section : forall (x : UInt8) . from_byte (to_byte x) = x.
+Proof.
+  intros x.
+  match &x with | UInt8_introduction b end.
+  simpl to_byte, from_byte in |- *.
+  quod idem est.
+Qed.
+
+End byte. (* conversion.byte *)
+
 End conversion. (* conversion *)
 
 Module addition. (* addition *)
@@ -1126,6 +1156,12 @@ Number Notation UInt8.T UInt8.from_numeral UInt8.to_numeral
  * without its [%uint8].
  *)
 Bind Scope jwa_uint8_scope with UInt8.T.
+
+(* A [UInt8] stands wherever a [Nat0] is expected, read as its value, and the
+ * conversion is printed where it happened.
+ *)
+Coercion UInt8.to_nat0 : UInt8 >-> Nat0.
+Add Printing Coercion UInt8.to_nat0.
 
 Instance UInt8_add_monoid
   : Monoid UInt8.add UInt8.Zero :=

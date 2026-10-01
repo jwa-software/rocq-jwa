@@ -31,6 +31,15 @@ Inductive T : Type :=
 
 Abbreviation Int8 := T.
 
+(* [Int8 -> Byte] *)
+Definition to_byte := fun (x : Int8) .
+  match x with
+  | Int8_introduction b => b
+  end.
+
+(* [Byte -> Int8] *)
+Definition from_byte := fun (b : Byte) . Int8_introduction b.
+
 (* The bits read as a number in base two, the most significant first, from 0
  * to 255: the value of the bit pattern, through which the arithmetic is
  * proved and from which [to_integer] takes the signed value.
@@ -1145,6 +1154,27 @@ Qed.
 
 End right. (* conversion.right *)
 
+Module byte. (* conversion.byte *)
+
+(* conversion.byte.retraction *)
+Theorem retraction : forall (b : Byte) . to_byte (from_byte b) = b.
+Proof.
+  intros b.
+  simpl to_byte, from_byte in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.byte.section *)
+Theorem section : forall (x : Int8) . from_byte (to_byte x) = x.
+Proof.
+  intros x.
+  match &x with | Int8_introduction b end.
+  simpl to_byte, from_byte in |- *.
+  quod idem est.
+Qed.
+
+End byte. (* conversion.byte *)
+
 End conversion. (* conversion *)
 
 Module order. (* order *)
@@ -1224,6 +1254,12 @@ Number Notation Int8.T Int8.from_numeral Int8.to_numeral
  * without its [%int8].
  *)
 Bind Scope jwa_int8_scope with Int8.T.
+
+(* An [Int8] stands wherever an [Integer] is expected, read as its value in
+ * two's complement, and the conversion is printed where it happened.
+ *)
+Coercion Int8.to_integer : Int8 >-> Integer.
+Add Printing Coercion Int8.to_integer.
 
 Instance Int8_add_monoid
   : Monoid Int8.add Int8.Zero :=
