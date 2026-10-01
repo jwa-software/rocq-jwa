@@ -11,6 +11,9 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
+From jwa Require Import Data.Number.Binary.Bin.
+From jwa Require Import Data.Number.Binary.BinBase.
+From jwa Require Import Data.Number.Binary.BinWithZero.
 From jwa Require Import Data.Number.Integer.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.Nat0.
@@ -42,15 +45,17 @@ Definition from_byte := fun (b : Byte) . Int8_introduction b.
 
 (* The bits read as a number in base two, the most significant first, from 0
  * to 255: the value of the bit pattern, through which the arithmetic is
- * proved and from which [to_integer] takes the signed value.
+ * proved and from which [to_bin] takes the signed value; [10] is two in
+ * binary digits.
  *)
-(* [Int8 -> Nat0] *)
+(* [Int8 -> BinWithZero] *)
 Definition unsigned_value := fun (x : Int8) .
   match x with
   | Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-      (2 * (2 * (2 * (2 * (2 * (2 * (2 * Bit.to_nat0 x7 + Bit.to_nat0 x6)
-        + Bit.to_nat0 x5) + Bit.to_nat0 x4) + Bit.to_nat0 x3) + Bit.to_nat0 x2)
-        + Bit.to_nat0 x1) + Bit.to_nat0 x0)%n0
+      (10 * (10 * (10 * (10 * (10 * (10 * (10 * Bit.to_bin_with_zero x7
+        + Bit.to_bin_with_zero x6) + Bit.to_bin_with_zero x5) + Bit.to_bin_with_zero x4)
+        + Bit.to_bin_with_zero x3) + Bit.to_bin_with_zero x2) + Bit.to_bin_with_zero x1)
+        + Bit.to_bin_with_zero x0)%bin_with_zero
   end.
 
 (* The top bit, [Bit.One] for a negative value. *)
@@ -63,9 +68,16 @@ Definition sign_bit := fun (x : Int8) .
 (* The value in two's complement: the unsigned value, less 256 when the sign
  * bit is set.
  *)
+(* [Int8 -> Bin] *)
+Definition to_bin := fun (x : Int8) .
+  Bin.bin_with_zero_difference
+    (unsigned_value x) (100000000 * Bit.to_bin_with_zero (sign_bit x))%bin_with_zero.
+
+(* The value in [Integer], through [to_bin]; [Integer] is unary, so it is for
+ * stating and proving, and computing goes through [to_bin].
+ *)
 (* [Int8 -> Integer] *)
-Definition to_integer := fun (x : Int8) .
-  Integer.nat0_difference (unsigned_value x) (256 * Bit.to_nat0 (sign_bit x))%n0.
+Definition to_integer := fun (x : Int8) . Bin.to_integer (to_bin x).
 
 (* [Int8] *)
 Definition Zero := Int8_introduction Byte.Zero.
@@ -102,6 +114,14 @@ Definition shift_right := fun (x : Int8) (k : Nat0) .
   match k with
   | Nat0.Zero       => x
   | Nat0.Positive n => shift_right_nat x n
+  end.
+
+(* [x] with [b] written after its lowest bit, the highest bit dropped. *)
+(* [Bit -> Int8 -> Int8] *)
+Definition append_bit := fun (b : Bit) (x : Int8) .
+  match x with
+  | Int8_introduction (Byte.Byte_introduction _ x6 x5 x4 x3 x2 x1 x0) =>
+      Int8_introduction (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 b)
   end.
 
 (* The carry out and the sum of [carry + x + y], the carry rippling up from
@@ -194,20 +214,36 @@ Definition mul := fun (x : Int8) (y : Int8) .
 Notation "x * y" := (mul x y) (only parsing)
   : jwa_int8_scope.
 
-(* The bit pattern of [n] modulo 256, counted up from [One]. *)
-(* [Nat -> Int8] *)
-Fixpoint from_nat (n : Nat) : Int8 :=
-  match n with
-  | Nat.One          => One
-  | Nat.Successor n' => add (from_nat n') One
+(* The bit pattern of [p] modulo 256, its bits appended from the most
+ * significant.
+ *)
+(* [BinBase -> Int8] *)
+Fixpoint from_bin_base (p : BinBase) : Int8 :=
+  match p with
+  | BinBase.One   => One
+  | BinBase.b0 p' => append_bit Bit.Zero (from_bin_base p')
+  | BinBase.b1 p' => append_bit Bit.One (from_bin_base p')
   end.
 
-(* [Nat0 -> Int8] *)
-Definition from_nat0 := fun (n : Nat0) .
+(* [BinWithZero -> Int8] *)
+Definition from_bin_with_zero := fun (n : BinWithZero) .
   match n with
-  | Nat0.Zero       => Zero
-  | Nat0.Positive p => from_nat p
+  | BinWithZero.Zero       => Zero
+  | BinWithZero.Positive p => from_bin_base p
   end.
+
+(* [Nat -> Int8] *)
+Definition from_nat := fun (n : Nat) . from_bin_base (BinBase.from_nat n).
+
+(* [Nat0 -> Int8] *)
+Definition from_nat0 := fun (n : Nat0) . from_bin_with_zero (BinWithZero.from_nat0 n).
+
+(* [z] modulo 256 into the range -128 to 127: its positive part less its
+ * negative part, wrapping.
+ *)
+(* [Bin -> Int8] *)
+Definition from_bin := fun (z : Bin) .
+  add (from_bin_with_zero (Bin.ramp z)) (negate (from_bin_with_zero (Bin.ramp (Bin.negate z)))).
 
 (* [x] modulo 256 into the range -128 to 127. *)
 (* [Integer -> Int8] *)
@@ -231,7 +267,7 @@ Definition add_with_overflow := fun (x : Int8) (y : Int8) .
   (flag, add x y)%product.
 
 (* [Int8 -> Int8 -> Prop] *)
-Definition LessThan := fun (x : Int8) (y : Int8) . (to_integer x < to_integer y)%z.
+Definition LessThan := fun (x : Int8) (y : Int8) . (to_bin x < to_bin y)%b.
 
 Notation "x < y" := (LessThan x y) (only parsing)
   : jwa_int8_scope.
@@ -253,7 +289,7 @@ Notation "'(<=)'" := LessOrEqual (only parsing)
   : jwa_int8_scope.
 
 (* [Int8 -> Int8 -> Comparison] *)
-Definition compare := fun (x : Int8) (y : Int8) . Integer.compare (to_integer x) (to_integer y).
+Definition compare := fun (x : Int8) (y : Int8) . Bin.compare (to_bin x) (to_bin y).
 
 (* [Int8 -> Int8 -> Bool] *)
 Abbreviation eq := (Comparable.eq compare).
@@ -267,161 +303,84 @@ Abbreviation min := (Comparable.min compare).
 (* [Int8 -> Int8 -> Int8] *)
 Abbreviation max := (Comparable.max compare).
 
-(* [n] followed by the digit [d] in base [base], [None] once the value
- * passes [limit] and from then on, so that a literal of any length is
- * refused without its value being built.
- *)
-(* [Nat0 -> Nat0 -> Option Nat0 -> Option Nat -> Option Nat0] *)
-Definition append_digit :=
-  fun (limit : Nat0) (base : Nat0) (n : Option Nat0) (d : Option Nat) .
-    match n with
-    | None   => None
-    | Some m =>
-        let v :=
-          (m * base
-            + match d with
-              | Some k => Nat0.Positive k
-              | None   => 0
-              end)%n0 in
-        match Nat0.compare v limit with
-        | Comparison.Lt => Some v
-        | Comparison.Eq => Some v
-        | Comparison.Gt => None
-        end
-    end.
-
-(* [n] with the decimal digits [d] appended, most significant first. *)
-(* [Nat0 -> Option Nat0 -> Numeral.Decimal.Digits -> Option Nat0] *)
-Fixpoint from_decimal
-  (limit : Nat0) (n : Option Nat0) (d : Numeral.Decimal.Digits) : Option Nat0 :=
-  match d with
-  | Numeral.Decimal.Digits.End      => n
-  | Numeral.Decimal.Digits.Zero d'  =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.One d'   =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Two d'   =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Three d' =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Four d'  =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Five d'  =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Six d'   =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Seven d' =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Eight d' =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  | Numeral.Decimal.Digits.Nine d'  =>
-      from_decimal limit (append_digit limit 10%n0 n (Nat.decimal_value d)) d'
-  end.
-
-(* [n] with the hexadecimal digits [h] appended, most significant first. *)
-(* [Nat0 -> Option Nat0 -> Numeral.Hexadecimal.Digits -> Option Nat0] *)
-Fixpoint from_hexadecimal
-  (limit : Nat0) (n : Option Nat0) (h : Numeral.Hexadecimal.Digits) : Option Nat0 :=
-  match h with
-  | Numeral.Hexadecimal.Digits.End         => n
-  | Numeral.Hexadecimal.Digits.Zero h'     =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.One h'      =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Two h'      =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Three h'    =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Four h'     =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Five h'     =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Six h'      =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Seven h'    =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Eight h'    =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Nine h'     =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Ten h'      =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Eleven h'   =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Twelve h'   =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Thirteen h' =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Fourteen h' =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  | Numeral.Hexadecimal.Digits.Fifteen h'  =>
-      from_hexadecimal limit (append_digit limit 16%n0 n (Nat.hexadecimal_value h)) h'
-  end.
-
-(* A literal of -128 to 127, in decimal or hexadecimal; any wider is
- * refused.
+(* A literal of -128 to 127, in decimal or hexadecimal, read in binary; any
+ * wider is refused.
  *)
 (* [Numeral.Signed -> Option Int8] *)
 Definition from_numeral := fun (s : Numeral.Signed) .
-  let positive := fun (v : Option Nat0) .
-    match v with
-    | Some n => Some (from_nat0 n)
-    | None   => None
+  let positive := fun (v : BinWithZero) .
+    match BinWithZero.compare v 1111111%bin_with_zero with
+    | Comparison.Lt => Some (from_bin_with_zero v)
+    | Comparison.Eq => Some (from_bin_with_zero v)
+    | Comparison.Gt => None
     end in
-  let negative := fun (v : Option Nat0) .
-    match v with
-    | Some n => Some (negate (from_nat0 n))
-    | None   => None
+  let negative := fun (v : BinWithZero) .
+    match BinWithZero.compare v 10000000%bin_with_zero with
+    | Comparison.Lt => Some (negate (from_bin_with_zero v))
+    | Comparison.Eq => Some (negate (from_bin_with_zero v))
+    | Comparison.Gt => None
     end in
   match s with
   | Numeral.Signed.Decimal (Numeral.Decimal.Signed.Positive d) =>
-      positive (from_decimal 127%n0 (Some 0%n0) d)
+      positive (BinWithZero.from_decimal 0%bin_with_zero d)
   | Numeral.Signed.Decimal (Numeral.Decimal.Signed.Negative d) =>
-      negative (from_decimal 128%n0 (Some 0%n0) d)
+      negative (BinWithZero.from_decimal 0%bin_with_zero d)
   | Numeral.Signed.Hexadecimal (Numeral.Hexadecimal.Signed.Positive h) =>
-      positive (from_hexadecimal 127%n0 (Some 0%n0) h)
+      positive (BinWithZero.from_hexadecimal 0%bin_with_zero h)
   | Numeral.Signed.Hexadecimal (Numeral.Hexadecimal.Signed.Negative h) =>
-      negative (from_hexadecimal 128%n0 (Some 0%n0) h)
+      negative (BinWithZero.from_hexadecimal 0%bin_with_zero h)
   end.
 
-(* [x] as a literal, in decimal. *)
+(* [x] as a literal, in decimal; zero prints as [0], not [-0]. *)
 (* [Int8 -> Numeral.Signed] *)
-Definition to_numeral := fun (x : Int8) . Integer.to_numeral (to_integer x).
+Definition to_numeral := fun (x : Int8) .
+  match to_bin x with
+  | Bin.Negative p =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Negative (BinWithZero.to_decimal (BinWithZero.Positive p)))
+  | Bin.Zero =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Positive
+          (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End))
+  | Bin.Positive p =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Positive (BinWithZero.to_decimal (BinWithZero.Positive p)))
+  end.
 
 Local Open Scope jwa_int8_scope.
 
 Module valuation. (* valuation *)
 
 (* valuation.zero *)
-Theorem zero : unsigned_value Zero = 0%n0.
+Theorem zero : unsigned_value Zero = 0%bin_with_zero.
 Proof.
   simpl in |- *.
   quod idem est.
 Qed.
 
 (* valuation.one *)
-Theorem one : unsigned_value One = 1%n0.
+Theorem one : unsigned_value One = 1%bin_with_zero.
 Proof.
   simpl in |- *.
   quod idem est.
 Qed.
 
 (* valuation.boundedness *)
-Theorem boundedness : forall (x : Int8) . (unsigned_value x < 256)%n0.
+Theorem boundedness : forall (x : Int8) . (unsigned_value x < 100000000)%bin_with_zero.
 Proof.
   intros x.
   match &x with | Int8_introduction xb end.
   match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl unsigned_value in |- *.
   ipso
-    (Bit.conversion.boundedness.propagation _ _ _
-      (Bit.conversion.boundedness.propagation _ _ _
-        (Bit.conversion.boundedness.propagation _ _ _
-          (Bit.conversion.boundedness.propagation _ _ _
-            (Bit.conversion.boundedness.propagation _ _ _
-              (Bit.conversion.boundedness.propagation _ _ _
-                (Bit.conversion.boundedness.propagation _ _ _
-                  (Bit.conversion.boundedness &x7)))))))).
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+      (Bit.conversion.binary.boundedness.propagation _ _ _
+        (Bit.conversion.binary.boundedness.propagation _ _ _
+          (Bit.conversion.binary.boundedness.propagation _ _ _
+            (Bit.conversion.binary.boundedness.propagation _ _ _
+              (Bit.conversion.binary.boundedness.propagation _ _ _
+                (Bit.conversion.binary.boundedness.propagation _ _ _
+                  (Bit.conversion.binary.boundedness &x7)))))))).
 Qed.
 
 (* valuation.injectivity *)
@@ -434,28 +393,29 @@ Proof.
   match &y with | Int8_introduction yb end.
   match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value in &e.
-  match (Bit.conversion.halving.injectivity &e) with | e1 b0 end.
-  match (Bit.conversion.halving.injectivity &e1) with | e2 b1 end.
-  match (Bit.conversion.halving.injectivity &e2) with | e3 b2 end.
-  match (Bit.conversion.halving.injectivity &e3) with | e4 b3 end.
-  match (Bit.conversion.halving.injectivity &e4) with | e5 b4 end.
-  match (Bit.conversion.halving.injectivity &e5) with | e6 b5 end.
-  match (Bit.conversion.halving.injectivity &e6) with | e7 b6 end.
+  match (Bit.conversion.binary.halving.injectivity &e) with | e1 b0 end.
+  match (Bit.conversion.binary.halving.injectivity &e1) with | e2 b1 end.
+  match (Bit.conversion.binary.halving.injectivity &e2) with | e3 b2 end.
+  match (Bit.conversion.binary.halving.injectivity &e3) with | e4 b3 end.
+  match (Bit.conversion.binary.halving.injectivity &e4) with | e5 b4 end.
+  match (Bit.conversion.binary.halving.injectivity &e5) with | e6 b5 end.
+  match (Bit.conversion.binary.halving.injectivity &e6) with | e7 b6 end.
   leibniz
-    &b0, &b1, &b2, &b3, &b4, &b5, &b6, (Bit.conversion.injectivity &e7)
+    &b0, &b1, &b2, &b3, &b4, &b5, &b6, (Bit.conversion.binary.injectivity &e7)
     in |- *.
   quod idem est.
 Qed.
 
 (* The numbers are added place by place from the most significant, each
- * place one [Bit.conversion.carry.propagation] around the places above it.
+ * place one [Bit.conversion.binary.carry.propagation] around the places
+ * above it.
  *)
 (* valuation.carry *)
 Theorem carry
   : forall (carry : Bit) (x : Int8) (y : Int8) .
-      (Bit.to_nat0 carry + unsigned_value x + unsigned_value y
-        = 256 * Bit.to_nat0 (pi_1 (add_with_carry carry x y))%product
-          + unsigned_value (pi_2 (add_with_carry carry x y))%product)%n0.
+      (Bit.to_bin_with_zero carry + unsigned_value x + unsigned_value y
+        = 100000000 * Bit.to_bin_with_zero (pi_1 (add_with_carry carry x y))%product
+          + unsigned_value (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
 Proof.
   intros carry x y.
   match &x with | Int8_introduction xb end.
@@ -464,22 +424,23 @@ Proof.
   match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value, add_with_carry in |- *.
   ipso
-    (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-      (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-        (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-          (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-            (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-              (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-                (Bit.conversion.carry.propagation _ _ _ _ _ _ _ _
-                  (Bit.conversion.carry _ &x7 &y7)))))))).
+    (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+      (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+        (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+          (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+            (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+              (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+                (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
+                  (Bit.conversion.binary.carry _ &x7 &y7)))))))).
 Qed.
 
 (* valuation.borrow *)
 Theorem borrow
   : forall (borrow : Bit) (x : Int8) (y : Int8) .
-      (unsigned_value x + 256 * Bit.to_nat0 (pi_1 (sub_with_borrow borrow x y))%product
-        = unsigned_value y + Bit.to_nat0 borrow
-          + unsigned_value (pi_2 (sub_with_borrow borrow x y))%product)%n0.
+      (unsigned_value x
+        + 100000000 * Bit.to_bin_with_zero (pi_1 (sub_with_borrow borrow x y))%product
+        = unsigned_value y + Bit.to_bin_with_zero borrow
+          + unsigned_value (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
 Proof.
   intros borrow x y.
   match &x with | Int8_introduction xb end.
@@ -488,42 +449,44 @@ Proof.
   match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value, sub_with_borrow in |- *.
   ipso
-    (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-      (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-        (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-          (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-            (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-              (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-                (Bit.conversion.borrow.propagation _ _ _ _ _ _ _ _
-                  (Bit.conversion.borrow _ &x7 &y7)))))))).
+    (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+      (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+        (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+          (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+            (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+              (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+                (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
+                  (Bit.conversion.binary.borrow _ &x7 &y7)))))))).
 Qed.
 
 (* valuation.addition *)
 Theorem addition
   : forall (x : Int8) (y : Int8) .
-      unsigned_value (x + y) = ((unsigned_value x + unsigned_value y) %. 256)%n0.
+      (unsigned_value (x + y)%int8
+        = (unsigned_value x + unsigned_value y) %. 100000000%bin_base)%bin_with_zero.
 Proof.
   intros x y.
   lemma witness
-    : (Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product * 256
+    : (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product * 100000000
         + unsigned_value (&x + &y)%int8
         = unsigned_value &x + unsigned_value &y
-      /\ unsigned_value (&x + &y)%int8 < 256)%n0.
+      /\ unsigned_value (&x + &y)%int8 < 100000000)%bin_with_zero.
   {
     divide et impera.
     - simpl add in |- *.
       leibniz
-        (Nat0.multiplication.commutativity
-          (Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product) 256%n0),
+        (BinWithZero.multiplication.commutativity
+          (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
+          100000000%bin_with_zero),
         <- (valuation.carry Bit.Zero &x &y)
         in |- *.
       simpl in |- *.
       quod idem est.
     - ipso (valuation.boundedness (&x + &y)).
   }
-  match (Nat0.division.uniqueness
-          (unsigned_value &x + unsigned_value &y)%n0 256%n
-          (Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product)
+  match (BinWithZero.division.uniqueness
+          (unsigned_value &x + unsigned_value &y)%bin_with_zero 100000000%bin_base
+          (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
           (unsigned_value (&x + &y)%int8)
           &witness)
   with | _ facto end.
@@ -533,37 +496,42 @@ Qed.
 (* valuation.subtraction *)
 Theorem subtraction
   : forall (x : Int8) (y : Int8) .
-      ((unsigned_value (sub x y) + unsigned_value y) %. 256 = unsigned_value x)%n0.
+      ((unsigned_value (sub x y) + unsigned_value y) %. 100000000%bin_base
+        = unsigned_value x)%bin_with_zero.
 Proof.
   intros x y.
   lemma witness
-    : (Bit.to_nat0 (pi_1 (sub_with_borrow Bit.Zero &x &y))%product * 256 + unsigned_value &x
+    : (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product * 100000000
+        + unsigned_value &x
         = unsigned_value (sub &x &y) + unsigned_value &y
-      /\ unsigned_value &x < 256)%n0.
+      /\ unsigned_value &x < 100000000)%bin_with_zero.
   {
     divide et impera.
     - simpl sub in |- *.
       leibniz
-        (Nat0.multiplication.commutativity
-          (Bit.to_nat0 (pi_1 (sub_with_borrow Bit.Zero &x &y))%product) 256%n0),
-        (Nat0.addition.commutativity
-          (256 * Bit.to_nat0 (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)%n0
+        (BinWithZero.multiplication.commutativity
+          (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
+          100000000%bin_with_zero),
+        (BinWithZero.addition.commutativity
+          (100000000
+            * Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)%bin_with_zero
           (unsigned_value &x)),
         (valuation.borrow Bit.Zero &x &y),
-        (Nat0.addition.commutativity (unsigned_value &y) (Bit.to_nat0 Bit.Zero))
+        (BinWithZero.addition.commutativity
+          (unsigned_value &y) (Bit.to_bin_with_zero Bit.Zero))
         in |- *.
       simpl in |- *.
       leibniz
-        (Nat0.addition.commutativity
+        (BinWithZero.addition.commutativity
           (unsigned_value &y)
           (unsigned_value (pi_2 (sub_with_borrow Bit.Zero &x &y))%product))
         in |- *.
       quod idem est.
     - ipso (valuation.boundedness &x).
   }
-  match (Nat0.division.uniqueness
-          (unsigned_value (sub &x &y) + unsigned_value &y)%n0 256%n
-          (Bit.to_nat0 (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
+  match (BinWithZero.division.uniqueness
+          (unsigned_value (sub &x &y) + unsigned_value &y)%bin_with_zero 100000000%bin_base
+          (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
           (unsigned_value &x)
           &witness)
   with | _ facto end.
@@ -572,7 +540,9 @@ Qed.
 
 (* valuation.negation *)
 Theorem negation
-  : forall (x : Int8) . ((unsigned_value (- x)%int8 + unsigned_value x) %. 256 = 0)%n0.
+  : forall (x : Int8) .
+      ((unsigned_value (- x)%int8 + unsigned_value x) %. 100000000%bin_base
+        = 0)%bin_with_zero.
 Proof.
   intros x.
   simpl negate in |- *.
@@ -580,53 +550,175 @@ Proof.
   quod idem est.
 Qed.
 
+(* The bits of [x] and then [b] read from the most significant: [b] goes in
+ * below and the highest bit falls out, one
+ * [Bit.conversion.binary.appending.propagation] per place.
+ *)
+(* valuation.appending *)
+Theorem appending
+  : forall (b : Bit) (x : Int8) .
+      (unsigned_value (append_bit b x)
+        = (10 * unsigned_value x + Bit.to_bin_with_zero b) %. 100000000%bin_base)%bin_with_zero.
+Proof.
+  intros b x.
+  match &x with | Int8_introduction xb end.
+  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  lemma witness
+    : (Bit.to_bin_with_zero &x7 * 100000000
+        + unsigned_value
+            (append_bit &b
+              (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+        = 10
+            * unsigned_value
+                (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+          + Bit.to_bin_with_zero &b
+      /\ unsigned_value
+          (append_bit &b
+            (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+        < 100000000)%bin_with_zero.
+  {
+    divide et impera.
+    - lemma top
+        : (Bit.to_bin_with_zero &x7 = Bit.to_bin_with_zero &x7 * 1 + 0)%bin_with_zero.
+      {
+        match (BinWithZero.addition.identity (Bit.to_bin_with_zero &x7 * 1)%bin_with_zero)
+        with | _ sum end.
+        match (BinWithZero.multiplication.identity (Bit.to_bin_with_zero &x7))
+        with | _ product end.
+        leibniz &sum, &product in |- *.
+        quod idem est.
+      }
+      simpl unsigned_value, append_bit in |- *.
+      ipso
+        (symm
+          (Bit.conversion.binary.appending.propagation _ _ _ _ &b
+            (Bit.conversion.binary.appending.propagation _ _ _ _ &x0
+              (Bit.conversion.binary.appending.propagation _ _ _ _ &x1
+                (Bit.conversion.binary.appending.propagation _ _ _ _ &x2
+                  (Bit.conversion.binary.appending.propagation _ _ _ _ &x3
+                    (Bit.conversion.binary.appending.propagation _ _ _ _ &x4
+                      (Bit.conversion.binary.appending.propagation _ _ _ _ &x5
+                        (Bit.conversion.binary.appending.propagation _ _ _ _ &x6
+                          &top))))))))).
+    - ipso
+        (valuation.boundedness
+          (append_bit &b
+            (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
+  }
+  match (BinWithZero.division.uniqueness
+          (10 * unsigned_value
+                  (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+            + Bit.to_bin_with_zero &b)%bin_with_zero
+          100000000%bin_base
+          (Bit.to_bin_with_zero &x7)
+          (unsigned_value
+            (append_bit &b
+              (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
+          &witness)
+  with | _ facto end.
+  ipso (symm &facto).
+Qed.
+
 (* valuation.reduction *)
 Theorem reduction
-  : forall (n : Nat0) . unsigned_value (from_nat0 n) = (n %. 256)%n0.
+  : forall (n : BinWithZero) .
+      unsigned_value (from_bin_with_zero n) = (n %. 100000000%bin_base)%bin_with_zero.
 Proof.
   intros n.
   match &n with | Zero | Positive p end.
-  - simpl Nat0.modulo, Nat0.div, Product.second in |- *.
+  - simpl from_bin_with_zero, BinWithZero.modulo, BinWithZero.div, Product.second in |- *.
     simpl in |- *.
     quod idem est.
-  - simpl from_nat0 in |- *.
-    match p with | One | Successor (p' by IH) end per Nat.induction.
-    + simpl Nat0.modulo, Nat0.div, Product.second in |- *.
+  - simpl from_bin_with_zero in |- *.
+    match p with | One | b0 (p' by IH) | b1 (p' by IH) end per BinBase.induction.
+    + simpl BinWithZero.modulo, BinWithZero.div in |- *.
       simpl in |- *.
       quod idem est.
-    + lemma unfolding : from_nat (Nat.Successor &p') = add (from_nat &p') One.
+    + lemma unfolding
+        : from_bin_base (BinBase.b0 &p') = append_bit Bit.Zero (from_bin_base &p').
       {
-        simpl in |- *.
-        quod idem est.
-      }
-      leibniz &unfolding in |- *.
-      lemma successor
-        : (Nat0.Positive &p' + unsigned_value One = Nat0.Positive (Nat.Successor &p'))%n0.
-      {
-        leibniz
-          (Nat0.addition.commutativity (Nat0.Positive &p') (unsigned_value One))
-          in |- *.
         simpl in |- *.
         quod idem est.
       }
       leibniz
-        (valuation.addition (from_nat &p') One),
+        &unfolding,
+        (valuation.appending Bit.Zero (from_bin_base &p')),
         &IH,
-        (Nat0.modulo.sum.left.absorption (Nat0.Positive &p') (unsigned_value One) 256%n),
-        &successor
+        <- (BinWithZero.modulo.sum.left.absorption
+          (10 * (BinWithZero.Positive &p' %. 100000000%bin_base))%bin_with_zero
+          (Bit.to_bin_with_zero Bit.Zero) 100000000%bin_base),
+        (BinWithZero.modulo.product.right.absorption
+          10%bin_with_zero (BinWithZero.Positive &p') 100000000%bin_base),
+        (BinWithZero.modulo.sum.left.absorption
+          (10 * BinWithZero.Positive &p')%bin_with_zero
+          (Bit.to_bin_with_zero Bit.Zero) 100000000%bin_base)
         in |- *.
+      simpl in |- *.
+      quod idem est.
+    + lemma unfolding
+        : from_bin_base (BinBase.b1 &p') = append_bit Bit.One (from_bin_base &p').
+      {
+        simpl in |- *.
+        quod idem est.
+      }
+      leibniz
+        &unfolding,
+        (valuation.appending Bit.One (from_bin_base &p')),
+        &IH,
+        <- (BinWithZero.modulo.sum.left.absorption
+          (10 * (BinWithZero.Positive &p' %. 100000000%bin_base))%bin_with_zero
+          (Bit.to_bin_with_zero Bit.One) 100000000%bin_base),
+        (BinWithZero.modulo.product.right.absorption
+          10%bin_with_zero (BinWithZero.Positive &p') 100000000%bin_base),
+        (BinWithZero.modulo.sum.left.absorption
+          (10 * BinWithZero.Positive &p')%bin_with_zero
+          (Bit.to_bin_with_zero Bit.One) 100000000%bin_base)
+        in |- *.
+      simpl in |- *.
+      simpl BinBase.add in |- *.
+      simpl in |- *.
       quod idem est.
 Qed.
 
+Module reduction. (* valuation.reduction *)
+
+(* valuation.reduction.additivity *)
+Theorem additivity
+  : forall (m : BinWithZero) (n : BinWithZero) .
+      from_bin_with_zero (m + n)%bin_with_zero = from_bin_with_zero m + from_bin_with_zero n.
+Proof.
+  intros m n.
+  lemma facto
+    : unsigned_value (from_bin_with_zero (&m + &n)%bin_with_zero)
+      = unsigned_value (from_bin_with_zero &m + from_bin_with_zero &n).
+  {
+    leibniz
+      (valuation.reduction (&m + &n)%bin_with_zero),
+      (valuation.addition (from_bin_with_zero &m) (from_bin_with_zero &n)),
+      (valuation.reduction &m),
+      (valuation.reduction &n),
+      (BinWithZero.modulo.sum.left.absorption
+        &m (&n %. 100000000%bin_base)%bin_with_zero 100000000%bin_base),
+      (BinWithZero.modulo.sum.right.absorption &m &n 100000000%bin_base)
+      in |- *.
+    quod idem est.
+  }
+  ipso (valuation.injectivity &facto).
+Qed.
+
+End reduction. (* valuation.reduction *)
+
 (* valuation.section *)
-Theorem section : forall (x : Int8) . from_nat0 (unsigned_value x) = x.
+Theorem section : forall (x : Int8) . from_bin_with_zero (unsigned_value x) = x.
 Proof.
   intros x.
-  lemma facto : unsigned_value (from_nat0 (unsigned_value &x)) = unsigned_value &x.
+  lemma facto
+    : unsigned_value (from_bin_with_zero (unsigned_value &x)) = unsigned_value &x.
   {
     leibniz
       (valuation.reduction (unsigned_value &x)),
-      (Nat0.modulo.identity (unsigned_value &x) 256%n (valuation.boundedness &x))
+      (BinWithZero.modulo.identity
+        (unsigned_value &x) 100000000%bin_base (valuation.boundedness &x))
       in |- *.
     quod idem est.
   }
@@ -638,34 +730,22 @@ Module left. (* valuation.left *)
 (* valuation.left.doubling *)
 Lemma doubling
   : forall (x : Int8) .
-      unsigned_value (shift_left x 1%n0) = ((2 * unsigned_value x) %. 256)%n0.
+      (unsigned_value (shift_left x 1%n0)
+        = (10 * unsigned_value x) %. 100000000%bin_base)%bin_with_zero.
 Proof.
   intros x.
-  lemma sum : shift_left &x 1%n0 = &x + &x.
+  lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
   {
     match &x with | Int8_introduction xb end.
     match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-    match &x7 with | Zero | One end;
-      match &x6 with | Zero | One end;
-      match &x5 with | Zero | One end;
-      match &x4 with | Zero | One end;
-      match &x3 with | Zero | One end;
-      match &x2 with | Zero | One end;
-      match &x1 with | Zero | One end;
-      match &x0 with | Zero | One end;
-      simpl add in |- *;
-      simpl in |- *;
-      quod idem est.
+    simpl in |- *.
+    quod idem est.
   }
-  lemma twice : (2 * unsigned_value &x = unsigned_value &x + unsigned_value &x)%n0.
-  {
-    match (unsigned_value &x) with | Zero | Positive q end.
-    - simpl in |- *.
-      quod idem est.
-    - simpl in |- *.
-      quod idem est.
-  }
-  leibniz &sum, (valuation.addition &x &x), &twice in |- *.
+  match (BinWithZero.addition.identity (10 * unsigned_value &x)%bin_with_zero)
+  with | _ sum end.
+  leibniz &appended, (valuation.appending Bit.Zero &x) in |- *.
+  simpl Bit.to_bin_with_zero in |- *.
+  leibniz &sum in |- *.
   quod idem est.
 Qed.
 
@@ -676,75 +756,81 @@ Module multiplication. (* valuation.multiplication *)
 (* One step of [mul]: the product so far doubled, plus [x] for a 1. *)
 (* valuation.multiplication.step *)
 Lemma step
-  : forall (x : Int8) (p : Int8) (h : Nat0) (b : Bit) .
-      unsigned_value p = ((unsigned_value x * h) %. 256)%n0 ->
+  : forall (x : Int8) (p : Int8) (h : BinWithZero) (b : Bit) .
+      (unsigned_value p = (unsigned_value x * h) %. 100000000%bin_base)%bin_with_zero ->
       unsigned_value
         (add (shift_left p 1%n0)
           match b with
           | Bit.Zero => Zero
           | Bit.One  => x
           end)
-      = ((unsigned_value x * (2 * h + Bit.to_nat0 b)) %. 256)%n0.
+      = ((unsigned_value x * (10 * h + Bit.to_bin_with_zero b))
+          %. 100000000%bin_base)%bin_with_zero.
 Proof.
   intros x p h b e.
   lemma doubled
-    : ((2 * unsigned_value &p) %. 256 = (2 * (unsigned_value &x * &h)) %. 256)%n0.
+    : ((10 * unsigned_value &p) %. 100000000%bin_base
+        = (10 * (unsigned_value &x * &h)) %. 100000000%bin_base)%bin_with_zero.
   {
     leibniz
       &e,
-      (Nat0.modulo.product.right.absorption 2%n0 (unsigned_value &x * &h)%n0 256%n)
+      (BinWithZero.modulo.product.right.absorption
+        10%bin_with_zero (unsigned_value &x * &h)%bin_with_zero 100000000%bin_base)
       in |- *.
     quod idem est.
   }
   lemma regrouped
-    : (unsigned_value &x * (2 * &h) = 2 * (unsigned_value &x * &h))%n0.
+    : (unsigned_value &x * (10 * &h) = 10 * (unsigned_value &x * &h))%bin_with_zero.
   {
     leibniz
-      <- (Nat0.multiplication.associativity (unsigned_value &x) 2%n0 &h),
-      (Nat0.multiplication.commutativity (unsigned_value &x) 2%n0),
-      (Nat0.multiplication.associativity 2%n0 (unsigned_value &x) &h)
+      <- (BinWithZero.multiplication.associativity (unsigned_value &x) 10%bin_with_zero &h),
+      (BinWithZero.multiplication.commutativity (unsigned_value &x) 10%bin_with_zero),
+      (BinWithZero.multiplication.associativity 10%bin_with_zero (unsigned_value &x) &h)
       in |- *.
     quod idem est.
   }
   match &b with | Zero | One end.
   - lemma facto
       : unsigned_value (add (shift_left &p 1%n0) Zero)
-        = ((unsigned_value &x * (2 * &h + Bit.to_nat0 Bit.Zero)) %. 256)%n0.
+        = ((unsigned_value &x * (10 * &h + Bit.to_bin_with_zero Bit.Zero))
+            %. 100000000%bin_base)%bin_with_zero.
     {
-      match (Nat0.addition.identity (2 * unsigned_value &p)%n0) with | _ right end.
-      match (Nat0.addition.identity (2 * &h)%n0) with | _ right' end.
+      match (BinWithZero.addition.identity (10 * unsigned_value &p)%bin_with_zero)
+      with | _ right end.
+      match (BinWithZero.addition.identity (10 * &h)%bin_with_zero) with | _ right' end.
       leibniz
         (valuation.addition (shift_left &p 1%n0) Zero),
         (valuation.left.doubling &p),
         valuation.zero,
-        (Nat0.modulo.sum.left.absorption (2 * unsigned_value &p)%n0 0%n0 256%n),
+        (BinWithZero.modulo.sum.left.absorption
+          (10 * unsigned_value &p)%bin_with_zero 0%bin_with_zero 100000000%bin_base),
         &right,
         &doubled
         in |- *.
-      simpl Bit.to_nat0 in |- *.
+      simpl Bit.to_bin_with_zero in |- *.
       leibniz &right', &regrouped in |- *.
       quod idem est.
     }
     ipso facto.
   - lemma facto
       : unsigned_value (add (shift_left &p 1%n0) &x)
-        = ((unsigned_value &x * (2 * &h + Bit.to_nat0 Bit.One)) %. 256)%n0.
+        = ((unsigned_value &x * (10 * &h + Bit.to_bin_with_zero Bit.One))
+            %. 100000000%bin_base)%bin_with_zero.
     {
-      match (Nat0.multiplication.identity (unsigned_value &x)) with | _ right end.
+      match (BinWithZero.multiplication.identity (unsigned_value &x)) with | _ right end.
+      match (BinWithZero.multiplication.distributivity.over.addition
+              (unsigned_value &x) (10 * &h)%bin_with_zero 1%bin_with_zero)
+      with | spread _ end.
       leibniz
         (valuation.addition (shift_left &p 1%n0) &x),
         (valuation.left.doubling &p),
         &doubled,
-        (Nat0.modulo.sum.left.absorption
-          (2 * (unsigned_value &x * &h))%n0 (unsigned_value &x) 256%n)
+        (BinWithZero.modulo.sum.left.absorption
+          (10 * (unsigned_value &x * &h))%bin_with_zero (unsigned_value &x)
+          100000000%bin_base)
         in |- *.
-      simpl Bit.to_nat0 in |- *.
-      leibniz
-        (Nat0.multiplication.left.distributivity.over.addition
-          (unsigned_value &x) (2 * &h)%n0 1%n0),
-        &right,
-        &regrouped
-        in |- *.
+      simpl Bit.to_bin_with_zero in |- *.
+      leibniz &spread, &right, &regrouped in |- *.
       quod idem est.
     }
     ipso facto.
@@ -755,14 +841,17 @@ End multiplication. (* valuation.multiplication *)
 (* valuation.multiplication *)
 Theorem multiplication
   : forall (x : Int8) (y : Int8) .
-      unsigned_value (x * y) = ((unsigned_value x * unsigned_value y) %. 256)%n0.
+      (unsigned_value (x * y)%int8
+        = (unsigned_value x * unsigned_value y) %. 100000000%bin_base)%bin_with_zero.
 Proof.
   intros x y.
-  lemma base : unsigned_value Zero = ((unsigned_value &x * 0) %. 256)%n0.
+  lemma base
+    : (unsigned_value Zero
+        = (unsigned_value &x * 0) %. 100000000%bin_base)%bin_with_zero.
   {
-    match (Nat0.multiplication.annihilation (unsigned_value &x)) with | _ right end.
+    match (BinWithZero.multiplication.annihilation (unsigned_value &x)) with | _ right end.
     leibniz &right, valuation.zero in |- *.
-    simpl Nat0.modulo, Nat0.div, Product.second in |- *.
+    simpl BinWithZero.modulo, BinWithZero.div, Product.second in |- *.
     quod idem est.
   }
   match &y with | Int8_introduction yb end.
@@ -793,13 +882,15 @@ Proof.
     leibniz
       (valuation.addition (&x + &y) &z),
       (valuation.addition &x &y),
-      (Nat0.modulo.sum.left.absorption
-        (unsigned_value &x + unsigned_value &y)%n0 (unsigned_value &z) 256%n),
+      (BinWithZero.modulo.sum.left.absorption
+        (unsigned_value &x + unsigned_value &y)%bin_with_zero (unsigned_value &z)
+        100000000%bin_base),
       (valuation.addition &x (&y + &z)),
       (valuation.addition &y &z),
-      (Nat0.modulo.sum.right.absorption
-        (unsigned_value &x) (unsigned_value &y + unsigned_value &z)%n0 256%n),
-      (Nat0.addition.associativity
+      (BinWithZero.modulo.sum.right.absorption
+        (unsigned_value &x) (unsigned_value &y + unsigned_value &z)%bin_with_zero
+        100000000%bin_base),
+      (BinWithZero.addition.associativity
         (unsigned_value &x) (unsigned_value &y) (unsigned_value &z))
       in |- *.
     quod idem est.
@@ -816,7 +907,7 @@ Proof.
     leibniz
       (valuation.addition &x &y),
       (valuation.addition &y &x),
-      (Nat0.addition.commutativity (unsigned_value &x) (unsigned_value &y))
+      (BinWithZero.addition.commutativity (unsigned_value &x) (unsigned_value &y))
       in |- *.
     quod idem est.
   }
@@ -831,12 +922,13 @@ Proof.
   {
     lemma facto : unsigned_value (Zero + &x) = unsigned_value &x.
     {
-      match (Nat0.addition.identity (unsigned_value &x)) with | left _ end.
+      match (BinWithZero.addition.identity (unsigned_value &x)) with | left _ end.
       leibniz
         (valuation.addition Zero &x),
         valuation.zero,
         &left,
-        (Nat0.modulo.identity (unsigned_value &x) 256%n (valuation.boundedness &x))
+        (BinWithZero.modulo.identity
+          (unsigned_value &x) 100000000%bin_base (valuation.boundedness &x))
         in |- *.
       quod idem est.
     }
@@ -885,13 +977,15 @@ Proof.
     leibniz
       (valuation.multiplication (&x * &y) &z),
       (valuation.multiplication &x &y),
-      (Nat0.modulo.product.left.absorption
-        (unsigned_value &x * unsigned_value &y)%n0 (unsigned_value &z) 256%n),
+      (BinWithZero.modulo.product.left.absorption
+        (unsigned_value &x * unsigned_value &y)%bin_with_zero (unsigned_value &z)
+        100000000%bin_base),
       (valuation.multiplication &x (&y * &z)),
       (valuation.multiplication &y &z),
-      (Nat0.modulo.product.right.absorption
-        (unsigned_value &x) (unsigned_value &y * unsigned_value &z)%n0 256%n),
-      (Nat0.multiplication.associativity
+      (BinWithZero.modulo.product.right.absorption
+        (unsigned_value &x) (unsigned_value &y * unsigned_value &z)%bin_with_zero
+        100000000%bin_base),
+      (BinWithZero.multiplication.associativity
         (unsigned_value &x) (unsigned_value &y) (unsigned_value &z))
       in |- *.
     quod idem est.
@@ -908,7 +1002,7 @@ Proof.
     leibniz
       (valuation.multiplication &x &y),
       (valuation.multiplication &y &x),
-      (Nat0.multiplication.commutativity (unsigned_value &x) (unsigned_value &y))
+      (BinWithZero.multiplication.commutativity (unsigned_value &x) (unsigned_value &y))
       in |- *.
     quod idem est.
   }
@@ -923,12 +1017,13 @@ Proof.
   {
     lemma facto : unsigned_value (One * &x) = unsigned_value &x.
     {
-      match (Nat0.multiplication.identity (unsigned_value &x)) with | left _ end.
+      match (BinWithZero.multiplication.identity (unsigned_value &x)) with | left _ end.
       leibniz
         (valuation.multiplication One &x),
         valuation.one,
         &left,
-        (Nat0.modulo.identity (unsigned_value &x) 256%n (valuation.boundedness &x))
+        (BinWithZero.modulo.identity
+          (unsigned_value &x) 100000000%bin_base (valuation.boundedness &x))
         in |- *.
       quod idem est.
     }
@@ -953,22 +1048,26 @@ Proof.
   intros x y z.
   lemma facto : unsigned_value (&x * (&y + &z)) = unsigned_value ((&x * &y) + (&x * &z)).
   {
+    match (BinWithZero.multiplication.distributivity.over.addition
+            (unsigned_value &x) (unsigned_value &y) (unsigned_value &z))
+    with | spread _ end.
     leibniz
       (valuation.multiplication &x (&y + &z)),
       (valuation.addition &y &z),
-      (Nat0.modulo.product.right.absorption
-        (unsigned_value &x) (unsigned_value &y + unsigned_value &z)%n0 256%n),
-      (Nat0.multiplication.left.distributivity.over.addition
-        (unsigned_value &x) (unsigned_value &y) (unsigned_value &z)),
+      (BinWithZero.modulo.product.right.absorption
+        (unsigned_value &x) (unsigned_value &y + unsigned_value &z)%bin_with_zero
+        100000000%bin_base),
+      &spread,
       (valuation.addition (&x * &y) (&x * &z)),
       (valuation.multiplication &x &y),
       (valuation.multiplication &x &z),
-      (Nat0.modulo.sum.left.absorption
-        (unsigned_value &x * unsigned_value &y)%n0
-        ((unsigned_value &x * unsigned_value &z) %. 256)%n0 256%n),
-      (Nat0.modulo.sum.right.absorption
-        (unsigned_value &x * unsigned_value &y)%n0
-        (unsigned_value &x * unsigned_value &z)%n0 256%n)
+      (BinWithZero.modulo.sum.left.absorption
+        (unsigned_value &x * unsigned_value &y)%bin_with_zero
+        ((unsigned_value &x * unsigned_value &z) %. 100000000%bin_base)%bin_with_zero
+        100000000%bin_base),
+      (BinWithZero.modulo.sum.right.absorption
+        (unsigned_value &x * unsigned_value &y)%bin_with_zero
+        (unsigned_value &x * unsigned_value &z)%bin_with_zero 100000000%bin_base)
       in |- *.
     quod idem est.
   }
@@ -1029,27 +1128,101 @@ End multiplication. (* multiplication *)
 
 Module conversion. (* conversion *)
 
-(* Checked byte by byte, the two sides computing to the same bits. *)
+(* The bit pattern of [a - b] is that of [a] less that of [b]. *)
+(* conversion.difference *)
+Lemma difference
+  : forall (a : BinWithZero) (b : BinWithZero) .
+      from_bin (Bin.bin_with_zero_difference a b)
+      = from_bin_with_zero a + - from_bin_with_zero b.
+Proof.
+  intros a b.
+  let proof e := congru from_bin_with_zero, (Bin.difference.specification &a &b).
+  leibniz
+    (valuation.reduction.additivity (Bin.ramp (Bin.bin_with_zero_difference &a &b)) &b),
+    (valuation.reduction.additivity
+      (Bin.ramp (Bin.negate (Bin.bin_with_zero_difference &a &b))) &a)
+    in &e.
+  simpl from_bin in |- *.
+  let p := from_bin_with_zero (Bin.ramp (Bin.bin_with_zero_difference &a &b)) in &e |- *.
+  let q :=
+    from_bin_with_zero (Bin.ramp (Bin.negate (Bin.bin_with_zero_difference &a &b)))
+    in &e |- *.
+  lemma rewritten : &p = (&q + from_bin_with_zero &a) + - from_bin_with_zero &b.
+  {
+    match (addition.inverse (from_bin_with_zero &b)) with | _ cancel end.
+    match (addition.identity &p) with | _ unit end.
+    leibniz
+      <- &e,
+      (addition.associativity &p (from_bin_with_zero &b) (- from_bin_with_zero &b)),
+      &cancel,
+      &unit
+      in |- *.
+    quod idem est.
+  }
+  match (addition.inverse &q) with | _ cancel end.
+  match (addition.identity (- from_bin_with_zero &b)) with | _ unit end.
+  leibniz
+    &rewritten,
+    (addition.commutativity &q (from_bin_with_zero &a)),
+    (addition.associativity (from_bin_with_zero &a) &q (- from_bin_with_zero &b)),
+    (addition.commutativity &q (- from_bin_with_zero &b)),
+    (addition.associativity (from_bin_with_zero &a) (- from_bin_with_zero &b + &q) (- &q)),
+    (addition.associativity (- from_bin_with_zero &b) &q (- &q)),
+    &cancel,
+    &unit
+    in |- *.
+  quod idem est.
+Qed.
+
 (* conversion.section *)
-Theorem section : forall (x : Int8) . from_integer (to_integer x) = x.
+Theorem section : forall (x : Int8) . from_bin (to_bin x) = x.
 Proof.
   intros x.
-  match &x with | Int8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &x7 with | Zero | One end;
-    match &x6 with | Zero | One end;
-    match &x5 with | Zero | One end;
-    match &x4 with | Zero | One end;
-    match &x3 with | Zero | One end;
-    match &x2 with | Zero | One end;
-    match &x1 with | Zero | One end;
-    match &x0 with | Zero | One end;
-    ipso (Identity.reflexivity _).
+  lemma vanishing
+    : from_bin_with_zero (100000000 * Bit.to_bin_with_zero (sign_bit &x))%bin_with_zero = Zero.
+  {
+    lemma facto
+      : unsigned_value
+          (from_bin_with_zero (100000000 * Bit.to_bin_with_zero (sign_bit &x))%bin_with_zero)
+        = unsigned_value Zero.
+    {
+      leibniz
+        (valuation.reduction (100000000 * Bit.to_bin_with_zero (sign_bit &x))%bin_with_zero),
+        valuation.zero
+        in |- *.
+      match (sign_bit &x) with | Zero | One end.
+      - simpl Bit.to_bin_with_zero, BinWithZero.modulo, BinWithZero.div, Product.second
+          in |- *.
+        simpl in |- *.
+        quod idem est.
+      - simpl Bit.to_bin_with_zero, BinWithZero.modulo, BinWithZero.div, Product.second
+          in |- *.
+        simpl in |- *.
+        quod idem est.
+    }
+    ipso (valuation.injectivity &facto).
+  }
+  lemma unsigned : - Zero = Zero.
+  {
+    match (addition.inverse Zero) with | _ right end.
+    match (addition.identity (- Zero)) with | left _ end.
+    ipso (trans (symm &left), &right).
+  }
+  match (addition.identity &x) with | _ right end.
+  simpl to_bin in |- *.
+  leibniz
+    (conversion.difference
+      (unsigned_value &x) (100000000 * Bit.to_bin_with_zero (sign_bit &x))%bin_with_zero),
+    (valuation.section &x),
+    &vanishing,
+    &unsigned,
+    &right
+    in |- *.
+  quod idem est.
 Qed.
 
 (* conversion.injectivity *)
-Theorem injectivity
-  : forall {x : Int8} {y : Int8} . to_integer x = to_integer y -> x = y.
+Theorem injectivity : forall {x : Int8} {y : Int8} . to_bin x = to_bin y -> x = y.
 Proof.
   intros x y e.
   leibniz <- (conversion.section &x), <- (conversion.section &y), &e in |- *.
@@ -1063,9 +1236,9 @@ Qed.
 Lemma sign
   : forall (x : Int8) (y : Int8) .
       (pi_1 (add_with_overflow x y))%product = Bit.Zero ->
-      (Bit.to_nat0 (sign_bit x) + Bit.to_nat0 (sign_bit y)
-        = Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero x y))%product
-          + Bit.to_nat0 (sign_bit (x + y)%int8))%n0.
+      (Bit.to_bin_with_zero (sign_bit x) + Bit.to_bin_with_zero (sign_bit y)
+        = Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero x y))%product
+          + Bit.to_bin_with_zero (sign_bit (x + y)%int8))%bin_with_zero.
 Proof.
   intros x y o.
   match &x with | Int8_introduction xb end.
@@ -1073,83 +1246,223 @@ Proof.
   match &y with | Int8_introduction yb end.
   match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl in &o |- *.
-  ipso (Bit.conversion.carry.conservation _ &x7 &y7 &o).
+  ipso (Bit.conversion.binary.carry.conservation _ &x7 &y7 &o).
 Qed.
 
 (* conversion.addition *)
 Theorem addition
   : forall (x : Int8) (y : Int8) .
       (pi_1 (add_with_overflow x y))%product = Bit.Zero ->
-      to_integer (x + y) = (to_integer x + to_integer y)%z.
+      to_bin (x + y) = (to_bin x + to_bin y)%b.
 Proof.
   intros x y o.
   let proof t := conversion.sign &x &y &o.
   let proof a
     : (unsigned_value &x + unsigned_value &y
-        = 256 * Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product
-          + unsigned_value (&x + &y)%int8)%n0
+        = 100000000 * Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product
+          + unsigned_value (&x + &y)%int8)%bin_with_zero
     := valuation.carry Bit.Zero &x &y.
   lemma balance
     : (unsigned_value (&x + &y)%int8
-        + (256 * Bit.to_nat0 (sign_bit &x) + 256 * Bit.to_nat0 (sign_bit &y))
+        + (100000000 * Bit.to_bin_with_zero (sign_bit &x)
+          + 100000000 * Bit.to_bin_with_zero (sign_bit &y))
         = (unsigned_value &x + unsigned_value &y)
-          + 256 * Bit.to_nat0 (sign_bit (&x + &y)%int8))%n0.
+          + 100000000 * Bit.to_bin_with_zero (sign_bit (&x + &y)%int8))%bin_with_zero.
   {
+    match (BinWithZero.multiplication.distributivity.over.addition
+            100000000%bin_with_zero
+            (Bit.to_bin_with_zero (sign_bit &x)) (Bit.to_bin_with_zero (sign_bit &y)))
+    with | signs _ end.
+    match (BinWithZero.multiplication.distributivity.over.addition
+            100000000%bin_with_zero
+            (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
+            (Bit.to_bin_with_zero (sign_bit (&x + &y)%int8)))
+    with | carries _ end.
     leibniz
-      <- (Nat0.multiplication.left.distributivity.over.addition
-        256%n0 (Bit.to_nat0 (sign_bit &x)) (Bit.to_nat0 (sign_bit &y))),
+      <- &signs,
       &t,
-      (Nat0.multiplication.left.distributivity.over.addition
-        256%n0
-        (Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product)
-        (Bit.to_nat0 (sign_bit (&x + &y)%int8))),
-      <- (Nat0.addition.associativity
+      &carries,
+      <- (BinWithZero.addition.associativity
         (unsigned_value (&x + &y)%int8)
-        (256 * Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product)%n0
-        (256 * Bit.to_nat0 (sign_bit (&x + &y)%int8))%n0),
-      (Nat0.addition.commutativity
+        (100000000
+          * Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)%bin_with_zero
+        (100000000 * Bit.to_bin_with_zero (sign_bit (&x + &y)%int8))%bin_with_zero),
+      (BinWithZero.addition.commutativity
         (unsigned_value (&x + &y)%int8)
-        (256 * Bit.to_nat0 (pi_1 (add_with_carry Bit.Zero &x &y))%product)%n0),
+        (100000000
+          * Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)%bin_with_zero),
       &a
       in |- *.
     quod idem est.
   }
-  simpl to_integer in |- *.
+  simpl to_bin in |- *.
   leibniz
-    (Integer.difference.nat0.additivity
-      (unsigned_value &x) (256 * Bit.to_nat0 (sign_bit &x))%n0
-      (unsigned_value &y) (256 * Bit.to_nat0 (sign_bit &y))%n0)
+    (Bin.difference.additivity
+      (unsigned_value &x) (100000000 * Bit.to_bin_with_zero (sign_bit &x))%bin_with_zero
+      (unsigned_value &y) (100000000 * Bit.to_bin_with_zero (sign_bit &y))%bin_with_zero)
     in |- *.
-  ipso (Integer.difference.nat0.well_definedness &balance).
+  ipso (Bin.difference.invariance &balance).
 Qed.
 
 Module right. (* conversion.right *)
 
 (* A shift to the right by one place halves the value, rounding down: the
- * lowest bit is what it drops.
+ * lowest bit is what it drops, and the sign bit copied in keeps the sign.
  *)
 (* conversion.right.halving *)
 Theorem halving
   : forall (x7 : Bit) (x6 : Bit) (x5 : Bit) (x4 : Bit)
       (x3 : Bit) (x2 : Bit) (x1 : Bit) (x0 : Bit) .
-      to_integer (Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
-      = (2
-          * to_integer
+      to_bin (Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
+      = (10
+          * to_bin
               (shift_right
                 (Int8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
                 1%n0)
-          + Integer.from_nat0 (Bit.to_nat0 x0))%z.
+          + Bin.from_bin_with_zero (Bit.to_bin_with_zero x0))%b.
 Proof.
   intros x7 x6 x5 x4 x3 x2 x1 x0.
-  match &x7 with | Zero | One end;
-    match &x6 with | Zero | One end;
-    match &x5 with | Zero | One end;
-    match &x4 with | Zero | One end;
-    match &x3 with | Zero | One end;
-    match &x2 with | Zero | One end;
-    match &x1 with | Zero | One end;
-    match &x0 with | Zero | One end;
-    ipso (Identity.reflexivity _).
+  lemma shifted
+    : shift_right
+        (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)) 1%n0
+      = Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1).
+  {
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma split
+    : (10 * unsigned_value
+              (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+        + Bit.to_bin_with_zero &x0
+        = Bit.to_bin_with_zero &x7 * 100000000
+          + unsigned_value
+              (Int8_introduction
+                (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))%bin_with_zero.
+  {
+    lemma top
+      : (Bit.to_bin_with_zero &x7 = Bit.to_bin_with_zero &x7 * 1 + 0)%bin_with_zero.
+    {
+      match (BinWithZero.addition.identity (Bit.to_bin_with_zero &x7 * 1)%bin_with_zero)
+      with | _ sum end.
+      match (BinWithZero.multiplication.identity (Bit.to_bin_with_zero &x7))
+      with | _ product end.
+      leibniz &sum, &product in |- *.
+      quod idem est.
+    }
+    simpl unsigned_value in |- *.
+    ipso
+      (Bit.conversion.binary.appending.propagation _ _ _ _ &x0
+        (Bit.conversion.binary.appending.propagation _ _ _ _ &x1
+          (Bit.conversion.binary.appending.propagation _ _ _ _ &x2
+            (Bit.conversion.binary.appending.propagation _ _ _ _ &x3
+              (Bit.conversion.binary.appending.propagation _ _ _ _ &x4
+                (Bit.conversion.binary.appending.propagation _ _ _ _ &x5
+                  (Bit.conversion.binary.appending.propagation _ _ _ _ &x6
+                    (Bit.conversion.binary.appending.propagation _ _ _ _ &x7
+                      &top)))))))).
+  }
+  lemma twice : forall (z : Bin) . (10 * z = z + z)%b.
+  {
+    intros z.
+    lemma ten : (10 = 1 + 1)%b.
+    {
+      simpl Bin.add in |- *.
+      simpl in |- *.
+      simpl BinBase.add in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    match (Bin.multiplication.distributivity.over.addition &z 1%b 1%b) with | _ spread end.
+    match (Bin.multiplication.identity &z) with | unit _ end.
+    leibniz &ten, &spread, &unit in |- *.
+    quod idem est.
+  }
+  lemma doubled
+    : forall (n : BinWithZero) . (n + n = 10 * n)%bin_with_zero.
+  {
+    intros n.
+    lemma ten : (10 = 1 + 1)%bin_with_zero.
+    {
+      simpl in |- *.
+      simpl BinBase.add in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    match (BinWithZero.multiplication.distributivity.over.addition &n 1%bin_with_zero
+            1%bin_with_zero)
+    with | _ spread end.
+    match (BinWithZero.multiplication.identity &n) with | unit _ end.
+    leibniz &ten, &spread, &unit in |- *.
+    quod idem est.
+  }
+  lemma embedding
+    : forall (n : BinWithZero) .
+        Bin.from_bin_with_zero n = Bin.bin_with_zero_difference n 0%bin_with_zero.
+  {
+    intros n.
+    match &n with | Zero | Positive p end; simpl in |- *; quod idem est.
+  }
+  lemma balance
+    : (unsigned_value (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+        + (100000000 * Bit.to_bin_with_zero &x7 + 100000000 * Bit.to_bin_with_zero &x7 + 0)
+        = (unsigned_value
+            (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+          + unsigned_value
+              (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+          + Bit.to_bin_with_zero &x0)
+          + 100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero.
+  {
+    match (BinWithZero.addition.identity
+            (100000000 * Bit.to_bin_with_zero &x7
+              + 100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero)
+    with | _ unit end.
+    leibniz
+      &unit,
+      (&doubled
+        (unsigned_value
+          (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))),
+      &split,
+      (BinWithZero.multiplication.commutativity
+        (Bit.to_bin_with_zero &x7) 100000000%bin_with_zero),
+      (BinWithZero.addition.commutativity
+        (100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero
+        (unsigned_value
+          (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))),
+      (BinWithZero.addition.associativity
+        (unsigned_value
+          (Int8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+        (100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero
+        (100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero)
+      in |- *.
+    quod idem est.
+  }
+  leibniz &shifted in |- *.
+  simpl to_bin, sign_bit in |- *.
+  leibniz
+    (&twice
+      (Bin.bin_with_zero_difference
+        (unsigned_value
+          (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+        (100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero)),
+    (Bin.difference.additivity
+      (unsigned_value
+        (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+      (100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero
+      (unsigned_value
+        (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+      (100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero),
+    (&embedding (Bit.to_bin_with_zero &x0)),
+    (Bin.difference.additivity
+      (unsigned_value
+        (Int8_introduction (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+        + unsigned_value
+            (Int8_introduction
+              (Byte.Byte_introduction &x7 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))%bin_with_zero
+      (100000000 * Bit.to_bin_with_zero &x7
+        + 100000000 * Bit.to_bin_with_zero &x7)%bin_with_zero
+      (Bit.to_bin_with_zero &x0) 0%bin_with_zero)
+    in |- *.
+  ipso (Bin.difference.invariance &balance).
 Qed.
 
 End right. (* conversion.right *)
@@ -1187,7 +1500,7 @@ Theorem transitivity
 Proof.
   intros x y z h1 h2.
   simpl LessThan in &h1, &h2 |- *.
-  ipso (Integer.order.strict.transitivity &h1 &h2).
+  ipso (Bin.order.strict.transitivity &h1 &h2).
 Qed.
 
 End strict. (* order.strict *)
@@ -1203,7 +1516,7 @@ Theorem specification
 Proof.
   intros x y.
   simpl compare, LessThan in |- *.
-  let proof s := Integer.comparison.specification (to_integer &x) (to_integer &y).
+  let proof s := Bin.comparison.specification (to_bin &x) (to_bin &y).
   match &s with | strict equality end.
   divide et impera.
   - ipso &strict.
@@ -1211,7 +1524,7 @@ Proof.
     + intro c.
       ipso (conversion.injectivity (modus aequans &equality, &c)).
     + intro e.
-      ipso (modus aequans &equality, (congru to_integer, &e)).
+      ipso (modus aequans &equality, (congru to_bin, &e)).
 Qed.
 
 (* comparison.antisymmetry *)
@@ -1220,7 +1533,7 @@ Theorem antisymmetry
 Proof.
   intros x y.
   simpl compare in |- *.
-  ipso (Integer.comparison.antisymmetry (to_integer &x) (to_integer &y)).
+  ipso (Bin.comparison.antisymmetry (to_bin &x) (to_bin &y)).
 Qed.
 
 End comparison. (* comparison *)
@@ -1255,9 +1568,12 @@ Number Notation Int8.T Int8.from_numeral Int8.to_numeral
  *)
 Bind Scope jwa_int8_scope with Int8.T.
 
-(* An [Int8] stands wherever an [Integer] is expected, read as its value in
- * two's complement, and the conversion is printed where it happened.
+(* An [Int8] stands wherever a [Bin] is expected, read as its value in two's
+ * complement, and wherever an [Integer] is, through that value; each
+ * conversion is printed where it happened.
  *)
+Coercion Int8.to_bin : Int8 >-> Bin.
+Add Printing Coercion Int8.to_bin.
 Coercion Int8.to_integer : Int8 >-> Integer.
 Add Printing Coercion Int8.to_integer.
 
