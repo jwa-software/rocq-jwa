@@ -170,3 +170,62 @@ Fail Definition data_machine_all_refuses_uint8_literal_large
 Fail Definition data_machine_all_refuses_uint8_literal_long
   : UInt8
   := 99999999999999999999%uint8.
+
+Definition data_machine_all_delivers_int8
+  : Int8
+  := Int8.One.
+
+Definition data_machine_all_delivers_int8_addition
+  : forall (x : Int8) (y : Int8) .
+      (pi_1 (Int8.add_with_overflow x y))%product = Bit.Zero ->
+      Int8.to_integer (x + y)%int8 = (Int8.to_integer x + Int8.to_integer y)%z
+  := Int8.conversion.addition.
+
+Definition data_machine_all_delivers_int8_section
+  : forall (x : Int8) . Int8.from_integer (Int8.to_integer x) = x
+  := Int8.conversion.section.
+
+Definition data_machine_all_delivers_int8_distributivity
+  : forall (x : Int8) (y : Int8) (z : Int8) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%int8
+  := Int8.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_reads_int8_literal_bounds
+  : Int8.to_integer (-128)%int8 = (-128)%z /\ Int8.to_integer 127%int8 = 127%z
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_computes_int8_wrap
+  : (127 + 1 = -128)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_overflow
+  : (pi_1 (Int8.add_with_overflow 127 1))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_no_overflow
+  : (pi_1 (Int8.add_with_overflow 100 (-50)))%product = Bit.Zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_multiplication
+  : ((-3) * 5 = -15)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_negation
+  : (- (-128) = -128)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_signed_comparison
+  : Int8.compare (-1) 1 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_arithmetic_shift
+  : Int8.shift_right (-4) 1%n0 = (-2)%int8 /\ Int8.shift_right (-1) 3%n0 = (-1)%int8
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Fail Definition data_machine_all_refuses_int8_literal_large
+  : Int8
+  := 128%int8.
+
+Fail Definition data_machine_all_refuses_int8_literal_small
+  : Int8
+  := (-129)%int8.
