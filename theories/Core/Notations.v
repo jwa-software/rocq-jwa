@@ -56,6 +56,14 @@ Delimit Scope jwa_bit_scope with bit.
 Declare Scope jwa_byte_scope.
 Delimit Scope jwa_byte_scope with byte.
 
+(* The [UInt8] arithmetic, delimited but not opened. *)
+Declare Scope jwa_uint8_scope.
+Delimit Scope jwa_uint8_scope with uint8.
+
+(* The [Int8] arithmetic, delimited but not opened. *)
+Declare Scope jwa_int8_scope.
+Delimit Scope jwa_int8_scope with int8.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
    [(m + n)%n0]. Two types cannot share a scope, since one spelling would

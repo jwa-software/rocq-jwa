@@ -96,7 +96,7 @@ Definition to_nat0 := fun (b : Bit) .
   end.
 
 (* The carry out and the sum of [carry + a + b], the carry first on both
- * sides, so that adders chain carry to carry.
+ * sides.
  *)
 (* [Bit -> Bit -> Bit -> Product Bit Bit] *)
 Definition add_with_carry := fun (carry : Bit) (a : Bit) (b : Bit) .
@@ -448,6 +448,38 @@ Proof.
     <- (Nat0.multiplication.associativity 2%n0 &m &o)
     in |- *.
   quod idem est.
+Qed.
+
+(* Unless [a] and [b] agree and the sum bit leaves them, the carry in equals
+ * the carry out, so [a + b] is the carry out and the sum bit.
+ *)
+(* conversion.carry.conservation *)
+Theorem conservation
+  : forall (carry : Bit) (a : Bit) (b : Bit) .
+      and (flip (xor a b)) (xor (pi_2 (add_with_carry carry a b))%product a) = Zero ->
+      (to_nat0 a + to_nat0 b
+        = to_nat0 (pi_1 (add_with_carry carry a b))%product
+          + to_nat0 (pi_2 (add_with_carry carry a b))%product)%n0.
+Proof.
+  intros carry a b h.
+  match &carry with | Zero | One end;
+    match &a with | Zero | One end;
+    match &b with | Zero | One end;
+    simpl in &h.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - ex &h quodlibet.
+  - ex &h quodlibet.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
 Qed.
 
 End carry. (* conversion.carry *)

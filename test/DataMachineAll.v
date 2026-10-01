@@ -68,55 +68,59 @@ Definition data_machine_all_delivers_bit_carry
           + Bit.to_nat0 (pi_2 (Bit.add_with_carry carry a b))%product)%n0
   := Bit.conversion.carry.
 
-Definition data_machine_all_delivers_byte_carry
-  : forall (carry : Bit) (x : Byte) (y : Byte) .
-      (Bit.to_nat0 carry + Byte.to_nat0 x + Byte.to_nat0 y
-        = 256 * Bit.to_nat0 (pi_1 (Byte.add_with_carry carry x y))%product
-          + Byte.to_nat0 (pi_2 (Byte.add_with_carry carry x y))%product)%n0
-  := Byte.conversion.carry.
+Definition data_machine_all_delivers_uint8
+  : UInt8
+  := UInt8.One.
 
-Definition data_machine_all_delivers_byte_addition
-  : forall (x : Byte) (y : Byte) .
-      Byte.to_nat0 (x + y)%byte = ((Byte.to_nat0 x + Byte.to_nat0 y) %. 256)%n0
-  := Byte.conversion.addition.
+Definition data_machine_all_delivers_uint8_carry
+  : forall (carry : Bit) (x : UInt8) (y : UInt8) .
+      (Bit.to_nat0 carry + UInt8.to_nat0 x + UInt8.to_nat0 y
+        = 256 * Bit.to_nat0 (pi_1 (UInt8.add_with_carry carry x y))%product
+          + UInt8.to_nat0 (pi_2 (UInt8.add_with_carry carry x y))%product)%n0
+  := UInt8.conversion.carry.
 
-Definition data_machine_all_delivers_byte_multiplication
-  : forall (x : Byte) (y : Byte) .
-      Byte.to_nat0 (x * y)%byte = ((Byte.to_nat0 x * Byte.to_nat0 y) %. 256)%n0
-  := Byte.conversion.multiplication.
+Definition data_machine_all_delivers_uint8_addition
+  : forall (x : UInt8) (y : UInt8) .
+      UInt8.to_nat0 (x + y)%uint8 = ((UInt8.to_nat0 x + UInt8.to_nat0 y) %. 256)%n0
+  := UInt8.conversion.addition.
 
-Definition data_machine_all_delivers_byte_negation
-  : forall (x : Byte) . ((Byte.to_nat0 (- x)%byte + Byte.to_nat0 x) %. 256 = 0)%n0
-  := Byte.conversion.negation.
+Definition data_machine_all_delivers_uint8_multiplication
+  : forall (x : UInt8) (y : UInt8) .
+      UInt8.to_nat0 (x * y)%uint8 = ((UInt8.to_nat0 x * UInt8.to_nat0 y) %. 256)%n0
+  := UInt8.conversion.multiplication.
 
-Definition data_machine_all_delivers_byte_left_shift
-  : forall (x : Byte) (k : Nat0) .
-      Byte.to_nat0 (Byte.shift_left x k) = ((Byte.to_nat0 x * 2 ^ k) %. 256)%n0
-  := Byte.conversion.left.shift.
+Definition data_machine_all_delivers_uint8_negation
+  : forall (x : UInt8) . ((UInt8.to_nat0 (- x)%uint8 + UInt8.to_nat0 x) %. 256 = 0)%n0
+  := UInt8.conversion.negation.
 
-Definition data_machine_all_delivers_byte_distributivity
-  : forall (x : Byte) (y : Byte) (z : Byte) .
-      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%byte
-  := Byte.multiplication.distributivity.over.addition.
+Definition data_machine_all_delivers_uint8_left_shift
+  : forall (x : UInt8) (k : Nat0) .
+      UInt8.to_nat0 (UInt8.shift_left x k) = ((UInt8.to_nat0 x * 2 ^ k) %. 256)%n0
+  := UInt8.conversion.left.shift.
 
-Definition data_machine_all_computes_byte_reduction
-  : Byte.to_nat0 (Byte.from_nat0 300%n0) = 44%n0
+Definition data_machine_all_delivers_uint8_distributivity
+  : forall (x : UInt8) (y : UInt8) (z : UInt8) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%uint8
+  := UInt8.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_computes_uint8_reduction
+  : UInt8.to_nat0 (UInt8.from_nat0 300%n0) = 44%n0
   := Identity.reflexivity _.
 
-Definition data_machine_all_computes_byte_multiplication
-  : Byte.to_nat0 (Byte.from_nat0 20%n0 * Byte.from_nat0 13%n0)%byte = 4%n0
+Definition data_machine_all_computes_uint8_multiplication
+  : UInt8.to_nat0 (20 * 13)%uint8 = 4%n0
   := Identity.reflexivity _.
 
-Definition data_machine_all_computes_byte_negation
-  : Byte.to_nat0 (- Byte.One)%byte = 255%n0
+Definition data_machine_all_computes_uint8_negation
+  : (- UInt8.One = 255)%uint8
   := Identity.reflexivity _.
 
-Definition data_machine_all_computes_byte_carry_out
-  : (pi_1 (Byte.add_with_carry Bit.Zero (Byte.flip Byte.Zero) Byte.One))%product = Bit.One
+Definition data_machine_all_computes_uint8_carry_out
+  : (pi_1 (UInt8.add_with_carry Bit.Zero 255 1))%product = Bit.One
   := Identity.reflexivity _.
 
-Definition data_machine_all_computes_byte_comparison
-  : Byte.compare Byte.Zero Byte.One = Comparison.Lt
+Definition data_machine_all_computes_uint8_comparison
+  : UInt8.compare 0 1 = Comparison.Lt
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_bit_literal
@@ -128,25 +132,150 @@ Fail Definition data_machine_all_refuses_bit_literal_two
   := 2%bit.
 
 Definition data_machine_all_reads_byte_literal
-  : Byte.to_nat0 200%byte = 200%n0
-  := Identity.reflexivity _.
-
-Definition data_machine_all_reads_byte_literal_hexadecimal
   : 0xFF%byte = Byte.flip Byte.Zero
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_byte_literal_zero
-  : 0%byte = Byte.Zero
+  : 0x0%byte = Byte.Zero
   := Identity.reflexivity _.
 
-Definition data_machine_all_reads_byte_literal_arithmetic
-  : (100 + 200 = 44)%byte
+Definition data_machine_all_reads_byte_literal_leading_zeros
+  : 0x00F0%byte = Byte.shift_left 0x0F 4%n0
   := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_byte_literal_decimal
+  : Byte
+  := 200%byte.
 
 Fail Definition data_machine_all_refuses_byte_literal_large
   : Byte
-  := 256%byte.
+  := 0x1FF%byte.
 
-Fail Definition data_machine_all_refuses_byte_literal_long
-  : Byte
-  := 99999999999999999999%byte.
+Definition data_machine_all_reads_uint8_literal
+  : UInt8.to_nat0 200%uint8 = 200%n0
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_uint8_literal_hexadecimal
+  : 0xFF%uint8 = UInt8.UInt8_introduction (Byte.flip Byte.Zero)
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_uint8_literal_arithmetic
+  : (100 + 200 = 44)%uint8
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_uint8_literal_large
+  : UInt8
+  := 256%uint8.
+
+Fail Definition data_machine_all_refuses_uint8_literal_long
+  : UInt8
+  := 99999999999999999999%uint8.
+
+Definition data_machine_all_delivers_uint8_byte_retraction
+  : forall (b : Byte) . UInt8.to_byte (UInt8.from_byte b) = b
+  := UInt8.conversion.byte.retraction.
+
+Definition data_machine_all_delivers_uint8_byte_section
+  : forall (x : UInt8) . UInt8.from_byte (UInt8.to_byte x) = x
+  := UInt8.conversion.byte.section.
+
+Theorem data_machine_all_delivers_coercion_uint8_to_nat0
+  : forall (x : UInt8) . Nat0.add x x = Nat0.add (UInt8.to_nat0 x) (UInt8.to_nat0 x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_uint8_to_integer
+  : forall (x : UInt8) .
+      Integer.negate x = Integer.negate (Integer.from_nat0 (UInt8.to_nat0 x)).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_delivers_int8
+  : Int8
+  := Int8.One.
+
+Definition data_machine_all_delivers_int8_addition
+  : forall (x : Int8) (y : Int8) .
+      (pi_1 (Int8.add_with_overflow x y))%product = Bit.Zero ->
+      Int8.to_integer (x + y)%int8 = (Int8.to_integer x + Int8.to_integer y)%z
+  := Int8.conversion.addition.
+
+Definition data_machine_all_delivers_int8_section
+  : forall (x : Int8) . Int8.from_integer (Int8.to_integer x) = x
+  := Int8.conversion.section.
+
+Definition data_machine_all_delivers_int8_distributivity
+  : forall (x : Int8) (y : Int8) (z : Int8) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%int8
+  := Int8.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_reads_int8_literal_bounds
+  : Int8.to_integer (-128)%int8 = (-128)%z /\ Int8.to_integer 127%int8 = 127%z
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_computes_int8_wrap
+  : (127 + 1 = -128)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_overflow
+  : (pi_1 (Int8.add_with_overflow 127 1))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_no_overflow
+  : (pi_1 (Int8.add_with_overflow 100 (-50)))%product = Bit.Zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_multiplication
+  : ((-3) * 5 = -15)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_negation
+  : (- (-128) = -128)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_signed_comparison
+  : Int8.compare (-1) 1 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_arithmetic_shift
+  : Int8.shift_right (-4) 1%n0 = (-2)%int8 /\ Int8.shift_right (-1) 3%n0 = (-1)%int8
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_reads_int8_literal_hexadecimal
+  : 0x7F%int8 = 127%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_from_integer
+  : Int8.from_integer 200 = (-56)%int8
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_int8_literal_large
+  : Int8
+  := 128%int8.
+
+Fail Definition data_machine_all_refuses_int8_literal_small
+  : Int8
+  := (-129)%int8.
+
+Definition data_machine_all_delivers_int8_byte_retraction
+  : forall (b : Byte) . Int8.to_byte (Int8.from_byte b) = b
+  := Int8.conversion.byte.retraction.
+
+Definition data_machine_all_delivers_int8_byte_section
+  : forall (x : Int8) . Int8.from_byte (Int8.to_byte x) = x
+  := Int8.conversion.byte.section.
+
+Theorem data_machine_all_delivers_coercion_int8_to_integer
+  : forall (x : Int8) . Integer.negate x = Integer.negate (Int8.to_integer x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_computes_byte_reinterpretation
+  : Int8.from_byte (UInt8.to_byte 255) = (-1)%int8
+  := Identity.reflexivity _.
