@@ -364,3 +364,92 @@ Fail Definition data_machine_all_refuses_hword_literal_large
 Fail Definition data_machine_all_refuses_hword_literal_large_big_endian
   : HWord
   := 0x10000%hword_big.
+
+Definition data_machine_all_delivers_word
+  : Word
+  := Word.Zero Endian.Little.
+
+Definition data_machine_all_delivers_word_notation
+  : forall (x : Word) (y : Word) .
+      Word.endian x = Endian.Big ->
+      Word.endian y = Endian.Big ->
+      (x |. y)%word = (y |. x)%word
+  := Word.disjunction.endian.big.commutativity.
+
+Definition data_machine_all_binds_word_scope
+  : forall (x : Word) . Word.flip (~. x) = x
+  := Word.flipping.involution.
+
+Definition data_machine_all_delivers_word_conversion
+  : forall (x : Word) (y : Word) .
+      (x ^. y)%word = (x ^. Word.with_endian (Word.endian x) y)%word
+  := Word.sejunction.endian.conversion.
+
+Definition data_machine_all_delivers_word_endianness_absorption
+  : forall (e : Endian) (f : Endian) (x : Word) .
+      Word.with_endian e (Word.with_endian f x) = Word.with_endian e x
+  := Word.endianness.absorption.
+
+Definition data_machine_all_delivers_word_rotation_inverse
+  : forall (x : Word) (k : Nat0) . Word.rotate_left (Word.rotate_right x k) k = x
+  := Word.rotation.right.inverse.
+
+Definition data_machine_all_reads_word_literal_little_endian
+  : 0x12345678%word
+    = Word.Word_introduction Endian.Little 0x78%byte 0x56%byte 0x34%byte 0x12%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_word_literal_little_endian_key
+  : 0x12345678%word_little = 0x12345678%word
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_word_literal_big_endian
+  : 0x12345678%word_big
+    = Word.Word_introduction Endian.Big 0x12%byte 0x34%byte 0x56%byte 0x78%byte
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_with_endian
+  : Word.with_endian Endian.Big 0x12345678 = 0x12345678%word_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_mixed_conjunction
+  : (0x0000FFFF &. 0x0F0F0F0F%word_big)%word = 0x00000F0F%word
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_and_big_endian
+  : Word.and_big_endian 0x0000FFFF 0x0F0F0F0F = 0x00000F0F%word_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_shift_left
+  : Word.shift_left 0x00808080 1%n0 = 0x01010100%word
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_shift_right_big_endian
+  : Word.shift_right 0x01010100%word_big 1%n0 = 0x00808080%word_big
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_rotate_left
+  : Word.rotate_left 0x80000001 1%n0 = 0x00000003%word
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_word_to_bytes
+  : Word.to_bytes 0x12345678 = (0x78%byte :: 0x56%byte :: 0x34%byte :: 0x12%byte :: [])%list
+    /\ Word.to_bytes 0x12345678%word_big
+      = (0x12%byte :: 0x34%byte :: 0x56%byte :: 0x78%byte :: [])%list
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_delivers_word_bytes_retraction
+  : forall (x : Word) . Word.from_bytes (Word.endian x) (Word.to_bytes x) = Some x
+  := Word.conversion.bytes.retraction.
+
+Fail Definition data_machine_all_refuses_word_literal_decimal
+  : Word
+  := 200%word.
+
+Fail Definition data_machine_all_refuses_word_literal_large
+  : Word
+  := 0x100000000%word.
+
+Fail Definition data_machine_all_refuses_word_literal_large_big_endian
+  : Word
+  := 0x100000000%word_big.
