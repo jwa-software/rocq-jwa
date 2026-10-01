@@ -8,6 +8,7 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Relation.Accessible.
@@ -153,6 +154,213 @@ Definition saturating_sub := fun (m : Nat) (n : Nat) .
   | Some k => k
   | None   => 1
   end.
+
+Local Abbreviation ten := (S (S (S (S (S (S (S (S (S 1))))))))) (only parsing).
+
+Local Abbreviation sixteen := (S (S (S (S (S (S ten)))))) (only parsing).
+
+(* [n] followed by the digit [d] in base [base]. [None] stands for zero on
+ * both sides: a literal's digits may open with 0, and [Nat] has no zero.
+ *)
+(* [Nat -> Option Nat -> Option Nat -> Option Nat] *)
+Definition append_digit := fun (base : Nat) (n : Option Nat) (d : Option Nat) .
+  match n, d with
+  | None,   _      => d
+  | Some m, None   => Some (m * base)
+  | Some m, Some k => Some (m * base + k)
+  end.
+
+(* The value of the leading digit of [d], [None] for 0 and for no digit. *)
+(* [Numeral.Decimal.Digits -> Option Nat] *)
+Definition decimal_value := fun (d : Numeral.Decimal.Digits) .
+  match d with
+  | Numeral.Decimal.Digits.End     => None
+  | Numeral.Decimal.Digits.Zero _  => None
+  | Numeral.Decimal.Digits.One _   => Some 1
+  | Numeral.Decimal.Digits.Two _   => Some (S 1)
+  | Numeral.Decimal.Digits.Three _ => Some (S (S 1))
+  | Numeral.Decimal.Digits.Four _  => Some (S (S (S 1)))
+  | Numeral.Decimal.Digits.Five _  => Some (S (S (S (S 1))))
+  | Numeral.Decimal.Digits.Six _   => Some (S (S (S (S (S 1)))))
+  | Numeral.Decimal.Digits.Seven _ => Some (S (S (S (S (S (S 1))))))
+  | Numeral.Decimal.Digits.Eight _ => Some (S (S (S (S (S (S (S 1)))))))
+  | Numeral.Decimal.Digits.Nine _  => Some (S (S (S (S (S (S (S (S 1))))))))
+  end.
+
+(* [n] with the decimal digits [d] appended, most significant first. *)
+(* [Option Nat -> Numeral.Decimal.Digits -> Option Nat] *)
+Fixpoint from_decimal (n : Option Nat) (d : Numeral.Decimal.Digits) : Option Nat :=
+  match d with
+  | Numeral.Decimal.Digits.End      => n
+  | Numeral.Decimal.Digits.Zero d'  => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.One d'   => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Two d'   => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Three d' => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Four d'  => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Five d'  => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Six d'   => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Seven d' => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Eight d' => from_decimal (append_digit ten n (decimal_value d)) d'
+  | Numeral.Decimal.Digits.Nine d'  => from_decimal (append_digit ten n (decimal_value d)) d'
+  end.
+
+(* The value of the leading digit of [h], [None] for 0 and for no digit. *)
+(* [Numeral.Hexadecimal.Digits -> Option Nat] *)
+Definition hexadecimal_value := fun (h : Numeral.Hexadecimal.Digits) .
+  match h with
+  | Numeral.Hexadecimal.Digits.End        => None
+  | Numeral.Hexadecimal.Digits.Zero _     => None
+  | Numeral.Hexadecimal.Digits.One _      => Some 1
+  | Numeral.Hexadecimal.Digits.Two _      => Some (S 1)
+  | Numeral.Hexadecimal.Digits.Three _    => Some (S (S 1))
+  | Numeral.Hexadecimal.Digits.Four _     => Some (S (S (S 1)))
+  | Numeral.Hexadecimal.Digits.Five _     => Some (S (S (S (S 1))))
+  | Numeral.Hexadecimal.Digits.Six _      => Some (S (S (S (S (S 1)))))
+  | Numeral.Hexadecimal.Digits.Seven _    => Some (S (S (S (S (S (S 1))))))
+  | Numeral.Hexadecimal.Digits.Eight _    => Some (S (S (S (S (S (S (S 1)))))))
+  | Numeral.Hexadecimal.Digits.Nine _     => Some (S (S (S (S (S (S (S (S 1))))))))
+  | Numeral.Hexadecimal.Digits.Ten _      => Some ten
+  | Numeral.Hexadecimal.Digits.Eleven _   => Some (S ten)
+  | Numeral.Hexadecimal.Digits.Twelve _   => Some (S (S ten))
+  | Numeral.Hexadecimal.Digits.Thirteen _ => Some (S (S (S ten)))
+  | Numeral.Hexadecimal.Digits.Fourteen _ => Some (S (S (S (S ten))))
+  | Numeral.Hexadecimal.Digits.Fifteen _  => Some (S (S (S (S (S ten)))))
+  end.
+
+(* [n] with the hexadecimal digits [h] appended, most significant first. *)
+(* [Option Nat -> Numeral.Hexadecimal.Digits -> Option Nat] *)
+Fixpoint from_hexadecimal (n : Option Nat) (h : Numeral.Hexadecimal.Digits) : Option Nat :=
+  match h with
+  | Numeral.Hexadecimal.Digits.End         => n
+  | Numeral.Hexadecimal.Digits.Zero h'     =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.One h'      =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Two h'      =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Three h'    =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Four h'     =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Five h'     =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Six h'      =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Seven h'    =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Eight h'    =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Nine h'     =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Ten h'      =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Eleven h'   =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Twelve h'   =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Thirteen h' =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Fourteen h' =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  | Numeral.Hexadecimal.Digits.Fifteen h'  =>
+      from_hexadecimal (append_digit sixteen n (hexadecimal_value h)) h'
+  end.
+
+(* The number a literal spells, in decimal or hexadecimal; [None] for 0,
+ * which is no [Nat].
+ *)
+(* [Numeral.Unsigned -> Option Nat] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  match u with
+  | Numeral.Unsigned.Decimal d     => from_decimal None d
+  | Numeral.Unsigned.Hexadecimal h => from_hexadecimal None h
+  end.
+
+(* [d] with every digit 0, the same length. *)
+(* [Numeral.Decimal.Digits -> Numeral.Decimal.Digits] *)
+Fixpoint zeros (d : Numeral.Decimal.Digits) : Numeral.Decimal.Digits :=
+  match d with
+  | Numeral.Decimal.Digits.End      => Numeral.Decimal.Digits.End
+  | Numeral.Decimal.Digits.Zero d'  => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.One d'   => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Two d'   => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Three d' => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Four d'  => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Five d'  => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Six d'   => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Seven d' => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Eight d' => Numeral.Decimal.Digits.Zero (zeros d')
+  | Numeral.Decimal.Digits.Nine d'  => Numeral.Decimal.Digits.Zero (zeros d')
+  end.
+
+(* A digit written by [keep] before the rest [d'] plus one, [r]; when that
+ * rest carried ([r] is [None]), the next digit, written by [next], before
+ * its zeros.
+ *)
+(* [(Numeral.Decimal.Digits -> Numeral.Decimal.Digits) ->
+ *  (Numeral.Decimal.Digits -> Numeral.Decimal.Digits) ->
+ *  Numeral.Decimal.Digits -> Option Numeral.Decimal.Digits -> Numeral.Decimal.Digits]
+ *)
+Definition carry :=
+  fun (keep : Numeral.Decimal.Digits -> Numeral.Decimal.Digits)
+      (next : Numeral.Decimal.Digits -> Numeral.Decimal.Digits)
+      (d' : Numeral.Decimal.Digits)
+      (r : Option Numeral.Decimal.Digits) .
+    match r with
+    | Some e => keep e
+    | None   => next (zeros d')
+    end.
+
+(* [d] plus one, [None] when the carry passes the leading digit: every digit
+ * of [d] was 9.
+ *)
+(* [Numeral.Decimal.Digits -> Option Numeral.Decimal.Digits] *)
+Fixpoint next_digits (d : Numeral.Decimal.Digits) : Option Numeral.Decimal.Digits :=
+  match d with
+  | Numeral.Decimal.Digits.End      => None
+  | Numeral.Decimal.Digits.Zero d'  =>
+      Some (carry Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.One d' (next_digits d'))
+  | Numeral.Decimal.Digits.One d'   =>
+      Some (carry Numeral.Decimal.Digits.One Numeral.Decimal.Digits.Two d' (next_digits d'))
+  | Numeral.Decimal.Digits.Two d'   =>
+      Some (carry Numeral.Decimal.Digits.Two Numeral.Decimal.Digits.Three d' (next_digits d'))
+  | Numeral.Decimal.Digits.Three d' =>
+      Some (carry Numeral.Decimal.Digits.Three Numeral.Decimal.Digits.Four d' (next_digits d'))
+  | Numeral.Decimal.Digits.Four d'  =>
+      Some (carry Numeral.Decimal.Digits.Four Numeral.Decimal.Digits.Five d' (next_digits d'))
+  | Numeral.Decimal.Digits.Five d'  =>
+      Some (carry Numeral.Decimal.Digits.Five Numeral.Decimal.Digits.Six d' (next_digits d'))
+  | Numeral.Decimal.Digits.Six d'   =>
+      Some (carry Numeral.Decimal.Digits.Six Numeral.Decimal.Digits.Seven d' (next_digits d'))
+  | Numeral.Decimal.Digits.Seven d' =>
+      Some (carry Numeral.Decimal.Digits.Seven Numeral.Decimal.Digits.Eight d' (next_digits d'))
+  | Numeral.Decimal.Digits.Eight d' =>
+      Some (carry Numeral.Decimal.Digits.Eight Numeral.Decimal.Digits.Nine d' (next_digits d'))
+  | Numeral.Decimal.Digits.Nine d'  =>
+      match next_digits d' with
+      | Some e => Some (Numeral.Decimal.Digits.Nine e)
+      | None   => None
+      end
+  end.
+
+(* The decimal digits of [n], counted up from 1: [Nat] has no division by
+ * ten to take them apart.
+ *)
+(* [Nat -> Numeral.Decimal.Digits] *)
+Fixpoint to_digits (n : Nat) : Numeral.Decimal.Digits :=
+  match n with
+  | 1    => Numeral.Decimal.Digits.One Numeral.Decimal.Digits.End
+  | S n' =>
+      let d := to_digits n' in
+      match next_digits d with
+      | Some e => e
+      | None   => Numeral.Decimal.Digits.One (zeros d)
+      end
+  end.
+
+(* [n] as a literal, in decimal. *)
+(* [Nat -> Numeral.Unsigned] *)
+Definition to_numeral := fun (n : Nat) . Numeral.Unsigned.Decimal (to_digits n).
 
 Module successor. (* successor *)
 
@@ -1344,6 +1552,19 @@ Abbreviation Nat := Nat.T.
  * [Nat.] prefix, and the local aliases [1] and [S] stay inside the module.
  *)
 Export (notations) Nat.
+
+(* A number of the type is written in decimal or hexadecimal under its scope,
+ * [3%n] or [0x1F%n], and a closed one prints in decimal; [0%n] is refused. A
+ * literal is built in full, one ctor per unit, so one of 5000 or more draws a
+ * warning.
+ *)
+Number Notation Nat.T Nat.from_numeral Nat.to_numeral (warning after 5000)
+  : jwa_nat_scope.
+
+(* Where a [Nat] is expected, a literal or a notation reads in this scope
+ * without its [%n].
+ *)
+Bind Scope jwa_nat_scope with Nat.T.
 
 Instance Nat_less_than_well_founded
   : WellFounded (<)%n :=

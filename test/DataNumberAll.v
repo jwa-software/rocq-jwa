@@ -516,6 +516,59 @@ Definition data_number_all_delivers_integer_narrowing_nat_failure
   : forall (x : Integer) . Integer.to_nat x = None <-> (x <= Integer.Zero)%z
   := Integer.narrowing.nat.failure.
 
+Definition data_number_all_delivers_nat_literal
+  : 3%n = Nat.Successor (Nat.Successor Nat.One)
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_nat_literal_hexadecimal
+  : 0x1F%n = 31%n
+  := Identity.reflexivity _.
+
+Fail Definition data_number_all_refuses_nat_literal_zero
+  : Nat
+  := 0%n.
+
+Definition data_number_all_delivers_nat0_literal
+  : 3%n0 = Nat0.Positive 3%n
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_nat0_literal_zero
+  : 0%n0 = Nat0.Zero
+  := Identity.reflexivity _.
+
+#[warnings="-abstract-large-number"]
+Definition data_number_all_delivers_nat0_literal_large
+  : Nat0
+  := 100000%n0.
+
+Definition data_number_all_delivers_integer_literal_negative
+  : (-5)%z = Integer.Negative 5%n
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_integer_literal_hexadecimal
+  : (-0x10)%z = (-16)%z
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_integer_literal_zero
+  : (-0)%z = Integer.Zero
+  := Identity.reflexivity _.
+
+#[warnings="-abstract-large-number"]
+Definition data_number_all_delivers_integer_literal_large
+  : Integer
+  := (-100000)%z.
+
+Definition data_number_all_delivers_bare_numeral
+  := 3.
+
+Definition data_number_all_delivers_bare_numeral_integer
+  : data_number_all_delivers_bare_numeral = Integer.Positive 3%n
+  := Identity.reflexivity _.
+
+Definition data_number_all_delivers_numeral_expected_type
+  : Nat0.add 3 4 = 7%n0
+  := Identity.reflexivity _.
+
 Definition data_number_all_delivers_rational_narrowing_integer_retraction
   : forall (n : Integer) . Rational.to_integer n = Some n
   := Rational.narrowing.integer.retraction.

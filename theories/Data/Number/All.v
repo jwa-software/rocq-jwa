@@ -31,3 +31,10 @@ From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.Nat0.
 From jwa Require Export Data.Number.Numeral.
 From jwa Require Export Data.Number.Rational.
+
+(* A numeral with no [%] key is an [Integer] wherever no number type is
+ * expected: [Nat], [Nat0] and [Integer] bind their scopes to themselves, and
+ * this opens the integer one for a client of the umbrella. It opens the
+ * scope's notations as well, so a bare [a + b] reads as [Integer.add].
+ *)
+Open Scope jwa_integer_scope.

@@ -11,6 +11,7 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Dialect.ExFalso.
@@ -193,6 +194,24 @@ Definition to_nat := fun (n : Nat0) .
   match n with
   | 0   => None
   | + p => Some p
+  end.
+
+(* The number a literal spells, in decimal or hexadecimal: what [Nat] reads,
+ * and [0] where it reads none.
+ *)
+(* [Numeral.Unsigned -> Nat0] *)
+Definition from_numeral := fun (u : Numeral.Unsigned) .
+  match Nat.from_numeral u with
+  | Some p => + p
+  | None   => 0
+  end.
+
+(* [n] as a literal, in decimal. *)
+(* [Nat0 -> Numeral.Unsigned] *)
+Definition to_numeral := fun (n : Nat0) .
+  match n with
+  | 0   => Numeral.Unsigned.Decimal (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End)
+  | + p => Nat.to_numeral p
   end.
 
 (* Euclidean division of a positive by a positive, by walking the dividend
@@ -3392,6 +3411,19 @@ Abbreviation Nat0 := Nat0.T.
  * [+ p] stay inside the module.
  *)
 Export (notations) Nat0.
+
+(* A number of the type is written in decimal or hexadecimal under its scope,
+ * [3%n0] or [0x1F%n0], and a closed one prints in decimal. One of 5000 or
+ * more stays the call [Nat0.from_numeral] on its digits, not 5000 ctors,
+ * until something computes it.
+ *)
+Number Notation Nat0.T Nat0.from_numeral Nat0.to_numeral (abstract after 5000)
+  : jwa_nat0_scope.
+
+(* Where a [Nat0] is expected, a literal or a notation reads in this scope
+ * without its [%n0].
+ *)
+Bind Scope jwa_nat0_scope with Nat0.T.
 
 (* A [Nat] stands wherever a [Nat0] is expected, read as its
  * [Positive], and the conversion is printed where it happened.
