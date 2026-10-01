@@ -1234,9 +1234,9 @@ Lemma specification
 Proof.
   intros n d.
   lemma base
-    : ((to_nat0 (pi_1 (0, 0)) * BinBase.to_nat &d) + to_nat0 (pi_2 (0, 0))
-        = to_nat0 0)%n0
-      /\ (to_nat0 (pi_2 (0, 0)) < BinBase.to_nat &d)%n0.
+    : ((to_nat0 (pi_1 (Zero, Zero)) * BinBase.to_nat &d) + to_nat0 (pi_2 (Zero, Zero))
+        = to_nat0 Zero)%n0
+      /\ (to_nat0 (pi_2 (Zero, Zero)) < BinBase.to_nat &d)%n0.
   {
     simpl in |- *.
     divide et impera.

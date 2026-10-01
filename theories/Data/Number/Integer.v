@@ -13,6 +13,7 @@ From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.Nat0.
+From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Dialect.Simpl.
@@ -266,6 +267,43 @@ Definition Even := fun (n : Integer) . Divides (+ (Nat.Successor Nat.One)) n.
 (* [Integer -> Prop] *)
 Definition Odd := fun (n : Integer) .
   forsome (k : Integer) . ((+ (Nat.Successor Nat.One)) * k) + (+ Nat.One) = n.
+
+(* The magnitude [u] that [Nat] reads, negative when [negative] holds; [0]
+ * where [Nat] reads none, so [-0] is zero.
+ *)
+(* [Bool -> Numeral.Unsigned -> Integer] *)
+Definition with_sign := fun (negative : Bool) (u : Numeral.Unsigned) .
+  match Nat.from_numeral u, negative with
+  | None,   _     => 0
+  | Some p, false => + p
+  | Some p, true  => - p
+  end.
+
+(* The number a signed literal spells, in decimal or hexadecimal. *)
+(* [Numeral.Signed -> Integer] *)
+Definition from_numeral := fun (s : Numeral.Signed) .
+  match s with
+  | Numeral.Signed.Decimal (Numeral.Decimal.Signed.Positive d) =>
+      with_sign false (Numeral.Unsigned.Decimal d)
+  | Numeral.Signed.Decimal (Numeral.Decimal.Signed.Negative d) =>
+      with_sign true (Numeral.Unsigned.Decimal d)
+  | Numeral.Signed.Hexadecimal (Numeral.Hexadecimal.Signed.Positive h) =>
+      with_sign false (Numeral.Unsigned.Hexadecimal h)
+  | Numeral.Signed.Hexadecimal (Numeral.Hexadecimal.Signed.Negative h) =>
+      with_sign true (Numeral.Unsigned.Hexadecimal h)
+  end.
+
+(* [x] as a literal, in decimal; zero prints as [0], not [-0]. *)
+(* [Integer -> Numeral.Signed] *)
+Definition to_numeral := fun (x : Integer) .
+  match x with
+  | - p => Numeral.Signed.Decimal (Numeral.Decimal.Signed.Negative (Nat.to_digits p))
+  | 0 =>
+      Numeral.Signed.Decimal
+        (Numeral.Decimal.Signed.Positive
+          (Numeral.Decimal.Digits.Zero Numeral.Decimal.Digits.End))
+  | + p => Numeral.Signed.Decimal (Numeral.Decimal.Signed.Positive (Nat.to_digits p))
+  end.
 
 Module magnitude. (* magnitude *)
 
@@ -2283,6 +2321,27 @@ Abbreviation Integer := Integer.T.
  * [- p] stay inside the module.
  *)
 Export (notations) Integer.
+
+(* What makes the minus of a negative literal parse, as for [Bin]:
+ * [Numeral.Signed] lets [from_numeral] receive a sign but puts none in the
+ * grammar. Scoped, so [-] keeps whatever else it means elsewhere.
+ *)
+Notation "- x" := (Integer.negate x)
+  (at level 35, right associativity, only parsing)
+  : jwa_integer_scope.
+
+(* A number of the type is written in decimal or hexadecimal under its scope,
+ * [3%z], [(-3)%z] or [0x1F%z], and a closed one prints in decimal. One of
+ * 5000 or more stays the call [Integer.from_numeral] on its digits, until
+ * something computes it.
+ *)
+Number Notation Integer.T Integer.from_numeral Integer.to_numeral (abstract after 5000)
+  : jwa_integer_scope.
+
+(* Where an [Integer] is expected, a literal or a notation reads in this scope
+ * without its [%z].
+ *)
+Bind Scope jwa_integer_scope with Integer.T.
 
 Coercion Integer.Positive : Nat >-> Integer.
 Coercion Integer.from_nat0 : Nat0 >-> Integer.
