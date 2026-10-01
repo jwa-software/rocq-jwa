@@ -32,9 +32,8 @@ Definition flip := fun (b : Bit) .
   | One  => Zero
   end.
 
-(* The levels are reserved in [Core.Notations], and the binary operations
- * take the spellings of [jwa_bool_scope]; [only parsing] keeps goals printing
- * the operations by name.
+(* The levels are reserved in [Core.Notations]; [only parsing] keeps goals
+ * printing the operations by name.
  *)
 Notation "~. b" := (flip b) (only parsing)
   : jwa_bit_scope.
@@ -46,7 +45,7 @@ Definition and := fun (b1 : Bit) (b2 : Bit) .
   | One  => b2
   end.
 
-Notation "b1 && b2" := (and b1 b2) (only parsing)
+Notation "b1 &. b2" := (and b1 b2) (only parsing)
   : jwa_bit_scope.
 
 (* [Bit -> Bit -> Bit] *)
@@ -56,7 +55,7 @@ Definition or := fun (b1 : Bit) (b2 : Bit) .
   | One  => One
   end.
 
-Notation "b1 || b2" := (or b1 b2) (only parsing)
+Notation "b1 |. b2" := (or b1 b2) (only parsing)
   : jwa_bit_scope.
 
 (* [Bit -> Bit -> Bit] *)
@@ -66,7 +65,7 @@ Definition xor := fun (b1 : Bit) (b2 : Bit) .
   | One  => flip b2
   end.
 
-Notation "b1 ^^ b2" := (xor b1 b2) (only parsing)
+Notation "b1 ^. b2" := (xor b1 b2) (only parsing)
   : jwa_bit_scope.
 
 (* [Bool -> Bit] *)
@@ -129,7 +128,7 @@ Module conjunction. (* conjunction *)
 (* conjunction.associativity *)
 Theorem associativity
   : forall (b1 : Bit) (b2 : Bit) (b3 : Bit) .
-      (b1 && b2) && b3 = b1 && (b2 && b3).
+      (b1 &. b2) &. b3 = b1 &. (b2 &. b3).
 Proof.
   intros b1 b2 b3.
   match b1 with | Zero | One end;
@@ -141,7 +140,7 @@ Qed.
 
 (* conjunction.commutativity *)
 Theorem commutativity
-  : forall (b1 : Bit) (b2 : Bit) . b1 && b2 = b2 && b1.
+  : forall (b1 : Bit) (b2 : Bit) . b1 &. b2 = b2 &. b1.
 Proof.
   intros b1 b2.
   match b1 with | Zero | One end;
@@ -152,7 +151,7 @@ Qed.
 
 (* conjunction.identity *)
 Theorem identity
-  : forall (b : Bit) . (One && b = b) /\ (b && One = b).
+  : forall (b : Bit) . (One &. b = b) /\ (b &. One = b).
 Proof.
   intros b.
   divide et impera.
@@ -172,7 +171,7 @@ Module over. (* conjunction.left.distributivity.over *)
 (* conjunction.left.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (b1 : Bit) (b2 : Bit) (b3 : Bit) .
-      b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3).
+      b1 &. (b2 ^. b3) = (b1 &. b2) ^. (b1 &. b3).
 Proof.
   intros b1 b2 b3.
   match b1 with | Zero | One end;
@@ -197,7 +196,7 @@ Module over. (* conjunction.right.distributivity.over *)
 (* conjunction.right.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (b1 : Bit) (b2 : Bit) (b3 : Bit) .
-      (b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1).
+      (b2 ^. b3) &. b1 = (b2 &. b1) ^. (b3 &. b1).
 Proof.
   intros b1 b2 b3.
   match b1 with | Zero | One end;
@@ -220,8 +219,8 @@ Module over. (* conjunction.distributivity.over *)
 (* conjunction.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (b1 : Bit) (b2 : Bit) (b3 : Bit) .
-      (b1 && (b2 ^^ b3) = (b1 && b2) ^^ (b1 && b3))
-    /\ ((b2 ^^ b3) && b1 = (b2 && b1) ^^ (b3 && b1)).
+      (b1 &. (b2 ^. b3) = (b1 &. b2) ^. (b1 &. b3))
+    /\ ((b2 ^. b3) &. b1 = (b2 &. b1) ^. (b3 &. b1)).
 Proof.
   intros b1 b2 b3.
   divide et impera.
@@ -240,7 +239,7 @@ Module disjunction. (* disjunction *)
 (* disjunction.associativity *)
 Theorem associativity
   : forall (b1 : Bit) (b2 : Bit) (b3 : Bit) .
-      (b1 || b2) || b3 = b1 || (b2 || b3).
+      (b1 |. b2) |. b3 = b1 |. (b2 |. b3).
 Proof.
   intros b1 b2 b3.
   match b1 with | Zero | One end;
@@ -252,7 +251,7 @@ Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity
-  : forall (b1 : Bit) (b2 : Bit) . b1 || b2 = b2 || b1.
+  : forall (b1 : Bit) (b2 : Bit) . b1 |. b2 = b2 |. b1.
 Proof.
   intros b1 b2.
   match b1 with | Zero | One end;
@@ -263,7 +262,7 @@ Qed.
 
 (* disjunction.identity *)
 Theorem identity
-  : forall (b : Bit) . (Zero || b = b) /\ (b || Zero = b).
+  : forall (b : Bit) . (Zero |. b = b) /\ (b |. Zero = b).
 Proof.
   intros b.
   divide et impera.
@@ -281,7 +280,7 @@ Module sejunction. (* sejunction *)
 (* sejunction.associativity *)
 Theorem associativity
   : forall (b1 : Bit) (b2 : Bit) (b3 : Bit) .
-      (b1 ^^ b2) ^^ b3 = b1 ^^ (b2 ^^ b3).
+      (b1 ^. b2) ^. b3 = b1 ^. (b2 ^. b3).
 Proof.
   intros b1 b2 b3.
   match b1 with | Zero | One end;
@@ -293,7 +292,7 @@ Qed.
 
 (* sejunction.commutativity *)
 Theorem commutativity
-  : forall (b1 : Bit) (b2 : Bit) . b1 ^^ b2 = b2 ^^ b1.
+  : forall (b1 : Bit) (b2 : Bit) . b1 ^. b2 = b2 ^. b1.
 Proof.
   intros b1 b2.
   match b1 with | Zero | One end;
@@ -304,7 +303,7 @@ Qed.
 
 (* sejunction.identity *)
 Theorem identity
-  : forall (b : Bit) . (Zero ^^ b = b) /\ (b ^^ Zero = b).
+  : forall (b : Bit) . (Zero ^. b = b) /\ (b ^. Zero = b).
 Proof.
   intros b.
   divide et impera.
@@ -316,7 +315,7 @@ Proof.
 Qed.
 
 (* sejunction.irreflexivity *)
-Theorem irreflexivity : forall (b : Bit) . b ^^ b = Zero.
+Theorem irreflexivity : forall (b : Bit) . b ^. b = Zero.
 Proof.
   intros b.
   match b with | Zero | One end; simpl in |- *; quod idem est.
@@ -324,7 +323,7 @@ Qed.
 
 (* sejunction.inverse *)
 Theorem inverse
-  : forall (b : Bit) . (b ^^ b = Zero) /\ (b ^^ b = Zero).
+  : forall (b : Bit) . (b ^. b = Zero) /\ (b ^. b = Zero).
 Proof.
   intros b.
   divide et impera; ipso (sejunction.irreflexivity b).

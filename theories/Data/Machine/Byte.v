@@ -51,7 +51,7 @@ Definition and := fun (x : Byte) (y : Byte) .
       end
   end.
 
-Notation "x && y" := (and x y) (only parsing)
+Notation "x &. y" := (and x y) (only parsing)
   : jwa_byte_scope.
 
 (* [Byte -> Byte -> Byte] *)
@@ -66,7 +66,7 @@ Definition or := fun (x : Byte) (y : Byte) .
       end
   end.
 
-Notation "x || y" := (or x y) (only parsing)
+Notation "x |. y" := (or x y) (only parsing)
   : jwa_byte_scope.
 
 (* [Byte -> Byte -> Byte] *)
@@ -81,7 +81,7 @@ Definition xor := fun (x : Byte) (y : Byte) .
       end
   end.
 
-Notation "x ^^ y" := (xor x y) (only parsing)
+Notation "x ^. y" := (xor x y) (only parsing)
   : jwa_byte_scope.
 
 (* [k] places toward the most significant end, each bit leaving there coming
@@ -218,7 +218,7 @@ Module conjunction. (* conjunction *)
 (* conjunction.associativity *)
 Theorem associativity
   : forall (x : Byte) (y : Byte) (z : Byte) .
-      (x && y) && z = x && (y && z).
+      (x &. y) &. z = x &. (y &. z).
 Proof.
   intros x y z.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -239,7 +239,7 @@ Qed.
 
 (* conjunction.commutativity *)
 Theorem commutativity
-  : forall (x : Byte) (y : Byte) . x && y = y && x.
+  : forall (x : Byte) (y : Byte) . x &. y = y &. x.
 Proof.
   intros x y.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -259,7 +259,7 @@ Qed.
 
 (* conjunction.identity *)
 Theorem identity
-  : forall (x : Byte) . (~. Zero && x = x) /\ (x && ~. Zero = x).
+  : forall (x : Byte) . (~. Zero &. x = x) /\ (x &. ~. Zero = x).
 Proof.
   intros x.
   divide et impera.
@@ -281,7 +281,7 @@ Module over. (* conjunction.left.distributivity.over *)
 (* conjunction.left.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (x : Byte) (y : Byte) (z : Byte) .
-      x && (y ^^ z) = (x && y) ^^ (x && z).
+      x &. (y ^. z) = (x &. y) ^. (x &. z).
 Proof.
   intros x y z.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -315,7 +315,7 @@ Module over. (* conjunction.right.distributivity.over *)
 (* conjunction.right.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (x : Byte) (y : Byte) (z : Byte) .
-      (y ^^ z) && x = (y && x) ^^ (z && x).
+      (y ^. z) &. x = (y &. x) ^. (z &. x).
 Proof.
   intros x y z.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -347,8 +347,8 @@ Module over. (* conjunction.distributivity.over *)
 (* conjunction.distributivity.over.sejunction *)
 Theorem sejunction
   : forall (x : Byte) (y : Byte) (z : Byte) .
-      (x && (y ^^ z) = (x && y) ^^ (x && z))
-    /\ ((y ^^ z) && x = (y && x) ^^ (z && x)).
+      (x &. (y ^. z) = (x &. y) ^. (x &. z))
+    /\ ((y ^. z) &. x = (y &. x) ^. (z &. x)).
 Proof.
   intros x y z.
   divide et impera.
@@ -367,7 +367,7 @@ Module disjunction. (* disjunction *)
 (* disjunction.associativity *)
 Theorem associativity
   : forall (x : Byte) (y : Byte) (z : Byte) .
-      (x || y) || z = x || (y || z).
+      (x |. y) |. z = x |. (y |. z).
 Proof.
   intros x y z.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -388,7 +388,7 @@ Qed.
 
 (* disjunction.commutativity *)
 Theorem commutativity
-  : forall (x : Byte) (y : Byte) . x || y = y || x.
+  : forall (x : Byte) (y : Byte) . x |. y = y |. x.
 Proof.
   intros x y.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -408,7 +408,7 @@ Qed.
 
 (* disjunction.identity *)
 Theorem identity
-  : forall (x : Byte) . (Zero || x = x) /\ (x || Zero = x).
+  : forall (x : Byte) . (Zero |. x = x) /\ (x |. Zero = x).
 Proof.
   intros x.
   divide et impera.
@@ -428,7 +428,7 @@ Module sejunction. (* sejunction *)
 (* sejunction.associativity *)
 Theorem associativity
   : forall (x : Byte) (y : Byte) (z : Byte) .
-      (x ^^ y) ^^ z = x ^^ (y ^^ z).
+      (x ^. y) ^. z = x ^. (y ^. z).
 Proof.
   intros x y z.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -449,7 +449,7 @@ Qed.
 
 (* sejunction.commutativity *)
 Theorem commutativity
-  : forall (x : Byte) (y : Byte) . x ^^ y = y ^^ x.
+  : forall (x : Byte) (y : Byte) . x ^. y = y ^. x.
 Proof.
   intros x y.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -469,7 +469,7 @@ Qed.
 
 (* sejunction.identity *)
 Theorem identity
-  : forall (x : Byte) . (Zero ^^ x = x) /\ (x ^^ Zero = x).
+  : forall (x : Byte) . (Zero ^. x = x) /\ (x ^. Zero = x).
 Proof.
   intros x.
   divide et impera.
@@ -483,7 +483,7 @@ Proof.
 Qed.
 
 (* sejunction.irreflexivity *)
-Theorem irreflexivity : forall (x : Byte) . x ^^ x = Zero.
+Theorem irreflexivity : forall (x : Byte) . x ^. x = Zero.
 Proof.
   intros x.
   match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -499,7 +499,7 @@ Qed.
 
 (* sejunction.inverse *)
 Theorem inverse
-  : forall (x : Byte) . (x ^^ x = Zero) /\ (x ^^ x = Zero).
+  : forall (x : Byte) . (x ^. x = Zero) /\ (x ^. x = Zero).
 Proof.
   intros x.
   divide et impera; ipso (sejunction.irreflexivity &x).
@@ -588,7 +588,7 @@ End Byte. (* Byte *)
 Abbreviation Byte := Byte.T.
 
 (* Makes the notations declared in [Module Byte] usable in every file that
- * imports this one, as [(x && y)%byte] or under an opened [jwa_byte_scope].
+ * imports this one, as [(x &. y)%byte] or under an opened [jwa_byte_scope].
  *)
 Export (notations) Byte.
 
