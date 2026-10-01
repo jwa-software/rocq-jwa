@@ -1,3 +1,5 @@
+<!-- Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. -->
+
 <!-- State what changes and why. Give a change that spans several subjects one section per subject. -->
 
 ## Breaking changes
