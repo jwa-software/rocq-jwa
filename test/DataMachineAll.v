@@ -421,6 +421,245 @@ Fail Definition data_machine_all_refuses_hword_literal_large_big_endian
   : HWord
   := 0x10000%hword_big.
 
+Definition data_machine_all_delivers_uint16
+  : UInt16
+  := UInt16.One.
+
+Definition data_machine_all_delivers_uint16_carry
+  : forall (carry : Bit) (x : UInt16) (y : UInt16) .
+      (Bit.to_bin_with_zero carry + UInt16.to_bin_with_zero x + UInt16.to_bin_with_zero y
+        = 10000000000000000 * Bit.to_bin_with_zero (pi_1 (UInt16.add_with_carry carry x y))%product
+          + UInt16.to_bin_with_zero (pi_2 (UInt16.add_with_carry carry x y))%product)%bin_with_zero
+  := UInt16.conversion.carry.
+
+Definition data_machine_all_delivers_uint16_addition
+  : forall (x : UInt16) (y : UInt16) .
+      (UInt16.to_bin_with_zero (x + y)%uint16
+        = (UInt16.to_bin_with_zero x + UInt16.to_bin_with_zero y)
+          %. 10000000000000000%bin_base)%bin_with_zero
+  := UInt16.conversion.addition.
+
+Definition data_machine_all_delivers_uint16_multiplication
+  : forall (x : UInt16) (y : UInt16) .
+      (UInt16.to_bin_with_zero (x * y)%uint16
+        = (UInt16.to_bin_with_zero x * UInt16.to_bin_with_zero y)
+          %. 10000000000000000%bin_base)%bin_with_zero
+  := UInt16.conversion.multiplication.
+
+Definition data_machine_all_delivers_uint16_negation
+  : forall (x : UInt16) .
+      ((UInt16.to_bin_with_zero (- x)%uint16 + UInt16.to_bin_with_zero x)
+        %. 10000000000000000%bin_base = 0)%bin_with_zero
+  := UInt16.conversion.negation.
+
+Definition data_machine_all_delivers_uint16_left_shift
+  : forall (x : UInt16) (k : Nat0) .
+      (UInt16.to_bin_with_zero (UInt16.shift_left x k)
+        = BinWithZero.shift_left (UInt16.to_bin_with_zero x) k
+          %. 10000000000000000%bin_base)%bin_with_zero
+  := UInt16.conversion.left.shift.
+
+Definition data_machine_all_delivers_uint16_right_shift
+  : forall (x : UInt16) (k : Nat0) .
+      UInt16.to_bin_with_zero (UInt16.shift_right x k)
+      = BinWithZero.shift_right (UInt16.to_bin_with_zero x) k
+  := UInt16.conversion.right.shift.
+
+Definition data_machine_all_delivers_uint16_section
+  : forall (x : UInt16) . UInt16.from_bin_with_zero (UInt16.to_bin_with_zero x) = x
+  := UInt16.conversion.section.
+
+Definition data_machine_all_computes_uint16_value
+  : UInt16.to_bin_with_zero 50000%uint16 = 1100001101010000%bin_with_zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_uint16_distributivity
+  : forall (x : UInt16) (y : UInt16) (z : UInt16) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%uint16
+  := UInt16.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_computes_uint16_reduction
+  : UInt16.from_bin_with_zero 10001000101110000%bin_with_zero = 4464%uint16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_multiplication
+  : (300 * 300 = 24464)%uint16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_negation
+  : (- UInt16.One = 65535)%uint16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_carry_out
+  : (pi_1 (UInt16.add_with_carry Bit.Zero 65535 1))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_comparison
+  : UInt16.compare 255 256 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_uint16_literal_hexadecimal
+  : 0xFFFF%uint16 = UInt16.UInt16_introduction (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
+  := Identity.reflexivity _.
+
+Definition data_machine_all_reads_uint16_literal_arithmetic
+  : (60000 + 10000 = 4464)%uint16
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_uint16_literal_large
+  : UInt16
+  := 65536%uint16.
+
+Fail Definition data_machine_all_refuses_uint16_literal_long
+  : UInt16
+  := 99999999999999999999%uint16.
+
+Definition data_machine_all_computes_uint16_to_hword
+  : UInt16.to_hword Endian.Little 0x1234 = 0x1234%hword
+    /\ UInt16.to_hword Endian.Big 0x1234 = 0x1234%hword_big
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_computes_uint16_from_hword
+  : UInt16.from_hword 0x1234%hword_big = 0x1234%uint16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_uint16_hword_retraction
+  : forall (e : Endian) (x : UInt16) . UInt16.from_hword (UInt16.to_hword e x) = x
+  := UInt16.conversion.hword.retraction.
+
+Definition data_machine_all_delivers_uint16_hword_section
+  : forall (w : HWord) . UInt16.to_hword (HWord.endian w) (UInt16.from_hword w) = w
+  := UInt16.conversion.hword.section.
+
+Theorem data_machine_all_delivers_coercion_uint16_to_bin_with_zero
+  : forall (x : UInt16) .
+      BinWithZero.add x x = BinWithZero.add (UInt16.to_bin_with_zero x) (UInt16.to_bin_with_zero x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_uint16_to_nat0
+  : forall (x : UInt16) . Nat0.add x x = Nat0.add (UInt16.to_nat0 x) (UInt16.to_nat0 x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_uint16_to_integer
+  : forall (x : UInt16) .
+      Integer.negate x = Integer.negate (Integer.from_nat0 (UInt16.to_nat0 x)).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_delivers_int16
+  : Int16
+  := Int16.One.
+
+Definition data_machine_all_delivers_int16_addition
+  : forall (x : Int16) (y : Int16) .
+      (pi_1 (Int16.add_with_overflow x y))%product = Bit.Zero ->
+      Int16.to_bin (x + y)%int16 = (Int16.to_bin x + Int16.to_bin y)%b
+  := Int16.conversion.addition.
+
+Definition data_machine_all_delivers_int16_section
+  : forall (x : Int16) . Int16.from_bin (Int16.to_bin x) = x
+  := Int16.conversion.section.
+
+Definition data_machine_all_delivers_int16_valuation_section
+  : forall (x : Int16) . Int16.from_bin_with_zero (Int16.unsigned_value x) = x
+  := Int16.valuation.section.
+
+Definition data_machine_all_computes_int16_value
+  : Int16.to_bin (-1000)%int16 = (-1111101000)%b
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_from_bin
+  : Int16.from_bin 1001110001000000%b = (-25536)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_int16_distributivity
+  : forall (x : Int16) (y : Int16) (z : Int16) .
+      (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%int16
+  := Int16.multiplication.distributivity.over.addition.
+
+Definition data_machine_all_reads_int16_literal_bounds
+  : Int16.to_bin (-32768)%int16 = (-1000000000000000)%b
+    /\ Int16.to_bin 32767%int16 = 111111111111111%b
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_computes_int16_wrap
+  : (32767 + 1 = -32768)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_overflow
+  : (pi_1 (Int16.add_with_overflow 32767 1))%product = Bit.One
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_no_overflow
+  : (pi_1 (Int16.add_with_overflow 1000 (-500)))%product = Bit.Zero
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_multiplication
+  : ((-300) * 300 = -24464)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_negation
+  : (- (-32768) = -32768)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_signed_comparison
+  : Int16.compare (-1) 1 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_arithmetic_shift
+  : Int16.shift_right (-4) 1%n0 = (-2)%int16 /\ Int16.shift_right (-1) 15%n0 = (-1)%int16
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_machine_all_reads_int16_literal_hexadecimal
+  : 0x7FFF%int16 = 32767%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_from_integer
+  : Int16.from_integer (-1000) = (-1000)%int16
+  := Identity.reflexivity _.
+
+Fail Definition data_machine_all_refuses_int16_literal_large
+  : Int16
+  := 32768%int16.
+
+Fail Definition data_machine_all_refuses_int16_literal_small
+  : Int16
+  := (-32769)%int16.
+
+Definition data_machine_all_delivers_int16_hword_retraction
+  : forall (e : Endian) (x : Int16) . Int16.from_hword (Int16.to_hword e x) = x
+  := Int16.conversion.hword.retraction.
+
+Definition data_machine_all_delivers_int16_hword_section
+  : forall (w : HWord) . Int16.to_hword (HWord.endian w) (Int16.from_hword w) = w
+  := Int16.conversion.hword.section.
+
+Theorem data_machine_all_delivers_coercion_int16_to_bin
+  : forall (x : Int16) . Bin.negate x = Bin.negate (Int16.to_bin x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_int16_to_integer
+  : forall (x : Int16) . Integer.negate x = Integer.negate (Int16.to_integer x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_computes_hword_reinterpretation
+  : Int16.from_hword (UInt16.to_hword Endian.Big 65535) = (-1)%int16
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_word
   : Word
   := Word.Zero Endian.Little.
