@@ -59,7 +59,7 @@ Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a f
 - [Usage](docs/usage.md): installing the library and using it in a project of your own.
 - [The tactic language](docs/tactic.md): Ltac2 with Rocq's own tactics hidden, and the tactics that take their place.
 - [Numbers](docs/numbers.md): the number types, their conversions, arithmetic and literals.
-- [Machine units](docs/machine.md): `Bit`, `Byte`, `UInt8` and `Int8`.
+- [Machine units](docs/machine.md): `Bit`, `Byte`, the words `HWord` to `QWord` with their byte order, `UInt8` and `Int8`.
 - [Layout](docs/layout.md): the layers, their directories and what each depends on.
 
 ---

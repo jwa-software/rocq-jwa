@@ -64,6 +64,62 @@ Delimit Scope jwa_uint8_scope with uint8.
 Declare Scope jwa_int8_scope.
 Delimit Scope jwa_int8_scope with int8.
 
+(* The [HWord] operations, the [Byte] ones taken byte by byte, delimited but
+ * not opened under the same spellings; a literal under it is little-endian.
+ *)
+Declare Scope jwa_hword_scope.
+Delimit Scope jwa_hword_scope with hword.
+
+(* [HWord] literals laid out little-endian. *)
+Declare Scope jwa_hword_little_scope.
+Delimit Scope jwa_hword_little_scope with hword_little.
+
+(* [HWord] literals laid out big-endian. *)
+Declare Scope jwa_hword_big_scope.
+Delimit Scope jwa_hword_big_scope with hword_big.
+
+(* The [Word] operations, the [Byte] ones taken byte by byte, delimited but
+ * not opened under the same spellings; a literal under it is little-endian.
+ *)
+Declare Scope jwa_word_scope.
+Delimit Scope jwa_word_scope with word.
+
+(* [Word] literals laid out little-endian. *)
+Declare Scope jwa_word_little_scope.
+Delimit Scope jwa_word_little_scope with word_little.
+
+(* [Word] literals laid out big-endian. *)
+Declare Scope jwa_word_big_scope.
+Delimit Scope jwa_word_big_scope with word_big.
+
+(* The [DWord] operations, the [Byte] ones taken byte by byte, delimited but
+ * not opened under the same spellings; a literal under it is little-endian.
+ *)
+Declare Scope jwa_dword_scope.
+Delimit Scope jwa_dword_scope with dword.
+
+(* [DWord] literals laid out little-endian. *)
+Declare Scope jwa_dword_little_scope.
+Delimit Scope jwa_dword_little_scope with dword_little.
+
+(* [DWord] literals laid out big-endian. *)
+Declare Scope jwa_dword_big_scope.
+Delimit Scope jwa_dword_big_scope with dword_big.
+
+(* The [QWord] operations, the [Byte] ones taken byte by byte, delimited but
+ * not opened under the same spellings; a literal under it is little-endian.
+ *)
+Declare Scope jwa_qword_scope.
+Delimit Scope jwa_qword_scope with qword.
+
+(* [QWord] literals laid out little-endian. *)
+Declare Scope jwa_qword_little_scope.
+Delimit Scope jwa_qword_little_scope with qword_little.
+
+(* [QWord] literals laid out big-endian. *)
+Declare Scope jwa_qword_big_scope.
+Delimit Scope jwa_qword_big_scope with qword_big.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
    [(m + n)%n0]. Two types cannot share a scope, since one spelling would
