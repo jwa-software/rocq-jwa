@@ -171,6 +171,29 @@ Fail Definition data_machine_all_refuses_uint8_literal_long
   : UInt8
   := 99999999999999999999%uint8.
 
+Definition data_machine_all_delivers_uint8_byte_retraction
+  : forall (b : Byte) . UInt8.to_byte (UInt8.from_byte b) = b
+  := UInt8.conversion.byte.retraction.
+
+Definition data_machine_all_delivers_uint8_byte_section
+  : forall (x : UInt8) . UInt8.from_byte (UInt8.to_byte x) = x
+  := UInt8.conversion.byte.section.
+
+Theorem data_machine_all_delivers_coercion_uint8_to_nat0
+  : forall (x : UInt8) . Nat0.add x x = Nat0.add (UInt8.to_nat0 x) (UInt8.to_nat0 x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Theorem data_machine_all_delivers_coercion_uint8_to_integer
+  : forall (x : UInt8) .
+      Integer.negate x = Integer.negate (Integer.from_nat0 (UInt8.to_nat0 x)).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
 Definition data_machine_all_delivers_int8
   : Int8
   := Int8.One.
@@ -229,3 +252,22 @@ Fail Definition data_machine_all_refuses_int8_literal_large
 Fail Definition data_machine_all_refuses_int8_literal_small
   : Int8
   := (-129)%int8.
+
+Definition data_machine_all_delivers_int8_byte_retraction
+  : forall (b : Byte) . Int8.to_byte (Int8.from_byte b) = b
+  := Int8.conversion.byte.retraction.
+
+Definition data_machine_all_delivers_int8_byte_section
+  : forall (x : Int8) . Int8.from_byte (Int8.to_byte x) = x
+  := Int8.conversion.byte.section.
+
+Theorem data_machine_all_delivers_coercion_int8_to_integer
+  : forall (x : Int8) . Integer.negate x = Integer.negate (Int8.to_integer x).
+Proof.
+  intro x.
+  quod idem est.
+Qed.
+
+Definition data_machine_all_computes_byte_reinterpretation
+  : Int8.from_byte (UInt8.to_byte 255) = (-1)%int8
+  := Identity.reflexivity _.
