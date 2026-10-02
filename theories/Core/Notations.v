@@ -154,6 +154,16 @@ Delimit Scope jwa_ascii_scope with ac.
 Declare Scope jwa_ascii_str_scope.
 Delimit Scope jwa_ascii_str_scope with a.
 
+(* [Utf8] characters, delimited but not opened: ["A"%u8c]. *)
+Declare Scope jwa_utf8_scope.
+Delimit Scope jwa_utf8_scope with u8c.
+
+(* [Utf8Str] strings and their operations, delimited but not opened:
+ * [("ab" ++ "c")%u8].
+ *)
+Declare Scope jwa_utf8_str_scope.
+Delimit Scope jwa_utf8_str_scope with u8.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
    [(m + n)%n0]. Two types cannot share a scope, since one spelling would

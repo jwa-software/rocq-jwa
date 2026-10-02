@@ -56,15 +56,15 @@ Definition from_source_bytes := fun (l : List SourceByte) .
   match l with
   | s :: [] =>
       match SourceByte.to_byte s with
-      | Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0 =>
-          Some (Ascii.introduction (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0))
+      | Byte.introduction 0 b6 b5 b4 b3 b2 b1 b0 =>
+          Some (Ascii.introduction (Byte.introduction 0 b6 b5 b4 b3 b2 b1 b0))
       | _ => None
       end
   | s1 :: s2 :: [] =>
       match SourceByte.to_byte s1, SourceByte.to_byte s2 with
-      | Byte.introduction Bit.One Bit.One  Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6,
-        Byte.introduction Bit.One Bit.Zero b5       b4       b3       b2       b1      b0 =>
-          Some (Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0))
+      | Byte.introduction 1 1 0  0  0  0  1  b6,
+        Byte.introduction 1 0 b5 b4 b3 b2 b1 b0 =>
+          Some (Ascii.introduction (Byte.introduction 1 b6 b5 b4 b3 b2 b1 b0))
       | _, _ => None
       end
   | _ => None
@@ -74,12 +74,12 @@ Definition from_source_bytes := fun (l : List SourceByte) .
 (* [Ascii -> List SourceByte] *)
 Definition to_source_bytes := fun (c : Ascii) .
   match c with
-  | Ascii.introduction (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) =>
-      SourceByte.from_byte (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) :: []
-  | Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0) =>
+  | Ascii.introduction (Byte.introduction 0 b6 b5 b4 b3 b2 b1 b0) =>
+      SourceByte.from_byte (Byte.introduction 0 b6 b5 b4 b3 b2 b1 b0) :: []
+  | Ascii.introduction (Byte.introduction 1 b6 b5 b4 b3 b2 b1 b0) =>
       SourceByte.from_byte
-        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
-      :: SourceByte.from_byte (Byte.introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
+        (Byte.introduction 1 1 0 0 0 0 1 b6)
+      :: SourceByte.from_byte (Byte.introduction 1 0 b5 b4 b3 b2 b1 b0)
       :: []
   end.
 
@@ -235,16 +235,16 @@ Proof.
   - simpl to_source_bytes, from_source_bytes in |- *.
     leibniz
       (SourceByte.conversion.byte.retraction
-        (Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0))
+        (Byte.introduction 0 &b6 &b5 &b4 &b3 &b2 &b1 &b0))
       in |- *.
     simpl in |- *.
     quod idem est.
   - simpl to_source_bytes, from_source_bytes in |- *.
     leibniz
       (SourceByte.conversion.byte.retraction
-        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6)),
+        (Byte.introduction 1 1 0 0 0 0 1 &b6)),
       (SourceByte.conversion.byte.retraction
-        (Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0))
+        (Byte.introduction 1 0 &b5 &b4 &b3 &b2 &b1 &b0))
       in |- *.
     simpl in |- *.
     quod idem est.

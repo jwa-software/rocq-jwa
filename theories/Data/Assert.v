@@ -2,8 +2,10 @@
 
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Option.
 From jwa Require Import Dialect.ExFalso.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* The bridge from a computed answer to a statement. [Assert true] is
  * [Verum] and [Assert false] is [Falsum] by reduction, so case analysis on
@@ -26,6 +28,17 @@ Module Assert. (* Assert *)
  * [jwa_bool_scope], which every law below reads.
  *)
 Local Open Scope jwa_bool_scope.
+
+(* [Some (f I)] when [b] is [true], [None] otherwise: [f] is applied only
+ * where its premise holds, so a value that needs a proof of [Assert b] is
+ * built from a [b] computed at run time.
+ *)
+(* [forall {X : Type} (b : Bool) . (Assert b -> X) -> Option X] *)
+Definition guard := fun {X : Type} (b : Bool) (f : Assert b -> X) .
+  match b as r return (Assert r -> X) -> Option X with
+  | true => fun (g : Assert true -> X) . Some (g I)
+  | false => fun (_ : Assert false -> X) . None
+  end f.
 
 (* Assert.conjunction *)
 Theorem conjunction
@@ -107,5 +120,50 @@ Proof.
   - ex h quodlibet.
   - ex h quodlibet.
 Qed.
+
+(* Two proofs of one [Assert b] are equal: [Verum] has one, [Falsum] none. *)
+(* Assert.uniqueness *)
+Theorem uniqueness : forall (b : Bool) (p : Assert b) (q : Assert b) . p = q.
+Proof.
+  intros b p q.
+  match &b with | | end.
+  - simpl Assert in &p, &q.
+    match &p with end.
+    match &q with end.
+    quod idem est.
+  - simpl Assert in &p.
+    ex &p quodlibet.
+Qed.
+
+Module guarding. (* Assert.guarding *)
+
+(* Assert.guarding.evaluation *)
+Theorem evaluation
+  : forall {X : Type} (b : Bool) (f : Assert b -> X) (p : Assert b) . guard b f = Some (f p).
+Proof.
+  intros X b f p.
+  match &b with | | end.
+  - simpl guard in |- *.
+    leibniz (uniqueness true &p I) in |- *.
+    quod idem est.
+  - simpl Assert in &p.
+    ex &p quodlibet.
+Qed.
+
+(* Assert.guarding.inversion *)
+Theorem inversion
+  : forall {X : Type} (b : Bool) (f : Assert b -> X) (x : X) .
+      guard b f = Some x -> forsome (p : Assert b) . f p = x.
+Proof.
+  intros X b f x h.
+  match &b with | | end.
+  - simpl guard in &h.
+    exists I.
+    ipso (Option.some.injectivity &h).
+  - simpl guard in &h.
+    ex &h quodlibet.
+Qed.
+
+End guarding. (* Assert.guarding *)
 
 End Assert. (* Assert *)

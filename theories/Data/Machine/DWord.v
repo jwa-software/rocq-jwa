@@ -312,7 +312,7 @@ Definition rotate_right := fun (x : DWord) (k : Nat0) .
   | Nat0.Positive n => rotate_right_nat x n
   end.
 
-(* [k] places toward the most significant end, a [Bit.Zero] coming in at the
+(* [k] places toward the most significant end, a [0] coming in at the
  * other, in the order and the branches of [rotate_left_nat].
  *)
 (* [DWord -> Nat -> DWord] *)
@@ -329,7 +329,7 @@ Fixpoint shift_left_nat (x : DWord) (k : Nat) : DWord :=
         (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
         (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
         DWord.introduction Endian.Little
-          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 0)
           (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
           (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
           (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
@@ -354,14 +354,14 @@ Fixpoint shift_left_nat (x : DWord) (k : Nat) : DWord :=
           (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
           (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
           (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 0)
     end in
   match k with
   | Nat.One          => y
   | Nat.Successor k' => shift_left_nat y k'
   end.
 
-(* [k] places toward the least significant end, a [Bit.Zero] coming in at
+(* [k] places toward the least significant end, a [0] coming in at
  * the other; one place first, then [k - 1], as [shift_left_nat].
  *)
 (* [DWord -> Nat -> DWord] *)
@@ -385,7 +385,7 @@ Fixpoint shift_right_nat (x : DWord) (k : Nat) : DWord :=
           (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
           (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
           (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
-          (Byte.introduction Bit.Zero x63 x62 x61 x60 x59 x58 x57)
+          (Byte.introduction 0 x63 x62 x61 x60 x59 x58 x57)
     | DWord.introduction Endian.Big
         (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
         (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
@@ -396,7 +396,7 @@ Fixpoint shift_right_nat (x : DWord) (k : Nat) : DWord :=
         (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
         (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
         DWord.introduction Endian.Big
-          (Byte.introduction Bit.Zero x63 x62 x61 x60 x59 x58 x57)
+          (Byte.introduction 0 x63 x62 x61 x60 x59 x58 x57)
           (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
           (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
           (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
@@ -463,7 +463,7 @@ Definition append_digit := fun (x : Option DWord) (d3 : Bit) (d2 : Bit) (d1 : Bi
         (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
         (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
         (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x59 x58 x57 x56)) =>
+        (Byte.introduction 0 0 0 0 x59 x58 x57 x56)) =>
       Some
         (DWord.introduction Endian.Little
           (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0)
@@ -476,7 +476,7 @@ Definition append_digit := fun (x : Option DWord) (d3 : Bit) (d2 : Bit) (d1 : Bi
           (Byte.introduction x59 x58 x57 x56 x55 x54 x53 x52))
   | Some
       (DWord.introduction Endian.Big
-        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x59 x58 x57 x56)
+        (Byte.introduction 0 0 0 0 x59 x58 x57 x56)
         (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
         (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
         (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
@@ -504,37 +504,37 @@ Fixpoint from_hexadecimal (x : Option DWord) (h : Numeral.Hexadecimal.Digits) : 
   | Numeral.Hexadecimal.Digits.End         =>
       x
   | Numeral.Hexadecimal.Digits.Zero h'     =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.Zero Bit.Zero Bit.Zero) h'
+      from_hexadecimal (append_digit x 0 0 0 0) h'
   | Numeral.Hexadecimal.Digits.One h'      =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.Zero Bit.Zero Bit.One) h'
+      from_hexadecimal (append_digit x 0 0 0 1) h'
   | Numeral.Hexadecimal.Digits.Two h'      =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.Zero Bit.One Bit.Zero) h'
+      from_hexadecimal (append_digit x 0 0 1 0) h'
   | Numeral.Hexadecimal.Digits.Three h'    =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.Zero Bit.One Bit.One) h'
+      from_hexadecimal (append_digit x 0 0 1 1) h'
   | Numeral.Hexadecimal.Digits.Four h'     =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.One Bit.Zero Bit.Zero) h'
+      from_hexadecimal (append_digit x 0 1 0 0) h'
   | Numeral.Hexadecimal.Digits.Five h'     =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.One Bit.Zero Bit.One) h'
+      from_hexadecimal (append_digit x 0 1 0 1) h'
   | Numeral.Hexadecimal.Digits.Six h'      =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.One Bit.One Bit.Zero) h'
+      from_hexadecimal (append_digit x 0 1 1 0) h'
   | Numeral.Hexadecimal.Digits.Seven h'    =>
-      from_hexadecimal (append_digit x Bit.Zero Bit.One Bit.One Bit.One) h'
+      from_hexadecimal (append_digit x 0 1 1 1) h'
   | Numeral.Hexadecimal.Digits.Eight h'    =>
-      from_hexadecimal (append_digit x Bit.One Bit.Zero Bit.Zero Bit.Zero) h'
+      from_hexadecimal (append_digit x 1 0 0 0) h'
   | Numeral.Hexadecimal.Digits.Nine h'     =>
-      from_hexadecimal (append_digit x Bit.One Bit.Zero Bit.Zero Bit.One) h'
+      from_hexadecimal (append_digit x 1 0 0 1) h'
   | Numeral.Hexadecimal.Digits.Ten h'      =>
-      from_hexadecimal (append_digit x Bit.One Bit.Zero Bit.One Bit.Zero) h'
+      from_hexadecimal (append_digit x 1 0 1 0) h'
   | Numeral.Hexadecimal.Digits.Eleven h'   =>
-      from_hexadecimal (append_digit x Bit.One Bit.Zero Bit.One Bit.One) h'
+      from_hexadecimal (append_digit x 1 0 1 1) h'
   | Numeral.Hexadecimal.Digits.Twelve h'   =>
-      from_hexadecimal (append_digit x Bit.One Bit.One Bit.Zero Bit.Zero) h'
+      from_hexadecimal (append_digit x 1 1 0 0) h'
   | Numeral.Hexadecimal.Digits.Thirteen h' =>
-      from_hexadecimal (append_digit x Bit.One Bit.One Bit.Zero Bit.One) h'
+      from_hexadecimal (append_digit x 1 1 0 1) h'
   | Numeral.Hexadecimal.Digits.Fourteen h' =>
-      from_hexadecimal (append_digit x Bit.One Bit.One Bit.One Bit.Zero) h'
+      from_hexadecimal (append_digit x 1 1 1 0) h'
   | Numeral.Hexadecimal.Digits.Fifteen h'  =>
-      from_hexadecimal (append_digit x Bit.One Bit.One Bit.One Bit.One) h'
+      from_hexadecimal (append_digit x 1 1 1 1) h'
   end.
 
 (* A literal in hexadecimal, read as the bits it spells and laid out in the

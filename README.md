@@ -60,7 +60,7 @@ Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a f
 - [The tactic language](docs/tactic.md): Ltac2 with Rocq's own tactics hidden, and the tactics that take their place.
 - [Numbers](docs/numbers.md): the number types, their conversions, arithmetic and literals.
 - [Machine units](docs/machine.md): `Bit`, `Byte`, the words `HWord` to `QWord` with their byte order, and the fixed-width integers `UInt8` to `UInt64` and `Int8` to `Int64`.
-- [Text](docs/text.md): the characters `Ascii`, the strings `AsciiStr`, their order, case, indexing and substrings, and how a string literal is read.
+- [Text](docs/text.md): the characters `Ascii` and `Utf8`, the strings `AsciiStr` and `Utf8Str`, the order, case, indexing and substrings of `Ascii` and `AsciiStr`, and how a string literal is read.
 - [Layout](docs/layout.md): the layers, their directories and what each depends on.
 
 ---

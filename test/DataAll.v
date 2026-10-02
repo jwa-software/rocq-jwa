@@ -56,7 +56,7 @@ Definition data_all_delivers_product
   := (true , false)%product.
 
 Definition data_all_delivers_bit
-  : forall (b : Bit) . (b ^. b)%bit = Bit.Zero
+  : forall (b : Bit) . (b ^. b)%bit = 0%bit
   := Bit.sejunction.irreflexivity.
 
 Definition data_all_delivers_first
@@ -187,6 +187,25 @@ Definition data_all_delivers_bool_bridge
   : forall (b1 : Bool) (b2 : Bool) .
       Assert (Bool.and b1 b2) <-> Assert b1 /\ Assert b2
   := Assert.conjunction.
+
+Definition data_all_delivers_assert_uniqueness
+  : forall (b : Bool) (p : Assert b) (q : Assert b) . p = q
+  := Assert.uniqueness.
+
+Definition data_all_delivers_assert_guarding_evaluation
+  : forall (X : Type) (b : Bool) (f : Assert b -> X) (p : Assert b) .
+      Assert.guard b f = Some (f p)
+  := @Assert.guarding.evaluation.
+
+Definition data_all_delivers_assert_guarding_inversion
+  : forall (X : Type) (b : Bool) (f : Assert b -> X) (x : X) .
+      Assert.guard b f = Some x -> forsome (p : Assert b) . f p = x
+  := @Assert.guarding.inversion.
+
+Definition data_all_computes_assert_guard
+  : Assert.guard true (fun (_ : Assert true) . false) = Some false
+    /\ Assert.guard false (fun (_ : Assert false) . false) = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
 Definition data_all_delivers_list
   : List Bool

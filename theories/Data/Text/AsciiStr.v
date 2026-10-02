@@ -196,12 +196,12 @@ Proof.
   match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
   match &b7 with | Zero | One end.
   - simpl Ascii.to_source_bytes in |- *.
-    let x := SourceByte.from_byte (Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0)
+    let x := SourceByte.from_byte (Byte.introduction 0 &b6 &b5 &b4 &b3 &b2 &b1 &b0)
       in |- *.
     let proof hx
-      : SourceByte.to_byte &x = Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0
+      : SourceByte.to_byte &x = Byte.introduction 0 &b6 &b5 &b4 &b3 &b2 &b1 &b0
       := SourceByte.conversion.byte.retraction
-           (Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0).
+           (Byte.introduction 0 &b6 &b5 &b4 &b3 &b2 &b1 &b0).
     let proof x := &x.
     simpl in |- *.
     leibniz &hx in |- *.
@@ -210,19 +210,19 @@ Proof.
   - simpl Ascii.to_source_bytes in |- *.
     let x1 :=
       SourceByte.from_byte
-        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6)
+        (Byte.introduction 1 1 0 0 0 0 1 &b6)
       in |- *.
-    let x2 := SourceByte.from_byte (Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0)
+    let x2 := SourceByte.from_byte (Byte.introduction 1 0 &b5 &b4 &b3 &b2 &b1 &b0)
       in |- *.
     let proof hx1
       : SourceByte.to_byte &x1
-        = Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6
+        = Byte.introduction 1 1 0 0 0 0 1 &b6
       := SourceByte.conversion.byte.retraction
-           (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6).
+           (Byte.introduction 1 1 0 0 0 0 1 &b6).
     let proof hx2
-      : SourceByte.to_byte &x2 = Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0
+      : SourceByte.to_byte &x2 = Byte.introduction 1 0 &b5 &b4 &b3 &b2 &b1 &b0
       := SourceByte.conversion.byte.retraction
-           (Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0).
+           (Byte.introduction 1 0 &b5 &b4 &b3 &b2 &b1 &b0).
     let proof x1 := &x1.
     let proof x2 := &x2.
     simpl in |- *.

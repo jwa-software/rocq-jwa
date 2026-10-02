@@ -1100,19 +1100,19 @@ Number Notation Bit.T Bit.from_numeral Bit.to_numeral
 Bind Scope jwa_bit_scope with Bit.T.
 
 Instance Bit_and_monoid
-  : Monoid Bit.and Bit.One :=
+  : Monoid Bit.and 1%bit :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bit.conjunction.associativity |}
   ; Monoid.identity := Bit.conjunction.identity |}.
 
 Instance Bit_or_monoid
-  : Monoid Bit.or Bit.Zero :=
+  : Monoid Bit.or 0%bit :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bit.disjunction.associativity |}
   ; Monoid.identity := Bit.disjunction.identity |}.
 
 Instance Bit_xor_monoid
-  : Monoid Bit.xor Bit.Zero :=
+  : Monoid Bit.xor 0%bit :=
   {| Monoid.semigroup :=
       {| Semigroup.associativity := Bit.sejunction.associativity |}
   ; Monoid.identity := Bit.sejunction.identity |}.
@@ -1130,17 +1130,17 @@ Instance Bit_xor_commutative
   {| Commutative.commutativity := Bit.sejunction.commutativity |}.
 
 Instance Bit_xor_group
-  : Group Bit.xor Bit.Zero (fun (b : Bit) . b) :=
+  : Group Bit.xor 0%bit (fun (b : Bit) . b) :=
   {| Group.monoid := Bit_xor_monoid
   ; Group.inverse := Bit.sejunction.inverse |}.
 
 Instance Bit_xor_abelian_group
-  : AbelianGroup Bit.xor Bit.Zero (fun (b : Bit) . b) :=
+  : AbelianGroup Bit.xor 0%bit (fun (b : Bit) . b) :=
   {| AbelianGroup.group := Bit_xor_group
   ; AbelianGroup.commutative := Bit_xor_commutative |}.
 
 Instance Bit_ring
-  : Ring Bit.xor Bit.Zero (fun (b : Bit) . b) Bit.and Bit.One :=
+  : Ring Bit.xor 0%bit (fun (b : Bit) . b) Bit.and 1%bit :=
   {| Ring.abelian_group := Bit_xor_abelian_group
   ; Ring.monoid := Bit_and_monoid
   ; Ring.distributivity := Bit.conjunction.distributivity.over.sejunction |}.
