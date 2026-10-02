@@ -153,6 +153,38 @@ Definition data_machine_all_computes_uint8_comparison
   : UInt8.compare 0 1 = Comparison.Lt
   := Identity.reflexivity _.
 
+Definition data_machine_all_delivers_uint8_division
+  : forall (x : UInt8) (y : UInt8) (d : BinBase) .
+      UInt8.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt8.to_bin_with_zero (x /. y)%uint8 = Some (x /. d)%bin_with_zero
+  := UInt8.conversion.division.
+
+Definition data_machine_all_delivers_uint8_modulo
+  : forall (x : UInt8) (y : UInt8) (d : BinBase) .
+      UInt8.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt8.to_bin_with_zero (x %. y)%uint8 = Some (x %. d)%bin_with_zero
+  := UInt8.conversion.modulo.
+
+Definition data_machine_all_delivers_uint8_bin_section
+  : forall (x : UInt8) . UInt8.from_bin (UInt8.to_bin x) = x
+  := UInt8.conversion.bin.section.
+
+Definition data_machine_all_computes_uint8_division
+  : (200 /. 7)%uint8 = Some 28%uint8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint8_modulo
+  : (200 %. 7)%uint8 = Some 4%uint8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint8_division_by_zero
+  : (200 /. 0)%uint8 = None
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint8_from_bin
+  : UInt8.from_bin (-1)%b = 255%uint8
+  := Identity.reflexivity _.
+
 Definition data_machine_all_reads_bit_literal
   : Bit.xor 1 1 = 0%bit
   := Identity.reflexivity _.
@@ -504,6 +536,38 @@ Definition data_machine_all_computes_uint16_comparison
   : UInt16.compare 255 256 = Comparison.Lt
   := Identity.reflexivity _.
 
+Definition data_machine_all_delivers_uint16_division
+  : forall (x : UInt16) (y : UInt16) (d : BinBase) .
+      UInt16.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt16.to_bin_with_zero (x /. y)%uint16 = Some (x /. d)%bin_with_zero
+  := UInt16.conversion.division.
+
+Definition data_machine_all_delivers_uint16_modulo
+  : forall (x : UInt16) (y : UInt16) (d : BinBase) .
+      UInt16.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt16.to_bin_with_zero (x %. y)%uint16 = Some (x %. d)%bin_with_zero
+  := UInt16.conversion.modulo.
+
+Definition data_machine_all_delivers_uint16_bin_section
+  : forall (x : UInt16) . UInt16.from_bin (UInt16.to_bin x) = x
+  := UInt16.conversion.bin.section.
+
+Definition data_machine_all_computes_uint16_division
+  : (60000 /. 7)%uint16 = Some 8571%uint16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_modulo
+  : (60000 %. 7)%uint16 = Some 3%uint16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_division_by_zero
+  : (60000 /. 0)%uint16 = None
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint16_from_bin
+  : UInt16.from_bin (-1)%b = 65535%uint16
+  := Identity.reflexivity _.
+
 Definition data_machine_all_reads_uint16_literal_hexadecimal
   : 0xFFFF%uint16 = UInt16.introduction (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
   := Identity.reflexivity _.
@@ -837,6 +901,38 @@ Definition data_machine_all_computes_uint32_comparison
   : UInt32.compare 65535 65536 = Comparison.Lt
   := Identity.reflexivity _.
 
+Definition data_machine_all_delivers_uint32_division
+  : forall (x : UInt32) (y : UInt32) (d : BinBase) .
+      UInt32.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt32.to_bin_with_zero (x /. y)%uint32 = Some (x /. d)%bin_with_zero
+  := UInt32.conversion.division.
+
+Definition data_machine_all_delivers_uint32_modulo
+  : forall (x : UInt32) (y : UInt32) (d : BinBase) .
+      UInt32.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt32.to_bin_with_zero (x %. y)%uint32 = Some (x %. d)%bin_with_zero
+  := UInt32.conversion.modulo.
+
+Definition data_machine_all_delivers_uint32_bin_section
+  : forall (x : UInt32) . UInt32.from_bin (UInt32.to_bin x) = x
+  := UInt32.conversion.bin.section.
+
+Definition data_machine_all_computes_uint32_division
+  : (4000000000 /. 7)%uint32 = Some 571428571%uint32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_modulo
+  : (4000000000 %. 7)%uint32 = Some 3%uint32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_division_by_zero
+  : (4000000000 /. 0)%uint32 = None
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint32_from_bin
+  : UInt32.from_bin (-1)%b = 4294967295%uint32
+  := Identity.reflexivity _.
+
 Definition data_machine_all_reads_uint32_literal_hexadecimal
   : 0xFFFFFFFF%uint32
     = UInt32.introduction
@@ -1163,6 +1259,38 @@ Definition data_machine_all_computes_uint64_carry_out
 
 Definition data_machine_all_computes_uint64_comparison
   : UInt64.compare 4294967295 4294967296 = Comparison.Lt
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_uint64_division
+  : forall (x : UInt64) (y : UInt64) (d : BinBase) .
+      UInt64.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt64.to_bin_with_zero (x /. y)%uint64 = Some (x /. d)%bin_with_zero
+  := UInt64.conversion.division.
+
+Definition data_machine_all_delivers_uint64_modulo
+  : forall (x : UInt64) (y : UInt64) (d : BinBase) .
+      UInt64.to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map UInt64.to_bin_with_zero (x %. y)%uint64 = Some (x %. d)%bin_with_zero
+  := UInt64.conversion.modulo.
+
+Definition data_machine_all_delivers_uint64_bin_section
+  : forall (x : UInt64) . UInt64.from_bin (UInt64.to_bin x) = x
+  := UInt64.conversion.bin.section.
+
+Definition data_machine_all_computes_uint64_division
+  : (18446744073709551615 /. 4294967297)%uint64 = Some 4294967295%uint64
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint64_modulo
+  : (18446744073709551615 %. 1000)%uint64 = Some 615%uint64
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint64_division_by_zero
+  : (18446744073709551615 /. 0)%uint64 = None
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_uint64_from_bin
+  : UInt64.from_bin (-1)%b = 18446744073709551615%uint64
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_uint64_literal_hexadecimal
