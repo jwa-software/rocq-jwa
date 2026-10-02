@@ -997,6 +997,60 @@ Proof.
       &facto).
 Qed.
 
+Module lower. (* conversion.binary.boundedness.lower *)
+
+(* A bit appended below a number at least [m] gives one at least [2 * m]. *)
+(* conversion.binary.boundedness.lower.propagation *)
+Theorem propagation
+  : forall (h : BinWithZero) (m : BinWithZero) (b : Bit) .
+      (m <= h -> 10 * m <= 10 * h + to_bin_with_zero b)%bin_with_zero.
+Proof.
+  intros h m b e.
+  lemma doubled
+    : (2 * BinWithZero.to_nat0 &m <= 2 * BinWithZero.to_nat0 &h + to_nat0 &b)%n0.
+  {
+    lemma padded
+      : (2 * BinWithZero.to_nat0 &h <= 2 * BinWithZero.to_nat0 &h + to_nat0 &b)%n0.
+    {
+      leibniz
+        (Nat0.addition.commutativity (2 * BinWithZero.to_nat0 &h)%n0 (to_nat0 &b))
+        in |- *.
+      ipso
+        (Nat0.addition.right.order.extensivity (to_nat0 &b) (2 * BinWithZero.to_nat0 &h)%n0).
+    }
+    match &e with | same | smaller end.
+    - leibniz &same in |- *.
+      ipso &padded.
+    - let proof below := modus aequans (BinWithZero.conversion.order &m &h), &smaller.
+      let proof twice
+        := Nat0.multiplication.left.order.strict.monotonicity
+            2%n (BinWithZero.to_nat0 &m) (BinWithZero.to_nat0 &h) &below.
+      simpl Nat0.LessOrEqual in |- *.
+      match &padded with | same | above end.
+      + leibniz <- &same in |- *.
+        ipso (disjoin _, &twice).
+      + ipso (disjoin _, (Nat0.order.strict.transitivity &twice &above)).
+  }
+  leibniz
+    <- (conversion.binary.agreement &b),
+    <- conversion.binary.base,
+    <- (BinWithZero.conversion.multiplication 10%bin_with_zero &m),
+    <- (BinWithZero.conversion.multiplication 10%bin_with_zero &h),
+    <- (BinWithZero.conversion.addition (10 * &h)%bin_with_zero (to_bin_with_zero &b))
+    in &doubled.
+  simpl BinWithZero.LessOrEqual in |- *.
+  match &doubled with | same | smaller end.
+  - ipso (disjoin (BinWithZero.conversion.injectivity &same), _).
+  - ipso
+      (disjoin _,
+        (modus aequans
+          (BinWithZero.conversion.order
+            (10 * &m)%bin_with_zero (10 * &h + to_bin_with_zero &b)%bin_with_zero),
+          &smaller)).
+Qed.
+
+End lower. (* conversion.binary.boundedness.lower *)
+
 End boundedness. (* conversion.binary.boundedness *)
 
 (* [BinWithZero.halve] drops the bit appended last. *)
