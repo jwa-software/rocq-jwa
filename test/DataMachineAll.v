@@ -410,9 +410,9 @@ Definition data_machine_all_computes_hword_to_bytes
     /\ HWord.to_bytes 0x1234%hword_big = (0x12%byte :: 0x34%byte :: [])%list
   := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
-Definition data_machine_all_delivers_hword_bytes_retraction
+Definition data_machine_all_delivers_hword_bytes_section
   : forall (x : HWord) . HWord.from_bytes (HWord.endian x) (HWord.to_bytes x) = Some x
-  := HWord.conversion.bytes.retraction.
+  := HWord.conversion.bytes.section.
 
 Fail Definition data_machine_all_refuses_hword_literal_decimal
   : HWord
@@ -530,11 +530,11 @@ Definition data_machine_all_computes_uint16_from_hword
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_uint16_hword_retraction
-  : forall (e : Endian) (x : UInt16) . UInt16.from_hword (UInt16.to_hword e x) = x
+  : forall (w : HWord) . UInt16.to_hword (HWord.endian w) (UInt16.from_hword w) = w
   := UInt16.conversion.hword.retraction.
 
 Definition data_machine_all_delivers_uint16_hword_section
-  : forall (w : HWord) . UInt16.to_hword (HWord.endian w) (UInt16.from_hword w) = w
+  : forall (e : Endian) (x : UInt16) . UInt16.from_hword (UInt16.to_hword e x) = x
   := UInt16.conversion.hword.section.
 
 Theorem data_machine_all_delivers_coercion_uint16_to_bin_with_zero
@@ -645,11 +645,11 @@ Fail Definition data_machine_all_refuses_int16_literal_small
   := (-32769)%int16.
 
 Definition data_machine_all_delivers_int16_hword_retraction
-  : forall (e : Endian) (x : Int16) . Int16.from_hword (Int16.to_hword e x) = x
+  : forall (w : HWord) . Int16.to_hword (HWord.endian w) (Int16.from_hword w) = w
   := Int16.conversion.hword.retraction.
 
 Definition data_machine_all_delivers_int16_hword_section
-  : forall (w : HWord) . Int16.to_hword (HWord.endian w) (Int16.from_hword w) = w
+  : forall (e : Endian) (x : Int16) . Int16.from_hword (Int16.to_hword e x) = x
   := Int16.conversion.hword.section.
 
 Theorem data_machine_all_delivers_coercion_int16_to_bin
@@ -743,9 +743,9 @@ Definition data_machine_all_computes_word_to_bytes
       = (0x12%byte :: 0x34%byte :: 0x56%byte :: 0x78%byte :: [])%list
   := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
-Definition data_machine_all_delivers_word_bytes_retraction
+Definition data_machine_all_delivers_word_bytes_section
   : forall (x : Word) . Word.from_bytes (Word.endian x) (Word.to_bytes x) = Some x
-  := Word.conversion.bytes.retraction.
+  := Word.conversion.bytes.section.
 
 Fail Definition data_machine_all_refuses_word_literal_decimal
   : Word
@@ -865,11 +865,11 @@ Definition data_machine_all_computes_uint32_from_word
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_uint32_word_retraction
-  : forall (e : Endian) (x : UInt32) . UInt32.from_word (UInt32.to_word e x) = x
+  : forall (w : Word) . UInt32.to_word (Word.endian w) (UInt32.from_word w) = w
   := UInt32.conversion.word.retraction.
 
 Definition data_machine_all_delivers_uint32_word_section
-  : forall (w : Word) . UInt32.to_word (Word.endian w) (UInt32.from_word w) = w
+  : forall (e : Endian) (x : UInt32) . UInt32.from_word (UInt32.to_word e x) = x
   := UInt32.conversion.word.section.
 
 Theorem data_machine_all_delivers_coercion_uint32_to_bin_with_zero
@@ -980,11 +980,11 @@ Fail Definition data_machine_all_refuses_int32_literal_small
   := (-2147483649)%int32.
 
 Definition data_machine_all_delivers_int32_word_retraction
-  : forall (e : Endian) (x : Int32) . Int32.from_word (Int32.to_word e x) = x
+  : forall (w : Word) . Int32.to_word (Word.endian w) (Int32.from_word w) = w
   := Int32.conversion.word.retraction.
 
 Definition data_machine_all_delivers_int32_word_section
-  : forall (w : Word) . Int32.to_word (Word.endian w) (Int32.from_word w) = w
+  : forall (e : Endian) (x : Int32) . Int32.from_word (Int32.to_word e x) = x
   := Int32.conversion.word.section.
 
 Theorem data_machine_all_delivers_coercion_int32_to_bin
@@ -1071,9 +1071,9 @@ Definition data_machine_all_computes_dword_to_bytes_big_endian
         :: 0x89%byte :: 0xAB%byte :: 0xCD%byte :: 0xEF%byte :: [])%list
   := Identity.reflexivity _.
 
-Definition data_machine_all_delivers_dword_bytes_retraction
+Definition data_machine_all_delivers_dword_bytes_section
   : forall (x : DWord) . DWord.from_bytes (DWord.endian x) (DWord.to_bytes x) = Some x
-  := DWord.conversion.bytes.retraction.
+  := DWord.conversion.bytes.section.
 
 Fail Definition data_machine_all_refuses_dword_literal_decimal
   : DWord
@@ -1194,11 +1194,11 @@ Definition data_machine_all_computes_uint64_from_dword
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_uint64_dword_retraction
-  : forall (e : Endian) (x : UInt64) . UInt64.from_dword (UInt64.to_dword e x) = x
+  : forall (w : DWord) . UInt64.to_dword (DWord.endian w) (UInt64.from_dword w) = w
   := UInt64.conversion.dword.retraction.
 
 Definition data_machine_all_delivers_uint64_dword_section
-  : forall (w : DWord) . UInt64.to_dword (DWord.endian w) (UInt64.from_dword w) = w
+  : forall (e : Endian) (x : UInt64) . UInt64.from_dword (UInt64.to_dword e x) = x
   := UInt64.conversion.dword.section.
 
 Theorem data_machine_all_delivers_coercion_uint64_to_bin_with_zero
@@ -1312,11 +1312,11 @@ Fail Definition data_machine_all_refuses_int64_literal_small
   := (-9223372036854775809)%int64.
 
 Definition data_machine_all_delivers_int64_dword_retraction
-  : forall (e : Endian) (x : Int64) . Int64.from_dword (Int64.to_dword e x) = x
+  : forall (w : DWord) . Int64.to_dword (DWord.endian w) (Int64.from_dword w) = w
   := Int64.conversion.dword.retraction.
 
 Definition data_machine_all_delivers_int64_dword_section
-  : forall (w : DWord) . Int64.to_dword (DWord.endian w) (Int64.from_dword w) = w
+  : forall (e : Endian) (x : Int64) . Int64.from_dword (Int64.to_dword e x) = x
   := Int64.conversion.dword.section.
 
 Theorem data_machine_all_delivers_coercion_int64_to_bin
@@ -1401,9 +1401,9 @@ Definition data_machine_all_computes_qword_rotate_left
   : QWord.rotate_left 0x80000000000000000000000000000001 1%n0 = 0x3%qword
   := Identity.reflexivity _.
 
-Definition data_machine_all_delivers_qword_bytes_retraction
+Definition data_machine_all_delivers_qword_bytes_section
   : forall (x : QWord) . QWord.from_bytes (QWord.endian x) (QWord.to_bytes x) = Some x
-  := QWord.conversion.bytes.retraction.
+  := QWord.conversion.bytes.section.
 
 Fail Definition data_machine_all_refuses_qword_literal_decimal
   : QWord

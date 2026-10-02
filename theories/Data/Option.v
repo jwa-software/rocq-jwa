@@ -162,6 +162,12 @@ Abbreviation Option := Option.T.
 Abbreviation None := Option.None.
 Abbreviation Some := Option.Some.
 
+(* A parsing function of [Number Notation] or [String Notation] answers [None]
+ * to refuse a literal. The plugin finds [Option] by this name and tells [Some]
+ * from [None] by their arguments, not their order.
+ *)
+Register Option.T as core.option.type.
+
 Instance Option_functor
   : Functor Option :=
   {| Functor.map             := fun (A : Type) (B : Type) . Option.map

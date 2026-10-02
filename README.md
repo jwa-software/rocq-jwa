@@ -50,7 +50,7 @@ make
 Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a file sees only what it requires by name. The library defines its own notations, connectives, equality and data types, and requires nothing from `Corelib`. Two compiled plugins are used as they are:
 
 - **Ltac2**, the tactic engine, loaded by `theories/Dialect/Ltac.v`;
-- **the numeral reader** behind `Number Notation`, loaded by `theories/Data/Number/Numeral.v`.
+- **the literal reader** behind `Number Notation` and `String Notation`, loaded by `theories/Data/Literal.v`.
 
 ---
 
@@ -60,6 +60,7 @@ Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a f
 - [The tactic language](docs/tactic.md): Ltac2 with Rocq's own tactics hidden, and the tactics that take their place.
 - [Numbers](docs/numbers.md): the number types, their conversions, arithmetic and literals.
 - [Machine units](docs/machine.md): `Bit`, `Byte`, the words `HWord` to `QWord` with their byte order, and the fixed-width integers `UInt8` to `UInt64` and `Int8` to `Int64`.
+- [Text](docs/text.md): the characters `Ascii`, the strings `AsciiStr`, and how a string literal is read.
 - [Layout](docs/layout.md): the layers, their directories and what each depends on.
 
 ---

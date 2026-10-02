@@ -3304,6 +3304,12 @@ Abbreviation List := List.T.
  *)
 Export (notations) List.
 
+(* The plugin behind [String Notation] finds the list type by this name and
+ * builds a list by constructor position, so [Nil] stays the first ctor and
+ * [Cons] the second.
+ *)
+Register List.T as core.list.type.
+
 Instance List_concat_monoid
   : forall {A : Type} . Monoid (@List.concat A) List.Nil :=
   fun (A : Type) .

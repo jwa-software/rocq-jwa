@@ -1031,10 +1031,10 @@ Qed.
 Module hword. (* conversion.hword *)
 
 (* conversion.hword.retraction *)
-Theorem retraction : forall (e : Endian) (x : UInt16) . from_hword (to_hword e x) = x.
+Theorem retraction : forall (w : HWord) . to_hword (HWord.endian w) (from_hword w) = w.
 Proof.
-  intros e x.
-  match &x with | UInt16_introduction b1 b0 end.
+  intros w.
+  match &w with | HWord_introduction e b0 b1 end.
   match &e with | Little | Big end;
     simpl from_hword, to_hword in |- *;
     simpl in |- *;
@@ -1042,10 +1042,10 @@ Proof.
 Qed.
 
 (* conversion.hword.section *)
-Theorem section : forall (w : HWord) . to_hword (HWord.endian w) (from_hword w) = w.
+Theorem section : forall (e : Endian) (x : UInt16) . from_hword (to_hword e x) = x.
 Proof.
-  intros w.
-  match &w with | HWord_introduction e b0 b1 end.
+  intros e x.
+  match &x with | UInt16_introduction b1 b0 end.
   match &e with | Little | Big end;
     simpl from_hword, to_hword in |- *;
     simpl in |- *;

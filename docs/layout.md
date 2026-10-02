@@ -19,7 +19,7 @@ The library lives under `theories/`, **one directory per layer**. Each layer:
 | `jwa.Tactics` | Tactics that apply the laws of Core: the rules of inference by name, symmetry and transitivity, witnesses | Dialect, Core |
 | `jwa.Algebra` | Algebraic structures, from semigroups to rings, and their theory | Dialect, Core |
 | `jwa.Relation` | Orders, well-founded and equivalence relations | Dialect, Core, Tactics |
-| `jwa.Data` | Concrete data types: the base types, the machine units, products, coproducts, options, the numbers, lists, and the functor class they instantiate | Dialect, Core, Tactics, Algebra, Relation |
+| `jwa.Data` | Concrete data types: the base types, the machine units, products, coproducts, options, the numbers, lists, text, and the functor class they instantiate | Dialect, Core, Tactics, Algebra, Relation |
 | `jwa.Assumption` | Axioms: classical principles, extensionality, decidability; the layer holds only its umbrella | Dialect, Core |
 | `jwa.Programming` | Monad instances, effects, extraction-oriented code; the layer holds only its umbrella | Dialect, Core, Tactics, Algebra, Relation, Data |
 | `jwa.All` | `From jwa Require Import All` brings in every layer except Assumption | every layer but Assumption |
@@ -41,3 +41,4 @@ In `Core`, `Relation` and `Data`, whose `dune` files carry `(include_subdirs qua
 | `Data/Machine/` | The fixed-width units a machine stores: `Bit`, `Byte`, `HWord`, `Word`, `DWord`, `QWord`, the integers `UInt8` to `UInt64` and `Int8` to `Int64`, and `Endian`, the byte order of a word |
 | `Data/Number/` | `Nat`, `Nat0`, `Integer`, `Rational`, and `Numeral`, the digit types a literal is read into |
 | `Data/Number/Binary/` | `BinBase`, `BinWithZero`, `Bin`, also forwarded by `Data.Number.All` |
+| `Data/Text/` | The text types: `SourceByte`, the byte a string literal arrives in, `Ascii` and `AsciiStr` |

@@ -1,16 +1,15 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
-From jwa Require Import Data.Option.
+From jwa Require Import Data.Literal.
 
-(* The plugin behind [Number Notation]. It reads a numeral literal into the
- * types below and hands that to the parsing function a notation names; it
- * finds each type by the name it is registered under and builds its terms by
- * constructor position, so every type here has the shape the plugin expects.
- * Digits run most significant first: [1011] is [One (Zero (One (One End)))].
+(* The types a numeral literal is read into. The plugin behind
+ * [Number Notation] reads the literal into them and hands that to the parsing
+ * function a notation names; it finds each type by the name it is registered
+ * under and builds its terms by constructor position, so every type here has
+ * the shape the plugin expects. Digits run most significant first: [1011] is
+ * [One (Zero (One (One End)))].
  *)
-Declare ML Module "rocq-runtime.plugins.number_string_notation".
-
 Module Numeral. (* Numeral *)
 
 Module Decimal. (* Decimal *)
@@ -166,9 +165,3 @@ Register Numeral.Hexadecimal.Fractional.T as num.hexadecimal.type.
 Register Numeral.Unsigned.T               as num.num_uint.type.
 Register Numeral.Signed.T                 as num.num_int.type.
 Register Numeral.Fractional.T             as num.number.type.
-
-(* A parsing function answering [None] refuses the literal. The plugin tells
- * [Some] from [None] by their arguments, not their order, so [Option] serves
- * as it is.
- *)
-Register Option.T as core.option.type.

@@ -2450,10 +2450,10 @@ End right. (* conversion.right *)
 Module dword. (* conversion.dword *)
 
 (* conversion.dword.retraction *)
-Theorem retraction : forall (e : Endian) (x : Int64) . from_dword (to_dword e x) = x.
+Theorem retraction : forall (w : DWord) . to_dword (DWord.endian w) (from_dword w) = w.
 Proof.
-  intros e x.
-  match &x with | Int64_introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  intros w.
+  match &w with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
   match &e with | Little | Big end;
     simpl from_dword, to_dword in |- *;
     simpl in |- *;
@@ -2461,10 +2461,10 @@ Proof.
 Qed.
 
 (* conversion.dword.section *)
-Theorem section : forall (w : DWord) . to_dword (DWord.endian w) (from_dword w) = w.
+Theorem section : forall (e : Endian) (x : Int64) . from_dword (to_dword e x) = x.
 Proof.
-  intros w.
-  match &w with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+  intros e x.
+  match &x with | Int64_introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
   match &e with | Little | Big end;
     simpl from_dword, to_dword in |- *;
     simpl in |- *;

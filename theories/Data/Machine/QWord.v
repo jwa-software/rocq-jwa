@@ -1948,8 +1948,8 @@ Module conversion. (* conversion *)
 
 Module bytes. (* conversion.bytes *)
 
-(* conversion.bytes.retraction *)
-Theorem retraction : forall (x : QWord) . from_bytes (endian x) (to_bytes x) = Some x.
+(* conversion.bytes.section *)
+Theorem section : forall (x : QWord) . from_bytes (endian x) (to_bytes x) = Some x.
 Proof.
   intros x.
   match &x with | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
