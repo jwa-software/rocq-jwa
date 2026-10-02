@@ -1877,6 +1877,36 @@ Qed.
 
 End dividend. (* division.dividend *)
 
+Module quotient. (* division.quotient *)
+
+(* division.quotient.boundedness *)
+Theorem boundedness : forall (n : Nat0) (d : Nat) . (n /. d) <= n.
+Proof.
+  intros n d.
+  lemma scaled : (&n /. &d) <= (&n /. &d) * (+ &d).
+  {
+    leibniz (multiplication.commutativity (&n /. &d) (+ &d)) in |- *.
+    ipso (multiplication.right.order.extensivity &d (&n /. &d)).
+  }
+  lemma padded : (&n /. &d) * (+ &d) <= ((&n /. &d) * (+ &d)) + (&n %. &d).
+  {
+    leibniz (addition.commutativity ((&n /. &d) * (+ &d)) (&n %. &d)) in |- *.
+    ipso (addition.right.order.extensivity (&n %. &d) ((&n /. &d) * (+ &d))).
+  }
+  leibniz (division.dividend.reconstruction &n &d) in &padded.
+  simpl ( _ <= _ ) in |- *.
+  match &scaled with | same | below end.
+  - leibniz &same in |- *.
+    simpl ( _ <= _ ) in &padded.
+    ipso &padded.
+  - match &padded with | same | below' end.
+    + leibniz &same in &below.
+      ipso (disjoin _, &below).
+    + ipso (disjoin _, (order.strict.transitivity &below &below')).
+Qed.
+
+End quotient. (* division.quotient *)
+
 Module remainder. (* division.remainder *)
 
 (* division.remainder.boundedness *)

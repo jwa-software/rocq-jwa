@@ -24,6 +24,7 @@ From jwa Require Import Data.Option.
 From jwa Require Import Data.Product.
 From jwa Require Import Tactics.Equation.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* A signed integer of sixteen bits: two [Byte]s read in two's complement, from
  * -32768 (-2^15) to 32767 (2^15 - 1), its arithmetic wrapping modulo 65536
@@ -314,6 +315,21 @@ Definition from_nat0 := fun (n : Nat0) . from_bin_with_zero (BinWithZero.from_na
 (* [Bin -> Int16] *)
 Definition from_bin := fun (z : Bin) .
   add (from_bin_with_zero (Bin.ramp z)) (negate (from_bin_with_zero (Bin.ramp (Bin.negate z)))).
+
+(* The quotient through [Bin], toward zero, [None] when [y] is zero. [Bin.divide]
+ * takes a positive divisor, so the divisor's sign is matched here; -32768
+ * (-2^15) over -1 wraps to itself.
+ *)
+(* [Int16 -> Int16 -> Option Int16] *)
+Definition divide := fun (x : Int16) (y : Int16) .
+  match to_bin y with
+  | Bin.Negative d => Some (from_bin (Bin.negate (x /. d)%b))
+  | Bin.Zero       => None
+  | Bin.Positive d => Some (from_bin (x /. d)%b)
+  end.
+
+Notation "x /. y" := (divide x y) (only parsing)
+  : jwa_int16_scope.
 
 (* [x] modulo 65536 into the range -32768 to 32767. *)
 (* [Integer -> Int16] *)
@@ -1003,6 +1019,84 @@ Proof.
     (valuation.multiplication.step _ _ _ _ &base)))))))))))))))).
 Qed.
 
+Module sign. (* valuation.sign *)
+
+(* valuation.sign.clear *)
+Theorem clear
+  : forall (x : Int16) .
+      sign_bit x = 0%bit -> (unsigned_value x < 1000000000000000)%bin_with_zero.
+Proof.
+  intros x e.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  simpl sign_bit in &e.
+  simpl unsigned_value in |- *.
+  leibniz &e in |- *.
+  lemma base : (Bit.to_bin_with_zero 0 < 1)%bin_with_zero.
+  {
+    simpl BinWithZero.LessThan in |- *.
+    exists BinBase.One.
+    simpl in |- *.
+    quod idem est.
+  }
+  ipso
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    (Bit.conversion.binary.boundedness.propagation _ _ _
+    &base))))))))))))))).
+Qed.
+
+(* valuation.sign.set *)
+Theorem set
+  : forall (x : Int16) .
+      sign_bit x = 1%bit -> (1000000000000000 <= unsigned_value x)%bin_with_zero.
+Proof.
+  intros x e.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  simpl sign_bit in &e.
+  simpl unsigned_value in |- *.
+  leibniz &e in |- *.
+  lemma base : (1 <= Bit.to_bin_with_zero 1)%bin_with_zero.
+  {
+    simpl BinWithZero.LessOrEqual, Bit.to_bin_with_zero in |- *.
+    ipso (disjoin (Identity.reflexivity 1%bin_with_zero), _).
+  }
+  ipso
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    (Bit.conversion.binary.boundedness.lower.propagation _ _ _
+    &base))))))))))))))).
+Qed.
+
+End sign. (* valuation.sign *)
+
 End valuation. (* valuation *)
 
 Module addition. (* addition *)
@@ -1629,6 +1723,479 @@ Proof.
 Qed.
 
 End right. (* conversion.right *)
+
+Module bin. (* conversion.bin *)
+
+(* conversion.bin.nonnegative *)
+Lemma nonnegative
+  : forall (n : BinWithZero) . from_bin (Bin.from_bin_with_zero n) = from_bin_with_zero n.
+Proof.
+  intros n.
+  lemma nothing : - from_bin_with_zero BinWithZero.Zero = Zero.
+  {
+    simpl from_bin_with_zero in |- *.
+    match (addition.inverse Zero) with | _ right end.
+    match (addition.identity (- Zero)) with | left _ end.
+    ipso (trans (symm &left), &right).
+  }
+  match &n with | Zero | Positive p end.
+  - simpl Bin.from_bin_with_zero, from_bin in |- *.
+    simpl Bin.ramp, Bin.negate in |- *.
+    leibniz &nothing in |- *.
+    match (addition.identity (from_bin_with_zero BinWithZero.Zero)) with | _ right end.
+    ipso &right.
+  - simpl Bin.from_bin_with_zero, from_bin in |- *.
+    simpl Bin.ramp, Bin.negate in |- *.
+    leibniz &nothing in |- *.
+    match (addition.identity (from_bin_with_zero (BinWithZero.Positive &p))) with
+    | _ right end.
+    ipso &right.
+Qed.
+
+(* conversion.bin.negative *)
+Lemma negative : forall (p : BinBase) . from_bin (Bin.Negative p) = - from_bin_base p.
+Proof.
+  intros p.
+  simpl from_bin in |- *.
+  simpl Bin.ramp, Bin.negate in |- *.
+  lemma nothing : from_bin_with_zero BinWithZero.Zero = Zero.
+  {
+    simpl from_bin_with_zero in |- *.
+    quod idem est.
+  }
+  lemma unfolded : from_bin_with_zero (BinWithZero.Positive &p) = from_bin_base &p.
+  {
+    simpl from_bin_with_zero in |- *.
+    quod idem est.
+  }
+  leibniz &nothing, &unfolded in |- *.
+  match (addition.identity (- from_bin_base &p)) with | left _ end.
+  ipso &left.
+Qed.
+
+End bin. (* conversion.bin *)
+
+Module boundedness. (* conversion.boundedness *)
+
+(* conversion.boundedness.positive *)
+Theorem positive
+  : forall (x : Int16) (p : BinBase) .
+      to_bin x = Bin.Positive p -> (p < 1000000000000000)%bin_with_zero.
+Proof.
+  intros x p e.
+  simpl to_bin in &e.
+  match (sign_bit &x) with | Zero | One end |- s.
+  - lemma scaled : (modulus * Bit.to_bin_with_zero 0 = 0)%bin_with_zero.
+    {
+      simpl modulus, Bit.to_bin_with_zero in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &scaled in &e.
+    let proof small := valuation.sign.clear &x &s.
+    match (unsigned_value &x) with | Zero | Positive q end |- f.
+    + simpl Bin.bin_with_zero_difference in &e.
+      ex &e quodlibet.
+    + simpl Bin.bin_with_zero_difference in &e.
+      let proof g := congru Bin.ramp, &e.
+      simpl Bin.ramp in &g.
+      leibniz &g in &small.
+      ipso &small.
+  - lemma whole : (modulus * Bit.to_bin_with_zero 1 = modulus)%bin_with_zero.
+    {
+      simpl modulus in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &whole in &e.
+    let proof sp := Bin.difference.specification (unsigned_value &x) modulus.
+    leibniz &e in &sp.
+    simpl Bin.ramp, Bin.negate in &sp.
+    match (BinWithZero.addition.identity (unsigned_value &x)) with | left _ end.
+    leibniz &left in &sp.
+    let proof bound := valuation.boundedness &x.
+    leibniz <- &sp in &bound.
+    ex
+      (BinWithZero.order.strict.irreflexivity _
+        (BinWithZero.order.mixed.transitivity
+          (BinWithZero.addition.right.order.extensivity p modulus) &bound))
+      quodlibet.
+Qed.
+
+(* conversion.boundedness.negative *)
+Theorem negative
+  : forall (x : Int16) (p : BinBase) .
+      to_bin x = Bin.Negative p -> (p <= 1000000000000000)%bin_with_zero.
+Proof.
+  intros x p e.
+  simpl to_bin in &e.
+  match (sign_bit &x) with | Zero | One end |- s.
+  - lemma scaled : (modulus * Bit.to_bin_with_zero 0 = 0)%bin_with_zero.
+    {
+      simpl modulus, Bit.to_bin_with_zero in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &scaled in &e.
+    match (unsigned_value &x) with | Zero | Positive q end |- f.
+    + simpl Bin.bin_with_zero_difference in &e.
+      ex &e quodlibet.
+    + simpl Bin.bin_with_zero_difference in &e.
+      ex &e quodlibet.
+  - lemma whole : (modulus * Bit.to_bin_with_zero 1 = modulus)%bin_with_zero.
+    {
+      simpl modulus in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &whole in &e.
+    let proof big := valuation.sign.set &x &s.
+    let proof sp := Bin.difference.specification (unsigned_value &x) modulus.
+    leibniz &e in &sp.
+    simpl Bin.ramp, Bin.negate in &sp.
+    match (BinWithZero.addition.identity modulus) with | left _ end.
+    leibniz &left in &sp.
+    match
+      (Comparable.order.strict.trichotomy
+        (BinWithZero.Positive p) 1000000000000000%bin_with_zero)
+    with
+    | below | rest end.
+    + simpl BinWithZero.LessOrEqual in |- *.
+      ipso (disjoin _, &below).
+    + match &rest with | same | above end.
+      * simpl BinWithZero.LessOrEqual in |- *.
+        ipso (disjoin &same, _).
+      * lemma double : (1000000000000000 + 1000000000000000 = modulus)%bin_with_zero.
+        {
+          simpl modulus, BinWithZero.add in |- *.
+          simpl BinBase.add in |- *.
+          simpl in |- *.
+          quod idem est.
+        }
+        let proof total := BinWithZero.addition.order.strict.monotonicity _ _ _ _ &big &above.
+        leibniz
+          &double,
+          (BinWithZero.addition.commutativity (unsigned_value &x) p),
+          <- &sp
+          in &total.
+        ex (BinWithZero.order.strict.irreflexivity _ &total) quodlibet.
+Qed.
+
+End boundedness. (* conversion.boundedness *)
+
+Module retraction. (* conversion.retraction *)
+
+(* conversion.retraction.nonnegative *)
+Theorem nonnegative
+  : forall (n : BinWithZero) .
+      (n < 1000000000000000)%bin_with_zero
+      -> to_bin (from_bin (Bin.from_bin_with_zero n)) = Bin.from_bin_with_zero n.
+Proof.
+  intros n h.
+  lemma half : (1000000000000000 < modulus)%bin_with_zero.
+  {
+    simpl BinWithZero.LessThan in |- *.
+    exists 1000000000000000%bin_base.
+    simpl modulus, BinWithZero.add in |- *.
+    simpl BinBase.add in |- *.
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma value : unsigned_value (from_bin_with_zero &n) = &n.
+  {
+    leibniz
+      (valuation.reduction &n),
+      (BinWithZero.modulo.identity &n modulus (BinWithZero.order.strict.transitivity &h &half))
+      in |- *.
+    quod idem est.
+  }
+  lemma sign : sign_bit (from_bin_with_zero &n) = 0%bit.
+  {
+    match (sign_bit (from_bin_with_zero &n)) with | Zero | One end |- s.
+    - quod idem est.
+    - let proof big := valuation.sign.set _ &s.
+      leibniz &value in &big.
+      ex
+        (BinWithZero.order.strict.irreflexivity _
+          (BinWithZero.order.mixed.transitivity &big &h))
+        quodlibet.
+  }
+  leibniz (conversion.bin.nonnegative &n) in |- *.
+  simpl to_bin in |- *.
+  leibniz &value, &sign in |- *.
+  match &n with | Zero | Positive p end.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+Qed.
+
+(* conversion.retraction.negative *)
+Theorem negative
+  : forall (p : BinBase) .
+      (p <= 1000000000000000)%bin_with_zero
+      -> to_bin (from_bin (Bin.Negative p)) = Bin.Negative p.
+Proof.
+  intros p h.
+  leibniz (conversion.bin.negative &p) in |- *.
+  lemma half : (1000000000000000 < modulus)%bin_with_zero.
+  {
+    simpl BinWithZero.LessThan in |- *.
+    exists 1000000000000000%bin_base.
+    simpl modulus, BinWithZero.add in |- *.
+    simpl BinBase.add in |- *.
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma below : (p < modulus)%bin_with_zero.
+  {
+    match &h with | same | smaller end.
+    - leibniz &same in |- *.
+      ipso &half.
+    - ipso (BinWithZero.order.strict.transitivity &smaller &half).
+  }
+  let proof pbelow := &below.
+  match &below with | k ek end.
+  lemma kbelow : (k < modulus)%bin_with_zero.
+  {
+    simpl BinWithZero.LessThan in |- *.
+    exists &p.
+    leibniz (BinWithZero.addition.commutativity k p) in |- *.
+    ipso &ek.
+  }
+  lemma valuek : unsigned_value (from_bin_base &k) = k.
+  {
+    lemma through : from_bin_base &k = from_bin_with_zero k.
+    {
+      simpl from_bin_with_zero in |- *.
+      quod idem est.
+    }
+    leibniz
+      &through, (valuation.reduction k), (BinWithZero.modulo.identity k modulus &kbelow)
+      in |- *.
+    quod idem est.
+  }
+  lemma valuep : unsigned_value (from_bin_base &p) = p.
+  {
+    lemma through : from_bin_base &p = from_bin_with_zero p.
+    {
+      simpl from_bin_with_zero in |- *.
+      quod idem est.
+    }
+    leibniz
+      &through, (valuation.reduction p), (BinWithZero.modulo.identity p modulus &pbelow)
+      in |- *.
+    quod idem est.
+  }
+  lemma sum : from_bin_base &k + from_bin_base &p = Zero.
+  {
+    lemma facto : unsigned_value (from_bin_base &k + from_bin_base &p) = unsigned_value Zero.
+    {
+      leibniz
+        (valuation.addition (from_bin_base &k) (from_bin_base &p)),
+        &valuek, &valuep, valuation.zero,
+        (BinWithZero.addition.commutativity k p),
+        &ek
+        in |- *.
+      simpl modulus in |- *.
+      simpl BinWithZero.modulo, BinWithZero.div in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    ipso (valuation.injectivity &facto).
+  }
+  lemma complement : - from_bin_base &p = from_bin_base &k.
+  {
+    match (addition.identity (- from_bin_base &p)) with | left _ end.
+    match (addition.inverse (from_bin_base &p)) with | _ right end.
+    match (addition.identity (from_bin_base &k)) with | _ right' end.
+    leibniz
+      <- &left,
+      <- &sum,
+      (addition.associativity (from_bin_base &k) (from_bin_base &p) (- from_bin_base &p)),
+      &right,
+      &right'
+      in |- *.
+    quod idem est.
+  }
+  leibniz &complement in |- *.
+  lemma double : (1000000000000000 + 1000000000000000 = modulus)%bin_with_zero.
+  {
+    simpl modulus, BinWithZero.add in |- *.
+    simpl BinBase.add in |- *.
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma sign : sign_bit (from_bin_base &k) = 1%bit.
+  {
+    match (sign_bit (from_bin_base &k)) with | Zero | One end |- s.
+    - let proof small := valuation.sign.clear _ &s.
+      leibniz &valuek in &small.
+      let proof total := BinWithZero.addition.order.strict.monotonicity _ _ _ _ &h &small.
+      leibniz &ek, &double in &total.
+      ex (BinWithZero.order.strict.irreflexivity _ &total) quodlibet.
+    - quod idem est.
+  }
+  lemma whole : (modulus * Bit.to_bin_with_zero 1 = modulus)%bin_with_zero.
+  {
+    simpl modulus in |- *.
+    simpl in |- *.
+    quod idem est.
+  }
+  lemma swap : (k + p = 0 + modulus)%bin_with_zero.
+  {
+    match (BinWithZero.addition.identity modulus) with | left _ end.
+    leibniz (BinWithZero.addition.commutativity k p), &ek, &left in |- *.
+    quod idem est.
+  }
+  simpl to_bin in |- *.
+  leibniz &valuek, &sign, &whole, (Bin.difference.invariance &swap) in |- *.
+  simpl Bin.bin_with_zero_difference in |- *.
+  quod idem est.
+Qed.
+
+End retraction. (* conversion.retraction *)
+
+Module division. (* conversion.division *)
+
+(* conversion.division.positive *)
+Theorem positive
+  : forall (x : Int16) (y : Int16) (d : BinBase) .
+      to_bin y = Bin.Positive d -> Option.map to_bin (x /. y)%int16 = Some (x /. d)%b.
+Proof.
+  intros x y d e.
+  lemma origin : to_bin (from_bin 0%b) = 0%b.
+  {
+    lemma nothing : (0 < 1000000000000000)%bin_with_zero.
+    {
+      simpl BinWithZero.LessThan in |- *.
+      exists 1000000000000000%bin_base.
+      simpl BinWithZero.add in |- *.
+      quod idem est.
+    }
+    let proof r := conversion.retraction.nonnegative 0%bin_with_zero &nothing.
+    simpl Bin.from_bin_with_zero in &r.
+    ipso &r.
+  }
+  lemma fits : to_bin (from_bin (x /. &d)%b) = (x /. &d)%b.
+  {
+    match (to_bin &x) with | Negative p | Zero | Positive p end |- t.
+    - let proof r := conversion.boundedness.negative &x &p &t.
+      let proof b := BinWithZero.division.quotient.boundedness p &d.
+      simpl Bin.divide in |- *.
+      match ((p /. &d)%bin_with_zero) with | Zero | Positive q end |- f.
+      + simpl Bin.from_bin_with_zero, Bin.negate in |- *.
+        ipso &origin.
+      + simpl Bin.from_bin_with_zero, Bin.negate in |- *.
+        lemma bounded : (q <= 1000000000000000)%bin_with_zero.
+        {
+          match &r with | same | smaller end.
+          - leibniz &same in &b.
+            ipso &b.
+          - simpl BinWithZero.LessOrEqual in |- *.
+            ipso (disjoin _, (BinWithZero.order.mixed.transitivity &b &smaller)).
+        }
+        ipso (conversion.retraction.negative &q &bounded).
+    - simpl Bin.divide in |- *.
+      ipso &origin.
+    - let proof r := conversion.boundedness.positive &x &p &t.
+      let proof b := BinWithZero.division.quotient.boundedness p &d.
+      simpl Bin.divide in |- *.
+      ipso
+        (conversion.retraction.nonnegative (p /. &d)%bin_with_zero
+          (BinWithZero.order.mixed.transitivity &b &r)).
+  }
+  simpl divide in |- *.
+  leibniz &e in |- *.
+  simpl Option.map in |- *.
+  leibniz &fits in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.division.negative *)
+Theorem negative
+  : forall (x : Int16) (y : Int16) (d : BinBase) .
+      to_bin y = Bin.Negative d
+      -> ~ (to_bin x = (-1000000000000000)%b /\ d = BinBase.One)
+      -> Option.map to_bin (x /. y)%int16 = Some (Bin.negate (x /. d)%b).
+Proof.
+  intros x y d e h.
+  lemma origin : to_bin (from_bin 0%b) = 0%b.
+  {
+    lemma nothing : (0 < 1000000000000000)%bin_with_zero.
+    {
+      simpl BinWithZero.LessThan in |- *.
+      exists 1000000000000000%bin_base.
+      simpl BinWithZero.add in |- *.
+      quod idem est.
+    }
+    let proof r := conversion.retraction.nonnegative 0%bin_with_zero &nothing.
+    simpl Bin.from_bin_with_zero in &r.
+    ipso &r.
+  }
+  lemma fits : to_bin (from_bin (Bin.negate (x /. &d)%b)) = Bin.negate (x /. &d)%b.
+  {
+    match (to_bin &x) with | Negative p | Zero | Positive p end |- t.
+    - let proof r := conversion.boundedness.negative &x &p &t.
+      lemma below : ((p /. &d) < 1000000000000000)%bin_with_zero.
+      {
+        match &r with | same | smaller end.
+        - match &d with | One | b0 d' | b1 d' end.
+          + let proof g := congru BinWithZero.to_bin_base, &same.
+            simpl BinWithZero.to_bin_base in &g.
+            let proof k := Option.some.injectivity &g.
+            leibniz &k in &h.
+            ex
+              (&h
+                (conjoin
+                  (Identity.reflexivity (-1000000000000000)%b),
+                  (Identity.reflexivity BinBase.One)))
+              quodlibet.
+          + lemma differ : ~ (BinBase.b0 &d' = BinBase.One).
+            {
+              intro k.
+              ex &k quodlibet.
+            }
+            leibniz <- &same in |- *.
+            ipso (BinWithZero.division.quotient.strict.boundedness &p (BinBase.b0 &d') &differ).
+          + lemma differ : ~ (BinBase.b1 &d' = BinBase.One).
+            {
+              intro k.
+              ex &k quodlibet.
+            }
+            leibniz <- &same in |- *.
+            ipso (BinWithZero.division.quotient.strict.boundedness &p (BinBase.b1 &d') &differ).
+        - ipso
+            (BinWithZero.order.mixed.transitivity
+              (BinWithZero.division.quotient.boundedness p &d) &smaller).
+      }
+      simpl Bin.divide in |- *.
+      leibniz (Bin.negation.involution (Bin.from_bin_with_zero (p /. &d)%bin_with_zero)) in |- *.
+      ipso (conversion.retraction.nonnegative (p /. &d)%bin_with_zero &below).
+    - simpl Bin.divide, Bin.negate in |- *.
+      ipso &origin.
+    - let proof r := conversion.boundedness.positive &x &p &t.
+      let proof b := BinWithZero.division.quotient.boundedness p &d.
+      simpl Bin.divide in |- *.
+      match ((p /. &d)%bin_with_zero) with | Zero | Positive q end |- f.
+      + simpl Bin.from_bin_with_zero, Bin.negate in |- *.
+        ipso &origin.
+      + simpl Bin.from_bin_with_zero, Bin.negate in |- *.
+        lemma bounded : (q <= 1000000000000000)%bin_with_zero.
+        {
+          simpl BinWithZero.LessOrEqual in |- *.
+          ipso (disjoin _, (BinWithZero.order.mixed.transitivity &b &r)).
+        }
+        ipso (conversion.retraction.negative &q &bounded).
+  }
+  simpl divide in |- *.
+  leibniz &e in |- *.
+  simpl Option.map in |- *.
+  leibniz &fits in |- *.
+  quod idem est.
+Qed.
+
+End division. (* conversion.division *)
 
 Module hword. (* conversion.hword *)
 

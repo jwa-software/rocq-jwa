@@ -1910,6 +1910,74 @@ Proof.
     ipso (conversion.injectivity (&r &f)).
 Qed.
 
+Module right. (* addition.right *)
+
+Module order. (* addition.right.order *)
+
+(* addition.right.order.extensivity *)
+Theorem extensivity : forall (m : BinWithZero) (n : BinWithZero) . n <= m + n.
+Proof.
+  intros m n.
+  let proof g := Nat0.addition.right.order.extensivity (to_nat0 &m) (to_nat0 &n).
+  leibniz <- (conversion.addition &m &n) in &g.
+  simpl ( _ <= _ ) in |- *.
+  match &g with | same | smaller end.
+  - ipso (disjoin (conversion.injectivity &same), _).
+  - ipso (disjoin _, (modus aequans (conversion.order &n (&m + &n)), &smaller)).
+Qed.
+
+End order. (* addition.right.order *)
+
+End right. (* addition.right *)
+
+Module order. (* addition.order *)
+
+Module strict. (* addition.order.strict *)
+
+(* A sum grows strictly when one term grows strictly and the other does not
+ * shrink.
+ *)
+(* addition.order.strict.monotonicity *)
+Theorem monotonicity
+  : forall (a : BinWithZero) (b : BinWithZero) (c : BinWithZero) (d : BinWithZero) .
+      a <= c -> b < d -> a + b < c + d.
+Proof.
+  intros a b c d hac hbd.
+  let proof bd := modus aequans (conversion.order &b &d), &hbd.
+  lemma first : (to_nat0 &a + to_nat0 &b < to_nat0 &a + to_nat0 &d)%n0.
+  {
+    ipso (Nat0.addition.order.strict.monotonicity (to_nat0 &a) (to_nat0 &b) (to_nat0 &d) &bd).
+  }
+  lemma second : (to_nat0 &a + to_nat0 &d <= to_nat0 &c + to_nat0 &d)%n0.
+  {
+    leibniz
+      (Nat0.addition.commutativity (to_nat0 &a) (to_nat0 &d)),
+      (Nat0.addition.commutativity (to_nat0 &c) (to_nat0 &d))
+      in |- *.
+    simpl Nat0.LessOrEqual in |- *.
+    match &hac with | same | smaller end.
+    - leibniz &same in |- *.
+      ipso (disjoin (Identity.reflexivity (to_nat0 &d + to_nat0 &c)%n0), _).
+    - let proof ac := modus aequans (conversion.order &a &c), &smaller.
+      ipso
+        (disjoin _,
+          (Nat0.addition.order.strict.monotonicity (to_nat0 &d) (to_nat0 &a) (to_nat0 &c) &ac)).
+  }
+  lemma both : (to_nat0 &a + to_nat0 &b < to_nat0 &c + to_nat0 &d)%n0.
+  {
+    match &second with | same | smaller end.
+    - leibniz <- &same in |- *.
+      ipso &first.
+    - ipso (Nat0.order.strict.transitivity &first &smaller).
+  }
+  leibniz <- (conversion.addition &a &b), <- (conversion.addition &c &d) in &both.
+  ipso (modus aequans (conversion.order (&a + &b) (&c + &d)), &both).
+Qed.
+
+End strict. (* addition.order.strict *)
+
+End order. (* addition.order *)
+
 End addition. (* addition *)
 
 Module multiplication. (* multiplication *)
@@ -2062,6 +2130,21 @@ Qed.
 
 End strict. (* order.strict *)
 
+Module mixed. (* order.mixed *)
+
+(* order.mixed.transitivity *)
+Theorem transitivity
+  : forall {l : BinWithZero} {m : BinWithZero} {n : BinWithZero} . l <= m -> m < n -> l < n.
+Proof.
+  intros l m n h k.
+  match &h with | same | smaller end.
+  - leibniz &same in |- *.
+    ipso &k.
+  - ipso (order.strict.transitivity &smaller &k).
+Qed.
+
+End mixed. (* order.mixed *)
+
 End order. (* order *)
 
 Module comparison. (* comparison *)
@@ -2131,6 +2214,100 @@ Qed.
 End maximum. (* maximum *)
 
 Module division. (* division *)
+
+Module quotient. (* division.quotient *)
+
+(* division.quotient.boundedness *)
+Theorem boundedness : forall (n : BinWithZero) (d : BinBase) . (n /. d) <= n.
+Proof.
+  intros n d.
+  let proof b := Nat0.division.quotient.boundedness (to_nat0 &n) (BinBase.to_nat &d).
+  leibniz <- (conversion.division &n &d) in &b.
+  simpl ( _ <= _ ) in |- *.
+  match &b with | same | below end.
+  - ipso (disjoin (conversion.injectivity &same), _).
+  - ipso (disjoin _, (modus aequans (conversion.order (&n /. &d) &n), &below)).
+Qed.
+
+Module strict. (* division.quotient.strict *)
+
+(* division.quotient.strict.boundedness *)
+Theorem boundedness
+  : forall (p : BinBase) (d : BinBase) . ~ (d = BinBase.One) -> ((+ p) /. d) < + p.
+Proof.
+  intros p d h.
+  lemma beyond : (1 < BinBase.to_nat &d)%n.
+  {
+    match (BinBase.to_nat &d) with | One | Successor m end |- t.
+    - lemma facto : &d = BinBase.One.
+      {
+        lemma both : BinBase.to_nat &d = BinBase.to_nat BinBase.One.
+        {
+          leibniz &t in |- *.
+          simpl in |- *.
+          quod idem est.
+        }
+        ipso (BinBase.conversion.injectivity &both).
+      }
+      ex (&h &facto) quodlibet.
+    - simpl Nat.LessThan in |- *.
+      exists &m.
+      simpl in |- *.
+      quod idem est.
+  }
+  let proof one
+    := modus aequans (Nat0.positive.order.embedding Nat.One (BinBase.to_nat &d)), &beyond.
+  lemma shrinks
+    : forall (n : Nat0) . (0 < n)%n0 -> ((n /. BinBase.to_nat &d) < n)%n0.
+  {
+    intros n hn.
+    let proof r := Nat0.division.dividend.reconstruction &n (BinBase.to_nat &d).
+    match ((&n /. BinBase.to_nat &d)%n0) with | Zero | Positive q end |- f.
+    - ipso &hn.
+    - lemma grows
+        : (Nat0.Positive &q < Nat0.Positive &q * Nat0.Positive (BinBase.to_nat &d))%n0.
+      {
+        let proof m
+          := Nat0.multiplication.left.order.strict.monotonicity
+              &q (Nat0.Positive Nat.One) (Nat0.Positive (BinBase.to_nat &d)) &one.
+        match (Nat0.multiplication.identity (Nat0.Positive &q)) with | _ right end.
+        leibniz &right in &m.
+        ipso &m.
+      }
+      lemma padded : (Nat0.Positive &q * Nat0.Positive (BinBase.to_nat &d) <= &n)%n0.
+      {
+        leibniz <- &r in |- *.
+        leibniz
+          (Nat0.addition.commutativity
+            (Nat0.Positive &q * Nat0.Positive (BinBase.to_nat &d))%n0
+            (&n %. BinBase.to_nat &d)%n0)
+          in |- *.
+        ipso
+          (Nat0.addition.right.order.extensivity
+            (&n %. BinBase.to_nat &d)%n0
+            (Nat0.Positive &q * Nat0.Positive (BinBase.to_nat &d))%n0).
+      }
+      match &padded with | same | smaller end.
+      + leibniz <- &same in |- *.
+        ipso &grows.
+      + ipso (Nat0.order.strict.transitivity &grows &smaller).
+  }
+  lemma positive : (0 < to_nat0 (+ &p))%n0.
+  {
+    simpl to_nat0 in |- *.
+    simpl Nat0.LessThan in |- *.
+    exists (BinBase.to_nat &p).
+    simpl in |- *.
+    quod idem est.
+  }
+  let proof s := &shrinks (to_nat0 (+ &p)) &positive.
+  leibniz <- (conversion.division (+ &p) &d) in &s.
+  ipso (modus aequans (conversion.order ((+ &p) /. &d) (+ &p)), &s).
+Qed.
+
+End strict. (* division.quotient.strict *)
+
+End quotient. (* division.quotient *)
 
 (* division.specification *)
 Theorem specification

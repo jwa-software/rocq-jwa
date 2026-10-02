@@ -532,6 +532,41 @@ Definition from_nat := fun (n : Nat) . from_bin_base (BinBase.from_nat n).
 (* [Nat0 -> UInt64] *)
 Definition from_nat0 := fun (n : Nat0) . from_bin_with_zero (BinWithZero.from_nat0 n).
 
+(* [z] modulo 18446744073709551616 (2^64), a negative [z] counted down from
+ * 18446744073709551616.
+ *)
+(* [Bin -> UInt64] *)
+Definition from_bin := fun (z : Bin) .
+  match z with
+  | Bin.Negative p => negate (from_bin_base p)
+  | Bin.Zero       => Zero
+  | Bin.Positive p => from_bin_base p
+  end.
+
+(* The quotient through [BinWithZero], [None] when [y] is zero. It is at most
+ * [x], so it always fits.
+ *)
+(* [UInt64 -> UInt64 -> Option UInt64] *)
+Definition divide := fun (x : UInt64) (y : UInt64) .
+  match to_bin_with_zero y with
+  | BinWithZero.Zero       => None
+  | BinWithZero.Positive d => Some (from_bin_with_zero (x /. d)%bin_with_zero)
+  end.
+
+Notation "x /. y" := (divide x y) (only parsing)
+  : jwa_uint64_scope.
+
+(* The remainder through [BinWithZero], [None] when [y] is zero. *)
+(* [UInt64 -> UInt64 -> Option UInt64] *)
+Definition modulo := fun (x : UInt64) (y : UInt64) .
+  match to_bin_with_zero y with
+  | BinWithZero.Zero       => None
+  | BinWithZero.Positive d => Some (from_bin_with_zero (x %. d)%bin_with_zero)
+  end.
+
+Notation "x %. y" := (modulo x y) (only parsing)
+  : jwa_uint64_scope.
+
 (* [UInt64 -> UInt64 -> Prop] *)
 Definition LessThan := fun (x : UInt64) (y : UInt64) .
   (to_bin_with_zero x < to_bin_with_zero y)%bin_with_zero.
@@ -1674,6 +1709,77 @@ Proof.
     (conversion.multiplication.step _ _ _ _ &base
     )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))).
 Qed.
+
+(* conversion.division *)
+Theorem division
+  : forall (x : UInt64) (y : UInt64) (d : BinBase) .
+      to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map to_bin_with_zero (x /. y)%uint64 = Some (x /. d)%bin_with_zero.
+Proof.
+  intros x y d e.
+  lemma below : ((x /. &d) < modulus)%bin_with_zero.
+  {
+    match (BinWithZero.division.quotient.boundedness x &d) with | same | smaller end.
+    - leibniz &same in |- *.
+      ipso (conversion.boundedness &x).
+    - ipso (BinWithZero.order.strict.transitivity &smaller (conversion.boundedness &x)).
+  }
+  simpl divide in |- *.
+  leibniz &e in |- *.
+  simpl Option.map in |- *.
+  leibniz
+    (conversion.reduction (x /. &d)%bin_with_zero),
+    (BinWithZero.modulo.identity (x /. &d)%bin_with_zero modulus &below)
+    in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.modulo *)
+Theorem modulo
+  : forall (x : UInt64) (y : UInt64) (d : BinBase) .
+      to_bin_with_zero y = BinWithZero.Positive d
+      -> Option.map to_bin_with_zero (x %. y)%uint64 = Some (x %. d)%bin_with_zero.
+Proof.
+  intros x y d e.
+  lemma below : ((x %. &d) < modulus)%bin_with_zero.
+  {
+    match (BinWithZero.division.specification x &d) with | _ smaller end.
+    let proof bound := conversion.boundedness &y.
+    leibniz &e in &bound.
+    ipso (BinWithZero.order.strict.transitivity &smaller &bound).
+  }
+  simpl modulo in |- *.
+  leibniz &e in |- *.
+  simpl Option.map in |- *.
+  leibniz
+    (conversion.reduction (x %. &d)%bin_with_zero),
+    (BinWithZero.modulo.identity (x %. &d)%bin_with_zero modulus &below)
+    in |- *.
+  quod idem est.
+Qed.
+
+Module bin. (* conversion.bin *)
+
+(* conversion.bin.section *)
+Theorem section : forall (x : UInt64) . from_bin (to_bin x) = x.
+Proof.
+  intros x.
+  lemma through
+    : forall (n : BinWithZero) . from_bin (Bin.from_bin_with_zero n) = from_bin_with_zero n.
+  {
+    intros n.
+    match &n with | Zero | Positive p end.
+    - simpl Bin.from_bin_with_zero, from_bin, from_bin_with_zero in |- *.
+      quod idem est.
+    - simpl Bin.from_bin_with_zero, from_bin, from_bin_with_zero in |- *.
+      quod idem est.
+  }
+  simpl to_bin in |- *.
+  leibniz (&through (to_bin_with_zero &x)), (conversion.section &x) in |- *.
+  quod idem est.
+Qed.
+
+End bin. (* conversion.bin *)
 
 Module dword. (* conversion.dword *)
 
