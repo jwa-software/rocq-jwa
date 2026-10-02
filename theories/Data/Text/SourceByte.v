@@ -797,6 +797,12 @@ Module conversion. (* conversion *)
 
 Module byte. (* conversion.byte *)
 
+(* [g (f a) = a]: [f] is a section of [g], [g] a retraction of [f]. Each law
+ * below is named by what [to_byte] is:
+ *
+ *   retraction   to_byte (from_byte b) = b   to_byte is a retraction of from_byte
+ *   section      from_byte (to_byte s) = s   to_byte is a section of from_byte
+ *)
 (* conversion.byte.retraction *)
 Theorem retraction : forall (b : Byte) . to_byte (from_byte b) = b.
 Proof.
