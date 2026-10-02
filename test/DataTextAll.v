@@ -286,6 +286,36 @@ Definition data_text_all_computes_ascii_str_get
     /\ AsciiStr.get "abc"%a 3%n0 = None
   := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
+Definition data_text_all_delivers_ascii_str_order_transitivity
+  : forall (s : AsciiStr) (t : AsciiStr) (u : AsciiStr) . (s < t -> t < u -> s < u)%a
+  := @AsciiStr.order.strict.transitivity.
+
+Definition data_text_all_delivers_ascii_str_comparison_specification
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      (AsciiStr.compare s t = Comparison.Lt <-> (s < t)%a)
+      /\ (AsciiStr.compare s t = Comparison.Eq <-> s = t)
+  := AsciiStr.comparison.specification.
+
+Definition data_text_all_delivers_ascii_str_comparison_antisymmetry
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      AsciiStr.compare s t = Comparison.transpose (AsciiStr.compare t s)
+  := AsciiStr.comparison.antisymmetry.
+
+Definition data_text_all_computes_ascii_str_compare
+  : AsciiStr.compare "Apple"%a "apple"%a = Comparison.Lt
+    /\ AsciiStr.compare "apple"%a "apply"%a = Comparison.Lt
+    /\ AsciiStr.compare "app"%a "apple"%a = Comparison.Lt
+    /\ AsciiStr.compare "apple"%a "apple"%a = Comparison.Eq
+    /\ AsciiStr.compare "b"%a "apple"%a = Comparison.Gt
+  := conjoin (Identity.reflexivity _),
+       (conjoin (Identity.reflexivity _),
+         (conjoin (Identity.reflexivity _),
+           (conjoin (Identity.reflexivity _), (Identity.reflexivity _)))).
+
+Definition data_text_all_computes_ascii_str_min
+  : AsciiStr.min "pear"%a "peach"%a = "peach"%a
+  := Identity.reflexivity _.
+
 Definition data_text_all_computes_ascii_str_substring
   : AsciiStr.substring "Hello, World"%a 7%n0 5%n0 = "World"%a
     /\ AsciiStr.substring "abc"%a 2%n0 5%n0 = "c"%a

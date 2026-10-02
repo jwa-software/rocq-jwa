@@ -83,3 +83,30 @@ Definition data_collection_all_delivers_list_taking_identity
 Definition data_collection_all_delivers_list_dropping_identity
   : forall (A : Type) (l : List A) . List.drop Nat0.Zero l = l
   := @List.dropping.identity.
+
+Definition data_collection_all_delivers_list_cons_injectivity
+  : forall (A : Type) (a : A) (b : A) (l : List A) (m : List A) .
+      (a :: l)%list = (b :: m)%list -> a = b /\ l = m
+  := @List.cons.injectivity.
+
+Definition data_collection_all_delivers_list_comparison_specification
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) .
+        (List.compare cmp l m = Comparison.Lt <-> List.LessThan cmp l m)
+        /\ (List.compare cmp l m = Comparison.Eq <-> l = m)
+  := @List.comparison.specification.
+
+Definition data_collection_all_delivers_list_comparison_antisymmetry
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) .
+        List.compare cmp l m = Comparison.transpose (List.compare cmp m l)
+  := @List.comparison.antisymmetry.
+
+Definition data_collection_all_delivers_list_comparison_transitivity
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) (n : List A) .
+        List.LessThan cmp l m -> List.LessThan cmp m n -> List.LessThan cmp l n
+  := @List.comparison.transitivity.
