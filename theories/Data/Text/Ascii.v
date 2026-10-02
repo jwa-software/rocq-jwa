@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
+From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.List.
 From jwa Require Import Data.Comparable.
@@ -119,6 +120,54 @@ Abbreviation min := (Comparable.min compare).
 
 (* [Ascii -> Ascii -> Ascii] *)
 Abbreviation max := (Comparable.max compare).
+
+(* The digits [0] to [9], codes 0x30 to 0x39. *)
+(* [Ascii -> Bool] *)
+Definition is_digit := fun (c : Ascii) .
+  Bool.and (le (from_byte 0x30%byte) c) (le c (from_byte 0x39%byte)).
+
+(* The upper case letters [A] to [Z], codes 0x41 to 0x5a. *)
+(* [Ascii -> Bool] *)
+Definition is_upper := fun (c : Ascii) .
+  Bool.and (le (from_byte 0x41%byte) c) (le c (from_byte 0x5a%byte)).
+
+(* The lower case letters [a] to [z], codes 0x61 to 0x7a. *)
+(* [Ascii -> Bool] *)
+Definition is_lower := fun (c : Ascii) .
+  Bool.and (le (from_byte 0x61%byte) c) (le c (from_byte 0x7a%byte)).
+
+(* The ASCII letters of either case; a Latin-1 letter is none of them. *)
+(* [Ascii -> Bool] *)
+Definition is_letter := fun (c : Ascii) . Bool.or (is_upper c) (is_lower c).
+
+(* The space, code 0x20, and the controls tab, line feed, vertical tab, form
+ * feed and carriage return, codes 0x09 to 0x0d.
+ *)
+(* [Ascii -> Bool] *)
+Definition is_whitespace := fun (c : Ascii) .
+  Bool.or
+    (eq c (from_byte 0x20%byte))
+    (Bool.and (le (from_byte 0x09%byte) c) (le c (from_byte 0x0d%byte))).
+
+(* A lower case letter turned upper case by clearing the bit 0x20 that tells
+ * the two cases apart; any other character unchanged.
+ *)
+(* [Ascii -> Ascii] *)
+Definition to_upper := fun (c : Ascii) .
+  match is_lower c with
+  | true  => from_byte (Byte.and (to_byte c) 0xdf%byte)
+  | false => c
+  end.
+
+(* An upper case letter turned lower case by setting the bit 0x20; any other
+ * character unchanged.
+ *)
+(* [Ascii -> Ascii] *)
+Definition to_lower := fun (c : Ascii) .
+  match is_upper c with
+  | true  => from_byte (Byte.or (to_byte c) 0x20%byte)
+  | false => c
+  end.
 
 Local Open Scope jwa_ascii_scope.
 
@@ -258,6 +307,316 @@ Instance comparable
   {| Comparable.transitivity := @order.strict.transitivity
   ; Comparable.specification := comparison.specification
   ; Comparable.antisymmetry := comparison.antisymmetry |}.
+
+Module classification. (* classification *)
+
+Module range. (* classification.range *)
+
+(* The two comparisons a class makes, read as the two orders they decide. *)
+(* classification.range.specification *)
+Lemma specification
+  : forall (low : Ascii) (high : Ascii) (c : Ascii) .
+      Bool.and (le low c) (le c high) = true <-> low <= c /\ c <= high.
+Proof.
+  intros low high c.
+  let proof h := Comparable.order.reflection (compare := compare) (lt := LessThan) &c &high.
+  simpl Bool.and in |- *.
+  match (le &low &c) with | | end |- el.
+  - let proof l := Comparable.order.reflection (compare := compare) (lt := LessThan) &low &c.
+    divide et impera.
+    + intro e.
+      divide et impera.
+      * ipso (modus aequans &l, &el).
+      * ipso (modus aequans &h, &e).
+    + intro p.
+      match &p with | _ q end.
+      ipso (modus aequans &h, &q).
+  - let proof l := Comparable.order.reflection (compare := compare) (lt := LessThan) &low &c.
+    divide et impera.
+    + intro e.
+      ex e quodlibet.
+    + intro p.
+      match &p with | q _ end.
+      let proof t := modus aequans &l, &q.
+      leibniz &el in &t.
+      ex t quodlibet.
+Qed.
+
+End range. (* classification.range *)
+
+Module digit. (* classification.digit *)
+
+(* classification.digit.specification *)
+Theorem specification
+  : forall (c : Ascii) .
+      is_digit c = true <-> from_byte 0x30%byte <= c /\ c <= from_byte 0x39%byte.
+Proof.
+  intros c.
+  simpl is_digit in |- *.
+  ipso (classification.range.specification (from_byte 0x30%byte) (from_byte 0x39%byte) &c).
+Qed.
+
+End digit. (* classification.digit *)
+
+Module upper. (* classification.upper *)
+
+(* classification.upper.specification *)
+Theorem specification
+  : forall (c : Ascii) .
+      is_upper c = true <-> from_byte 0x41%byte <= c /\ c <= from_byte 0x5a%byte.
+Proof.
+  intros c.
+  simpl is_upper in |- *.
+  ipso (classification.range.specification (from_byte 0x41%byte) (from_byte 0x5a%byte) &c).
+Qed.
+
+End upper. (* classification.upper *)
+
+Module lower. (* classification.lower *)
+
+(* classification.lower.specification *)
+Theorem specification
+  : forall (c : Ascii) .
+      is_lower c = true <-> from_byte 0x61%byte <= c /\ c <= from_byte 0x7a%byte.
+Proof.
+  intros c.
+  simpl is_lower in |- *.
+  ipso (classification.range.specification (from_byte 0x61%byte) (from_byte 0x7a%byte) &c).
+Qed.
+
+End lower. (* classification.lower *)
+
+Module letter. (* classification.letter *)
+
+(* classification.letter.specification *)
+Theorem specification
+  : forall (c : Ascii) . is_letter c = true <-> is_upper c = true \/ is_lower c = true.
+Proof.
+  intros c.
+  simpl is_letter in |- *.
+  simpl Bool.or in |- *.
+  match (is_upper &c) with | | end.
+  - divide et impera.
+    + intro e.
+      ipso (disjoin e, _).
+    + intro d.
+      quod idem est.
+  - divide et impera.
+    + intro e.
+      ipso (disjoin _, e).
+    + intro d.
+      match &d with | e | e end.
+      * ex e quodlibet.
+      * ipso &e.
+Qed.
+
+End letter. (* classification.letter *)
+
+Module whitespace. (* classification.whitespace *)
+
+(* classification.whitespace.specification *)
+Theorem specification
+  : forall (c : Ascii) .
+      is_whitespace c = true
+      <-> c = from_byte 0x20%byte \/ (from_byte 0x09%byte <= c /\ c <= from_byte 0x0d%byte).
+Proof.
+  intros c.
+  let proof r :=
+    classification.range.specification (from_byte 0x09%byte) (from_byte 0x0d%byte) &c.
+  simpl is_whitespace in |- *.
+  simpl Bool.or in |- *.
+  match (eq &c (from_byte 0x20%byte)) with | | end |- e.
+  - let proof s :=
+      Comparable.comparison.equality.reflection
+        (compare := compare) (lt := LessThan) &c (from_byte 0x20%byte).
+    divide et impera.
+    + intro t.
+      ipso (disjoin (modus aequans &s, &e), _).
+    + intro d.
+      quod idem est.
+  - let proof s :=
+      Comparable.comparison.equality.reflection
+        (compare := compare) (lt := LessThan) &c (from_byte 0x20%byte).
+    divide et impera.
+    + intro t.
+      ipso (disjoin _, (modus aequans &r, &t)).
+    + intro d.
+      match &d with | q | q end.
+      * let proof t := modus aequans &s, &q.
+        leibniz &e in &t.
+        ex t quodlibet.
+      * ipso (modus aequans &r, &q).
+Qed.
+
+End whitespace. (* classification.whitespace *)
+
+(* No character is both upper and lower case. *)
+(* classification.exclusion *)
+Theorem exclusion : forall (c : Ascii) . Bool.and (is_upper c) (is_lower c) = false.
+Proof.
+  intros c.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl is_upper, is_lower in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+End classification. (* classification *)
+
+Module uppercasing. (* uppercasing *)
+
+(* uppercasing.invariance *)
+Theorem invariance : forall (c : Ascii) . is_lower c = false -> to_upper c = c.
+Proof.
+  intros c h.
+  simpl to_upper in |- *.
+  leibniz &h in |- *.
+  simpl in |- *.
+  quod idem est.
+Qed.
+
+(* uppercasing.idempotence *)
+Theorem idempotence : forall (c : Ascii) . to_upper (to_upper c) = to_upper c.
+Proof.
+  intros c.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl to_upper, is_lower, from_byte in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+(* Turning a character lower case first changes nothing [to_upper] makes of it. *)
+(* uppercasing.absorption *)
+Theorem absorption : forall (c : Ascii) . to_upper (to_lower c) = to_upper c.
+Proof.
+  intros c.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl to_upper, to_lower, is_lower, is_upper, from_byte in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+Module inversion. (* uppercasing.inversion *)
+
+Module of. (* uppercasing.inversion.of *)
+
+(* uppercasing.inversion.of.lowercasing *)
+Theorem lowercasing : forall (c : Ascii) . is_upper c = true -> to_upper (to_lower c) = c.
+Proof.
+  intros c h.
+  let proof x := classification.exclusion &c.
+  leibniz &h in &x.
+  match (Bool.conjunction.identity (is_lower &c)) with | l _ end.
+  leibniz &l in &x.
+  leibniz (uppercasing.absorption &c) in |- *.
+  ipso (uppercasing.invariance &c &x).
+Qed.
+
+End of. (* uppercasing.inversion.of *)
+
+End inversion. (* uppercasing.inversion *)
+
+End uppercasing. (* uppercasing *)
+
+Module lowercasing. (* lowercasing *)
+
+(* lowercasing.invariance *)
+Theorem invariance : forall (c : Ascii) . is_upper c = false -> to_lower c = c.
+Proof.
+  intros c h.
+  simpl to_lower in |- *.
+  leibniz &h in |- *.
+  simpl in |- *.
+  quod idem est.
+Qed.
+
+(* lowercasing.idempotence *)
+Theorem idempotence : forall (c : Ascii) . to_lower (to_lower c) = to_lower c.
+Proof.
+  intros c.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl to_lower, is_upper, from_byte in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+(* Turning a character upper case first changes nothing [to_lower] makes of it. *)
+(* lowercasing.absorption *)
+Theorem absorption : forall (c : Ascii) . to_lower (to_upper c) = to_lower c.
+Proof.
+  intros c.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl to_lower, to_upper, is_upper, is_lower, from_byte in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+Module inversion. (* lowercasing.inversion *)
+
+Module of. (* lowercasing.inversion.of *)
+
+(* lowercasing.inversion.of.uppercasing *)
+Theorem uppercasing : forall (c : Ascii) . is_lower c = true -> to_lower (to_upper c) = c.
+Proof.
+  intros c h.
+  let proof x := classification.exclusion &c.
+  leibniz &h in &x.
+  match (Bool.conjunction.identity (is_upper &c)) with | _ r end.
+  leibniz &r in &x.
+  leibniz (lowercasing.absorption &c) in |- *.
+  ipso (lowercasing.invariance &c &x).
+Qed.
+
+End of. (* lowercasing.inversion.of *)
+
+End inversion. (* lowercasing.inversion *)
+
+End lowercasing. (* lowercasing *)
 
 End Ascii. (* Ascii *)
 
