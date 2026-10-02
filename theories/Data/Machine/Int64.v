@@ -37,7 +37,7 @@ From jwa Require Import Tactics.Modus.
 Module Int64. (* Int64 *)
 
 Inductive T : Type :=
-  | Int64_introduction : Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> T.
+  | introduction : Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> T.
 
 Abbreviation Int64 := T.
 
@@ -51,13 +51,13 @@ Definition modulus := 1000000000000000000000000000000000000000000000000000000000
 (* [Endian -> Int64 -> DWord] *)
 Definition to_dword := fun (e : Endian) (x : Int64) .
   match x with
-  | Int64_introduction b7 b6 b5 b4 b3 b2 b1 b0 => DWord.make e b0 b1 b2 b3 b4 b5 b6 b7
+  | Int64.introduction b7 b6 b5 b4 b3 b2 b1 b0 => DWord.make e b0 b1 b2 b3 b4 b5 b6 b7
   end.
 
 (* The value of the bytes of [w], whatever the order they are laid out in. *)
 (* [DWord -> Int64] *)
 Definition from_dword := fun (w : DWord) .
-  Int64_introduction
+  Int64.introduction
     (DWord.byte7 w) (DWord.byte6 w) (DWord.byte5 w) (DWord.byte4 w)
     (DWord.byte3 w) (DWord.byte2 w) (DWord.byte1 w) (DWord.byte0 w).
 
@@ -69,14 +69,14 @@ Definition from_dword := fun (w : DWord) .
 (* [Int64 -> BinWithZero] *)
 Definition unsigned_value := fun (x : Int64) .
   match x with
-  | Int64_introduction (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-      (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-      (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-      (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-      (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-      (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-      (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | Int64.introduction (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+      (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+      (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+      (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+      (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+      (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+      (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (
         10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (
         10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (
@@ -109,7 +109,7 @@ Definition unsigned_value := fun (x : Int64) .
 (* [Int64 -> Bit] *)
 Definition sign_bit := fun (x : Int64) .
   match x with
-  | Int64_introduction (Byte.Byte_introduction x63 _ _ _ _ _ _ _) _ _ _ _ _ _ _ => x63
+  | Int64.introduction (Byte.introduction x63 _ _ _ _ _ _ _) _ _ _ _ _ _ _ => x63
   end.
 
 (* The value in two's complement: the unsigned value, less 18446744073709551616
@@ -133,12 +133,12 @@ Add Printing Coercion to_bin.
 Definition to_integer := fun (x : Int64) . Bin.to_integer (to_bin x).
 
 (* [Int64] *)
-Definition Zero := Int64_introduction Byte.Zero Byte.Zero Byte.Zero Byte.Zero Byte.Zero Byte.Zero
+Definition Zero := Int64.introduction Byte.Zero Byte.Zero Byte.Zero Byte.Zero Byte.Zero Byte.Zero
   Byte.Zero Byte.Zero.
 
 (* [Int64] *)
 Definition One :=
-  Int64_introduction
+  Int64.introduction
     Byte.Zero
     Byte.Zero
     Byte.Zero
@@ -146,7 +146,7 @@ Definition One :=
     Byte.Zero
     Byte.Zero
     Byte.Zero
-    (Byte.Byte_introduction
+    (Byte.introduction
       Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One).
 
 (* [k] places toward the most significant end, a 0 coming in at the
@@ -156,22 +156,22 @@ Definition One :=
 Fixpoint shift_left_nat (x : Int64) (k : Nat) : Int64 :=
   let y :=
     match x with
-    | Int64_introduction (Byte.Byte_introduction _ x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Int64_introduction (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+    | Int64.introduction (Byte.introduction _ x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Int64.introduction (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
     end in
   match k with
   | Nat.One          => y
@@ -192,22 +192,22 @@ Definition shift_left := fun (x : Int64) (k : Nat0) .
 Fixpoint shift_right_nat (x : Int64) (k : Nat) : Int64 :=
   let y :=
     match x with
-    | Int64_introduction (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Int64_introduction (Byte.Byte_introduction x63 x63 x62 x61 x60 x59 x58 x57)
-          (Byte.Byte_introduction x56 x55 x54 x53 x52 x51 x50 x49)
-          (Byte.Byte_introduction x48 x47 x46 x45 x44 x43 x42 x41)
-          (Byte.Byte_introduction x40 x39 x38 x37 x36 x35 x34 x33)
-          (Byte.Byte_introduction x32 x31 x30 x29 x28 x27 x26 x25)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
+    | Int64.introduction (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Int64.introduction (Byte.introduction x63 x63 x62 x61 x60 x59 x58 x57)
+          (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
+          (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
+          (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
+          (Byte.introduction x32 x31 x30 x29 x28 x27 x26 x25)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
     end in
   match k with
   | Nat.One          => y
@@ -225,22 +225,22 @@ Definition shift_right := fun (x : Int64) (k : Nat0) .
 (* [Bit -> Int64 -> Int64] *)
 Definition append_bit := fun (b : Bit) (x : Int64) .
   match x with
-  | Int64_introduction (Byte.Byte_introduction _ x62 x61 x60 x59 x58 x57 x56)
-      (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-      (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-      (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-      (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-      (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-      (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-      Int64_introduction (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-        (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-        (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-        (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-        (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-        (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-        (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-        (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 b)
+  | Int64.introduction (Byte.introduction _ x62 x61 x60 x59 x58 x57 x56)
+      (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+      (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+      (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+      (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+      (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+      (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+      Int64.introduction (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+        (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+        (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+        (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+        (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+        (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+        (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+        (Byte.introduction x6 x5 x4 x3 x2 x1 x0 b)
   end.
 
 (* The carry out and the sum of [carry + x + y], the carry rippling up from
@@ -249,23 +249,23 @@ Definition append_bit := fun (b : Bit) (x : Int64) .
 (* [Bit -> Int64 -> Int64 -> Product Bit Int64] *)
 Definition add_with_carry := fun (carry : Bit) (x : Int64) (y : Int64) .
   match x with
-  | Int64_introduction (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-      (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-      (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-      (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-      (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-      (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-      (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | Int64.introduction (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+      (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+      (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+      (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+      (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+      (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+      (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       match y with
-      | Int64_introduction (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56)
-          (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-          (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-          (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-          (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-          (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-          (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-          (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      | Int64.introduction (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56)
+          (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+          (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+          (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+          (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+          (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+          (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+          (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
           let r0 := Bit.add_with_carry carry x0 y0 in
           let r1 := Bit.add_with_carry (pi_1 r0) x1 y1 in
           let r2 := Bit.add_with_carry (pi_1 r1) x2 y2 in
@@ -331,29 +331,29 @@ Definition add_with_carry := fun (carry : Bit) (x : Int64) (y : Int64) .
           let r62 := Bit.add_with_carry (pi_1 r61) x62 y62 in
           let r63 := Bit.add_with_carry (pi_1 r62) x63 y63 in
           (pi_1 r63,
-            Int64_introduction
-              (Byte.Byte_introduction
+            Int64.introduction
+              (Byte.introduction
                 (pi_2 r63) (pi_2 r62) (pi_2 r61) (pi_2 r60)
                 (pi_2 r59) (pi_2 r58) (pi_2 r57) (pi_2 r56))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r55) (pi_2 r54) (pi_2 r53) (pi_2 r52)
                 (pi_2 r51) (pi_2 r50) (pi_2 r49) (pi_2 r48))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r47) (pi_2 r46) (pi_2 r45) (pi_2 r44)
                 (pi_2 r43) (pi_2 r42) (pi_2 r41) (pi_2 r40))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r39) (pi_2 r38) (pi_2 r37) (pi_2 r36)
                 (pi_2 r35) (pi_2 r34) (pi_2 r33) (pi_2 r32))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r31) (pi_2 r30) (pi_2 r29) (pi_2 r28)
                 (pi_2 r27) (pi_2 r26) (pi_2 r25) (pi_2 r24))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r23) (pi_2 r22) (pi_2 r21) (pi_2 r20)
                 (pi_2 r19) (pi_2 r18) (pi_2 r17) (pi_2 r16))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r15) (pi_2 r14) (pi_2 r13) (pi_2 r12)
                 (pi_2 r11) (pi_2 r10) (pi_2 r9) (pi_2 r8))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r7) (pi_2 r6) (pi_2 r5) (pi_2 r4)
                 (pi_2 r3) (pi_2 r2) (pi_2 r1) (pi_2 r0)))
       end
@@ -372,23 +372,23 @@ Notation "x + y" := (add x y) (only parsing)
 (* [Bit -> Int64 -> Int64 -> Product Bit Int64] *)
 Definition sub_with_borrow := fun (borrow : Bit) (x : Int64) (y : Int64) .
   match x with
-  | Int64_introduction (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-      (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-      (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-      (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-      (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-      (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-      (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | Int64.introduction (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+      (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+      (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+      (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+      (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+      (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+      (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       match y with
-      | Int64_introduction (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56)
-          (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-          (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-          (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-          (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-          (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-          (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-          (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      | Int64.introduction (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56)
+          (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+          (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+          (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+          (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+          (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+          (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+          (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
           let r0 := Bit.sub_with_borrow borrow x0 y0 in
           let r1 := Bit.sub_with_borrow (pi_1 r0) x1 y1 in
           let r2 := Bit.sub_with_borrow (pi_1 r1) x2 y2 in
@@ -454,29 +454,29 @@ Definition sub_with_borrow := fun (borrow : Bit) (x : Int64) (y : Int64) .
           let r62 := Bit.sub_with_borrow (pi_1 r61) x62 y62 in
           let r63 := Bit.sub_with_borrow (pi_1 r62) x63 y63 in
           (pi_1 r63,
-            Int64_introduction
-              (Byte.Byte_introduction
+            Int64.introduction
+              (Byte.introduction
                 (pi_2 r63) (pi_2 r62) (pi_2 r61) (pi_2 r60)
                 (pi_2 r59) (pi_2 r58) (pi_2 r57) (pi_2 r56))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r55) (pi_2 r54) (pi_2 r53) (pi_2 r52)
                 (pi_2 r51) (pi_2 r50) (pi_2 r49) (pi_2 r48))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r47) (pi_2 r46) (pi_2 r45) (pi_2 r44)
                 (pi_2 r43) (pi_2 r42) (pi_2 r41) (pi_2 r40))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r39) (pi_2 r38) (pi_2 r37) (pi_2 r36)
                 (pi_2 r35) (pi_2 r34) (pi_2 r33) (pi_2 r32))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r31) (pi_2 r30) (pi_2 r29) (pi_2 r28)
                 (pi_2 r27) (pi_2 r26) (pi_2 r25) (pi_2 r24))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r23) (pi_2 r22) (pi_2 r21) (pi_2 r20)
                 (pi_2 r19) (pi_2 r18) (pi_2 r17) (pi_2 r16))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r15) (pi_2 r14) (pi_2 r13) (pi_2 r12)
                 (pi_2 r11) (pi_2 r10) (pi_2 r9) (pi_2 r8))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r7) (pi_2 r6) (pi_2 r5) (pi_2 r4)
                 (pi_2 r3) (pi_2 r2) (pi_2 r1) (pi_2 r0)))
       end
@@ -508,14 +508,14 @@ Definition mul := fun (x : Int64) (y : Int64) .
       | Bit.One  => x
       end in
   match y with
-  | Int64_introduction (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56)
-      (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-      (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-      (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+  | Int64.introduction (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56)
+      (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+      (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+      (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
       step (step (step (step (step (step (step (step (step (step (step (step (step (step (step (step
         (step (step (step (step (step (step (step (step (step (step (step (step (step (step (step
         (step (step (step (step (step (step (step (step (step (step (step (step (step (step (step
@@ -688,15 +688,15 @@ Qed.
 Theorem boundedness : forall (x : Int64) . (unsigned_value x < modulus)%bin_with_zero.
 Proof.
   intros x.
-  match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-  match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-  match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-  match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-  match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-  match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-  match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+  match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+  match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+  match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+  match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+  match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+  match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl unsigned_value in |- *.
   ipso
     (Bit.conversion.binary.boundedness.propagation _ _ _
@@ -771,24 +771,24 @@ Theorem injectivity
   : forall {x : Int64} {y : Int64} . unsigned_value x = unsigned_value y -> x = y.
 Proof.
   intros x y e.
-  match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-  match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-  match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-  match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-  match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-  match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-  match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int64_introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
-  match &yb7 with | Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
-  match &yb6 with | Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
-  match &yb5 with | Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
-  match &yb4 with | Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
-  match &yb3 with | Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
-  match &yb2 with | Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+  match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+  match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+  match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+  match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+  match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+  match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
+  match &yb7 with | introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
+  match &yb6 with | introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
+  match &yb5 with | introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
+  match &yb4 with | introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
+  match &yb3 with | introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
+  match &yb2 with | introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value in &e.
   match (Bit.conversion.binary.halving.injectivity &e) with | e1 b0 end.
   match (Bit.conversion.binary.halving.injectivity &e1) with | e2 b1 end.
@@ -875,24 +875,24 @@ Theorem carry
           + unsigned_value (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
 Proof.
   intros carry x y.
-  match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-  match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-  match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-  match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-  match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-  match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-  match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int64_introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
-  match &yb7 with | Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
-  match &yb6 with | Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
-  match &yb5 with | Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
-  match &yb4 with | Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
-  match &yb3 with | Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
-  match &yb2 with | Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+  match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+  match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+  match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+  match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+  match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+  match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
+  match &yb7 with | introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
+  match &yb6 with | introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
+  match &yb5 with | introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
+  match &yb4 with | introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
+  match &yb3 with | introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
+  match &yb2 with | introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value, add_with_carry in |- *.
   ipso
     (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
@@ -971,24 +971,24 @@ Theorem borrow
           + unsigned_value (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
 Proof.
   intros borrow x y.
-  match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-  match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-  match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-  match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-  match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-  match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-  match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int64_introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
-  match &yb7 with | Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
-  match &yb6 with | Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
-  match &yb5 with | Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
-  match &yb4 with | Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
-  match &yb3 with | Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
-  match &yb2 with | Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+  match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+  match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+  match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+  match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+  match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+  match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
+  match &yb7 with | introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
+  match &yb6 with | introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
+  match &yb5 with | introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
+  match &yb4 with | introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
+  match &yb3 with | introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
+  match &yb2 with | introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value, sub_with_borrow in |- *.
   ipso
     (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
@@ -1160,48 +1160,48 @@ Theorem appending
         = (10 * unsigned_value x + Bit.to_bin_with_zero b) %. modulus)%bin_with_zero.
 Proof.
   intros b x.
-  match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-  match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-  match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-  match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-  match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-  match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-  match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+  match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+  match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+  match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+  match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+  match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+  match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   lemma witness
     : (Bit.to_bin_with_zero &x63 * modulus
         + unsigned_value
             (append_bit &b
-              (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-                (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-                (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-                (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-                (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-                (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-                (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+              (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+                (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+                (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+                (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+                (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+                (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+                (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         = 10
             * unsigned_value
-                (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-                  (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-                  (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-                  (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-                  (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-                  (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-                  (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                  (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+                (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+                  (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+                  (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+                  (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+                  (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+                  (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+                  (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                  (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
           + Bit.to_bin_with_zero &b
       /\ unsigned_value
           (append_bit &b
-            (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-              (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-              (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-              (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-              (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-              (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-              (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-              (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+            (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+              (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+              (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+              (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+              (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+              (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+              (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+              (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         < modulus)%bin_with_zero.
   {
     divide et impera.
@@ -1286,39 +1286,39 @@ Proof.
     - ipso
         (valuation.boundedness
           (append_bit &b
-            (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-              (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-              (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-              (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-              (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-              (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-              (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-              (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
+            (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+              (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+              (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+              (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+              (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+              (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+              (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+              (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
   }
   match (BinWithZero.division.uniqueness
           (10 * unsigned_value
-                  (Int64_introduction
-                    (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-                    (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-                    (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-                    (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-                    (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-                    (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-                    (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                    (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+                  (Int64.introduction
+                    (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+                    (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+                    (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+                    (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+                    (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+                    (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+                    (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                    (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
             + Bit.to_bin_with_zero &b)%bin_with_zero
           modulus
           (Bit.to_bin_with_zero &x63)
           (unsigned_value
             (append_bit &b
-              (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-                (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-                (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-                (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-                (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-                (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-                (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
+              (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+                (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+                (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+                (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+                (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+                (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+                (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
           &witness)
   with | _ facto end.
   ipso (symm &facto).
@@ -1441,15 +1441,15 @@ Proof.
   intros x.
   lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
   {
-    match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-    match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-    match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-    match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-    match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-    match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-    match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-    match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-    match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+    match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+    match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+    match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+    match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+    match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+    match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+    match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+    match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
   }
@@ -1566,15 +1566,15 @@ Proof.
     simpl BinWithZero.modulo, BinWithZero.div, Product.second in |- *.
     quod idem est.
   }
-  match &y with | Int64_introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
-  match &yb7 with | Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
-  match &yb6 with | Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
-  match &yb5 with | Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
-  match &yb4 with | Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
-  match &yb3 with | Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
-  match &yb2 with | Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &y with | introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
+  match &yb7 with | introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
+  match &yb6 with | introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
+  match &yb5 with | introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
+  match &yb4 with | introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
+  match &yb3 with | introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
+  match &yb2 with | introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl mul in |- *.
   ipso
     (valuation.multiplication.step _ _ _ _
@@ -2017,24 +2017,24 @@ Lemma sign
           + Bit.to_bin_with_zero (sign_bit (x + y)%int64))%bin_with_zero.
 Proof.
   intros x y o.
-  match &x with | Int64_introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
-  match &xb7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-  match &xb6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-  match &xb5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-  match &xb4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-  match &xb3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-  match &xb2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int64_introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
-  match &yb7 with | Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
-  match &yb6 with | Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
-  match &yb5 with | Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
-  match &yb4 with | Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
-  match &yb3 with | Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
-  match &yb2 with | Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb7 xb6 xb5 xb4 xb3 xb2 xb1 xb0 end.
+  match &xb7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+  match &xb6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+  match &xb5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+  match &xb4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+  match &xb3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+  match &xb2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb7 yb6 yb5 yb4 yb3 yb2 yb1 yb0 end.
+  match &yb7 with | introduction y63 y62 y61 y60 y59 y58 y57 y56 end.
+  match &yb6 with | introduction y55 y54 y53 y52 y51 y50 y49 y48 end.
+  match &yb5 with | introduction y47 y46 y45 y44 y43 y42 y41 y40 end.
+  match &yb4 with | introduction y39 y38 y37 y36 y35 y34 y33 y32 end.
+  match &yb3 with | introduction y31 y30 y29 y28 y27 y26 y25 y24 end.
+  match &yb2 with | introduction y23 y22 y21 y20 y19 y18 y17 y16 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl in &o |- *.
   ipso (Bit.conversion.binary.carry.conservation _ &x63 &y63 &o).
 Qed.
@@ -2117,24 +2117,24 @@ Theorem halving
       (x11 : Bit) (x10 : Bit) (x9 : Bit) (x8 : Bit)
       (x7 : Bit) (x6 : Bit) (x5 : Bit) (x4 : Bit)
       (x3 : Bit) (x2 : Bit) (x1 : Bit) (x0 : Bit) .
-      to_bin (Int64_introduction (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-                (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-                (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-                (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-                (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-                (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-                (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-                (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
+      to_bin (Int64.introduction (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+                (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+                (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+                (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+                (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+                (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+                (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+                (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0))
       = (10
           * shift_right
-            (Int64_introduction (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-              (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-              (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-              (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-              (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-              (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-              (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-              (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)) 1%n0
+            (Int64.introduction (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+              (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+              (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+              (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+              (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+              (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+              (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+              (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)) 1%n0
           + Bit.to_bin_with_zero x0)%b.
 Proof.
   intros x63 x62 x61 x60 x59 x58 x57 x56 x55 x54 x53 x52 x51 x50 x49 x48 x47 x46 x45 x44 x43 x42 x41
@@ -2142,48 +2142,48 @@ Proof.
     x16 x15 x14 x13 x12 x11 x10 x9 x8 x7 x6 x5 x4 x3 x2 x1 x0.
   lemma shifted
     : shift_right
-        (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-          (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-          (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-          (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-          (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-          (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-          (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-          (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)) 1%n0
-      = Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-        (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-        (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-        (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-        (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-        (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-        (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-        (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1).
+        (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+          (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+          (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+          (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+          (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+          (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+          (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+          (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)) 1%n0
+      = Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+        (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+        (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+        (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+        (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+        (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+        (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+        (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1).
   {
     simpl in |- *.
     quod idem est.
   }
   lemma split
     : (10 * unsigned_value
-              (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-                (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-                (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-                (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-                (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-                (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-                (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-                (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+              (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+                (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+                (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+                (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+                (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+                (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+                (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+                (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
         + Bit.to_bin_with_zero &x0
         = Bit.to_bin_with_zero &x63 * modulus
           + unsigned_value
-              (Int64_introduction
-                (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-                  (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-                  (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-                  (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-                  (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-                  (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-                  (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                  (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))%bin_with_zero.
+              (Int64.introduction
+                (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+                  (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+                  (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+                  (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+                  (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+                  (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+                  (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                  (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))%bin_with_zero.
   {
     lemma top
       : (Bit.to_bin_with_zero &x63 = Bit.to_bin_with_zero &x63 * 1 + 0)%bin_with_zero.
@@ -2306,33 +2306,33 @@ Proof.
   }
   lemma balance
     : (unsigned_value
-        (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-          (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-          (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-          (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-          (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-          (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-          (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-          (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+        (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+          (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+          (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+          (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+          (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+          (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+          (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+          (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
         + (modulus * Bit.to_bin_with_zero &x63 + modulus * Bit.to_bin_with_zero &x63 + 0)
         = (unsigned_value
-            (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-              (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-              (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-              (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-              (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-              (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-              (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-              (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+            (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+              (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+              (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+              (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+              (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+              (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+              (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+              (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
           + unsigned_value
-              (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-                (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-                (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-                (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-                (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-                (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-                (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-                (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+              (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+                (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+                (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+                (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+                (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+                (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+                (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+                (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
           + Bit.to_bin_with_zero &x0)
           + modulus * Bit.to_bin_with_zero &x63)%bin_with_zero.
   {
@@ -2344,38 +2344,38 @@ Proof.
       &unit,
       (&doubled
         (unsigned_value
-          (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-            (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-            (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-            (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-            (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-            (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-            (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-            (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))),
+          (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+            (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+            (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+            (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+            (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+            (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+            (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+            (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))),
       &split,
       (BinWithZero.multiplication.commutativity
         (Bit.to_bin_with_zero &x63) modulus),
       (BinWithZero.addition.commutativity
         (modulus * Bit.to_bin_with_zero &x63)%bin_with_zero
         (unsigned_value
-          (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-            (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-            (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-            (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-            (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-            (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-            (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-            (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))),
+          (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+            (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+            (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+            (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+            (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+            (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+            (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+            (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))),
       (BinWithZero.addition.associativity
         (unsigned_value
-          (Int64_introduction (Byte.Byte_introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
-            (Byte.Byte_introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
-            (Byte.Byte_introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
-            (Byte.Byte_introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
-            (Byte.Byte_introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
-            (Byte.Byte_introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
-            (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-            (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+          (Int64.introduction (Byte.introduction &x63 &x62 &x61 &x60 &x59 &x58 &x57 &x56)
+            (Byte.introduction &x55 &x54 &x53 &x52 &x51 &x50 &x49 &x48)
+            (Byte.introduction &x47 &x46 &x45 &x44 &x43 &x42 &x41 &x40)
+            (Byte.introduction &x39 &x38 &x37 &x36 &x35 &x34 &x33 &x32)
+            (Byte.introduction &x31 &x30 &x29 &x28 &x27 &x26 &x25 &x24)
+            (Byte.introduction &x23 &x22 &x21 &x20 &x19 &x18 &x17 &x16)
+            (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+            (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         (modulus * Bit.to_bin_with_zero &x63)%bin_with_zero
         (modulus * Bit.to_bin_with_zero &x63)%bin_with_zero)
       in |- *.
@@ -2387,57 +2387,57 @@ Proof.
     (&twice
       (Bin.bin_with_zero_difference
         (unsigned_value
-          (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-            (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-            (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-            (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-            (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-            (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-            (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-            (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+          (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+            (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+            (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+            (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+            (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+            (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+            (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+            (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
         (modulus * Bit.to_bin_with_zero &x63)%bin_with_zero)),
     (Bin.difference.additivity
       (unsigned_value
-        (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-          (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-          (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-          (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-          (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-          (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-          (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-          (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+        (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+          (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+          (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+          (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+          (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+          (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+          (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+          (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
       (modulus * Bit.to_bin_with_zero &x63)%bin_with_zero
       (unsigned_value
-        (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-          (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-          (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-          (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-          (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-          (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-          (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-          (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+        (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+          (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+          (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+          (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+          (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+          (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+          (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+          (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
       (modulus * Bit.to_bin_with_zero &x63)%bin_with_zero),
     (&embedding (Bit.to_bin_with_zero &x0)),
     (Bin.difference.additivity
       (unsigned_value
-        (Int64_introduction (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-          (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-          (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-          (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-          (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-          (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-          (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-          (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+        (Int64.introduction (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+          (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+          (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+          (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+          (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+          (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+          (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+          (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
         + unsigned_value
-            (Int64_introduction
-              (Byte.Byte_introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
-                (Byte.Byte_introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
-                (Byte.Byte_introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
-                (Byte.Byte_introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
-                (Byte.Byte_introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
-                (Byte.Byte_introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
-                (Byte.Byte_introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-                (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))%bin_with_zero
+            (Int64.introduction
+              (Byte.introduction &x63 &x63 &x62 &x61 &x60 &x59 &x58 &x57)
+                (Byte.introduction &x56 &x55 &x54 &x53 &x52 &x51 &x50 &x49)
+                (Byte.introduction &x48 &x47 &x46 &x45 &x44 &x43 &x42 &x41)
+                (Byte.introduction &x40 &x39 &x38 &x37 &x36 &x35 &x34 &x33)
+                (Byte.introduction &x32 &x31 &x30 &x29 &x28 &x27 &x26 &x25)
+                (Byte.introduction &x24 &x23 &x22 &x21 &x20 &x19 &x18 &x17)
+                (Byte.introduction &x16 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+                (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))%bin_with_zero
       (modulus * Bit.to_bin_with_zero &x63
         + modulus * Bit.to_bin_with_zero &x63)%bin_with_zero
       (Bit.to_bin_with_zero &x0) 0%bin_with_zero)
@@ -2453,7 +2453,7 @@ Module dword. (* conversion.dword *)
 Theorem retraction : forall (w : DWord) . to_dword (DWord.endian w) (from_dword w) = w.
 Proof.
   intros w.
-  match &w with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+  match &w with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
   match &e with | Little | Big end;
     simpl from_dword, to_dword in |- *;
     simpl in |- *;
@@ -2464,7 +2464,7 @@ Qed.
 Theorem section : forall (e : Endian) (x : Int64) . from_dword (to_dword e x) = x.
 Proof.
   intros e x.
-  match &x with | Int64_introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &x with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
   match &e with | Little | Big end;
     simpl from_dword, to_dword in |- *;
     simpl in |- *;

@@ -34,7 +34,7 @@ From jwa Require Import Tactics.Modus.
 Module Int16. (* Int16 *)
 
 Inductive T : Type :=
-  | Int16_introduction : Byte -> Byte -> T.
+  | introduction : Byte -> Byte -> T.
 
 Abbreviation Int16 := T.
 
@@ -46,12 +46,12 @@ Definition modulus := 10000000000000000%bin_base.
 (* [Endian -> Int16 -> HWord] *)
 Definition to_hword := fun (e : Endian) (x : Int16) .
   match x with
-  | Int16_introduction b1 b0 => HWord.make e b0 b1
+  | Int16.introduction b1 b0 => HWord.make e b0 b1
   end.
 
 (* The value of the bytes of [w], whatever the order they are laid out in. *)
 (* [HWord -> Int16] *)
-Definition from_hword := fun (w : HWord) . Int16_introduction (HWord.high w) (HWord.low w).
+Definition from_hword := fun (w : HWord) . Int16.introduction (HWord.high w) (HWord.low w).
 
 (* The bits read as a number in base two, the most significant first, from 0 to
  * 65535: the value of the bit pattern, through which the arithmetic is proved
@@ -60,8 +60,8 @@ Definition from_hword := fun (w : HWord) . Int16_introduction (HWord.high w) (HW
 (* [Int16 -> BinWithZero] *)
 Definition unsigned_value := fun (x : Int16) .
   match x with
-  | Int16_introduction (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | Int16.introduction (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (10 * (
         10 * Bit.to_bin_with_zero x15 + Bit.to_bin_with_zero x14) + Bit.to_bin_with_zero x13)
         + Bit.to_bin_with_zero x12) + Bit.to_bin_with_zero x11) + Bit.to_bin_with_zero x10)
@@ -75,7 +75,7 @@ Definition unsigned_value := fun (x : Int16) .
 (* [Int16 -> Bit] *)
 Definition sign_bit := fun (x : Int16) .
   match x with
-  | Int16_introduction (Byte.Byte_introduction x15 _ _ _ _ _ _ _) _ => x15
+  | Int16.introduction (Byte.introduction x15 _ _ _ _ _ _ _) _ => x15
   end.
 
 (* The value in two's complement: the unsigned value, less 65536 when the sign
@@ -99,13 +99,13 @@ Add Printing Coercion to_bin.
 Definition to_integer := fun (x : Int16) . Bin.to_integer (to_bin x).
 
 (* [Int16] *)
-Definition Zero := Int16_introduction Byte.Zero Byte.Zero.
+Definition Zero := Int16.introduction Byte.Zero Byte.Zero.
 
 (* [Int16] *)
 Definition One :=
-  Int16_introduction
+  Int16.introduction
     Byte.Zero
-    (Byte.Byte_introduction
+    (Byte.introduction
       Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One).
 
 (* [k] places toward the most significant end, a 0 coming in at the
@@ -115,10 +115,10 @@ Definition One :=
 Fixpoint shift_left_nat (x : Int16) (k : Nat) : Int16 :=
   let y :=
     match x with
-    | Int16_introduction (Byte.Byte_introduction _ x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Int16_introduction (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+    | Int16.introduction (Byte.introduction _ x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Int16.introduction (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
     end in
   match k with
   | Nat.One          => y
@@ -139,10 +139,10 @@ Definition shift_left := fun (x : Int16) (k : Nat0) .
 Fixpoint shift_right_nat (x : Int16) (k : Nat) : Int16 :=
   let y :=
     match x with
-    | Int16_introduction (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Int16_introduction (Byte.Byte_introduction x15 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
+    | Int16.introduction (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Int16.introduction (Byte.introduction x15 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
     end in
   match k with
   | Nat.One          => y
@@ -160,10 +160,10 @@ Definition shift_right := fun (x : Int16) (k : Nat0) .
 (* [Bit -> Int16 -> Int16] *)
 Definition append_bit := fun (b : Bit) (x : Int16) .
   match x with
-  | Int16_introduction (Byte.Byte_introduction _ x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-      Int16_introduction (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-        (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 b)
+  | Int16.introduction (Byte.introduction _ x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+      Int16.introduction (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+        (Byte.introduction x6 x5 x4 x3 x2 x1 x0 b)
   end.
 
 (* The carry out and the sum of [carry + x + y], the carry rippling up from
@@ -172,11 +172,11 @@ Definition append_bit := fun (b : Bit) (x : Int16) .
 (* [Bit -> Int16 -> Int16 -> Product Bit Int16] *)
 Definition add_with_carry := fun (carry : Bit) (x : Int16) (y : Int16) .
   match x with
-  | Int16_introduction (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | Int16.introduction (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       match y with
-      | Int16_introduction (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-          (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      | Int16.introduction (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+          (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
           let r0 := Bit.add_with_carry carry x0 y0 in
           let r1 := Bit.add_with_carry (pi_1 r0) x1 y1 in
           let r2 := Bit.add_with_carry (pi_1 r1) x2 y2 in
@@ -194,11 +194,11 @@ Definition add_with_carry := fun (carry : Bit) (x : Int16) (y : Int16) .
           let r14 := Bit.add_with_carry (pi_1 r13) x14 y14 in
           let r15 := Bit.add_with_carry (pi_1 r14) x15 y15 in
           (pi_1 r15,
-            Int16_introduction
-              (Byte.Byte_introduction
+            Int16.introduction
+              (Byte.introduction
                 (pi_2 r15) (pi_2 r14) (pi_2 r13) (pi_2 r12)
                 (pi_2 r11) (pi_2 r10) (pi_2 r9) (pi_2 r8))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r7) (pi_2 r6) (pi_2 r5) (pi_2 r4)
                 (pi_2 r3) (pi_2 r2) (pi_2 r1) (pi_2 r0)))
       end
@@ -217,11 +217,11 @@ Notation "x + y" := (add x y) (only parsing)
 (* [Bit -> Int16 -> Int16 -> Product Bit Int16] *)
 Definition sub_with_borrow := fun (borrow : Bit) (x : Int16) (y : Int16) .
   match x with
-  | Int16_introduction (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-      (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | Int16.introduction (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+      (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       match y with
-      | Int16_introduction (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-          (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      | Int16.introduction (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+          (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
           let r0 := Bit.sub_with_borrow borrow x0 y0 in
           let r1 := Bit.sub_with_borrow (pi_1 r0) x1 y1 in
           let r2 := Bit.sub_with_borrow (pi_1 r1) x2 y2 in
@@ -239,11 +239,11 @@ Definition sub_with_borrow := fun (borrow : Bit) (x : Int16) (y : Int16) .
           let r14 := Bit.sub_with_borrow (pi_1 r13) x14 y14 in
           let r15 := Bit.sub_with_borrow (pi_1 r14) x15 y15 in
           (pi_1 r15,
-            Int16_introduction
-              (Byte.Byte_introduction
+            Int16.introduction
+              (Byte.introduction
                 (pi_2 r15) (pi_2 r14) (pi_2 r13) (pi_2 r12)
                 (pi_2 r11) (pi_2 r10) (pi_2 r9) (pi_2 r8))
-              (Byte.Byte_introduction
+              (Byte.introduction
                 (pi_2 r7) (pi_2 r6) (pi_2 r5) (pi_2 r4)
                 (pi_2 r3) (pi_2 r2) (pi_2 r1) (pi_2 r0)))
       end
@@ -275,8 +275,8 @@ Definition mul := fun (x : Int16) (y : Int16) .
       | Bit.One  => x
       end in
   match y with
-  | Int16_introduction (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+  | Int16.introduction (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
       step (step (step (step (step (step (step (step (step (step (step (step (step (step (step (step
         Zero y15) y14) y13) y12) y11) y10) y9) y8) y7) y6) y5) y4) y3) y2) y1) y0
   end.
@@ -439,9 +439,9 @@ Qed.
 Theorem boundedness : forall (x : Int16) . (unsigned_value x < modulus)%bin_with_zero.
 Proof.
   intros x.
-  match &x with | Int16_introduction xb1 xb0 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl unsigned_value in |- *.
   ipso
     (Bit.conversion.binary.boundedness.propagation _ _ _
@@ -467,12 +467,12 @@ Theorem injectivity
   : forall {x : Int16} {y : Int16} . unsigned_value x = unsigned_value y -> x = y.
 Proof.
   intros x y e.
-  match &x with | Int16_introduction xb1 xb0 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int16_introduction yb1 yb0 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb1 yb0 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value in &e.
   match (Bit.conversion.binary.halving.injectivity &e) with | e1 b0 end.
   match (Bit.conversion.binary.halving.injectivity &e1) with | e2 b1 end.
@@ -508,12 +508,12 @@ Theorem carry
           + unsigned_value (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
 Proof.
   intros carry x y.
-  match &x with | Int16_introduction xb1 xb0 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int16_introduction yb1 yb0 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb1 yb0 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value, add_with_carry in |- *.
   ipso
     (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
@@ -543,12 +543,12 @@ Theorem borrow
           + unsigned_value (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
 Proof.
   intros borrow x y.
-  match &x with | Int16_introduction xb1 xb0 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int16_introduction yb1 yb0 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb1 yb0 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl unsigned_value, sub_with_borrow in |- *.
   ipso
     (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
@@ -671,24 +671,24 @@ Theorem appending
         = (10 * unsigned_value x + Bit.to_bin_with_zero b) %. modulus)%bin_with_zero.
 Proof.
   intros b x.
-  match &x with | Int16_introduction xb1 xb0 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   lemma witness
     : (Bit.to_bin_with_zero &x15 * modulus
         + unsigned_value
             (append_bit &b
-              (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+              (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         = 10
             * unsigned_value
-                (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                  (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+                (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                  (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
           + Bit.to_bin_with_zero &b
       /\ unsigned_value
           (append_bit &b
-            (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-              (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+            (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+              (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         < modulus)%bin_with_zero.
   {
     divide et impera.
@@ -725,20 +725,20 @@ Proof.
     - ipso
         (valuation.boundedness
           (append_bit &b
-            (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-              (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
+            (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+              (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
   }
   match (BinWithZero.division.uniqueness
           (10 * unsigned_value
-                  (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                    (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+                  (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                    (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
             + Bit.to_bin_with_zero &b)%bin_with_zero
           modulus
           (Bit.to_bin_with_zero &x15)
           (unsigned_value
             (append_bit &b
-              (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
+              (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
           &witness)
   with | _ facto end.
   ipso (symm &facto).
@@ -861,9 +861,9 @@ Proof.
   intros x.
   lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
   {
-    match &x with | Int16_introduction xb1 xb0 end.
-    match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-    match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x with | introduction xb1 xb0 end.
+    match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+    match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
   }
@@ -980,9 +980,9 @@ Proof.
     simpl BinWithZero.modulo, BinWithZero.div, Product.second in |- *.
     quod idem est.
   }
-  match &y with | Int16_introduction yb1 yb0 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &y with | introduction yb1 yb0 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl mul in |- *.
   ipso
     (valuation.multiplication.step _ _ _ _
@@ -1376,12 +1376,12 @@ Lemma sign
           + Bit.to_bin_with_zero (sign_bit (x + y)%int16))%bin_with_zero.
 Proof.
   intros x y o.
-  match &x with | Int16_introduction xb1 xb0 end.
-  match &xb1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-  match &xb0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Int16_introduction yb1 yb0 end.
-  match &yb1 with | Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
-  match &yb0 with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb1 xb0 end.
+  match &xb1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+  match &xb0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb1 yb0 end.
+  match &yb1 with | introduction y15 y14 y13 y12 y11 y10 y9 y8 end.
+  match &yb0 with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl in &o |- *.
   ipso (Bit.conversion.binary.carry.conservation _ &x15 &y15 &o).
 Qed.
@@ -1452,35 +1452,35 @@ Theorem halving
       (x11 : Bit) (x10 : Bit) (x9 : Bit) (x8 : Bit)
       (x7 : Bit) (x6 : Bit) (x5 : Bit) (x4 : Bit)
       (x3 : Bit) (x2 : Bit) (x1 : Bit) (x0 : Bit) .
-      to_bin (Int16_introduction (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-                (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0))
+      to_bin (Int16.introduction (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+                (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0))
       = (10
           * shift_right
-            (Int16_introduction (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-              (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)) 1%n0
+            (Int16.introduction (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+              (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)) 1%n0
           + Bit.to_bin_with_zero x0)%b.
 Proof.
   intros x15 x14 x13 x12 x11 x10 x9 x8 x7 x6 x5 x4 x3 x2 x1 x0.
   lemma shifted
     : shift_right
-        (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-          (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)) 1%n0
-      = Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-        (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1).
+        (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+          (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)) 1%n0
+      = Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+        (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1).
   {
     simpl in |- *.
     quod idem est.
   }
   lemma split
     : (10 * unsigned_value
-              (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-                (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+              (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+                (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
         + Bit.to_bin_with_zero &x0
         = Bit.to_bin_with_zero &x15 * modulus
           + unsigned_value
-              (Int16_introduction
-                (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-                  (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))%bin_with_zero.
+              (Int16.introduction
+                (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+                  (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))%bin_with_zero.
   {
     lemma top
       : (Bit.to_bin_with_zero &x15 = Bit.to_bin_with_zero &x15 * 1 + 0)%bin_with_zero.
@@ -1555,15 +1555,15 @@ Proof.
   }
   lemma balance
     : (unsigned_value
-        (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-          (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+        (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+          (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
         + (modulus * Bit.to_bin_with_zero &x15 + modulus * Bit.to_bin_with_zero &x15 + 0)
         = (unsigned_value
-            (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-              (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+            (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+              (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
           + unsigned_value
-              (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-                (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+              (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+                (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
           + Bit.to_bin_with_zero &x0)
           + modulus * Bit.to_bin_with_zero &x15)%bin_with_zero.
   {
@@ -1575,20 +1575,20 @@ Proof.
       &unit,
       (&doubled
         (unsigned_value
-          (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-            (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))),
+          (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+            (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))),
       &split,
       (BinWithZero.multiplication.commutativity
         (Bit.to_bin_with_zero &x15) modulus),
       (BinWithZero.addition.commutativity
         (modulus * Bit.to_bin_with_zero &x15)%bin_with_zero
         (unsigned_value
-          (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-            (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))),
+          (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+            (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))),
       (BinWithZero.addition.associativity
         (unsigned_value
-          (Int16_introduction (Byte.Byte_introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
-            (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+          (Int16.introduction (Byte.introduction &x15 &x14 &x13 &x12 &x11 &x10 &x9 &x8)
+            (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         (modulus * Bit.to_bin_with_zero &x15)%bin_with_zero
         (modulus * Bit.to_bin_with_zero &x15)%bin_with_zero)
       in |- *.
@@ -1600,27 +1600,27 @@ Proof.
     (&twice
       (Bin.bin_with_zero_difference
         (unsigned_value
-          (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-            (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+          (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+            (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
         (modulus * Bit.to_bin_with_zero &x15)%bin_with_zero)),
     (Bin.difference.additivity
       (unsigned_value
-        (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-          (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+        (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+          (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
       (modulus * Bit.to_bin_with_zero &x15)%bin_with_zero
       (unsigned_value
-        (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-          (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
+        (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+          (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))
       (modulus * Bit.to_bin_with_zero &x15)%bin_with_zero),
     (&embedding (Bit.to_bin_with_zero &x0)),
     (Bin.difference.additivity
       (unsigned_value
-        (Int16_introduction (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-          (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
+        (Int16.introduction (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+          (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1))
         + unsigned_value
-            (Int16_introduction
-              (Byte.Byte_introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
-                (Byte.Byte_introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))%bin_with_zero
+            (Int16.introduction
+              (Byte.introduction &x15 &x15 &x14 &x13 &x12 &x11 &x10 &x9)
+                (Byte.introduction &x8 &x7 &x6 &x5 &x4 &x3 &x2 &x1)))%bin_with_zero
       (modulus * Bit.to_bin_with_zero &x15
         + modulus * Bit.to_bin_with_zero &x15)%bin_with_zero
       (Bit.to_bin_with_zero &x0) 0%bin_with_zero)
@@ -1636,7 +1636,7 @@ Module hword. (* conversion.hword *)
 Theorem retraction : forall (w : HWord) . to_hword (HWord.endian w) (from_hword w) = w.
 Proof.
   intros w.
-  match &w with | HWord_introduction e b0 b1 end.
+  match &w with | introduction e b0 b1 end.
   match &e with | Little | Big end;
     simpl from_hword, to_hword in |- *;
     simpl in |- *;
@@ -1647,7 +1647,7 @@ Qed.
 Theorem section : forall (e : Endian) (x : Int16) . from_hword (to_hword e x) = x.
 Proof.
   intros e x.
-  match &x with | Int16_introduction b1 b0 end.
+  match &x with | introduction b1 b0 end.
   match &e with | Little | Big end;
     simpl from_hword, to_hword in |- *;
     simpl in |- *;
