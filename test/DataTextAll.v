@@ -576,3 +576,57 @@ Definition data_text_all_refuses_utf8_str_surrogate
 Definition data_text_all_refuses_utf8_str_overlong
   : Utf8Str.from_bytes (0xc0%byte :: 0x80%byte :: 0x61%byte :: [])%list = None
   := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_ascii_retraction
+  : forall (a : Ascii) . Utf8.to_ascii (Utf8.from_ascii a) = Some a
+  := Utf8.conversion.ascii.retraction.
+
+Definition data_text_all_delivers_utf8_ascii_inversion
+  : forall (c : Utf8) (a : Ascii) . Utf8.to_ascii c = Some a -> Utf8.from_ascii a = c
+  := Utf8.conversion.ascii.inversion.
+
+Definition data_text_all_computes_utf8_from_ascii
+  : Utf8.from_ascii "A"%ac = "A"%u8c
+    /\ Utf8.from_ascii (Ascii.from_byte 0xe9%byte) = Utf8.TwoBytes 0xc3%byte 0xa9%byte I
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_to_ascii
+  : Utf8.to_ascii "A"%u8c = Some "A"%ac
+    /\ Utf8.to_ascii (Utf8.TwoBytes 0xc3%byte 0xa9%byte I) = Some (Ascii.from_byte 0xe9%byte)
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_refuses_utf8_to_ascii_beyond_latin1
+  : Utf8.to_ascii (Utf8.TwoBytes 0xc4%byte 0x80%byte I) = None
+    /\ Utf8.to_ascii (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I) = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_delivers_utf8_str_ascii_retraction
+  : forall (s : AsciiStr) . Utf8Str.to_ascii_str (Utf8Str.from_ascii_str s) = Some s
+  := Utf8Str.conversion.ascii.retraction.
+
+Definition data_text_all_delivers_utf8_str_ascii_inversion
+  : forall (t : Utf8Str) (s : AsciiStr) .
+      Utf8Str.to_ascii_str t = Some s -> Utf8Str.from_ascii_str s = t
+  := Utf8Str.conversion.ascii.inversion.
+
+Definition data_text_all_delivers_utf8_str_ascii_length
+  : forall (s : AsciiStr) . Utf8Str.length (Utf8Str.from_ascii_str s) = AsciiStr.length s
+  := Utf8Str.conversion.ascii.preservation.of.length.
+
+Definition data_text_all_computes_utf8_str_from_ascii_str
+  : Utf8Str.from_ascii_str "ab"%a = "ab"%u8
+    /\ Utf8Str.from_ascii_str (AsciiStr.from_list ("h"%ac :: Ascii.from_byte 0xe9%byte :: [])%list)
+      = Utf8Str.from_list ("h"%u8c :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I :: [])%list
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_str_to_ascii_str
+  : Utf8Str.to_ascii_str
+      (Utf8Str.from_list ("h"%u8c :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I :: [])%list)
+    = Some (AsciiStr.from_list ("h"%ac :: Ascii.from_byte 0xe9%byte :: [])%list)
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_str_to_ascii_str_beyond_latin1
+  : Utf8Str.to_ascii_str
+      (Utf8Str.from_list ("a"%u8c :: Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: [])%list)
+    = None
+  := Identity.reflexivity _.
