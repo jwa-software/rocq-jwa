@@ -67,7 +67,8 @@ The fixed-width integers come in pairs, one per width: `UInt8` and `Int8` hold o
 
 - **The carry and the borrow are returned.** `UInt8.add_with_carry` and `UInt8.sub_with_borrow` ripple a carry or a borrow through every place and return it with the result.
 - **Every operation is stated against the value.** `UInt8.conversion.addition` is `to_bin_with_zero (x + y)%uint8 = (x + y) %. modulus` in `BinWithZero`, the right side adding the values without wrapping, and `UInt8.conversion.left.shift` makes a shift to the left a multiplication by a power of two.
-- **The arithmetic is a ring.** `+` and `*` form one, `UInt8.from_bin_with_zero` and `UInt8.from_nat0` read a number modulo `UInt8.modulus`, `UInt8.to_bin` gives the value as a `Bin`, and `UInt8.compare` orders by value.
+- **Division and remainder return an `Option`.** `x /. y` and `x %. y` divide through `BinWithZero`, and give `None` when `y` is `0`: `(200 /. 7)%uint8` is `Some 28` and `(200 %. 7)%uint8` is `Some 4`. The quotient is never more than `x`, so it never wraps: `UInt8.conversion.division` makes its value the `BinWithZero` quotient, and `UInt8.conversion.modulo` does the same for the remainder.
+- **The arithmetic is a ring.** `+` and `*` form one, `UInt8.from_bin_with_zero`, `UInt8.from_bin` and `UInt8.from_nat0` read a number modulo `UInt8.modulus` (`UInt8.from_bin (-1)` is `255`), `UInt8.to_bin` gives the value as a `Bin`, and `UInt8.compare` orders by value.
 - **A negative literal is refused.** Under `%uint8` and the other unsigned keys, `- 1` is read as a negative literal and refused; the negation of a literal is written `- UInt8.One` or `UInt8.negate 1`.
 
 ---
@@ -80,13 +81,16 @@ The fixed-width integers come in pairs, one per width: `UInt8` and `Int8` hold o
 - **The overflow is a flag.** `Int8.add_with_overflow` returns the sum with a flag, set when the operands share a sign that the sum does not; `Int8.conversion.addition` makes `to_bin (x + y)` the sum `to_bin x + to_bin y` in `Bin` whenever that flag is clear.
 - **The right shift is arithmetic.** `Int8.shift_right` copies the sign bit, so a shift by one place halves the value rounding down (`Int8.conversion.right.halving`), and `Int8.shift_right (-1) 3` is still `-1`.
 - **The arithmetic is a ring.** `+` and `*` form one, `Int8.from_bin` and `Int8.from_integer` read a number modulo `Int8.modulus`, and `Int8.compare` orders by the signed value, `-1` before `1`.
+- **A value in range comes back.** `Int8.conversion.retraction.nonnegative` and `Int8.conversion.retraction.negative` make `to_bin (from_bin z)` equal to `z` for every `z` from -128 to 127, and `Int8.conversion.boundedness` puts `to_bin x` in that range.
+- **Division rounds toward zero and returns an `Option`.** `x /. y` divides through `Bin`, and gives `None` when `y` is `0`: `((-7) /. 2)%int8` and `(7 /. (-2))%int8` are both `Some (-3)`. Its one overflow, `(-128) /. (-1)`, wraps to `-128`. `Int8.conversion.division.positive` and `Int8.conversion.division.negative` make the quotient's value the `Bin` quotient, the second in every case but that one.
+- **There is no signed remainder.** The remainder that goes with `/.` takes the sign of `x`: it is the remainder of the magnitudes, `(Bin.abs x %. d)%bin_with_zero` for a divisor of magnitude `d`, negated when `x` is negative.
 
 ---
 
 ## Conversions
 
-- **The two types of a width meet only at its bytes**: `to_byte` and `from_byte` at 8 bits, `to_hword e` and `from_hword` at 16, `to_word e` and `from_word` at 32, `to_dword e` and `from_dword` at 64, the word laid out in the order `e` names. `Int8.from_byte (UInt8.to_byte 255)` is `-1`, and so is `Int64.from_dword (UInt64.to_dword Endian.Big 18446744073709551615)`.
-- **No width converts to another.**
+- **The two types of a width meet at its bytes**: `to_byte` and `from_byte` at 8 bits, `to_hword e` and `from_hword` at 16, `to_word e` and `from_word` at 32, `to_dword e` and `from_dword` at 64, the word laid out in the order `e` names. `Int8.from_byte (UInt8.to_byte 255)` is `-1`, and so is `Int64.from_dword (UInt64.to_dword Endian.Big 18446744073709551615)`.
+- **Any two types meet through the binary value.** `from_bin_with_zero` and `from_bin` read a value modulo the target's modulus, and the coercions below supply it: `UInt16.from_bin_with_zero x` keeps the low 16 bits of an `x : UInt32`, `UInt64.from_bin_with_zero` zero-extends it, `Int64.from_bin` sign-extends an `Int8`, and `Int32.from_bin_with_zero` and `UInt32.from_bin` read the same 32 bits as the other type: `Int32.from_bin_with_zero 4294967295%uint32` is `-1`, and `UInt32.from_bin (-1)%int32` is `4294967295`.
 - **Every fixed-width integer widens without being written**, as the number types do: an unsigned value stands wherever a `BinWithZero` or a `Nat0` is expected, a signed one wherever a `Bin` or an `Integer` is. Each conversion is printed in the goal.
 - **The unary conversions are for stating and proving.** `UInt8.to_nat0` and `Int8.to_integer` go through the binary value; computing is done in `BinWithZero` or `Bin`.
 - **The operators are then the numbers' own**: `(x + y)%bin_with_zero` or `(x + y)%n0`, with `x` and `y` of type `UInt8`, adds their values without wrapping, where `(x + y)%uint8` wraps.
