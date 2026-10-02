@@ -6,16 +6,20 @@ From jwa Require Import Core.Logic.Conjunction.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
-Inductive Disjunction (A : Prop) (B : Prop) : Prop :=
-  | Disjunction_introduction_left  : A -> Disjunction A B
-  | Disjunction_introduction_right : B -> Disjunction A B.
+Module Disjunction. (* Disjunction *)
+
+Inductive T (A : Prop) (B : Prop) : Prop :=
+  | introduction_left  : A -> T A B
+  | introduction_right : B -> T A B.
 
 (* The unused side is not determined by the argument. It comes from the
  * expected type, and a use that has none needs
- * [@Disjunction_introduction_left].
+ * [@Disjunction.introduction_left].
  *)
-Arguments Disjunction_introduction_left  {A} {B} a.
-Arguments Disjunction_introduction_right {A} {B} b.
+Arguments Disjunction.introduction_left  {A} {B} a.
+Arguments Disjunction.introduction_right {A} {B} b.
+
+Abbreviation Disjunction := T.
 
 Notation "A \/ B" := (Disjunction A B)
   : jwa_type_scope.
@@ -23,13 +27,8 @@ Notation "A \/ B" := (Disjunction A B)
 (* [disjoin a, _] : [A \/ B] from [a : A], and [disjoin _, b] from [b : B];
  * the side written [_] comes from the expected type.
  *)
-Notation "'disjoin' a , '_'" := (Disjunction_introduction_left  a) (only parsing).
-Notation "'disjoin' '_' , b" := (Disjunction_introduction_right b) (only parsing).
-
-(* A module may carry the type's name; its laws read
- * [Disjunction.commutativity].
- *)
-Module Disjunction. (* Disjunction *)
+Notation "'disjoin' a , '_'" := (Disjunction.introduction_left  a) (only parsing).
+Notation "'disjoin' '_' , b" := (Disjunction.introduction_right b) (only parsing).
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A \/ B -> B \/ A.
@@ -140,6 +139,16 @@ Proof.
 Qed.
 
 End Disjunction. (* Disjunction *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Disjunction], not [Disjunction.T].
+ *)
+Abbreviation Disjunction := Disjunction.T.
+
+(* Makes [\/] and [disjoin], declared in [Module Disjunction], usable in
+ * every file that imports this one.
+ *)
+Export (notations) Disjunction.
 
 Module Conjunction. (* Conjunction *)
 

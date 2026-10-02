@@ -9,17 +9,21 @@ From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
+Module Sejunction. (* Sejunction *)
+
 (* Sejunction is exclusive disjunction: one side holds and the other does
  * not. [Theorem t : Verum _\/_ Verum.] is accepted and [Proof.] opens, but no
  * step reaches [Qed.]: either ctor demands [~ Verum], and no term has that
  * type. Being writable does not make a statement provable.
  *)
-Inductive Sejunction (A : Prop) (B : Prop) : Prop :=
-  | Sejunction_introduction_left  : A -> ~ B -> Sejunction A B
-  | Sejunction_introduction_right : ~ A -> B -> Sejunction A B.
+Inductive T (A : Prop) (B : Prop) : Prop :=
+  | introduction_left  : A -> ~ B -> T A B
+  | introduction_right : ~ A -> B -> T A B.
 
-Arguments Sejunction_introduction_left  {A} {B} a  nb.
-Arguments Sejunction_introduction_right {A} {B} na b.
+Arguments Sejunction.introduction_left  {A} {B} a  nb.
+Arguments Sejunction.introduction_right {A} {B} na b.
+
+Abbreviation Sejunction := T.
 
 Notation "A _\/_ B" := (Sejunction A B)
   : jwa_type_scope.
@@ -30,20 +34,15 @@ Notation "A _\/_ B" := (Sejunction A B)
 Notation "'sejoin' a , b"
     := (ltac2:(Control.once_plus
                  (fun () => Control.refine (fun () =>
-                    constr:(Sejunction_introduction_left $preterm:a $preterm:b)))
+                    constr:(Sejunction.introduction_left $preterm:a $preterm:b)))
                  (fun _ => Control.once_plus
                     (fun () => Control.refine (fun () =>
-                       constr:(Sejunction_introduction_right $preterm:a $preterm:b)))
+                       constr:(Sejunction.introduction_right $preterm:a $preterm:b)))
                     (fun _ => Control.zero (Tactic_failure (Some (Message.concat
                        (Message.of_string
                           "sejoin: give a proof of one side and a refutation of the other,")
                        (Message.of_string " as in sejoin a, nb or sejoin na, b"))))))))
   (only parsing).
-
-(* A module may carry the type's name; its laws read
- * [Sejunction.commutativity].
- *)
-Module Sejunction. (* Sejunction *)
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A _\/_ B -> B _\/_ A.
@@ -209,6 +208,16 @@ End of. (* exclusion.of *)
 End exclusion. (* exclusion *)
 
 End Sejunction. (* Sejunction *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Sejunction], not [Sejunction.T].
+ *)
+Abbreviation Sejunction := Sejunction.T.
+
+(* Makes [_\/_] and [sejoin], declared in [Module Sejunction], usable in
+ * every file that imports this one.
+ *)
+Export (notations) Sejunction.
 
 (* The same incompatibility read from the biconditional's side belongs to
  * [Biconditional], but it can be stated only here, where [_\/_] is known. A
