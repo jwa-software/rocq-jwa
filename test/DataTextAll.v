@@ -115,6 +115,95 @@ Definition data_text_all_computes_ascii_min
   : Ascii.min "z"%ac "0"%ac = "0"%ac
   := Identity.reflexivity _.
 
+Definition data_text_all_delivers_ascii_digit_specification
+  : forall (c : Ascii) .
+      Ascii.is_digit c = true
+      <-> (Ascii.from_byte 0x30%byte <= c /\ c <= Ascii.from_byte 0x39%byte)%ac
+  := Ascii.classification.digit.specification.
+
+Definition data_text_all_delivers_ascii_upper_specification
+  : forall (c : Ascii) .
+      Ascii.is_upper c = true
+      <-> (Ascii.from_byte 0x41%byte <= c /\ c <= Ascii.from_byte 0x5a%byte)%ac
+  := Ascii.classification.upper.specification.
+
+Definition data_text_all_delivers_ascii_lower_specification
+  : forall (c : Ascii) .
+      Ascii.is_lower c = true
+      <-> (Ascii.from_byte 0x61%byte <= c /\ c <= Ascii.from_byte 0x7a%byte)%ac
+  := Ascii.classification.lower.specification.
+
+Definition data_text_all_delivers_ascii_letter_specification
+  : forall (c : Ascii) .
+      Ascii.is_letter c = true <-> Ascii.is_upper c = true \/ Ascii.is_lower c = true
+  := Ascii.classification.letter.specification.
+
+Definition data_text_all_delivers_ascii_whitespace_specification
+  : forall (c : Ascii) .
+      Ascii.is_whitespace c = true
+      <-> c = Ascii.from_byte 0x20%byte
+          \/ (Ascii.from_byte 0x09%byte <= c /\ c <= Ascii.from_byte 0x0d%byte)%ac
+  := Ascii.classification.whitespace.specification.
+
+Definition data_text_all_delivers_ascii_exclusion
+  : forall (c : Ascii) . Bool.and (Ascii.is_upper c) (Ascii.is_lower c) = false
+  := Ascii.classification.exclusion.
+
+Definition data_text_all_delivers_ascii_uppercasing_invariance
+  : forall (c : Ascii) . Ascii.is_lower c = false -> Ascii.to_upper c = c
+  := Ascii.uppercasing.invariance.
+
+Definition data_text_all_delivers_ascii_uppercasing_idempotence
+  : forall (c : Ascii) . Ascii.to_upper (Ascii.to_upper c) = Ascii.to_upper c
+  := Ascii.uppercasing.idempotence.
+
+Definition data_text_all_delivers_ascii_uppercasing_absorption
+  : forall (c : Ascii) . Ascii.to_upper (Ascii.to_lower c) = Ascii.to_upper c
+  := Ascii.uppercasing.absorption.
+
+Definition data_text_all_delivers_ascii_uppercasing_inversion
+  : forall (c : Ascii) . Ascii.is_upper c = true -> Ascii.to_upper (Ascii.to_lower c) = c
+  := Ascii.uppercasing.inversion.of.lowercasing.
+
+Definition data_text_all_delivers_ascii_lowercasing_invariance
+  : forall (c : Ascii) . Ascii.is_upper c = false -> Ascii.to_lower c = c
+  := Ascii.lowercasing.invariance.
+
+Definition data_text_all_delivers_ascii_lowercasing_idempotence
+  : forall (c : Ascii) . Ascii.to_lower (Ascii.to_lower c) = Ascii.to_lower c
+  := Ascii.lowercasing.idempotence.
+
+Definition data_text_all_delivers_ascii_lowercasing_absorption
+  : forall (c : Ascii) . Ascii.to_lower (Ascii.to_upper c) = Ascii.to_lower c
+  := Ascii.lowercasing.absorption.
+
+Definition data_text_all_delivers_ascii_lowercasing_inversion
+  : forall (c : Ascii) . Ascii.is_lower c = true -> Ascii.to_lower (Ascii.to_upper c) = c
+  := Ascii.lowercasing.inversion.of.uppercasing.
+
+Definition data_text_all_computes_ascii_classes
+  : Ascii.is_digit "7"%ac = true
+    /\ Ascii.is_digit "a"%ac = false
+    /\ Ascii.is_whitespace " "%ac = true
+    /\ Ascii.is_whitespace (Ascii.from_byte 0x0a%byte) = true
+  := conjoin (Identity.reflexivity _),
+       (conjoin (Identity.reflexivity _),
+         (conjoin (Identity.reflexivity _), (Identity.reflexivity _))).
+
+Definition data_text_all_computes_ascii_latin1_letter
+  : Ascii.is_letter (Ascii.from_byte 0xe9%byte) = false
+    /\ Ascii.to_upper (Ascii.from_byte 0xe9%byte) = Ascii.from_byte 0xe9%byte
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_ascii_case
+  : Ascii.to_upper "a"%ac = "A"%ac
+    /\ Ascii.to_upper "A"%ac = "A"%ac
+    /\ Ascii.to_upper "1"%ac = "1"%ac
+    /\ Ascii.to_lower "Q"%ac = "q"%ac
+  := conjoin (Identity.reflexivity _),
+       (conjoin (Identity.reflexivity _),
+         (conjoin (Identity.reflexivity _), (Identity.reflexivity _))).
+
 Definition data_text_all_delivers_ascii_str
   : AsciiStr
   := "abc"%a.
@@ -143,6 +232,29 @@ Definition data_text_all_delivers_ascii_str_length_additivity
   : forall (s : AsciiStr) (t : AsciiStr) .
       AsciiStr.length (s ++ t)%a = (AsciiStr.length s + AsciiStr.length t)%n0
   := AsciiStr.length.additivity.over.concatenation.
+
+Definition data_text_all_delivers_ascii_str_uppercasing_length
+  : forall (s : AsciiStr) . AsciiStr.length (AsciiStr.to_upper s) = AsciiStr.length s
+  := AsciiStr.uppercasing.preservation.of.length.
+
+Definition data_text_all_delivers_ascii_str_uppercasing_distributivity
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      (AsciiStr.to_upper (s ++ t) = AsciiStr.to_upper s ++ AsciiStr.to_upper t)%a
+  := AsciiStr.uppercasing.distributivity.over.concatenation.
+
+Definition data_text_all_delivers_ascii_str_lowercasing_length
+  : forall (s : AsciiStr) . AsciiStr.length (AsciiStr.to_lower s) = AsciiStr.length s
+  := AsciiStr.lowercasing.preservation.of.length.
+
+Definition data_text_all_delivers_ascii_str_lowercasing_distributivity
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      (AsciiStr.to_lower (s ++ t) = AsciiStr.to_lower s ++ AsciiStr.to_lower t)%a
+  := AsciiStr.lowercasing.distributivity.over.concatenation.
+
+Definition data_text_all_computes_ascii_str_case
+  : AsciiStr.to_upper "Hello, World"%a = "HELLO, WORLD"%a
+    /\ AsciiStr.to_lower "Hello, World"%a = "hello, world"%a
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
 Definition data_text_all_reads_ascii_str_literal
   : AsciiStr.to_list "ab"%a = ("a"%ac :: "b"%ac :: [])%list
