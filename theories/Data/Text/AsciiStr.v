@@ -3,7 +3,9 @@
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.List.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
@@ -11,6 +13,8 @@ From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.Ascii.
 From jwa Require Import Data.Text.SourceByte.
+From jwa Require Import Tactics.Equation.
+From jwa Require Import Tactics.Modus.
 
 Module AsciiStr. (* AsciiStr *)
 
@@ -44,6 +48,71 @@ Notation "s ++ t" := (concat s t) (only parsing)
 
 (* [AsciiStr -> Nat0] *)
 Definition length := fun (s : AsciiStr) . List.length (to_list s).
+
+(* Every character of [s] by [Ascii.to_upper]. *)
+(* [AsciiStr -> AsciiStr] *)
+Definition to_upper := fun (s : AsciiStr) .
+  AsciiStr.introduction (List.map Ascii.to_upper (to_list s)).
+
+(* Every character of [s] by [Ascii.to_lower]. *)
+(* [AsciiStr -> AsciiStr] *)
+Definition to_lower := fun (s : AsciiStr) .
+  AsciiStr.introduction (List.map Ascii.to_lower (to_list s)).
+
+(* The character at position [i], counting from 0, and [None] from [length s]
+ * on.
+ *)
+(* [AsciiStr -> Nat0 -> Option Ascii] *)
+Definition get := fun (s : AsciiStr) (i : Nat0) . List.nth (to_list s) i.
+
+(* The [len] characters of [s] from position [start], fewer where [s] ends
+ * sooner.
+ *)
+(* [AsciiStr -> Nat0 -> Nat0 -> AsciiStr] *)
+Definition substring := fun (s : AsciiStr) (start : Nat0) (len : Nat0) .
+  AsciiStr.introduction (List.take len (List.drop start (to_list s))).
+
+(* Strings are ordered lexicographically by their characters' codes, a
+ * proper prefix first.
+ *)
+(* [AsciiStr -> AsciiStr -> Comparison] *)
+Definition compare := fun (s : AsciiStr) (t : AsciiStr) .
+  List.compare Ascii.compare (to_list s) (to_list t).
+
+(* [AsciiStr -> AsciiStr -> Prop] *)
+Definition LessThan := fun (s : AsciiStr) (t : AsciiStr) .
+  List.LessThan Ascii.compare (to_list s) (to_list t).
+
+Notation "s < t" := (LessThan s t) (only parsing)
+  : jwa_ascii_str_scope.
+
+(* [AsciiStr -> AsciiStr -> Prop] *)
+Definition LessOrEqual := fun (s : AsciiStr) (t : AsciiStr) . s = t \/ LessThan s t.
+
+Notation "s <= t" := (LessOrEqual s t) (only parsing)
+  : jwa_ascii_str_scope.
+
+Notation "s > t" := (LessThan t s) (only parsing)
+  : jwa_ascii_str_scope.
+Notation "s >= t" := (LessOrEqual t s) (only parsing)
+  : jwa_ascii_str_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_ascii_str_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_ascii_str_scope.
+
+(* [AsciiStr -> AsciiStr -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [AsciiStr -> AsciiStr -> Bool] *)
+Abbreviation le := (Comparable.le compare).
+
+(* [AsciiStr -> AsciiStr -> AsciiStr] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [AsciiStr -> AsciiStr -> AsciiStr] *)
+Abbreviation max := (Comparable.max compare).
 
 (* Reads the UTF-8 bytes of a string literal as characters, one at a time, by
  * [Ascii.from_source_bytes]:
@@ -272,6 +341,227 @@ End over. (* length.additivity.over *)
 End additivity. (* length.additivity *)
 
 End length. (* length *)
+
+Module uppercasing. (* uppercasing *)
+
+Module preservation. (* uppercasing.preservation *)
+
+Module of. (* uppercasing.preservation.of *)
+
+(* uppercasing.preservation.of.length *)
+Theorem length : forall (s : AsciiStr) . length (to_upper s) = length s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl length, to_upper, to_list in |- *.
+  ipso (List.mapping.preservation.of.length Ascii.to_upper &l).
+Qed.
+
+End of. (* uppercasing.preservation.of *)
+
+End preservation. (* uppercasing.preservation *)
+
+Module distributivity. (* uppercasing.distributivity *)
+
+Module over. (* uppercasing.distributivity.over *)
+
+(* uppercasing.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall (s : AsciiStr) (t : AsciiStr) . (to_upper (s ++ t) = to_upper s ++ to_upper t)%a.
+Proof.
+  intros s t.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl to_upper, concat, to_list in |- *.
+  ipso
+    (congru AsciiStr.introduction,
+      (List.mapping.distributivity.over.concatenation Ascii.to_upper &l1 &l2)).
+Qed.
+
+End over. (* uppercasing.distributivity.over *)
+
+End distributivity. (* uppercasing.distributivity *)
+
+End uppercasing. (* uppercasing *)
+
+Module lowercasing. (* lowercasing *)
+
+Module preservation. (* lowercasing.preservation *)
+
+Module of. (* lowercasing.preservation.of *)
+
+(* lowercasing.preservation.of.length *)
+Theorem length : forall (s : AsciiStr) . length (to_lower s) = length s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl length, to_lower, to_list in |- *.
+  ipso (List.mapping.preservation.of.length Ascii.to_lower &l).
+Qed.
+
+End of. (* lowercasing.preservation.of *)
+
+End preservation. (* lowercasing.preservation *)
+
+Module distributivity. (* lowercasing.distributivity *)
+
+Module over. (* lowercasing.distributivity.over *)
+
+(* lowercasing.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall (s : AsciiStr) (t : AsciiStr) . (to_lower (s ++ t) = to_lower s ++ to_lower t)%a.
+Proof.
+  intros s t.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl to_lower, concat, to_list in |- *.
+  ipso
+    (congru AsciiStr.introduction,
+      (List.mapping.distributivity.over.concatenation Ascii.to_lower &l1 &l2)).
+Qed.
+
+End over. (* lowercasing.distributivity.over *)
+
+End distributivity. (* lowercasing.distributivity *)
+
+End lowercasing. (* lowercasing *)
+
+Module indexing. (* indexing *)
+
+(* indexing.specification *)
+Theorem specification
+  : forall (s : AsciiStr) (i : Nat0) .
+      (forsome (c : Ascii) . get s i = Some c) <-> (i < length s)%n0.
+Proof.
+  intros s i.
+  match &s with | introduction l end.
+  simpl get, length, to_list in |- *.
+  ipso (List.indexing.specification &l &i).
+Qed.
+
+Module left. (* indexing.left *)
+
+(* indexing.left.invariance *)
+Theorem invariance
+  : forall (s : AsciiStr) (t : AsciiStr) (i : Nat0) .
+      (i < length s)%n0 -> get (s ++ t)%a i = get s i.
+Proof.
+  intros s t i h.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl length, to_list in &h.
+  simpl get, concat, to_list in |- *.
+  ipso (List.indexing.left.invariance &l1 &l2 &i &h).
+Qed.
+
+End left. (* indexing.left *)
+
+Module right. (* indexing.right *)
+
+(* indexing.right.translation *)
+Theorem translation
+  : forall (s : AsciiStr) (t : AsciiStr) (i : Nat0) .
+      get (s ++ t)%a (length s + i)%n0 = get t i.
+Proof.
+  intros s t i.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl get, length, concat, to_list in |- *.
+  ipso (List.indexing.right.translation &l1 &l2 &i).
+Qed.
+
+End right. (* indexing.right *)
+
+End indexing. (* indexing *)
+
+Module substring. (* substring *)
+
+(* substring.identity *)
+Theorem identity : forall (s : AsciiStr) . substring s Nat0.Zero (length s) = s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl substring, length, to_list in |- *.
+  leibniz (List.dropping.identity &l), (List.taking.identity &l) in |- *.
+  quod idem est.
+Qed.
+
+(* substring.length *)
+Theorem length
+  : forall (s : AsciiStr) (start : Nat0) (len : Nat0) .
+      length (substring s start len) = Nat0.min len (Nat0.saturating_sub (length s) start).
+Proof.
+  intros s start len.
+  match &s with | introduction l end.
+  simpl length, substring, to_list in |- *.
+  leibniz
+    (List.taking.length (List.drop &start &l) &len),
+    (List.dropping.length &l &start)
+    in |- *.
+  quod idem est.
+Qed.
+
+End substring. (* substring *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {s : AsciiStr} {t : AsciiStr} {u : AsciiStr} . (s < t -> t < u -> s < u)%a.
+Proof.
+  intros s t u h1 h2.
+  simpl LessThan in &h1, &h2 |- *.
+  ipso
+    (List.comparison.transitivity Ascii.comparable
+      (to_list &s) (to_list &t) (to_list &u) &h1 &h2).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      (compare s t = Comparison.Lt <-> (s < t)%a) /\ (compare s t = Comparison.Eq <-> s = t).
+Proof.
+  intros s t.
+  match &s with | introduction l end.
+  match &t with | introduction m end.
+  simpl compare, LessThan, to_list in |- *.
+  let proof x := List.comparison.specification Ascii.comparable &l &m.
+  match &x with | strict equality end.
+  divide et impera.
+  - ipso &strict.
+  - divide et impera.
+    + intro e.
+      ipso (congru AsciiStr.introduction, (modus aequans &equality, &e)).
+    + intro e.
+      congru to_list, &e |- e'.
+      simpl in &e'.
+      ipso (modus aequans &equality, &e').
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (s : AsciiStr) (t : AsciiStr) . compare s t = Comparison.transpose (compare t s).
+Proof.
+  intros s t.
+  simpl compare in |- *.
+  ipso (List.comparison.antisymmetry Ascii.comparable (to_list &s) (to_list &t)).
+Qed.
+
+End comparison. (* comparison *)
+
+Instance comparable
+  : Comparable compare LessThan :=
+  {| Comparable.transitivity := @order.strict.transitivity
+  ; Comparable.specification := comparison.specification
+  ; Comparable.antisymmetry := comparison.antisymmetry |}.
 
 End AsciiStr. (* AsciiStr *)
 

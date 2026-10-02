@@ -12,9 +12,13 @@ From jwa Require Export Core.All.
 
 (* An umbrella exports every type the interfaces under it name: [Nat0]
  * for the index [nth], [take] and [drop] count with, [Option] for what [nth]
- * returns, [Nat] for [NonEmptyList]'s length, and [Bool] for the deciders.
+ * returns, [Nat] for [NonEmptyList]'s length, [Bool] for the deciders,
+ * [Comparison] for what [compare] returns and [Comparable] for the premise of
+ * its laws.
  *)
 From jwa Require Export Data.Base.Bool.
+From jwa Require Export Data.Base.Comparison.
+From jwa Require Export Data.Comparable.
 From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.Nat0.
 From jwa Require Export Data.Option.
