@@ -11,6 +11,7 @@ From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.Ascii.
 From jwa Require Import Data.Text.SourceByte.
+From jwa Require Import Tactics.Equation.
 
 Module AsciiStr. (* AsciiStr *)
 
@@ -44,6 +45,16 @@ Notation "s ++ t" := (concat s t) (only parsing)
 
 (* [AsciiStr -> Nat0] *)
 Definition length := fun (s : AsciiStr) . List.length (to_list s).
+
+(* Every character of [s] by [Ascii.to_upper]. *)
+(* [AsciiStr -> AsciiStr] *)
+Definition to_upper := fun (s : AsciiStr) .
+  AsciiStr.introduction (List.map Ascii.to_upper (to_list s)).
+
+(* Every character of [s] by [Ascii.to_lower]. *)
+(* [AsciiStr -> AsciiStr] *)
+Definition to_lower := fun (s : AsciiStr) .
+  AsciiStr.introduction (List.map Ascii.to_lower (to_list s)).
 
 (* Reads the UTF-8 bytes of a string literal as characters, one at a time, by
  * [Ascii.from_source_bytes]:
@@ -272,6 +283,90 @@ End over. (* length.additivity.over *)
 End additivity. (* length.additivity *)
 
 End length. (* length *)
+
+Module uppercasing. (* uppercasing *)
+
+Module preservation. (* uppercasing.preservation *)
+
+Module of. (* uppercasing.preservation.of *)
+
+(* uppercasing.preservation.of.length *)
+Theorem length : forall (s : AsciiStr) . length (to_upper s) = length s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl length, to_upper, to_list in |- *.
+  ipso (List.mapping.preservation.of.length Ascii.to_upper &l).
+Qed.
+
+End of. (* uppercasing.preservation.of *)
+
+End preservation. (* uppercasing.preservation *)
+
+Module distributivity. (* uppercasing.distributivity *)
+
+Module over. (* uppercasing.distributivity.over *)
+
+(* uppercasing.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall (s : AsciiStr) (t : AsciiStr) . (to_upper (s ++ t) = to_upper s ++ to_upper t)%a.
+Proof.
+  intros s t.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl to_upper, concat, to_list in |- *.
+  ipso
+    (congru AsciiStr.introduction,
+      (List.mapping.distributivity.over.concatenation Ascii.to_upper &l1 &l2)).
+Qed.
+
+End over. (* uppercasing.distributivity.over *)
+
+End distributivity. (* uppercasing.distributivity *)
+
+End uppercasing. (* uppercasing *)
+
+Module lowercasing. (* lowercasing *)
+
+Module preservation. (* lowercasing.preservation *)
+
+Module of. (* lowercasing.preservation.of *)
+
+(* lowercasing.preservation.of.length *)
+Theorem length : forall (s : AsciiStr) . length (to_lower s) = length s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl length, to_lower, to_list in |- *.
+  ipso (List.mapping.preservation.of.length Ascii.to_lower &l).
+Qed.
+
+End of. (* lowercasing.preservation.of *)
+
+End preservation. (* lowercasing.preservation *)
+
+Module distributivity. (* lowercasing.distributivity *)
+
+Module over. (* lowercasing.distributivity.over *)
+
+(* lowercasing.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall (s : AsciiStr) (t : AsciiStr) . (to_lower (s ++ t) = to_lower s ++ to_lower t)%a.
+Proof.
+  intros s t.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl to_lower, concat, to_list in |- *.
+  ipso
+    (congru AsciiStr.introduction,
+      (List.mapping.distributivity.over.concatenation Ascii.to_lower &l1 &l2)).
+Qed.
+
+End over. (* lowercasing.distributivity.over *)
+
+End distributivity. (* lowercasing.distributivity *)
+
+End lowercasing. (* lowercasing *)
 
 End AsciiStr. (* AsciiStr *)
 
