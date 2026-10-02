@@ -344,7 +344,7 @@ Reserved Notation "'abjoin' A , B"
 (* [x binder] is what lets [x] be written with or without its type, and the
    [..] is what lets one [forsome] carry several of them. *)
 Reserved Notation "'forsome' x .. y '.' p"
-  (at level 200, x binder, y binder, right associativity).
+  (at level 10, x binder, y binder, p at level 200).
 
 (* The lambda as it is written on paper, [fun x . body], beside the
  * kernel's [fun x => body], which keeps working. It is declared here and
@@ -354,11 +354,11 @@ Reserved Notation "'forsome' x .. y '.' p"
  * separator. It prints as well, so a goal shows what the source says.
  *)
 Notation "'fun' x .. y '.' body" := (fun x => .. (fun y => body) ..)
-  (at level 200, x binder, y binder, right associativity).
+  (at level 10, x binder, y binder, body at level 200).
 
 (* The quantifier written the same way, [forall x . p] beside the kernel's
  * [forall x, p]. [forsome] gets its dotted spelling in [Core.Logic.Exists],
  * where its meaning is.
  *)
 Notation "'forall' x .. y '.' p" := (forall x, .. (forall y, p) ..)
-  (at level 200, x binder, y binder, right associativity).
+  (at level 10, x binder, y binder, p at level 200).
