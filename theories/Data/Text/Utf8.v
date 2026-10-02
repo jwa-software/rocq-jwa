@@ -27,7 +27,7 @@ Module Utf8. (* Utf8 *)
 (* [Byte -> Bool] *)
 Definition is_tail := fun (x : Byte) .
   match x with
-  | Byte.introduction Bit.One Bit.Zero _ _ _ _ _ _ => true
+  | Byte.introduction 1 0 _ _ _ _ _ _ => true
   | _ => false
   end.
 
@@ -38,7 +38,7 @@ Definition is_tail := fun (x : Byte) .
 (* [Byte -> Bool] *)
 Definition is_one_byte := fun (x : Byte) .
   match x with
-  | Byte.introduction Bit.Zero _ _ _ _ _ _ _ => true
+  | Byte.introduction 0 _ _ _ _ _ _ _ => true
   | _ => false
   end.
 
@@ -51,8 +51,8 @@ Definition is_one_byte := fun (x : Byte) .
 (* [Byte -> Byte -> Bool] *)
 Definition is_two_bytes := fun (x : Byte) (y : Byte) .
   match x with
-  | Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero _ => false
-  | Byte.introduction Bit.One Bit.One Bit.Zero _ _ _ _ _ => is_tail y
+  | Byte.introduction 1 1 0 0 0 0 0 _ => false
+  | Byte.introduction 1 1 0 _ _ _ _ _ => is_tail y
   | _ => false
   end.
 
@@ -67,17 +67,17 @@ Definition is_two_bytes := fun (x : Byte) (y : Byte) .
 (* [Byte -> Byte -> Byte -> Bool] *)
 Definition is_three_bytes := fun (x : Byte) (y : Byte) (z : Byte) .
   match x with
-  | Byte.introduction Bit.One Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero =>
+  | Byte.introduction 1 1 1 0 0 0 0 0 =>
       match y with
-      | Byte.introduction Bit.One Bit.Zero Bit.One _ _ _ _ _ => is_tail z
+      | Byte.introduction 1 0 1 _ _ _ _ _ => is_tail z
       | _ => false
       end
-  | Byte.introduction Bit.One Bit.One Bit.One Bit.Zero Bit.One Bit.One Bit.Zero Bit.One =>
+  | Byte.introduction 1 1 1 0 1 1 0 1 =>
       match y with
-      | Byte.introduction Bit.One Bit.Zero Bit.Zero _ _ _ _ _ => is_tail z
+      | Byte.introduction 1 0 0 _ _ _ _ _ => is_tail z
       | _ => false
       end
-  | Byte.introduction Bit.One Bit.One Bit.One Bit.Zero _ _ _ _ =>
+  | Byte.introduction 1 1 1 0 _ _ _ _ =>
       Bool.and (is_tail y) (is_tail z)
   | _ => false
   end.
@@ -93,19 +93,19 @@ Definition is_three_bytes := fun (x : Byte) (y : Byte) (z : Byte) .
 (* [Byte -> Byte -> Byte -> Byte -> Bool] *)
 Definition is_four_bytes := fun (x : Byte) (y : Byte) (z : Byte) (w : Byte) .
   match x with
-  | Byte.introduction Bit.One Bit.One Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero =>
+  | Byte.introduction 1 1 1 1 0 0 0 0 =>
       match y with
-      | Byte.introduction Bit.One Bit.Zero Bit.Zero Bit.Zero _ _ _ _ => false
-      | Byte.introduction Bit.One Bit.Zero _ _ _ _ _ _ => Bool.and (is_tail z) (is_tail w)
+      | Byte.introduction 1 0 0 0 _ _ _ _ => false
+      | Byte.introduction 1 0 _ _ _ _ _ _ => Bool.and (is_tail z) (is_tail w)
       | _ => false
       end
-  | Byte.introduction Bit.One Bit.One Bit.One Bit.One Bit.Zero Bit.One Bit.Zero Bit.Zero =>
+  | Byte.introduction 1 1 1 1 0 1 0 0 =>
       match y with
-      | Byte.introduction Bit.One Bit.Zero Bit.Zero Bit.Zero _ _ _ _ =>
+      | Byte.introduction 1 0 0 0 _ _ _ _ =>
           Bool.and (is_tail z) (is_tail w)
       | _ => false
       end
-  | Byte.introduction Bit.One Bit.One Bit.One Bit.One Bit.Zero Bit.Zero _ _ =>
+  | Byte.introduction 1 1 1 1 0 0 _ _ =>
       Bool.and (is_tail y) (Bool.and (is_tail z) (is_tail w))
   | _ => false
   end.
@@ -164,12 +164,12 @@ Definition to_source_bytes := fun (c : Utf8) .
 (* [Ascii -> Utf8] *)
 Definition from_ascii := fun (a : Ascii) .
   match a with
-  | Ascii.introduction (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) =>
-      Utf8.OneByte (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) I
-  | Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0) =>
+  | Ascii.introduction (Byte.introduction 0 b6 b5 b4 b3 b2 b1 b0) =>
+      Utf8.OneByte (Byte.introduction 0 b6 b5 b4 b3 b2 b1 b0) I
+  | Ascii.introduction (Byte.introduction 1 b6 b5 b4 b3 b2 b1 b0) =>
       Utf8.TwoBytes
-        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
-        (Byte.introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
+        (Byte.introduction 1 1 0 0 0 0 1 b6)
+        (Byte.introduction 1 0 b5 b4 b3 b2 b1 b0)
         I
   end.
 
@@ -181,10 +181,10 @@ Definition to_ascii := fun (c : Utf8) .
   match c with
   | Utf8.OneByte x _ => Some (Ascii.introduction x)
   | Utf8.TwoBytes
-      (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
-      (Byte.introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
+      (Byte.introduction 1 1 0 0 0 0 1 b6)
+      (Byte.introduction 1 0 b5 b4 b3 b2 b1 b0)
       _ =>
-      Some (Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0))
+      Some (Ascii.introduction (Byte.introduction 1 b6 b5 b4 b3 b2 b1 b0))
   | _ => None
   end.
 

@@ -4,7 +4,7 @@ From jwa Require Import Data.Machine.All.
 
 Definition data_machine_all_delivers_bit
   : Bit
-  := Bit.One.
+  := 1.
 
 Definition data_machine_all_delivers_bit_notation
   : forall (b1 : Bit) (b2 : Bit) . (b1 &. b2)%bit = (b2 &. b1)%bit
@@ -15,7 +15,7 @@ Definition data_machine_all_binds_bit_scope
   := Bit.flipping.involution.
 
 Definition data_machine_all_delivers_bit_distinctness
-  : ~ (Bit.Zero = Bit.One) /\ ~ (Bit.One = Bit.Zero)
+  : ~ (0%bit = 1%bit) /\ ~ (1%bit = 0%bit)
   := Bit.distinctness.
 
 Definition data_machine_all_delivers_bit_conversion_retraction
@@ -27,8 +27,8 @@ Definition data_machine_all_delivers_bit_conversion_section
   := Bit.conversion.section.
 
 Definition data_machine_all_computes_bit_xor
-  : (Bit.One ^. Bit.One)%bit = Bit.Zero
-  := Identity.reflexivity Bit.Zero.
+  : (1 ^. 1)%bit = 0%bit
+  := Identity.reflexivity 0%bit.
 
 Definition data_machine_all_delivers_byte
   : Byte
@@ -49,16 +49,16 @@ Definition data_machine_all_delivers_byte_rotation_inverse
 Definition data_machine_all_computes_byte_shift_right
   : Byte.shift_right (Byte.flip Byte.Zero) 3%n0
       = Byte.introduction
-          Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One Bit.One Bit.One Bit.One
+          0 0 0 1 1 1 1 1
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_byte_rotate_left
   : Byte.rotate_left
       (Byte.introduction
-        Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One)
+        1 0 0 0 0 0 0 1)
       1%n0
       = Byte.introduction
-          Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One
+          0 0 0 0 0 0 1 1
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_bit_carry
@@ -146,7 +146,7 @@ Definition data_machine_all_computes_uint8_negation
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint8_carry_out
-  : (pi_1 (UInt8.add_with_carry Bit.Zero 255 1))%product = Bit.One
+  : (pi_1 (UInt8.add_with_carry 0 255 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint8_comparison
@@ -242,7 +242,7 @@ Definition data_machine_all_computes_int8_modulus
 
 Definition data_machine_all_delivers_int8_addition
   : forall (x : Int8) (y : Int8) .
-      (pi_1 (Int8.add_with_overflow x y))%product = Bit.Zero ->
+      (pi_1 (Int8.add_with_overflow x y))%product = 0%bit ->
       Int8.to_bin (x + y)%int8 = (x + y)%b
   := Int8.conversion.addition.
 
@@ -276,11 +276,11 @@ Definition data_machine_all_computes_int8_wrap
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int8_overflow
-  : (pi_1 (Int8.add_with_overflow 127 1))%product = Bit.One
+  : (pi_1 (Int8.add_with_overflow 127 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int8_no_overflow
-  : (pi_1 (Int8.add_with_overflow 100 (-50)))%product = Bit.Zero
+  : (pi_1 (Int8.add_with_overflow 100 (-50)))%product = 0%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int8_multiplication
@@ -497,7 +497,7 @@ Definition data_machine_all_computes_uint16_negation
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint16_carry_out
-  : (pi_1 (UInt16.add_with_carry Bit.Zero 65535 1))%product = Bit.One
+  : (pi_1 (UInt16.add_with_carry 0 65535 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint16_comparison
@@ -570,7 +570,7 @@ Definition data_machine_all_computes_int16_modulus
 
 Definition data_machine_all_delivers_int16_addition
   : forall (x : Int16) (y : Int16) .
-      (pi_1 (Int16.add_with_overflow x y))%product = Bit.Zero ->
+      (pi_1 (Int16.add_with_overflow x y))%product = 0%bit ->
       Int16.to_bin (x + y)%int16 = (x + y)%b
   := Int16.conversion.addition.
 
@@ -605,11 +605,11 @@ Definition data_machine_all_computes_int16_wrap
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int16_overflow
-  : (pi_1 (Int16.add_with_overflow 32767 1))%product = Bit.One
+  : (pi_1 (Int16.add_with_overflow 32767 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int16_no_overflow
-  : (pi_1 (Int16.add_with_overflow 1000 (-500)))%product = Bit.Zero
+  : (pi_1 (Int16.add_with_overflow 1000 (-500)))%product = 0%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int16_multiplication
@@ -830,7 +830,7 @@ Definition data_machine_all_computes_uint32_negation
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint32_carry_out
-  : (pi_1 (UInt32.add_with_carry Bit.Zero 4294967295 1))%product = Bit.One
+  : (pi_1 (UInt32.add_with_carry 0 4294967295 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint32_comparison
@@ -905,7 +905,7 @@ Definition data_machine_all_computes_int32_modulus
 
 Definition data_machine_all_delivers_int32_addition
   : forall (x : Int32) (y : Int32) .
-      (pi_1 (Int32.add_with_overflow x y))%product = Bit.Zero ->
+      (pi_1 (Int32.add_with_overflow x y))%product = 0%bit ->
       Int32.to_bin (x + y)%int32 = (x + y)%b
   := Int32.conversion.addition.
 
@@ -940,11 +940,11 @@ Definition data_machine_all_computes_int32_wrap
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int32_overflow
-  : (pi_1 (Int32.add_with_overflow 2147483647 1))%product = Bit.One
+  : (pi_1 (Int32.add_with_overflow 2147483647 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int32_no_overflow
-  : (pi_1 (Int32.add_with_overflow 1000000 (-500000)))%product = Bit.Zero
+  : (pi_1 (Int32.add_with_overflow 1000000 (-500000)))%product = 0%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int32_multiplication
@@ -1158,7 +1158,7 @@ Definition data_machine_all_computes_uint64_negation
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint64_carry_out
-  : (pi_1 (UInt64.add_with_carry Bit.Zero 18446744073709551615 1))%product = Bit.One
+  : (pi_1 (UInt64.add_with_carry 0 18446744073709551615 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_uint64_comparison
@@ -1234,7 +1234,7 @@ Definition data_machine_all_computes_int64_modulus
 
 Definition data_machine_all_delivers_int64_addition
   : forall (x : Int64) (y : Int64) .
-      (pi_1 (Int64.add_with_overflow x y))%product = Bit.Zero ->
+      (pi_1 (Int64.add_with_overflow x y))%product = 0%bit ->
       Int64.to_bin (x + y)%int64 = (x + y)%b
   := Int64.conversion.addition.
 
@@ -1272,11 +1272,11 @@ Definition data_machine_all_computes_int64_wrap
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int64_overflow
-  : (pi_1 (Int64.add_with_overflow 9223372036854775807 1))%product = Bit.One
+  : (pi_1 (Int64.add_with_overflow 9223372036854775807 1))%product = 1%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int64_no_overflow
-  : (pi_1 (Int64.add_with_overflow 1000000000000 (-500000000000)))%product = Bit.Zero
+  : (pi_1 (Int64.add_with_overflow 1000000000000 (-500000000000)))%product = 0%bit
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_int64_multiplication

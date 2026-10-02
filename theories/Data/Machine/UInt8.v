@@ -83,7 +83,7 @@ Definition Zero := UInt8.introduction Byte.Zero.
 Definition One :=
   UInt8.introduction
     (Byte.introduction
-      Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One).
+      0 0 0 0 0 0 0 1).
 
 (* [UInt8 -> Nat0 -> UInt8] *)
 Definition shift_left := fun (x : UInt8) (k : Nat0) .
@@ -131,7 +131,7 @@ Definition add_with_carry := fun (carry : Bit) (x : UInt8) (y : UInt8) .
   end%product.
 
 (* [UInt8 -> UInt8 -> UInt8] *)
-Definition add := fun (x : UInt8) (y : UInt8) . (pi_2 (add_with_carry Bit.Zero x y))%product.
+Definition add := fun (x : UInt8) (y : UInt8) . (pi_2 (add_with_carry 0 x y))%product.
 
 (* [only parsing] keeps goals printing the operations by name. *)
 Notation "x + y" := (add x y) (only parsing)
@@ -163,7 +163,7 @@ Definition sub_with_borrow := fun (borrow : Bit) (x : UInt8) (y : UInt8) .
   end%product.
 
 (* [UInt8 -> UInt8 -> UInt8] *)
-Definition sub := fun (x : UInt8) (y : UInt8) . (pi_2 (sub_with_borrow Bit.Zero x y))%product.
+Definition sub := fun (x : UInt8) (y : UInt8) . (pi_2 (sub_with_borrow 0 x y))%product.
 
 (* The two's complement: [x] taken from [Zero], wrapping. *)
 (* [UInt8 -> UInt8] *)
@@ -181,8 +181,8 @@ Definition mul := fun (x : UInt8) (y : UInt8) .
   let step := fun (p : UInt8) (b : Bit) .
     add (shift_left p 1%n0)
       match b with
-      | Bit.Zero => Zero
-      | Bit.One  => x
+      | 0%bit => Zero
+      | 1%bit => x
       end in
   match y with
   | UInt8.introduction (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
@@ -197,8 +197,8 @@ Notation "x * y" := (mul x y) (only parsing)
 Fixpoint from_bin_base (p : BinBase) : UInt8 :=
   match p with
   | BinBase.One   => One
-  | BinBase.b0 p' => append_bit Bit.Zero (from_bin_base p')
-  | BinBase.b1 p' => append_bit Bit.One (from_bin_base p')
+  | BinBase.b0 p' => append_bit 0 (from_bin_base p')
+  | BinBase.b1 p' => append_bit 1 (from_bin_base p')
   end.
 
 (* [BinWithZero -> UInt8] *)
@@ -392,7 +392,7 @@ Theorem addition
 Proof.
   intros x y.
   lemma witness
-    : (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product * modulus
+    : (Bit.to_bin_with_zero (pi_1 (add_with_carry 0 &x &y))%product * modulus
         + to_bin_with_zero (&x + &y)%uint8
         = to_bin_with_zero &x + to_bin_with_zero &y
       /\ to_bin_with_zero (&x + &y)%uint8 < modulus)%bin_with_zero.
@@ -401,9 +401,9 @@ Proof.
     - simpl add in |- *.
       leibniz
         (BinWithZero.multiplication.commutativity
-          (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
+          (Bit.to_bin_with_zero (pi_1 (add_with_carry 0 &x &y))%product)
           modulus),
-        <- (conversion.carry Bit.Zero &x &y)
+        <- (conversion.carry 0 &x &y)
         in |- *.
       simpl in |- *.
       quod idem est.
@@ -411,7 +411,7 @@ Proof.
   }
   match (BinWithZero.division.uniqueness
           (to_bin_with_zero &x + to_bin_with_zero &y)%bin_with_zero modulus
-          (Bit.to_bin_with_zero (pi_1 (add_with_carry Bit.Zero &x &y))%product)
+          (Bit.to_bin_with_zero (pi_1 (add_with_carry 0 &x &y))%product)
           (to_bin_with_zero (&x + &y)%uint8)
           &witness)
   with | _ facto end.
@@ -425,7 +425,7 @@ Theorem subtraction
 Proof.
   intros x y.
   lemma witness
-    : (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product * modulus
+    : (Bit.to_bin_with_zero (pi_1 (sub_with_borrow 0 &x &y))%product * modulus
         + to_bin_with_zero &x
         = to_bin_with_zero (sub &x &y) + to_bin_with_zero &y
       /\ to_bin_with_zero &x < modulus)%bin_with_zero.
@@ -434,28 +434,28 @@ Proof.
     - simpl sub in |- *.
       leibniz
         (BinWithZero.multiplication.commutativity
-          (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
+          (Bit.to_bin_with_zero (pi_1 (sub_with_borrow 0 &x &y))%product)
           modulus),
         (BinWithZero.addition.commutativity
           (modulus
-            * Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)%bin_with_zero
+            * Bit.to_bin_with_zero (pi_1 (sub_with_borrow 0 &x &y))%product)%bin_with_zero
           (to_bin_with_zero &x)),
-        (conversion.borrow Bit.Zero &x &y),
+        (conversion.borrow 0 &x &y),
         (BinWithZero.addition.commutativity
-          (to_bin_with_zero &y) (Bit.to_bin_with_zero Bit.Zero))
+          (to_bin_with_zero &y) (Bit.to_bin_with_zero 0))
         in |- *.
       simpl in |- *.
       leibniz
         (BinWithZero.addition.commutativity
           (to_bin_with_zero &y)
-          (to_bin_with_zero (pi_2 (sub_with_borrow Bit.Zero &x &y))%product))
+          (to_bin_with_zero (pi_2 (sub_with_borrow 0 &x &y))%product))
         in |- *.
       quod idem est.
     - ipso (conversion.boundedness &x).
   }
   match (BinWithZero.division.uniqueness
           (to_bin_with_zero (sub &x &y) + to_bin_with_zero &y)%bin_with_zero modulus
-          (Bit.to_bin_with_zero (pi_1 (sub_with_borrow Bit.Zero &x &y))%product)
+          (Bit.to_bin_with_zero (pi_1 (sub_with_borrow 0 &x &y))%product)
           (to_bin_with_zero &x)
           &witness)
   with | _ facto end.
@@ -558,44 +558,44 @@ Proof.
       simpl in |- *.
       quod idem est.
     + lemma unfolding
-        : from_bin_base (BinBase.b0 &p') = append_bit Bit.Zero (from_bin_base &p').
+        : from_bin_base (BinBase.b0 &p') = append_bit 0 (from_bin_base &p').
       {
         simpl in |- *.
         quod idem est.
       }
       leibniz
         &unfolding,
-        (conversion.appending Bit.Zero (from_bin_base &p')),
+        (conversion.appending 0 (from_bin_base &p')),
         &IH,
         <- (BinWithZero.modulo.sum.left.absorption
           (10 * (BinWithZero.Positive &p' %. modulus))%bin_with_zero
-          (Bit.to_bin_with_zero Bit.Zero) modulus),
+          (Bit.to_bin_with_zero 0) modulus),
         (BinWithZero.modulo.product.right.absorption
           10%bin_with_zero (BinWithZero.Positive &p') modulus),
         (BinWithZero.modulo.sum.left.absorption
           (10 * BinWithZero.Positive &p')%bin_with_zero
-          (Bit.to_bin_with_zero Bit.Zero) modulus)
+          (Bit.to_bin_with_zero 0) modulus)
         in |- *.
       simpl in |- *.
       quod idem est.
     + lemma unfolding
-        : from_bin_base (BinBase.b1 &p') = append_bit Bit.One (from_bin_base &p').
+        : from_bin_base (BinBase.b1 &p') = append_bit 1 (from_bin_base &p').
       {
         simpl in |- *.
         quod idem est.
       }
       leibniz
         &unfolding,
-        (conversion.appending Bit.One (from_bin_base &p')),
+        (conversion.appending 1 (from_bin_base &p')),
         &IH,
         <- (BinWithZero.modulo.sum.left.absorption
           (10 * (BinWithZero.Positive &p' %. modulus))%bin_with_zero
-          (Bit.to_bin_with_zero Bit.One) modulus),
+          (Bit.to_bin_with_zero 1) modulus),
         (BinWithZero.modulo.product.right.absorption
           10%bin_with_zero (BinWithZero.Positive &p') modulus),
         (BinWithZero.modulo.sum.left.absorption
           (10 * BinWithZero.Positive &p')%bin_with_zero
-          (Bit.to_bin_with_zero Bit.One) modulus)
+          (Bit.to_bin_with_zero 1) modulus)
         in |- *.
       simpl in |- *.
       simpl BinBase.add in |- *.
@@ -628,7 +628,7 @@ Lemma doubling
       (to_bin_with_zero (shift_left x 1%n0) = (10 * x) %. modulus)%bin_with_zero.
 Proof.
   intros x.
-  lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
+  lemma appended : shift_left &x 1%n0 = append_bit 0 &x.
   {
     match &x with | introduction xb end.
     match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
@@ -637,7 +637,7 @@ Proof.
   }
   match (BinWithZero.addition.identity (10 * to_bin_with_zero &x)%bin_with_zero)
   with | _ sum end.
-  leibniz &appended, (conversion.appending Bit.Zero &x) in |- *.
+  leibniz &appended, (conversion.appending 0 &x) in |- *.
   simpl Bit.to_bin_with_zero in |- *.
   leibniz &sum in |- *.
   quod idem est.
@@ -780,8 +780,8 @@ Lemma step
       to_bin_with_zero
         (add (shift_left p 1%n0)
           match b with
-          | Bit.Zero => Zero
-          | Bit.One  => x
+          | 0%bit => Zero
+          | 1%bit => x
           end)
       = ((x * (10 * h + Bit.to_bin_with_zero b)) %. modulus)%bin_with_zero.
 Proof.
@@ -810,7 +810,7 @@ Proof.
   match &b with | Zero | One end.
   - lemma facto
       : to_bin_with_zero (add (shift_left &p 1%n0) Zero)
-        = ((to_bin_with_zero &x * (10 * &h + Bit.to_bin_with_zero Bit.Zero))
+        = ((to_bin_with_zero &x * (10 * &h + Bit.to_bin_with_zero 0))
             %. modulus)%bin_with_zero.
     {
       match (BinWithZero.addition.identity (10 * to_bin_with_zero &p)%bin_with_zero)
@@ -832,7 +832,7 @@ Proof.
     ipso facto.
   - lemma facto
       : to_bin_with_zero (add (shift_left &p 1%n0) &x)
-        = ((to_bin_with_zero &x * (10 * &h + Bit.to_bin_with_zero Bit.One))
+        = ((to_bin_with_zero &x * (10 * &h + Bit.to_bin_with_zero 1))
             %. modulus)%bin_with_zero.
     {
       match (BinWithZero.multiplication.identity (to_bin_with_zero &x)) with | _ right end.
