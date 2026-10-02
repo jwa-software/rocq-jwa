@@ -15,11 +15,15 @@ From jwa Require Import Tactics.Equation.
 Module Utf8. (* Utf8 *)
 
 (* The ctors below take only bytes that spell a character, so the checks
- * they assert come first. Each copies a rule of the grammar of UTF-8 in
- * RFC 3629, section 4, with every byte's bits most significant first.
+ * they assert come first. Each follows a rule of the grammar of UTF-8 in
+ * RFC 3629, section 4, written below as the bits of each byte, most
+ * significant first, with x for a bit of the character's code.
  *)
 
-(* UTF8-tail = %x80-BF *)
+(* A continuation byte:
+ *
+ *   10xxxxxx
+ *)
 (* [Byte -> Bool] *)
 Definition is_tail := fun (x : Byte) .
   match x with
@@ -27,7 +31,10 @@ Definition is_tail := fun (x : Byte) .
   | _ => false
   end.
 
-(* UTF8-1 = %x00-7F *)
+(* A character of one byte:
+ *
+ *   0xxxxxxx
+ *)
 (* [Byte -> Bool] *)
 Definition is_one_byte := fun (x : Byte) .
   match x with
@@ -35,34 +42,37 @@ Definition is_one_byte := fun (x : Byte) .
   | _ => false
   end.
 
-(* UTF8-2 = %xC2-DF UTF8-tail
+(* A character of two bytes:
  *
- * A first byte C0 or C1 would spell U+0000 to U+007F a second time.
+ *   110xxxxx 10xxxxxx
+ *
+ * except a first byte 1100000x, which would spell U+0000 to U+007F again.
  *)
 (* [Byte -> Byte -> Bool] *)
 Definition is_two_bytes := fun (x : Byte) (y : Byte) .
   match x with
-  | 0xc0%byte | 0xc1%byte => false
+  | Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero _ => false
   | Byte.introduction Bit.One Bit.One Bit.Zero _ _ _ _ _ => is_tail y
   | _ => false
   end.
 
-(* UTF8-3 = %xE0 %xA0-BF UTF8-tail / %xE1-EC 2( UTF8-tail ) /
- *          %xED %x80-9F UTF8-tail / %xEE-EF 2( UTF8-tail )
+(* A character of three bytes:
  *
- * After E0, a second byte below A0 would spell U+0000 to U+07FF a second
- * time; after ED, one above 9F would spell U+D800 to U+DFFF, the surrogates,
- * which are no characters.
+ *   1110xxxx 10xxxxxx 10xxxxxx
+ *
+ * except a second byte 100xxxxx after 11100000, which would spell U+0000 to
+ * U+07FF again, and 101xxxxx after 11101101, which would spell the
+ * surrogates U+D800 to U+DFFF.
  *)
 (* [Byte -> Byte -> Byte -> Bool] *)
 Definition is_three_bytes := fun (x : Byte) (y : Byte) (z : Byte) .
   match x with
-  | 0xe0%byte =>
+  | Byte.introduction Bit.One Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero =>
       match y with
       | Byte.introduction Bit.One Bit.Zero Bit.One _ _ _ _ _ => is_tail z
       | _ => false
       end
-  | 0xed%byte =>
+  | Byte.introduction Bit.One Bit.One Bit.One Bit.Zero Bit.One Bit.One Bit.Zero Bit.One =>
       match y with
       | Byte.introduction Bit.One Bit.Zero Bit.Zero _ _ _ _ _ => is_tail z
       | _ => false
@@ -72,22 +82,24 @@ Definition is_three_bytes := fun (x : Byte) (y : Byte) (z : Byte) .
   | _ => false
   end.
 
-(* UTF8-4 = %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
- *          %xF4 %x80-8F 2( UTF8-tail )
+(* A character of four bytes:
  *
- * After F0, a second byte below 90 would spell U+0000 to U+FFFF a second
- * time; after F4, one above 8F would pass U+10FFFF, the last character.
+ *   11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *
+ * except a first byte past 11110100, a second byte 1000xxxx after 11110000,
+ * which would spell U+0000 to U+FFFF again, and one past 1000xxxx after
+ * 11110100, which would pass U+10FFFF.
  *)
 (* [Byte -> Byte -> Byte -> Byte -> Bool] *)
 Definition is_four_bytes := fun (x : Byte) (y : Byte) (z : Byte) (w : Byte) .
   match x with
-  | 0xf0%byte =>
+  | Byte.introduction Bit.One Bit.One Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero =>
       match y with
       | Byte.introduction Bit.One Bit.Zero Bit.Zero Bit.Zero _ _ _ _ => false
       | Byte.introduction Bit.One Bit.Zero _ _ _ _ _ _ => Bool.and (is_tail z) (is_tail w)
       | _ => false
       end
-  | 0xf4%byte =>
+  | Byte.introduction Bit.One Bit.One Bit.One Bit.One Bit.Zero Bit.One Bit.Zero Bit.Zero =>
       match y with
       | Byte.introduction Bit.One Bit.Zero Bit.Zero Bit.Zero _ _ _ _ =>
           Bool.and (is_tail z) (is_tail w)
@@ -146,8 +158,8 @@ Definition to_source_bytes := fun (c : Utf8) .
   List.map SourceByte.from_byte (to_bytes c).
 
 (* An [Ascii] character read as Latin-1, whose 256 codes are U+0000 to
- * U+00FF: a code below 128 takes one byte, [0xxxxxxx], and one from 128 two,
- * [1100001x 10xxxxxx].
+ * U+00FF: a code below 128 takes one byte, 0xxxxxxx, and one from 128 two,
+ * 1100001x 10xxxxxx.
  *)
 (* [Ascii -> Utf8] *)
 Definition from_ascii := fun (a : Ascii) .

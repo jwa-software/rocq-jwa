@@ -188,7 +188,7 @@ Proof.
     leibniz &one in |- *.
     simpl in |- *.
     quod idem est.
-  (* The first byte, [110xxxxx], reads as no character on its own. *)
+  (* The first byte, 110xxxxx, reads as no character on its own. *)
   - lemma one : Assert.guard (Utf8.is_one_byte &x) (Utf8.OneByte &x) = None.
     {
       match &x with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
@@ -206,7 +206,7 @@ Proof.
     leibniz &one, &two in |- *.
     simpl in |- *.
     quod idem est.
-  (* The first byte, [1110xxxx], reads as no character alone or with one more. *)
+  (* The first byte, 1110xxxx, reads as no character alone or with one more. *)
   - lemma one : Assert.guard (Utf8.is_one_byte &x) (Utf8.OneByte &x) = None.
     {
       match &x with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
@@ -240,8 +240,8 @@ Proof.
     leibniz &one, &two, &three in |- *.
     simpl in |- *.
     quod idem est.
-  (* The first byte, [11110xxx], reads as no character alone or with one or
-   * two more.
+  (* The first byte, 11110xxx, reads as no character alone or with one or two
+   * more.
    *)
   - lemma one : Assert.guard (Utf8.is_one_byte &x) (Utf8.OneByte &x) = None.
     {
