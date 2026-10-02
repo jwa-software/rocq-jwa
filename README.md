@@ -50,7 +50,7 @@ make
 Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a file sees only what it requires by name. The library defines its own notations, connectives, equality and data types, and requires nothing from `Corelib`. Two compiled plugins are used as they are:
 
 - **Ltac2**, the tactic engine, loaded by `theories/Dialect/Ltac.v`;
-- **the numeral reader** behind `Number Notation`, loaded by `theories/Data/Number/Numeral.v`.
+- **the literal reader** behind `Number Notation` and `String Notation`, loaded by `theories/Data/Literal.v`.
 
 ---
 

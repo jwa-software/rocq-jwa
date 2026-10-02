@@ -1,7 +1,6 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
-From jwa Require Import Data.Collection.List.
 From jwa Require Import Data.Machine.Byte.
 
 Module SourceByte. (* SourceByte *)
@@ -859,8 +858,3 @@ Abbreviation SourceByte := SourceByte.T.
 
 (* The plugin finds the byte type of a string literal by this name. *)
 Register SourceByte.T as core.byte.type.
-
-(* A string literal reaches its parsing function as a [List] of bytes, and the
- * plugin finds [List] by this name.
- *)
-Register List.T as core.list.type.

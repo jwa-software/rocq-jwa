@@ -3,8 +3,8 @@
 From jwa Require Import Core.All.
 From jwa Require Import Data.Collection.List.
 From jwa Require Import Data.Machine.Bit.
+From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Byte.
-From jwa Require Import Data.Number.Numeral.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.SourceByte.
 
