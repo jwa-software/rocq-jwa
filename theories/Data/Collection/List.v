@@ -4,6 +4,7 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.Membership.
 From jwa Require Import Data.Collection.Sized.
 From jwa Require Import Data.Comparable.
@@ -478,6 +479,28 @@ Fixpoint minimum_of {A : Type} (le : A -> A -> Bool) (l : List A) : Option A :=
       end
   end.
 
+(* Lexicographic: [[]] before any other list, then the heads by [cmp], the
+ * tails only when the heads are equal, so a proper prefix comes first.
+ *)
+(* [forall {A : Type} . (A -> A -> Comparison) -> List A -> List A -> Comparison] *)
+Fixpoint compare {A : Type} (cmp : A -> A -> Comparison) (l : List A) (m : List A)
+  : Comparison :=
+  match l, m with
+  | [],      []      => Comparison.Eq
+  | [],      _ :: _  => Comparison.Lt
+  | _ :: _,  []      => Comparison.Gt
+  | a :: l', b :: m' =>
+      match cmp a b with
+      | Comparison.Lt => Comparison.Lt
+      | Comparison.Eq => compare cmp l' m'
+      | Comparison.Gt => Comparison.Gt
+      end
+  end.
+
+(* [forall {A : Type} . (A -> A -> Comparison) -> List A -> List A -> Prop] *)
+Definition LessThan := fun {A : Type} (cmp : A -> A -> Comparison) (l : List A) (m : List A) .
+  compare cmp l m = Comparison.Lt.
+
 (* A law of the type itself rather than of any operation, so it belongs to
  * no topic below.
  *)
@@ -489,6 +512,24 @@ Proof.
   intro e.
   ex e quodlibet.
 Qed.
+
+Module cons. (* cons *)
+
+(* cons.injectivity *)
+Theorem injectivity
+  : forall {A : Type} {a : A} {b : A} {l : List A} {m : List A} .
+      a :: l = b :: m -> a = b /\ l = m.
+Proof.
+  intros A a b l m e.
+  let h := fun (x : List A) . match x with | [] => a | c :: _ => c end.
+  let t := fun (x : List A) . match x with | [] => l | _ :: r => r end.
+  congru &h, &e |- ea.
+  congru &t, &e |- el.
+  simpl in &ea, &el.
+  ipso (conjoin &ea, &el).
+Qed.
+
+End cons. (* cons *)
 
 Module concatenation. (* concatenation *)
 
@@ -3204,6 +3245,167 @@ Proof.
   symm in s.
   hs (Identity.transitivity s), Bool.distinctness.backward as n.
   ipso (modus tollendo ponens (total a b), n).
+Qed.
+
+(* [compare] is the lexicographic comparison; each law below takes the
+ * element comparison's [Comparable] as a premise.
+ *)
+
+Module equality. (* comparison.equality *)
+
+(* comparison.equality.specification *)
+Lemma specification
+  : forall {A : Type} {cmp : A -> A -> Comparison} {lt : A -> A -> Prop} .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) . compare cmp l m = Comparison.Eq <-> l = m.
+Proof.
+  intros A cmp lt C l.
+  match l with | | a l' by IH end per List.induction.
+  - intros m.
+    match m with | | b m' end.
+    + simpl in |- *.
+      divide et impera; intro e; quod idem est.
+    + simpl in |- *.
+      divide et impera; intro e; ex e quodlibet.
+  - intros m.
+    match m with | | b m' end.
+    + simpl in |- *.
+      divide et impera; intro e; ex e quodlibet.
+    + simpl in |- *.
+      match (cmp &a &b) with | | | end |- c.
+      * divide et impera.
+        -- intro e.
+           ex e quodlibet.
+        -- intro e.
+           match (cons.injectivity &e) with | ab _ end.
+           let proof r := @Comparable.comparison.reflexivity _ cmp lt &C &b.
+           leibniz &ab, &r in &c.
+           ex c quodlibet.
+      * let proof s := @Comparable.specification _ cmp lt &C &a &b.
+        match &s with | _ equal end.
+        let proof ab := modus aequans &equal, &c.
+        let proof rest := IH &m'.
+        divide et impera.
+        -- intro e.
+           let proof lm := modus aequans &rest, &e.
+           leibniz &ab, &lm in |- *.
+           quod idem est.
+        -- intro e.
+           match (cons.injectivity &e) with | _ lm end.
+           ipso (modus aequans &rest, &lm).
+      * divide et impera.
+        -- intro e.
+           ex e quodlibet.
+        -- intro e.
+           match (cons.injectivity &e) with | ab _ end.
+           let proof r := @Comparable.comparison.reflexivity _ cmp lt &C &b.
+           leibniz &ab, &r in &c.
+           ex c quodlibet.
+Qed.
+
+End equality. (* comparison.equality *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall {A : Type} {cmp : A -> A -> Comparison} {lt : A -> A -> Prop} .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) .
+        (compare cmp l m = Comparison.Lt <-> LessThan cmp l m)
+        /\ (compare cmp l m = Comparison.Eq <-> l = m).
+Proof.
+  intros A cmp lt C l m.
+  divide et impera.
+  - simpl LessThan in |- *.
+    divide et impera; intro e; ipso &e.
+  - ipso (comparison.equality.specification &C &l &m).
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall {A : Type} {cmp : A -> A -> Comparison} {lt : A -> A -> Prop} .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) .
+        compare cmp l m = Comparison.transpose (compare cmp m l).
+Proof.
+  intros A cmp lt C l.
+  match l with | | a l' by IH end per List.induction.
+  - intros m.
+    match m with | | b m' end; simpl in |- *; quod idem est.
+  - intros m.
+    match m with | | b m' end.
+    + simpl in |- *.
+      quod idem est.
+    + simpl in |- *.
+      leibniz (@Comparable.antisymmetry _ cmp lt &C &a &b) in |- *.
+      match (cmp &b &a) with | | | end.
+      * simpl in |- *.
+        quod idem est.
+      * simpl in |- *.
+        ipso (IH &m').
+      * simpl in |- *.
+        quod idem est.
+Qed.
+
+(* comparison.transitivity *)
+Theorem transitivity
+  : forall {A : Type} {cmp : A -> A -> Comparison} {lt : A -> A -> Prop} .
+      Comparable cmp lt ->
+      forall (l : List A) (m : List A) (n : List A) .
+        LessThan cmp l m -> LessThan cmp m n -> LessThan cmp l n.
+Proof.
+  intros A cmp lt C l.
+  match l with | | a l' by IH end per List.induction.
+  - intros m n h1 h2.
+    match n with | | c n' end.
+    + match m with | | b m' end.
+      * simpl LessThan in &h2.
+        simpl in &h2.
+        ex h2 quodlibet.
+      * simpl LessThan in &h2.
+        simpl in &h2.
+        ex h2 quodlibet.
+    + simpl LessThan in |- *.
+      simpl in |- *.
+      quod idem est.
+  - intros m n h1 h2.
+    match m with | | b m' end.
+    + simpl LessThan in &h1.
+      simpl in &h1.
+      ex h1 quodlibet.
+    + match n with | | c n' end.
+      * simpl LessThan in &h2.
+        simpl in &h2.
+        ex h2 quodlibet.
+      * simpl LessThan in &h1, &h2 |- *.
+        simpl in &h1, &h2 |- *.
+        match (cmp &a &b) with | | | end |- ab.
+        -- match (cmp &b &c) with | | | end |- bc.
+           ++ let proof sab := @Comparable.specification _ cmp lt &C &a &b.
+              match &sab with | lab _ end.
+              let proof sbc := @Comparable.specification _ cmp lt &C &b &c.
+              match &sbc with | lbc _ end.
+              let proof sac := @Comparable.specification _ cmp lt &C &a &c.
+              match &sac with | lac _ end.
+              let proof t :=
+                @Comparable.transitivity _ cmp lt &C &a &b &c
+                  (modus aequans &lab, &ab) (modus aequans &lbc, &bc).
+              leibniz (modus aequans &lac, &t) in |- *.
+              simpl in |- *.
+              quod idem est.
+           ++ let proof sbc := @Comparable.specification _ cmp lt &C &b &c.
+              match &sbc with | _ ebc end.
+              leibniz <- (modus aequans &ebc, &bc), &ab in |- *.
+              simpl in |- *.
+              quod idem est.
+           ++ ex h2 quodlibet.
+        -- let proof sab := @Comparable.specification _ cmp lt &C &a &b.
+           match &sab with | _ eab end.
+           leibniz (modus aequans &eab, &ab) in |- *.
+           match (cmp &b &c) with | | | end.
+           ++ quod idem est.
+           ++ ipso (IH &m' &n' &h1 &h2).
+           ++ ex h2 quodlibet.
+        -- ex h1 quodlibet.
 Qed.
 
 End comparison. (* comparison *)
