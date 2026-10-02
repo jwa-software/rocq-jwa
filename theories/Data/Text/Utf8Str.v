@@ -9,6 +9,8 @@ From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Byte.
 From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Data.Option.
+From jwa Require Import Data.Text.Ascii.
+From jwa Require Import Data.Text.AsciiStr.
 From jwa Require Import Data.Text.SourceByte.
 From jwa Require Import Data.Text.Utf8.
 From jwa Require Import Tactics.Equation.
@@ -108,6 +110,32 @@ Definition from_source_bytes := fun (l : List SourceByte) .
 (* [Utf8Str -> List SourceByte] *)
 Definition to_source_bytes := fun (s : Utf8Str) .
   List.map SourceByte.from_byte (to_bytes s).
+
+(* Every character of [s] by [Utf8.from_ascii], read as Latin-1. *)
+(* [AsciiStr -> Utf8Str] *)
+Definition from_ascii_str := fun (s : AsciiStr) .
+  Utf8Str.introduction (List.map Utf8.from_ascii (AsciiStr.to_list s)).
+
+(* Every character by [Utf8.to_ascii]: [Some] of them all, or [None] when one
+ * is past U+00FF.
+ *)
+(* [List Utf8 -> Option (List Ascii)] *)
+Fixpoint list_to_ascii (l : List Utf8) : Option (List Ascii) :=
+  match l with
+  | [] => Some []
+  | c :: rest =>
+      match Utf8.to_ascii c with
+      | Some a => Option.map (List.Cons a) (list_to_ascii rest)
+      | None => None
+      end
+  end.
+
+(* [Some] of the same characters as an [AsciiStr] when each is U+0000 to
+ * U+00FF, [None] otherwise.
+ *)
+(* [Utf8Str -> Option AsciiStr] *)
+Definition to_ascii_str := fun (s : Utf8Str) .
+  Option.map AsciiStr.introduction (list_to_ascii (to_list s)).
 
 Module conversion. (* conversion *)
 
@@ -340,6 +368,110 @@ Proof.
 Qed.
 
 End source_bytes. (* conversion.source_bytes *)
+
+Module ascii. (* conversion.ascii *)
+
+(* [to_ascii_str (from_ascii_str s) = Some s]: [to_ascii_str] is a
+ * retraction of [from_ascii_str], so every [AsciiStr] comes back from its
+ * [Utf8Str] form.
+ *)
+(* conversion.ascii.retraction *)
+Theorem retraction : forall (s : AsciiStr) . to_ascii_str (from_ascii_str s) = Some s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  lemma characters
+    : forall (cs : List Ascii) . list_to_ascii (List.map Utf8.from_ascii cs) = Some cs.
+  {
+    intros cs.
+    match &cs with | Nil | Cons a (cs' by IH) end per List.induction.
+    - simpl in |- *.
+      quod idem est.
+    - simpl in |- *.
+      leibniz (Utf8.conversion.ascii.retraction &a) in |- *.
+      simpl in |- *.
+      leibniz &IH in |- *.
+      simpl in |- *.
+      quod idem est.
+  }
+  simpl to_ascii_str, from_ascii_str, to_list, AsciiStr.to_list in |- *.
+  leibniz (&characters &l) in |- *.
+  simpl in |- *.
+  quod idem est.
+Qed.
+
+(* [to_ascii_str t = Some s] only for [t = from_ascii_str s]: the strings
+ * that read as [AsciiStr] are those [from_ascii_str] gives.
+ *)
+(* conversion.ascii.inversion *)
+Theorem inversion
+  : forall (t : Utf8Str) (s : AsciiStr) . to_ascii_str t = Some s -> from_ascii_str s = t.
+Proof.
+  intros t s h.
+  match &t with | introduction l end.
+  match &s with | introduction m end.
+  lemma characters
+    : forall (cs : List Utf8) (bs : List Ascii) .
+        list_to_ascii cs = Some bs -> List.map Utf8.from_ascii bs = cs.
+  {
+    intros cs.
+    match &cs with | Nil | Cons c (cs' by IH) end per List.induction.
+    - intros bs k.
+      simpl in &k.
+      let proof e := Option.some.injectivity &k.
+      leibniz <- &e in |- *.
+      simpl in |- *.
+      quod idem est.
+    - intros bs k.
+      simpl in &k.
+      match (Utf8.to_ascii &c) with | | a end |- ec.
+      + ex &k quodlibet.
+      + match (list_to_ascii &cs') with | | bs' end |- ek.
+        * simpl in &k.
+          ex &k quodlibet.
+        (* The case split wrote [Some bs'] for [list_to_ascii cs'] in [IH]
+         * too, so its premise is now met by reflexivity.
+         *)
+        * simpl in &k.
+          let proof e := Option.some.injectivity &k.
+          leibniz <- &e in |- *.
+          simpl in |- *.
+          leibniz
+            (Utf8.conversion.ascii.inversion &c &a &ec),
+            (&IH &bs' (Identity.reflexivity _))
+            in |- *.
+          quod idem est.
+  }
+  simpl to_ascii_str, to_list in &h.
+  match (list_to_ascii &l) with | | bs end |- e.
+  - simpl in &h.
+    ex &h quodlibet.
+  - simpl in &h.
+    let proof f := Option.some.injectivity &h.
+    congru AsciiStr.to_list, &f |- g.
+    simpl AsciiStr.to_list in &g.
+    simpl from_ascii_str, AsciiStr.to_list in |- *.
+    leibniz <- &g, <- (&characters &l &bs &e) in |- *.
+    quod idem est.
+Qed.
+
+Module preservation. (* conversion.ascii.preservation *)
+
+Module of. (* conversion.ascii.preservation.of *)
+
+(* conversion.ascii.preservation.of.length *)
+Theorem length : forall (s : AsciiStr) . length (from_ascii_str s) = AsciiStr.length s.
+Proof.
+  intros s.
+  simpl length, from_ascii_str, to_list, AsciiStr.length in |- *.
+  ipso (List.mapping.preservation.of.length Utf8.from_ascii (AsciiStr.to_list &s)).
+Qed.
+
+End of. (* conversion.ascii.preservation.of *)
+
+End preservation. (* conversion.ascii.preservation *)
+
+End ascii. (* conversion.ascii *)
 
 End conversion. (* conversion *)
 
