@@ -13,14 +13,14 @@ From jwa Require Import Data.Option.
 Module Word. (* Word *)
 
 Inductive T : Type :=
-  | Word_introduction : Endian -> Byte -> Byte -> Byte -> Byte -> T.
+  | introduction : Endian -> Byte -> Byte -> Byte -> Byte -> T.
 
 Abbreviation Word := T.
 
 (* [Word -> Endian] *)
 Definition endian := fun (x : Word) .
   match x with
-  | Word_introduction e _ _ _ _ => e
+  | Word.introduction e _ _ _ _ => e
   end.
 
 (* The least significant byte, wherever the endianness lays it; [byte1] to
@@ -29,29 +29,29 @@ Definition endian := fun (x : Word) .
 (* [Word -> Byte] *)
 Definition byte0 := fun (x : Word) .
   match x with
-  | Word_introduction Endian.Little b0 _  _  _  => b0
-  | Word_introduction Endian.Big    _  _  _  b0 => b0
+  | Word.introduction Endian.Little b0 _  _  _  => b0
+  | Word.introduction Endian.Big    _  _  _  b0 => b0
   end.
 
 (* [Word -> Byte] *)
 Definition byte1 := fun (x : Word) .
   match x with
-  | Word_introduction Endian.Little _  b1 _  _  => b1
-  | Word_introduction Endian.Big    _  _  b1 _  => b1
+  | Word.introduction Endian.Little _  b1 _  _  => b1
+  | Word.introduction Endian.Big    _  _  b1 _  => b1
   end.
 
 (* [Word -> Byte] *)
 Definition byte2 := fun (x : Word) .
   match x with
-  | Word_introduction Endian.Little _  _  b2 _  => b2
-  | Word_introduction Endian.Big    _  b2 _  _  => b2
+  | Word.introduction Endian.Little _  _  b2 _  => b2
+  | Word.introduction Endian.Big    _  b2 _  _  => b2
   end.
 
 (* [Word -> Byte] *)
 Definition byte3 := fun (x : Word) .
   match x with
-  | Word_introduction Endian.Little _  _  _  b3 => b3
-  | Word_introduction Endian.Big    b3 _  _  _  => b3
+  | Word.introduction Endian.Little _  _  _  b3 => b3
+  | Word.introduction Endian.Big    b3 _  _  _  => b3
   end.
 
 (* The word of endianness [e] whose bytes, least significant first, are
@@ -60,8 +60,8 @@ Definition byte3 := fun (x : Word) .
 (* [Endian -> Byte -> Byte -> Byte -> Byte -> Word] *)
 Definition make := fun (e : Endian) (b0 : Byte) (b1 : Byte) (b2 : Byte) (b3 : Byte) .
   match e with
-  | Endian.Little => Word_introduction Endian.Little b0 b1 b2 b3
-  | Endian.Big    => Word_introduction Endian.Big    b3 b2 b1 b0
+  | Endian.Little => Word.introduction Endian.Little b0 b1 b2 b3
+  | Endian.Big    => Word.introduction Endian.Big    b3 b2 b1 b0
   end.
 
 (* The same value, laid out in the order [e] names. *)
@@ -165,26 +165,26 @@ Definition xor_big_endian := fun (x : Word) (y : Word) .
 Fixpoint rotate_left_nat (x : Word) (k : Nat) : Word :=
   let y :=
     match x with
-    | Word_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24) =>
-        Word_introduction Endian.Little
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 x31)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-    | Word_introduction Endian.Big
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Word_introduction Endian.Big
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 x31)
+    | Word.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24) =>
+        Word.introduction Endian.Little
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 x31)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+    | Word.introduction Endian.Big
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Word.introduction Endian.Big
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 x31)
     end in
   match k with
   | Nat.One          => y
@@ -203,26 +203,26 @@ Fixpoint rotate_right_nat (x : Word) (k : Nat) : Word :=
     | Nat.Successor k' => rotate_right_nat x k'
     end in
   match y with
-  | Word_introduction Endian.Little
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24) =>
-      Word_introduction Endian.Little
-        (Byte.Byte_introduction y8 y7 y6 y5 y4 y3 y2 y1)
-        (Byte.Byte_introduction y16 y15 y14 y13 y12 y11 y10 y9)
-        (Byte.Byte_introduction y24 y23 y22 y21 y20 y19 y18 y17)
-        (Byte.Byte_introduction y0 y31 y30 y29 y28 y27 y26 y25)
-  | Word_introduction Endian.Big
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
-      Word_introduction Endian.Big
-        (Byte.Byte_introduction y0 y31 y30 y29 y28 y27 y26 y25)
-        (Byte.Byte_introduction y24 y23 y22 y21 y20 y19 y18 y17)
-        (Byte.Byte_introduction y16 y15 y14 y13 y12 y11 y10 y9)
-        (Byte.Byte_introduction y8 y7 y6 y5 y4 y3 y2 y1)
+  | Word.introduction Endian.Little
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24) =>
+      Word.introduction Endian.Little
+        (Byte.introduction y8 y7 y6 y5 y4 y3 y2 y1)
+        (Byte.introduction y16 y15 y14 y13 y12 y11 y10 y9)
+        (Byte.introduction y24 y23 y22 y21 y20 y19 y18 y17)
+        (Byte.introduction y0 y31 y30 y29 y28 y27 y26 y25)
+  | Word.introduction Endian.Big
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      Word.introduction Endian.Big
+        (Byte.introduction y0 y31 y30 y29 y28 y27 y26 y25)
+        (Byte.introduction y24 y23 y22 y21 y20 y19 y18 y17)
+        (Byte.introduction y16 y15 y14 y13 y12 y11 y10 y9)
+        (Byte.introduction y8 y7 y6 y5 y4 y3 y2 y1)
   end.
 
 (* [Word -> Nat0 -> Word] *)
@@ -246,26 +246,26 @@ Definition rotate_right := fun (x : Word) (k : Nat0) .
 Fixpoint shift_left_nat (x : Word) (k : Nat) : Word :=
   let y :=
     match x with
-    | Word_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24) =>
-        Word_introduction Endian.Little
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-    | Word_introduction Endian.Big
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Word_introduction Endian.Big
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+    | Word.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24) =>
+        Word.introduction Endian.Little
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+    | Word.introduction Endian.Big
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Word.introduction Endian.Big
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
     end in
   match k with
   | Nat.One          => y
@@ -279,26 +279,26 @@ Fixpoint shift_left_nat (x : Word) (k : Nat) : Word :=
 Fixpoint shift_right_nat (x : Word) (k : Nat) : Word :=
   let y :=
     match x with
-    | Word_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24) =>
-        Word_introduction Endian.Little
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction Bit.Zero x31 x30 x29 x28 x27 x26 x25)
-    | Word_introduction Endian.Big
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        Word_introduction Endian.Big
-          (Byte.Byte_introduction Bit.Zero x31 x30 x29 x28 x27 x26 x25)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
+    | Word.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24) =>
+        Word.introduction Endian.Little
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction Bit.Zero x31 x30 x29 x28 x27 x26 x25)
+    | Word.introduction Endian.Big
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        Word.introduction Endian.Big
+          (Byte.introduction Bit.Zero x31 x30 x29 x28 x27 x26 x25)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
     end in
   match k with
   | Nat.One          => y
@@ -323,7 +323,7 @@ Definition shift_right := fun (x : Word) (k : Nat0) .
 (* [Word -> List Byte] *)
 Definition to_bytes := fun (x : Word) .
   match x with
-  | Word_introduction _ b0 b1 b2 b3 =>
+  | Word.introduction _ b0 b1 b2 b3 =>
       List.Cons b0 (List.Cons b1 (List.Cons b2 (List.Cons b3 List.Nil)))
   end.
 
@@ -334,7 +334,7 @@ Definition to_bytes := fun (x : Word) .
 Definition from_bytes := fun (e : Endian) (l : List Byte) .
   match l with
   | List.Cons b0 (List.Cons b1 (List.Cons b2 (List.Cons b3 List.Nil))) =>
-      Some (Word_introduction e b0 b1 b2 b3)
+      Some (Word.introduction e b0 b1 b2 b3)
   | _ =>
       None
   end.
@@ -348,29 +348,29 @@ Definition from_bytes := fun (e : Endian) (l : List Byte) .
 Definition append_digit := fun (x : Option Word) (d3 : Bit) (d2 : Bit) (d1 : Bit) (d0 : Bit) .
   match x with
   | Some
-      (Word_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x27 x26 x25 x24)) =>
+      (Word.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x27 x26 x25 x24)) =>
       Some
-        (Word_introduction Endian.Little
-          (Byte.Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0)
-          (Byte.Byte_introduction x11 x10 x9 x8 x7 x6 x5 x4)
-          (Byte.Byte_introduction x19 x18 x17 x16 x15 x14 x13 x12)
-          (Byte.Byte_introduction x27 x26 x25 x24 x23 x22 x21 x20))
+        (Word.introduction Endian.Little
+          (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0)
+          (Byte.introduction x11 x10 x9 x8 x7 x6 x5 x4)
+          (Byte.introduction x19 x18 x17 x16 x15 x14 x13 x12)
+          (Byte.introduction x27 x26 x25 x24 x23 x22 x21 x20))
   | Some
-      (Word_introduction Endian.Big
-        (Byte.Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)) =>
+      (Word.introduction Endian.Big
+        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)) =>
       Some
-        (Word_introduction Endian.Big
-          (Byte.Byte_introduction x27 x26 x25 x24 x23 x22 x21 x20)
-          (Byte.Byte_introduction x19 x18 x17 x16 x15 x14 x13 x12)
-          (Byte.Byte_introduction x11 x10 x9 x8 x7 x6 x5 x4)
-          (Byte.Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0))
+        (Word.introduction Endian.Big
+          (Byte.introduction x27 x26 x25 x24 x23 x22 x21 x20)
+          (Byte.introduction x19 x18 x17 x16 x15 x14 x13 x12)
+          (Byte.introduction x11 x10 x9 x8 x7 x6 x5 x4)
+          (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0))
   | _ => None
   end.
 
@@ -439,10 +439,10 @@ Definition from_big_numeral := fun (u : Numeral.Unsigned) . from_numeral Endian.
 Definition to_numeral := fun (e : Endian) (x : Word) .
   let digits :=
     match byte0 x, byte1 x, byte2 x, byte3 x with
-    | Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0,
-      Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8,
-      Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16,
-      Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 =>
+    | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0,
+      Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8,
+      Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16,
+      Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24 =>
         Numeral.Unsigned.Hexadecimal
           (Byte.hexadecimal_digit x31 x30 x29 x28
             (Byte.hexadecimal_digit x27 x26 x25 x24
@@ -476,7 +476,7 @@ Lemma congruence
   : forall {e : Endian} {a0 : Byte} {a1 : Byte} {a2 : Byte} {a3 : Byte}
       {b0 : Byte} {b1 : Byte} {b2 : Byte} {b3 : Byte} .
       a0 = b0 -> a1 = b1 -> a2 = b2 -> a3 = b3 ->
-      Word_introduction e a0 a1 a2 a3 = Word_introduction e b0 b1 b2 b3.
+      Word.introduction e a0 a1 a2 a3 = Word.introduction e b0 b1 b2 b3.
 Proof.
   intros e a0 a1 a2 a3 b0 b1 b2 b3 e0 e1 e2 e3.
   leibniz &e0, &e1, &e2, &e3 in |- *.
@@ -496,7 +496,7 @@ Qed.
 Theorem identity : forall (x : Word) . with_endian (endian x) x = x.
 Proof.
   intros x.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -520,7 +520,7 @@ Module flipping. (* flipping *)
 Theorem involution : forall (x : Word) . ~. ~. x = x.
 Proof.
   intros x.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match &e with | Little | Big end;
     simpl flip in |- *;
     simpl in |- *;
@@ -568,9 +568,9 @@ Theorem associativity
       (x &. y) &. z = x &. (y &. z).
 Proof.
   intros x y z.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
-  match &z with | Word_introduction ez z0 z1 z2 z3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
+  match &z with | introduction ez z0 z1 z2 z3 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -589,7 +589,7 @@ Theorem identity
   : forall (x : Word) . (~. Zero (endian x) &. x = x) /\ (x &. ~. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match (Byte.conjunction.identity &x0) with | left0 right0 end.
   match (Byte.conjunction.identity &x1) with | left1 right1 end.
   match (Byte.conjunction.identity &x2) with | left2 right2 end.
@@ -611,7 +611,7 @@ Theorem conversion
   : forall (x : Word) (y : Word) . x &. y = x &. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match &e with | Little | Big end;
     simpl and, with_endian in |- *;
     simpl in |- *;
@@ -626,8 +626,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x &. y = y &. x.
 Proof.
   intros x y hx hy.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl and in |- *.
@@ -659,8 +659,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x &. y = y &. x.
 Proof.
   intros x y hx hy.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl and in |- *.
@@ -698,9 +698,9 @@ Theorem sejunction
       x &. (y ^. z) = (x &. y) ^. (x &. z).
 Proof.
   intros x y z.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
-  match &z with | Word_introduction ez z0 z1 z2 z3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
+  match &z with | introduction ez z0 z1 z2 z3 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -732,9 +732,9 @@ Theorem sejunction
       (y ^. z) &. x = (y &. x) ^. (z &. x).
 Proof.
   intros x y z.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
-  match &z with | Word_introduction ez z0 z1 z2 z3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
+  match &z with | introduction ez z0 z1 z2 z3 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -784,9 +784,9 @@ Theorem associativity
       (x |. y) |. z = x |. (y |. z).
 Proof.
   intros x y z.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
-  match &z with | Word_introduction ez z0 z1 z2 z3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
+  match &z with | introduction ez z0 z1 z2 z3 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -805,7 +805,7 @@ Theorem identity
   : forall (x : Word) . (Zero (endian x) |. x = x) /\ (x |. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match (Byte.disjunction.identity &x0) with | left0 right0 end.
   match (Byte.disjunction.identity &x1) with | left1 right1 end.
   match (Byte.disjunction.identity &x2) with | left2 right2 end.
@@ -827,7 +827,7 @@ Theorem conversion
   : forall (x : Word) (y : Word) . x |. y = x |. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match &e with | Little | Big end;
     simpl or, with_endian in |- *;
     simpl in |- *;
@@ -842,8 +842,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x |. y = y |. x.
 Proof.
   intros x y hx hy.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl or in |- *.
@@ -875,8 +875,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x |. y = y |. x.
 Proof.
   intros x y hx hy.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl or in |- *.
@@ -912,9 +912,9 @@ Theorem associativity
       (x ^. y) ^. z = x ^. (y ^. z).
 Proof.
   intros x y z.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
-  match &z with | Word_introduction ez z0 z1 z2 z3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
+  match &z with | introduction ez z0 z1 z2 z3 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -933,7 +933,7 @@ Theorem identity
   : forall (x : Word) . (Zero (endian x) ^. x = x) /\ (x ^. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match (Byte.sejunction.identity &x0) with | left0 right0 end.
   match (Byte.sejunction.identity &x1) with | left1 right1 end.
   match (Byte.sejunction.identity &x2) with | left2 right2 end.
@@ -951,7 +951,7 @@ Qed.
 Theorem irreflexivity : forall (x : Word) . x ^. x = Zero (endian x).
 Proof.
   intros x.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match &e with | Little | Big end;
     ipso
       (congruence
@@ -967,7 +967,7 @@ Theorem conversion
   : forall (x : Word) (y : Word) . x ^. y = x ^. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | Word_introduction e x0 x1 x2 x3 end.
+  match &x with | introduction e x0 x1 x2 x3 end.
   match &e with | Little | Big end;
     simpl xor, with_endian in |- *;
     simpl in |- *;
@@ -982,8 +982,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x ^. y = y ^. x.
 Proof.
   intros x y hx hy.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl xor in |- *.
@@ -1015,8 +1015,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x ^. y = y ^. x.
 Proof.
   intros x y hx hy.
-  match &x with | Word_introduction ex x0 x1 x2 x3 end.
-  match &y with | Word_introduction ey y0 y1 y2 y3 end.
+  match &x with | introduction ex x0 x1 x2 x3 end.
+  match &y with | introduction ey y0 y1 y2 y3 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl xor in |- *.
@@ -1052,11 +1052,11 @@ Module left. (* rotation.left *)
 Theorem period : forall (x : Word) . rotate_left x 32%n0 = x.
 Proof.
   intros x.
-  match &x with | Word_introduction e b0 b1 b2 b3 end.
-  match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-  match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-  match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-  match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+  match &x with | introduction e b0 b1 b2 b3 end.
+  match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+  match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+  match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+  match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1072,42 +1072,42 @@ Proof.
     extro &x.
     match n with | One | Successor (n' by IH) end per Nat.induction.
     + intros x.
-      match &x with | Word_introduction e b0 b1 b2 b3 end.
-      match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-      match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+      match &x with | introduction e b0 b1 b2 b3 end.
+      match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
       match &e with | Little | Big end; simpl in |- *; quod idem est.
     + intros x.
-      match &x with | Word_introduction e b0 b1 b2 b3 end.
+      match &x with | introduction e b0 b1 b2 b3 end.
       match &e with | Little | Big end.
-      * match &b0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-        match &b1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-        match &b2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-        match &b3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+      * match &b0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+        match &b1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+        match &b2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+        match &b3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
         simpl in |- *.
         leibniz
           (&IH
-            (Word_introduction Endian.Little
-              (Byte.Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x31)
-              (Byte.Byte_introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
-              (Byte.Byte_introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
-              (Byte.Byte_introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)))
+            (Word.introduction Endian.Little
+              (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x31)
+              (Byte.introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
+              (Byte.introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
+              (Byte.introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)))
           in |- *.
         simpl in |- *.
         quod idem est.
-      * match &b0 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-        match &b1 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-        match &b2 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-        match &b3 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+      * match &b0 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+        match &b1 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+        match &b2 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+        match &b3 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
         simpl in |- *.
         leibniz
           (&IH
-            (Word_introduction Endian.Big
-              (Byte.Byte_introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
-              (Byte.Byte_introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
-              (Byte.Byte_introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
-              (Byte.Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x31)))
+            (Word.introduction Endian.Big
+              (Byte.introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
+              (Byte.introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
+              (Byte.introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
+              (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x31)))
           in |- *.
         simpl in |- *.
         quod idem est.
@@ -1121,11 +1121,11 @@ Module right. (* rotation.right *)
 Theorem period : forall (x : Word) . rotate_right x 32%n0 = x.
 Proof.
   intros x.
-  match &x with | Word_introduction e b0 b1 b2 b3 end.
-  match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-  match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-  match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-  match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+  match &x with | introduction e b0 b1 b2 b3 end.
+  match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+  match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+  match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+  match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1139,18 +1139,18 @@ Proof.
     quod idem est.
   - simpl in |- *.
     match n with | One | Successor (n' by IH) end per Nat.induction.
-    + match &x with | Word_introduction e b0 b1 b2 b3 end.
-      match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-      match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+    + match &x with | introduction e b0 b1 b2 b3 end.
+      match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
       match &e with | Little | Big end; simpl in |- *; quod idem est.
     + simpl in |- *.
-      match (rotate_right_nat &x &n') with | Word_introduction e b0 b1 b2 b3 end.
-      match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-      match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+      match (rotate_right_nat &x &n') with | introduction e b0 b1 b2 b3 end.
+      match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
       match &e with | Little | Big end; ipso &IH.
 Qed.
 
@@ -1166,7 +1166,7 @@ Module bytes. (* conversion.bytes *)
 Theorem section : forall (x : Word) . from_bytes (endian x) (to_bytes x) = Some x.
 Proof.
   intros x.
-  match &x with | Word_introduction e b0 b1 b2 b3 end.
+  match &x with | introduction e b0 b1 b2 b3 end.
   simpl from_bytes, to_bytes, endian in |- *.
   quod idem est.
 Qed.

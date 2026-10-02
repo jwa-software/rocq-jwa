@@ -17,20 +17,20 @@ Module Byte. (* Byte *)
 
 (* Eight bits, the MSB first, as a binary number is written. *)
 Inductive T : Type :=
-  | Byte_introduction : Bit -> Bit -> Bit -> Bit -> Bit -> Bit -> Bit -> Bit -> T.
+  | introduction : Bit -> Bit -> Bit -> Bit -> Bit -> Bit -> Bit -> Bit -> T.
 
 Abbreviation Byte := T.
 
 (* [Byte] *)
 Definition Zero :=
-  Byte_introduction
+  Byte.introduction
     Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero.
 
 (* [Byte -> Byte] *)
 Definition flip := fun (x : Byte) .
   match x with
-  | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
-      Byte_introduction
+  | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+      Byte.introduction
         (Bit.flip x7) (Bit.flip x6) (Bit.flip x5) (Bit.flip x4)
         (Bit.flip x3) (Bit.flip x2) (Bit.flip x1) (Bit.flip x0)
   end.
@@ -44,10 +44,10 @@ Notation "~. x" := (flip x) (only parsing)
 (* [Byte -> Byte -> Byte] *)
 Definition and := fun (x : Byte) (y : Byte) .
   match x with
-  | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+  | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
       match y with
-      | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
-          Byte_introduction
+      | Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
+          Byte.introduction
             (Bit.and x7 y7) (Bit.and x6 y6) (Bit.and x5 y5) (Bit.and x4 y4)
             (Bit.and x3 y3) (Bit.and x2 y2) (Bit.and x1 y1) (Bit.and x0 y0)
       end
@@ -59,10 +59,10 @@ Notation "x &. y" := (and x y) (only parsing)
 (* [Byte -> Byte -> Byte] *)
 Definition or := fun (x : Byte) (y : Byte) .
   match x with
-  | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+  | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
       match y with
-      | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
-          Byte_introduction
+      | Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
+          Byte.introduction
             (Bit.or x7 y7) (Bit.or x6 y6) (Bit.or x5 y5) (Bit.or x4 y4)
             (Bit.or x3 y3) (Bit.or x2 y2) (Bit.or x1 y1) (Bit.or x0 y0)
       end
@@ -74,10 +74,10 @@ Notation "x |. y" := (or x y) (only parsing)
 (* [Byte -> Byte -> Byte] *)
 Definition xor := fun (x : Byte) (y : Byte) .
   match x with
-  | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+  | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
       match y with
-      | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
-          Byte_introduction
+      | Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
+          Byte.introduction
             (Bit.xor x7 y7) (Bit.xor x6 y6) (Bit.xor x5 y5) (Bit.xor x4 y4)
             (Bit.xor x3 y3) (Bit.xor x2 y2) (Bit.xor x1 y1) (Bit.xor x0 y0)
       end
@@ -93,8 +93,8 @@ Notation "x ^. y" := (xor x y) (only parsing)
 Fixpoint rotate_left_nat (x : Byte) (k : Nat) : Byte :=
   let y :=
     match x with
-    | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
-        Byte_introduction x6 x5 x4 x3 x2 x1 x0 x7
+    | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+        Byte.introduction x6 x5 x4 x3 x2 x1 x0 x7
     end in
   match k with
   | Nat.One          => y
@@ -113,8 +113,8 @@ Fixpoint rotate_right_nat (x : Byte) (k : Nat) : Byte :=
     | Nat.Successor k' => rotate_right_nat x k'
     end in
   match y with
-  | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
-      Byte_introduction y0 y7 y6 y5 y4 y3 y2 y1
+  | Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0 =>
+      Byte.introduction y0 y7 y6 y5 y4 y3 y2 y1
   end.
 
 (* [Byte -> Nat0 -> Byte] *)
@@ -138,8 +138,8 @@ Definition rotate_right := fun (x : Byte) (k : Nat0) .
 Fixpoint shift_left_nat (x : Byte) (k : Nat) : Byte :=
   let y :=
     match x with
-    | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
-        Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero
+    | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+        Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero
     end in
   match k with
   | Nat.One          => y
@@ -153,8 +153,8 @@ Fixpoint shift_left_nat (x : Byte) (k : Nat) : Byte :=
 Fixpoint shift_right_nat (x : Byte) (k : Nat) : Byte :=
   let y :=
     match x with
-    | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
-        Byte_introduction Bit.Zero x7 x6 x5 x4 x3 x2 x1
+    | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+        Byte.introduction Bit.Zero x7 x6 x5 x4 x3 x2 x1
     end in
   match k with
   | Nat.One          => y
@@ -182,8 +182,8 @@ Definition shift_right := fun (x : Byte) (k : Nat0) .
 (* [Option Byte -> Bit -> Bit -> Bit -> Bit -> Option Byte] *)
 Definition append_digit := fun (x : Option Byte) (d3 : Bit) (d2 : Bit) (d1 : Bit) (d0 : Bit) .
   match x with
-  | Some (Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x3 x2 x1 x0) =>
-      Some (Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0)
+  | Some (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x3 x2 x1 x0) =>
+      Some (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0)
   | _ => None
   end.
 
@@ -266,7 +266,7 @@ Definition hexadecimal_digit :=
 (* [Byte -> Numeral.Unsigned] *)
 Definition to_numeral := fun (x : Byte) .
   match x with
-  | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
+  | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0 =>
       Numeral.Unsigned.Hexadecimal
         (hexadecimal_digit x7 x6 x5 x4
           (hexadecimal_digit x3 x2 x1 x0 Numeral.Hexadecimal.Digits.End))
@@ -285,8 +285,8 @@ Lemma congruence
       {b3 : Bit} {b2 : Bit} {b1 : Bit} {b0 : Bit} .
       a7 = b7 -> a6 = b6 -> a5 = b5 -> a4 = b4 ->
       a3 = b3 -> a2 = b2 -> a1 = b1 -> a0 = b0 ->
-      Byte_introduction a7 a6 a5 a4 a3 a2 a1 a0
-        = Byte_introduction b7 b6 b5 b4 b3 b2 b1 b0.
+      Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0
+        = Byte.introduction b7 b6 b5 b4 b3 b2 b1 b0.
 Proof.
   intros a7 a6 a5 a4 a3 a2 a1 a0 b7 b6 b5 b4 b3 b2 b1 b0.
   intros e7 e6 e5 e4 e3 e2 e1 e0.
@@ -300,7 +300,7 @@ Module flipping. (* flipping *)
 Theorem involution : forall (x : Byte) . ~. ~. x = x.
 Proof.
   intros x.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -320,9 +320,9 @@ Theorem associativity
       (x &. y) &. z = x &. (y &. z).
 Proof.
   intros x y z.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
-  match &z with | Byte_introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -341,8 +341,8 @@ Theorem commutativity
   : forall (x : Byte) (y : Byte) . x &. y = y &. x.
 Proof.
   intros x y.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -362,11 +362,11 @@ Theorem identity
 Proof.
   intros x.
   divide et impera.
-  - match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
   - leibniz (conjunction.commutativity &x (~. Zero)) in |- *.
-    match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
 Qed.
@@ -383,9 +383,9 @@ Theorem sejunction
       x &. (y ^. z) = (x &. y) ^. (x &. z).
 Proof.
   intros x y z.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
-  match &z with | Byte_introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -417,9 +417,9 @@ Theorem sejunction
       (y ^. z) &. x = (y &. x) ^. (z &. x).
 Proof.
   intros x y z.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
-  match &z with | Byte_introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -469,9 +469,9 @@ Theorem associativity
       (x |. y) |. z = x |. (y |. z).
 Proof.
   intros x y z.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
-  match &z with | Byte_introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -490,8 +490,8 @@ Theorem commutativity
   : forall (x : Byte) (y : Byte) . x |. y = y |. x.
 Proof.
   intros x y.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -511,11 +511,11 @@ Theorem identity
 Proof.
   intros x.
   divide et impera.
-  - match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
   - leibniz (disjunction.commutativity &x Zero) in |- *.
-    match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
 Qed.
@@ -530,9 +530,9 @@ Theorem associativity
       (x ^. y) ^. z = x ^. (y ^. z).
 Proof.
   intros x y z.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
-  match &z with | Byte_introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -551,8 +551,8 @@ Theorem commutativity
   : forall (x : Byte) (y : Byte) . x ^. y = y ^. x.
 Proof.
   intros x y.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl in |- *.
   ipso
     (congruence
@@ -572,11 +572,11 @@ Theorem identity
 Proof.
   intros x.
   divide et impera.
-  - match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
   - leibniz (sejunction.commutativity &x Zero) in |- *.
-    match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
 Qed.
@@ -585,7 +585,7 @@ Qed.
 Theorem irreflexivity : forall (x : Byte) . x ^. x = Zero.
 Proof.
   intros x.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl Zero in |- *.
   simpl in |- *.
   ipso
@@ -614,7 +614,7 @@ Module left. (* rotation.left *)
 Theorem period : forall (x : Byte) . rotate_left x 8%n0 = x.
 Proof.
   intros x.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl in |- *.
   quod idem est.
 Qed.
@@ -631,13 +631,13 @@ Proof.
     extro &x.
     match n with | One | Successor (n' by IH) end per Nat.induction.
     + intros x.
-      match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+      match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
       simpl in |- *.
       quod idem est.
     + intros x.
-      match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+      match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
       simpl in |- *.
-      leibniz (&IH (Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x7)) in |- *.
+      leibniz (&IH (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x7)) in |- *.
       simpl in |- *.
       quod idem est.
 Qed.
@@ -650,7 +650,7 @@ Module right. (* rotation.right *)
 Theorem period : forall (x : Byte) . rotate_right x 8%n0 = x.
 Proof.
   intros x.
-  match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl in |- *.
   quod idem est.
 Qed.
@@ -665,12 +665,12 @@ Proof.
     quod idem est.
   - simpl in |- *.
     match n with | One | Successor (n' by IH) end per Nat.induction.
-    + match &x with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    + match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
       simpl in |- *.
       quod idem est.
     + simpl in |- *.
       match (rotate_right_nat &x &n') with
-      | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0
+      | introduction y7 y6 y5 y4 y3 y2 y1 y0
       end.
       ipso &IH.
 Qed.
