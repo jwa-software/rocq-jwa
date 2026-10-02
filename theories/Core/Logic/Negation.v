@@ -78,7 +78,7 @@ Proof.
   - intro h.
     intro x.
     intro p.
-    ipso (h (Exists_introduction x p)).
+    ipso (h (Exists.introduction x p)).
   - intro h.
     intro e.
     match e with | x p end.

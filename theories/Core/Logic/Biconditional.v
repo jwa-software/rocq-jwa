@@ -4,18 +4,17 @@ From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
-Inductive Biconditional (P : Prop) (Q : Prop) : Prop :=
-  | Biconditional_introduction : (P -> Q) -> (Q -> P) -> Biconditional P Q.
+Module Biconditional. (* Biconditional *)
 
-Arguments Biconditional_introduction {P} {Q} forward backward.
+Inductive T (P : Prop) (Q : Prop) : Prop :=
+  | introduction : (P -> Q) -> (Q -> P) -> T P Q.
+
+Arguments Biconditional.introduction {P} {Q} forward backward.
+
+Abbreviation Biconditional := T.
 
 Notation "P <-> Q" := (Biconditional P Q)
   : jwa_type_scope.
-
-(* A module may carry the type's name; its laws read
- * [Biconditional.symmetry].
- *)
-Module Biconditional. (* Biconditional *)
 
 Theorem reflexivity : forall (P : Prop) . P <-> P.
 Proof.
@@ -124,6 +123,16 @@ Qed.
  *)
 
 End Biconditional. (* Biconditional *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Biconditional], not [Biconditional.T].
+ *)
+Abbreviation Biconditional := Biconditional.T.
+
+(* Makes [<->], declared in [Module Biconditional], usable in every file that
+ * imports this one.
+ *)
+Export (notations) Biconditional.
 
 (* The congruence of [->] belongs to [Conditional], but its statement needs
  * [<->], so it can be stated only here. A second module of that name
