@@ -64,7 +64,7 @@ Ltac2 one_witness (w : preterm) :=
             | _ => Constr.Unsafe.make (Constr.Unsafe.App p [| w |])
             end in
           Control.refine (fun () =>
-            open_constr:(@Exists_introduction $a $p $w (_ : $after)))
+            open_constr:(@Exists.introduction $a $p $w (_ : $after)))
         else not_forsome ()
       else not_forsome ()
   | _ => not_forsome ()

@@ -32,11 +32,11 @@ Ltac2 join (who : string) (a : preterm) (b : preterm) (built : unit -> constr)
 
 Ltac2 Notation "conjoin" a(preterm) "," b(preterm) "|-" p(intropattern) :=
   join "conjoin" a b
-    (fun () => Local.elaborate preterm:(Conjunction_introduction $preterm:a $preterm:b)) p.
+    (fun () => Local.elaborate preterm:(Conjunction.introduction $preterm:a $preterm:b)) p.
 
 Ltac2 Notation "abjoin" a(preterm) "," b(preterm) "|-" p(intropattern) :=
   join "abjoin" a b
-    (fun () => Local.elaborate preterm:(Abjunction_introduction $preterm:a $preterm:b)) p.
+    (fun () => Local.elaborate preterm:(Abjunction.introduction $preterm:a $preterm:b)) p.
 
 (* The left ctor is tried first, then the right; when neither types, the
  * refusal says what the two must be.
@@ -46,11 +46,11 @@ Ltac2 Notation "sejoin" a(preterm) "," b(preterm) "|-" p(intropattern) :=
     (fun () =>
       Control.once_plus
         (fun () =>
-          Local.elaborate preterm:(Sejunction_introduction_left $preterm:a $preterm:b))
+          Local.elaborate preterm:(Sejunction.introduction_left $preterm:a $preterm:b))
         (fun _ =>
           Control.once_plus
             (fun () =>
-              Local.elaborate preterm:(Sejunction_introduction_right $preterm:a $preterm:b))
+              Local.elaborate preterm:(Sejunction.introduction_right $preterm:a $preterm:b))
             (fun _ =>
               Control.zero
                 (Tactic_failure

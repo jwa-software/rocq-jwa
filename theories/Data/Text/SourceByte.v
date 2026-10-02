@@ -806,7 +806,7 @@ Module byte. (* conversion.byte *)
 Theorem retraction : forall (b : Byte) . to_byte (from_byte b) = b.
 Proof.
   intros b.
-  match &b with | Byte_introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
   match &b7 with | Zero | One end;
     match &b6 with | Zero | One end;
     match &b5 with | Zero | One end;

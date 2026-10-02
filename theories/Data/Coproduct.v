@@ -4,47 +4,48 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Functor.
 From jwa Require Import Tactics.Equation.
 
+Module Coproduct. (* Coproduct *)
+
 (* A coproduct holds one [A] or one [B], tagged by which. Both are
  * parameters: the type behind each tag is fixed for the whole coproduct.
  *)
-Inductive Coproduct (A : Type) (B : Type) : Type :=
-  | Coproduct_introduction_left  : A -> Coproduct A B
-  | Coproduct_introduction_right : B -> Coproduct A B.
+Inductive T (A : Type) (B : Type) : Type :=
+  | introduction_left  : A -> T A B
+  | introduction_right : B -> T A B.
 
 (* One type is inferred from the value, the other from the expected type; a
- * use that has neither needs [@Coproduct_introduction_left A B a].
+ * use that has neither needs [@Coproduct.introduction_left A B a].
  *)
-Arguments Coproduct_introduction_left  {A} {B} a.
-Arguments Coproduct_introduction_right {A} {B} b.
+Arguments Coproduct.introduction_left  {A} {B} a.
+Arguments Coproduct.introduction_right {A} {B} b.
 
-(* The eliminator that [match ... per] takes, written out. Nothing recurses: a
- * coproduct holds no smaller coproduct, so one [match] is the whole content.
- *)
-Definition Coproduct_induction
-  : forall (A : Type) (B : Type) (P : Coproduct A B -> Prop) .
-      (forall (a : A) . P (Coproduct_introduction_left a)) ->
-      (forall (b : B) . P (Coproduct_introduction_right b)) ->
-      forall (cp : Coproduct A B) . P cp
-  := fun (A : Type) (B : Type) (P : Coproduct A B -> Prop)
-       (left  : forall (a : A) . P (Coproduct_introduction_left a))
-       (right : forall (b : B) . P (Coproduct_introduction_right b))
-       (cp : Coproduct A B) .
-       match cp with
-       | Coproduct_introduction_left  a => left  a
-       | Coproduct_introduction_right b => right b
-       end.
-
-(* A module may carry the type's name; its members read [Coproduct.copair]. *)
-Module Coproduct. (* Coproduct *)
+Abbreviation Coproduct := T.
 
 (* The two ctors under the names a use writes: [Coproduct.left a] and
  * [Coproduct.right b]. An abbreviation is the ctor itself, so it also
  * serves as a pattern; inside this module Rocq prints it as [left a].
  *)
-Abbreviation left  := Coproduct_introduction_left.
-Abbreviation right := Coproduct_introduction_right.
-Abbreviation L     := Coproduct_introduction_left  (only parsing).
-Abbreviation R     := Coproduct_introduction_right (only parsing).
+Abbreviation left  := Coproduct.introduction_left.
+Abbreviation right := Coproduct.introduction_right.
+Abbreviation L     := Coproduct.introduction_left  (only parsing).
+Abbreviation R     := Coproduct.introduction_right (only parsing).
+
+(* The eliminator that [match ... per] takes, written out. Nothing recurses: a
+ * coproduct holds no smaller coproduct, so one [match] is the whole content.
+ *)
+Definition induction
+  : forall (A : Type) (B : Type) (P : Coproduct A B -> Prop) .
+      (forall (a : A) . P (Coproduct.introduction_left a)) ->
+      (forall (b : B) . P (Coproduct.introduction_right b)) ->
+      forall (cp : Coproduct A B) . P cp
+  := fun (A : Type) (B : Type) (P : Coproduct A B -> Prop)
+       (left  : forall (a : A) . P (Coproduct.introduction_left a))
+       (right : forall (b : B) . P (Coproduct.introduction_right b))
+       (cp : Coproduct A B) .
+       match cp with
+       | Coproduct.introduction_left  a => left  a
+       | Coproduct.introduction_right b => right b
+       end.
 
 (* [forall {A : Type} {B : Type} {C : Type} . (A -> C) -> (B -> C) -> Coproduct A B -> C] *)
 Definition copair := fun {A : Type} {B : Type} {C : Type}
@@ -262,6 +263,11 @@ Qed.
 End copair. (* copair *)
 
 End Coproduct. (* Coproduct *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Coproduct], not [Coproduct.T].
+ *)
+Abbreviation Coproduct := Coproduct.T.
 
 Notation "A + B" := (Coproduct A B)
   : jwa_type_scope.

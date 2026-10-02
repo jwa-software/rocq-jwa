@@ -7,14 +7,23 @@ From jwa Require Import Core.All.
 From jwa Require Import Data.Functor.
 From jwa Require Import Tactics.Equation.
 
+(* Opened for the whole file, so that every definition and law below spells
+ * a pair the way a client does.
+ *)
+Local Open Scope jwa_product_scope.
+
+Module Product. (* Product *)
+
 (* A product holds one [A] and one [B], in that order. Both are parameters:
  * the type of each component is fixed for the whole product.
  *)
-Inductive Product (A : Type) (B : Type) : Type :=
-  | Product_introduction : A -> B -> Product A B.
+Inductive T (A : Type) (B : Type) : Type :=
+  | introduction : A -> B -> T A B.
 
 (* Both types are inferred from the components. *)
-Arguments Product_introduction {A} {B} a b.
+Arguments Product.introduction {A} {B} a b.
+
+Abbreviation Product := T.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs
  * here. It lives in [jwa_product_scope], which [Core.Notations] declares
@@ -22,18 +31,13 @@ Arguments Product_introduction {A} {B} a b.
  * It prints as well as parses: a pair reads the same in a goal as in the
  * source that built it.
  *)
-Notation "( a , b )" := (Product_introduction a b)
+Notation "( a , b )" := (Product.introduction a b)
   : jwa_product_scope.
-
-(* Opened for the whole file, so that every definition and law below spells
- * a pair the way a client does.
- *)
-Local Open Scope jwa_product_scope.
 
 (* The eliminator that [match ... per] takes, written out. Nothing recurses: a
  * product holds no smaller product, so one [match] is the whole content.
  *)
-Definition Product_induction
+Definition induction
   : forall (A : Type) (B : Type) (P : Product A B -> Prop) .
     (forall (a : A) (b : B) . P (a, b)) ->
     (forall (p : Product A B) . P p)
@@ -43,9 +47,6 @@ Definition Product_induction
        match p with
        | (a, b) => step a b
        end.
-
-(* A module may carry the type's name; its members read [Product.first]. *)
-Module Product. (* Product *)
 
 (* [forall {A : Type} {B : Type} . Product A B -> A] *)
 Definition first := fun {A : Type} {B : Type} (p : Product A B) .
@@ -410,6 +411,17 @@ Qed.
 End direct. (* direct *)
 
 End Product. (* Product *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Product], not [Product.T].
+ *)
+Abbreviation Product := Product.T.
+
+(* Makes the pair notation declared in [Module Product] usable in every file
+ * that imports this one, as [(a, b)%product] or under an opened
+ * [jwa_product_scope].
+ *)
+Export (notations) Product.
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here.
  * Declared at file level, it reaches a client through [Require Export]. A

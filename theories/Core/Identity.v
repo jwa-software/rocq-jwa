@@ -7,19 +7,26 @@ From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
+Module Identity.
+
 (* The identity type, which [=] spells: two terms of one type that are the
  * same term. [x] is a parameter and the second argument an index, so the
  * one ctor can only ever produce [Identity A x x]. A proof that [x] equals
  * something will exist only when that something is [x].
  *)
-Inductive Identity (A : Type) (x : A) : A -> Prop :=
-  | Identity_introduction : Identity A x x.
+Inductive T (A : Type) (x : A) : A -> Prop :=
+  | introduction : T A x x.
 
-Arguments Identity              {A} x _.
-Arguments Identity_introduction {A} x.
+Arguments Identity.T            {A} x _.
+Arguments Identity.introduction {A} x.
 
-(* [quod idem est] closes an equation of this type and no other goal. *)
-Ltac2 Set Idem.equality := fun () => Some constr:(@Identity).
+Abbreviation Identity := T.
+
+(* [quod idem est] closes an equation of this type and no other goal. Set
+ * [#[global]], since a plain [Ltac2 Set] inside a module holds only where
+ * the module is imported, and the laws below and every client need it.
+ *)
+#[global] Ltac2 Set Idem.equality := fun () => Some constr:(@Identity.T).
 
 (* The level is reserved in [Core.Notations]; only the meaning belongs here. *)
 Notation "x = y" := (Identity x y)
@@ -35,7 +42,7 @@ Notation "'(=)'" := Identity (only parsing)
  * [core.eq.ind] by position, so this order -- [P] before the proof and
  * [y] after it -- is the order the registration needs.
  *)
-Theorem Identity_induction
+Theorem induction
   : forall {A : Type} (x : A) (P : A -> Prop) . P x ->
     forall (y : A) . x = y -> P y.
 Proof.
@@ -46,7 +53,7 @@ Proof.
   (* The context gains [y] and [e]: [|- P y] *)
   intros y e.
   (* [x] is a parameter, so fixed for every ctor; [y] is an index, so each
-   * ctor chooses it. [Identity_introduction] is the only ctor and it
+   * ctor chooses it. [Identity.introduction] is the only ctor and it
    * chooses the parameter, which is why [y] becomes [x] and not the other
    * way: [|- P x]
    *)
@@ -55,15 +62,12 @@ Proof.
   ipso p.
 Defined.
 
-(* A module may carry the type's name; its laws read [Identity.symmetry]. *)
-Module Identity.
-
 (* Every term equals itself: the reflexivity law of [=]. *)
 Theorem reflexivity
   : forall {A : Type} (x : A) . x = x.
 Proof.
   intros A x.
-  ipso (Identity_introduction x).
+  ipso (Identity.introduction x).
 Defined.
 
 Theorem symmetry
@@ -108,31 +112,31 @@ Proof.
   intros A x y r.
   (*
    * [|- transitivity
-   *       (symmetry (Identity_introduction x))
-   *       (Identity_introduction x)
+   *       (symmetry (introduction x))
+   *       (introduction x)
    *     = reflexivity x]
    *)
   match r with end.
-  lemma facto : Identity_introduction &x = Identity_introduction &x.
+  lemma facto : Identity.introduction &x = Identity.introduction &x.
   {
     quod idem est.
   }
 
   let proof facto
-    : Identity_introduction &x = reflexivity &x
+    : Identity.introduction &x = reflexivity &x
     := facto.
 
   let proof facto
     : transitivity
-        (Identity_introduction &x)
-        (Identity_introduction &x)
+        (Identity.introduction &x)
+        (Identity.introduction &x)
       = reflexivity &x
     := facto.
 
   let proof facto
     : transitivity
-        (symmetry (Identity_introduction &x))
-        (Identity_introduction &x)
+        (symmetry (Identity.introduction &x))
+        (Identity.introduction &x)
       = reflexivity &x
     := facto.
 
@@ -211,6 +215,16 @@ End hedberg. (* hedberg *)
 
 End Identity.
 
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Identity], not [Identity.T].
+ *)
+Abbreviation Identity := Identity.T.
+
+(* Makes [=] and [(=)], declared in [Module Identity], usable in every file
+ * that imports this one.
+ *)
+Export (notations) Identity.
+
 (* The [leibniz] tactic builds its proofs from [Identity.Leibniz]. Set
  * outside [Module Identity], where it would hold only while that module is
  * imported.
@@ -220,9 +234,9 @@ Ltac2 Set Leibniz.law := fun () => Some constr:(@Identity.Leibniz).
 (* [build_eqdata_gen] in rocqlib.ml demands exactly these six; a single
  * missing one surfaces as [No primitive equality found].
  *)
-Register Identity              as core.eq.type.
-Register Identity_introduction as core.eq.refl.
-Register Identity_induction    as core.eq.ind.
+Register Identity.T            as core.eq.type.
+Register Identity.introduction as core.eq.refl.
+Register Identity.induction    as core.eq.ind.
 Register Identity.symmetry     as core.eq.sym.
 Register Identity.transitivity as core.eq.trans.
 Register Identity.congruence   as core.eq.congr.

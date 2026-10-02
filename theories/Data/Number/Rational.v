@@ -27,7 +27,7 @@ Module Rational. (* Rational *)
  * every value and not only of what [make] returned.
  *)
 Inductive T : Type :=
-  | Rational_introduction
+  | introduction
       : forall (n : Integer) (d : Nat) .
           Nat0.gcd.nat (Integer.abs n) d = Nat.One -> T.
 
@@ -43,23 +43,23 @@ Definition make := fun (n : Integer) (d : Nat) .
   in
   let denominator := Nat0.divide.nat.safe d g (Nat0.gcd.nat.right.divisibility n' d)
   in
-  Rational_introduction numerator denominator (Integer.division.exhaustiveness n d).
+  Rational.introduction numerator denominator (Integer.division.exhaustiveness n d).
 
 (* [Rational -> Integer] *)
 Definition numerator := fun (x : Rational) .
 match x with
-  | Rational_introduction n _ _ => n
+  | Rational.introduction n _ _ => n
 end.
 
 (* [Rational -> Nat] *)
 Definition denominator := fun (x : Rational) .
 match x with
-  | Rational_introduction _ d _ => d
+  | Rational.introduction _ d _ => d
 end.
 
 (* [Rational] *)
 Definition Zero :=
-  Rational_introduction Integer.Zero Nat.One
+  Rational.introduction Integer.Zero Nat.One
     (Nat0.gcd.nat.zero
       (Integer.abs Integer.Zero)
       (Nat.One)
@@ -68,7 +68,7 @@ Definition Zero :=
 
 (* [Rational] *)
 Definition One :=
-  Rational_introduction Nat.One Nat.One
+  Rational.introduction Nat.One Nat.One
     (Nat0.gcd.nat.zero
       (Integer.abs Nat.One)
       (Nat.One)
@@ -250,14 +250,14 @@ Proof.
     quod idem est.
   }
 
-  lemma top : numerator (make &n &d) = numerator (Rational_introduction &n &d &h).
+  lemma top : numerator (make &n &d) = numerator (Rational.introduction &n &d &h).
   {
     simpl make      in |- *.
     simpl numerator in |- *.
     leibniz h in |- *.
     ipso whole.
   }
-  lemma bottom : denominator (make &n &d) = denominator (Rational_introduction &n &d &h).
+  lemma bottom : denominator (make &n &d) = denominator (Rational.introduction &n &d &h).
   {
     simpl make        in |- *.
     simpl denominator in |- *.
@@ -615,7 +615,7 @@ Proof.
     leibniz (Integer.multiplication.commutativity r s) in cross.
     let proof hp := Integer.multiplication.cancellation s p r nzs cross.
     ipso (extensionality
-            (Rational_introduction &p &q &I1) (Rational_introduction &r &s &I2)
+            (Rational.introduction &p &q &I1) (Rational.introduction &r &s &I2)
             &hp &hq).
 Qed.
 
@@ -1232,9 +1232,9 @@ Proof.
   match &x with | a b hx end.
   match &y with | c d hy end.
   simpl ( _ < _ ), numerator, denominator in &h.
-  let proof rz := make.retraction (Rational_introduction &e &f &hz).
-  let proof rx := make.retraction (Rational_introduction &a &b &hx).
-  let proof ry := make.retraction (Rational_introduction &c &d &hy).
+  let proof rz := make.retraction (Rational.introduction &e &f &hz).
+  let proof rx := make.retraction (Rational.introduction &a &b &hx).
+  let proof ry := make.retraction (Rational.introduction &c &d &hy).
   simpl numerator, denominator in &rz, &rx, &ry.
   leibniz <- &rz, <- &rx, <- &ry in |- *.
   leibniz (make.addition.homomorphism &e &f &a &b),
@@ -1521,9 +1521,9 @@ Proof.
     ex &e quodlibet.
   - simpl in &positive.
     ex (Integer.order.strict.irreflexivity Integer.Zero &positive) quodlibet.
-  - let proof rz := make.retraction (Rational_introduction k &f &hz).
-    let proof rx := make.retraction (Rational_introduction &a &b &hx).
-    let proof ry := make.retraction (Rational_introduction &c &d &hy).
+  - let proof rz := make.retraction (Rational.introduction k &f &hz).
+    let proof rx := make.retraction (Rational.introduction &a &b &hx).
+    let proof ry := make.retraction (Rational.introduction &c &d &hy).
     simpl numerator, denominator in &rz, &rx, &ry.
     leibniz <- &rz, <- &rx, <- &ry in |- *.
     leibniz (make.multiplication.homomorphism k &f &a &b),
@@ -1979,13 +1979,13 @@ Qed.
 Lemma introduction
   : forall (n : Integer) .
       from_integer n
-      = Rational_introduction n Nat.One
+      = Rational.introduction n Nat.One
           (Nat0.gcd.nat.right.annihilation (Integer.abs n)).
 Proof.
   intro n.
   simpl from_integer in |- *.
   ipso (make.retraction
-          (Rational_introduction n Nat.One
+          (Rational.introduction n Nat.One
              (Nat0.gcd.nat.right.annihilation (Integer.abs n)))).
 Qed.
 
@@ -2023,8 +2023,8 @@ Proof.
       let proof f := Option.some.injectivity e.
       leibniz (embedding.introduction n) in |- *.
       ipso (extensionality
-              (Rational_introduction m Nat.One h)
-              (Rational_introduction n Nat.One
+              (Rational.introduction m Nat.One h)
+              (Rational.introduction n Nat.One
                  (Nat0.gcd.nat.right.annihilation (Integer.abs n)))
               f (Identity.reflexivity Nat.One)).
     + ex e quodlibet.

@@ -6,24 +6,23 @@ From jwa Require Import Core.Logic.Negation.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
+Module Abjunction. (* Abjunction *)
+
 (* Abjunction is material nonimplication: [A] holds and [B] does not, the
  * one case in which [A -> B] fails.
  *)
-Inductive Abjunction (A : Prop) (B : Prop) : Prop :=
-  | Abjunction_introduction : A -> ~ B -> Abjunction A B.
+Inductive T (A : Prop) (B : Prop) : Prop :=
+  | introduction : A -> ~ B -> T A B.
 
-Arguments Abjunction_introduction {A} {B} a nb.
+Arguments Abjunction.introduction {A} {B} a nb.
+
+Abbreviation Abjunction := T.
 
 Notation "A -/> B" := (Abjunction A B)
   : jwa_type_scope.
 
 (* [abjoin a, nb] : [A -/> B], from [a : A] and [nb : ~ B]. *)
-Notation "'abjoin' a , nb" := (Abjunction_introduction a nb) (only parsing).
-
-(* A module may carry the type's name; its laws read
- * [Abjunction.congruence].
- *)
-Module Abjunction. (* Abjunction *)
+Notation "'abjoin' a , nb" := (Abjunction.introduction a nb) (only parsing).
 
 Module exclusion. (* exclusion *)
 
@@ -101,6 +100,16 @@ Proof.
 Qed.
 
 End Abjunction. (* Abjunction *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Abjunction], not [Abjunction.T].
+ *)
+Abbreviation Abjunction := Abjunction.T.
+
+(* Makes [-/>] and [abjoin], declared in [Module Abjunction], usable in
+ * every file that imports this one.
+ *)
+Export (notations) Abjunction.
 
 (* The same incompatibility read from the conditional's side belongs to
  * [Conditional], but it can be stated only here, where [-/>] is known. A

@@ -13,7 +13,7 @@ From jwa Require Import Data.Option.
 Module DWord. (* DWord *)
 
 Inductive T : Type :=
-  | DWord_introduction :
+  | introduction :
       Endian -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> T.
 
 Abbreviation DWord := T.
@@ -21,7 +21,7 @@ Abbreviation DWord := T.
 (* [DWord -> Endian] *)
 Definition endian := fun (x : DWord) .
   match x with
-  | DWord_introduction e _ _ _ _ _ _ _ _ => e
+  | DWord.introduction e _ _ _ _ _ _ _ _ => e
   end.
 
 (* The least significant byte, wherever the endianness lays it; [byte1] to
@@ -30,57 +30,57 @@ Definition endian := fun (x : DWord) .
 (* [DWord -> Byte] *)
 Definition byte0 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little b0 _  _  _  _  _  _  _  => b0
-  | DWord_introduction Endian.Big    _  _  _  _  _  _  _  b0 => b0
+  | DWord.introduction Endian.Little b0 _  _  _  _  _  _  _  => b0
+  | DWord.introduction Endian.Big    _  _  _  _  _  _  _  b0 => b0
   end.
 
 (* [DWord -> Byte] *)
 Definition byte1 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  b1 _  _  _  _  _  _  => b1
-  | DWord_introduction Endian.Big    _  _  _  _  _  _  b1 _  => b1
+  | DWord.introduction Endian.Little _  b1 _  _  _  _  _  _  => b1
+  | DWord.introduction Endian.Big    _  _  _  _  _  _  b1 _  => b1
   end.
 
 (* [DWord -> Byte] *)
 Definition byte2 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  _  b2 _  _  _  _  _  => b2
-  | DWord_introduction Endian.Big    _  _  _  _  _  b2 _  _  => b2
+  | DWord.introduction Endian.Little _  _  b2 _  _  _  _  _  => b2
+  | DWord.introduction Endian.Big    _  _  _  _  _  b2 _  _  => b2
   end.
 
 (* [DWord -> Byte] *)
 Definition byte3 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  _  _  b3 _  _  _  _  => b3
-  | DWord_introduction Endian.Big    _  _  _  _  b3 _  _  _  => b3
+  | DWord.introduction Endian.Little _  _  _  b3 _  _  _  _  => b3
+  | DWord.introduction Endian.Big    _  _  _  _  b3 _  _  _  => b3
   end.
 
 (* [DWord -> Byte] *)
 Definition byte4 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  _  _  _  b4 _  _  _  => b4
-  | DWord_introduction Endian.Big    _  _  _  b4 _  _  _  _  => b4
+  | DWord.introduction Endian.Little _  _  _  _  b4 _  _  _  => b4
+  | DWord.introduction Endian.Big    _  _  _  b4 _  _  _  _  => b4
   end.
 
 (* [DWord -> Byte] *)
 Definition byte5 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  _  _  _  _  b5 _  _  => b5
-  | DWord_introduction Endian.Big    _  _  b5 _  _  _  _  _  => b5
+  | DWord.introduction Endian.Little _  _  _  _  _  b5 _  _  => b5
+  | DWord.introduction Endian.Big    _  _  b5 _  _  _  _  _  => b5
   end.
 
 (* [DWord -> Byte] *)
 Definition byte6 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  _  _  _  _  _  b6 _  => b6
-  | DWord_introduction Endian.Big    _  b6 _  _  _  _  _  _  => b6
+  | DWord.introduction Endian.Little _  _  _  _  _  _  b6 _  => b6
+  | DWord.introduction Endian.Big    _  b6 _  _  _  _  _  _  => b6
   end.
 
 (* [DWord -> Byte] *)
 Definition byte7 := fun (x : DWord) .
   match x with
-  | DWord_introduction Endian.Little _  _  _  _  _  _  _  b7 => b7
-  | DWord_introduction Endian.Big    b7 _  _  _  _  _  _  _  => b7
+  | DWord.introduction Endian.Little _  _  _  _  _  _  _  b7 => b7
+  | DWord.introduction Endian.Big    b7 _  _  _  _  _  _  _  => b7
   end.
 
 (* The double word of endianness [e] whose bytes, least significant first, are
@@ -92,8 +92,8 @@ Definition make :=
       (b0 : Byte) (b1 : Byte) (b2 : Byte) (b3 : Byte)
       (b4 : Byte) (b5 : Byte) (b6 : Byte) (b7 : Byte) .
   match e with
-  | Endian.Little => DWord_introduction Endian.Little b0 b1 b2 b3 b4 b5 b6 b7
-  | Endian.Big    => DWord_introduction Endian.Big    b7 b6 b5 b4 b3 b2 b1 b0
+  | Endian.Little => DWord.introduction Endian.Little b0 b1 b2 b3 b4 b5 b6 b7
+  | Endian.Big    => DWord.introduction Endian.Big    b7 b6 b5 b4 b3 b2 b1 b0
   end.
 
 (* The same value, laid out in the order [e] names. *)
@@ -206,42 +206,42 @@ Definition xor_big_endian := fun (x : DWord) (y : DWord) .
 Fixpoint rotate_left_nat (x : DWord) (k : Nat) : DWord :=
   let y :=
     match x with
-    | DWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
-        DWord_introduction Endian.Little
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 x63)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-    | DWord_introduction Endian.Big
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        DWord_introduction Endian.Big
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 x63)
+    | DWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
+        DWord.introduction Endian.Little
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 x63)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+    | DWord.introduction Endian.Big
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        DWord.introduction Endian.Big
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 x63)
     end in
   match k with
   | Nat.One          => y
@@ -260,42 +260,42 @@ Fixpoint rotate_right_nat (x : DWord) (k : Nat) : DWord :=
     | Nat.Successor k' => rotate_right_nat x k'
     end in
   match y with
-  | DWord_introduction Endian.Little
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-      (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-      (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-      (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-      (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56) =>
-      DWord_introduction Endian.Little
-        (Byte.Byte_introduction y8 y7 y6 y5 y4 y3 y2 y1)
-        (Byte.Byte_introduction y16 y15 y14 y13 y12 y11 y10 y9)
-        (Byte.Byte_introduction y24 y23 y22 y21 y20 y19 y18 y17)
-        (Byte.Byte_introduction y32 y31 y30 y29 y28 y27 y26 y25)
-        (Byte.Byte_introduction y40 y39 y38 y37 y36 y35 y34 y33)
-        (Byte.Byte_introduction y48 y47 y46 y45 y44 y43 y42 y41)
-        (Byte.Byte_introduction y56 y55 y54 y53 y52 y51 y50 y49)
-        (Byte.Byte_introduction y0 y63 y62 y61 y60 y59 y58 y57)
-  | DWord_introduction Endian.Big
-      (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56)
-      (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-      (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-      (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
-      DWord_introduction Endian.Big
-        (Byte.Byte_introduction y0 y63 y62 y61 y60 y59 y58 y57)
-        (Byte.Byte_introduction y56 y55 y54 y53 y52 y51 y50 y49)
-        (Byte.Byte_introduction y48 y47 y46 y45 y44 y43 y42 y41)
-        (Byte.Byte_introduction y40 y39 y38 y37 y36 y35 y34 y33)
-        (Byte.Byte_introduction y32 y31 y30 y29 y28 y27 y26 y25)
-        (Byte.Byte_introduction y24 y23 y22 y21 y20 y19 y18 y17)
-        (Byte.Byte_introduction y16 y15 y14 y13 y12 y11 y10 y9)
-        (Byte.Byte_introduction y8 y7 y6 y5 y4 y3 y2 y1)
+  | DWord.introduction Endian.Little
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+      (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+      (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+      (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+      (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56) =>
+      DWord.introduction Endian.Little
+        (Byte.introduction y8 y7 y6 y5 y4 y3 y2 y1)
+        (Byte.introduction y16 y15 y14 y13 y12 y11 y10 y9)
+        (Byte.introduction y24 y23 y22 y21 y20 y19 y18 y17)
+        (Byte.introduction y32 y31 y30 y29 y28 y27 y26 y25)
+        (Byte.introduction y40 y39 y38 y37 y36 y35 y34 y33)
+        (Byte.introduction y48 y47 y46 y45 y44 y43 y42 y41)
+        (Byte.introduction y56 y55 y54 y53 y52 y51 y50 y49)
+        (Byte.introduction y0 y63 y62 y61 y60 y59 y58 y57)
+  | DWord.introduction Endian.Big
+      (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56)
+      (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+      (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+      (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      DWord.introduction Endian.Big
+        (Byte.introduction y0 y63 y62 y61 y60 y59 y58 y57)
+        (Byte.introduction y56 y55 y54 y53 y52 y51 y50 y49)
+        (Byte.introduction y48 y47 y46 y45 y44 y43 y42 y41)
+        (Byte.introduction y40 y39 y38 y37 y36 y35 y34 y33)
+        (Byte.introduction y32 y31 y30 y29 y28 y27 y26 y25)
+        (Byte.introduction y24 y23 y22 y21 y20 y19 y18 y17)
+        (Byte.introduction y16 y15 y14 y13 y12 y11 y10 y9)
+        (Byte.introduction y8 y7 y6 y5 y4 y3 y2 y1)
   end.
 
 (* [DWord -> Nat0 -> DWord] *)
@@ -319,42 +319,42 @@ Definition rotate_right := fun (x : DWord) (k : Nat0) .
 Fixpoint shift_left_nat (x : DWord) (k : Nat) : DWord :=
   let y :=
     match x with
-    | DWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
-        DWord_introduction Endian.Little
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-    | DWord_introduction Endian.Big
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        DWord_introduction Endian.Big
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+    | DWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
+        DWord.introduction Endian.Little
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+    | DWord.introduction Endian.Big
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        DWord.introduction Endian.Big
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
     end in
   match k with
   | Nat.One          => y
@@ -368,42 +368,42 @@ Fixpoint shift_left_nat (x : DWord) (k : Nat) : DWord :=
 Fixpoint shift_right_nat (x : DWord) (k : Nat) : DWord :=
   let y :=
     match x with
-    | DWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
-        DWord_introduction Endian.Little
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction x32 x31 x30 x29 x28 x27 x26 x25)
-          (Byte.Byte_introduction x40 x39 x38 x37 x36 x35 x34 x33)
-          (Byte.Byte_introduction x48 x47 x46 x45 x44 x43 x42 x41)
-          (Byte.Byte_introduction x56 x55 x54 x53 x52 x51 x50 x49)
-          (Byte.Byte_introduction Bit.Zero x63 x62 x61 x60 x59 x58 x57)
-    | DWord_introduction Endian.Big
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        DWord_introduction Endian.Big
-          (Byte.Byte_introduction Bit.Zero x63 x62 x61 x60 x59 x58 x57)
-          (Byte.Byte_introduction x56 x55 x54 x53 x52 x51 x50 x49)
-          (Byte.Byte_introduction x48 x47 x46 x45 x44 x43 x42 x41)
-          (Byte.Byte_introduction x40 x39 x38 x37 x36 x35 x34 x33)
-          (Byte.Byte_introduction x32 x31 x30 x29 x28 x27 x26 x25)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
+    | DWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56) =>
+        DWord.introduction Endian.Little
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction x32 x31 x30 x29 x28 x27 x26 x25)
+          (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
+          (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
+          (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
+          (Byte.introduction Bit.Zero x63 x62 x61 x60 x59 x58 x57)
+    | DWord.introduction Endian.Big
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        DWord.introduction Endian.Big
+          (Byte.introduction Bit.Zero x63 x62 x61 x60 x59 x58 x57)
+          (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
+          (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
+          (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
+          (Byte.introduction x32 x31 x30 x29 x28 x27 x26 x25)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
     end in
   match k with
   | Nat.One          => y
@@ -428,7 +428,7 @@ Definition shift_right := fun (x : DWord) (k : Nat0) .
 (* [DWord -> List Byte] *)
 Definition to_bytes := fun (x : DWord) .
   match x with
-  | DWord_introduction _ b0 b1 b2 b3 b4 b5 b6 b7 =>
+  | DWord.introduction _ b0 b1 b2 b3 b4 b5 b6 b7 =>
       List.Cons b0 (List.Cons b1 (List.Cons b2 (List.Cons b3
         (List.Cons b4 (List.Cons b5 (List.Cons b6 (List.Cons b7 List.Nil)))))))
   end.
@@ -441,7 +441,7 @@ Definition from_bytes := fun (e : Endian) (l : List Byte) .
   match l with
   | List.Cons b0 (List.Cons b1 (List.Cons b2 (List.Cons b3
       (List.Cons b4 (List.Cons b5 (List.Cons b6 (List.Cons b7 List.Nil))))))) =>
-      Some (DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7)
+      Some (DWord.introduction e b0 b1 b2 b3 b4 b5 b6 b7)
   | _ =>
       None
   end.
@@ -455,45 +455,45 @@ Definition from_bytes := fun (e : Endian) (l : List Byte) .
 Definition append_digit := fun (x : Option DWord) (d3 : Bit) (d2 : Bit) (d1 : Bit) (d0 : Bit) .
   match x with
   | Some
-      (DWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x59 x58 x57 x56)) =>
+      (DWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x59 x58 x57 x56)) =>
       Some
-        (DWord_introduction Endian.Little
-          (Byte.Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0)
-          (Byte.Byte_introduction x11 x10 x9 x8 x7 x6 x5 x4)
-          (Byte.Byte_introduction x19 x18 x17 x16 x15 x14 x13 x12)
-          (Byte.Byte_introduction x27 x26 x25 x24 x23 x22 x21 x20)
-          (Byte.Byte_introduction x35 x34 x33 x32 x31 x30 x29 x28)
-          (Byte.Byte_introduction x43 x42 x41 x40 x39 x38 x37 x36)
-          (Byte.Byte_introduction x51 x50 x49 x48 x47 x46 x45 x44)
-          (Byte.Byte_introduction x59 x58 x57 x56 x55 x54 x53 x52))
+        (DWord.introduction Endian.Little
+          (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0)
+          (Byte.introduction x11 x10 x9 x8 x7 x6 x5 x4)
+          (Byte.introduction x19 x18 x17 x16 x15 x14 x13 x12)
+          (Byte.introduction x27 x26 x25 x24 x23 x22 x21 x20)
+          (Byte.introduction x35 x34 x33 x32 x31 x30 x29 x28)
+          (Byte.introduction x43 x42 x41 x40 x39 x38 x37 x36)
+          (Byte.introduction x51 x50 x49 x48 x47 x46 x45 x44)
+          (Byte.introduction x59 x58 x57 x56 x55 x54 x53 x52))
   | Some
-      (DWord_introduction Endian.Big
-        (Byte.Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)) =>
+      (DWord.introduction Endian.Big
+        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)) =>
       Some
-        (DWord_introduction Endian.Big
-          (Byte.Byte_introduction x59 x58 x57 x56 x55 x54 x53 x52)
-          (Byte.Byte_introduction x51 x50 x49 x48 x47 x46 x45 x44)
-          (Byte.Byte_introduction x43 x42 x41 x40 x39 x38 x37 x36)
-          (Byte.Byte_introduction x35 x34 x33 x32 x31 x30 x29 x28)
-          (Byte.Byte_introduction x27 x26 x25 x24 x23 x22 x21 x20)
-          (Byte.Byte_introduction x19 x18 x17 x16 x15 x14 x13 x12)
-          (Byte.Byte_introduction x11 x10 x9 x8 x7 x6 x5 x4)
-          (Byte.Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0))
+        (DWord.introduction Endian.Big
+          (Byte.introduction x59 x58 x57 x56 x55 x54 x53 x52)
+          (Byte.introduction x51 x50 x49 x48 x47 x46 x45 x44)
+          (Byte.introduction x43 x42 x41 x40 x39 x38 x37 x36)
+          (Byte.introduction x35 x34 x33 x32 x31 x30 x29 x28)
+          (Byte.introduction x27 x26 x25 x24 x23 x22 x21 x20)
+          (Byte.introduction x19 x18 x17 x16 x15 x14 x13 x12)
+          (Byte.introduction x11 x10 x9 x8 x7 x6 x5 x4)
+          (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0))
   | _ => None
   end.
 
@@ -562,14 +562,14 @@ Definition from_big_numeral := fun (u : Numeral.Unsigned) . from_numeral Endian.
 Definition to_numeral := fun (e : Endian) (x : DWord) .
   let digits :=
     match byte0 x, byte1 x, byte2 x, byte3 x, byte4 x, byte5 x, byte6 x, byte7 x with
-    | Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0,
-      Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8,
-      Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16,
-      Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24,
-      Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32,
-      Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40,
-      Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48,
-      Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 =>
+    | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0,
+      Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8,
+      Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16,
+      Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24,
+      Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32,
+      Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40,
+      Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48,
+      Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56 =>
         Numeral.Unsigned.Hexadecimal
           (Byte.hexadecimal_digit x63 x62 x61 x60
             (Byte.hexadecimal_digit x59 x58 x57 x56
@@ -614,7 +614,7 @@ Lemma congruence
       {b4 : Byte} {b5 : Byte} {b6 : Byte} {b7 : Byte} .
       a0 = b0 -> a1 = b1 -> a2 = b2 -> a3 = b3 ->
       a4 = b4 -> a5 = b5 -> a6 = b6 -> a7 = b7 ->
-      DWord_introduction e a0 a1 a2 a3 a4 a5 a6 a7 = DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7.
+      DWord.introduction e a0 a1 a2 a3 a4 a5 a6 a7 = DWord.introduction e b0 b1 b2 b3 b4 b5 b6 b7.
 Proof.
   intros e a0 a1 a2 a3 a4 a5 a6 a7 b0 b1 b2 b3 b4 b5 b6 b7 e0 e1 e2 e3 e4 e5 e6 e7.
   leibniz &e0, &e1, &e2, &e3, &e4, &e5, &e6, &e7 in |- *.
@@ -634,7 +634,7 @@ Qed.
 Theorem identity : forall (x : DWord) . with_endian (endian x) x = x.
 Proof.
   intros x.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -658,7 +658,7 @@ Module flipping. (* flipping *)
 Theorem involution : forall (x : DWord) . ~. ~. x = x.
 Proof.
   intros x.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match &e with | Little | Big end;
     simpl flip in |- *;
     simpl in |- *;
@@ -708,9 +708,9 @@ Theorem associativity
       (x &. y) &. z = x &. (y &. z).
 Proof.
   intros x y z.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
-  match &z with | DWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -733,7 +733,7 @@ Theorem identity
   : forall (x : DWord) . (~. Zero (endian x) &. x = x) /\ (x &. ~. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match (Byte.conjunction.identity &x0) with | left0 right0 end.
   match (Byte.conjunction.identity &x1) with | left1 right1 end.
   match (Byte.conjunction.identity &x2) with | left2 right2 end.
@@ -759,7 +759,7 @@ Theorem conversion
   : forall (x : DWord) (y : DWord) . x &. y = x &. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match &e with | Little | Big end;
     simpl and, with_endian in |- *;
     simpl in |- *;
@@ -774,8 +774,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x &. y = y &. x.
 Proof.
   intros x y hx hy.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl and in |- *.
@@ -811,8 +811,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x &. y = y &. x.
 Proof.
   intros x y hx hy.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl and in |- *.
@@ -854,9 +854,9 @@ Theorem sejunction
       x &. (y ^. z) = (x &. y) ^. (x &. z).
 Proof.
   intros x y z.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
-  match &z with | DWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -892,9 +892,9 @@ Theorem sejunction
       (y ^. z) &. x = (y &. x) ^. (z &. x).
 Proof.
   intros x y z.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
-  match &z with | DWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -948,9 +948,9 @@ Theorem associativity
       (x |. y) |. z = x |. (y |. z).
 Proof.
   intros x y z.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
-  match &z with | DWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -973,7 +973,7 @@ Theorem identity
   : forall (x : DWord) . (Zero (endian x) |. x = x) /\ (x |. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match (Byte.disjunction.identity &x0) with | left0 right0 end.
   match (Byte.disjunction.identity &x1) with | left1 right1 end.
   match (Byte.disjunction.identity &x2) with | left2 right2 end.
@@ -999,7 +999,7 @@ Theorem conversion
   : forall (x : DWord) (y : DWord) . x |. y = x |. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match &e with | Little | Big end;
     simpl or, with_endian in |- *;
     simpl in |- *;
@@ -1014,8 +1014,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x |. y = y |. x.
 Proof.
   intros x y hx hy.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl or in |- *.
@@ -1051,8 +1051,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x |. y = y |. x.
 Proof.
   intros x y hx hy.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl or in |- *.
@@ -1092,9 +1092,9 @@ Theorem associativity
       (x ^. y) ^. z = x ^. (y ^. z).
 Proof.
   intros x y z.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
-  match &z with | DWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -1117,7 +1117,7 @@ Theorem identity
   : forall (x : DWord) . (Zero (endian x) ^. x = x) /\ (x ^. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match (Byte.sejunction.identity &x0) with | left0 right0 end.
   match (Byte.sejunction.identity &x1) with | left1 right1 end.
   match (Byte.sejunction.identity &x2) with | left2 right2 end.
@@ -1139,7 +1139,7 @@ Qed.
 Theorem irreflexivity : forall (x : DWord) . x ^. x = Zero (endian x).
 Proof.
   intros x.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match &e with | Little | Big end;
     ipso
       (congruence
@@ -1157,7 +1157,7 @@ Theorem conversion
   : forall (x : DWord) (y : DWord) . x ^. y = x ^. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | DWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 end.
   match &e with | Little | Big end;
     simpl xor, with_endian in |- *;
     simpl in |- *;
@@ -1172,8 +1172,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x ^. y = y ^. x.
 Proof.
   intros x y hx hy.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl xor in |- *.
@@ -1209,8 +1209,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x ^. y = y ^. x.
 Proof.
   intros x y hx hy.
-  match &x with | DWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
-  match &y with | DWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl xor in |- *.
@@ -1250,15 +1250,15 @@ Module left. (* rotation.left *)
 Theorem period : forall (x : DWord) . rotate_left x 64%n0 = x.
 Proof.
   intros x.
-  match &x with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
-  match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-  match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-  match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-  match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
-  match &b4 with | Byte_introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
-  match &b5 with | Byte_introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
-  match &b6 with | Byte_introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
-  match &b7 with | Byte_introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
+  match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+  match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+  match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+  match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+  match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+  match &b4 with | introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
+  match &b5 with | introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
+  match &b6 with | introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
+  match &b7 with | introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1274,62 +1274,62 @@ Proof.
     extro &x.
     match n with | One | Successor (n' by IH) end per Nat.induction.
     + intros x.
-      match &x with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
-      match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-      match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
-      match &b4 with | Byte_introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
-      match &b5 with | Byte_introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
-      match &b6 with | Byte_introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
-      match &b7 with | Byte_introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
+      match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+      match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+      match &b4 with | introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
+      match &b5 with | introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
+      match &b6 with | introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
+      match &b7 with | introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
       match &e with | Little | Big end; simpl in |- *; quod idem est.
     + intros x.
-      match &x with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+      match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
       match &e with | Little | Big end.
-      * match &b0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-        match &b1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-        match &b2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-        match &b3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-        match &b4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-        match &b5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-        match &b6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-        match &b7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+      * match &b0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+        match &b1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+        match &b2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+        match &b3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+        match &b4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+        match &b5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+        match &b6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+        match &b7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
         simpl in |- *.
         leibniz
           (&IH
-            (DWord_introduction Endian.Little
-              (Byte.Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x63)
-              (Byte.Byte_introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
-              (Byte.Byte_introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
-              (Byte.Byte_introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
-              (Byte.Byte_introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
-              (Byte.Byte_introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
-              (Byte.Byte_introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
-              (Byte.Byte_introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)))
+            (DWord.introduction Endian.Little
+              (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x63)
+              (Byte.introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
+              (Byte.introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
+              (Byte.introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
+              (Byte.introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
+              (Byte.introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
+              (Byte.introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
+              (Byte.introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)))
           in |- *.
         simpl in |- *.
         quod idem est.
-      * match &b0 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-        match &b1 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-        match &b2 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-        match &b3 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-        match &b4 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-        match &b5 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-        match &b6 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-        match &b7 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+      * match &b0 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+        match &b1 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+        match &b2 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+        match &b3 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+        match &b4 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+        match &b5 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+        match &b6 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+        match &b7 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
         simpl in |- *.
         leibniz
           (&IH
-            (DWord_introduction Endian.Big
-              (Byte.Byte_introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)
-              (Byte.Byte_introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
-              (Byte.Byte_introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
-              (Byte.Byte_introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
-              (Byte.Byte_introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
-              (Byte.Byte_introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
-              (Byte.Byte_introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
-              (Byte.Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x63)))
+            (DWord.introduction Endian.Big
+              (Byte.introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)
+              (Byte.introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
+              (Byte.introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
+              (Byte.introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
+              (Byte.introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
+              (Byte.introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
+              (Byte.introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
+              (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x63)))
           in |- *.
         simpl in |- *.
         quod idem est.
@@ -1343,15 +1343,15 @@ Module right. (* rotation.right *)
 Theorem period : forall (x : DWord) . rotate_right x 64%n0 = x.
 Proof.
   intros x.
-  match &x with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
-  match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-  match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-  match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-  match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
-  match &b4 with | Byte_introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
-  match &b5 with | Byte_introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
-  match &b6 with | Byte_introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
-  match &b7 with | Byte_introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
+  match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+  match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+  match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+  match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+  match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+  match &b4 with | introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
+  match &b5 with | introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
+  match &b6 with | introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
+  match &b7 with | introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1365,26 +1365,26 @@ Proof.
     quod idem est.
   - simpl in |- *.
     match n with | One | Successor (n' by IH) end per Nat.induction.
-    + match &x with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
-      match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-      match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
-      match &b4 with | Byte_introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
-      match &b5 with | Byte_introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
-      match &b6 with | Byte_introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
-      match &b7 with | Byte_introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
+    + match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+      match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+      match &b4 with | introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
+      match &b5 with | introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
+      match &b6 with | introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
+      match &b7 with | introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
       match &e with | Little | Big end; simpl in |- *; quod idem est.
     + simpl in |- *.
-      match (rotate_right_nat &x &n') with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
-      match &b0 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b1 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b2 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
-      match &b3 with | Byte_introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
-      match &b4 with | Byte_introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
-      match &b5 with | Byte_introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
-      match &b6 with | Byte_introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
-      match &b7 with | Byte_introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
+      match (rotate_right_nat &x &n') with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+      match &b0 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b1 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b2 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      match &b3 with | introduction s7 s6 s5 s4 s3 s2 s1 s0 end.
+      match &b4 with | introduction t7 t6 t5 t4 t3 t2 t1 t0 end.
+      match &b5 with | introduction u7 u6 u5 u4 u3 u2 u1 u0 end.
+      match &b6 with | introduction v7 v6 v5 v4 v3 v2 v1 v0 end.
+      match &b7 with | introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
       match &e with | Little | Big end; ipso &IH.
 Qed.
 
@@ -1400,7 +1400,7 @@ Module bytes. (* conversion.bytes *)
 Theorem section : forall (x : DWord) . from_bytes (endian x) (to_bytes x) = Some x.
 Proof.
   intros x.
-  match &x with | DWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
+  match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 end.
   simpl from_bytes, to_bytes, endian in |- *.
   quod idem est.
 Qed.

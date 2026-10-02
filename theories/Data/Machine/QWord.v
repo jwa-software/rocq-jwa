@@ -13,7 +13,7 @@ From jwa Require Import Data.Option.
 Module QWord. (* QWord *)
 
 Inductive T : Type :=
-  | QWord_introduction :
+  | introduction :
       Endian ->
       Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte ->
       Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte ->
@@ -24,7 +24,7 @@ Abbreviation QWord := T.
 (* [QWord -> Endian] *)
 Definition endian := fun (x : QWord) .
   match x with
-  | QWord_introduction e _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => e
+  | QWord.introduction e _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => e
   end.
 
 (* The least significant byte, wherever the endianness lays it; [byte1] to
@@ -33,144 +33,144 @@ Definition endian := fun (x : QWord) .
 (* [QWord -> Byte] *)
 Definition byte0 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       b0  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   => b0
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   b0  => b0
   end.
 
 (* [QWord -> Byte] *)
 Definition byte1 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   b1  _   _   _   _   _   _   _   _   _   _   _   _   _   _   => b1
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   _   _   _   _   _   b1  _   => b1
   end.
 
 (* [QWord -> Byte] *)
 Definition byte2 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   b2  _   _   _   _   _   _   _   _   _   _   _   _   _   => b2
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   _   _   _   _   b2  _   _   => b2
   end.
 
 (* [QWord -> Byte] *)
 Definition byte3 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   b3  _   _   _   _   _   _   _   _   _   _   _   _   => b3
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   _   _   _   b3  _   _   _   => b3
   end.
 
 (* [QWord -> Byte] *)
 Definition byte4 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   b4  _   _   _   _   _   _   _   _   _   _   _   => b4
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   _   _   b4  _   _   _   _   => b4
   end.
 
 (* [QWord -> Byte] *)
 Definition byte5 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   b5  _   _   _   _   _   _   _   _   _   _   => b5
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   _   b5  _   _   _   _   _   => b5
   end.
 
 (* [QWord -> Byte] *)
 Definition byte6 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   b6  _   _   _   _   _   _   _   _   _   => b6
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   _   b6  _   _   _   _   _   _   => b6
   end.
 
 (* [QWord -> Byte] *)
 Definition byte7 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   b7  _   _   _   _   _   _   _   _   => b7
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   _   b7  _   _   _   _   _   _   _   => b7
   end.
 
 (* [QWord -> Byte] *)
 Definition byte8 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   b8  _   _   _   _   _   _   _   => b8
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   _   b8  _   _   _   _   _   _   _   _   => b8
   end.
 
 (* [QWord -> Byte] *)
 Definition byte9 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   b9  _   _   _   _   _   _   => b9
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   _   b9  _   _   _   _   _   _   _   _   _   => b9
   end.
 
 (* [QWord -> Byte] *)
 Definition byte10 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   _   b10 _   _   _   _   _   => b10
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   _   b10 _   _   _   _   _   _   _   _   _   _   => b10
   end.
 
 (* [QWord -> Byte] *)
 Definition byte11 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   _   _   b11 _   _   _   _   => b11
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   _   b11 _   _   _   _   _   _   _   _   _   _   _   => b11
   end.
 
 (* [QWord -> Byte] *)
 Definition byte12 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   _   _   _   b12 _   _   _   => b12
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   _   b12 _   _   _   _   _   _   _   _   _   _   _   _   => b12
   end.
 
 (* [QWord -> Byte] *)
 Definition byte13 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   _   _   _   _   b13 _   _   => b13
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   _   b13 _   _   _   _   _   _   _   _   _   _   _   _   _   => b13
   end.
 
 (* [QWord -> Byte] *)
 Definition byte14 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   _   _   _   _   _   b14 _   => b14
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       _   b14 _   _   _   _   _   _   _   _   _   _   _   _   _   _   => b14
   end.
 
 (* [QWord -> Byte] *)
 Definition byte15 := fun (x : QWord) .
   match x with
-  | QWord_introduction Endian.Little
+  | QWord.introduction Endian.Little
       _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   b15 => b15
-  | QWord_introduction Endian.Big
+  | QWord.introduction Endian.Big
       b15 _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   => b15
   end.
 
@@ -188,10 +188,10 @@ Definition make :=
       (b12 : Byte) (b13 : Byte) (b14 : Byte) (b15 : Byte) .
   match e with
   | Endian.Little =>
-      QWord_introduction Endian.Little
+      QWord.introduction Endian.Little
         b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15
   | Endian.Big    =>
-      QWord_introduction Endian.Big
+      QWord.introduction Endian.Big
         b15 b14 b13 b12 b11 b10 b9 b8 b7 b6 b5 b4 b3 b2 b1 b0
   end.
 
@@ -322,74 +322,74 @@ Definition xor_big_endian := fun (x : QWord) (y : QWord) .
 Fixpoint rotate_left_nat (x : QWord) (k : Nat) : QWord :=
   let y :=
     match x with
-    | QWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120) =>
-        QWord_introduction Endian.Little
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 x127)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x70 x69 x68 x67 x66 x65 x64 x63)
-          (Byte.Byte_introduction x78 x77 x76 x75 x74 x73 x72 x71)
-          (Byte.Byte_introduction x86 x85 x84 x83 x82 x81 x80 x79)
-          (Byte.Byte_introduction x94 x93 x92 x91 x90 x89 x88 x87)
-          (Byte.Byte_introduction x102 x101 x100 x99 x98 x97 x96 x95)
-          (Byte.Byte_introduction x110 x109 x108 x107 x106 x105 x104 x103)
-          (Byte.Byte_introduction x118 x117 x116 x115 x114 x113 x112 x111)
-          (Byte.Byte_introduction x126 x125 x124 x123 x122 x121 x120 x119)
-    | QWord_introduction Endian.Big
-        (Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        QWord_introduction Endian.Big
-          (Byte.Byte_introduction x126 x125 x124 x123 x122 x121 x120 x119)
-          (Byte.Byte_introduction x118 x117 x116 x115 x114 x113 x112 x111)
-          (Byte.Byte_introduction x110 x109 x108 x107 x106 x105 x104 x103)
-          (Byte.Byte_introduction x102 x101 x100 x99 x98 x97 x96 x95)
-          (Byte.Byte_introduction x94 x93 x92 x91 x90 x89 x88 x87)
-          (Byte.Byte_introduction x86 x85 x84 x83 x82 x81 x80 x79)
-          (Byte.Byte_introduction x78 x77 x76 x75 x74 x73 x72 x71)
-          (Byte.Byte_introduction x70 x69 x68 x67 x66 x65 x64 x63)
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 x127)
+    | QWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120) =>
+        QWord.introduction Endian.Little
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 x127)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x70 x69 x68 x67 x66 x65 x64 x63)
+          (Byte.introduction x78 x77 x76 x75 x74 x73 x72 x71)
+          (Byte.introduction x86 x85 x84 x83 x82 x81 x80 x79)
+          (Byte.introduction x94 x93 x92 x91 x90 x89 x88 x87)
+          (Byte.introduction x102 x101 x100 x99 x98 x97 x96 x95)
+          (Byte.introduction x110 x109 x108 x107 x106 x105 x104 x103)
+          (Byte.introduction x118 x117 x116 x115 x114 x113 x112 x111)
+          (Byte.introduction x126 x125 x124 x123 x122 x121 x120 x119)
+    | QWord.introduction Endian.Big
+        (Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        QWord.introduction Endian.Big
+          (Byte.introduction x126 x125 x124 x123 x122 x121 x120 x119)
+          (Byte.introduction x118 x117 x116 x115 x114 x113 x112 x111)
+          (Byte.introduction x110 x109 x108 x107 x106 x105 x104 x103)
+          (Byte.introduction x102 x101 x100 x99 x98 x97 x96 x95)
+          (Byte.introduction x94 x93 x92 x91 x90 x89 x88 x87)
+          (Byte.introduction x86 x85 x84 x83 x82 x81 x80 x79)
+          (Byte.introduction x78 x77 x76 x75 x74 x73 x72 x71)
+          (Byte.introduction x70 x69 x68 x67 x66 x65 x64 x63)
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 x127)
     end in
   match k with
   | Nat.One          => y
@@ -408,74 +408,74 @@ Fixpoint rotate_right_nat (x : QWord) (k : Nat) : QWord :=
     | Nat.Successor k' => rotate_right_nat x k'
     end in
   match y with
-  | QWord_introduction Endian.Little
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-      (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-      (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-      (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-      (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56)
-      (Byte.Byte_introduction y71 y70 y69 y68 y67 y66 y65 y64)
-      (Byte.Byte_introduction y79 y78 y77 y76 y75 y74 y73 y72)
-      (Byte.Byte_introduction y87 y86 y85 y84 y83 y82 y81 y80)
-      (Byte.Byte_introduction y95 y94 y93 y92 y91 y90 y89 y88)
-      (Byte.Byte_introduction y103 y102 y101 y100 y99 y98 y97 y96)
-      (Byte.Byte_introduction y111 y110 y109 y108 y107 y106 y105 y104)
-      (Byte.Byte_introduction y119 y118 y117 y116 y115 y114 y113 y112)
-      (Byte.Byte_introduction y127 y126 y125 y124 y123 y122 y121 y120) =>
-      QWord_introduction Endian.Little
-        (Byte.Byte_introduction y8 y7 y6 y5 y4 y3 y2 y1)
-        (Byte.Byte_introduction y16 y15 y14 y13 y12 y11 y10 y9)
-        (Byte.Byte_introduction y24 y23 y22 y21 y20 y19 y18 y17)
-        (Byte.Byte_introduction y32 y31 y30 y29 y28 y27 y26 y25)
-        (Byte.Byte_introduction y40 y39 y38 y37 y36 y35 y34 y33)
-        (Byte.Byte_introduction y48 y47 y46 y45 y44 y43 y42 y41)
-        (Byte.Byte_introduction y56 y55 y54 y53 y52 y51 y50 y49)
-        (Byte.Byte_introduction y64 y63 y62 y61 y60 y59 y58 y57)
-        (Byte.Byte_introduction y72 y71 y70 y69 y68 y67 y66 y65)
-        (Byte.Byte_introduction y80 y79 y78 y77 y76 y75 y74 y73)
-        (Byte.Byte_introduction y88 y87 y86 y85 y84 y83 y82 y81)
-        (Byte.Byte_introduction y96 y95 y94 y93 y92 y91 y90 y89)
-        (Byte.Byte_introduction y104 y103 y102 y101 y100 y99 y98 y97)
-        (Byte.Byte_introduction y112 y111 y110 y109 y108 y107 y106 y105)
-        (Byte.Byte_introduction y120 y119 y118 y117 y116 y115 y114 y113)
-        (Byte.Byte_introduction y0 y127 y126 y125 y124 y123 y122 y121)
-  | QWord_introduction Endian.Big
-      (Byte.Byte_introduction y127 y126 y125 y124 y123 y122 y121 y120)
-      (Byte.Byte_introduction y119 y118 y117 y116 y115 y114 y113 y112)
-      (Byte.Byte_introduction y111 y110 y109 y108 y107 y106 y105 y104)
-      (Byte.Byte_introduction y103 y102 y101 y100 y99 y98 y97 y96)
-      (Byte.Byte_introduction y95 y94 y93 y92 y91 y90 y89 y88)
-      (Byte.Byte_introduction y87 y86 y85 y84 y83 y82 y81 y80)
-      (Byte.Byte_introduction y79 y78 y77 y76 y75 y74 y73 y72)
-      (Byte.Byte_introduction y71 y70 y69 y68 y67 y66 y65 y64)
-      (Byte.Byte_introduction y63 y62 y61 y60 y59 y58 y57 y56)
-      (Byte.Byte_introduction y55 y54 y53 y52 y51 y50 y49 y48)
-      (Byte.Byte_introduction y47 y46 y45 y44 y43 y42 y41 y40)
-      (Byte.Byte_introduction y39 y38 y37 y36 y35 y34 y33 y32)
-      (Byte.Byte_introduction y31 y30 y29 y28 y27 y26 y25 y24)
-      (Byte.Byte_introduction y23 y22 y21 y20 y19 y18 y17 y16)
-      (Byte.Byte_introduction y15 y14 y13 y12 y11 y10 y9 y8)
-      (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
-      QWord_introduction Endian.Big
-        (Byte.Byte_introduction y0 y127 y126 y125 y124 y123 y122 y121)
-        (Byte.Byte_introduction y120 y119 y118 y117 y116 y115 y114 y113)
-        (Byte.Byte_introduction y112 y111 y110 y109 y108 y107 y106 y105)
-        (Byte.Byte_introduction y104 y103 y102 y101 y100 y99 y98 y97)
-        (Byte.Byte_introduction y96 y95 y94 y93 y92 y91 y90 y89)
-        (Byte.Byte_introduction y88 y87 y86 y85 y84 y83 y82 y81)
-        (Byte.Byte_introduction y80 y79 y78 y77 y76 y75 y74 y73)
-        (Byte.Byte_introduction y72 y71 y70 y69 y68 y67 y66 y65)
-        (Byte.Byte_introduction y64 y63 y62 y61 y60 y59 y58 y57)
-        (Byte.Byte_introduction y56 y55 y54 y53 y52 y51 y50 y49)
-        (Byte.Byte_introduction y48 y47 y46 y45 y44 y43 y42 y41)
-        (Byte.Byte_introduction y40 y39 y38 y37 y36 y35 y34 y33)
-        (Byte.Byte_introduction y32 y31 y30 y29 y28 y27 y26 y25)
-        (Byte.Byte_introduction y24 y23 y22 y21 y20 y19 y18 y17)
-        (Byte.Byte_introduction y16 y15 y14 y13 y12 y11 y10 y9)
-        (Byte.Byte_introduction y8 y7 y6 y5 y4 y3 y2 y1)
+  | QWord.introduction Endian.Little
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+      (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+      (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+      (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+      (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56)
+      (Byte.introduction y71 y70 y69 y68 y67 y66 y65 y64)
+      (Byte.introduction y79 y78 y77 y76 y75 y74 y73 y72)
+      (Byte.introduction y87 y86 y85 y84 y83 y82 y81 y80)
+      (Byte.introduction y95 y94 y93 y92 y91 y90 y89 y88)
+      (Byte.introduction y103 y102 y101 y100 y99 y98 y97 y96)
+      (Byte.introduction y111 y110 y109 y108 y107 y106 y105 y104)
+      (Byte.introduction y119 y118 y117 y116 y115 y114 y113 y112)
+      (Byte.introduction y127 y126 y125 y124 y123 y122 y121 y120) =>
+      QWord.introduction Endian.Little
+        (Byte.introduction y8 y7 y6 y5 y4 y3 y2 y1)
+        (Byte.introduction y16 y15 y14 y13 y12 y11 y10 y9)
+        (Byte.introduction y24 y23 y22 y21 y20 y19 y18 y17)
+        (Byte.introduction y32 y31 y30 y29 y28 y27 y26 y25)
+        (Byte.introduction y40 y39 y38 y37 y36 y35 y34 y33)
+        (Byte.introduction y48 y47 y46 y45 y44 y43 y42 y41)
+        (Byte.introduction y56 y55 y54 y53 y52 y51 y50 y49)
+        (Byte.introduction y64 y63 y62 y61 y60 y59 y58 y57)
+        (Byte.introduction y72 y71 y70 y69 y68 y67 y66 y65)
+        (Byte.introduction y80 y79 y78 y77 y76 y75 y74 y73)
+        (Byte.introduction y88 y87 y86 y85 y84 y83 y82 y81)
+        (Byte.introduction y96 y95 y94 y93 y92 y91 y90 y89)
+        (Byte.introduction y104 y103 y102 y101 y100 y99 y98 y97)
+        (Byte.introduction y112 y111 y110 y109 y108 y107 y106 y105)
+        (Byte.introduction y120 y119 y118 y117 y116 y115 y114 y113)
+        (Byte.introduction y0 y127 y126 y125 y124 y123 y122 y121)
+  | QWord.introduction Endian.Big
+      (Byte.introduction y127 y126 y125 y124 y123 y122 y121 y120)
+      (Byte.introduction y119 y118 y117 y116 y115 y114 y113 y112)
+      (Byte.introduction y111 y110 y109 y108 y107 y106 y105 y104)
+      (Byte.introduction y103 y102 y101 y100 y99 y98 y97 y96)
+      (Byte.introduction y95 y94 y93 y92 y91 y90 y89 y88)
+      (Byte.introduction y87 y86 y85 y84 y83 y82 y81 y80)
+      (Byte.introduction y79 y78 y77 y76 y75 y74 y73 y72)
+      (Byte.introduction y71 y70 y69 y68 y67 y66 y65 y64)
+      (Byte.introduction y63 y62 y61 y60 y59 y58 y57 y56)
+      (Byte.introduction y55 y54 y53 y52 y51 y50 y49 y48)
+      (Byte.introduction y47 y46 y45 y44 y43 y42 y41 y40)
+      (Byte.introduction y39 y38 y37 y36 y35 y34 y33 y32)
+      (Byte.introduction y31 y30 y29 y28 y27 y26 y25 y24)
+      (Byte.introduction y23 y22 y21 y20 y19 y18 y17 y16)
+      (Byte.introduction y15 y14 y13 y12 y11 y10 y9 y8)
+      (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      QWord.introduction Endian.Big
+        (Byte.introduction y0 y127 y126 y125 y124 y123 y122 y121)
+        (Byte.introduction y120 y119 y118 y117 y116 y115 y114 y113)
+        (Byte.introduction y112 y111 y110 y109 y108 y107 y106 y105)
+        (Byte.introduction y104 y103 y102 y101 y100 y99 y98 y97)
+        (Byte.introduction y96 y95 y94 y93 y92 y91 y90 y89)
+        (Byte.introduction y88 y87 y86 y85 y84 y83 y82 y81)
+        (Byte.introduction y80 y79 y78 y77 y76 y75 y74 y73)
+        (Byte.introduction y72 y71 y70 y69 y68 y67 y66 y65)
+        (Byte.introduction y64 y63 y62 y61 y60 y59 y58 y57)
+        (Byte.introduction y56 y55 y54 y53 y52 y51 y50 y49)
+        (Byte.introduction y48 y47 y46 y45 y44 y43 y42 y41)
+        (Byte.introduction y40 y39 y38 y37 y36 y35 y34 y33)
+        (Byte.introduction y32 y31 y30 y29 y28 y27 y26 y25)
+        (Byte.introduction y24 y23 y22 y21 y20 y19 y18 y17)
+        (Byte.introduction y16 y15 y14 y13 y12 y11 y10 y9)
+        (Byte.introduction y8 y7 y6 y5 y4 y3 y2 y1)
   end.
 
 (* [QWord -> Nat0 -> QWord] *)
@@ -499,74 +499,74 @@ Definition rotate_right := fun (x : QWord) (k : Nat0) .
 Fixpoint shift_left_nat (x : QWord) (k : Nat) : QWord :=
   let y :=
     match x with
-    | QWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120) =>
-        QWord_introduction Endian.Little
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x70 x69 x68 x67 x66 x65 x64 x63)
-          (Byte.Byte_introduction x78 x77 x76 x75 x74 x73 x72 x71)
-          (Byte.Byte_introduction x86 x85 x84 x83 x82 x81 x80 x79)
-          (Byte.Byte_introduction x94 x93 x92 x91 x90 x89 x88 x87)
-          (Byte.Byte_introduction x102 x101 x100 x99 x98 x97 x96 x95)
-          (Byte.Byte_introduction x110 x109 x108 x107 x106 x105 x104 x103)
-          (Byte.Byte_introduction x118 x117 x116 x115 x114 x113 x112 x111)
-          (Byte.Byte_introduction x126 x125 x124 x123 x122 x121 x120 x119)
-    | QWord_introduction Endian.Big
-        (Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        QWord_introduction Endian.Big
-          (Byte.Byte_introduction x126 x125 x124 x123 x122 x121 x120 x119)
-          (Byte.Byte_introduction x118 x117 x116 x115 x114 x113 x112 x111)
-          (Byte.Byte_introduction x110 x109 x108 x107 x106 x105 x104 x103)
-          (Byte.Byte_introduction x102 x101 x100 x99 x98 x97 x96 x95)
-          (Byte.Byte_introduction x94 x93 x92 x91 x90 x89 x88 x87)
-          (Byte.Byte_introduction x86 x85 x84 x83 x82 x81 x80 x79)
-          (Byte.Byte_introduction x78 x77 x76 x75 x74 x73 x72 x71)
-          (Byte.Byte_introduction x70 x69 x68 x67 x66 x65 x64 x63)
-          (Byte.Byte_introduction x62 x61 x60 x59 x58 x57 x56 x55)
-          (Byte.Byte_introduction x54 x53 x52 x51 x50 x49 x48 x47)
-          (Byte.Byte_introduction x46 x45 x44 x43 x42 x41 x40 x39)
-          (Byte.Byte_introduction x38 x37 x36 x35 x34 x33 x32 x31)
-          (Byte.Byte_introduction x30 x29 x28 x27 x26 x25 x24 x23)
-          (Byte.Byte_introduction x22 x21 x20 x19 x18 x17 x16 x15)
-          (Byte.Byte_introduction x14 x13 x12 x11 x10 x9 x8 x7)
-          (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+    | QWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120) =>
+        QWord.introduction Endian.Little
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x70 x69 x68 x67 x66 x65 x64 x63)
+          (Byte.introduction x78 x77 x76 x75 x74 x73 x72 x71)
+          (Byte.introduction x86 x85 x84 x83 x82 x81 x80 x79)
+          (Byte.introduction x94 x93 x92 x91 x90 x89 x88 x87)
+          (Byte.introduction x102 x101 x100 x99 x98 x97 x96 x95)
+          (Byte.introduction x110 x109 x108 x107 x106 x105 x104 x103)
+          (Byte.introduction x118 x117 x116 x115 x114 x113 x112 x111)
+          (Byte.introduction x126 x125 x124 x123 x122 x121 x120 x119)
+    | QWord.introduction Endian.Big
+        (Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        QWord.introduction Endian.Big
+          (Byte.introduction x126 x125 x124 x123 x122 x121 x120 x119)
+          (Byte.introduction x118 x117 x116 x115 x114 x113 x112 x111)
+          (Byte.introduction x110 x109 x108 x107 x106 x105 x104 x103)
+          (Byte.introduction x102 x101 x100 x99 x98 x97 x96 x95)
+          (Byte.introduction x94 x93 x92 x91 x90 x89 x88 x87)
+          (Byte.introduction x86 x85 x84 x83 x82 x81 x80 x79)
+          (Byte.introduction x78 x77 x76 x75 x74 x73 x72 x71)
+          (Byte.introduction x70 x69 x68 x67 x66 x65 x64 x63)
+          (Byte.introduction x62 x61 x60 x59 x58 x57 x56 x55)
+          (Byte.introduction x54 x53 x52 x51 x50 x49 x48 x47)
+          (Byte.introduction x46 x45 x44 x43 x42 x41 x40 x39)
+          (Byte.introduction x38 x37 x36 x35 x34 x33 x32 x31)
+          (Byte.introduction x30 x29 x28 x27 x26 x25 x24 x23)
+          (Byte.introduction x22 x21 x20 x19 x18 x17 x16 x15)
+          (Byte.introduction x14 x13 x12 x11 x10 x9 x8 x7)
+          (Byte.introduction x6 x5 x4 x3 x2 x1 x0 Bit.Zero)
     end in
   match k with
   | Nat.One          => y
@@ -580,74 +580,74 @@ Fixpoint shift_left_nat (x : QWord) (k : Nat) : QWord :=
 Fixpoint shift_right_nat (x : QWord) (k : Nat) : QWord :=
   let y :=
     match x with
-    | QWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120) =>
-        QWord_introduction Endian.Little
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction x32 x31 x30 x29 x28 x27 x26 x25)
-          (Byte.Byte_introduction x40 x39 x38 x37 x36 x35 x34 x33)
-          (Byte.Byte_introduction x48 x47 x46 x45 x44 x43 x42 x41)
-          (Byte.Byte_introduction x56 x55 x54 x53 x52 x51 x50 x49)
-          (Byte.Byte_introduction x64 x63 x62 x61 x60 x59 x58 x57)
-          (Byte.Byte_introduction x72 x71 x70 x69 x68 x67 x66 x65)
-          (Byte.Byte_introduction x80 x79 x78 x77 x76 x75 x74 x73)
-          (Byte.Byte_introduction x88 x87 x86 x85 x84 x83 x82 x81)
-          (Byte.Byte_introduction x96 x95 x94 x93 x92 x91 x90 x89)
-          (Byte.Byte_introduction x104 x103 x102 x101 x100 x99 x98 x97)
-          (Byte.Byte_introduction x112 x111 x110 x109 x108 x107 x106 x105)
-          (Byte.Byte_introduction x120 x119 x118 x117 x116 x115 x114 x113)
-          (Byte.Byte_introduction Bit.Zero x127 x126 x125 x124 x123 x122 x121)
-    | QWord_introduction Endian.Big
-        (Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
-        QWord_introduction Endian.Big
-          (Byte.Byte_introduction Bit.Zero x127 x126 x125 x124 x123 x122 x121)
-          (Byte.Byte_introduction x120 x119 x118 x117 x116 x115 x114 x113)
-          (Byte.Byte_introduction x112 x111 x110 x109 x108 x107 x106 x105)
-          (Byte.Byte_introduction x104 x103 x102 x101 x100 x99 x98 x97)
-          (Byte.Byte_introduction x96 x95 x94 x93 x92 x91 x90 x89)
-          (Byte.Byte_introduction x88 x87 x86 x85 x84 x83 x82 x81)
-          (Byte.Byte_introduction x80 x79 x78 x77 x76 x75 x74 x73)
-          (Byte.Byte_introduction x72 x71 x70 x69 x68 x67 x66 x65)
-          (Byte.Byte_introduction x64 x63 x62 x61 x60 x59 x58 x57)
-          (Byte.Byte_introduction x56 x55 x54 x53 x52 x51 x50 x49)
-          (Byte.Byte_introduction x48 x47 x46 x45 x44 x43 x42 x41)
-          (Byte.Byte_introduction x40 x39 x38 x37 x36 x35 x34 x33)
-          (Byte.Byte_introduction x32 x31 x30 x29 x28 x27 x26 x25)
-          (Byte.Byte_introduction x24 x23 x22 x21 x20 x19 x18 x17)
-          (Byte.Byte_introduction x16 x15 x14 x13 x12 x11 x10 x9)
-          (Byte.Byte_introduction x8 x7 x6 x5 x4 x3 x2 x1)
+    | QWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120) =>
+        QWord.introduction Endian.Little
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction x32 x31 x30 x29 x28 x27 x26 x25)
+          (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
+          (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
+          (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
+          (Byte.introduction x64 x63 x62 x61 x60 x59 x58 x57)
+          (Byte.introduction x72 x71 x70 x69 x68 x67 x66 x65)
+          (Byte.introduction x80 x79 x78 x77 x76 x75 x74 x73)
+          (Byte.introduction x88 x87 x86 x85 x84 x83 x82 x81)
+          (Byte.introduction x96 x95 x94 x93 x92 x91 x90 x89)
+          (Byte.introduction x104 x103 x102 x101 x100 x99 x98 x97)
+          (Byte.introduction x112 x111 x110 x109 x108 x107 x106 x105)
+          (Byte.introduction x120 x119 x118 x117 x116 x115 x114 x113)
+          (Byte.introduction Bit.Zero x127 x126 x125 x124 x123 x122 x121)
+    | QWord.introduction Endian.Big
+        (Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+        QWord.introduction Endian.Big
+          (Byte.introduction Bit.Zero x127 x126 x125 x124 x123 x122 x121)
+          (Byte.introduction x120 x119 x118 x117 x116 x115 x114 x113)
+          (Byte.introduction x112 x111 x110 x109 x108 x107 x106 x105)
+          (Byte.introduction x104 x103 x102 x101 x100 x99 x98 x97)
+          (Byte.introduction x96 x95 x94 x93 x92 x91 x90 x89)
+          (Byte.introduction x88 x87 x86 x85 x84 x83 x82 x81)
+          (Byte.introduction x80 x79 x78 x77 x76 x75 x74 x73)
+          (Byte.introduction x72 x71 x70 x69 x68 x67 x66 x65)
+          (Byte.introduction x64 x63 x62 x61 x60 x59 x58 x57)
+          (Byte.introduction x56 x55 x54 x53 x52 x51 x50 x49)
+          (Byte.introduction x48 x47 x46 x45 x44 x43 x42 x41)
+          (Byte.introduction x40 x39 x38 x37 x36 x35 x34 x33)
+          (Byte.introduction x32 x31 x30 x29 x28 x27 x26 x25)
+          (Byte.introduction x24 x23 x22 x21 x20 x19 x18 x17)
+          (Byte.introduction x16 x15 x14 x13 x12 x11 x10 x9)
+          (Byte.introduction x8 x7 x6 x5 x4 x3 x2 x1)
     end in
   match k with
   | Nat.One          => y
@@ -672,7 +672,7 @@ Definition shift_right := fun (x : QWord) (k : Nat0) .
 (* [QWord -> List Byte] *)
 Definition to_bytes := fun (x : QWord) .
   match x with
-  | QWord_introduction _ b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 =>
+  | QWord.introduction _ b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 =>
       List.Cons b0 (List.Cons b1 (List.Cons b2 (List.Cons b3
         (List.Cons b4 (List.Cons b5 (List.Cons b6 (List.Cons b7
         (List.Cons b8 (List.Cons b9 (List.Cons b10 (List.Cons b11
@@ -689,7 +689,7 @@ Definition from_bytes := fun (e : Endian) (l : List Byte) .
       (List.Cons b4 (List.Cons b5 (List.Cons b6 (List.Cons b7
       (List.Cons b8 (List.Cons b9 (List.Cons b10 (List.Cons b11
       (List.Cons b12 (List.Cons b13 (List.Cons b14 (List.Cons b15 List.Nil))))))))))))))) =>
-      Some (QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15)
+      Some (QWord.introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15)
   | _ =>
       None
   end.
@@ -703,77 +703,77 @@ Definition from_bytes := fun (e : Endian) (l : List Byte) .
 Definition append_digit := fun (x : Option QWord) (d3 : Bit) (d2 : Bit) (d1 : Bit) (d0 : Bit) .
   match x with
   | Some
-      (QWord_introduction Endian.Little
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x123 x122 x121 x120)) =>
+      (QWord.introduction Endian.Little
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x123 x122 x121 x120)) =>
       Some
-        (QWord_introduction Endian.Little
-          (Byte.Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0)
-          (Byte.Byte_introduction x11 x10 x9 x8 x7 x6 x5 x4)
-          (Byte.Byte_introduction x19 x18 x17 x16 x15 x14 x13 x12)
-          (Byte.Byte_introduction x27 x26 x25 x24 x23 x22 x21 x20)
-          (Byte.Byte_introduction x35 x34 x33 x32 x31 x30 x29 x28)
-          (Byte.Byte_introduction x43 x42 x41 x40 x39 x38 x37 x36)
-          (Byte.Byte_introduction x51 x50 x49 x48 x47 x46 x45 x44)
-          (Byte.Byte_introduction x59 x58 x57 x56 x55 x54 x53 x52)
-          (Byte.Byte_introduction x67 x66 x65 x64 x63 x62 x61 x60)
-          (Byte.Byte_introduction x75 x74 x73 x72 x71 x70 x69 x68)
-          (Byte.Byte_introduction x83 x82 x81 x80 x79 x78 x77 x76)
-          (Byte.Byte_introduction x91 x90 x89 x88 x87 x86 x85 x84)
-          (Byte.Byte_introduction x99 x98 x97 x96 x95 x94 x93 x92)
-          (Byte.Byte_introduction x107 x106 x105 x104 x103 x102 x101 x100)
-          (Byte.Byte_introduction x115 x114 x113 x112 x111 x110 x109 x108)
-          (Byte.Byte_introduction x123 x122 x121 x120 x119 x118 x117 x116))
+        (QWord.introduction Endian.Little
+          (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0)
+          (Byte.introduction x11 x10 x9 x8 x7 x6 x5 x4)
+          (Byte.introduction x19 x18 x17 x16 x15 x14 x13 x12)
+          (Byte.introduction x27 x26 x25 x24 x23 x22 x21 x20)
+          (Byte.introduction x35 x34 x33 x32 x31 x30 x29 x28)
+          (Byte.introduction x43 x42 x41 x40 x39 x38 x37 x36)
+          (Byte.introduction x51 x50 x49 x48 x47 x46 x45 x44)
+          (Byte.introduction x59 x58 x57 x56 x55 x54 x53 x52)
+          (Byte.introduction x67 x66 x65 x64 x63 x62 x61 x60)
+          (Byte.introduction x75 x74 x73 x72 x71 x70 x69 x68)
+          (Byte.introduction x83 x82 x81 x80 x79 x78 x77 x76)
+          (Byte.introduction x91 x90 x89 x88 x87 x86 x85 x84)
+          (Byte.introduction x99 x98 x97 x96 x95 x94 x93 x92)
+          (Byte.introduction x107 x106 x105 x104 x103 x102 x101 x100)
+          (Byte.introduction x115 x114 x113 x112 x111 x110 x109 x108)
+          (Byte.introduction x123 x122 x121 x120 x119 x118 x117 x116))
   | Some
-      (QWord_introduction Endian.Big
-        (Byte.Byte_introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x123 x122 x121 x120)
-        (Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112)
-        (Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104)
-        (Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96)
-        (Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88)
-        (Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80)
-        (Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72)
-        (Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64)
-        (Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56)
-        (Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48)
-        (Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40)
-        (Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32)
-        (Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24)
-        (Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16)
-        (Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8)
-        (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0)) =>
+      (QWord.introduction Endian.Big
+        (Byte.introduction Bit.Zero Bit.Zero Bit.Zero Bit.Zero x123 x122 x121 x120)
+        (Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112)
+        (Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104)
+        (Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96)
+        (Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88)
+        (Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80)
+        (Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72)
+        (Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64)
+        (Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56)
+        (Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48)
+        (Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40)
+        (Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32)
+        (Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24)
+        (Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16)
+        (Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8)
+        (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0)) =>
       Some
-        (QWord_introduction Endian.Big
-          (Byte.Byte_introduction x123 x122 x121 x120 x119 x118 x117 x116)
-          (Byte.Byte_introduction x115 x114 x113 x112 x111 x110 x109 x108)
-          (Byte.Byte_introduction x107 x106 x105 x104 x103 x102 x101 x100)
-          (Byte.Byte_introduction x99 x98 x97 x96 x95 x94 x93 x92)
-          (Byte.Byte_introduction x91 x90 x89 x88 x87 x86 x85 x84)
-          (Byte.Byte_introduction x83 x82 x81 x80 x79 x78 x77 x76)
-          (Byte.Byte_introduction x75 x74 x73 x72 x71 x70 x69 x68)
-          (Byte.Byte_introduction x67 x66 x65 x64 x63 x62 x61 x60)
-          (Byte.Byte_introduction x59 x58 x57 x56 x55 x54 x53 x52)
-          (Byte.Byte_introduction x51 x50 x49 x48 x47 x46 x45 x44)
-          (Byte.Byte_introduction x43 x42 x41 x40 x39 x38 x37 x36)
-          (Byte.Byte_introduction x35 x34 x33 x32 x31 x30 x29 x28)
-          (Byte.Byte_introduction x27 x26 x25 x24 x23 x22 x21 x20)
-          (Byte.Byte_introduction x19 x18 x17 x16 x15 x14 x13 x12)
-          (Byte.Byte_introduction x11 x10 x9 x8 x7 x6 x5 x4)
-          (Byte.Byte_introduction x3 x2 x1 x0 d3 d2 d1 d0))
+        (QWord.introduction Endian.Big
+          (Byte.introduction x123 x122 x121 x120 x119 x118 x117 x116)
+          (Byte.introduction x115 x114 x113 x112 x111 x110 x109 x108)
+          (Byte.introduction x107 x106 x105 x104 x103 x102 x101 x100)
+          (Byte.introduction x99 x98 x97 x96 x95 x94 x93 x92)
+          (Byte.introduction x91 x90 x89 x88 x87 x86 x85 x84)
+          (Byte.introduction x83 x82 x81 x80 x79 x78 x77 x76)
+          (Byte.introduction x75 x74 x73 x72 x71 x70 x69 x68)
+          (Byte.introduction x67 x66 x65 x64 x63 x62 x61 x60)
+          (Byte.introduction x59 x58 x57 x56 x55 x54 x53 x52)
+          (Byte.introduction x51 x50 x49 x48 x47 x46 x45 x44)
+          (Byte.introduction x43 x42 x41 x40 x39 x38 x37 x36)
+          (Byte.introduction x35 x34 x33 x32 x31 x30 x29 x28)
+          (Byte.introduction x27 x26 x25 x24 x23 x22 x21 x20)
+          (Byte.introduction x19 x18 x17 x16 x15 x14 x13 x12)
+          (Byte.introduction x11 x10 x9 x8 x7 x6 x5 x4)
+          (Byte.introduction x3 x2 x1 x0 d3 d2 d1 d0))
   | _ => None
   end.
 
@@ -845,22 +845,22 @@ Definition to_numeral := fun (e : Endian) (x : QWord) .
           byte4 x, byte5 x, byte6 x, byte7 x,
           byte8 x, byte9 x, byte10 x, byte11 x,
           byte12 x, byte13 x, byte14 x, byte15 x with
-    | Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0,
-      Byte.Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8,
-      Byte.Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16,
-      Byte.Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24,
-      Byte.Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32,
-      Byte.Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40,
-      Byte.Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48,
-      Byte.Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56,
-      Byte.Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64,
-      Byte.Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72,
-      Byte.Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80,
-      Byte.Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88,
-      Byte.Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96,
-      Byte.Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104,
-      Byte.Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112,
-      Byte.Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120 =>
+    | Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0,
+      Byte.introduction x15 x14 x13 x12 x11 x10 x9 x8,
+      Byte.introduction x23 x22 x21 x20 x19 x18 x17 x16,
+      Byte.introduction x31 x30 x29 x28 x27 x26 x25 x24,
+      Byte.introduction x39 x38 x37 x36 x35 x34 x33 x32,
+      Byte.introduction x47 x46 x45 x44 x43 x42 x41 x40,
+      Byte.introduction x55 x54 x53 x52 x51 x50 x49 x48,
+      Byte.introduction x63 x62 x61 x60 x59 x58 x57 x56,
+      Byte.introduction x71 x70 x69 x68 x67 x66 x65 x64,
+      Byte.introduction x79 x78 x77 x76 x75 x74 x73 x72,
+      Byte.introduction x87 x86 x85 x84 x83 x82 x81 x80,
+      Byte.introduction x95 x94 x93 x92 x91 x90 x89 x88,
+      Byte.introduction x103 x102 x101 x100 x99 x98 x97 x96,
+      Byte.introduction x111 x110 x109 x108 x107 x106 x105 x104,
+      Byte.introduction x119 x118 x117 x116 x115 x114 x113 x112,
+      Byte.introduction x127 x126 x125 x124 x123 x122 x121 x120 =>
         Numeral.Unsigned.Hexadecimal
           (Byte.hexadecimal_digit x127 x126 x125 x124
           (Byte.hexadecimal_digit x123 x122 x121 x120
@@ -927,8 +927,8 @@ Lemma congruence
       a4 = b4 -> a5 = b5 -> a6 = b6 -> a7 = b7 ->
       a8 = b8 -> a9 = b9 -> a10 = b10 -> a11 = b11 ->
       a12 = b12 -> a13 = b13 -> a14 = b14 -> a15 = b15 ->
-      QWord_introduction e a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15
-        = QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15.
+      QWord.introduction e a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15
+        = QWord.introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15.
 Proof.
   intros e
     a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15
@@ -954,7 +954,7 @@ Qed.
 Theorem identity : forall (x : QWord) . with_endian (endian x) x = x.
 Proof.
   intros x.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -978,7 +978,7 @@ Module flipping. (* flipping *)
 Theorem involution : forall (x : QWord) . ~. ~. x = x.
 Proof.
   intros x.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match &e with | Little | Big end;
     simpl flip in |- *;
     simpl in |- *;
@@ -1032,9 +1032,9 @@ Theorem associativity
       (x &. y) &. z = x &. (y &. z).
 Proof.
   intros x y z.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
-  match &z with | QWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -1065,7 +1065,7 @@ Theorem identity
   : forall (x : QWord) . (~. Zero (endian x) &. x = x) /\ (x &. ~. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match (Byte.conjunction.identity &x0) with | left0 right0 end.
   match (Byte.conjunction.identity &x1) with | left1 right1 end.
   match (Byte.conjunction.identity &x2) with | left2 right2 end.
@@ -1111,7 +1111,7 @@ Theorem conversion
   : forall (x : QWord) (y : QWord) . x &. y = x &. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match &e with | Little | Big end;
     simpl and, with_endian in |- *;
     simpl in |- *;
@@ -1126,8 +1126,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x &. y = y &. x.
 Proof.
   intros x y hx hy.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl and in |- *.
@@ -1171,8 +1171,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x &. y = y &. x.
 Proof.
   intros x y hx hy.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl and in |- *.
@@ -1222,9 +1222,9 @@ Theorem sejunction
       x &. (y ^. z) = (x &. y) ^. (x &. z).
 Proof.
   intros x y z.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
-  match &z with | QWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -1268,9 +1268,9 @@ Theorem sejunction
       (y ^. z) &. x = (y &. x) ^. (z &. x).
 Proof.
   intros x y z.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
-  match &z with | QWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -1332,9 +1332,9 @@ Theorem associativity
       (x |. y) |. z = x |. (y |. z).
 Proof.
   intros x y z.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
-  match &z with | QWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -1365,7 +1365,7 @@ Theorem identity
   : forall (x : QWord) . (Zero (endian x) |. x = x) /\ (x |. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match (Byte.disjunction.identity &x0) with | left0 right0 end.
   match (Byte.disjunction.identity &x1) with | left1 right1 end.
   match (Byte.disjunction.identity &x2) with | left2 right2 end.
@@ -1411,7 +1411,7 @@ Theorem conversion
   : forall (x : QWord) (y : QWord) . x |. y = x |. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match &e with | Little | Big end;
     simpl or, with_endian in |- *;
     simpl in |- *;
@@ -1426,8 +1426,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x |. y = y |. x.
 Proof.
   intros x y hx hy.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl or in |- *.
@@ -1471,8 +1471,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x |. y = y |. x.
 Proof.
   intros x y hx hy.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl or in |- *.
@@ -1520,9 +1520,9 @@ Theorem associativity
       (x ^. y) ^. z = x ^. (y ^. z).
 Proof.
   intros x y z.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
-  match &z with | QWord_introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &z with | introduction ez z0 z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 end.
   match &ex with | Little | Big end;
     match &ey with | Little | Big end;
     match &ez with | Little | Big end;
@@ -1553,7 +1553,7 @@ Theorem identity
   : forall (x : QWord) . (Zero (endian x) ^. x = x) /\ (x ^. Zero (endian x) = x).
 Proof.
   intros x.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match (Byte.sejunction.identity &x0) with | left0 right0 end.
   match (Byte.sejunction.identity &x1) with | left1 right1 end.
   match (Byte.sejunction.identity &x2) with | left2 right2 end.
@@ -1595,7 +1595,7 @@ Qed.
 Theorem irreflexivity : forall (x : QWord) . x ^. x = Zero (endian x).
 Proof.
   intros x.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match &e with | Little | Big end;
     ipso
       (congruence
@@ -1617,7 +1617,7 @@ Theorem conversion
   : forall (x : QWord) (y : QWord) . x ^. y = x ^. with_endian (endian x) y.
 Proof.
   intros x y.
-  match &x with | QWord_introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &x with | introduction e x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
   match &e with | Little | Big end;
     simpl xor, with_endian in |- *;
     simpl in |- *;
@@ -1632,8 +1632,8 @@ Theorem commutativity
       endian x = Endian.Little -> endian y = Endian.Little -> x ^. y = y ^. x.
 Proof.
   intros x y hx hy.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl xor in |- *.
@@ -1677,8 +1677,8 @@ Theorem commutativity
       endian x = Endian.Big -> endian y = Endian.Big -> x ^. y = y ^. x.
 Proof.
   intros x y hx hy.
-  match &x with | QWord_introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
-  match &y with | QWord_introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
+  match &x with | introduction ex x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 end.
+  match &y with | introduction ey y0 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 y11 y12 y13 y14 y15 end.
   simpl in &hx, &hy.
   leibniz &hx, &hy in |- *.
   simpl xor in |- *.
@@ -1726,23 +1726,23 @@ Module left. (* rotation.left *)
 Theorem period : forall (x : QWord) . rotate_left x 128%n0 = x.
 Proof.
   intros x.
-  match &x with | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
-  match &b0 with | Byte_introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
-  match &b1 with | Byte_introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
-  match &b2 with | Byte_introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
-  match &b3 with | Byte_introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
-  match &b4 with | Byte_introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
-  match &b5 with | Byte_introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
-  match &b6 with | Byte_introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
-  match &b7 with | Byte_introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
-  match &b8 with | Byte_introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
-  match &b9 with | Byte_introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
-  match &b10 with | Byte_introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
-  match &b11 with | Byte_introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
-  match &b12 with | Byte_introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
-  match &b13 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-  match &b14 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-  match &b15 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+  match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+  match &b0 with | introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
+  match &b1 with | introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
+  match &b2 with | introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
+  match &b3 with | introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
+  match &b4 with | introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
+  match &b5 with | introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
+  match &b6 with | introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
+  match &b7 with | introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
+  match &b8 with | introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
+  match &b9 with | introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
+  match &b10 with | introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
+  match &b11 with | introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
+  match &b12 with | introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
+  match &b13 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+  match &b14 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+  match &b15 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1759,103 +1759,103 @@ Proof.
     match n with | One | Successor (n' by IH) end per Nat.induction.
     + intros x.
       match &x with
-      | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
-      match &b0 with | Byte_introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
-      match &b1 with | Byte_introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
-      match &b2 with | Byte_introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
-      match &b3 with | Byte_introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
-      match &b4 with | Byte_introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
-      match &b5 with | Byte_introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
-      match &b6 with | Byte_introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
-      match &b7 with | Byte_introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
-      match &b8 with | Byte_introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
-      match &b9 with | Byte_introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
-      match &b10 with | Byte_introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
-      match &b11 with | Byte_introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
-      match &b12 with | Byte_introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
-      match &b13 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b14 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b15 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+      match &b0 with | introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
+      match &b1 with | introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
+      match &b2 with | introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
+      match &b3 with | introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
+      match &b4 with | introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
+      match &b5 with | introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
+      match &b6 with | introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
+      match &b7 with | introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
+      match &b8 with | introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
+      match &b9 with | introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
+      match &b10 with | introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
+      match &b11 with | introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
+      match &b12 with | introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
+      match &b13 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b14 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b15 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
       match &e with | Little | Big end; simpl in |- *; quod idem est.
     + intros x.
       match &x with
-      | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+      | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
       match &e with | Little | Big end.
-      * match &b0 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-        match &b1 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-        match &b2 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-        match &b3 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-        match &b4 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-        match &b5 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-        match &b6 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-        match &b7 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-        match &b8 with | Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64 end.
-        match &b9 with | Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72 end.
-        match &b10 with | Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80 end.
-        match &b11 with | Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88 end.
-        match &b12 with | Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96 end.
-        match &b13 with | Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104 end.
-        match &b14 with | Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112 end.
-        match &b15 with | Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120 end.
+      * match &b0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+        match &b1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+        match &b2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+        match &b3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+        match &b4 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+        match &b5 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+        match &b6 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+        match &b7 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+        match &b8 with | introduction x71 x70 x69 x68 x67 x66 x65 x64 end.
+        match &b9 with | introduction x79 x78 x77 x76 x75 x74 x73 x72 end.
+        match &b10 with | introduction x87 x86 x85 x84 x83 x82 x81 x80 end.
+        match &b11 with | introduction x95 x94 x93 x92 x91 x90 x89 x88 end.
+        match &b12 with | introduction x103 x102 x101 x100 x99 x98 x97 x96 end.
+        match &b13 with | introduction x111 x110 x109 x108 x107 x106 x105 x104 end.
+        match &b14 with | introduction x119 x118 x117 x116 x115 x114 x113 x112 end.
+        match &b15 with | introduction x127 x126 x125 x124 x123 x122 x121 x120 end.
         simpl in |- *.
         leibniz
           (&IH
-            (QWord_introduction Endian.Little
-              (Byte.Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x127)
-              (Byte.Byte_introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
-              (Byte.Byte_introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
-              (Byte.Byte_introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
-              (Byte.Byte_introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
-              (Byte.Byte_introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
-              (Byte.Byte_introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
-              (Byte.Byte_introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)
-              (Byte.Byte_introduction &x70 &x69 &x68 &x67 &x66 &x65 &x64 &x63)
-              (Byte.Byte_introduction &x78 &x77 &x76 &x75 &x74 &x73 &x72 &x71)
-              (Byte.Byte_introduction &x86 &x85 &x84 &x83 &x82 &x81 &x80 &x79)
-              (Byte.Byte_introduction &x94 &x93 &x92 &x91 &x90 &x89 &x88 &x87)
-              (Byte.Byte_introduction &x102 &x101 &x100 &x99 &x98 &x97 &x96 &x95)
-              (Byte.Byte_introduction &x110 &x109 &x108 &x107 &x106 &x105 &x104 &x103)
-              (Byte.Byte_introduction &x118 &x117 &x116 &x115 &x114 &x113 &x112 &x111)
-              (Byte.Byte_introduction &x126 &x125 &x124 &x123 &x122 &x121 &x120 &x119)))
+            (QWord.introduction Endian.Little
+              (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x127)
+              (Byte.introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
+              (Byte.introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
+              (Byte.introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
+              (Byte.introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
+              (Byte.introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
+              (Byte.introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
+              (Byte.introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)
+              (Byte.introduction &x70 &x69 &x68 &x67 &x66 &x65 &x64 &x63)
+              (Byte.introduction &x78 &x77 &x76 &x75 &x74 &x73 &x72 &x71)
+              (Byte.introduction &x86 &x85 &x84 &x83 &x82 &x81 &x80 &x79)
+              (Byte.introduction &x94 &x93 &x92 &x91 &x90 &x89 &x88 &x87)
+              (Byte.introduction &x102 &x101 &x100 &x99 &x98 &x97 &x96 &x95)
+              (Byte.introduction &x110 &x109 &x108 &x107 &x106 &x105 &x104 &x103)
+              (Byte.introduction &x118 &x117 &x116 &x115 &x114 &x113 &x112 &x111)
+              (Byte.introduction &x126 &x125 &x124 &x123 &x122 &x121 &x120 &x119)))
           in |- *.
         simpl in |- *.
         quod idem est.
-      * match &b0 with | Byte_introduction x127 x126 x125 x124 x123 x122 x121 x120 end.
-        match &b1 with | Byte_introduction x119 x118 x117 x116 x115 x114 x113 x112 end.
-        match &b2 with | Byte_introduction x111 x110 x109 x108 x107 x106 x105 x104 end.
-        match &b3 with | Byte_introduction x103 x102 x101 x100 x99 x98 x97 x96 end.
-        match &b4 with | Byte_introduction x95 x94 x93 x92 x91 x90 x89 x88 end.
-        match &b5 with | Byte_introduction x87 x86 x85 x84 x83 x82 x81 x80 end.
-        match &b6 with | Byte_introduction x79 x78 x77 x76 x75 x74 x73 x72 end.
-        match &b7 with | Byte_introduction x71 x70 x69 x68 x67 x66 x65 x64 end.
-        match &b8 with | Byte_introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
-        match &b9 with | Byte_introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
-        match &b10 with | Byte_introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
-        match &b11 with | Byte_introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
-        match &b12 with | Byte_introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
-        match &b13 with | Byte_introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
-        match &b14 with | Byte_introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
-        match &b15 with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+      * match &b0 with | introduction x127 x126 x125 x124 x123 x122 x121 x120 end.
+        match &b1 with | introduction x119 x118 x117 x116 x115 x114 x113 x112 end.
+        match &b2 with | introduction x111 x110 x109 x108 x107 x106 x105 x104 end.
+        match &b3 with | introduction x103 x102 x101 x100 x99 x98 x97 x96 end.
+        match &b4 with | introduction x95 x94 x93 x92 x91 x90 x89 x88 end.
+        match &b5 with | introduction x87 x86 x85 x84 x83 x82 x81 x80 end.
+        match &b6 with | introduction x79 x78 x77 x76 x75 x74 x73 x72 end.
+        match &b7 with | introduction x71 x70 x69 x68 x67 x66 x65 x64 end.
+        match &b8 with | introduction x63 x62 x61 x60 x59 x58 x57 x56 end.
+        match &b9 with | introduction x55 x54 x53 x52 x51 x50 x49 x48 end.
+        match &b10 with | introduction x47 x46 x45 x44 x43 x42 x41 x40 end.
+        match &b11 with | introduction x39 x38 x37 x36 x35 x34 x33 x32 end.
+        match &b12 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+        match &b13 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+        match &b14 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+        match &b15 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
         simpl in |- *.
         leibniz
           (&IH
-            (QWord_introduction Endian.Big
-              (Byte.Byte_introduction &x126 &x125 &x124 &x123 &x122 &x121 &x120 &x119)
-              (Byte.Byte_introduction &x118 &x117 &x116 &x115 &x114 &x113 &x112 &x111)
-              (Byte.Byte_introduction &x110 &x109 &x108 &x107 &x106 &x105 &x104 &x103)
-              (Byte.Byte_introduction &x102 &x101 &x100 &x99 &x98 &x97 &x96 &x95)
-              (Byte.Byte_introduction &x94 &x93 &x92 &x91 &x90 &x89 &x88 &x87)
-              (Byte.Byte_introduction &x86 &x85 &x84 &x83 &x82 &x81 &x80 &x79)
-              (Byte.Byte_introduction &x78 &x77 &x76 &x75 &x74 &x73 &x72 &x71)
-              (Byte.Byte_introduction &x70 &x69 &x68 &x67 &x66 &x65 &x64 &x63)
-              (Byte.Byte_introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)
-              (Byte.Byte_introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
-              (Byte.Byte_introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
-              (Byte.Byte_introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
-              (Byte.Byte_introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
-              (Byte.Byte_introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
-              (Byte.Byte_introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
-              (Byte.Byte_introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x127)))
+            (QWord.introduction Endian.Big
+              (Byte.introduction &x126 &x125 &x124 &x123 &x122 &x121 &x120 &x119)
+              (Byte.introduction &x118 &x117 &x116 &x115 &x114 &x113 &x112 &x111)
+              (Byte.introduction &x110 &x109 &x108 &x107 &x106 &x105 &x104 &x103)
+              (Byte.introduction &x102 &x101 &x100 &x99 &x98 &x97 &x96 &x95)
+              (Byte.introduction &x94 &x93 &x92 &x91 &x90 &x89 &x88 &x87)
+              (Byte.introduction &x86 &x85 &x84 &x83 &x82 &x81 &x80 &x79)
+              (Byte.introduction &x78 &x77 &x76 &x75 &x74 &x73 &x72 &x71)
+              (Byte.introduction &x70 &x69 &x68 &x67 &x66 &x65 &x64 &x63)
+              (Byte.introduction &x62 &x61 &x60 &x59 &x58 &x57 &x56 &x55)
+              (Byte.introduction &x54 &x53 &x52 &x51 &x50 &x49 &x48 &x47)
+              (Byte.introduction &x46 &x45 &x44 &x43 &x42 &x41 &x40 &x39)
+              (Byte.introduction &x38 &x37 &x36 &x35 &x34 &x33 &x32 &x31)
+              (Byte.introduction &x30 &x29 &x28 &x27 &x26 &x25 &x24 &x23)
+              (Byte.introduction &x22 &x21 &x20 &x19 &x18 &x17 &x16 &x15)
+              (Byte.introduction &x14 &x13 &x12 &x11 &x10 &x9 &x8 &x7)
+              (Byte.introduction &x6 &x5 &x4 &x3 &x2 &x1 &x0 &x127)))
           in |- *.
         simpl in |- *.
         quod idem est.
@@ -1869,23 +1869,23 @@ Module right. (* rotation.right *)
 Theorem period : forall (x : QWord) . rotate_right x 128%n0 = x.
 Proof.
   intros x.
-  match &x with | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
-  match &b0 with | Byte_introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
-  match &b1 with | Byte_introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
-  match &b2 with | Byte_introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
-  match &b3 with | Byte_introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
-  match &b4 with | Byte_introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
-  match &b5 with | Byte_introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
-  match &b6 with | Byte_introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
-  match &b7 with | Byte_introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
-  match &b8 with | Byte_introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
-  match &b9 with | Byte_introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
-  match &b10 with | Byte_introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
-  match &b11 with | Byte_introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
-  match &b12 with | Byte_introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
-  match &b13 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-  match &b14 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-  match &b15 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+  match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+  match &b0 with | introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
+  match &b1 with | introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
+  match &b2 with | introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
+  match &b3 with | introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
+  match &b4 with | introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
+  match &b5 with | introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
+  match &b6 with | introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
+  match &b7 with | introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
+  match &b8 with | introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
+  match &b9 with | introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
+  match &b10 with | introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
+  match &b11 with | introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
+  match &b12 with | introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
+  match &b13 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+  match &b14 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+  match &b15 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
   match &e with | Little | Big end; simpl in |- *; quod idem est.
 Qed.
 
@@ -1900,43 +1900,43 @@ Proof.
   - simpl in |- *.
     match n with | One | Successor (n' by IH) end per Nat.induction.
     + match &x with
-      | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
-      match &b0 with | Byte_introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
-      match &b1 with | Byte_introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
-      match &b2 with | Byte_introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
-      match &b3 with | Byte_introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
-      match &b4 with | Byte_introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
-      match &b5 with | Byte_introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
-      match &b6 with | Byte_introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
-      match &b7 with | Byte_introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
-      match &b8 with | Byte_introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
-      match &b9 with | Byte_introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
-      match &b10 with | Byte_introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
-      match &b11 with | Byte_introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
-      match &b12 with | Byte_introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
-      match &b13 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b14 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b15 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+      match &b0 with | introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
+      match &b1 with | introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
+      match &b2 with | introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
+      match &b3 with | introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
+      match &b4 with | introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
+      match &b5 with | introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
+      match &b6 with | introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
+      match &b7 with | introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
+      match &b8 with | introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
+      match &b9 with | introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
+      match &b10 with | introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
+      match &b11 with | introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
+      match &b12 with | introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
+      match &b13 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b14 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b15 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
       match &e with | Little | Big end; simpl in |- *; quod idem est.
     + simpl in |- *.
       match (rotate_right_nat &x &n') with
-      | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
-      match &b0 with | Byte_introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
-      match &b1 with | Byte_introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
-      match &b2 with | Byte_introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
-      match &b3 with | Byte_introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
-      match &b4 with | Byte_introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
-      match &b5 with | Byte_introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
-      match &b6 with | Byte_introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
-      match &b7 with | Byte_introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
-      match &b8 with | Byte_introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
-      match &b9 with | Byte_introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
-      match &b10 with | Byte_introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
-      match &b11 with | Byte_introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
-      match &b12 with | Byte_introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
-      match &b13 with | Byte_introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
-      match &b14 with | Byte_introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
-      match &b15 with | Byte_introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
+      | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+      match &b0 with | introduction a7 a6 a5 a4 a3 a2 a1 a0 end.
+      match &b1 with | introduction c7 c6 c5 c4 c3 c2 c1 c0 end.
+      match &b2 with | introduction d7 d6 d5 d4 d3 d2 d1 d0 end.
+      match &b3 with | introduction f7 f6 f5 f4 f3 f2 f1 f0 end.
+      match &b4 with | introduction g7 g6 g5 g4 g3 g2 g1 g0 end.
+      match &b5 with | introduction h7 h6 h5 h4 h3 h2 h1 h0 end.
+      match &b6 with | introduction i7 i6 i5 i4 i3 i2 i1 i0 end.
+      match &b7 with | introduction j7 j6 j5 j4 j3 j2 j1 j0 end.
+      match &b8 with | introduction k7 k6 k5 k4 k3 k2 k1 k0 end.
+      match &b9 with | introduction l7 l6 l5 l4 l3 l2 l1 l0 end.
+      match &b10 with | introduction m7 m6 m5 m4 m3 m2 m1 m0 end.
+      match &b11 with | introduction n7 n6 n5 n4 n3 n2 n1 n0 end.
+      match &b12 with | introduction o7 o6 o5 o4 o3 o2 o1 o0 end.
+      match &b13 with | introduction p7 p6 p5 p4 p3 p2 p1 p0 end.
+      match &b14 with | introduction q7 q6 q5 q4 q3 q2 q1 q0 end.
+      match &b15 with | introduction r7 r6 r5 r4 r3 r2 r1 r0 end.
       match &e with | Little | Big end; ipso &IH.
 Qed.
 
@@ -1952,7 +1952,7 @@ Module bytes. (* conversion.bytes *)
 Theorem section : forall (x : QWord) . from_bytes (endian x) (to_bytes x) = Some x.
 Proof.
   intros x.
-  match &x with | QWord_introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
+  match &x with | introduction e b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15 end.
   simpl from_bytes, to_bytes, endian in |- *.
   quod idem est.
 Qed.

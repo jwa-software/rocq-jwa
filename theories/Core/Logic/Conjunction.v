@@ -5,21 +5,20 @@ From jwa Require Import Core.Logic.Conditional.
 From jwa Require Import Core.Notations.
 From jwa Require Import Dialect.All.
 
-Inductive Conjunction (A : Prop) (B : Prop) : Prop :=
-  | Conjunction_introduction : A -> B -> Conjunction A B.
+Module Conjunction. (* Conjunction *)
 
-Arguments Conjunction_introduction {A} {B} a b.
+Inductive T (A : Prop) (B : Prop) : Prop :=
+  | introduction : A -> B -> T A B.
+
+Arguments Conjunction.introduction {A} {B} a b.
+
+Abbreviation Conjunction := T.
 
 Notation "A /\ B" := (Conjunction A B)
   : jwa_type_scope.
 
 (* [conjoin a, b] : [A /\ B], from [a : A] and [b : B]. *)
-Notation "'conjoin' a , b" := (Conjunction_introduction a b) (only parsing).
-
-(* A module may carry the type's name; its laws read
- * [Conjunction.commutativity].
- *)
-Module Conjunction. (* Conjunction *)
+Notation "'conjoin' a , b" := (Conjunction.introduction a b) (only parsing).
 
 Theorem commutativity
   : forall {A : Prop} {B : Prop} . A /\ B -> B /\ A.
@@ -131,3 +130,13 @@ Qed.
  *)
 
 End Conjunction. (* Conjunction *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Conjunction], not [Conjunction.T].
+ *)
+Abbreviation Conjunction := Conjunction.T.
+
+(* Makes [/\] and [conjoin], declared in [Module Conjunction], usable in
+ * every file that imports this one.
+ *)
+Export (notations) Conjunction.

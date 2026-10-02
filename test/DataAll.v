@@ -92,7 +92,7 @@ Definition data_all_delivers_coproduct_functor
   := Functor.map (fun (b : Bool) . b) (Coproduct.right true).
 
 Definition data_all_delivers_unit
-  : forall (u : Unit) . u = Unit_introduction
+  : forall (u : Unit) . u = Unit.introduction
   := Unit.surjectivity.
 
 Definition data_all_delivers_empty

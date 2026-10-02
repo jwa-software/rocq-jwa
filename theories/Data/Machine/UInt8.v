@@ -30,7 +30,7 @@ From jwa Require Import Tactics.Modus.
 Module UInt8. (* UInt8 *)
 
 Inductive T : Type :=
-  | UInt8_introduction : Byte -> T.
+  | introduction : Byte -> T.
 
 Abbreviation UInt8 := T.
 
@@ -41,11 +41,11 @@ Definition modulus := 100000000%bin_base.
 (* [UInt8 -> Byte] *)
 Definition to_byte := fun (x : UInt8) .
   match x with
-  | UInt8_introduction b => b
+  | UInt8.introduction b => b
   end.
 
 (* [Byte -> UInt8] *)
-Definition from_byte := fun (b : Byte) . UInt8_introduction b.
+Definition from_byte := fun (b : Byte) . UInt8.introduction b.
 
 (* The bits read as a number in base two, the most significant first; [10]
  * is two in binary digits.
@@ -53,7 +53,7 @@ Definition from_byte := fun (b : Byte) . UInt8_introduction b.
 (* [UInt8 -> BinWithZero] *)
 Definition to_bin_with_zero := fun (x : UInt8) .
   match x with
-  | UInt8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | UInt8.introduction (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       (10 * (10 * (10 * (10 * (10 * (10 * (10 * Bit.to_bin_with_zero x7
         + Bit.to_bin_with_zero x6) + Bit.to_bin_with_zero x5) + Bit.to_bin_with_zero x4)
         + Bit.to_bin_with_zero x3) + Bit.to_bin_with_zero x2) + Bit.to_bin_with_zero x1)
@@ -77,32 +77,32 @@ Definition to_bin := fun (x : UInt8) . Bin.from_bin_with_zero (to_bin_with_zero 
 Definition to_nat0 := fun (x : UInt8) . BinWithZero.to_nat0 (to_bin_with_zero x).
 
 (* [UInt8] *)
-Definition Zero := UInt8_introduction Byte.Zero.
+Definition Zero := UInt8.introduction Byte.Zero.
 
 (* [UInt8] *)
 Definition One :=
-  UInt8_introduction
-    (Byte.Byte_introduction
+  UInt8.introduction
+    (Byte.introduction
       Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One).
 
 (* [UInt8 -> Nat0 -> UInt8] *)
 Definition shift_left := fun (x : UInt8) (k : Nat0) .
   match x with
-  | UInt8_introduction b => UInt8_introduction (Byte.shift_left b k)
+  | UInt8.introduction b => UInt8.introduction (Byte.shift_left b k)
   end.
 
 (* [UInt8 -> Nat0 -> UInt8] *)
 Definition shift_right := fun (x : UInt8) (k : Nat0) .
   match x with
-  | UInt8_introduction b => UInt8_introduction (Byte.shift_right b k)
+  | UInt8.introduction b => UInt8.introduction (Byte.shift_right b k)
   end.
 
 (* [x] with [b] written after its lowest bit, the highest bit dropped. *)
 (* [Bit -> UInt8 -> UInt8] *)
 Definition append_bit := fun (b : Bit) (x : UInt8) .
   match x with
-  | UInt8_introduction (Byte.Byte_introduction _ x6 x5 x4 x3 x2 x1 x0) =>
-      UInt8_introduction (Byte.Byte_introduction x6 x5 x4 x3 x2 x1 x0 b)
+  | UInt8.introduction (Byte.introduction _ x6 x5 x4 x3 x2 x1 x0) =>
+      UInt8.introduction (Byte.introduction x6 x5 x4 x3 x2 x1 x0 b)
   end.
 
 (* The carry out and the sum of [carry + x + y], the carry rippling up from
@@ -111,9 +111,9 @@ Definition append_bit := fun (b : Bit) (x : UInt8) .
 (* [Bit -> UInt8 -> UInt8 -> Product Bit UInt8] *)
 Definition add_with_carry := fun (carry : Bit) (x : UInt8) (y : UInt8) .
   match x with
-  | UInt8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | UInt8.introduction (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       match y with
-      | UInt8_introduction (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      | UInt8.introduction (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
           let r0 := Bit.add_with_carry carry x0 y0 in
           let r1 := Bit.add_with_carry (pi_1 r0) x1 y1 in
           let r2 := Bit.add_with_carry (pi_1 r1) x2 y2 in
@@ -123,8 +123,8 @@ Definition add_with_carry := fun (carry : Bit) (x : UInt8) (y : UInt8) .
           let r6 := Bit.add_with_carry (pi_1 r5) x6 y6 in
           let r7 := Bit.add_with_carry (pi_1 r6) x7 y7 in
           (pi_1 r7,
-            UInt8_introduction
-              (Byte.Byte_introduction
+            UInt8.introduction
+              (Byte.introduction
                 (pi_2 r7) (pi_2 r6) (pi_2 r5) (pi_2 r4)
                 (pi_2 r3) (pi_2 r2) (pi_2 r1) (pi_2 r0)))
       end
@@ -143,9 +143,9 @@ Notation "x + y" := (add x y) (only parsing)
 (* [Bit -> UInt8 -> UInt8 -> Product Bit UInt8] *)
 Definition sub_with_borrow := fun (borrow : Bit) (x : UInt8) (y : UInt8) .
   match x with
-  | UInt8_introduction (Byte.Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
+  | UInt8.introduction (Byte.introduction x7 x6 x5 x4 x3 x2 x1 x0) =>
       match y with
-      | UInt8_introduction (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+      | UInt8.introduction (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
           let r0 := Bit.sub_with_borrow borrow x0 y0 in
           let r1 := Bit.sub_with_borrow (pi_1 r0) x1 y1 in
           let r2 := Bit.sub_with_borrow (pi_1 r1) x2 y2 in
@@ -155,8 +155,8 @@ Definition sub_with_borrow := fun (borrow : Bit) (x : UInt8) (y : UInt8) .
           let r6 := Bit.sub_with_borrow (pi_1 r5) x6 y6 in
           let r7 := Bit.sub_with_borrow (pi_1 r6) x7 y7 in
           (pi_1 r7,
-            UInt8_introduction
-              (Byte.Byte_introduction
+            UInt8.introduction
+              (Byte.introduction
                 (pi_2 r7) (pi_2 r6) (pi_2 r5) (pi_2 r4)
                 (pi_2 r3) (pi_2 r2) (pi_2 r1) (pi_2 r0)))
       end
@@ -185,7 +185,7 @@ Definition mul := fun (x : UInt8) (y : UInt8) .
       | Bit.One  => x
       end in
   match y with
-  | UInt8_introduction (Byte.Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
+  | UInt8.introduction (Byte.introduction y7 y6 y5 y4 y3 y2 y1 y0) =>
       step (step (step (step (step (step (step (step Zero y7) y6) y5) y4) y3) y2) y1) y0
   end.
 
@@ -296,8 +296,8 @@ Qed.
 Theorem boundedness : forall (x : UInt8) . (x < modulus)%bin_with_zero.
 Proof.
   intros x.
-  match &x with | UInt8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb end.
+  match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   simpl to_bin_with_zero in |- *.
   ipso
     (Bit.conversion.binary.boundedness.propagation _ _ _
@@ -315,10 +315,10 @@ Theorem injectivity
   : forall {x : UInt8} {y : UInt8} . to_bin_with_zero x = to_bin_with_zero y -> x = y.
 Proof.
   intros x y e.
-  match &x with | UInt8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | UInt8_introduction yb end.
-  match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb end.
+  match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb end.
+  match &yb with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl to_bin_with_zero in &e.
   match (Bit.conversion.binary.halving.injectivity &e) with | e1 b0 end.
   match (Bit.conversion.binary.halving.injectivity &e1) with | e2 b1 end.
@@ -345,10 +345,10 @@ Theorem carry
           + (pi_2 (add_with_carry carry x y))%product)%bin_with_zero.
 Proof.
   intros carry x y.
-  match &x with | UInt8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | UInt8_introduction yb end.
-  match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb end.
+  match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb end.
+  match &yb with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl to_bin_with_zero, add_with_carry in |- *.
   ipso
     (Bit.conversion.binary.carry.propagation _ _ _ _ _ _ _ _
@@ -369,10 +369,10 @@ Theorem borrow
           + (pi_2 (sub_with_borrow borrow x y))%product)%bin_with_zero.
 Proof.
   intros borrow x y.
-  match &x with | UInt8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
-  match &y with | UInt8_introduction yb end.
-  match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &x with | introduction xb end.
+  match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &y with | introduction yb end.
+  match &yb with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl to_bin_with_zero, sub_with_borrow in |- *.
   ipso
     (Bit.conversion.binary.borrow.propagation _ _ _ _ _ _ _ _
@@ -484,20 +484,20 @@ Theorem appending
         = (10 * x + Bit.to_bin_with_zero b) %. modulus)%bin_with_zero.
 Proof.
   intros b x.
-  match &x with | UInt8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb end.
+  match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   lemma witness
     : (Bit.to_bin_with_zero &x7 * modulus
         + to_bin_with_zero
             (append_bit &b
-              (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+              (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         = 10
             * to_bin_with_zero
-                (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+                (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
           + Bit.to_bin_with_zero &b
       /\ to_bin_with_zero
           (append_bit &b
-            (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
+            (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))
         < modulus)%bin_with_zero.
   {
     divide et impera.
@@ -526,17 +526,17 @@ Proof.
     - ipso
         (conversion.boundedness
           (append_bit &b
-            (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
+            (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0)))).
   }
   match (BinWithZero.division.uniqueness
           (10 * to_bin_with_zero
-                  (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+                  (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
             + Bit.to_bin_with_zero &b)%bin_with_zero
           modulus
           (Bit.to_bin_with_zero &x7)
           (to_bin_with_zero
             (append_bit &b
-              (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
+              (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))))
           &witness)
   with | _ facto end.
   ipso (symm &facto).
@@ -630,8 +630,8 @@ Proof.
   intros x.
   lemma appended : shift_left &x 1%n0 = append_bit Bit.Zero &x.
   {
-    match &x with | UInt8_introduction xb end.
-    match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x with | introduction xb end.
+    match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
     simpl in |- *.
     quod idem est.
   }
@@ -652,7 +652,7 @@ Proof.
   match &k with | Zero | Positive n end.
   - lemma unchanged : shift_left &x 0%n0 = &x.
     {
-      match &x with | UInt8_introduction xb end.
+      match &x with | introduction xb end.
       simpl in |- *.
       quod idem est.
     }
@@ -676,7 +676,7 @@ Proof.
         : shift_left &x (Nat0.Positive (Nat.Successor &n'))
           = shift_left (shift_left &x 1%n0) (Nat0.Positive &n').
       {
-        match &x with | UInt8_introduction xb end.
+        match &x with | introduction xb end.
         simpl in |- *.
         quod idem est.
       }
@@ -708,14 +708,14 @@ Lemma halving
       to_bin_with_zero (shift_right x 1%n0) = BinWithZero.halve x.
 Proof.
   intros x.
-  match &x with | UInt8_introduction xb end.
-  match &xb with | Byte_introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+  match &x with | introduction xb end.
+  match &xb with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
   ipso
     (symm
       (Bit.conversion.binary.halving
         (to_bin_with_zero
           (shift_right
-            (UInt8_introduction (Byte.Byte_introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
+            (UInt8.introduction (Byte.introduction &x7 &x6 &x5 &x4 &x3 &x2 &x1 &x0))
             1%n0))
         &x0)).
 Qed.
@@ -729,7 +729,7 @@ Proof.
   match &k with | Zero | Positive n end.
   - lemma unchanged : shift_right &x 0%n0 = &x.
     {
-      match &x with | UInt8_introduction xb end.
+      match &x with | introduction xb end.
       simpl in |- *.
       quod idem est.
     }
@@ -748,7 +748,7 @@ Proof.
         : shift_right &x (Nat0.Positive (Nat.Successor &n'))
           = shift_right (shift_right &x 1%n0) (Nat0.Positive &n').
       {
-        match &x with | UInt8_introduction xb end.
+        match &x with | introduction xb end.
         simpl in |- *.
         quod idem est.
       }
@@ -871,8 +871,8 @@ Proof.
     simpl BinWithZero.modulo, BinWithZero.div, Product.second in |- *.
     quod idem est.
   }
-  match &y with | UInt8_introduction yb end.
-  match &yb with | Byte_introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+  match &y with | introduction yb end.
+  match &yb with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
   simpl mul in |- *.
   ipso
     (conversion.multiplication.step _ _ _ _
@@ -899,7 +899,7 @@ Qed.
 Theorem section : forall (x : UInt8) . from_byte (to_byte x) = x.
 Proof.
   intros x.
-  match &x with | UInt8_introduction b end.
+  match &x with | introduction b end.
   simpl to_byte, from_byte in |- *.
   quod idem est.
 Qed.

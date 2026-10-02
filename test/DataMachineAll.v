@@ -48,16 +48,16 @@ Definition data_machine_all_delivers_byte_rotation_inverse
 
 Definition data_machine_all_computes_byte_shift_right
   : Byte.shift_right (Byte.flip Byte.Zero) 3%n0
-      = Byte.Byte_introduction
+      = Byte.introduction
           Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One Bit.One Bit.One Bit.One
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_byte_rotate_left
   : Byte.rotate_left
-      (Byte.Byte_introduction
+      (Byte.introduction
         Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One)
       1%n0
-      = Byte.Byte_introduction
+      = Byte.introduction
           Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One Bit.One
   := Identity.reflexivity _.
 
@@ -186,7 +186,7 @@ Definition data_machine_all_reads_uint8_literal
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_uint8_literal_hexadecimal
-  : 0xFF%uint8 = UInt8.UInt8_introduction (Byte.flip Byte.Zero)
+  : 0xFF%uint8 = UInt8.introduction (Byte.flip Byte.Zero)
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_uint8_literal_arithmetic
@@ -370,7 +370,7 @@ Definition data_machine_all_delivers_hword_rotation_inverse
   := HWord.rotation.left.inverse.
 
 Definition data_machine_all_reads_hword_literal_little_endian
-  : 0x1234%hword = HWord.HWord_introduction Endian.Little 0x34%byte 0x12%byte
+  : 0x1234%hword = HWord.introduction Endian.Little 0x34%byte 0x12%byte
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_hword_literal_little_endian_key
@@ -378,7 +378,7 @@ Definition data_machine_all_reads_hword_literal_little_endian_key
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_hword_literal_big_endian
-  : 0x1234%hword_big = HWord.HWord_introduction Endian.Big 0x12%byte 0x34%byte
+  : 0x1234%hword_big = HWord.introduction Endian.Big 0x12%byte 0x34%byte
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_hword_with_endian
@@ -505,7 +505,7 @@ Definition data_machine_all_computes_uint16_comparison
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_uint16_literal_hexadecimal
-  : 0xFFFF%uint16 = UInt16.UInt16_introduction (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
+  : 0xFFFF%uint16 = UInt16.introduction (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_uint16_literal_arithmetic
@@ -701,7 +701,7 @@ Definition data_machine_all_delivers_word_rotation_inverse
 
 Definition data_machine_all_reads_word_literal_little_endian
   : 0x12345678%word
-    = Word.Word_introduction Endian.Little 0x78%byte 0x56%byte 0x34%byte 0x12%byte
+    = Word.introduction Endian.Little 0x78%byte 0x56%byte 0x34%byte 0x12%byte
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_word_literal_little_endian_key
@@ -710,7 +710,7 @@ Definition data_machine_all_reads_word_literal_little_endian_key
 
 Definition data_machine_all_reads_word_literal_big_endian
   : 0x12345678%word_big
-    = Word.Word_introduction Endian.Big 0x12%byte 0x34%byte 0x56%byte 0x78%byte
+    = Word.introduction Endian.Big 0x12%byte 0x34%byte 0x56%byte 0x78%byte
   := Identity.reflexivity _.
 
 Definition data_machine_all_computes_word_with_endian
@@ -839,7 +839,7 @@ Definition data_machine_all_computes_uint32_comparison
 
 Definition data_machine_all_reads_uint32_literal_hexadecimal
   : 0xFFFFFFFF%uint32
-    = UInt32.UInt32_introduction
+    = UInt32.introduction
         (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
   := Identity.reflexivity _.
 
@@ -1035,13 +1035,13 @@ Definition data_machine_all_delivers_dword_rotation_inverse
 
 Definition data_machine_all_reads_dword_literal_little_endian
   : 0x0123456789ABCDEF%dword
-    = DWord.DWord_introduction Endian.Little
+    = DWord.introduction Endian.Little
         0xEF%byte 0xCD%byte 0xAB%byte 0x89%byte 0x67%byte 0x45%byte 0x23%byte 0x01%byte
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_dword_literal_big_endian
   : 0x0123456789ABCDEF%dword_big
-    = DWord.DWord_introduction Endian.Big
+    = DWord.introduction Endian.Big
         0x01%byte 0x23%byte 0x45%byte 0x67%byte 0x89%byte 0xAB%byte 0xCD%byte 0xEF%byte
   := Identity.reflexivity _.
 
@@ -1167,7 +1167,7 @@ Definition data_machine_all_computes_uint64_comparison
 
 Definition data_machine_all_reads_uint64_literal_hexadecimal
   : 0xFFFFFFFFFFFFFFFF%uint64
-    = UInt64.UInt64_introduction
+    = UInt64.introduction
         (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
         (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero) (Byte.flip Byte.Zero)
   := Identity.reflexivity _.
@@ -1367,14 +1367,14 @@ Definition data_machine_all_delivers_qword_rotation_inverse
 
 Definition data_machine_all_reads_qword_literal_little_endian
   : 0x000102030405060708090A0B0C0D0E0F%qword
-    = QWord.QWord_introduction Endian.Little
+    = QWord.introduction Endian.Little
         0x0F%byte 0x0E%byte 0x0D%byte 0x0C%byte 0x0B%byte 0x0A%byte 0x09%byte 0x08%byte
         0x07%byte 0x06%byte 0x05%byte 0x04%byte 0x03%byte 0x02%byte 0x01%byte 0x00%byte
   := Identity.reflexivity _.
 
 Definition data_machine_all_reads_qword_literal_big_endian
   : 0x000102030405060708090A0B0C0D0E0F%qword_big
-    = QWord.QWord_introduction Endian.Big
+    = QWord.introduction Endian.Big
         0x00%byte 0x01%byte 0x02%byte 0x03%byte 0x04%byte 0x05%byte 0x06%byte 0x07%byte
         0x08%byte 0x09%byte 0x0A%byte 0x0B%byte 0x0C%byte 0x0D%byte 0x0E%byte 0x0F%byte
   := Identity.reflexivity _.
