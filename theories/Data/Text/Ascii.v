@@ -14,18 +14,18 @@ Module Ascii. (* Ascii *)
  * Latin-1, which maps them one to one onto U+0080 to U+00FF.
  *)
 Inductive T : Type :=
-  | Ascii_introduction : Byte -> T.
+  | introduction : Byte -> T.
 
 Abbreviation Ascii := T.
 
 (* [Ascii -> Byte] *)
 Definition to_byte := fun (c : Ascii) .
   match c with
-  | Ascii_introduction b => b
+  | Ascii.introduction b => b
   end.
 
 (* [Byte -> Ascii] *)
-Definition from_byte := fun (b : Byte) . Ascii_introduction b.
+Definition from_byte := fun (b : Byte) . Ascii.introduction b.
 
 Local Open Scope jwa_list_scope.
 
@@ -46,15 +46,15 @@ Definition from_source_bytes := fun (l : List SourceByte) .
   match l with
   | s :: [] =>
       match SourceByte.to_byte s with
-      | Byte.Byte_introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0 =>
-          Some (Ascii_introduction (Byte.Byte_introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0))
+      | Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0 =>
+          Some (Ascii.introduction (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0))
       | _ => None
       end
   | s1 :: s2 :: [] =>
       match SourceByte.to_byte s1, SourceByte.to_byte s2 with
-      | Byte.Byte_introduction Bit.One Bit.One  Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6,
-        Byte.Byte_introduction Bit.One Bit.Zero b5       b4       b3       b2       b1      b0 =>
-          Some (Ascii_introduction (Byte.Byte_introduction Bit.One b6 b5 b4 b3 b2 b1 b0))
+      | Byte.introduction Bit.One Bit.One  Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6,
+        Byte.introduction Bit.One Bit.Zero b5       b4       b3       b2       b1      b0 =>
+          Some (Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0))
       | _, _ => None
       end
   | _ => None
@@ -64,12 +64,12 @@ Definition from_source_bytes := fun (l : List SourceByte) .
 (* [Ascii -> List SourceByte] *)
 Definition to_source_bytes := fun (c : Ascii) .
   match c with
-  | Ascii_introduction (Byte.Byte_introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) =>
-      SourceByte.from_byte (Byte.Byte_introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) :: []
-  | Ascii_introduction (Byte.Byte_introduction Bit.One b6 b5 b4 b3 b2 b1 b0) =>
+  | Ascii.introduction (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) =>
+      SourceByte.from_byte (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) :: []
+  | Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0) =>
       SourceByte.from_byte
-        (Byte.Byte_introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
-      :: SourceByte.from_byte (Byte.Byte_introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
+        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
+      :: SourceByte.from_byte (Byte.introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
       :: []
   end.
 
@@ -95,7 +95,7 @@ Qed.
 Theorem section : forall (c : Ascii) . from_byte (to_byte c) = c.
 Proof.
   intros c.
-  match &c with | Ascii_introduction b end.
+  match &c with | introduction b end.
   simpl to_byte, from_byte in |- *.
   quod idem est.
 Qed.
@@ -112,22 +112,22 @@ Module source_bytes. (* conversion.source_bytes *)
 Theorem section : forall (c : Ascii) . from_source_bytes (to_source_bytes c) = Some c.
 Proof.
   intros c.
-  match &c with | Ascii_introduction b end.
-  match &b with | Byte_introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
   match &b7 with | Zero | One end.
   - simpl to_source_bytes, from_source_bytes in |- *.
     leibniz
       (SourceByte.conversion.byte.retraction
-        (Byte.Byte_introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0))
+        (Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0))
       in |- *.
     simpl in |- *.
     quod idem est.
   - simpl to_source_bytes, from_source_bytes in |- *.
     leibniz
       (SourceByte.conversion.byte.retraction
-        (Byte.Byte_introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6)),
+        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6)),
       (SourceByte.conversion.byte.retraction
-        (Byte.Byte_introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0))
+        (Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0))
       in |- *.
     simpl in |- *.
     quod idem est.

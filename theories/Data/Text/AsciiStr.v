@@ -16,7 +16,7 @@ Module AsciiStr. (* AsciiStr *)
 
 (* A string of [Ascii] characters, the first character first. *)
 Inductive T : Type :=
-  | AsciiStr_introduction : List Ascii -> T.
+  | introduction : List Ascii -> T.
 
 Abbreviation AsciiStr := T.
 
@@ -25,18 +25,18 @@ Local Open Scope jwa_list_scope.
 (* [AsciiStr -> List Ascii] *)
 Definition to_list := fun (s : AsciiStr) .
   match s with
-  | AsciiStr_introduction l => l
+  | AsciiStr.introduction l => l
   end.
 
 (* [List Ascii -> AsciiStr] *)
-Definition from_list := fun (l : List Ascii) . AsciiStr_introduction l.
+Definition from_list := fun (l : List Ascii) . AsciiStr.introduction l.
 
 (* [AsciiStr] *)
-Definition empty := AsciiStr_introduction [].
+Definition empty := AsciiStr.introduction [].
 
 (* [AsciiStr -> AsciiStr -> AsciiStr] *)
 Definition concat := fun (s : AsciiStr) (t : AsciiStr) .
-  AsciiStr_introduction (to_list s ++ to_list t).
+  AsciiStr.introduction (to_list s ++ to_list t).
 
 (* [only parsing] keeps goals printing the operation by name. *)
 Notation "s ++ t" := (concat s t) (only parsing)
@@ -72,7 +72,7 @@ Fixpoint list_from_source_bytes (l : List SourceByte) : Option (List Ascii) :=
 
 (* [List SourceByte -> Option AsciiStr] *)
 Definition from_source_bytes := fun (l : List SourceByte) .
-  Option.map AsciiStr_introduction (list_from_source_bytes l).
+  Option.map AsciiStr.introduction (list_from_source_bytes l).
 
 (* The UTF-8 bytes of [s], each character's bytes by [Ascii.to_source_bytes]. *)
 (* [AsciiStr -> List SourceByte] *)
@@ -104,7 +104,7 @@ Qed.
 Theorem section : forall (s : AsciiStr) . from_list (to_list s) = s.
 Proof.
   intros s.
-  match &s with | AsciiStr_introduction l end.
+  match &s with | introduction l end.
   simpl to_list, from_list in |- *.
   quod idem est.
 Qed.
@@ -123,16 +123,16 @@ Lemma prefix
       = Option.map (List.Cons c) (list_from_source_bytes rest).
 Proof.
   intros c rest.
-  match &c with | Ascii_introduction b end.
-  match &b with | Byte_introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &c with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
   match &b7 with | Zero | One end.
   - simpl Ascii.to_source_bytes in |- *.
-    let x := SourceByte.from_byte (Byte.Byte_introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0)
+    let x := SourceByte.from_byte (Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0)
       in |- *.
     let proof hx
-      : SourceByte.to_byte &x = Byte.Byte_introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0
+      : SourceByte.to_byte &x = Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0
       := SourceByte.conversion.byte.retraction
-           (Byte.Byte_introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0).
+           (Byte.introduction Bit.Zero &b6 &b5 &b4 &b3 &b2 &b1 &b0).
     let proof x := &x.
     simpl in |- *.
     leibniz &hx in |- *.
@@ -141,19 +141,19 @@ Proof.
   - simpl Ascii.to_source_bytes in |- *.
     let x1 :=
       SourceByte.from_byte
-        (Byte.Byte_introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6)
+        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6)
       in |- *.
-    let x2 := SourceByte.from_byte (Byte.Byte_introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0)
+    let x2 := SourceByte.from_byte (Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0)
       in |- *.
     let proof hx1
       : SourceByte.to_byte &x1
-        = Byte.Byte_introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6
+        = Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6
       := SourceByte.conversion.byte.retraction
-           (Byte.Byte_introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6).
+           (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One &b6).
     let proof hx2
-      : SourceByte.to_byte &x2 = Byte.Byte_introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0
+      : SourceByte.to_byte &x2 = Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0
       := SourceByte.conversion.byte.retraction
-           (Byte.Byte_introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0).
+           (Byte.introduction Bit.One Bit.Zero &b5 &b4 &b3 &b2 &b1 &b0).
     let proof x1 := &x1.
     let proof x2 := &x2.
     simpl in |- *.
@@ -170,7 +170,7 @@ Qed.
 Theorem section : forall (s : AsciiStr) . from_source_bytes (to_source_bytes s) = Some s.
 Proof.
   intros s.
-  match &s with | AsciiStr_introduction l end.
+  match &s with | introduction l end.
   lemma characters
     : forall (cs : List Ascii) .
         list_from_source_bytes
@@ -223,9 +223,9 @@ Theorem associativity
   : forall (s : AsciiStr) (t : AsciiStr) (u : AsciiStr) . ((s ++ t) ++ u = s ++ (t ++ u))%a.
 Proof.
   intros s t u.
-  match &s with | AsciiStr_introduction l1 end.
-  match &t with | AsciiStr_introduction l2 end.
-  match &u with | AsciiStr_introduction l3 end.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  match &u with | introduction l3 end.
   simpl concat, to_list in |- *.
   leibniz (List.concatenation.associativity &l1 &l2 &l3) in |- *.
   quod idem est.
@@ -236,7 +236,7 @@ Theorem identity
   : forall (s : AsciiStr) . ((empty ++ s = s) /\ (s ++ empty = s))%a.
 Proof.
   intros s.
-  match &s with | AsciiStr_introduction l end.
+  match &s with | introduction l end.
   match (List.concatenation.identity &l) with | left right end.
   divide et impera.
   - simpl concat, to_list, empty in |- *.
@@ -261,8 +261,8 @@ Theorem concatenation
       length (s ++ t)%a = (length s + length t)%n0.
 Proof.
   intros s t.
-  match &s with | AsciiStr_introduction l1 end.
-  match &t with | AsciiStr_introduction l2 end.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
   simpl length, concat, to_list in |- *.
   ipso (List.length.additivity.over.concatenation &l1 &l2).
 Qed.
