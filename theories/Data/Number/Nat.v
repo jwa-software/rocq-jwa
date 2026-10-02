@@ -1394,9 +1394,7 @@ Qed.
 
 Module inversion. (* subtraction.inversion *)
 
-Module of. (* subtraction.inversion.of *)
-
-(* subtraction.inversion.of.addition *)
+(* subtraction.inversion.addition *)
 Theorem addition
   : forall (m : Nat) (n : Nat) . sub (m + n) n = Some m.
 Proof.
@@ -1410,8 +1408,6 @@ Proof.
     leibniz (addition.commutativity n' m) in |- *.
     ipso IH.
 Qed.
-
-End of. (* subtraction.inversion.of *)
 
 End inversion. (* subtraction.inversion *)
 
@@ -1471,7 +1467,7 @@ Proof.
   symm in e.
   leibniz e in |- *.
   leibniz (addition.commutativity n k) in |- *.
-  ipso (subtraction.inversion.of.addition k n).
+  ipso (subtraction.inversion.addition k n).
 Qed.
 
 End backward. (* subtraction.backward *)
@@ -1501,20 +1497,16 @@ Qed.
 
 Module inversion. (* subtraction.saturating.inversion *)
 
-Module of. (* subtraction.saturating.inversion.of *)
-
-(* subtraction.saturating.inversion.of.addition *)
+(* subtraction.saturating.inversion.addition *)
 Theorem addition
   : forall (m : Nat) (n : Nat) . saturating_sub (m + n) n = m.
 Proof.
   intros m n.
   simpl saturating_sub in |- *.
-  leibniz (subtraction.inversion.of.addition m n) in |- *.
+  leibniz (subtraction.inversion.addition m n) in |- *.
   simpl in |- *.
   quod idem est.
 Qed.
-
-End of. (* subtraction.saturating.inversion.of *)
 
 End inversion. (* subtraction.saturating.inversion *)
 

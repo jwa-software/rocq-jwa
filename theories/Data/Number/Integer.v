@@ -389,9 +389,7 @@ Module left. (* difference.nat.left *)
 
 Module inversion. (* difference.nat.left.inversion *)
 
-Module of. (* difference.nat.left.inversion.of *)
-
-(* difference.nat.left.inversion.of.addition *)
+(* difference.nat.left.inversion.addition *)
 Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference (k + p)%n p = + k.
 Proof.
@@ -406,8 +404,6 @@ Proof.
     ipso IH.
 Qed.
 
-End of. (* difference.nat.left.inversion.of *)
-
 End inversion. (* difference.nat.left.inversion *)
 
 End left. (* difference.nat.left *)
@@ -416,9 +412,7 @@ Module right. (* difference.nat.right *)
 
 Module inversion. (* difference.nat.right.inversion *)
 
-Module of. (* difference.nat.right.inversion.of *)
-
-(* difference.nat.right.inversion.of.addition *)
+(* difference.nat.right.inversion.addition *)
 Lemma addition
   : forall (k : Nat) (p : Nat) . nat_difference p (k + p)%n = - k.
 Proof.
@@ -432,8 +426,6 @@ Proof.
     leibniz (Nat.addition.commutativity p' k) in |- *.
     ipso IH.
 Qed.
-
-End of. (* difference.nat.right.inversion.of *)
 
 End inversion. (* difference.nat.right.inversion *)
 
@@ -455,12 +447,12 @@ Proof.
     symm in e.
     leibniz e in h |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
-    leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
+    leibniz (difference.nat.right.inversion.addition k p) in |- *.
     leibniz (Nat.addition.left.commutativity r p k) in h.
     let proof e'' := Nat.addition.left.cancellation h.
     leibniz e'' in |- *.
     leibniz (Nat.addition.commutativity r k) in |- *.
-    leibniz (difference.nat.right.inversion.of.addition k r) in |- *.
+    leibniz (difference.nat.right.inversion.addition k r) in |- *.
     quod idem est.
   - match rest with | eq | gt end.
     + leibniz &eq in h |- *.
@@ -475,13 +467,13 @@ Proof.
       symm in e.
       leibniz e in h |- *.
       leibniz (Nat.addition.commutativity q k) in |- *.
-      leibniz (difference.nat.left.inversion.of.addition k q) in |- *.
+      leibniz (difference.nat.left.inversion.addition k q) in |- *.
       leibniz (Nat.addition.associativity q k s) in h.
       leibniz (Nat.addition.commutativity r q) in h.
       let proof e'' := Nat.addition.left.cancellation h.
       symm in e''.
       leibniz e'' in |- *.
-      leibniz (difference.nat.left.inversion.of.addition k s) in |- *.
+      leibniz (difference.nat.left.inversion.addition k s) in |- *.
       quod idem est.
 Qed.
 
@@ -497,8 +489,8 @@ Proof.
     symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
-    leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
-    leibniz (difference.nat.left.inversion.of.addition  k p) in |- *.
+    leibniz (difference.nat.right.inversion.addition k p) in |- *.
+    leibniz (difference.nat.left.inversion.addition  k p) in |- *.
     simpl in |- *.
     quod idem est.
   - match rest with | eq | gt end.
@@ -511,8 +503,8 @@ Proof.
       symm in e.
       leibniz e in |- *.
       leibniz (Nat.addition.commutativity q k) in |- *.
-      leibniz (difference.nat.left.inversion.of.addition  k q) in |- *.
-      leibniz (difference.nat.right.inversion.of.addition k q) in |- *.
+      leibniz (difference.nat.left.inversion.addition  k q) in |- *.
+      leibniz (difference.nat.right.inversion.addition k q) in |- *.
       simpl in |- *.
       quod idem est.
 Qed.
@@ -531,7 +523,7 @@ Proof.
     symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
-    leibniz (difference.nat.right.inversion.of.addition k p) in |- *.
+    leibniz (difference.nat.right.inversion.addition k p) in |- *.
     simpl in |- *.
     quod idem est.
   - match rest with | eq | gt end.
@@ -544,7 +536,7 @@ Proof.
       symm in e.
       leibniz e in |- *.
       leibniz (Nat.addition.commutativity q k) in |- *.
-      leibniz (difference.nat.left.inversion.of.addition k q) in |- *.
+      leibniz (difference.nat.left.inversion.addition k q) in |- *.
       simpl in |- *.
       quod idem est.
 Qed.
@@ -568,7 +560,7 @@ Proof.
     symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p k) in |- *.
-    ipso (difference.nat.right.inversion.of.addition k p).
+    ipso (difference.nat.right.inversion.addition k p).
 Qed.
 
 End negative. (* difference.nat.negative *)
@@ -613,7 +605,7 @@ Proof.
     symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity q k) in |- *.
-    ipso (difference.nat.left.inversion.of.addition k q).
+    ipso (difference.nat.left.inversion.addition k q).
 Qed.
 
 End positive. (* difference.nat.positive *)
@@ -631,10 +623,10 @@ Proof.
     symm in e.
     leibniz e in |- *.
     leibniz (Nat.addition.commutativity p j) in |- *.
-    leibniz (difference.nat.right.inversion.of.addition j p) in |- *.
+    leibniz (difference.nat.right.inversion.addition j p) in |- *.
     simpl in |- *.
     leibniz (Nat.multiplication.left.distributivity.over.addition k j p) in |- *.
-    leibniz (difference.nat.right.inversion.of.addition
+    leibniz (difference.nat.right.inversion.addition
               (k * j)%n (k * p)%n) in |- *.
     quod idem est.
   - match rest with | eq | gt end.
@@ -648,10 +640,10 @@ Proof.
       symm in e.
       leibniz e in |- *.
       leibniz (Nat.addition.commutativity q j) in |- *.
-      leibniz (difference.nat.left.inversion.of.addition j q) in |- *.
+      leibniz (difference.nat.left.inversion.addition j q) in |- *.
       simpl in |- *.
       leibniz (Nat.multiplication.left.distributivity.over.addition k j q) in |- *.
-      leibniz (difference.nat.left.inversion.of.addition
+      leibniz (difference.nat.left.inversion.addition
                 (k * j)%n (k * q)%n) in |- *.
       quod idem est.
 Qed.
@@ -684,9 +676,7 @@ Module left. (* difference.nat0.left *)
 
 Module inversion. (* difference.nat0.left.inversion *)
 
-Module of. (* difference.nat0.left.inversion.of *)
-
-(* difference.nat0.left.inversion.of.addition *)
+(* difference.nat0.left.inversion.addition *)
 Lemma addition
   : forall (k : Nat) (a : Nat0) .
       nat0_difference (k + a)%n0 a = + k.
@@ -696,10 +686,8 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    ipso (difference.nat.left.inversion.of.addition k q).
+    ipso (difference.nat.left.inversion.addition k q).
 Qed.
-
-End of. (* difference.nat0.left.inversion.of *)
 
 End inversion. (* difference.nat0.left.inversion *)
 
@@ -709,9 +697,7 @@ Module right. (* difference.nat0.right *)
 
 Module inversion. (* difference.nat0.right.inversion *)
 
-Module of. (* difference.nat0.right.inversion.of *)
-
-(* difference.nat0.right.inversion.of.addition *)
+(* difference.nat0.right.inversion.addition *)
 Lemma addition
   : forall (k : Nat) (a : Nat0) .
       nat0_difference a (k + a)%n0 = - k.
@@ -721,10 +707,8 @@ Proof.
   - simpl in |- *.
     quod idem est.
   - simpl in |- *.
-    ipso (difference.nat.right.inversion.of.addition k q).
+    ipso (difference.nat.right.inversion.addition k q).
 Qed.
-
-End of. (* difference.nat0.right.inversion.of *)
 
 End inversion. (* difference.nat0.right.inversion *)
 
@@ -766,14 +750,14 @@ Proof.
   - simpl in h.
     leibniz h in |- *.
     leibniz (Nat0.addition.commutativity c q) in |- *.
-    leibniz (difference.nat0.right.inversion.of.addition q c) in |- *.
+    leibniz (difference.nat0.right.inversion.addition q c) in |- *.
     simpl in |- *.
     quod idem est.
   - leibniz (Nat0.addition.commutativity c Nat0.Zero) in h.
     let proof h : (p + d)%n0 = c := &h.
     symm in h.
     leibniz h in |- *.
-    leibniz (difference.nat0.left.inversion.of.addition p d) in |- *.
+    leibniz (difference.nat0.left.inversion.addition p d) in |- *.
     simpl in |- *.
     quod idem est.
   - match c with | | r end; match d with | | s end.
@@ -789,13 +773,13 @@ Proof.
       leibniz e in |- *.
       simpl in |- *.
       leibniz (Nat.addition.commutativity p s) in |- *.
-      leibniz (difference.nat.right.inversion.of.addition s p) in |- *.
+      leibniz (difference.nat.right.inversion.addition s p) in |- *.
       quod idem est.
     + simpl in h.
       let proof e := Nat0.positive.injectivity h.
       leibniz e in |- *.
       simpl in |- *.
-      leibniz (difference.nat.left.inversion.of.addition r q) in |- *.
+      leibniz (difference.nat.left.inversion.addition r q) in |- *.
       quod idem est.
     + simpl in h.
       let proof e := Nat0.positive.injectivity h.
@@ -1145,9 +1129,7 @@ Module subtraction. (* subtraction *)
 
 Module inversion. (* subtraction.inversion *)
 
-Module of. (* subtraction.inversion.of *)
-
-(* subtraction.inversion.of.addition *)
+(* subtraction.inversion.addition *)
 Theorem addition
   : forall (m : Integer) (n : Integer) . sub (m + n) n = m.
 Proof.
@@ -1157,8 +1139,6 @@ Proof.
   leibniz (addition.right.inverse n) in |- *.
   ipso (addition.right.identity m).
 Qed.
-
-End of. (* subtraction.inversion.of *)
 
 End inversion. (* subtraction.inversion *)
 
@@ -1674,7 +1654,7 @@ Proof.
     quod idem est.
   - intro c.
     exists (n' + m')%n.
-    ipso (difference.nat.left.inversion.of.addition n' m').
+    ipso (difference.nat.left.inversion.addition n' m').
   - intro h.
     quod idem est.
   - intro c.

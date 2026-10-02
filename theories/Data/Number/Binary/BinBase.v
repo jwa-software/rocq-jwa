@@ -1060,7 +1060,7 @@ Proof.
     simpl in |- *.
     leibniz <- &h in |- *.
     leibniz (Nat.addition.commutativity (to_nat &b) (to_nat &p)) in |- *.
-    leibniz (Nat.subtraction.inversion.of.addition (to_nat &p) (to_nat &b)) in |- *.
+    leibniz (Nat.subtraction.inversion.addition (to_nat &p) (to_nat &b)) in |- *.
     quod idem est.
 Qed.
 

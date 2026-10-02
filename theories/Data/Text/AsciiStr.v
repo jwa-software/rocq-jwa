@@ -346,18 +346,14 @@ Module uppercasing. (* uppercasing *)
 
 Module preservation. (* uppercasing.preservation *)
 
-Module of. (* uppercasing.preservation.of *)
-
-(* uppercasing.preservation.of.length *)
+(* uppercasing.preservation.length *)
 Theorem length : forall (s : AsciiStr) . length (to_upper s) = length s.
 Proof.
   intros s.
   match &s with | introduction l end.
   simpl length, to_upper, to_list in |- *.
-  ipso (List.mapping.preservation.of.length Ascii.to_upper &l).
+  ipso (List.mapping.preservation.length Ascii.to_upper &l).
 Qed.
-
-End of. (* uppercasing.preservation.of *)
 
 End preservation. (* uppercasing.preservation *)
 
@@ -388,18 +384,14 @@ Module lowercasing. (* lowercasing *)
 
 Module preservation. (* lowercasing.preservation *)
 
-Module of. (* lowercasing.preservation.of *)
-
-(* lowercasing.preservation.of.length *)
+(* lowercasing.preservation.length *)
 Theorem length : forall (s : AsciiStr) . length (to_lower s) = length s.
 Proof.
   intros s.
   match &s with | introduction l end.
   simpl length, to_lower, to_list in |- *.
-  ipso (List.mapping.preservation.of.length Ascii.to_lower &l).
+  ipso (List.mapping.preservation.length Ascii.to_lower &l).
 Qed.
-
-End of. (* lowercasing.preservation.of *)
 
 End preservation. (* lowercasing.preservation *)
 

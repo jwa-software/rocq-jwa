@@ -264,9 +264,7 @@ Module currying. (* currying *)
 
 Module inversion. (* currying.inversion *)
 
-Module of. (* currying.inversion.of *)
-
-(* currying.inversion.of.uncurrying *)
+(* currying.inversion.uncurrying *)
 Theorem uncurrying
   : forall {A : Type} {B : Type} {C : Type} (f : A -> B -> C) (a : A) (b : B) .
       curry (uncurry f) a b = f a b.
@@ -277,8 +275,6 @@ Proof.
   quod idem est.
 Qed.
 
-End of. (* currying.inversion.of *)
-
 End inversion. (* currying.inversion *)
 
 End currying. (* currying *)
@@ -287,9 +283,7 @@ Module uncurrying. (* uncurrying *)
 
 Module inversion. (* uncurrying.inversion *)
 
-Module of. (* uncurrying.inversion.of *)
-
-(* uncurrying.inversion.of.currying *)
+(* uncurrying.inversion.currying *)
 Theorem currying
   : forall {A : Type} {B : Type} {C : Type} (f : Product A B -> C) (p : Product A B) .
       uncurry (curry f) p = f p.
@@ -300,8 +294,6 @@ Proof.
   simpl curry in |- *.
   quod idem est.
 Qed.
-
-End of. (* uncurrying.inversion.of *)
 
 End inversion. (* uncurrying.inversion *)
 

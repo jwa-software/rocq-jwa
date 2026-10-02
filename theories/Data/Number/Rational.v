@@ -295,7 +295,7 @@ Proof.
         = (k * Integer.abs n)%n0
       := &am.
     leibniz am in |- *.
-    let proof gd := Nat0.gcd.nat.left.distributivity.of.multiplication
+    let proof gd := Nat0.gcd.nat.left.distributivity.multiplication
                   k d (Integer.abs n).
     symm in gd.
     ipso gd.
