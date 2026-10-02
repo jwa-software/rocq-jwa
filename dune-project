@@ -18,5 +18,5 @@
  (description
   "rocq-jwa is a general-purpose Rocq library organised in layers, each a separate theory under the logical root jwa: Dialect, Core, Tactics, Algebra, Relation, Data, Assumption and Programming. Clients import a layer with From jwa Require Import <Layer>.All, or everything but the axiom layer with From jwa Require Import All.")
  (depends
-  (rocq-core (>= 9.2)))
+  (rocq-core (and (>= 9.2) (< 9.4))))
  (tags (rocq "logpath:jwa")))
