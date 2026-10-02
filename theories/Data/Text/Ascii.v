@@ -1,12 +1,17 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.List.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Byte.
+From jwa Require Import Data.Machine.UInt8.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.SourceByte.
+From jwa Require Import Tactics.Equation.
+From jwa Require Import Tactics.Modus.
 
 Module Ascii. (* Ascii *)
 
@@ -26,6 +31,10 @@ Definition to_byte := fun (c : Ascii) .
 
 (* [Byte -> Ascii] *)
 Definition from_byte := fun (b : Byte) . Ascii.introduction b.
+
+(* The character's code, from 0 to 255, as an unsigned byte. *)
+(* [Ascii -> UInt8] *)
+Definition code := fun (c : Ascii) . UInt8.from_byte (to_byte c).
 
 Local Open Scope jwa_list_scope.
 
@@ -73,6 +82,46 @@ Definition to_source_bytes := fun (c : Ascii) .
       :: []
   end.
 
+(* Characters are ordered by their codes. *)
+(* [Ascii -> Ascii -> Prop] *)
+Definition LessThan := fun (x : Ascii) (y : Ascii) . (code x < code y)%uint8.
+
+Notation "x < y" := (LessThan x y) (only parsing)
+  : jwa_ascii_scope.
+
+(* [Ascii -> Ascii -> Prop] *)
+Definition LessOrEqual := fun (x : Ascii) (y : Ascii) . x = y \/ LessThan x y.
+
+Notation "x <= y" := (LessOrEqual x y) (only parsing)
+  : jwa_ascii_scope.
+
+Notation "x > y" := (LessThan y x) (only parsing)
+  : jwa_ascii_scope.
+Notation "x >= y" := (LessOrEqual y x) (only parsing)
+  : jwa_ascii_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_ascii_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_ascii_scope.
+
+(* [Ascii -> Ascii -> Comparison] *)
+Definition compare := fun (x : Ascii) (y : Ascii) . UInt8.compare (code x) (code y).
+
+(* [Ascii -> Ascii -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [Ascii -> Ascii -> Bool] *)
+Abbreviation le := (Comparable.le compare).
+
+(* [Ascii -> Ascii -> Ascii] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [Ascii -> Ascii -> Ascii] *)
+Abbreviation max := (Comparable.max compare).
+
+Local Open Scope jwa_ascii_scope.
+
 Module conversion. (* conversion *)
 
 Module byte. (* conversion.byte *)
@@ -101,6 +150,25 @@ Proof.
 Qed.
 
 End byte. (* conversion.byte *)
+
+Module code. (* conversion.code *)
+
+(* conversion.code.injectivity *)
+Theorem injectivity : forall {x : Ascii} {y : Ascii} . code x = code y -> x = y.
+Proof.
+  intros x y e.
+  simpl code in &e.
+  congru UInt8.to_byte, &e |- f.
+  leibniz
+    (UInt8.conversion.byte.retraction (to_byte &x)),
+    (UInt8.conversion.byte.retraction (to_byte &y))
+    in &f.
+  congru from_byte, &f |- g.
+  leibniz (conversion.byte.section &x), (conversion.byte.section &y) in &g.
+  ipso &g.
+Qed.
+
+End code. (* conversion.code *)
 
 Module source_bytes. (* conversion.source_bytes *)
 
@@ -137,12 +205,71 @@ End source_bytes. (* conversion.source_bytes *)
 
 End conversion. (* conversion *)
 
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {x : Ascii} {y : Ascii} {z : Ascii} . x < y -> y < z -> x < z.
+Proof.
+  intros x y z h1 h2.
+  simpl LessThan in &h1, &h2 |- *.
+  ipso (UInt8.order.strict.transitivity &h1 &h2).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (x : Ascii) (y : Ascii) .
+      (compare x y = Comparison.Lt <-> x < y) /\ (compare x y = Comparison.Eq <-> x = y).
+Proof.
+  intros x y.
+  simpl compare, LessThan in |- *.
+  let proof s := UInt8.comparison.specification (code &x) (code &y).
+  match &s with | strict equality end.
+  divide et impera.
+  - ipso &strict.
+  - divide et impera.
+    + intro c.
+      ipso (conversion.code.injectivity (modus aequans &equality, &c)).
+    + intro e.
+      ipso (modus aequans &equality, (congru code, &e)).
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (x : Ascii) (y : Ascii) . compare x y = Comparison.transpose (compare y x).
+Proof.
+  intros x y.
+  simpl compare in |- *.
+  ipso (UInt8.comparison.antisymmetry (code &x) (code &y)).
+Qed.
+
+End comparison. (* comparison *)
+
+Instance comparable
+  : Comparable compare (<) :=
+  {| Comparable.transitivity := @order.strict.transitivity
+  ; Comparable.specification := comparison.specification
+  ; Comparable.antisymmetry := comparison.antisymmetry |}.
+
 End Ascii. (* Ascii *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
  * [Ascii], not [Ascii.T].
  *)
 Abbreviation Ascii := Ascii.T.
+
+(* Makes the notations declared in [Module Ascii] usable in every file that
+ * imports this one, as [(x < y)%ac] or under an opened [jwa_ascii_scope].
+ *)
+Export (notations) Ascii.
 
 (* A character is written as a string of one character under its key,
  * ["A"%ac], and a closed one prints back so.

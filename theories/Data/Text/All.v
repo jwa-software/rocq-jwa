@@ -14,10 +14,13 @@ From jwa Require Export Core.All.
 
 (* An umbrella exports every type the interfaces under it name: [Byte] for
  * the conversions to and from bytes, [List] and [Option] for those to and
- * from a string literal and a list of characters, [Nat0] for a length.
+ * from a string literal and a list of characters, [Nat0] for a length,
+ * [UInt8] for a character's code and [Comparison] for a comparison.
  *)
+From jwa Require Export Data.Base.Comparison.
 From jwa Require Export Data.Collection.List.
 From jwa Require Export Data.Machine.Byte.
+From jwa Require Export Data.Machine.UInt8.
 From jwa Require Export Data.Number.Nat0.
 From jwa Require Export Data.Option.
 
