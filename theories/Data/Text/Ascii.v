@@ -525,9 +525,7 @@ Qed.
 
 Module inversion. (* uppercasing.inversion *)
 
-Module of. (* uppercasing.inversion.of *)
-
-(* uppercasing.inversion.of.lowercasing *)
+(* uppercasing.inversion.lowercasing *)
 Theorem lowercasing : forall (c : Ascii) . is_upper c = true -> to_upper (to_lower c) = c.
 Proof.
   intros c h.
@@ -538,8 +536,6 @@ Proof.
   leibniz (uppercasing.absorption &c) in |- *.
   ipso (uppercasing.invariance &c &x).
 Qed.
-
-End of. (* uppercasing.inversion.of *)
 
 End inversion. (* uppercasing.inversion *)
 
@@ -598,9 +594,7 @@ Qed.
 
 Module inversion. (* lowercasing.inversion *)
 
-Module of. (* lowercasing.inversion.of *)
-
-(* lowercasing.inversion.of.uppercasing *)
+(* lowercasing.inversion.uppercasing *)
 Theorem uppercasing : forall (c : Ascii) . is_lower c = true -> to_lower (to_upper c) = c.
 Proof.
   intros c h.
@@ -611,8 +605,6 @@ Proof.
   leibniz (lowercasing.absorption &c) in |- *.
   ipso (lowercasing.invariance &c &x).
 Qed.
-
-End of. (* lowercasing.inversion.of *)
 
 End inversion. (* lowercasing.inversion *)
 

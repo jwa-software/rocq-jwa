@@ -28,7 +28,7 @@ jobs:
       # inside the image if the one shipped is older than dune-project asks.
       - uses: coq-community/docker-coq-action@v1
         with:
-          coq_version: '9.2'
+          coq_version: '9.3'
           opam_file: '.'
           # The container user (uid 1000) does not own the checkout
           # (uid 1001). git then refuses to run in it, which breaks the

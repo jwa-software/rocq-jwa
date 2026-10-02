@@ -722,12 +722,10 @@ Qed.
 
 Module preservation. (* mapping.preservation *)
 
-Module of. (* mapping.preservation.of *)
-
 (* [map] carries membership along: an element of [l] has its image in
  * [map f l].
  *)
-(* mapping.preservation.of.membership *)
+(* mapping.preservation.membership *)
 Theorem membership
   : forall {A : Type} {B : Type} (f : A -> B) (a : A) (l : List A) .
       l contains_member a -> map f l contains_member f a.
@@ -749,7 +747,7 @@ Proof.
     + ipso (disjoin _, (&IH &h')).
 Qed.
 
-(* mapping.preservation.of.length *)
+(* mapping.preservation.length *)
 Theorem length
   : forall {A : Type} {B : Type} (f : A -> B) (l : List A) .
       (|| map f l ||) = (|| l ||).
@@ -763,14 +761,12 @@ Proof.
     quod idem est.
 Qed.
 
-End of. (* mapping.preservation.of *)
-
 End preservation. (* mapping.preservation *)
 
 Module membership. (* mapping.membership *)
 
 (* An element of [map f l] is the image of an element of [l]. The forward
- * half of [preservation.of.membership] is the other direction.
+ * half of [preservation.membership] is the other direction.
  *)
 (* mapping.membership.specification *)
 Theorem specification
@@ -798,7 +794,7 @@ Proof.
     match w with | a c end.
     match c with | m e end.
     leibniz e in |- *.
-    ipso (mapping.preservation.of.membership f a l m).
+    ipso (mapping.preservation.membership f a l m).
 Qed.
 
 End membership. (* mapping.membership *)
@@ -992,9 +988,7 @@ Module forward. (* reversal.forward *)
 
 Module preservation. (* reversal.forward.preservation *)
 
-Module of. (* reversal.forward.preservation.of *)
-
-(* reversal.forward.preservation.of.membership *)
+(* reversal.forward.preservation.membership *)
 Lemma membership
   : forall {A : Type} {a : A} {l : List A} .
       reverse l contains_member a -> l contains_member a.
@@ -1014,8 +1008,6 @@ Proof.
       * ex f quodlibet.
 Qed.
 
-End of. (* reversal.forward.preservation.of *)
-
 End preservation. (* reversal.forward.preservation *)
 
 End forward. (* reversal.forward *)
@@ -1024,9 +1016,7 @@ Module backward. (* reversal.backward *)
 
 Module preservation. (* reversal.backward.preservation *)
 
-Module of. (* reversal.backward.preservation.of *)
-
-(* reversal.backward.preservation.of.membership *)
+(* reversal.backward.preservation.membership *)
 Lemma membership
   : forall {A : Type} {a : A} {l : List A} .
       l contains_member a -> reverse l contains_member a.
@@ -1052,28 +1042,22 @@ Proof.
     ipso (membership.backward.distributivity.over.concatenation facto).
 Qed.
 
-End of. (* reversal.backward.preservation.of *)
-
 End preservation. (* reversal.backward.preservation *)
 
 End backward. (* reversal.backward *)
 
 Module preservation. (* reversal.preservation *)
 
-Module of. (* reversal.preservation.of *)
-
-(* reversal.preservation.of.membership *)
+(* reversal.preservation.membership *)
 Theorem membership
   : forall {A : Type} (a : A) (l : List A) .
       reverse l contains_member a <-> l contains_member a.
 Proof.
   intros A a l.
   divide et impera.
-  - ipso (@reversal.forward.preservation.of.membership  A a l).
-  - ipso (@reversal.backward.preservation.of.membership A a l).
+  - ipso (@reversal.forward.preservation.membership  A a l).
+  - ipso (@reversal.backward.preservation.membership A a l).
 Qed.
-
-End of. (* reversal.preservation.of *)
 
 End preservation. (* reversal.preservation *)
 
@@ -1920,12 +1904,10 @@ Module zipping. (* zipping *)
 
 Module inversion. (* zipping.inversion *)
 
-Module of. (* zipping.inversion.of *)
-
 (* Zipping the two halves of an [unzip] rebuilds the list. The other order,
  * [unzip (zip l1 l2)], needs the two lists to be of one length.
  *)
-(* zipping.inversion.of.unzipping *)
+(* zipping.inversion.unzipping *)
 Theorem unzipping
   : forall {A : Type} {B : Type} (l : List (A * B)) .
       zip (Product.first (unzip l)) (Product.second (unzip l)) = l.
@@ -1941,8 +1923,6 @@ Proof.
     leibniz <- (Product.introduction.surjectivity p) in |- *.
     quod idem est.
 Qed.
-
-End of. (* zipping.inversion.of *)
 
 End inversion. (* zipping.inversion *)
 
@@ -1973,7 +1953,7 @@ Proof.
       leibniz (IH l2') in |- *.
       leibniz (Nat0.increment.specification
                  (Nat0.min (|| l1' ||) (|| l2' ||))) in |- *.
-      leibniz (Nat0.minimum.left.distributivity.of.addition
+      leibniz (Nat0.minimum.left.distributivity.addition
                  Nat.One (|| l1' ||) (|| l2' ||)) in |- *.
       leibniz (Nat0.increment.specification (|| l1' ||)) in |- *.
       leibniz (Nat0.increment.specification (|| l2' ||)) in |- *.
@@ -1986,8 +1966,6 @@ Module unzipping. (* unzipping *)
 
 Module inversion. (* unzipping.inversion *)
 
-Module of. (* unzipping.inversion.of *)
-
 (* Unzipping a [zip] gives the two lists back when they are of one length;
  * [zip] stops with the shorter list, so a longer one is not recovered.
  * Induction on [l1] with [l2] kept in the motive, since [zip] and
@@ -1995,7 +1973,7 @@ Module of. (* unzipping.inversion.of *)
  * [Nat0.addition.right.identity.absence] and the matched case feeds the
  * hypothesis through [Nat0.addition.left.cancellation].
  *)
-(* unzipping.inversion.of.zipping *)
+(* unzipping.inversion.zipping *)
 Theorem zipping
   : forall {A : Type} {B : Type} {l1 : List A} {l2 : List B} .
       (|| l1 ||) = (|| l2 ||) -> unzip (zip l1 l2) = (l1, l2).
@@ -2038,8 +2016,6 @@ Proof.
       leibniz e2 in |- *.
       quod idem est.
 Qed.
-
-End of. (* unzipping.inversion.of *)
 
 End inversion. (* unzipping.inversion *)
 
@@ -2301,7 +2277,7 @@ Proof.
         leibniz (IH n'') in |- *.
         leibniz (Nat0.increment.specification
                   (Nat0.min n'' (|| l' ||))) in |- *.
-        leibniz (Nat0.minimum.left.distributivity.of.addition
+        leibniz (Nat0.minimum.left.distributivity.addition
                   Nat.One n'' (|| l' ||)) in |- *.
         lemma facto
           : Nat0.min (Nat.Successor &n'') (Nat.One + (|| &l' ||))
@@ -2364,7 +2340,7 @@ Proof.
       * simpl in |- *.
         leibniz (Nat0.increment.specification (|| l' ||)) in |- *.
         leibniz (Nat0.addition.commutativity Nat.One (|| l' ||)) in |- *.
-        leibniz (Nat0.subtraction.saturating.inversion.of.addition
+        leibniz (Nat0.subtraction.saturating.inversion.addition
                    (|| l' ||) Nat.One) in |- *.
         quod idem est.
       * simpl in |- *.
@@ -2562,9 +2538,7 @@ Module insertion. (* sorting.insertion *)
 
 Module preservation. (* sorting.insertion.preservation *)
 
-Module of. (* sorting.insertion.preservation.of *)
-
-(* sorting.insertion.preservation.of.all *)
+(* sorting.insertion.preservation.all *)
 Lemma all
   : forall {A : Type} (le : A -> A -> Bool) (P : A -> Prop) (a : A) (l : List A) .
       P a -> All P l -> All P (insert le a l).
@@ -2583,8 +2557,6 @@ Proof.
     + simpl in |- *.
       ipso (conjoin pb, (IH all')).
 Qed.
-
-End of. (* sorting.insertion.preservation.of *)
 
 End preservation. (* sorting.insertion.preservation *)
 
@@ -2617,7 +2589,7 @@ Proof.
       * leibniz c in ab.
         ex ab quodlibet.
       * ipso (conjoin
-                 (sorting.insertion.preservation.of.all
+                 (sorting.insertion.preservation.all
                     le (fun (x : A) . le b x = true) a l' ba below),
                  (IH sorted')).
 Qed.
@@ -2733,9 +2705,7 @@ Module forward. (* sorting.forward *)
 
 Module preservation. (* sorting.forward.preservation *)
 
-Module of. (* sorting.forward.preservation.of *)
-
-(* sorting.forward.preservation.of.membership *)
+(* sorting.forward.preservation.membership *)
 Lemma membership
   : forall {A : Type} {le : A -> A -> Bool} {a : A} {l : List A} .
       insertion_sort le l contains_member a -> l contains_member a.
@@ -2753,8 +2723,6 @@ Proof.
     + ipso (disjoin _, (IH h'')).
 Qed.
 
-End of. (* sorting.forward.preservation.of *)
-
 End preservation. (* sorting.forward.preservation *)
 
 End forward. (* sorting.forward *)
@@ -2763,9 +2731,7 @@ Module backward. (* sorting.backward *)
 
 Module preservation. (* sorting.backward.preservation *)
 
-Module of. (* sorting.backward.preservation.of *)
-
-(* sorting.backward.preservation.of.membership *)
+(* sorting.backward.preservation.membership *)
 Lemma membership
   : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
       l contains_member a -> insertion_sort le l contains_member a.
@@ -2786,28 +2752,24 @@ Proof.
     ipso (sorting.insertion.backward.membership &le &b &a (insertion_sort &le &l') facto).
 Qed.
 
-End of. (* sorting.backward.preservation.of *)
-
 End preservation. (* sorting.backward.preservation *)
 
 End backward. (* sorting.backward *)
 
 Module preservation. (* sorting.preservation *)
 
-Module of. (* sorting.preservation.of *)
-
-(* sorting.preservation.of.membership *)
+(* sorting.preservation.membership *)
 Theorem membership
   : forall {A : Type} (le : A -> A -> Bool) (a : A) (l : List A) .
       insertion_sort le l contains_member a <-> l contains_member a.
 Proof.
   intros A le a l.
   divide et impera.
-  - ipso (@sorting.forward.preservation.of.membership  A le a l).
-  - ipso (sorting.backward.preservation.of.membership le a l).
+  - ipso (@sorting.forward.preservation.membership  A le a l).
+  - ipso (sorting.backward.preservation.membership le a l).
 Qed.
 
-(* sorting.preservation.of.length *)
+(* sorting.preservation.length *)
 Theorem length
   : forall {A : Type} (le : A -> A -> Bool) (l : List A) .
       (|| insertion_sort le l ||) = (|| l ||).
@@ -2821,8 +2783,6 @@ Proof.
     leibniz IH in |- *.
     quod idem est.
 Qed.
-
-End of. (* sorting.preservation.of *)
 
 End preservation. (* sorting.preservation *)
 
@@ -3071,7 +3031,7 @@ Theorem length
 Proof.
   intros start stop.
   simpl range in |- *.
-  leibniz (mapping.preservation.of.length
+  leibniz (mapping.preservation.length
              (Nat0.add start)
              (range_from_zero (Nat0.saturating_sub stop start))) in |- *.
   ipso (range.from_zero.length (Nat0.saturating_sub stop start)).

@@ -956,7 +956,7 @@ Proof.
       simpl in |- *.
       leibniz <- &h in |- *.
       leibniz (Nat.addition.commutativity (BinBase.to_nat &q) (BinBase.to_nat &d)) in |- *.
-      leibniz (Nat.subtraction.inversion.of.addition (BinBase.to_nat &d) (BinBase.to_nat &q))
+      leibniz (Nat.subtraction.inversion.addition (BinBase.to_nat &d) (BinBase.to_nat &q))
         in |- *.
       simpl in |- *.
       quod idem est.

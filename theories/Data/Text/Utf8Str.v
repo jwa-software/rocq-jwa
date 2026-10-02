@@ -457,17 +457,13 @@ Qed.
 
 Module preservation. (* conversion.ascii.preservation *)
 
-Module of. (* conversion.ascii.preservation.of *)
-
-(* conversion.ascii.preservation.of.length *)
+(* conversion.ascii.preservation.length *)
 Theorem length : forall (s : AsciiStr) . length (from_ascii_str s) = AsciiStr.length s.
 Proof.
   intros s.
   simpl length, from_ascii_str, to_list, AsciiStr.length in |- *.
-  ipso (List.mapping.preservation.of.length Utf8.from_ascii (AsciiStr.to_list &s)).
+  ipso (List.mapping.preservation.length Utf8.from_ascii (AsciiStr.to_list &s)).
 Qed.
-
-End of. (* conversion.ascii.preservation.of *)
 
 End preservation. (* conversion.ascii.preservation *)
 

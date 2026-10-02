@@ -36,7 +36,7 @@ The plugin finds each type by the name it is registered under, and every registr
 - **Control characters print as they are:** a newline prints as a line break between the quotes, and DEL or U+0080 print as nothing visible, though they read back.
 - **Characters are ordered by their codes.** `Ascii.code` gives the code as a `UInt8`, and `Ascii.compare`, `<`, `<=`, `Ascii.min` and `Ascii.max` go by it: `("A" < "a")%ac`. The instance `Ascii.comparable` carries the order's laws.
 - **The classes are ASCII only.** `Ascii.is_digit`, `is_upper`, `is_lower`, `is_letter` and `is_whitespace` answer a `Bool`, and a Latin-1 letter such as U+00E9 is no letter. Each class is pinned to its range of codes by its specification, `Ascii.classification.digit.specification` stating `is_digit c = true` exactly from code 0x30 to 0x39.
-- **Case changes only the 52 ASCII letters.** `Ascii.to_upper` clears the bit 0x20 of a lower case letter and `Ascii.to_lower` sets it on an upper case one; every other character stays as it is (`Ascii.uppercasing.invariance`), and a letter changed and changed back is itself (`Ascii.lowercasing.inversion.of.uppercasing`).
+- **Case changes only the 52 ASCII letters.** `Ascii.to_upper` clears the bit 0x20 of a lower case letter and `Ascii.to_lower` sets it on an upper case one; every other character stays as it is (`Ascii.uppercasing.invariance`), and a letter changed and changed back is itself (`Ascii.lowercasing.inversion.uppercasing`).
 
 ---
 
@@ -82,4 +82,4 @@ The plugin finds each type by the name it is registered under, and every registr
 - **Laws:** `Utf8Str.concatenation.associativity` and `Utf8Str.concatenation.identity` make `concat` and `empty` a monoid, the instance `Utf8Str_concat_monoid`, and `Utf8Str.length.additivity.over.concatenation` states `length (s ++ t) = length s + length t`.
 - **The byte conversions:** `Utf8Str.to_bytes` gives each character's bytes in turn, and `Utf8Str.from_bytes` reads a list of bytes as characters, answering `None` when any part of it spells none, a sequence cut short included. The five bytes `C3 A9 E2 82 AC` read as two characters, U+00E9 and U+20AC, of `length` 2. `Utf8Str.conversion.bytes.section` and `Utf8Str.conversion.bytes.injectivity` hold as they do for `Utf8`.
 - **Reading and printing agree:** `Utf8Str.conversion.source_bytes.section` states `from_source_bytes (to_source_bytes s) = Some s` for every string.
-- **Latin-1 joins it to `AsciiStr`.** `Utf8Str.from_ascii_str` and `Utf8Str.to_ascii_str` convert character by character, `Utf8Str.from_ascii_str "ab"%a` being `"ab"%u8`, with `conversion.ascii.retraction`, `conversion.ascii.inversion` and `conversion.ascii.preservation.of.length`.
+- **Latin-1 joins it to `AsciiStr`.** `Utf8Str.from_ascii_str` and `Utf8Str.to_ascii_str` convert character by character, `Utf8Str.from_ascii_str "ab"%a` being `"ab"%u8`, with `conversion.ascii.retraction`, `conversion.ascii.inversion` and `conversion.ascii.preservation.length`.

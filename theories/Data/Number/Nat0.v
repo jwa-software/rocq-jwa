@@ -1342,9 +1342,7 @@ Qed.
 
 Module distributivity. (* minimum.left.distributivity *)
 
-Module of. (* minimum.left.distributivity.of *)
-
-(* minimum.left.distributivity.of.addition *)
+(* minimum.left.distributivity.addition *)
 Theorem addition
   : forall (k : Nat0) (m : Nat0) (n : Nat0) .
       k + min m n = min (k + m) (k + n).
@@ -1387,8 +1385,6 @@ Proof.
     quod idem est.
 Qed.
 
-End of. (* minimum.left.distributivity.of *)
-
 End distributivity. (* minimum.left.distributivity *)
 
 End left. (* minimum.left *)
@@ -1423,9 +1419,7 @@ Module saturating. (* subtraction.saturating *)
 
 Module inversion. (* subtraction.saturating.inversion *)
 
-Module of. (* subtraction.saturating.inversion.of *)
-
-(* subtraction.saturating.inversion.of.addition *)
+(* subtraction.saturating.inversion.addition *)
 Theorem addition
   : forall (m : Nat0) (n : Nat0) . saturating_sub (m + n) n = m.
 Proof.
@@ -1453,12 +1447,10 @@ Proof.
   - simpl in |- *.
     leibniz (Nat
               .subtraction
-              .inversion.of.addition m' n') in |- *.
+              .inversion.addition m' n') in |- *.
     simpl in |- *.
     quod idem est.
 Qed.
-
-End of. (* subtraction.saturating.inversion.of *)
 
 End inversion. (* subtraction.saturating.inversion *)
 
@@ -1531,7 +1523,7 @@ Proof.
     end.
     leibniz (symm e) in |- *.
     leibniz (addition.commutativity n (+ k)) in |- *.
-    leibniz (subtraction.saturating.inversion.of.addition (+ k) n) in |- *.
+    leibniz (subtraction.saturating.inversion.addition (+ k) n) in |- *.
     leibniz (addition.commutativity n (+ k)) in |- *.
     quod idem est.
 Qed.
@@ -1575,7 +1567,7 @@ Proof.
                 .addition.commutativity k' m') in |- *.
       leibniz (Nat
                 .subtraction
-                .inversion.of.addition m' k') in |- *.
+                .inversion.addition m' k') in |- *.
       simpl in |- *.
       quod idem est.
     + simpl in |- *.
@@ -1617,16 +1609,14 @@ Qed.
 
 Module inversion. (* subtraction.inversion *)
 
-Module of. (* subtraction.inversion.of *)
-
-(* subtraction.inversion.of.addition *)
+(* subtraction.inversion.addition *)
 Theorem addition
   : forall (m : Nat0) (n : Nat0) . sub (m + n) n = Some m.
 Proof.
   intros m n.
   simpl sub in |- *.
   leibniz (subtraction.saturating
-            .inversion.of.addition m n) in |- *.
+            .inversion.addition m n) in |- *.
   modus aequans
     (Comparable.order.reflection n (m + n)),
     (addition.right.order.extensivity m n)
@@ -1635,8 +1625,6 @@ Proof.
   simpl in |- *.
   quod idem est.
 Qed.
-
-End of. (* subtraction.inversion.of *)
 
 End inversion. (* subtraction.inversion *)
 
@@ -1665,7 +1653,7 @@ Proof.
     symm in e.
     leibniz e in |- *.
     leibniz (addition.commutativity n k) in |- *.
-    ipso (subtraction.inversion.of.addition k n).
+    ipso (subtraction.inversion.addition k n).
 Qed.
 
 End subtraction. (* subtraction *)
@@ -2943,9 +2931,7 @@ Qed.
 
 Module distributivity. (* gcd.left.distributivity *)
 
-Module of. (* gcd.left.distributivity.of *)
-
-(* gcd.left.distributivity.of.multiplication *)
+(* gcd.left.distributivity.multiplication *)
 Theorem multiplication
   : forall (k : Nat) (b : Nat0) (a : Nat0) .
       (+ k) * gcd a b = gcd ((+ k) * a) ((+ k) * b).
@@ -2987,8 +2973,6 @@ Proof.
   }
   ipso (Accessible.recursion &descent &b (order.strict.wellfoundedness &b)).
 Qed.
-
-End of. (* gcd.left.distributivity.of *)
 
 End distributivity. (* gcd.left.distributivity *)
 
@@ -3090,7 +3074,7 @@ Proof.
     : gcd ((+ s) * p) ((+ s) * q) = (+ s).
     {
       let proof dist
-        := gcd.left.distributivity.of.multiplication s q p.
+        := gcd.left.distributivity.multiplication s q p.
       leibniz coprime in dist.
       leibniz (multiplication.right.identity (+ s)) in dist.
       symm in dist.
@@ -3205,16 +3189,14 @@ Qed.
 
 Module distributivity. (* gcd.nat.left.distributivity *)
 
-Module of. (* gcd.nat.left.distributivity.of *)
-
-(* gcd.nat.left.distributivity.of.multiplication *)
+(* gcd.nat.left.distributivity.multiplication *)
 Theorem multiplication
   : forall (k : Nat) (q : Nat) (a : Nat0) .
       (k * gcd.nat a q)%n = gcd.nat ((+ k) * a) (k * q)%n.
 Proof.
   intros k q a.
   let proof h
-    := gcd.left.distributivity.of.multiplication k (+ q) a.
+    := gcd.left.distributivity.multiplication k (+ q) a.
   leibniz (gcd.nat.specification q a) in h.
   let proof h
     : (+ k) * (+ (gcd.nat a q)) = gcd ((+ k) * a) (+ (k * q)%n)
@@ -3225,8 +3207,6 @@ Proof.
     := &h.
   ipso (positive.injectivity h).
 Qed.
-
-End of. (* gcd.nat.left.distributivity.of *)
 
 End distributivity. (* gcd.nat.left.distributivity *)
 
@@ -3313,7 +3293,7 @@ Proof.
     ipso e.
   }
   let proof dist
-    := gcd.nat.left.distributivity.of.multiplication
+    := gcd.nat.left.distributivity.multiplication
           (gcd.nat a q)
           (divide.nat.safe q (gcd.nat a q) (gcd.nat.right.divisibility a q))
           (a /. (gcd.nat a q)).

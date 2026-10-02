@@ -130,20 +130,20 @@ Definition data_number_all_delivers_modulo_homogeneity
       = Nat0.mul (Nat0.Positive k) (Nat0.modulo n d)
   := Nat0.modulo.homogeneity.
 
-Definition data_number_all_delivers_gcd_left_distributivity_of_multiplication
+Definition data_number_all_delivers_gcd_left_distributivity_multiplication
   : forall (k : Nat) (b : Nat0) (a : Nat0) .
       Nat0.mul (Nat0.Positive k) (Nat0.gcd a b)
       = Nat0.gcd
           (Nat0.mul (Nat0.Positive k) a)
           (Nat0.mul (Nat0.Positive k) b)
-  := Nat0.gcd.left.distributivity.of.multiplication.
+  := Nat0.gcd.left.distributivity.multiplication.
 
-Definition data_number_all_delivers_gcd_nat_left_distributivity_of_multiplication
+Definition data_number_all_delivers_gcd_nat_left_distributivity_multiplication
   : forall (k : Nat) (q : Nat) (a : Nat0) .
       Nat.mul k (Nat0.gcd.nat a q)
       = Nat0.gcd.nat
           (Nat0.mul (Nat0.Positive k) a) (Nat.mul k q)
-  := Nat0.gcd.nat.left.distributivity.of.multiplication.
+  := Nat0.gcd.nat.left.distributivity.multiplication.
 
 Definition data_number_all_delivers_divide_nat_safe_congruence
   : forall (d1 : Nat) (g1 : Nat)

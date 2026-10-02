@@ -359,9 +359,7 @@ Qed.
 
 Module preservation. (* mapping.preservation *)
 
-Module of. (* mapping.preservation.of *)
-
-(* mapping.preservation.of.membership *)
+(* mapping.preservation.membership *)
 Theorem membership
   : forall {A : Type} {B : Type} (f : A -> B) (a : A) (x : NonEmptyList A) .
       x contains_member a -> (map f x) contains_member f a.
@@ -383,8 +381,6 @@ Proof.
       ipso (disjoin facto, _).
     + ipso (disjoin _, (IH h')).
 Qed.
-
-End of. (* mapping.preservation.of *)
 
 End preservation. (* mapping.preservation *)
 

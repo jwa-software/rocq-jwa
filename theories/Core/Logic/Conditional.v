@@ -68,7 +68,7 @@ Qed.
 (* Two laws of [->] are stated higher up, each in a second module of this
  * name in the lowest file that knows both connectives:
  * [Conditional.congruence] in [Core.Logic.Biconditional] and
- * [Conditional.exclusion.of.abjunction] in [Core.Logic.Abjunction].
+ * [Conditional.exclusion.abjunction] in [Core.Logic.Abjunction].
  *)
 
 End Conditional. (* Conditional *)
