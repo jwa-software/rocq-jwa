@@ -12,7 +12,7 @@ Definition data_base_all_delivers_comparison
 
 Definition data_base_all_delivers_unit
   : Unit
-  := Unit_introduction.
+  := Unit.introduction.
 
 Definition data_base_all_delivers_empty
   : forall (A : Type) . Empty -> A
