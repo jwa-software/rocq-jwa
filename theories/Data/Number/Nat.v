@@ -760,7 +760,7 @@ Proof.
       + simpl in e.
         ex e quodlibet.
     }
-    ipso (Accessible_introduction &below).
+    ipso (Accessible.introduction &below).
   - lemma below : forall (y : Nat) . y < Successor &n' -> Accessible (<) y.
     {
       intros y h.
@@ -782,7 +782,7 @@ Proof.
         }
         ipso (Accessible.descend &IH &smaller).
     }
-    ipso (Accessible_introduction &below).
+    ipso (Accessible.introduction &below).
 Qed.
 
 End strict. (* order.strict *)

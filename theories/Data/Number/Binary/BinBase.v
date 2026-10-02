@@ -1340,7 +1340,7 @@ Proof.
     : Descent.Step (Induced Nat.LessThan to_nat) (fun (x : BinBase) . Accessible (<) x).
   {
     intros x recurse.
-    ipso (Accessible_introduction
+    ipso (Accessible.introduction
             (fun (y : BinBase) (h : y < &x) .
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }

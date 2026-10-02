@@ -2052,7 +2052,7 @@ Proof.
         (fun (x : BinWithZero) . Accessible (<) x).
   {
     intros x recurse.
-    ipso (Accessible_introduction
+    ipso (Accessible.introduction
             (fun (y : BinWithZero) (h : y < &x) .
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }

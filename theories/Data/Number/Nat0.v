@@ -1033,7 +1033,7 @@ Proof.
     | q
     end; simpl in e; ex e quodlibet.
   }
-  ipso (Accessible_introduction &below).
+  ipso (Accessible.introduction &below).
 Qed.
 
 End zero. (* order.strict.zero *)
@@ -1068,7 +1068,7 @@ Proof.
           ; simpl in falso
           ; ex falso quodlibet.
       }
-      ipso (Accessible_introduction &below).
+      ipso (Accessible.introduction &below).
     + lemma below
         : forall (y : Nat0) . y < (+ Nat.Successor &p') -> Accessible (<) y.
       {
@@ -1099,7 +1099,7 @@ Proof.
              }
              ipso (Accessible.descend &IH &smaller).
       }
-      ipso (Accessible_introduction &below).
+      ipso (Accessible.introduction &below).
 Qed.
 
 End strict. (* order.strict *)
