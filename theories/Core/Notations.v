@@ -144,6 +144,10 @@ Delimit Scope jwa_qword_little_scope with qword_little.
 Declare Scope jwa_qword_big_scope.
 Delimit Scope jwa_qword_big_scope with qword_big.
 
+(* [Ascii] characters, delimited but not opened: ["A"%ac]. *)
+Declare Scope jwa_ascii_scope.
+Delimit Scope jwa_ascii_scope with ac.
+
 (* One scope per numeral type, delimited but not opened, so that [+] and [*]
    name that type's operations only under its delimiter: [(m + n)%n],
    [(m + n)%n0]. Two types cannot share a scope, since one spelling would
