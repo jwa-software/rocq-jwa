@@ -82,6 +82,39 @@ Definition data_text_all_refuses_ascii_malformed
   : Ascii.from_source_bytes (SourceByte.xc3 :: SourceByte.x41 :: [])%list = None
   := Identity.reflexivity _.
 
+Definition data_text_all_delivers_ascii_code_injectivity
+  : forall (x : Ascii) (y : Ascii) . Ascii.code x = Ascii.code y -> x = y
+  := @Ascii.conversion.code.injectivity.
+
+Definition data_text_all_delivers_ascii_order_transitivity
+  : forall (x : Ascii) (y : Ascii) (z : Ascii) . (x < y)%ac -> (y < z)%ac -> (x < z)%ac
+  := @Ascii.order.strict.transitivity.
+
+Definition data_text_all_delivers_ascii_comparison_specification
+  : forall (x : Ascii) (y : Ascii) .
+      (Ascii.compare x y = Comparison.Lt <-> (x < y)%ac)
+      /\ (Ascii.compare x y = Comparison.Eq <-> x = y)
+  := Ascii.comparison.specification.
+
+Definition data_text_all_delivers_ascii_comparison_antisymmetry
+  : forall (x : Ascii) (y : Ascii) .
+      Ascii.compare x y = Comparison.transpose (Ascii.compare y x)
+  := Ascii.comparison.antisymmetry.
+
+Definition data_text_all_computes_ascii_code
+  : Ascii.code "A"%ac = UInt8.from_byte 0x41%byte
+  := Identity.reflexivity _.
+
+Definition data_text_all_computes_ascii_compare
+  : Ascii.compare "A"%ac "a"%ac = Comparison.Lt
+    /\ Ascii.compare "a"%ac "a"%ac = Comparison.Eq
+    /\ Ascii.compare "b"%ac "a"%ac = Comparison.Gt
+  := conjoin (Identity.reflexivity _), (conjoin (Identity.reflexivity _), (Identity.reflexivity _)).
+
+Definition data_text_all_computes_ascii_min
+  : Ascii.min "z"%ac "0"%ac = "0"%ac
+  := Identity.reflexivity _.
+
 Definition data_text_all_delivers_ascii_str
   : AsciiStr
   := "abc"%a.
