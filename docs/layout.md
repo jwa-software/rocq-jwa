@@ -41,4 +41,4 @@ In `Core`, `Relation` and `Data`, whose `dune` files carry `(include_subdirs qua
 | `Data/Machine/` | The fixed-width units a machine stores: `Bit`, `Byte`, `HWord`, `Word`, `DWord`, `QWord`, the integers `UInt8` to `UInt64` and `Int8` to `Int64`, and `Endian`, the byte order of a word |
 | `Data/Number/` | `Nat`, `Nat0`, `Integer`, `Rational`, and `Numeral`, the digit types a literal is read into |
 | `Data/Number/Binary/` | `BinBase`, `BinWithZero`, `Bin`, also forwarded by `Data.Number.All` |
-| `Data/Text/` | The text types: `SourceByte`, the byte a string literal arrives in, `Ascii` and `AsciiStr` |
+| `Data/Text/` | The text types: `SourceByte`, the byte a string literal arrives in, `Ascii` and `AsciiStr`, `Utf8` and `Utf8Str` |

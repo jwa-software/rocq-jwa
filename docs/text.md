@@ -9,15 +9,17 @@
 | `SourceByte` | A byte of the source text, the form a string literal arrives in | -- |
 | `Ascii` | A character of one byte: ASCII below 128, Latin-1 from 128 to 255 | One character: `"A"%ac`, `""""%ac` (a quote) |
 | `AsciiStr` | A string of `Ascii` characters | `"abc"%a`, `""%a` (empty), `"a""b"%a` |
+| `Utf8` | A Unicode character, held as the one to four bytes UTF-8 spells it with | One character: `"A"%u8c`, `""""%u8c` (a quote) |
+| `Utf8Str` | A string of `Utf8` characters | `"abc"%u8`, `""%u8` (empty), `"a""b"%u8` |
 
-Where one of these types is expected, the key can go: `Ascii.to_byte "z"`, `AsciiStr.length "four"`. A quote inside a literal is written twice; a backslash escapes nothing.
+Where one of these types is expected, the key can go: `Ascii.to_byte "z"`, `AsciiStr.length "four"`, `Utf8Str.length "four"`. A quote inside a literal is written twice; a backslash escapes nothing.
 
 ---
 
 ## How a literal is read
 
 1. **Rocq reads the literal as the UTF-8 bytes it is written in.** The plugin behind `String Notation`, loaded by `theories/Data/Literal.v`, hands them over as a `List SourceByte`: `"ab"` is `x61 :: x62 :: []`, and a character from U+0080 to U+00FF is two bytes, U+00E9 being `xc3 :: xa9 :: []`.
-2. **The type reads the list.** `Ascii.from_source_bytes` and `AsciiStr.from_source_bytes` answer `Some` with the value or `None`, and `None` refuses the file when it is compiled: `""%ac`, `"ab"%ac`, and any character above U+00FF.
+2. **The type reads the list.** Each type's `from_source_bytes` answers `Some` with the value or `None`, and `None` refuses the file when it is compiled: `""%ac` and `""%u8c`, `"ab"%ac` and `"ab"%u8c`, and, for `Ascii` and `AsciiStr`, any character above U+00FF.
 3. **A closed value prints back** through `to_source_bytes`, as the same bytes.
 
 The plugin finds each type by the name it is registered under, and every registration sits in the type's own file: `SourceByte` as `core.byte.type`, `List` as `core.list.type`, `Option` as `core.option.type`. It builds terms by constructor position, so `SourceByte` has one constructor per byte value, `x00` to `xff` in code order, and `List.Nil` and `List.Cons` stay its first and second constructors.
@@ -49,3 +51,35 @@ The plugin finds each type by the name it is registered under, and every registr
 - **Indexing counts from 0.** `AsciiStr.get s i` is `Some` of the character at position `i` exactly when `i < length s` (`AsciiStr.indexing.specification`), and `None` from there on: `AsciiStr.get "abc" 1%n0` is `Some "b"%ac`.
 - **A substring stops where the string does.** `AsciiStr.substring s start len` takes `len` characters from position `start`, fewer near the end: `AsciiStr.substring "Hello, World" 7%n0 5%n0` is `"World"%a`, and `substring s 0 (length s)` is `s` (`AsciiStr.substring.identity`).
 - **Strings are ordered lexicographically** by their characters' codes, a proper prefix first: `"Apple" < "apple" < "apply"` and `"app" < "apple"`. `AsciiStr.compare` is `List.compare Ascii.compare`, and the instance `AsciiStr.comparable` carries the order's laws.
+
+---
+
+## Utf8
+
+`Utf8` holds a Unicode character, U+0000 to U+10FFFF without the surrogates U+D800 to U+DFFF, as the bytes UTF-8 spells it with, the first byte first.
+
+- **Four constructors, one per length.** Each takes its bytes and a proof that they spell a character, by the rules of RFC 3629, section 4. Below, `x` is a bit of the character's code:
+
+  | Constructor | Bytes | Characters |
+  |:---|:---|:---|
+  | `Utf8.OneByte` | `0xxxxxxx` | U+0000 to U+007F |
+  | `Utf8.TwoBytes` | `110xxxxx 10xxxxxx` | U+0080 to U+07FF |
+  | `Utf8.ThreeBytes` | `1110xxxx 10xxxxxx 10xxxxxx` | U+0800 to U+FFFF, without U+D800 to U+DFFF |
+  | `Utf8.FourBytes` | `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx` | U+10000 to U+10FFFF |
+
+- **Only characters can be built.** The proof is `Assert` of a check on the bytes, such as `Utf8.is_two_bytes`: it is `I` where the check computes to `true`, and there is none where it computes to `false`. `Utf8.TwoBytes 0xc3%byte 0xa9%byte I` is U+00E9, while `Utf8.TwoBytes 0xc0%byte 0x80%byte I` is a type error, `C0 80` being U+0000 spelled a second time. Such overlong spellings, the surrogates and anything past U+10FFFF are refused alike.
+- **The byte conversions:** `Utf8.to_bytes` gives the bytes, and `Utf8.from_bytes` answers `Some` when a list spells exactly one character and `None` otherwise, building the character through `Assert.guard`. `Utf8.conversion.bytes.section` states `from_bytes (to_bytes c) = Some c`, `Utf8.conversion.bytes.inversion` that `from_bytes l = Some c` only for `l = to_bytes c`, and `Utf8.conversion.bytes.injectivity` that two characters with the same bytes are equal.
+- **Reading and printing agree:** `Utf8.conversion.source_bytes.section` states `from_source_bytes (to_source_bytes c) = Some c` for every character.
+- **Latin-1 joins it to `Ascii`.** `Utf8.from_ascii` reads an `Ascii` character as U+0000 to U+00FF, and `Utf8.to_ascii` gives it back, `None` from U+0100 on: `Utf8.conversion.ascii.retraction` states `to_ascii (from_ascii a) = Some a`, and `Utf8.conversion.ascii.inversion` that `to_ascii c = Some a` only for `c = from_ascii a`.
+
+---
+
+## Utf8Str
+
+`Utf8Str` wraps a `List Utf8`, the first character first; `Utf8Str.to_list` and `Utf8Str.from_list` cross between the two, with `conversion.list.retraction` and `conversion.list.section`.
+
+- **Operations:** `Utf8Str.empty`, `Utf8Str.concat`, written `(s ++ t)%u8`, and `Utf8Str.length`, a `Nat0` that counts characters, not bytes: `("ab" ++ "c")%u8` is `"abc"%u8`.
+- **Laws:** `Utf8Str.concatenation.associativity` and `Utf8Str.concatenation.identity` make `concat` and `empty` a monoid, the instance `Utf8Str_concat_monoid`, and `Utf8Str.length.additivity.over.concatenation` states `length (s ++ t) = length s + length t`.
+- **The byte conversions:** `Utf8Str.to_bytes` gives each character's bytes in turn, and `Utf8Str.from_bytes` reads a list of bytes as characters, answering `None` when any part of it spells none, a sequence cut short included. The five bytes `C3 A9 E2 82 AC` read as two characters, U+00E9 and U+20AC, of `length` 2. `Utf8Str.conversion.bytes.section` and `Utf8Str.conversion.bytes.injectivity` hold as they do for `Utf8`.
+- **Reading and printing agree:** `Utf8Str.conversion.source_bytes.section` states `from_source_bytes (to_source_bytes s) = Some s` for every string.
+- **Latin-1 joins it to `AsciiStr`.** `Utf8Str.from_ascii_str` and `Utf8Str.to_ascii_str` convert character by character, `Utf8Str.from_ascii_str "ab"%a` being `"ab"%u8`, with `conversion.ascii.retraction`, `conversion.ascii.inversion` and `conversion.ascii.preservation.of.length`.
