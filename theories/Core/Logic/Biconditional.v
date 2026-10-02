@@ -117,7 +117,7 @@ Proof.
     ipso facto.
 Qed.
 
-(* [Biconditional.exclusion.of.sejunction] is stated in
+(* [Biconditional.exclusion.sejunction] is stated in
  * [Core.Logic.Sejunction], the lowest file that knows both connectives, in
  * a second module of this name.
  *)

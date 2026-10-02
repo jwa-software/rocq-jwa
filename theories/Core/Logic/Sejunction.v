@@ -167,9 +167,7 @@ End weakening. (* weakening *)
 
 Module exclusion. (* exclusion *)
 
-Module of. (* exclusion.of *)
-
-(* exclusion.of.conjunction *)
+(* exclusion.conjunction *)
 Theorem conjunction
   : forall {A : Prop} {B : Prop} . A _\/_ B -> ~ (A /\ B).
 Proof.
@@ -183,7 +181,7 @@ Proof.
   - ipso (na a).
 Qed.
 
-(* exclusion.of.biconditional *)
+(* exclusion.biconditional *)
 Theorem biconditional
   : forall {A : Prop} {B : Prop} . A _\/_ B -> ~ (A <-> B).
 Proof.
@@ -203,8 +201,6 @@ Proof.
     ipso facto.
 Qed.
 
-End of. (* exclusion.of *)
-
 End exclusion. (* exclusion *)
 
 End Sejunction. (* Sejunction *)
@@ -222,15 +218,13 @@ Export (notations) Sejunction.
 (* The same incompatibility read from the biconditional's side belongs to
  * [Biconditional], but it can be stated only here, where [_\/_] is known. A
  * second module of that name carries it, and a client reads
- * [Biconditional.exclusion.of.sejunction].
+ * [Biconditional.exclusion.sejunction].
  *)
 Module Biconditional. (* Biconditional *)
 
 Module exclusion. (* exclusion *)
 
-Module of. (* exclusion.of *)
-
-(* exclusion.of.sejunction *)
+(* exclusion.sejunction *)
 Theorem sejunction
   : forall {A : Prop} {B : Prop} . (A <-> B) -> ~ (A _\/_ B).
 Proof.
@@ -249,8 +243,6 @@ Proof.
     let proof facto := na a.
     ipso facto.
 Qed.
-
-End of. (* exclusion.of *)
 
 End exclusion. (* exclusion *)
 

@@ -150,10 +150,10 @@ Notation "'modus' 'tollendo' 'ponens' H1 , H2"
                  (fun () => refuse_premises "modus tollendo ponens" (tollendo_ponens_forms ())
                               preterm:($preterm:H1) preterm:($preterm:H2))
                  [ (fun () => Control.refine (fun () =>
-                      constr:(Negation.elimination.left.of.disjunction
+                      constr:(Negation.elimination.left.disjunction
                                 $preterm:H1 $preterm:H2)));
                    (fun () => Control.refine (fun () =>
-                      constr:(Negation.elimination.right.of.disjunction
+                      constr:(Negation.elimination.right.disjunction
                                 $preterm:H1 $preterm:H2))) ]))
   (only parsing).
 
@@ -163,10 +163,10 @@ Ltac2 modus_tollendo_ponens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern
     first_branch
       (fun () => refuse_premises "modus tollendo ponens" (tollendo_ponens_forms ()) h1 h2)
       [ (fun () => Std.specialize
-           (Local.elaborate preterm:(Negation.elimination.left.of.disjunction
+           (Local.elaborate preterm:(Negation.elimination.left.disjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (Local.elaborate preterm:(Negation.elimination.right.of.disjunction
+           (Local.elaborate preterm:(Negation.elimination.right.disjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p)) ]).
 
 Ltac2 Notation "modus" "tollendo" "ponens" h1(preterm) "," h2(preterm)
@@ -182,18 +182,18 @@ Notation "'modus' 'ponendo' 'tollens' H1 , H2"
                  (fun () => refuse_premises "modus ponendo tollens" (ponendo_tollens_forms ())
                               preterm:($preterm:H1) preterm:($preterm:H2))
                  [ (fun () => Control.refine (fun () =>
-                      constr:(Negation.exclusion.left.of.conjunction
+                      constr:(Negation.exclusion.left.conjunction
                                 $preterm:H1 $preterm:H2)));
                    (fun () => Control.refine (fun () =>
-                      constr:(Negation.exclusion.right.of.conjunction
+                      constr:(Negation.exclusion.right.conjunction
                                 $preterm:H1 $preterm:H2)));
                    (fun () => Control.refine (fun () =>
-                      constr:(Negation.exclusion.left.of.conjunction
-                                (Sejunction.exclusion.of.conjunction $preterm:H1)
+                      constr:(Negation.exclusion.left.conjunction
+                                (Sejunction.exclusion.conjunction $preterm:H1)
                                 $preterm:H2)));
                    (fun () => Control.refine (fun () =>
-                      constr:(Negation.exclusion.right.of.conjunction
-                                (Sejunction.exclusion.of.conjunction $preterm:H1)
+                      constr:(Negation.exclusion.right.conjunction
+                                (Sejunction.exclusion.conjunction $preterm:H1)
                                 $preterm:H2))) ]))
   (only parsing).
 
@@ -203,18 +203,18 @@ Ltac2 modus_ponendo_tollens (h1 : preterm) (h2 : preterm) (p : Std.intro_pattern
     first_branch
       (fun () => refuse_premises "modus ponendo tollens" (ponendo_tollens_forms ()) h1 h2)
       [ (fun () => Std.specialize
-           (Local.elaborate preterm:(Negation.exclusion.left.of.conjunction
+           (Local.elaborate preterm:(Negation.exclusion.left.conjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (Local.elaborate preterm:(Negation.exclusion.right.of.conjunction
+           (Local.elaborate preterm:(Negation.exclusion.right.conjunction
                       $preterm:h1 $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (Local.elaborate preterm:(Negation.exclusion.left.of.conjunction
-                      (Sejunction.exclusion.of.conjunction $preterm:h1)
+           (Local.elaborate preterm:(Negation.exclusion.left.conjunction
+                      (Sejunction.exclusion.conjunction $preterm:h1)
                       $preterm:h2), Std.NoBindings) (Some p));
         (fun () => Std.specialize
-           (Local.elaborate preterm:(Negation.exclusion.right.of.conjunction
-                      (Sejunction.exclusion.of.conjunction $preterm:h1)
+           (Local.elaborate preterm:(Negation.exclusion.right.conjunction
+                      (Sejunction.exclusion.conjunction $preterm:h1)
                       $preterm:h2), Std.NoBindings) (Some p)) ]).
 
 Ltac2 Notation "modus" "ponendo" "tollens" h1(preterm) "," h2(preterm)

@@ -94,9 +94,7 @@ Module elimination. (* elimination *)
 
 Module left. (* elimination.left *)
 
-Module of. (* elimination.left.of *)
-
-(* elimination.left.of.disjunction *)
+(* elimination.left.disjunction *)
 Theorem disjunction
   : forall {A : Prop} {B : Prop} . A \/ B -> ~ A -> B.
 Proof.
@@ -116,15 +114,11 @@ Proof.
   - ipso b.
 Qed.
 
-End of. (* elimination.left.of *)
-
 End left. (* elimination.left *)
 
 Module right. (* elimination.right *)
 
-Module of. (* elimination.right.of *)
-
-(* elimination.right.of.disjunction *)
+(* elimination.right.disjunction *)
 Theorem disjunction
   : forall {A : Prop} {B : Prop} . A \/ B -> ~ B -> A.
 Proof.
@@ -143,8 +137,6 @@ Proof.
     ex f quodlibet.
 Qed.
 
-End of. (* elimination.right.of *)
-
 End right. (* elimination.right *)
 
 End elimination. (* elimination *)
@@ -153,9 +145,7 @@ Module exclusion. (* exclusion *)
 
 Module left. (* exclusion.left *)
 
-Module of. (* exclusion.left.of *)
-
-(* exclusion.left.of.conjunction *)
+(* exclusion.left.conjunction *)
 Theorem conjunction
   : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> A -> ~ B.
 Proof.
@@ -172,15 +162,11 @@ Proof.
   ipso (h (conjoin a, b)).
 Qed.
 
-End of. (* exclusion.left.of *)
-
 End left. (* exclusion.left *)
 
 Module right. (* exclusion.right *)
 
-Module of. (* exclusion.right.of *)
-
-(* exclusion.right.of.conjunction *)
+(* exclusion.right.conjunction *)
 Theorem conjunction
   : forall {A : Prop} {B : Prop} . ~ (A /\ B) -> B -> ~ A.
 Proof.
@@ -196,8 +182,6 @@ Proof.
 
   ipso (h (conjoin a, b)).
 Qed.
-
-End of. (* exclusion.right.of *)
 
 End right. (* exclusion.right *)
 

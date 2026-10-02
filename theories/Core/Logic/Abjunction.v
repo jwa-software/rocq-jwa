@@ -26,12 +26,10 @@ Notation "'abjoin' a , nb" := (Abjunction.introduction a nb) (only parsing).
 
 Module exclusion. (* exclusion *)
 
-Module of. (* exclusion.of *)
-
 (* Two propositions are incompatible when they cannot both hold: an
  * abjunction and the conditional between the same two sides.
  *)
-(* exclusion.of.conditional *)
+(* exclusion.conditional *)
 Theorem conditional
   : forall {A : Prop} {B : Prop} . A -/> B -> ~ (A -> B).
 Proof.
@@ -44,8 +42,6 @@ Proof.
   let proof facto := nb b.
   ipso facto.
 Qed.
-
-End of. (* exclusion.of *)
 
 End exclusion. (* exclusion *)
 
@@ -114,15 +110,13 @@ Export (notations) Abjunction.
 (* The same incompatibility read from the conditional's side belongs to
  * [Conditional], but it can be stated only here, where [-/>] is known. A
  * second module of that name carries it, and a client reads
- * [Conditional.exclusion.of.abjunction].
+ * [Conditional.exclusion.abjunction].
  *)
 Module Conditional. (* Conditional *)
 
 Module exclusion. (* exclusion *)
 
-Module of. (* exclusion.of *)
-
-(* exclusion.of.abjunction *)
+(* exclusion.abjunction *)
 Theorem abjunction
   : forall {A : Prop} {B : Prop} . (A -> B) -> ~ (A -/> B).
 Proof.
@@ -136,8 +130,6 @@ Proof.
   let proof facto := nb b.
   ipso facto.
 Qed.
-
-End of. (* exclusion.of *)
 
 End exclusion. (* exclusion *)
 
