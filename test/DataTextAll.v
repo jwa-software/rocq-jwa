@@ -14,6 +14,10 @@ Definition data_text_all_delivers_source_byte_conversion_section
   : forall (s : SourceByte) . SourceByte.from_byte (SourceByte.to_byte s) = s
   := SourceByte.conversion.byte.section.
 
+Definition data_text_all_delivers_source_byte_bytes_retraction
+  : forall (l : List Byte) . List.map SourceByte.to_byte (List.map SourceByte.from_byte l) = l
+  := SourceByte.conversion.bytes.retraction.
+
 Definition data_text_all_computes_source_byte_to_byte
   : SourceByte.to_byte SourceByte.x41 = 0x41%byte
   := Identity.reflexivity _.
@@ -362,4 +366,213 @@ Definition data_text_all_refuses_ascii_str_beyond_latin1
 
 Definition data_text_all_refuses_ascii_str_truncated
   : AsciiStr.from_source_bytes (SourceByte.x61 :: SourceByte.xc3 :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8
+  : Utf8
+  := "A"%u8c.
+
+Definition data_text_all_delivers_utf8_bytes_section
+  : forall (c : Utf8) . Utf8.from_bytes (Utf8.to_bytes c) = Some c
+  := Utf8.conversion.bytes.section.
+
+Definition data_text_all_delivers_utf8_bytes_inversion
+  : forall (l : List Byte) (c : Utf8) . Utf8.from_bytes l = Some c -> Utf8.to_bytes c = l
+  := Utf8.conversion.bytes.inversion.
+
+Definition data_text_all_delivers_utf8_bytes_injectivity
+  : forall (c : Utf8) (d : Utf8) . Utf8.to_bytes c = Utf8.to_bytes d -> c = d
+  := @Utf8.conversion.bytes.injectivity.
+
+Definition data_text_all_delivers_utf8_source_bytes_section
+  : forall (c : Utf8) . Utf8.from_source_bytes (Utf8.to_source_bytes c) = Some c
+  := Utf8.conversion.source_bytes.section.
+
+Definition data_text_all_reads_utf8_literal
+  : Utf8.to_bytes "A"%u8c = (0x41%byte :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_binds_utf8_scope
+  : Utf8.to_bytes "z" = (0x7a%byte :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_reads_utf8_literal_quote
+  : Utf8.to_bytes """"%u8c = (0x22%byte :: [])%list
+  := Identity.reflexivity _.
+
+Fail Definition data_text_all_refuses_utf8_literal_empty
+  : Utf8
+  := ""%u8c.
+
+Fail Definition data_text_all_refuses_utf8_literal_long
+  : Utf8
+  := "ab"%u8c.
+
+Fail Definition data_text_all_refuses_utf8_overlong_value
+  : Utf8
+  := Utf8.TwoBytes 0xc0%byte 0x80%byte I.
+
+Definition data_text_all_decodes_utf8_two_bytes
+  : Utf8.from_bytes (0xc3%byte :: 0xa9%byte :: [])%list
+    = Some (Utf8.TwoBytes 0xc3%byte 0xa9%byte I)
+  := Identity.reflexivity _.
+
+Definition data_text_all_decodes_utf8_three_bytes
+  : Utf8.from_bytes (0xe2%byte :: 0x82%byte :: 0xac%byte :: [])%list
+    = Some (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I)
+  := Identity.reflexivity _.
+
+Definition data_text_all_decodes_utf8_four_bytes
+  : Utf8.from_bytes (0xf0%byte :: 0x9f%byte :: 0x98%byte :: 0x80%byte :: [])%list
+    = Some (Utf8.FourBytes 0xf0%byte 0x9f%byte 0x98%byte 0x80%byte I)
+  := Identity.reflexivity _.
+
+Definition data_text_all_decodes_utf8_last
+  : Utf8.from_bytes (0xf4%byte :: 0x8f%byte :: 0xbf%byte :: 0xbf%byte :: [])%list
+    = Some (Utf8.FourBytes 0xf4%byte 0x8f%byte 0xbf%byte 0xbf%byte I)
+  := Identity.reflexivity _.
+
+Definition data_text_all_decodes_utf8_source_bytes
+  : Utf8.from_source_bytes (SourceByte.xe2 :: SourceByte.x82 :: SourceByte.xac :: [])%list
+    = Some (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I)
+  := Identity.reflexivity _.
+
+Definition data_text_all_encodes_utf8_source_bytes
+  : Utf8.to_source_bytes (Utf8.TwoBytes 0xc3%byte 0xa9%byte I)
+    = (SourceByte.xc3 :: SourceByte.xa9 :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_overlong_two_bytes
+  : Utf8.from_bytes (0xc0%byte :: 0x80%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_overlong_three_bytes
+  : Utf8.from_bytes (0xe0%byte :: 0x9f%byte :: 0xbf%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_overlong_four_bytes
+  : Utf8.from_bytes (0xf0%byte :: 0x8f%byte :: 0xbf%byte :: 0xbf%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_surrogate
+  : Utf8.from_bytes (0xed%byte :: 0xa0%byte :: 0x80%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_beyond_last
+  : Utf8.from_bytes (0xf4%byte :: 0x90%byte :: 0x80%byte :: 0x80%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_malformed
+  : Utf8.from_bytes (0xff%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_lone_tail
+  : Utf8.from_bytes (0x80%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_truncated
+  : Utf8.from_bytes (0xe2%byte :: 0x82%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_two_characters
+  : Utf8.from_bytes (0x41%byte :: 0x42%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_str
+  : Utf8Str
+  := "abc"%u8.
+
+Definition data_text_all_delivers_utf8_str_conversion_retraction
+  : forall (l : List Utf8) . Utf8Str.to_list (Utf8Str.from_list l) = l
+  := Utf8Str.conversion.list.retraction.
+
+Definition data_text_all_delivers_utf8_str_conversion_section
+  : forall (s : Utf8Str) . Utf8Str.from_list (Utf8Str.to_list s) = s
+  := Utf8Str.conversion.list.section.
+
+Definition data_text_all_delivers_utf8_str_bytes_section
+  : forall (s : Utf8Str) . Utf8Str.from_bytes (Utf8Str.to_bytes s) = Some s
+  := Utf8Str.conversion.bytes.section.
+
+Definition data_text_all_delivers_utf8_str_bytes_injectivity
+  : forall (s : Utf8Str) (t : Utf8Str) . Utf8Str.to_bytes s = Utf8Str.to_bytes t -> s = t
+  := @Utf8Str.conversion.bytes.injectivity.
+
+Definition data_text_all_delivers_utf8_str_source_bytes_section
+  : forall (s : Utf8Str) . Utf8Str.from_source_bytes (Utf8Str.to_source_bytes s) = Some s
+  := Utf8Str.conversion.source_bytes.section.
+
+Definition data_text_all_delivers_utf8_str_concatenation_associativity
+  : forall (s : Utf8Str) (t : Utf8Str) (u : Utf8Str) . ((s ++ t) ++ u = s ++ (t ++ u))%u8
+  := Utf8Str.concatenation.associativity.
+
+Definition data_text_all_delivers_utf8_str_concatenation_identity
+  : forall (s : Utf8Str) . ((Utf8Str.empty ++ s = s) /\ (s ++ Utf8Str.empty = s))%u8
+  := Utf8Str.concatenation.identity.
+
+Definition data_text_all_delivers_utf8_str_length_additivity
+  : forall (s : Utf8Str) (t : Utf8Str) .
+      Utf8Str.length (s ++ t)%u8 = (Utf8Str.length s + Utf8Str.length t)%n0
+  := Utf8Str.length.additivity.over.concatenation.
+
+Definition data_text_all_reads_utf8_str_literal
+  : Utf8Str.to_list "ab"%u8 = ("a"%u8c :: "b"%u8c :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_reads_utf8_str_literal_empty
+  : ""%u8 = Utf8Str.empty
+  := Identity.reflexivity _.
+
+Definition data_text_all_reads_utf8_str_literal_quote
+  : Utf8Str.to_list "a""b"%u8 = ("a"%u8c :: """"%u8c :: "b"%u8c :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_binds_utf8_str_scope
+  : Utf8Str.length "four" = 4%n0
+  := Identity.reflexivity _.
+
+Definition data_text_all_computes_utf8_str_concatenation
+  : ("ab" ++ "c")%u8 = "abc"%u8
+  := Identity.reflexivity _.
+
+Definition data_text_all_decodes_utf8_str
+  : Utf8Str.from_bytes
+      (0x68%byte :: 0xc3%byte :: 0xa9%byte :: 0xe2%byte :: 0x82%byte :: 0xac%byte
+        :: 0xf0%byte :: 0x9f%byte :: 0x98%byte :: 0x80%byte :: [])%list
+    = Some
+        (Utf8Str.from_list
+          ("h"%u8c
+            :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I
+            :: Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I
+            :: Utf8.FourBytes 0xf0%byte 0x9f%byte 0x98%byte 0x80%byte I
+            :: [])%list)
+  := Identity.reflexivity _.
+
+Definition data_text_all_computes_utf8_str_length
+  : Option.map Utf8Str.length
+      (Utf8Str.from_bytes
+        (0xc3%byte :: 0xa9%byte :: 0xe2%byte :: 0x82%byte :: 0xac%byte :: [])%list)
+    = Some 2%n0
+  := Identity.reflexivity _.
+
+Definition data_text_all_decodes_utf8_str_source_bytes
+  : Utf8Str.from_source_bytes (SourceByte.x68 :: SourceByte.xc3 :: SourceByte.xa9 :: [])%list
+    = Some (Utf8Str.from_list ("h"%u8c :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I :: [])%list)
+  := Identity.reflexivity _.
+
+Definition data_text_all_encodes_utf8_str
+  : Utf8Str.to_bytes (Utf8Str.from_list ("h"%u8c :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I :: [])%list)
+    = (0x68%byte :: 0xc3%byte :: 0xa9%byte :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_str_truncated
+  : Utf8Str.from_bytes (0x61%byte :: 0xe2%byte :: 0x82%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_str_surrogate
+  : Utf8Str.from_bytes (0x61%byte :: 0xed%byte :: 0xa0%byte :: 0x80%byte :: [])%list = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_str_overlong
+  : Utf8Str.from_bytes (0xc0%byte :: 0x80%byte :: 0x61%byte :: [])%list = None
   := Identity.reflexivity _.
