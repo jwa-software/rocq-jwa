@@ -167,7 +167,7 @@ Definition data_text_all_delivers_ascii_uppercasing_absorption
 
 Definition data_text_all_delivers_ascii_uppercasing_inversion
   : forall (c : Ascii) . Ascii.is_upper c = true -> Ascii.to_upper (Ascii.to_lower c) = c
-  := Ascii.uppercasing.inversion.of.lowercasing.
+  := Ascii.uppercasing.inversion.lowercasing.
 
 Definition data_text_all_delivers_ascii_lowercasing_invariance
   : forall (c : Ascii) . Ascii.is_upper c = false -> Ascii.to_lower c = c
@@ -183,7 +183,7 @@ Definition data_text_all_delivers_ascii_lowercasing_absorption
 
 Definition data_text_all_delivers_ascii_lowercasing_inversion
   : forall (c : Ascii) . Ascii.is_lower c = true -> Ascii.to_lower (Ascii.to_upper c) = c
-  := Ascii.lowercasing.inversion.of.uppercasing.
+  := Ascii.lowercasing.inversion.uppercasing.
 
 Definition data_text_all_computes_ascii_classes
   : Ascii.is_digit "7"%ac = true
@@ -239,7 +239,7 @@ Definition data_text_all_delivers_ascii_str_length_additivity
 
 Definition data_text_all_delivers_ascii_str_uppercasing_length
   : forall (s : AsciiStr) . AsciiStr.length (AsciiStr.to_upper s) = AsciiStr.length s
-  := AsciiStr.uppercasing.preservation.of.length.
+  := AsciiStr.uppercasing.preservation.length.
 
 Definition data_text_all_delivers_ascii_str_uppercasing_distributivity
   : forall (s : AsciiStr) (t : AsciiStr) .
@@ -248,7 +248,7 @@ Definition data_text_all_delivers_ascii_str_uppercasing_distributivity
 
 Definition data_text_all_delivers_ascii_str_lowercasing_length
   : forall (s : AsciiStr) . AsciiStr.length (AsciiStr.to_lower s) = AsciiStr.length s
-  := AsciiStr.lowercasing.preservation.of.length.
+  := AsciiStr.lowercasing.preservation.length.
 
 Definition data_text_all_delivers_ascii_str_lowercasing_distributivity
   : forall (s : AsciiStr) (t : AsciiStr) .
@@ -611,7 +611,7 @@ Definition data_text_all_delivers_utf8_str_ascii_inversion
 
 Definition data_text_all_delivers_utf8_str_ascii_length
   : forall (s : AsciiStr) . Utf8Str.length (Utf8Str.from_ascii_str s) = AsciiStr.length s
-  := Utf8Str.conversion.ascii.preservation.of.length.
+  := Utf8Str.conversion.ascii.preservation.length.
 
 Definition data_text_all_computes_utf8_str_from_ascii_str
   : Utf8Str.from_ascii_str "ab"%a = "ab"%u8
