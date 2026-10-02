@@ -3,7 +3,9 @@
 From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.List.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
@@ -12,6 +14,7 @@ From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.Ascii.
 From jwa Require Import Data.Text.SourceByte.
 From jwa Require Import Tactics.Equation.
+From jwa Require Import Tactics.Modus.
 
 Module AsciiStr. (* AsciiStr *)
 
@@ -68,6 +71,48 @@ Definition get := fun (s : AsciiStr) (i : Nat0) . List.nth (to_list s) i.
 (* [AsciiStr -> Nat0 -> Nat0 -> AsciiStr] *)
 Definition substring := fun (s : AsciiStr) (start : Nat0) (len : Nat0) .
   AsciiStr.introduction (List.take len (List.drop start (to_list s))).
+
+(* Strings are ordered lexicographically by their characters' codes, a
+ * proper prefix first.
+ *)
+(* [AsciiStr -> AsciiStr -> Comparison] *)
+Definition compare := fun (s : AsciiStr) (t : AsciiStr) .
+  List.compare Ascii.compare (to_list s) (to_list t).
+
+(* [AsciiStr -> AsciiStr -> Prop] *)
+Definition LessThan := fun (s : AsciiStr) (t : AsciiStr) .
+  List.LessThan Ascii.compare (to_list s) (to_list t).
+
+Notation "s < t" := (LessThan s t) (only parsing)
+  : jwa_ascii_str_scope.
+
+(* [AsciiStr -> AsciiStr -> Prop] *)
+Definition LessOrEqual := fun (s : AsciiStr) (t : AsciiStr) . s = t \/ LessThan s t.
+
+Notation "s <= t" := (LessOrEqual s t) (only parsing)
+  : jwa_ascii_str_scope.
+
+Notation "s > t" := (LessThan t s) (only parsing)
+  : jwa_ascii_str_scope.
+Notation "s >= t" := (LessOrEqual t s) (only parsing)
+  : jwa_ascii_str_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_ascii_str_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_ascii_str_scope.
+
+(* [AsciiStr -> AsciiStr -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [AsciiStr -> AsciiStr -> Bool] *)
+Abbreviation le := (Comparable.le compare).
+
+(* [AsciiStr -> AsciiStr -> AsciiStr] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [AsciiStr -> AsciiStr -> AsciiStr] *)
+Abbreviation max := (Comparable.max compare).
 
 (* Reads the UTF-8 bytes of a string literal as characters, one at a time, by
  * [Ascii.from_source_bytes]:
@@ -457,6 +502,66 @@ Proof.
 Qed.
 
 End substring. (* substring *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {s : AsciiStr} {t : AsciiStr} {u : AsciiStr} . (s < t -> t < u -> s < u)%a.
+Proof.
+  intros s t u h1 h2.
+  simpl LessThan in &h1, &h2 |- *.
+  ipso
+    (List.comparison.transitivity Ascii.comparable
+      (to_list &s) (to_list &t) (to_list &u) &h1 &h2).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      (compare s t = Comparison.Lt <-> (s < t)%a) /\ (compare s t = Comparison.Eq <-> s = t).
+Proof.
+  intros s t.
+  match &s with | introduction l end.
+  match &t with | introduction m end.
+  simpl compare, LessThan, to_list in |- *.
+  let proof x := List.comparison.specification Ascii.comparable &l &m.
+  match &x with | strict equality end.
+  divide et impera.
+  - ipso &strict.
+  - divide et impera.
+    + intro e.
+      ipso (congru AsciiStr.introduction, (modus aequans &equality, &e)).
+    + intro e.
+      congru to_list, &e |- e'.
+      simpl in &e'.
+      ipso (modus aequans &equality, &e').
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (s : AsciiStr) (t : AsciiStr) . compare s t = Comparison.transpose (compare t s).
+Proof.
+  intros s t.
+  simpl compare in |- *.
+  ipso (List.comparison.antisymmetry Ascii.comparable (to_list &s) (to_list &t)).
+Qed.
+
+End comparison. (* comparison *)
+
+Instance comparable
+  : Comparable compare LessThan :=
+  {| Comparable.transitivity := @order.strict.transitivity
+  ; Comparable.specification := comparison.specification
+  ; Comparable.antisymmetry := comparison.antisymmetry |}.
 
 End AsciiStr. (* AsciiStr *)
 
