@@ -78,7 +78,7 @@ Proof.
         (fun (c : &B) . forall (x : &A) . &R (&f x) c -> Accessible (Induced &R &f) x).
   {
     intros c recurse x r.
-    ipso (Accessible_introduction
+    ipso (Accessible.introduction
             (fun (y : A) (s : Induced R f y x) . recurse (f x) r y (Induced.elimination s))).
   }
   ipso (Accessible.recursion &descent &b &a).
@@ -95,7 +95,7 @@ Proof.
   intros A B R f W.
   ipso {| accessibility :=
              fun (x : A) .
-               Accessible_introduction
+               Accessible.introduction
                  (fun (y : A) (s : Induced R f y x) .
                     induced.accessibility (accessibility (f x)) y
                                           (Induced.elimination s)) |}.

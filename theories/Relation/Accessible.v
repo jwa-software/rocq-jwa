@@ -5,6 +5,8 @@ From jwa Require Import Dialect.Simpl.
 From jwa Require Import Relation.Descent.
 From jwa Require Import Tactics.Modus.
 
+Module Accessible. (* Accessible *)
+
 (* [R] points downwards throughout this file: its first argument is the
  * lower one, so [R y x] says that [y] is below [x]. [Accessible R x] holds
  * when every [y] below [x] is accessible, which under "is less than" makes
@@ -12,14 +14,14 @@ From jwa Require Import Tactics.Modus.
  * it. The proof is what a recursion descends on, since the proof for [y]
  * sits inside the proof for [x].
  *)
-Inductive Accessible {A : Type} (R : A -> A -> Prop) (x : A) : Prop :=
-  | Accessible_introduction
-    : (forall (y : A) . R y x -> Accessible R y) -> Accessible R x.
+Inductive T {A : Type} (R : A -> A -> Prop) (x : A) : Prop :=
+  | introduction
+    : (forall (y : A) . R y x -> T R y) -> T R x.
 
 (* [A], [R] and [x] are all read off the proof, so none is written. *)
-Arguments Accessible_introduction {A} {R} {x} descend.
+Arguments Accessible.introduction {A} {R} {x} descend.
 
-Module Accessible. (* Accessible *)
+Abbreviation Accessible := T.
 
 (* [a] says [x] is accessible and [r] says [y] is below [x], so [y] is
  * accessible.
@@ -31,7 +33,7 @@ Definition descend :=
   fun {A : Type} {R : A -> A -> Prop} {x : A} {y : A}
     (a : Accessible R x) (r : R y x) .
     match a with
-    | Accessible_introduction step => step y r
+    | Accessible.introduction step => step y r
     end.
 
 (* This is where the recursion happens. *)
@@ -72,9 +74,9 @@ Proof.
 
   (* [f : forall (y : A) . R y x -> Accessible R y]
    * :
-   * [|- recursion step x (Accessible_introduction f)
+   * [|- recursion step x (introduction f)
    *  = step x (fun (y : A) (r : R y x)
-   *            . recursion step y (descend (Accessible_introduction f) r))]
+   *            . recursion step y (descend (introduction f) r))]
    *)
   match a with | f end.
 
@@ -225,3 +227,8 @@ Qed.
 End recursion. (* recursion *)
 
 End Accessible. (* Accessible *)
+
+(* The counterpart of the abbreviation inside the module: a client writes
+ * [Accessible], not [Accessible.T].
+ *)
+Abbreviation Accessible := Accessible.T.
