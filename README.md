@@ -13,11 +13,11 @@ An opam switch holding these packages, all from the default opam repository:
 
 | Package | Version | What it provides |
 |:---|:---|:---|
-| `rocq-core` | 9.2 or 9.3 | The prover, and Ltac2, the language the tactics are written in |
+| `rocq-core` | 9.3 | The prover, and Ltac2, the language the tactics are written in |
 | `dune` | 3.21 or later | The build |
 | `ocaml` | whatever `rocq-core` asks for | The compiler both are built with |
 
-The versions tested are `rocq-core` 9.2 and 9.3, `dune` 3.23.1 and `ocaml` 5.4.1. From a fresh opam installation:
+The versions tested are `rocq-core` 9.3.0, `dune` 3.23.1 and `ocaml` 5.4.1. From a fresh opam installation:
 
 ```
 opam switch create rocq-jwa ocaml-base-compiler.5.4.1
