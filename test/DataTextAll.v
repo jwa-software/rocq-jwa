@@ -256,6 +256,43 @@ Definition data_text_all_computes_ascii_str_case
     /\ AsciiStr.to_lower "Hello, World"%a = "hello, world"%a
   := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
 
+Definition data_text_all_delivers_ascii_str_indexing_specification
+  : forall (s : AsciiStr) (i : Nat0) .
+      (forsome (c : Ascii) . AsciiStr.get s i = Some c) <-> (i < AsciiStr.length s)%n0
+  := AsciiStr.indexing.specification.
+
+Definition data_text_all_delivers_ascii_str_indexing_left
+  : forall (s : AsciiStr) (t : AsciiStr) (i : Nat0) .
+      (i < AsciiStr.length s)%n0 -> AsciiStr.get (s ++ t)%a i = AsciiStr.get s i
+  := AsciiStr.indexing.left.invariance.
+
+Definition data_text_all_delivers_ascii_str_indexing_right
+  : forall (s : AsciiStr) (t : AsciiStr) (i : Nat0) .
+      AsciiStr.get (s ++ t)%a (AsciiStr.length s + i)%n0 = AsciiStr.get t i
+  := AsciiStr.indexing.right.translation.
+
+Definition data_text_all_delivers_ascii_str_substring_identity
+  : forall (s : AsciiStr) . AsciiStr.substring s Nat0.Zero (AsciiStr.length s) = s
+  := AsciiStr.substring.identity.
+
+Definition data_text_all_delivers_ascii_str_substring_length
+  : forall (s : AsciiStr) (start : Nat0) (len : Nat0) .
+      AsciiStr.length (AsciiStr.substring s start len)
+      = Nat0.min len (Nat0.saturating_sub (AsciiStr.length s) start)
+  := AsciiStr.substring.length.
+
+Definition data_text_all_computes_ascii_str_get
+  : AsciiStr.get "abc"%a 1%n0 = Some "b"%ac
+    /\ AsciiStr.get "abc"%a 3%n0 = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_ascii_str_substring
+  : AsciiStr.substring "Hello, World"%a 7%n0 5%n0 = "World"%a
+    /\ AsciiStr.substring "abc"%a 2%n0 5%n0 = "c"%a
+    /\ AsciiStr.substring "abc"%a 5%n0 1%n0 = ""%a
+  := conjoin (Identity.reflexivity _),
+       (conjoin (Identity.reflexivity _), (Identity.reflexivity _)).
+
 Definition data_text_all_reads_ascii_str_literal
   : AsciiStr.to_list "ab"%a = ("a"%ac :: "b"%ac :: [])%list
   := Identity.reflexivity _.

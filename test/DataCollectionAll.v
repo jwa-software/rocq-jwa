@@ -65,3 +65,21 @@ Definition data_collection_all_delivers_non_empty_list_conversion
       List.maximum_of le (NonEmptyList.to_list x)
       = Some (NonEmptyList.maximum_of le x)
   := @NonEmptyList.conversion.maximum.
+
+Definition data_collection_all_delivers_list_indexing_left
+  : forall (A : Type) (l1 : List A) (l2 : List A) (i : Nat0) .
+      (i < List.length l1)%n0 -> List.nth (l1 ++ l2)%list i = List.nth l1 i
+  := @List.indexing.left.invariance.
+
+Definition data_collection_all_delivers_list_indexing_right
+  : forall (A : Type) (l1 : List A) (l2 : List A) (i : Nat0) .
+      List.nth (l1 ++ l2)%list (List.length l1 + i)%n0 = List.nth l2 i
+  := @List.indexing.right.translation.
+
+Definition data_collection_all_delivers_list_taking_identity
+  : forall (A : Type) (l : List A) . List.take (List.length l) l = l
+  := @List.taking.identity.
+
+Definition data_collection_all_delivers_list_dropping_identity
+  : forall (A : Type) (l : List A) . List.drop Nat0.Zero l = l
+  := @List.dropping.identity.
