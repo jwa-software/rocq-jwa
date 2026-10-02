@@ -1,6 +1,7 @@
 (* Copyright (c) 2026 Junzhe Wang, licensed under the MIT License. *)
 
 From jwa Require Import Core.All.
+From jwa Require Import Data.Collection.List.
 From jwa Require Import Data.Machine.Byte.
 
 Module SourceByte. (* SourceByte *)
@@ -846,6 +847,23 @@ Proof.
 Qed.
 
 End byte. (* conversion.byte *)
+
+Module bytes. (* conversion.bytes *)
+
+(* [conversion.byte.retraction] for every byte of a list. *)
+(* conversion.bytes.retraction *)
+Theorem retraction : forall (l : List Byte) . List.map to_byte (List.map from_byte l) = l.
+Proof.
+  intros l.
+  match &l with | Nil | Cons b (l' by IH) end per List.induction.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    leibniz (conversion.byte.retraction &b), &IH in |- *.
+    quod idem est.
+Qed.
+
+End bytes. (* conversion.bytes *)
 
 End conversion. (* conversion *)
 
