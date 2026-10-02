@@ -294,6 +294,46 @@ Definition data_machine_all_computes_int8_from_bin
   : Int8.from_bin 11001000%b = (-56)%int8
   := Identity.reflexivity _.
 
+Definition data_machine_all_delivers_int8_division_positive
+  : forall (x : Int8) (y : Int8) (d : BinBase) .
+      Int8.to_bin y = Bin.Positive d -> Option.map Int8.to_bin (x /. y)%int8 = Some (x /. d)%b
+  := Int8.conversion.division.positive.
+
+Definition data_machine_all_delivers_int8_division_negative
+  : forall (x : Int8) (y : Int8) (d : BinBase) .
+      Int8.to_bin y = Bin.Negative d
+      -> ~ (Int8.to_bin x = (-10000000)%b /\ d = BinBase.One)
+      -> Option.map Int8.to_bin (x /. y)%int8 = Some (Bin.negate (x /. d)%b)
+  := Int8.conversion.division.negative.
+
+Definition data_machine_all_delivers_int8_retraction_nonnegative
+  : forall (n : BinWithZero) .
+      (n < 10000000)%bin_with_zero
+      -> Int8.to_bin (Int8.from_bin (Bin.from_bin_with_zero n)) = Bin.from_bin_with_zero n
+  := Int8.conversion.retraction.nonnegative.
+
+Definition data_machine_all_delivers_int8_retraction_negative
+  : forall (p : BinBase) .
+      (p <= 10000000)%bin_with_zero
+      -> Int8.to_bin (Int8.from_bin (Bin.Negative p)) = Bin.Negative p
+  := Int8.conversion.retraction.negative.
+
+Definition data_machine_all_computes_int8_division
+  : ((-7) /. 2)%int8 = Some (-3)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_division_by_negative
+  : (7 /. (-2))%int8 = Some (-3)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_division_overflow
+  : ((-128) /. (-1))%int8 = Some (-128)%int8
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int8_division_by_zero
+  : (100 /. 0)%int8 = None
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_int8_distributivity
   : forall (x : Int8) (y : Int8) (z : Int8) .
       (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%int8
@@ -652,6 +692,46 @@ Definition data_machine_all_computes_int16_value
 
 Definition data_machine_all_computes_int16_from_bin
   : Int16.from_bin 1001110001000000%b = (-25536)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_int16_division_positive
+  : forall (x : Int16) (y : Int16) (d : BinBase) .
+      Int16.to_bin y = Bin.Positive d -> Option.map Int16.to_bin (x /. y)%int16 = Some (x /. d)%b
+  := Int16.conversion.division.positive.
+
+Definition data_machine_all_delivers_int16_division_negative
+  : forall (x : Int16) (y : Int16) (d : BinBase) .
+      Int16.to_bin y = Bin.Negative d
+      -> ~ (Int16.to_bin x = (-1000000000000000)%b /\ d = BinBase.One)
+      -> Option.map Int16.to_bin (x /. y)%int16 = Some (Bin.negate (x /. d)%b)
+  := Int16.conversion.division.negative.
+
+Definition data_machine_all_delivers_int16_retraction_nonnegative
+  : forall (n : BinWithZero) .
+      (n < 1000000000000000)%bin_with_zero
+      -> Int16.to_bin (Int16.from_bin (Bin.from_bin_with_zero n)) = Bin.from_bin_with_zero n
+  := Int16.conversion.retraction.nonnegative.
+
+Definition data_machine_all_delivers_int16_retraction_negative
+  : forall (p : BinBase) .
+      (p <= 1000000000000000)%bin_with_zero
+      -> Int16.to_bin (Int16.from_bin (Bin.Negative p)) = Bin.Negative p
+  := Int16.conversion.retraction.negative.
+
+Definition data_machine_all_computes_int16_division
+  : ((-30000) /. 7)%int16 = Some (-4285)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_division_by_negative
+  : (30000 /. (-7))%int16 = Some (-4285)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_division_overflow
+  : ((-32768) /. (-1))%int16 = Some (-32768)%int16
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int16_division_by_zero
+  : (1000 /. 0)%int16 = None
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_int16_distributivity
@@ -1021,6 +1101,46 @@ Definition data_machine_all_computes_int32_from_bin
   : Int32.from_bin 10110010110100000101111000000000%b = (-1294967296)%int32
   := Identity.reflexivity _.
 
+Definition data_machine_all_delivers_int32_division_positive
+  : forall (x : Int32) (y : Int32) (d : BinBase) .
+      Int32.to_bin y = Bin.Positive d -> Option.map Int32.to_bin (x /. y)%int32 = Some (x /. d)%b
+  := Int32.conversion.division.positive.
+
+Definition data_machine_all_delivers_int32_division_negative
+  : forall (x : Int32) (y : Int32) (d : BinBase) .
+      Int32.to_bin y = Bin.Negative d
+      -> ~ (Int32.to_bin x = (-10000000000000000000000000000000)%b /\ d = BinBase.One)
+      -> Option.map Int32.to_bin (x /. y)%int32 = Some (Bin.negate (x /. d)%b)
+  := Int32.conversion.division.negative.
+
+Definition data_machine_all_delivers_int32_retraction_nonnegative
+  : forall (n : BinWithZero) .
+      (n < 10000000000000000000000000000000)%bin_with_zero
+      -> Int32.to_bin (Int32.from_bin (Bin.from_bin_with_zero n)) = Bin.from_bin_with_zero n
+  := Int32.conversion.retraction.nonnegative.
+
+Definition data_machine_all_delivers_int32_retraction_negative
+  : forall (p : BinBase) .
+      (p <= 10000000000000000000000000000000)%bin_with_zero
+      -> Int32.to_bin (Int32.from_bin (Bin.Negative p)) = Bin.Negative p
+  := Int32.conversion.retraction.negative.
+
+Definition data_machine_all_computes_int32_division
+  : ((-2000000000) /. 3)%int32 = Some (-666666666)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_division_by_negative
+  : (2000000000 /. (-3))%int32 = Some (-666666666)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_division_overflow
+  : ((-2147483648) /. (-1))%int32 = Some (-2147483648)%int32
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int32_division_by_zero
+  : (1000 /. 0)%int32 = None
+  := Identity.reflexivity _.
+
 Definition data_machine_all_delivers_int32_distributivity
   : forall (x : Int32) (y : Int32) (z : Int32) .
       (x * (y + z) = (x * y) + (x * z) /\ (y + z) * x = (y * x) + (z * x))%int32
@@ -1381,6 +1501,47 @@ Definition data_machine_all_computes_int64_value
 Definition data_machine_all_computes_int64_from_bin
   : Int64.from_bin 1000101011000111001000110000010010001001111010000000000000000000%b
     = (-8446744073709551616)%int64
+  := Identity.reflexivity _.
+
+Definition data_machine_all_delivers_int64_division_positive
+  : forall (x : Int64) (y : Int64) (d : BinBase) .
+      Int64.to_bin y = Bin.Positive d -> Option.map Int64.to_bin (x /. y)%int64 = Some (x /. d)%b
+  := Int64.conversion.division.positive.
+
+Definition data_machine_all_delivers_int64_division_negative
+  : forall (x : Int64) (y : Int64) (d : BinBase) .
+      Int64.to_bin y = Bin.Negative d
+      -> ~ (Int64.to_bin x = (-1000000000000000000000000000000000000000000000000000000000000000)%b
+            /\ d = BinBase.One)
+      -> Option.map Int64.to_bin (x /. y)%int64 = Some (Bin.negate (x /. d)%b)
+  := Int64.conversion.division.negative.
+
+Definition data_machine_all_delivers_int64_retraction_nonnegative
+  : forall (n : BinWithZero) .
+      (n < 1000000000000000000000000000000000000000000000000000000000000000)%bin_with_zero
+      -> Int64.to_bin (Int64.from_bin (Bin.from_bin_with_zero n)) = Bin.from_bin_with_zero n
+  := Int64.conversion.retraction.nonnegative.
+
+Definition data_machine_all_delivers_int64_retraction_negative
+  : forall (p : BinBase) .
+      (p <= 1000000000000000000000000000000000000000000000000000000000000000)%bin_with_zero
+      -> Int64.to_bin (Int64.from_bin (Bin.Negative p)) = Bin.Negative p
+  := Int64.conversion.retraction.negative.
+
+Definition data_machine_all_computes_int64_division
+  : ((-9000000000000000000) /. 7)%int64 = Some (-1285714285714285714)%int64
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int64_division_by_negative
+  : (9000000000000000000 /. (-7))%int64 = Some (-1285714285714285714)%int64
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int64_division_overflow
+  : ((-9223372036854775808) /. (-1))%int64 = Some (-9223372036854775808)%int64
+  := Identity.reflexivity _.
+
+Definition data_machine_all_computes_int64_division_by_zero
+  : (1000 /. 0)%int64 = None
   := Identity.reflexivity _.
 
 Definition data_machine_all_delivers_int64_distributivity
