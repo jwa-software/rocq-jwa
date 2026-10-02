@@ -1162,8 +1162,8 @@ Module conversion. (* conversion *)
 
 Module bytes. (* conversion.bytes *)
 
-(* conversion.bytes.retraction *)
-Theorem retraction : forall (x : Word) . from_bytes (endian x) (to_bytes x) = Some x.
+(* conversion.bytes.section *)
+Theorem section : forall (x : Word) . from_bytes (endian x) (to_bytes x) = Some x.
 Proof.
   intros x.
   match &x with | Word_introduction e b0 b1 b2 b3 end.

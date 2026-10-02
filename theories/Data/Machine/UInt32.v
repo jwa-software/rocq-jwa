@@ -1245,10 +1245,10 @@ Qed.
 Module word. (* conversion.word *)
 
 (* conversion.word.retraction *)
-Theorem retraction : forall (e : Endian) (x : UInt32) . from_word (to_word e x) = x.
+Theorem retraction : forall (w : Word) . to_word (Word.endian w) (from_word w) = w.
 Proof.
-  intros e x.
-  match &x with | UInt32_introduction b3 b2 b1 b0 end.
+  intros w.
+  match &w with | Word_introduction e b0 b1 b2 b3 end.
   match &e with | Little | Big end;
     simpl from_word, to_word in |- *;
     simpl in |- *;
@@ -1256,10 +1256,10 @@ Proof.
 Qed.
 
 (* conversion.word.section *)
-Theorem section : forall (w : Word) . to_word (Word.endian w) (from_word w) = w.
+Theorem section : forall (e : Endian) (x : UInt32) . from_word (to_word e x) = x.
 Proof.
-  intros w.
-  match &w with | Word_introduction e b0 b1 b2 b3 end.
+  intros e x.
+  match &x with | UInt32_introduction b3 b2 b1 b0 end.
   match &e with | Little | Big end;
     simpl from_word, to_word in |- *;
     simpl in |- *;
