@@ -2117,6 +2117,88 @@ Proof.
   - ipso (@indexing.backward.specification A l i).
 Qed.
 
+(* One step past the head is one step of the index. *)
+(* indexing.increment *)
+Lemma increment
+  : forall {A : Type} (a : A) (l : List A) (i : Nat0) . nth (a :: l) (++ i) = nth l i.
+Proof.
+  intros A a l i.
+  match i with | | p end.
+  - simpl in |- *.
+    quod idem est.
+  - simpl in |- *.
+    quod idem est.
+Qed.
+
+Module left. (* indexing.left *)
+
+(* An index below the length of [l1] reads [l1], whatever follows it. *)
+(* indexing.left.invariance *)
+Theorem invariance
+  : forall {A : Type} (l1 : List A) (l2 : List A) (i : Nat0) .
+      i < (|| l1 ||) -> nth (l1 ++ l2) i = nth l1 i.
+Proof.
+  intros A l1 l2.
+  match l1 with | | b l' by IH end per List.induction.
+  - intros i h.
+    simpl in h.
+    simpl ( _ < _ )%n0 in h.
+    match h with | k e end.
+    let proof r := Nat0.addition.right.identity.absence i k.
+    simpl (~ _) in r.
+    modus ponens r, e |- f.
+    ex f quodlibet.
+  - intros i h.
+    match i with | | i' end.
+    + simpl in |- *.
+      quod idem est.
+    + match i' with | | i'' end.
+      * simpl in h.
+        leibniz (Nat0.increment.specification (|| l' ||)) in h.
+        let proof lt := Nat0.addition.order.strict.cancellation Nat.One Nat0.Zero (|| l' ||) h.
+        simpl in |- *.
+        ipso (IH Nat0.Zero lt).
+      * simpl in h.
+        leibniz (Nat0.increment.specification (|| l' ||)) in h.
+        let proof lt := Nat0.addition.order.strict.cancellation
+                      Nat.One i'' (|| l' ||) h.
+        simpl in |- *.
+        ipso (IH i'' lt).
+Qed.
+
+End left. (* indexing.left *)
+
+Module right. (* indexing.right *)
+
+(* An index past [l1] reads [l2], moved down by the length of [l1]. *)
+(* indexing.right.translation *)
+Theorem translation
+  : forall {A : Type} (l1 : List A) (l2 : List A) (i : Nat0) .
+      nth (l1 ++ l2) ((|| l1 ||) + i) = nth l2 i.
+Proof.
+  intros A l1 l2 i.
+  match l1 with | | a l' by IH end per List.induction.
+  - simpl in |- *.
+    quod idem est.
+  - lemma shift : (++ (|| &l' ||)) + &i = ++ ((|| &l' ||) + &i).
+    {
+      leibniz
+        (Nat0.increment.specification (|| l' ||)),
+        (Nat0.increment.specification ((|| l' ||) + i)),
+        (Nat0.addition.associativity (Nat0.Positive Nat.One) (|| l' ||) i)
+        in |- *.
+      quod idem est.
+    }
+    lemma facto : nth (&a :: (&l' ++ &l2)) (++ (|| &l' ||) + &i) = nth &l2 &i.
+    {
+      leibniz &shift, (indexing.increment a (l' ++ l2) ((|| l' ||) + i)) in |- *.
+      ipso &IH.
+    }
+    ipso facto.
+Qed.
+
+End right. (* indexing.right *)
+
 End indexing. (* indexing *)
 
 Module splitting. (* splitting *)
@@ -2190,6 +2272,34 @@ Proof.
         ipso facto.
 Qed.
 
+(* One more to take past the head is one more element kept. *)
+(* taking.increment *)
+Lemma increment
+  : forall {A : Type} (a : A) (l : List A) (n : Nat0) . take (++ n) (a :: l) = a :: take n l.
+Proof.
+  intros A a l n.
+  match n with | | p end.
+  - match l with | | b l' end; simpl in |- *; quod idem est.
+  - simpl in |- *.
+    quod idem est.
+Qed.
+
+(* Taking as many as there are keeps them all. *)
+(* taking.identity *)
+Theorem identity : forall {A : Type} (l : List A) . take (|| l ||) l = l.
+Proof.
+  intros A l.
+  match l with | | a l' by IH end per List.induction.
+  - simpl in |- *.
+    quod idem est.
+  - lemma facto : take (++ (|| &l' ||)) (&a :: &l') = &a :: &l'.
+    {
+      leibniz (taking.increment a l' (|| l' ||)), IH in |- *.
+      quod idem est.
+    }
+    ipso facto.
+Qed.
+
 End taking. (* taking *)
 
 Module dropping. (* dropping *)
@@ -2229,6 +2339,14 @@ Proof.
           quod idem est.
         }
         ipso facto.
+Qed.
+
+(* Dropping none keeps them all. *)
+(* dropping.identity *)
+Theorem identity : forall {A : Type} (l : List A) . drop Nat0.Zero l = l.
+Proof.
+  intros A l.
+  match l with | | a l' end; simpl in |- *; quod idem est.
 Qed.
 
 End dropping. (* dropping *)
