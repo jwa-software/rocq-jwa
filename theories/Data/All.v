@@ -20,3 +20,4 @@ From jwa Require Export Data.Machine.All.
 From jwa Require Export Data.Number.All.
 From jwa Require Export Data.Option.
 From jwa Require Export Data.Product.
+From jwa Require Export Data.Text.All.
