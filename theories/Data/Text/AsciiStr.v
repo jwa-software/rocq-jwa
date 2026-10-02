@@ -56,6 +56,19 @@ Definition to_upper := fun (s : AsciiStr) .
 Definition to_lower := fun (s : AsciiStr) .
   AsciiStr.introduction (List.map Ascii.to_lower (to_list s)).
 
+(* The character at position [i], counting from 0, and [None] from [length s]
+ * on.
+ *)
+(* [AsciiStr -> Nat0 -> Option Ascii] *)
+Definition get := fun (s : AsciiStr) (i : Nat0) . List.nth (to_list s) i.
+
+(* The [len] characters of [s] from position [start], fewer where [s] ends
+ * sooner.
+ *)
+(* [AsciiStr -> Nat0 -> Nat0 -> AsciiStr] *)
+Definition substring := fun (s : AsciiStr) (start : Nat0) (len : Nat0) .
+  AsciiStr.introduction (List.take len (List.drop start (to_list s))).
+
 (* Reads the UTF-8 bytes of a string literal as characters, one at a time, by
  * [Ascii.from_source_bytes]:
  *
@@ -367,6 +380,83 @@ End over. (* lowercasing.distributivity.over *)
 End distributivity. (* lowercasing.distributivity *)
 
 End lowercasing. (* lowercasing *)
+
+Module indexing. (* indexing *)
+
+(* indexing.specification *)
+Theorem specification
+  : forall (s : AsciiStr) (i : Nat0) .
+      (forsome (c : Ascii) . get s i = Some c) <-> (i < length s)%n0.
+Proof.
+  intros s i.
+  match &s with | introduction l end.
+  simpl get, length, to_list in |- *.
+  ipso (List.indexing.specification &l &i).
+Qed.
+
+Module left. (* indexing.left *)
+
+(* indexing.left.invariance *)
+Theorem invariance
+  : forall (s : AsciiStr) (t : AsciiStr) (i : Nat0) .
+      (i < length s)%n0 -> get (s ++ t)%a i = get s i.
+Proof.
+  intros s t i h.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl length, to_list in &h.
+  simpl get, concat, to_list in |- *.
+  ipso (List.indexing.left.invariance &l1 &l2 &i &h).
+Qed.
+
+End left. (* indexing.left *)
+
+Module right. (* indexing.right *)
+
+(* indexing.right.translation *)
+Theorem translation
+  : forall (s : AsciiStr) (t : AsciiStr) (i : Nat0) .
+      get (s ++ t)%a (length s + i)%n0 = get t i.
+Proof.
+  intros s t i.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl get, length, concat, to_list in |- *.
+  ipso (List.indexing.right.translation &l1 &l2 &i).
+Qed.
+
+End right. (* indexing.right *)
+
+End indexing. (* indexing *)
+
+Module substring. (* substring *)
+
+(* substring.identity *)
+Theorem identity : forall (s : AsciiStr) . substring s Nat0.Zero (length s) = s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl substring, length, to_list in |- *.
+  leibniz (List.dropping.identity &l), (List.taking.identity &l) in |- *.
+  quod idem est.
+Qed.
+
+(* substring.length *)
+Theorem length
+  : forall (s : AsciiStr) (start : Nat0) (len : Nat0) .
+      length (substring s start len) = Nat0.min len (Nat0.saturating_sub (length s) start).
+Proof.
+  intros s start len.
+  match &s with | introduction l end.
+  simpl length, substring, to_list in |- *.
+  leibniz
+    (List.taking.length (List.drop &start &l) &len),
+    (List.dropping.length &l &start)
+    in |- *.
+  quod idem est.
+Qed.
+
+End substring. (* substring *)
 
 End AsciiStr. (* AsciiStr *)
 
