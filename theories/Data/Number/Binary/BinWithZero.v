@@ -2132,6 +2132,22 @@ End maximum. (* maximum *)
 
 Module division. (* division *)
 
+Module quotient. (* division.quotient *)
+
+(* division.quotient.boundedness *)
+Theorem boundedness : forall (n : BinWithZero) (d : BinBase) . (n /. d) <= n.
+Proof.
+  intros n d.
+  let proof b := Nat0.division.quotient.boundedness (to_nat0 &n) (BinBase.to_nat &d).
+  leibniz <- (conversion.division &n &d) in &b.
+  simpl ( _ <= _ ) in |- *.
+  match &b with | same | below end.
+  - ipso (disjoin (conversion.injectivity &same), _).
+  - ipso (disjoin _, (modus aequans (conversion.order (&n /. &d) &n), &below)).
+Qed.
+
+End quotient. (* division.quotient *)
+
 (* division.specification *)
 Theorem specification
   : forall (n : BinWithZero) (d : BinBase) .
