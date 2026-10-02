@@ -8,6 +8,7 @@ From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
 From jwa Require Import Data.Option.
+From jwa Require Import Data.Text.Ascii.
 From jwa Require Import Data.Text.SourceByte.
 From jwa Require Import Tactics.Equation.
 
@@ -144,6 +145,37 @@ Definition from_source_bytes := fun (l : List SourceByte) .
 Definition to_source_bytes := fun (c : Utf8) .
   List.map SourceByte.from_byte (to_bytes c).
 
+(* An [Ascii] character read as Latin-1, whose 256 codes are U+0000 to
+ * U+00FF: a code below 128 takes one byte, [0xxxxxxx], and one from 128 two,
+ * [1100001x 10xxxxxx].
+ *)
+(* [Ascii -> Utf8] *)
+Definition from_ascii := fun (a : Ascii) .
+  match a with
+  | Ascii.introduction (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) =>
+      Utf8.OneByte (Byte.introduction Bit.Zero b6 b5 b4 b3 b2 b1 b0) I
+  | Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0) =>
+      Utf8.TwoBytes
+        (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
+        (Byte.introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
+        I
+  end.
+
+(* [Some a] for U+0000 to U+00FF, the characters [from_ascii] gives, and
+ * [None] from U+0100 on.
+ *)
+(* [Utf8 -> Option Ascii] *)
+Definition to_ascii := fun (c : Utf8) .
+  match c with
+  | Utf8.OneByte x _ => Some (Ascii.introduction x)
+  | Utf8.TwoBytes
+      (Byte.introduction Bit.One Bit.One Bit.Zero Bit.Zero Bit.Zero Bit.Zero Bit.One b6)
+      (Byte.introduction Bit.One Bit.Zero b5 b4 b3 b2 b1 b0)
+      _ =>
+      Some (Ascii.introduction (Byte.introduction Bit.One b6 b5 b4 b3 b2 b1 b0))
+  | _ => None
+  end.
+
 Module conversion. (* conversion *)
 
 Module bytes. (* conversion.bytes *)
@@ -243,6 +275,75 @@ Proof.
 Qed.
 
 End source_bytes. (* conversion.source_bytes *)
+
+Module ascii. (* conversion.ascii *)
+
+(* [to_ascii (from_ascii a) = Some a]: [to_ascii] is a retraction of
+ * [from_ascii], so every [Ascii] character comes back from its [Utf8] form.
+ *)
+(* conversion.ascii.retraction *)
+Theorem retraction : forall (a : Ascii) . to_ascii (from_ascii a) = Some a.
+Proof.
+  intros a.
+  match &a with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end.
+  - simpl from_ascii, to_ascii in |- *.
+    quod idem est.
+  - simpl from_ascii, to_ascii in |- *.
+    quod idem est.
+Qed.
+
+(* [to_ascii c = Some a] only for [c = from_ascii a]: the [Utf8] characters
+ * that read as [Ascii] are those [from_ascii] gives.
+ *)
+(* conversion.ascii.inversion *)
+Theorem inversion
+  : forall (c : Utf8) (a : Ascii) . to_ascii c = Some a -> from_ascii a = c.
+Proof.
+  intros c a h.
+  (* Both sides are [None] where [to_ascii] answers [None], so one chain of
+   * steps closes every case of the bits [to_ascii] and the proof in [c] read.
+   *)
+  lemma agreement
+    : Option.map from_ascii (to_ascii &c) = Option.map (fun (_ : Ascii) . &c) (to_ascii &c).
+  {
+    match &c with
+    | OneByte x p | TwoBytes x y p | ThreeBytes x y z p | FourBytes x y z w p
+    end.
+    - match &x with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+      match &b7 with | Zero | One end;
+        simpl in &p;
+        match &p with end;
+        simpl in |- *;
+        quod idem est.
+    - match &x with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+      match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+      match &b7 with | Zero | One end;
+        match &b6 with | Zero | One end;
+        match &b5 with | Zero | One end;
+        match &b4 with | Zero | One end;
+        match &b3 with | Zero | One end;
+        match &b2 with | Zero | One end;
+        match &b1 with | Zero | One end;
+        match &b0 with | Zero | One end;
+        match &y7 with | Zero | One end;
+        match &y6 with | Zero | One end;
+        simpl in &p;
+        match &p with end;
+        simpl in |- *;
+        quod idem est.
+    - simpl in |- *.
+      quod idem est.
+    - simpl in |- *.
+      quod idem est.
+  }
+  leibniz &h in &agreement.
+  simpl in &agreement.
+  ipso (Option.some.injectivity &agreement).
+Qed.
+
+End ascii. (* conversion.ascii *)
 
 End conversion. (* conversion *)
 
