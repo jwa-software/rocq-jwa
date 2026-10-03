@@ -450,3 +450,38 @@ Definition data_all_delivers_mul_cancellative
   : forall (x : Nat) (y : Nat) (z : Nat) .
       (Nat.mul x y = Nat.mul x z -> y = z) /\ (Nat.mul x y = Nat.mul z y -> x = z)
   := Cancellative.cancellation.
+
+Definition data_all_delivers_functor_identity
+  : forall (F : Type -> Type) (t : Functor F) (A : Type) (x : F A) .
+      Functor.map (fun (a : A) . a) x = x
+  := fun (F : Type -> Type) (t : Functor F) . Functor.identity.
+
+Definition data_all_delivers_functor_composition
+  : forall (F : Type -> Type) (t : Functor F)
+        (A : Type) (B : Type) (C : Type) (f : A -> B) (g : B -> C) (x : F A) .
+      Functor.map g (Functor.map f x) = Functor.map (fun (a : A) . g (f a)) x
+  := fun (F : Type -> Type) (t : Functor F) . Functor.composition.
+
+Definition data_all_delivers_comparable_transitivity
+  : forall (A : Type) (compare : A -> A -> Comparison) (lt : A -> A -> Prop)
+        (c : Comparable compare lt) (l : A) (m : A) (n : A) .
+      lt l m -> lt m n -> lt l n
+  := fun (A : Type) (compare : A -> A -> Comparison) (lt : A -> A -> Prop)
+        (c : Comparable compare lt) .
+      Comparable.transitivity.
+
+Definition data_all_delivers_comparable_specification
+  : forall (A : Type) (compare : A -> A -> Comparison) (lt : A -> A -> Prop)
+        (c : Comparable compare lt) (m : A) (n : A) .
+      (compare m n = Comparison.Lt <-> lt m n) /\ (compare m n = Comparison.Eq <-> m = n)
+  := fun (A : Type) (compare : A -> A -> Comparison) (lt : A -> A -> Prop)
+        (c : Comparable compare lt) .
+      Comparable.specification.
+
+Definition data_all_delivers_comparable_antisymmetry
+  : forall (A : Type) (compare : A -> A -> Comparison) (lt : A -> A -> Prop)
+        (c : Comparable compare lt) (m : A) (n : A) .
+      compare m n = Comparison.transpose (compare n m)
+  := fun (A : Type) (compare : A -> A -> Comparison) (lt : A -> A -> Prop)
+        (c : Comparable compare lt) .
+      Comparable.antisymmetry.
