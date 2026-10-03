@@ -442,9 +442,9 @@ Notation "'pi_2'" := Product.second (only parsing)
 Instance Product_functor
   : forall (A : Type) . Functor (Product A) :=
   fun (A : Type) .
-    ({| Functor.map             := fun (B : Type) (C : Type) . Product.map_second
-      ; Functor.map_identity    := @Product.mapping.second.identity A
-      ; Functor.map_composition := @Product.mapping.second.composition A |}).
+    ({| Functor.map         := fun (B : Type) (C : Type) . Product.map_second
+      ; Functor.identity    := @Product.mapping.second.identity A
+      ; Functor.composition := @Product.mapping.second.composition A |}).
 
 Instance Product_semigroup
   : forall (A : Type) (opA : A -> A -> A)
