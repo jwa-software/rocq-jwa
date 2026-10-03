@@ -2,6 +2,8 @@
 
 From jwa Require Import Core.All.
 
+Module Membership. (* Membership *)
+
 (* What it is for an element to be in a container. The relation is one
  * function taken at every element type at once, which is what makes it a
  * fact about the container rather than about what is stored in it.
@@ -12,5 +14,11 @@ From jwa Require Import Core.All.
  * a join, against a map, against a count -- and belong to whichever class or
  * container carries that operation.
  *)
-Class Membership (F : Type -> Type) : Type :=
+Class T (F : Type -> Type) : Type :=
   { Contains : forall {A : Type} . A -> F A -> Prop }.
+
+Abbreviation Membership := T.
+
+End Membership. (* Membership *)
+
+Abbreviation Membership := Membership.T.
