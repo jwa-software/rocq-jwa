@@ -9,11 +9,13 @@ From jwa Require Import Relation.Induced.
 
 (* [R] points downwards here: [R y x] says that [y] is below [x]. *)
 
+Module WellFounded. (* WellFounded *)
+
 (* [R] is well founded when every point is accessible. *)
-Class WellFounded {A : Type} (R : A -> A -> Prop) : Prop :=
+Class T {A : Type} (R : A -> A -> Prop) : Prop :=
   { accessibility : forall (x : A) . Accessible R x }.
 
-Module WellFounded. (* WellFounded *)
+Abbreviation WellFounded := T.
 
 (* What a definition by descent is written with: one step, answering at [x]
  * from the answers below [x], together with [R]'s well foundedness.
@@ -102,3 +104,5 @@ Proof.
 Qed.
 
 End WellFounded. (* WellFounded *)
+
+Abbreviation WellFounded := WellFounded.T.

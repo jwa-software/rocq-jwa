@@ -3,6 +3,14 @@
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 
-Class Antisymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
+Module Antisymmetric. (* Antisymmetric *)
+
+Class T {A : Type} (R : A -> A -> Prop) : Prop :=
   { antisymmetry
     : forall (x : A) (y : A) . R x y -> R y x -> x = y }.
+
+Abbreviation Antisymmetric := T.
+
+End Antisymmetric. (* Antisymmetric *)
+
+Abbreviation Antisymmetric := Antisymmetric.T.

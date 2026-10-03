@@ -3,6 +3,14 @@
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 
-Class Reflexive {A : Type} (R : A -> A -> Prop) : Prop :=
+Module Reflexive. (* Reflexive *)
+
+Class T {A : Type} (R : A -> A -> Prop) : Prop :=
   { reflexivity
     : forall (x : A) . R x x }.
+
+Abbreviation Reflexive := T.
+
+End Reflexive. (* Reflexive *)
+
+Abbreviation Reflexive := Reflexive.T.

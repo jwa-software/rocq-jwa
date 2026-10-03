@@ -3,6 +3,14 @@
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 
-Class Total {A : Type} (R : A -> A -> Prop) : Prop :=
+Module Total. (* Total *)
+
+Class T {A : Type} (R : A -> A -> Prop) : Prop :=
   { totality
     : forall (x : A) (y : A) . R x y \/ R y x }.
+
+Abbreviation Total := T.
+
+End Total. (* Total *)
+
+Abbreviation Total := Total.T.
