@@ -676,3 +676,134 @@ Definition data_text_all_refuses_utf8_from_code_surrogate
 Definition data_text_all_refuses_utf8_from_code_beyond_last
   : Utf8.from_code 0x110000%uint32 = None /\ Utf8.from_code 0xffffffff%uint32 = None
   := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_delivers_utf8_order_transitivity
+  : forall (x : Utf8) (y : Utf8) (z : Utf8) . (x < y)%u8c -> (y < z)%u8c -> (x < z)%u8c
+  := @Utf8.order.strict.transitivity.
+
+Definition data_text_all_delivers_utf8_comparison_specification
+  : forall (x : Utf8) (y : Utf8) .
+      (Utf8.compare x y = Comparison.Lt <-> (x < y)%u8c)
+      /\ (Utf8.compare x y = Comparison.Eq <-> x = y)
+  := Utf8.comparison.specification.
+
+Definition data_text_all_delivers_utf8_comparison_antisymmetry
+  : forall (x : Utf8) (y : Utf8) . Utf8.compare x y = Comparison.transpose (Utf8.compare y x)
+  := Utf8.comparison.antisymmetry.
+
+Definition data_text_all_delivers_utf8_comparable
+  : forall (x : Utf8) (y : Utf8) . (x < y)%u8c \/ x = y \/ (y < x)%u8c
+  := Comparable.order.strict.trichotomy.
+
+Definition data_text_all_computes_utf8_compare
+  : Utf8.compare "A"%u8c "a"%u8c = Comparison.Lt
+    /\ Utf8.compare "a"%u8c "a"%u8c = Comparison.Eq
+    /\ Utf8.compare (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I) "a"%u8c = Comparison.Gt
+  := conjoin (Identity.reflexivity _), (conjoin (Identity.reflexivity _), (Identity.reflexivity _)).
+
+Definition data_text_all_computes_utf8_min
+  : Utf8.min "z"%u8c "0"%u8c = "0"%u8c
+  := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_digit_specification
+  : forall (c : Utf8) .
+      Utf8.is_digit c = true
+      <-> (Utf8.OneByte 0x30%byte I <= c /\ c <= Utf8.OneByte 0x39%byte I)%u8c
+  := Utf8.classification.digit.specification.
+
+Definition data_text_all_delivers_utf8_upper_specification
+  : forall (c : Utf8) .
+      Utf8.is_upper c = true
+      <-> (Utf8.OneByte 0x41%byte I <= c /\ c <= Utf8.OneByte 0x5a%byte I)%u8c
+  := Utf8.classification.upper.specification.
+
+Definition data_text_all_delivers_utf8_lower_specification
+  : forall (c : Utf8) .
+      Utf8.is_lower c = true
+      <-> (Utf8.OneByte 0x61%byte I <= c /\ c <= Utf8.OneByte 0x7a%byte I)%u8c
+  := Utf8.classification.lower.specification.
+
+Definition data_text_all_delivers_utf8_letter_specification
+  : forall (c : Utf8) .
+      Utf8.is_letter c = true <-> Utf8.is_upper c = true \/ Utf8.is_lower c = true
+  := Utf8.classification.letter.specification.
+
+Definition data_text_all_delivers_utf8_whitespace_specification
+  : forall (c : Utf8) .
+      Utf8.is_whitespace c = true
+      <-> c = Utf8.OneByte 0x20%byte I
+        \/ (Utf8.OneByte 0x09%byte I <= c /\ c <= Utf8.OneByte 0x0d%byte I)%u8c
+  := Utf8.classification.whitespace.specification.
+
+Definition data_text_all_delivers_utf8_exclusion
+  : forall (c : Utf8) . Bool.and (Utf8.is_upper c) (Utf8.is_lower c) = false
+  := Utf8.classification.exclusion.
+
+Definition data_text_all_delivers_utf8_ascii_classification_upper
+  : forall (a : Ascii) . Utf8.is_upper (Utf8.from_ascii a) = Ascii.is_upper a
+  := Utf8.conversion.ascii.classification.upper.
+
+Definition data_text_all_delivers_utf8_ascii_classification_lower
+  : forall (a : Ascii) . Utf8.is_lower (Utf8.from_ascii a) = Ascii.is_lower a
+  := Utf8.conversion.ascii.classification.lower.
+
+Definition data_text_all_delivers_utf8_ascii_uppercasing
+  : forall (a : Ascii) . Utf8.to_upper (Utf8.from_ascii a) = Utf8.from_ascii (Ascii.to_upper a)
+  := Utf8.conversion.ascii.uppercasing.
+
+Definition data_text_all_delivers_utf8_ascii_lowercasing
+  : forall (a : Ascii) . Utf8.to_lower (Utf8.from_ascii a) = Utf8.from_ascii (Ascii.to_lower a)
+  := Utf8.conversion.ascii.lowercasing.
+
+Definition data_text_all_delivers_utf8_uppercasing_invariance
+  : forall (c : Utf8) . Utf8.is_lower c = false -> Utf8.to_upper c = c
+  := Utf8.uppercasing.invariance.
+
+Definition data_text_all_delivers_utf8_uppercasing_idempotence
+  : forall (c : Utf8) . Utf8.to_upper (Utf8.to_upper c) = Utf8.to_upper c
+  := Utf8.uppercasing.idempotence.
+
+Definition data_text_all_delivers_utf8_uppercasing_absorption
+  : forall (c : Utf8) . Utf8.to_upper (Utf8.to_lower c) = Utf8.to_upper c
+  := Utf8.uppercasing.absorption.
+
+Definition data_text_all_delivers_utf8_uppercasing_inversion
+  : forall (c : Utf8) . Utf8.is_upper c = true -> Utf8.to_upper (Utf8.to_lower c) = c
+  := Utf8.uppercasing.inversion.lowercasing.
+
+Definition data_text_all_delivers_utf8_lowercasing_invariance
+  : forall (c : Utf8) . Utf8.is_upper c = false -> Utf8.to_lower c = c
+  := Utf8.lowercasing.invariance.
+
+Definition data_text_all_delivers_utf8_lowercasing_idempotence
+  : forall (c : Utf8) . Utf8.to_lower (Utf8.to_lower c) = Utf8.to_lower c
+  := Utf8.lowercasing.idempotence.
+
+Definition data_text_all_delivers_utf8_lowercasing_absorption
+  : forall (c : Utf8) . Utf8.to_lower (Utf8.to_upper c) = Utf8.to_lower c
+  := Utf8.lowercasing.absorption.
+
+Definition data_text_all_delivers_utf8_lowercasing_inversion
+  : forall (c : Utf8) . Utf8.is_lower c = true -> Utf8.to_lower (Utf8.to_upper c) = c
+  := Utf8.lowercasing.inversion.uppercasing.
+
+Definition data_text_all_computes_utf8_classes
+  : Utf8.is_digit "7"%u8c = true
+    /\ Utf8.is_digit "a"%u8c = false
+    /\ Utf8.is_whitespace " "%u8c = true
+    /\ Utf8.is_letter (Utf8.TwoBytes 0xc3%byte 0xa9%byte I) = false
+  := conjoin (Identity.reflexivity _),
+      (conjoin (Identity.reflexivity _),
+        (conjoin (Identity.reflexivity _), (Identity.reflexivity _))).
+
+Definition data_text_all_computes_utf8_case
+  : Utf8.to_upper "a"%u8c = "A"%u8c
+    /\ Utf8.to_upper "1"%u8c = "1"%u8c
+    /\ Utf8.to_lower "Q"%u8c = "q"%u8c
+  := conjoin (Identity.reflexivity _), (conjoin (Identity.reflexivity _), (Identity.reflexivity _)).
+
+Definition data_text_all_computes_utf8_case_beyond_ascii
+  : Utf8.to_upper (Utf8.TwoBytes 0xc3%byte 0xa9%byte I) = Utf8.TwoBytes 0xc3%byte 0xa9%byte I
+    /\ Utf8.to_lower (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I)
+      = Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
