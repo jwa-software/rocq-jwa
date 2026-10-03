@@ -7,6 +7,7 @@ From jwa Require Import Data.Collection.List.
 From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
+From jwa Require Import Data.Machine.UInt32.
 From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.Ascii.
 From jwa Require Import Data.Text.SourceByte.
@@ -188,6 +189,103 @@ Definition to_ascii := fun (c : Utf8) .
   | _ => None
   end.
 
+(* The code the bits of one to four UTF-8 bytes spell, their marker bits read
+ * past: 0xxxxxxx gives xxxxxxx, 110xxxxx 10yyyyyy gives xxxxxyyyyyy, and so on
+ * to four bytes; any other number of bytes gives 0.
+ *)
+(* [List Byte -> UInt32] *)
+Definition decode := fun (l : List Byte) .
+  match l with
+  | Byte.introduction _ a6 a5 a4 a3 a2 a1 a0 :: [] =>
+      UInt32.introduction
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 a6 a5 a4 a3 a2 a1 a0)
+  | Byte.introduction _ _ _ a10 a9 a8 a7 a6
+    :: Byte.introduction _ _ a5 a4 a3 a2 a1 a0
+    :: [] =>
+      UInt32.introduction
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 0 0 0 0 a10 a9 a8)
+        (Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0)
+  | Byte.introduction _ _ _ _ a15 a14 a13 a12
+    :: Byte.introduction _ _ a11 a10 a9 a8 a7 a6
+    :: Byte.introduction _ _ a5 a4 a3 a2 a1 a0
+    :: [] =>
+      UInt32.introduction
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction a15 a14 a13 a12 a11 a10 a9 a8)
+        (Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0)
+  | Byte.introduction _ _ _ _ _ a20 a19 a18
+    :: Byte.introduction _ _ a17 a16 a15 a14 a13 a12
+    :: Byte.introduction _ _ a11 a10 a9 a8 a7 a6
+    :: Byte.introduction _ _ a5 a4 a3 a2 a1 a0
+    :: [] =>
+      UInt32.introduction
+        (Byte.introduction 0 0 0 0 0 0 0 0)
+        (Byte.introduction 0 0 0 a20 a19 a18 a17 a16)
+        (Byte.introduction a15 a14 a13 a12 a11 a10 a9 a8)
+        (Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0)
+  | _ => UInt32.Zero
+  end.
+
+(* The code point of [c], U+0000 to U+10FFFF: the bits its bytes spell. *)
+(* [Utf8 -> UInt32] *)
+Definition code := fun (c : Utf8) . decode (to_bytes c).
+
+(* The UTF-8 bytes of a code, as few as its bits allow: one byte below 2^7,
+ * two below 2^11, three below 2^16, four below 2^21, and none from 2^21 on.
+ * No other rule of UTF-8 is applied, so a surrogate is written all the same.
+ *)
+(* [UInt32 -> List Byte] *)
+Definition encode := fun (u : UInt32) .
+  match u with
+  | UInt32.introduction
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 a6 a5 a4 a3 a2 a1 a0) =>
+      Byte.introduction 0 a6 a5 a4 a3 a2 a1 a0 :: []
+  | UInt32.introduction
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 0 0 0 0 a10 a9 a8)
+      (Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0) =>
+      Byte.introduction 1 1 0 a10 a9 a8 a7 a6
+      :: Byte.introduction 1 0 a5 a4 a3 a2 a1 a0
+      :: []
+  | UInt32.introduction
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction a15 a14 a13 a12 a11 a10 a9 a8)
+      (Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0) =>
+      Byte.introduction 1 1 1 0 a15 a14 a13 a12
+      :: Byte.introduction 1 0 a11 a10 a9 a8 a7 a6
+      :: Byte.introduction 1 0 a5 a4 a3 a2 a1 a0
+      :: []
+  | UInt32.introduction
+      (Byte.introduction 0 0 0 0 0 0 0 0)
+      (Byte.introduction 0 0 0 a20 a19 a18 a17 a16)
+      (Byte.introduction a15 a14 a13 a12 a11 a10 a9 a8)
+      (Byte.introduction a7 a6 a5 a4 a3 a2 a1 a0) =>
+      Byte.introduction 1 1 1 1 0 a20 a19 a18
+      :: Byte.introduction 1 0 a17 a16 a15 a14 a13 a12
+      :: Byte.introduction 1 0 a11 a10 a9 a8 a7 a6
+      :: Byte.introduction 1 0 a5 a4 a3 a2 a1 a0
+      :: []
+  | _ => []
+  end.
+
+(* [Some c] for the code of a character [c], and [None] for a surrogate,
+ * U+D800 to U+DFFF, or a code past U+10FFFF, whose bytes from [encode] are
+ * refused by [from_bytes].
+ *)
+(* [UInt32 -> Option Utf8] *)
+Definition from_code := fun (u : UInt32) . from_bytes (encode u).
+
 Module conversion. (* conversion *)
 
 Module bytes. (* conversion.bytes *)
@@ -356,6 +454,222 @@ Proof.
 Qed.
 
 End ascii. (* conversion.ascii *)
+
+Module code. (* conversion.code *)
+
+(* [encode (code c) = to_bytes c]: a character's code is written back as its
+ * own bytes, UTF-8 spelling each code one way. Each bit a ctor's proof fixes
+ * is settled first, the case its proof refutes closed at once, so that only
+ * the bits left free are split together.
+ *)
+(* conversion.code.encoding *)
+Theorem encoding : forall (c : Utf8) . encode (code c) = to_bytes c.
+Proof.
+  intros c.
+  simpl code in |- *.
+  match &c with
+  | OneByte x p | TwoBytes x y p | ThreeBytes x y z p | FourBytes x y z w p
+  end.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x7 with | Zero | One end.
+    2: simpl in &p; match &p with end.
+    simpl in |- *.
+    quod idem est.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+    match &x7 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x6 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x5 with | Zero | One end.
+    2: simpl in &p; match &p with end.
+    match &x4 with | Zero | One end;
+      match &x3 with | Zero | One end;
+      match &x2 with | Zero | One end;
+      match &x1 with | Zero | One end;
+      match &y7 with | Zero | One end;
+      match &y6 with | Zero | One end;
+      simpl in &p;
+      match &p with end;
+      simpl in |- *;
+      quod idem est.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+    match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+    match &x7 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x6 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x5 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x4 with | Zero | One end.
+    2: simpl in &p; match &p with end.
+    match &x3 with | Zero | One end;
+      match &x2 with | Zero | One end;
+      match &x1 with | Zero | One end;
+      match &x0 with | Zero | One end;
+      match &y7 with | Zero | One end;
+      match &y6 with | Zero | One end;
+      match &y5 with | Zero | One end;
+      match &z7 with | Zero | One end;
+      match &z6 with | Zero | One end;
+      simpl in &p;
+      match &p with end;
+      simpl in |- *;
+      quod idem est.
+  - match &x with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &y with | introduction y7 y6 y5 y4 y3 y2 y1 y0 end.
+    match &z with | introduction z7 z6 z5 z4 z3 z2 z1 z0 end.
+    match &w with | introduction w7 w6 w5 w4 w3 w2 w1 w0 end.
+    match &x7 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x6 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x5 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x4 with | Zero | One end.
+    1: simpl in &p; match &p with end.
+    match &x3 with | Zero | One end.
+    2: simpl in &p; match &p with end.
+    match &x2 with | Zero | One end;
+      match &x1 with | Zero | One end;
+      match &x0 with | Zero | One end;
+      match &y7 with | Zero | One end;
+      match &y6 with | Zero | One end;
+      match &y5 with | Zero | One end;
+      match &y4 with | Zero | One end;
+      match &z7 with | Zero | One end;
+      match &z6 with | Zero | One end;
+      match &w7 with | Zero | One end;
+      match &w6 with | Zero | One end;
+      simpl in &p;
+      match &p with end;
+      simpl in |- *;
+      quod idem est.
+Qed.
+
+(* [decode (encode u) = u] whenever [encode] writes any byte: a code below
+ * 2^21 is read back from its bytes. The bits of [u] are split from the most
+ * significant down, and each case [encode] has already decided is closed at
+ * once, the code read back or no byte written.
+ *)
+(* conversion.code.decoding *)
+Theorem decoding : forall (u : UInt32) . ~ (encode u = []) -> decode (encode u) = u.
+Proof.
+  intros u n.
+  lemma all
+    : match encode &u with
+      | [] => &u
+      | _ :: _ => decode (encode &u)
+      end = &u.
+  {
+    match &u with | introduction b3 b2 b1 b0 end.
+    match &b3 with | introduction x31 x30 x29 x28 x27 x26 x25 x24 end.
+    match &b2 with | introduction x23 x22 x21 x20 x19 x18 x17 x16 end.
+    match &b1 with | introduction x15 x14 x13 x12 x11 x10 x9 x8 end.
+    match &b0 with | introduction x7 x6 x5 x4 x3 x2 x1 x0 end.
+    match &x31 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x30 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x29 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x28 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x27 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x26 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x25 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x24 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x23 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x22 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x21 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x20 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x19 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x18 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x17 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x16 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x15 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x14 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x13 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x12 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x11 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x10 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x9 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x8 with | Zero | One end.
+    2: simpl in |- *; quod idem est.
+    match &x7 with | Zero | One end;
+      simpl in |- *;
+      quod idem est.
+  }
+  match (encode &u) with | | v l end.
+  - ex (&n (Identity.reflexivity [])) quodlibet.
+  - simpl in &all.
+    ipso &all.
+Qed.
+
+(* [from_code (code c) = Some c]: [code] is a section of [from_code], so
+ * every character comes back from its code.
+ *)
+(* conversion.code.section *)
+Theorem section : forall (c : Utf8) . from_code (code c) = Some c.
+Proof.
+  intros c.
+  simpl from_code in |- *.
+  leibniz (conversion.code.encoding &c) in |- *.
+  ipso (conversion.bytes.section &c).
+Qed.
+
+(* [from_code u = Some c] only for [u = code c]: the character a code reads
+ * as has that code.
+ *)
+(* conversion.code.inversion *)
+Theorem inversion
+  : forall (u : UInt32) (c : Utf8) . from_code u = Some c -> code c = u.
+Proof.
+  intros u c h.
+  simpl from_code in &h.
+  let proof b := conversion.bytes.inversion (encode &u) &c &h.
+  lemma n : ~ (encode &u = []).
+  {
+    intro e.
+    leibniz &e in &h.
+    simpl in &h.
+    ex &h quodlibet.
+  }
+  simpl code in |- *.
+  leibniz &b in |- *.
+  ipso (conversion.code.decoding &u &n).
+Qed.
+
+(* conversion.code.injectivity *)
+Theorem injectivity : forall {c : Utf8} {d : Utf8} . code c = code d -> c = d.
+Proof.
+  intros c d e.
+  congru from_code, &e |- f.
+  leibniz (conversion.code.section &c), (conversion.code.section &d) in &f.
+  ipso (Option.some.injectivity &f).
+Qed.
+
+End code. (* conversion.code *)
 
 End conversion. (* conversion *)
 
