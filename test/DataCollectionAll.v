@@ -12,11 +12,11 @@ Definition data_collection_all_delivers_operations
 
 Definition data_collection_all_delivers_sized
   : forall (A : Type) (l : List A) . Nat0
-  := fun (A : Type) (l : List A) . cardinality l.
+  := fun (A : Type) (l : List A) . Sized.cardinality l.
 
 Definition data_collection_all_delivers_membership
   : forall (A : Type) (a : A) . Prop
-  := fun (A : Type) (a : A) . Contains a (a :: [])%list.
+  := fun (A : Type) (a : A) . Membership.Contains a (a :: [])%list.
 
 Definition data_collection_all_delivers_non_empty_list
   : forall (A : Type) (a : A) . NonEmptyList A
@@ -45,11 +45,11 @@ Definition data_collection_all_delivers_non_empty_list_notations
 
 Definition data_collection_all_delivers_non_empty_list_sized
   : forall (A : Type) (x : NonEmptyList A) . Nat0
-  := fun (A : Type) (x : NonEmptyList A) . cardinality x.
+  := fun (A : Type) (x : NonEmptyList A) . Sized.cardinality x.
 
 Definition data_collection_all_delivers_non_empty_list_membership
   : forall (A : Type) (a : A) . Prop
-  := fun (A : Type) (a : A) . Contains a (NonEmptyList.One a).
+  := fun (A : Type) (a : A) . Membership.Contains a (NonEmptyList.One a).
 
 Definition data_collection_all_delivers_non_empty_list_functor
   : forall (A : Type) (x : NonEmptyList A) . NonEmptyList A
