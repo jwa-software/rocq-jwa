@@ -2125,7 +2125,7 @@ Proof.
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }
   ipso (Accessible.recursion &descent &n
-          (@accessibility _ _ (WellFounded.induced Nat0.LessThan to_nat0 _) &n)).
+          (@WellFounded.accessibility _ _ (WellFounded.induced Nat0.LessThan to_nat0 _) &n)).
 Qed.
 
 End strict. (* order.strict *)
@@ -3179,7 +3179,7 @@ Existing Instance BinWithZero.comparable.
 
 Instance BinWithZero_less_than_well_founded
   : WellFounded (<)%bin_with_zero :=
-  {| accessibility := BinWithZero.order.strict.wellfoundedness |}.
+  {| WellFounded.accessibility := BinWithZero.order.strict.wellfoundedness |}.
 
 Instance BinWithZero_add_monoid
   : Monoid BinWithZero.add BinWithZero.Zero := {|

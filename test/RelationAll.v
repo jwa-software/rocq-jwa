@@ -22,7 +22,7 @@ Definition relation_all_delivers_accessibility
   : forall (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) .
       Accessible R x
   := fun (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) .
-       accessibility x.
+       WellFounded.accessibility x.
 
 Definition relation_all_delivers_accessible_descend
   : forall (A : Type) (R : A -> A -> Prop) (x : A) (y : A) .

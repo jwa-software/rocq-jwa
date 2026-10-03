@@ -1560,7 +1560,7 @@ Bind Scope jwa_nat_scope with Nat.T.
 
 Instance Nat_less_than_well_founded
   : WellFounded (<)%n :=
-  {| accessibility := Nat.order.strict.wellfoundedness |}.
+  {| WellFounded.accessibility := Nat.order.strict.wellfoundedness |}.
 
 Instance Nat_comparable
   : Comparable Nat.compare (<)%n :=

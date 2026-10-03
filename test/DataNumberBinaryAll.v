@@ -203,4 +203,4 @@ Definition data_number_binary_all_delivers_numeral
 
 Definition data_number_binary_all_delivers_well_founded
   : forall (x : Bin) . Accessible (Induced (<)%bin_with_zero Bin.abs) x
-  := fun (x : Bin) . accessibility x.
+  := fun (x : Bin) . WellFounded.accessibility x.
