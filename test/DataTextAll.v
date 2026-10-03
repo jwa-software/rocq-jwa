@@ -630,3 +630,49 @@ Definition data_text_all_refuses_utf8_str_to_ascii_str_beyond_latin1
       (Utf8Str.from_list ("a"%u8c :: Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: [])%list)
     = None
   := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_code_encoding
+  : forall (c : Utf8) . Utf8.encode (Utf8.code c) = Utf8.to_bytes c
+  := Utf8.conversion.code.encoding.
+
+Definition data_text_all_delivers_utf8_code_decoding
+  : forall (u : UInt32) . ~ (Utf8.encode u = []%list) -> Utf8.decode (Utf8.encode u) = u
+  := Utf8.conversion.code.decoding.
+
+Definition data_text_all_delivers_utf8_code_section
+  : forall (c : Utf8) . Utf8.from_code (Utf8.code c) = Some c
+  := Utf8.conversion.code.section.
+
+Definition data_text_all_delivers_utf8_code_inversion
+  : forall (u : UInt32) (c : Utf8) . Utf8.from_code u = Some c -> Utf8.code c = u
+  := Utf8.conversion.code.inversion.
+
+Definition data_text_all_delivers_utf8_code_injectivity
+  : forall (c : Utf8) (d : Utf8) . Utf8.code c = Utf8.code d -> c = d
+  := @Utf8.conversion.code.injectivity.
+
+Definition data_text_all_computes_utf8_code
+  : Utf8.code "A"%u8c = 0x41%uint32
+    /\ Utf8.code (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I) = 0x20ac%uint32
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_code_last
+  : Utf8.code (Utf8.FourBytes 0xf4%byte 0x8f%byte 0xbf%byte 0xbf%byte I) = 0x10ffff%uint32
+  := Identity.reflexivity _.
+
+Definition data_text_all_computes_utf8_from_code
+  : Utf8.from_code 0x41%uint32 = Some "A"%u8c
+    /\ Utf8.from_code 0x20ac%uint32 = Some (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I)
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_code_round_trip_last
+  : Option.map Utf8.code (Utf8.from_code 0x10ffff%uint32) = Some 0x10ffff%uint32
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_from_code_surrogate
+  : Utf8.from_code 0xd800%uint32 = None /\ Utf8.from_code 0xdfff%uint32 = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_refuses_utf8_from_code_beyond_last
+  : Utf8.from_code 0x110000%uint32 = None /\ Utf8.from_code 0xffffffff%uint32 = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
