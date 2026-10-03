@@ -5,10 +5,12 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Core.All.
 From jwa Require Import Core.Class.
 
-Class Semiring {A : Type}
-               (add : A -> A -> A) (zero : A)
-               (mul : A -> A -> A) (one  : A)
-               : Prop :=
+Module Semiring. (* Semiring *)
+
+Class T {A : Type}
+        (add : A -> A -> A) (zero : A)
+        (mul : A -> A -> A) (one  : A)
+        : Prop :=
   { abelian_monoid
     :: AbelianMonoid add zero
   ; monoid
@@ -20,3 +22,15 @@ Class Semiring {A : Type}
   ; annihilation
     : forall (x : A) .
       mul zero x = zero /\ mul x zero = zero }.
+
+Abbreviation Semiring := T.
+
+End Semiring. (* Semiring *)
+
+Abbreviation Semiring := Semiring.T.
+
+(* A [::] field is an instance only where its module is imported;
+ * these lines make each one an instance wherever this file is.
+ *)
+#[export] Existing Instance Semiring.abelian_monoid.
+#[export] Existing Instance Semiring.monoid.
