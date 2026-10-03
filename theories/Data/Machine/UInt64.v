@@ -2153,6 +2153,11 @@ Add Printing Coercion UInt64.to_bin_with_zero.
 Coercion UInt64.to_nat0 : UInt64 >-> Nat0.
 Add Printing Coercion UInt64.to_nat0.
 
+(* Declared inside [Module UInt64]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance UInt64.comparable.
+
 Instance UInt64_add_monoid
   : Monoid UInt64.add UInt64.Zero :=
   {| Monoid.semigroup :=

@@ -2624,6 +2624,11 @@ Add Printing Coercion Int32.to_bin.
 Coercion Int32.to_integer : Int32 >-> Integer.
 Add Printing Coercion Int32.to_integer.
 
+(* Declared inside [Module Int32]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance Int32.comparable.
+
 Instance Int32_add_monoid
   : Monoid Int32.add Int32.Zero :=
   {| Monoid.semigroup :=

@@ -1718,6 +1718,11 @@ Add Printing Coercion UInt32.to_bin_with_zero.
 Coercion UInt32.to_nat0 : UInt32 >-> Nat0.
 Add Printing Coercion UInt32.to_nat0.
 
+(* Declared inside [Module UInt32]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance UInt32.comparable.
+
 Instance UInt32_add_monoid
   : Monoid UInt32.add UInt32.Zero :=
   {| Monoid.semigroup :=

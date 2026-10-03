@@ -1701,3 +1701,35 @@ Fail Definition data_machine_all_refuses_qword_literal_decimal
 Fail Definition data_machine_all_refuses_qword_literal_large
   : QWord
   := 0x100000000000000000000000000000000%qword.
+
+Definition data_machine_all_delivers_uint8_comparable
+  : forall (x : UInt8) (y : UInt8) . (x < y)%uint8 \/ x = y \/ (y < x)%uint8
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_uint16_comparable
+  : forall (x : UInt16) (y : UInt16) . (x < y)%uint16 \/ x = y \/ (y < x)%uint16
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_uint32_comparable
+  : forall (x : UInt32) (y : UInt32) . (x < y)%uint32 \/ x = y \/ (y < x)%uint32
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_uint64_comparable
+  : forall (x : UInt64) (y : UInt64) . (x < y)%uint64 \/ x = y \/ (y < x)%uint64
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_int8_comparable
+  : forall (x : Int8) (y : Int8) . (x < y)%int8 \/ x = y \/ (y < x)%int8
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_int16_comparable
+  : forall (x : Int16) (y : Int16) . (x < y)%int16 \/ x = y \/ (y < x)%int16
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_int32_comparable
+  : forall (x : Int32) (y : Int32) . (x < y)%int32 \/ x = y \/ (y < x)%int32
+  := Comparable.order.strict.trichotomy.
+
+Definition data_machine_all_delivers_int64_comparable
+  : forall (x : Int64) (y : Int64) . (x < y)%int64 \/ x = y \/ (y < x)%int64
+  := Comparable.order.strict.trichotomy.

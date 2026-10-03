@@ -105,6 +105,10 @@ Definition data_text_all_delivers_ascii_comparison_antisymmetry
       Ascii.compare x y = Comparison.transpose (Ascii.compare y x)
   := Ascii.comparison.antisymmetry.
 
+Definition data_text_all_delivers_ascii_comparable
+  : forall (x : Ascii) (y : Ascii) . (x < y)%ac \/ x = y \/ (y < x)%ac
+  := Comparable.order.strict.trichotomy.
+
 Definition data_text_all_computes_ascii_code
   : Ascii.code "A"%ac = UInt8.from_byte 0x41%byte
   := Identity.reflexivity _.
@@ -304,6 +308,11 @@ Definition data_text_all_delivers_ascii_str_comparison_antisymmetry
   : forall (s : AsciiStr) (t : AsciiStr) .
       AsciiStr.compare s t = Comparison.transpose (AsciiStr.compare t s)
   := AsciiStr.comparison.antisymmetry.
+
+Definition data_text_all_delivers_ascii_str_comparable
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      AsciiStr.LessThan s t \/ s = t \/ AsciiStr.LessThan t s
+  := Comparable.order.strict.trichotomy.
 
 Definition data_text_all_computes_ascii_str_compare
   : AsciiStr.compare "Apple"%a "apple"%a = Comparison.Lt
@@ -629,4 +638,288 @@ Definition data_text_all_refuses_utf8_str_to_ascii_str_beyond_latin1
   : Utf8Str.to_ascii_str
       (Utf8Str.from_list ("a"%u8c :: Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: [])%list)
     = None
+  := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_code_encoding
+  : forall (c : Utf8) . Utf8.encode (Utf8.code c) = Utf8.to_bytes c
+  := Utf8.conversion.code.encoding.
+
+Definition data_text_all_delivers_utf8_code_decoding
+  : forall (u : UInt32) . ~ (Utf8.encode u = []%list) -> Utf8.decode (Utf8.encode u) = u
+  := Utf8.conversion.code.decoding.
+
+Definition data_text_all_delivers_utf8_code_section
+  : forall (c : Utf8) . Utf8.from_code (Utf8.code c) = Some c
+  := Utf8.conversion.code.section.
+
+Definition data_text_all_delivers_utf8_code_inversion
+  : forall (u : UInt32) (c : Utf8) . Utf8.from_code u = Some c -> Utf8.code c = u
+  := Utf8.conversion.code.inversion.
+
+Definition data_text_all_delivers_utf8_code_injectivity
+  : forall (c : Utf8) (d : Utf8) . Utf8.code c = Utf8.code d -> c = d
+  := @Utf8.conversion.code.injectivity.
+
+Definition data_text_all_computes_utf8_code
+  : Utf8.code "A"%u8c = 0x41%uint32
+    /\ Utf8.code (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I) = 0x20ac%uint32
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_code_last
+  : Utf8.code (Utf8.FourBytes 0xf4%byte 0x8f%byte 0xbf%byte 0xbf%byte I) = 0x10ffff%uint32
+  := Identity.reflexivity _.
+
+Definition data_text_all_computes_utf8_from_code
+  : Utf8.from_code 0x41%uint32 = Some "A"%u8c
+    /\ Utf8.from_code 0x20ac%uint32 = Some (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I)
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_code_round_trip_last
+  : Option.map Utf8.code (Utf8.from_code 0x10ffff%uint32) = Some 0x10ffff%uint32
+  := Identity.reflexivity _.
+
+Definition data_text_all_refuses_utf8_from_code_surrogate
+  : Utf8.from_code 0xd800%uint32 = None /\ Utf8.from_code 0xdfff%uint32 = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_refuses_utf8_from_code_beyond_last
+  : Utf8.from_code 0x110000%uint32 = None /\ Utf8.from_code 0xffffffff%uint32 = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_delivers_utf8_order_transitivity
+  : forall (x : Utf8) (y : Utf8) (z : Utf8) . (x < y)%u8c -> (y < z)%u8c -> (x < z)%u8c
+  := @Utf8.order.strict.transitivity.
+
+Definition data_text_all_delivers_utf8_comparison_specification
+  : forall (x : Utf8) (y : Utf8) .
+      (Utf8.compare x y = Comparison.Lt <-> (x < y)%u8c)
+      /\ (Utf8.compare x y = Comparison.Eq <-> x = y)
+  := Utf8.comparison.specification.
+
+Definition data_text_all_delivers_utf8_comparison_antisymmetry
+  : forall (x : Utf8) (y : Utf8) . Utf8.compare x y = Comparison.transpose (Utf8.compare y x)
+  := Utf8.comparison.antisymmetry.
+
+Definition data_text_all_delivers_utf8_comparable
+  : forall (x : Utf8) (y : Utf8) . (x < y)%u8c \/ x = y \/ (y < x)%u8c
+  := Comparable.order.strict.trichotomy.
+
+Definition data_text_all_computes_utf8_compare
+  : Utf8.compare "A"%u8c "a"%u8c = Comparison.Lt
+    /\ Utf8.compare "a"%u8c "a"%u8c = Comparison.Eq
+    /\ Utf8.compare (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I) "a"%u8c = Comparison.Gt
+  := conjoin (Identity.reflexivity _), (conjoin (Identity.reflexivity _), (Identity.reflexivity _)).
+
+Definition data_text_all_computes_utf8_min
+  : Utf8.min "z"%u8c "0"%u8c = "0"%u8c
+  := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_digit_specification
+  : forall (c : Utf8) .
+      Utf8.is_digit c = true
+      <-> (Utf8.OneByte 0x30%byte I <= c /\ c <= Utf8.OneByte 0x39%byte I)%u8c
+  := Utf8.classification.digit.specification.
+
+Definition data_text_all_delivers_utf8_upper_specification
+  : forall (c : Utf8) .
+      Utf8.is_upper c = true
+      <-> (Utf8.OneByte 0x41%byte I <= c /\ c <= Utf8.OneByte 0x5a%byte I)%u8c
+  := Utf8.classification.upper.specification.
+
+Definition data_text_all_delivers_utf8_lower_specification
+  : forall (c : Utf8) .
+      Utf8.is_lower c = true
+      <-> (Utf8.OneByte 0x61%byte I <= c /\ c <= Utf8.OneByte 0x7a%byte I)%u8c
+  := Utf8.classification.lower.specification.
+
+Definition data_text_all_delivers_utf8_letter_specification
+  : forall (c : Utf8) .
+      Utf8.is_letter c = true <-> Utf8.is_upper c = true \/ Utf8.is_lower c = true
+  := Utf8.classification.letter.specification.
+
+Definition data_text_all_delivers_utf8_whitespace_specification
+  : forall (c : Utf8) .
+      Utf8.is_whitespace c = true
+      <-> c = Utf8.OneByte 0x20%byte I
+        \/ (Utf8.OneByte 0x09%byte I <= c /\ c <= Utf8.OneByte 0x0d%byte I)%u8c
+  := Utf8.classification.whitespace.specification.
+
+Definition data_text_all_delivers_utf8_exclusion
+  : forall (c : Utf8) . Bool.and (Utf8.is_upper c) (Utf8.is_lower c) = false
+  := Utf8.classification.exclusion.
+
+Definition data_text_all_delivers_utf8_ascii_classification_upper
+  : forall (a : Ascii) . Utf8.is_upper (Utf8.from_ascii a) = Ascii.is_upper a
+  := Utf8.conversion.ascii.classification.upper.
+
+Definition data_text_all_delivers_utf8_ascii_classification_lower
+  : forall (a : Ascii) . Utf8.is_lower (Utf8.from_ascii a) = Ascii.is_lower a
+  := Utf8.conversion.ascii.classification.lower.
+
+Definition data_text_all_delivers_utf8_ascii_uppercasing
+  : forall (a : Ascii) . Utf8.to_upper (Utf8.from_ascii a) = Utf8.from_ascii (Ascii.to_upper a)
+  := Utf8.conversion.ascii.uppercasing.
+
+Definition data_text_all_delivers_utf8_ascii_lowercasing
+  : forall (a : Ascii) . Utf8.to_lower (Utf8.from_ascii a) = Utf8.from_ascii (Ascii.to_lower a)
+  := Utf8.conversion.ascii.lowercasing.
+
+Definition data_text_all_delivers_utf8_uppercasing_invariance
+  : forall (c : Utf8) . Utf8.is_lower c = false -> Utf8.to_upper c = c
+  := Utf8.uppercasing.invariance.
+
+Definition data_text_all_delivers_utf8_uppercasing_idempotence
+  : forall (c : Utf8) . Utf8.to_upper (Utf8.to_upper c) = Utf8.to_upper c
+  := Utf8.uppercasing.idempotence.
+
+Definition data_text_all_delivers_utf8_uppercasing_absorption
+  : forall (c : Utf8) . Utf8.to_upper (Utf8.to_lower c) = Utf8.to_upper c
+  := Utf8.uppercasing.absorption.
+
+Definition data_text_all_delivers_utf8_uppercasing_inversion
+  : forall (c : Utf8) . Utf8.is_upper c = true -> Utf8.to_upper (Utf8.to_lower c) = c
+  := Utf8.uppercasing.inversion.lowercasing.
+
+Definition data_text_all_delivers_utf8_lowercasing_invariance
+  : forall (c : Utf8) . Utf8.is_upper c = false -> Utf8.to_lower c = c
+  := Utf8.lowercasing.invariance.
+
+Definition data_text_all_delivers_utf8_lowercasing_idempotence
+  : forall (c : Utf8) . Utf8.to_lower (Utf8.to_lower c) = Utf8.to_lower c
+  := Utf8.lowercasing.idempotence.
+
+Definition data_text_all_delivers_utf8_lowercasing_absorption
+  : forall (c : Utf8) . Utf8.to_lower (Utf8.to_upper c) = Utf8.to_lower c
+  := Utf8.lowercasing.absorption.
+
+Definition data_text_all_delivers_utf8_lowercasing_inversion
+  : forall (c : Utf8) . Utf8.is_lower c = true -> Utf8.to_lower (Utf8.to_upper c) = c
+  := Utf8.lowercasing.inversion.uppercasing.
+
+Definition data_text_all_computes_utf8_classes
+  : Utf8.is_digit "7"%u8c = true
+    /\ Utf8.is_digit "a"%u8c = false
+    /\ Utf8.is_whitespace " "%u8c = true
+    /\ Utf8.is_letter (Utf8.TwoBytes 0xc3%byte 0xa9%byte I) = false
+  := conjoin (Identity.reflexivity _),
+      (conjoin (Identity.reflexivity _),
+        (conjoin (Identity.reflexivity _), (Identity.reflexivity _))).
+
+Definition data_text_all_computes_utf8_case
+  : Utf8.to_upper "a"%u8c = "A"%u8c
+    /\ Utf8.to_upper "1"%u8c = "1"%u8c
+    /\ Utf8.to_lower "Q"%u8c = "q"%u8c
+  := conjoin (Identity.reflexivity _), (conjoin (Identity.reflexivity _), (Identity.reflexivity _)).
+
+Definition data_text_all_computes_utf8_case_beyond_ascii
+  : Utf8.to_upper (Utf8.TwoBytes 0xc3%byte 0xa9%byte I) = Utf8.TwoBytes 0xc3%byte 0xa9%byte I
+    /\ Utf8.to_lower (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I)
+      = Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_delivers_utf8_str_uppercasing_length
+  : forall (s : Utf8Str) . Utf8Str.length (Utf8Str.to_upper s) = Utf8Str.length s
+  := Utf8Str.uppercasing.preservation.length.
+
+Definition data_text_all_delivers_utf8_str_uppercasing_distributivity
+  : forall (s : Utf8Str) (t : Utf8Str) .
+      (Utf8Str.to_upper (s ++ t) = Utf8Str.to_upper s ++ Utf8Str.to_upper t)%u8
+  := Utf8Str.uppercasing.distributivity.over.concatenation.
+
+Definition data_text_all_delivers_utf8_str_lowercasing_length
+  : forall (s : Utf8Str) . Utf8Str.length (Utf8Str.to_lower s) = Utf8Str.length s
+  := Utf8Str.lowercasing.preservation.length.
+
+Definition data_text_all_delivers_utf8_str_lowercasing_distributivity
+  : forall (s : Utf8Str) (t : Utf8Str) .
+      (Utf8Str.to_lower (s ++ t) = Utf8Str.to_lower s ++ Utf8Str.to_lower t)%u8
+  := Utf8Str.lowercasing.distributivity.over.concatenation.
+
+Definition data_text_all_computes_utf8_str_case
+  : Utf8Str.to_upper "Hello, World"%u8 = "HELLO, WORLD"%u8
+    /\ Utf8Str.to_lower "Hello, World"%u8 = "hello, world"%u8
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_str_case_beyond_ascii
+  : Utf8Str.to_upper
+      (Utf8Str.from_list ("a"%u8c :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I :: [])%list)
+    = Utf8Str.from_list ("A"%u8c :: Utf8.TwoBytes 0xc3%byte 0xa9%byte I :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_text_all_delivers_utf8_str_indexing_specification
+  : forall (s : Utf8Str) (i : Nat0) .
+      (forsome (c : Utf8) . Utf8Str.get s i = Some c) <-> (i < Utf8Str.length s)%n0
+  := Utf8Str.indexing.specification.
+
+Definition data_text_all_delivers_utf8_str_indexing_left
+  : forall (s : Utf8Str) (t : Utf8Str) (i : Nat0) .
+      (i < Utf8Str.length s)%n0 -> Utf8Str.get (s ++ t)%u8 i = Utf8Str.get s i
+  := Utf8Str.indexing.left.invariance.
+
+Definition data_text_all_delivers_utf8_str_indexing_right
+  : forall (s : Utf8Str) (t : Utf8Str) (i : Nat0) .
+      Utf8Str.get (s ++ t)%u8 (Utf8Str.length s + i)%n0 = Utf8Str.get t i
+  := Utf8Str.indexing.right.translation.
+
+Definition data_text_all_delivers_utf8_str_substring_identity
+  : forall (s : Utf8Str) . Utf8Str.substring s Nat0.Zero (Utf8Str.length s) = s
+  := Utf8Str.substring.identity.
+
+Definition data_text_all_delivers_utf8_str_substring_length
+  : forall (s : Utf8Str) (start : Nat0) (len : Nat0) .
+      Utf8Str.length (Utf8Str.substring s start len)
+      = Nat0.min len (Nat0.saturating_sub (Utf8Str.length s) start)
+  := Utf8Str.substring.length.
+
+Definition data_text_all_computes_utf8_str_get
+  : Utf8Str.get
+      (Utf8Str.from_list
+        ("a"%u8c :: Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: "b"%u8c :: [])%list)
+      2%n0
+    = Some "b"%u8c
+    /\ Utf8Str.get "abc"%u8 3%n0 = None
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_computes_utf8_str_substring
+  : Utf8Str.substring "Hello, World"%u8 7%n0 5%n0 = "World"%u8
+    /\ Utf8Str.substring
+        (Utf8Str.from_list
+          ("a"%u8c :: Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: "b"%u8c :: [])%list)
+        1%n0 1%n0
+      = Utf8Str.from_list (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: [])%list
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_text_all_delivers_utf8_str_order_transitivity
+  : forall (s : Utf8Str) (t : Utf8Str) (u : Utf8Str) . (s < t -> t < u -> s < u)%u8
+  := @Utf8Str.order.strict.transitivity.
+
+Definition data_text_all_delivers_utf8_str_comparison_specification
+  : forall (s : Utf8Str) (t : Utf8Str) .
+      (Utf8Str.compare s t = Comparison.Lt <-> (s < t)%u8)
+      /\ (Utf8Str.compare s t = Comparison.Eq <-> s = t)
+  := Utf8Str.comparison.specification.
+
+Definition data_text_all_delivers_utf8_str_comparison_antisymmetry
+  : forall (s : Utf8Str) (t : Utf8Str) .
+      Utf8Str.compare s t = Comparison.transpose (Utf8Str.compare t s)
+  := Utf8Str.comparison.antisymmetry.
+
+Definition data_text_all_delivers_utf8_str_comparable
+  : forall (s : Utf8Str) (t : Utf8Str) . (s < t)%u8 \/ s = t \/ (t < s)%u8
+  := Comparable.order.strict.trichotomy.
+
+Definition data_text_all_computes_utf8_str_compare
+  : Utf8Str.compare "Apple"%u8 "apple"%u8 = Comparison.Lt
+    /\ Utf8Str.compare "app"%u8 "apple"%u8 = Comparison.Lt
+    /\ Utf8Str.compare "apple"%u8 "apple"%u8 = Comparison.Eq
+    /\ Utf8Str.compare
+        (Utf8Str.from_list (Utf8.ThreeBytes 0xe2%byte 0x82%byte 0xac%byte I :: [])%list)
+        "z"%u8
+      = Comparison.Gt
+  := conjoin (Identity.reflexivity _),
+      (conjoin (Identity.reflexivity _),
+        (conjoin (Identity.reflexivity _), (Identity.reflexivity _))).
+
+Definition data_text_all_computes_utf8_str_min
+  : Utf8Str.min "pear"%u8 "peach"%u8 = "peach"%u8
   := Identity.reflexivity _.

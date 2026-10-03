@@ -4,7 +4,9 @@ From jwa Require Import Algebra.Monoid.
 From jwa Require Import Algebra.Semigroup.
 From jwa Require Import Core.All.
 From jwa Require Import Data.Assert.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.List.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Byte.
 From jwa Require Import Data.Number.Nat0.
@@ -14,6 +16,7 @@ From jwa Require Import Data.Text.AsciiStr.
 From jwa Require Import Data.Text.SourceByte.
 From jwa Require Import Data.Text.Utf8.
 From jwa Require Import Tactics.Equation.
+From jwa Require Import Tactics.Modus.
 
 Module Utf8Str. (* Utf8Str *)
 
@@ -136,6 +139,71 @@ Fixpoint list_to_ascii (l : List Utf8) : Option (List Ascii) :=
 (* [Utf8Str -> Option AsciiStr] *)
 Definition to_ascii_str := fun (s : Utf8Str) .
   Option.map AsciiStr.introduction (list_to_ascii (to_list s)).
+
+(* Every character of [s] by [Utf8.to_upper]. *)
+(* [Utf8Str -> Utf8Str] *)
+Definition to_upper := fun (s : Utf8Str) .
+  Utf8Str.introduction (List.map Utf8.to_upper (to_list s)).
+
+(* Every character of [s] by [Utf8.to_lower]. *)
+(* [Utf8Str -> Utf8Str] *)
+Definition to_lower := fun (s : Utf8Str) .
+  Utf8Str.introduction (List.map Utf8.to_lower (to_list s)).
+
+(* The character at position [i], counting characters from 0, and [None] from
+ * [length s] on.
+ *)
+(* [Utf8Str -> Nat0 -> Option Utf8] *)
+Definition get := fun (s : Utf8Str) (i : Nat0) . List.nth (to_list s) i.
+
+(* The [len] characters of [s] from position [start], both counted in
+ * characters, fewer where [s] ends sooner.
+ *)
+(* [Utf8Str -> Nat0 -> Nat0 -> Utf8Str] *)
+Definition substring := fun (s : Utf8Str) (start : Nat0) (len : Nat0) .
+  Utf8Str.introduction (List.take len (List.drop start (to_list s))).
+
+(* Strings are ordered lexicographically by their characters' codes, a
+ * proper prefix first.
+ *)
+(* [Utf8Str -> Utf8Str -> Comparison] *)
+Definition compare := fun (s : Utf8Str) (t : Utf8Str) .
+  List.compare Utf8.compare (to_list s) (to_list t).
+
+(* [Utf8Str -> Utf8Str -> Prop] *)
+Definition LessThan := fun (s : Utf8Str) (t : Utf8Str) .
+  List.LessThan Utf8.compare (to_list s) (to_list t).
+
+Notation "s < t" := (LessThan s t) (only parsing)
+  : jwa_utf8_str_scope.
+
+(* [Utf8Str -> Utf8Str -> Prop] *)
+Definition LessOrEqual := fun (s : Utf8Str) (t : Utf8Str) . s = t \/ LessThan s t.
+
+Notation "s <= t" := (LessOrEqual s t) (only parsing)
+  : jwa_utf8_str_scope.
+
+Notation "s > t" := (LessThan t s) (only parsing)
+  : jwa_utf8_str_scope.
+Notation "s >= t" := (LessOrEqual t s) (only parsing)
+  : jwa_utf8_str_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_utf8_str_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_utf8_str_scope.
+
+(* [Utf8Str -> Utf8Str -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [Utf8Str -> Utf8Str -> Bool] *)
+Abbreviation le := (Comparable.le compare).
+
+(* [Utf8Str -> Utf8Str -> Utf8Str] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [Utf8Str -> Utf8Str -> Utf8Str] *)
+Abbreviation max := (Comparable.max compare).
 
 Module conversion. (* conversion *)
 
@@ -528,6 +596,219 @@ End additivity. (* length.additivity *)
 
 End length. (* length *)
 
+Module uppercasing. (* uppercasing *)
+
+Module preservation. (* uppercasing.preservation *)
+
+(* uppercasing.preservation.length *)
+Theorem length : forall (s : Utf8Str) . length (to_upper s) = length s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl length, to_upper, to_list in |- *.
+  ipso (List.mapping.preservation.length Utf8.to_upper &l).
+Qed.
+
+End preservation. (* uppercasing.preservation *)
+
+Module distributivity. (* uppercasing.distributivity *)
+
+Module over. (* uppercasing.distributivity.over *)
+
+(* uppercasing.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall (s : Utf8Str) (t : Utf8Str) . (to_upper (s ++ t) = to_upper s ++ to_upper t)%u8.
+Proof.
+  intros s t.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl to_upper, concat, to_list in |- *.
+  ipso
+    (congru Utf8Str.introduction,
+      (List.mapping.distributivity.over.concatenation Utf8.to_upper &l1 &l2)).
+Qed.
+
+End over. (* uppercasing.distributivity.over *)
+
+End distributivity. (* uppercasing.distributivity *)
+
+End uppercasing. (* uppercasing *)
+
+Module lowercasing. (* lowercasing *)
+
+Module preservation. (* lowercasing.preservation *)
+
+(* lowercasing.preservation.length *)
+Theorem length : forall (s : Utf8Str) . length (to_lower s) = length s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl length, to_lower, to_list in |- *.
+  ipso (List.mapping.preservation.length Utf8.to_lower &l).
+Qed.
+
+End preservation. (* lowercasing.preservation *)
+
+Module distributivity. (* lowercasing.distributivity *)
+
+Module over. (* lowercasing.distributivity.over *)
+
+(* lowercasing.distributivity.over.concatenation *)
+Theorem concatenation
+  : forall (s : Utf8Str) (t : Utf8Str) . (to_lower (s ++ t) = to_lower s ++ to_lower t)%u8.
+Proof.
+  intros s t.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl to_lower, concat, to_list in |- *.
+  ipso
+    (congru Utf8Str.introduction,
+      (List.mapping.distributivity.over.concatenation Utf8.to_lower &l1 &l2)).
+Qed.
+
+End over. (* lowercasing.distributivity.over *)
+
+End distributivity. (* lowercasing.distributivity *)
+
+End lowercasing. (* lowercasing *)
+
+Module indexing. (* indexing *)
+
+(* indexing.specification *)
+Theorem specification
+  : forall (s : Utf8Str) (i : Nat0) .
+      (forsome (c : Utf8) . get s i = Some c) <-> (i < length s)%n0.
+Proof.
+  intros s i.
+  match &s with | introduction l end.
+  simpl get, length, to_list in |- *.
+  ipso (List.indexing.specification &l &i).
+Qed.
+
+Module left. (* indexing.left *)
+
+(* indexing.left.invariance *)
+Theorem invariance
+  : forall (s : Utf8Str) (t : Utf8Str) (i : Nat0) .
+      (i < length s)%n0 -> get (s ++ t)%u8 i = get s i.
+Proof.
+  intros s t i h.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl length, to_list in &h.
+  simpl get, concat, to_list in |- *.
+  ipso (List.indexing.left.invariance &l1 &l2 &i &h).
+Qed.
+
+End left. (* indexing.left *)
+
+Module right. (* indexing.right *)
+
+(* indexing.right.translation *)
+Theorem translation
+  : forall (s : Utf8Str) (t : Utf8Str) (i : Nat0) .
+      get (s ++ t)%u8 (length s + i)%n0 = get t i.
+Proof.
+  intros s t i.
+  match &s with | introduction l1 end.
+  match &t with | introduction l2 end.
+  simpl get, length, concat, to_list in |- *.
+  ipso (List.indexing.right.translation &l1 &l2 &i).
+Qed.
+
+End right. (* indexing.right *)
+
+End indexing. (* indexing *)
+
+Module substring. (* substring *)
+
+(* substring.identity *)
+Theorem identity : forall (s : Utf8Str) . substring s Nat0.Zero (length s) = s.
+Proof.
+  intros s.
+  match &s with | introduction l end.
+  simpl substring, length, to_list in |- *.
+  leibniz (List.dropping.identity &l), (List.taking.identity &l) in |- *.
+  quod idem est.
+Qed.
+
+(* substring.length *)
+Theorem length
+  : forall (s : Utf8Str) (start : Nat0) (len : Nat0) .
+      length (substring s start len) = Nat0.min len (Nat0.saturating_sub (length s) start).
+Proof.
+  intros s start len.
+  match &s with | introduction l end.
+  simpl length, substring, to_list in |- *.
+  leibniz
+    (List.taking.length (List.drop &start &l) &len),
+    (List.dropping.length &l &start)
+    in |- *.
+  quod idem est.
+Qed.
+
+End substring. (* substring *)
+
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {s : Utf8Str} {t : Utf8Str} {u : Utf8Str} . (s < t -> t < u -> s < u)%u8.
+Proof.
+  intros s t u h1 h2.
+  simpl LessThan in &h1, &h2 |- *.
+  ipso
+    (List.comparison.transitivity Utf8.comparable
+      (to_list &s) (to_list &t) (to_list &u) &h1 &h2).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (s : Utf8Str) (t : Utf8Str) .
+      (compare s t = Comparison.Lt <-> (s < t)%u8) /\ (compare s t = Comparison.Eq <-> s = t).
+Proof.
+  intros s t.
+  match &s with | introduction l end.
+  match &t with | introduction m end.
+  simpl compare, LessThan, to_list in |- *.
+  let proof x := List.comparison.specification Utf8.comparable &l &m.
+  match &x with | strict equality end.
+  divide et impera.
+  - ipso &strict.
+  - divide et impera.
+    + intro e.
+      ipso (congru Utf8Str.introduction, (modus aequans &equality, &e)).
+    + intro e.
+      congru to_list, &e |- e'.
+      simpl in &e'.
+      ipso (modus aequans &equality, &e').
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (s : Utf8Str) (t : Utf8Str) . compare s t = Comparison.transpose (compare t s).
+Proof.
+  intros s t.
+  simpl compare in |- *.
+  ipso (List.comparison.antisymmetry Utf8.comparable (to_list &s) (to_list &t)).
+Qed.
+
+End comparison. (* comparison *)
+
+Instance comparable
+  : Comparable compare LessThan :=
+  {| Comparable.transitivity := @order.strict.transitivity
+  ; Comparable.specification := comparison.specification
+  ; Comparable.antisymmetry := comparison.antisymmetry |}.
+
 End Utf8Str. (* Utf8Str *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
@@ -550,6 +831,11 @@ String Notation Utf8Str.T Utf8Str.from_source_bytes Utf8Str.to_source_bytes
  * [%u8].
  *)
 Bind Scope jwa_utf8_str_scope with Utf8Str.T.
+
+(* Declared inside [Module Utf8Str]; an instance declared there is dropped
+ * at the module's [End], so it is announced again here.
+ *)
+Existing Instance Utf8Str.comparable.
 
 Instance Utf8Str_concat_monoid
   : Monoid Utf8Str.concat Utf8Str.empty :=
