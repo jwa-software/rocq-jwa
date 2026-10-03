@@ -1504,6 +1504,11 @@ Add Printing Coercion UInt16.to_bin_with_zero.
 Coercion UInt16.to_nat0 : UInt16 >-> Nat0.
 Add Printing Coercion UInt16.to_nat0.
 
+(* Declared inside [Module UInt16]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance UInt16.comparable.
+
 Instance UInt16_add_monoid
   : Monoid UInt16.add UInt16.Zero :=
   {| Monoid.semigroup :=

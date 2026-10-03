@@ -1356,6 +1356,11 @@ Add Printing Coercion UInt8.to_bin_with_zero.
 Coercion UInt8.to_nat0 : UInt8 >-> Nat0.
 Add Printing Coercion UInt8.to_nat0.
 
+(* Declared inside [Module UInt8]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance UInt8.comparable.
+
 Instance UInt8_add_monoid
   : Monoid UInt8.add UInt8.Zero :=
   {| Monoid.semigroup :=

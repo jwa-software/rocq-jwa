@@ -26,11 +26,13 @@ From jwa Require Export Core.All.
  * [Nat0] and [Integer] for the values read in unary, [Product] for the
  * carry, the borrow and the overflow, [Comparison] for [compare], [Numeral]
  * and [Option] for the literals, [List] for the bytes of a word, [Endian]
- * for the order they are laid out in.
+ * for the order they are laid out in, [Comparable] for the instance each
+ * integer's order is.
  *)
 From jwa Require Export Data.Base.Bool.
 From jwa Require Export Data.Base.Comparison.
 From jwa Require Export Data.Collection.List.
+From jwa Require Export Data.Comparable.
 From jwa Require Export Data.Number.Binary.Bin.
 From jwa Require Export Data.Number.Binary.BinBase.
 From jwa Require Export Data.Number.Binary.BinWithZero.

@@ -632,3 +632,8 @@ String Notation Ascii.T Ascii.from_source_bytes Ascii.to_source_bytes
  * [%ac].
  *)
 Bind Scope jwa_ascii_scope with Ascii.T.
+
+(* Declared inside [Module Ascii], whose proofs use it; an instance declared
+ * there is dropped at the module's [End], so it is announced again here.
+ *)
+Existing Instance Ascii.comparable.

@@ -2125,6 +2125,11 @@ Add Printing Coercion Int8.to_bin.
 Coercion Int8.to_integer : Int8 >-> Integer.
 Add Printing Coercion Int8.to_integer.
 
+(* Declared inside [Module Int8]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance Int8.comparable.
+
 Instance Int8_add_monoid
   : Monoid Int8.add Int8.Zero :=
   {| Monoid.semigroup :=

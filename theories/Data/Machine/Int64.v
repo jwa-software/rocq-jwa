@@ -3264,6 +3264,11 @@ Add Printing Coercion Int64.to_bin.
 Coercion Int64.to_integer : Int64 >-> Integer.
 Add Printing Coercion Int64.to_integer.
 
+(* Declared inside [Module Int64]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance Int64.comparable.
+
 Instance Int64_add_monoid
   : Monoid Int64.add Int64.Zero :=
   {| Monoid.semigroup :=

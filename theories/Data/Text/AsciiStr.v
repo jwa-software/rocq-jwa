@@ -578,6 +578,11 @@ String Notation AsciiStr.T AsciiStr.from_source_bytes AsciiStr.to_source_bytes
  *)
 Bind Scope jwa_ascii_str_scope with AsciiStr.T.
 
+(* Declared inside [Module AsciiStr]; an instance declared there is dropped
+ * at the module's [End], so it is announced again here.
+ *)
+Existing Instance AsciiStr.comparable.
+
 Instance AsciiStr_concat_monoid
   : Monoid AsciiStr.concat AsciiStr.empty :=
   {| Monoid.semigroup :=

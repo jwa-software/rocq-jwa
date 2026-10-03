@@ -2312,6 +2312,11 @@ Add Printing Coercion Int16.to_bin.
 Coercion Int16.to_integer : Int16 >-> Integer.
 Add Printing Coercion Int16.to_integer.
 
+(* Declared inside [Module Int16]; an instance declared there is dropped at
+ * the module's [End], so it is announced again here.
+ *)
+Existing Instance Int16.comparable.
+
 Instance Int16_add_monoid
   : Monoid Int16.add Int16.Zero :=
   {| Monoid.semigroup :=
