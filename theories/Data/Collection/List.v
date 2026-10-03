@@ -3599,9 +3599,9 @@ Instance List_concat_monoid
 
 Instance List_functor
   : Functor List :=
-  {| Functor.map             := fun (A : Type) (B : Type) . List.map
-   ; Functor.map_identity    := @List.mapping.identity
-   ; Functor.map_composition := @List.mapping.composition |}.
+  {| Functor.map         := fun (A : Type) (B : Type) . List.map
+   ; Functor.identity    := @List.mapping.identity
+   ; Functor.composition := @List.mapping.composition |}.
 
 Instance List_sized
   : Sized List :=

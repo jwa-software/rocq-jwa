@@ -1345,7 +1345,7 @@ Proof.
                &recurse y (Induced.introduction (modus aequans (conversion.order y &x), h)))).
   }
   ipso (Accessible.recursion &descent &b
-          (@accessibility _ _ (WellFounded.induced Nat.LessThan to_nat _) &b)).
+          (@WellFounded.accessibility _ _ (WellFounded.induced Nat.LessThan to_nat _) &b)).
 Qed.
 
 End strict. (* order.strict *)
@@ -1449,7 +1449,7 @@ Number Notation BinBase.T BinBase.from_numeral BinBase.to_numeral
 
 Instance BinBase_less_than_well_founded
   : WellFounded (<)%bin_base :=
-  {| accessibility := BinBase.order.strict.wellfoundedness |}.
+  {| WellFounded.accessibility := BinBase.order.strict.wellfoundedness |}.
 
 Instance BinBase_comparable
   : Comparable BinBase.compare (<)%bin_base :=

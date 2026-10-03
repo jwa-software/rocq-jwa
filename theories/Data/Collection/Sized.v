@@ -7,6 +7,8 @@ From jwa Require Import Data.Base.Bool.
 From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Dialect.ExFalso.
 
+Module Sized. (* Sized *)
+
 (* How many elements a container holds. The count is one function taken at
  * every element type at once, which is what makes it a fact about the
  * container's shape rather than about what is stored in it.
@@ -15,10 +17,10 @@ From jwa Require Import Dialect.ExFalso.
  * law would have to relate the count to a second operation, so it belongs
  * to whichever class carries that operation, not here.
  *)
-Class Sized (F : Type -> Type) : Type :=
+Class T (F : Type -> Type) : Type :=
   { cardinality : forall {A : Type} . F A -> Nat0 }.
 
-Module Sized. (* Sized *)
+Abbreviation Sized := T.
 
 (* [Bool]'s scope is opened for the [!] of [is_not_empty]. *)
 Local Open Scope jwa_bool_scope.
@@ -73,3 +75,5 @@ Qed.
 End inhabitation. (* inhabitation *)
 
 End Sized. (* Sized *)
+
+Abbreviation Sized := Sized.T.

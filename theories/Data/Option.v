@@ -170,6 +170,6 @@ Register Option.T as core.option.type.
 
 Instance Option_functor
   : Functor Option :=
-  {| Functor.map             := fun (A : Type) (B : Type) . Option.map
-   ; Functor.map_identity    := @Option.mapping.identity
-   ; Functor.map_composition := @Option.mapping.composition |}.
+  {| Functor.map         := fun (A : Type) (B : Type) . Option.map
+   ; Functor.identity    := @Option.mapping.identity
+   ; Functor.composition := @Option.mapping.composition |}.

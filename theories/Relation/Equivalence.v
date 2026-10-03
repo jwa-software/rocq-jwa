@@ -6,10 +6,25 @@ From jwa Require Import Relation.Reflexive.
 From jwa Require Import Relation.Symmetric.
 From jwa Require Import Relation.Transitive.
 
-Class Equivalence {A : Type} (R : A -> A -> Prop) : Prop :=
+Module Equivalence. (* Equivalence *)
+
+Class T {A : Type} (R : A -> A -> Prop) : Prop :=
   { reflexivity  :: Reflexive  R
   ; symmetry     :: Symmetric  R
   ; transitivity :: Transitive R }.
+
+Abbreviation Equivalence := T.
+
+End Equivalence. (* Equivalence *)
+
+Abbreviation Equivalence := Equivalence.T.
+
+(* A [::] field is an instance only where its module is imported;
+ * these lines make each one an instance wherever this file is.
+ *)
+#[export] Existing Instance Equivalence.reflexivity.
+#[export] Existing Instance Equivalence.symmetry.
+#[export] Existing Instance Equivalence.transitivity.
 
 (* The instances for the two relations of [Core] sit here and not beside
  * them, since [Core] sees no class. Each field is the matching theorem of

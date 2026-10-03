@@ -617,9 +617,9 @@ Export (notations) NonEmptyList.
 
 Instance NonEmptyList_functor
   : Functor NonEmptyList :=
-  {| Functor.map             := fun (A : Type) (B : Type) . NonEmptyList.map
-   ; Functor.map_identity    := @NonEmptyList.mapping.identity
-   ; Functor.map_composition := @NonEmptyList.mapping.composition |}.
+  {| Functor.map         := fun (A : Type) (B : Type) . NonEmptyList.map
+   ; Functor.identity    := @NonEmptyList.mapping.identity
+   ; Functor.composition := @NonEmptyList.mapping.composition |}.
 
 (* The count is a [Nat], which [Sized] takes as the positive case of a
  * [Nat0]: the class has to admit an empty container, this type

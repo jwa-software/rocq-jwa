@@ -275,6 +275,6 @@ Notation "A + B" := (Coproduct A B)
 Instance Coproduct_functor
   : forall (A : Type) . Functor (Coproduct A) :=
   fun (A : Type) .
-    ({| Functor.map             := @Coproduct.map_right A
-      ; Functor.map_identity    := @Coproduct.mapping.right.identity A
-      ; Functor.map_composition := @Coproduct.mapping.right.composition A |}).
+    ({| Functor.map         := @Coproduct.map_right A
+      ; Functor.identity    := @Coproduct.mapping.right.identity A
+      ; Functor.composition := @Coproduct.mapping.right.composition A |}).

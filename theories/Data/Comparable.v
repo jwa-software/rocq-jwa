@@ -17,10 +17,12 @@ From jwa Require Import Relation.Total.
 From jwa Require Import Relation.Transitive.
 From jwa Require Import Relation.Trichotomous.
 
+Module Comparable. (* Comparable *)
+
 (* A three-way [compare] that decides the strict order [lt]: [Comparison.Lt] is [lt m n],
  * [Comparison.Eq] is [m = n], and [Comparison.Gt], by [antisymmetry], is [lt n m].
  *)
-Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Prop) : Prop :=
+Class T {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Prop) : Prop :=
   { transitivity
     : forall (l : A) (m : A) (n : A) .
       lt l m -> lt m n -> lt l n
@@ -31,10 +33,11 @@ Class Comparable {A : Type} (compare : A -> A -> Comparison) (lt : A -> A -> Pro
     : forall (m : A) (n : A) .
       compare m n = Comparison.transpose (compare n m) }.
 
+Abbreviation Comparable := T.
+
 (* Everything below holds of any [Comparable compare lt], so each number type
  * proves the three fields once and inherits the rest.
  *)
-Module Comparable. (* Comparable *)
 
 (* [forall {A : Type} . (A -> A -> Prop) -> A -> A -> Prop] *)
 Definition LessOrEqual := fun {A : Type} (lt : A -> A -> Prop) (m : A) (n : A) .
@@ -746,6 +749,8 @@ Qed.
 End maximum. (* maximum *)
 
 End Comparable. (* Comparable *)
+
+Abbreviation Comparable := Comparable.T.
 
 Section Orders.
 

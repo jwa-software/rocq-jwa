@@ -19,11 +19,11 @@ Definition data_number_all_delivers_operations
 Definition data_number_all_delivers_well_founded
   : forall (m : Nat) (n : Nat0) (x : Integer) .
       Accessible Nat.LessThan m
-  := fun (m : Nat) (n : Nat0) (x : Integer) . accessibility m.
+  := fun (m : Nat) (n : Nat0) (x : Integer) . WellFounded.accessibility m.
 
 Definition data_number_all_delivers_well_founded_with_zero
   : forall (n : Nat0) . Accessible Nat0.LessThan n
-  := fun (n : Nat0) . accessibility n.
+  := fun (n : Nat0) . WellFounded.accessibility n.
 
 Definition data_number_all_delivers_nat_equality_decidability
   : forall (m : Nat) (n : Nat) . m = n \/ ~ (m = n)
@@ -77,7 +77,7 @@ Definition data_number_all_delivers_integer_divide
 Definition data_number_all_delivers_well_founded_magnitude
   : forall (x : Integer) .
       Accessible (Induced Nat0.LessThan Integer.abs) x
-  := fun (x : Integer) . accessibility x.
+  := fun (x : Integer) . WellFounded.accessibility x.
 
 Definition data_number_all_delivers_divide_nat_safe
   : forall (d : Nat) (g : Nat)
@@ -803,7 +803,7 @@ Definition data_number_all_delivers_bin_base_order
 
 Definition data_number_all_delivers_bin_base_well_founded
   : forall (b : BinBase) . Accessible BinBase.LessThan b
-  := fun (b : BinBase) . accessibility b.
+  := fun (b : BinBase) . WellFounded.accessibility b.
 
 Definition data_number_all_delivers_bin_base_maximum_computes
   : BinBase.max (BinBase.b1 BinBase.One) (BinBase.b0 BinBase.One)
@@ -817,7 +817,7 @@ Definition data_number_all_delivers_bin_with_zero_distributivity
 
 Definition data_number_all_delivers_bin_with_zero_well_founded
   : forall (n : BinWithZero) . Accessible BinWithZero.LessThan n
-  := fun (n : BinWithZero) . accessibility n.
+  := fun (n : BinWithZero) . WellFounded.accessibility n.
 
 Definition data_number_all_delivers_bin_with_zero_narrowing_base_specification
   : forall (n : BinWithZero) (p : BinBase) . BinWithZero.to_bin_base n = Some p <-> n = p
@@ -918,7 +918,7 @@ Fail Definition data_number_all_refuses_bin_literal_digit
 Definition data_number_all_delivers_bin_well_founded_magnitude
   : forall (x : Bin) .
       Accessible (Induced BinWithZero.LessThan Bin.abs) x
-  := fun (x : Bin) . accessibility x.
+  := fun (x : Bin) . WellFounded.accessibility x.
 
 Definition data_number_all_delivers_bin_maximum_computes
   : Bin.max 1011%b (-1011)%b = 1011%b

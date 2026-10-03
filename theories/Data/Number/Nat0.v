@@ -2455,7 +2455,7 @@ Module euclid. (* euclid *)
 Instance well_founded
   : WellFounded (Induced (<) pi_2) :=
   WellFounded.induced (<) (@Product.second Nat0 Nat0)
-    {| accessibility := order.strict.wellfoundedness |}.
+    {| WellFounded.accessibility := order.strict.wellfoundedness |}.
 
 Local Open Scope jwa_type_scope.
 
@@ -3202,7 +3202,7 @@ Proof.
       |- lt.
       ipso (recurse r lt (+ c)).
   }
-  ipso (Accessible.recursion &descent &q (accessibility &q)).
+  ipso (Accessible.recursion &descent &q (WellFounded.accessibility &q)).
 Qed.
 
 Module left. (* gcd.nat.left *)
@@ -3578,7 +3578,7 @@ Existing Instance Nat0.comparable.
 
 Instance Nat0_less_than_well_founded
   : WellFounded (<)%n0 :=
-  {| accessibility := Nat0.order.strict.wellfoundedness |}.
+  {| WellFounded.accessibility := Nat0.order.strict.wellfoundedness |}.
 
 Instance Nat0_add_monoid
   : Monoid Nat0.add Nat0.Zero := {|

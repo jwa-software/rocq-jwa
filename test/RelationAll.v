@@ -22,7 +22,7 @@ Definition relation_all_delivers_accessibility
   : forall (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) .
       Accessible R x
   := fun (A : Type) (R : A -> A -> Prop) (w : WellFounded R) (x : A) .
-       accessibility x.
+       WellFounded.accessibility x.
 
 Definition relation_all_delivers_accessible_descend
   : forall (A : Type) (R : A -> A -> Prop) (x : A) (y : A) .
@@ -91,3 +91,17 @@ Definition relation_all_delivers_biconditional_instance
   : forall (P : Prop) (Q : Prop) (S : Prop) .
       (P <-> Q) -> (Q <-> S) -> (P <-> S)
   := fun (P : Prop) (Q : Prop) (S : Prop) . Transitive.transitivity P Q S.
+
+Definition relation_all_delivers_equivalence_reflexivity
+  : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) . R x x
+  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence R) . Reflexive.reflexivity.
+
+Definition relation_all_delivers_equivalence_symmetry
+  : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) (y : A) .
+      R x y -> R y x
+  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence R) . Symmetric.symmetry.
+
+Definition relation_all_delivers_equivalence_transitivity
+  : forall (A : Type) (R : A -> A -> Prop) (e : Equivalence R) (x : A) (y : A) (z : A) .
+      R x y -> R y z -> R x z
+  := fun (A : Type) (R : A -> A -> Prop) (e : Equivalence R) . Transitive.transitivity.
