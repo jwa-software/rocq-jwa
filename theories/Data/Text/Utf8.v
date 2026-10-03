@@ -3,7 +3,9 @@
 From jwa Require Import Core.All.
 From jwa Require Import Data.Assert.
 From jwa Require Import Data.Base.Bool.
+From jwa Require Import Data.Base.Comparison.
 From jwa Require Import Data.Collection.List.
+From jwa Require Import Data.Comparable.
 From jwa Require Import Data.Literal.
 From jwa Require Import Data.Machine.Bit.
 From jwa Require Import Data.Machine.Byte.
@@ -12,6 +14,7 @@ From jwa Require Import Data.Option.
 From jwa Require Import Data.Text.Ascii.
 From jwa Require Import Data.Text.SourceByte.
 From jwa Require Import Tactics.Equation.
+From jwa Require Import Tactics.Modus.
 
 Module Utf8. (* Utf8 *)
 
@@ -286,6 +289,94 @@ Definition encode := fun (u : UInt32) .
 (* [UInt32 -> Option Utf8] *)
 Definition from_code := fun (u : UInt32) . from_bytes (encode u).
 
+(* Characters are ordered by their codes. *)
+(* [Utf8 -> Utf8 -> Prop] *)
+Definition LessThan := fun (x : Utf8) (y : Utf8) . (code x < code y)%uint32.
+
+Notation "x < y" := (LessThan x y) (only parsing)
+  : jwa_utf8_scope.
+
+(* [Utf8 -> Utf8 -> Prop] *)
+Definition LessOrEqual := fun (x : Utf8) (y : Utf8) . x = y \/ LessThan x y.
+
+Notation "x <= y" := (LessOrEqual x y) (only parsing)
+  : jwa_utf8_scope.
+
+Notation "x > y" := (LessThan y x) (only parsing)
+  : jwa_utf8_scope.
+Notation "x >= y" := (LessOrEqual y x) (only parsing)
+  : jwa_utf8_scope.
+
+Notation "'(<)'" := LessThan (only parsing)
+  : jwa_utf8_scope.
+Notation "'(<=)'" := LessOrEqual (only parsing)
+  : jwa_utf8_scope.
+
+(* [Utf8 -> Utf8 -> Comparison] *)
+Definition compare := fun (x : Utf8) (y : Utf8) . UInt32.compare (code x) (code y).
+
+(* [Utf8 -> Utf8 -> Bool] *)
+Abbreviation eq := (Comparable.eq compare).
+
+(* [Utf8 -> Utf8 -> Bool] *)
+Abbreviation le := (Comparable.le compare).
+
+(* [Utf8 -> Utf8 -> Utf8] *)
+Abbreviation min := (Comparable.min compare).
+
+(* [Utf8 -> Utf8 -> Utf8] *)
+Abbreviation max := (Comparable.max compare).
+
+(* The digits [0] to [9], U+0030 to U+0039. *)
+(* [Utf8 -> Bool] *)
+Definition is_digit := fun (c : Utf8) .
+  Bool.and (le (Utf8.OneByte 0x30%byte I) c) (le c (Utf8.OneByte 0x39%byte I)).
+
+(* The upper case letters [A] to [Z], U+0041 to U+005A. *)
+(* [Utf8 -> Bool] *)
+Definition is_upper := fun (c : Utf8) .
+  Bool.and (le (Utf8.OneByte 0x41%byte I) c) (le c (Utf8.OneByte 0x5a%byte I)).
+
+(* The lower case letters [a] to [z], U+0061 to U+007A. *)
+(* [Utf8 -> Bool] *)
+Definition is_lower := fun (c : Utf8) .
+  Bool.and (le (Utf8.OneByte 0x61%byte I) c) (le c (Utf8.OneByte 0x7a%byte I)).
+
+(* The ASCII letters of either case; no other letter is one of them. *)
+(* [Utf8 -> Bool] *)
+Definition is_letter := fun (c : Utf8) . Bool.or (is_upper c) (is_lower c).
+
+(* The space, U+0020, and the controls tab, line feed, vertical tab, form
+ * feed and carriage return, U+0009 to U+000D.
+ *)
+(* [Utf8 -> Bool] *)
+Definition is_whitespace := fun (c : Utf8) .
+  Bool.or
+    (eq c (Utf8.OneByte 0x20%byte I))
+    (Bool.and (le (Utf8.OneByte 0x09%byte I) c) (le c (Utf8.OneByte 0x0d%byte I))).
+
+(* A character up to U+00FF turned upper case by [Ascii.to_upper], which
+ * changes the ASCII lower case letters alone; any other character unchanged.
+ *)
+(* [Utf8 -> Utf8] *)
+Definition to_upper := fun (c : Utf8) .
+  match to_ascii c with
+  | None   => c
+  | Some a => from_ascii (Ascii.to_upper a)
+  end.
+
+(* A character up to U+00FF turned lower case by [Ascii.to_lower], which
+ * changes the ASCII upper case letters alone; any other character unchanged.
+ *)
+(* [Utf8 -> Utf8] *)
+Definition to_lower := fun (c : Utf8) .
+  match to_ascii c with
+  | None   => c
+  | Some a => from_ascii (Ascii.to_lower a)
+  end.
+
+Local Open Scope jwa_utf8_scope.
+
 Module conversion. (* conversion *)
 
 Module bytes. (* conversion.bytes *)
@@ -451,6 +542,76 @@ Proof.
   leibniz &h in &agreement.
   simpl in &agreement.
   ipso (Option.some.injectivity &agreement).
+Qed.
+
+Module classification. (* conversion.ascii.classification *)
+
+(* The [Utf8] form of an [Ascii] character is upper case exactly when the
+ * character is.
+ *)
+(* conversion.ascii.classification.upper *)
+Theorem upper : forall (a : Ascii) . is_upper (from_ascii a) = Ascii.is_upper a.
+Proof.
+  intros a.
+  match &a with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl is_upper, Ascii.is_upper, Comparable.le in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+(* The [Utf8] form of an [Ascii] character is lower case exactly when the
+ * character is.
+ *)
+(* conversion.ascii.classification.lower *)
+Theorem lower : forall (a : Ascii) . is_lower (from_ascii a) = Ascii.is_lower a.
+Proof.
+  intros a.
+  match &a with | introduction b end.
+  match &b with | introduction b7 b6 b5 b4 b3 b2 b1 b0 end.
+  match &b7 with | Zero | One end;
+    match &b6 with | Zero | One end;
+    match &b5 with | Zero | One end;
+    match &b4 with | Zero | One end;
+    match &b3 with | Zero | One end;
+    match &b2 with | Zero | One end;
+    match &b1 with | Zero | One end;
+    match &b0 with | Zero | One end;
+    simpl is_lower, Ascii.is_lower, Comparable.le in |- *;
+    simpl in |- *;
+    quod idem est.
+Qed.
+
+End classification. (* conversion.ascii.classification *)
+
+(* conversion.ascii.uppercasing *)
+Theorem uppercasing
+  : forall (a : Ascii) . to_upper (from_ascii a) = from_ascii (Ascii.to_upper a).
+Proof.
+  intros a.
+  simpl to_upper in |- *.
+  leibniz (conversion.ascii.retraction &a) in |- *.
+  simpl in |- *.
+  quod idem est.
+Qed.
+
+(* conversion.ascii.lowercasing *)
+Theorem lowercasing
+  : forall (a : Ascii) . to_lower (from_ascii a) = from_ascii (Ascii.to_lower a).
+Proof.
+  intros a.
+  simpl to_lower in |- *.
+  leibniz (conversion.ascii.retraction &a) in |- *.
+  simpl in |- *.
+  quod idem est.
 Qed.
 
 End ascii. (* conversion.ascii *)
@@ -673,12 +834,426 @@ End code. (* conversion.code *)
 
 End conversion. (* conversion *)
 
+Module order. (* order *)
+
+Module strict. (* order.strict *)
+
+(* order.strict.transitivity *)
+Theorem transitivity
+  : forall {x : Utf8} {y : Utf8} {z : Utf8} . x < y -> y < z -> x < z.
+Proof.
+  intros x y z h1 h2.
+  simpl LessThan in &h1, &h2 |- *.
+  ipso (UInt32.order.strict.transitivity &h1 &h2).
+Qed.
+
+End strict. (* order.strict *)
+
+End order. (* order *)
+
+Module comparison. (* comparison *)
+
+(* comparison.specification *)
+Theorem specification
+  : forall (x : Utf8) (y : Utf8) .
+      (compare x y = Comparison.Lt <-> x < y) /\ (compare x y = Comparison.Eq <-> x = y).
+Proof.
+  intros x y.
+  simpl compare, LessThan in |- *.
+  let proof s := UInt32.comparison.specification (code &x) (code &y).
+  match &s with | strict equality end.
+  divide et impera.
+  - ipso &strict.
+  - divide et impera.
+    + intro c.
+      ipso (conversion.code.injectivity (modus aequans &equality, &c)).
+    + intro e.
+      ipso (modus aequans &equality, (congru code, &e)).
+Qed.
+
+(* comparison.antisymmetry *)
+Theorem antisymmetry
+  : forall (x : Utf8) (y : Utf8) . compare x y = Comparison.transpose (compare y x).
+Proof.
+  intros x y.
+  simpl compare in |- *.
+  ipso (UInt32.comparison.antisymmetry (code &x) (code &y)).
+Qed.
+
+End comparison. (* comparison *)
+
+Instance comparable
+  : Comparable compare (<) :=
+  {| Comparable.transitivity := @order.strict.transitivity
+  ; Comparable.specification := comparison.specification
+  ; Comparable.antisymmetry := comparison.antisymmetry |}.
+
+Module classification. (* classification *)
+
+Module range. (* classification.range *)
+
+(* The two comparisons a class makes, read as the two orders they decide. *)
+(* classification.range.specification *)
+Lemma specification
+  : forall (low : Utf8) (high : Utf8) (c : Utf8) .
+      Bool.and (le low c) (le c high) = true <-> low <= c /\ c <= high.
+Proof.
+  intros low high c.
+  let proof h := Comparable.order.reflection (compare := compare) (lt := LessThan) &c &high.
+  simpl Bool.and in |- *.
+  match (le &low &c) with | | end |- el.
+  - let proof l := Comparable.order.reflection (compare := compare) (lt := LessThan) &low &c.
+    divide et impera.
+    + intro e.
+      divide et impera.
+      * ipso (modus aequans &l, &el).
+      * ipso (modus aequans &h, &e).
+    + intro p.
+      match &p with | _ q end.
+      ipso (modus aequans &h, &q).
+  - let proof l := Comparable.order.reflection (compare := compare) (lt := LessThan) &low &c.
+    divide et impera.
+    + intro e.
+      ex e quodlibet.
+    + intro p.
+      match &p with | q _ end.
+      let proof t := modus aequans &l, &q.
+      leibniz &el in &t.
+      ex t quodlibet.
+Qed.
+
+End range. (* classification.range *)
+
+Module digit. (* classification.digit *)
+
+(* classification.digit.specification *)
+Theorem specification
+  : forall (c : Utf8) .
+      is_digit c = true <-> Utf8.OneByte 0x30%byte I <= c /\ c <= Utf8.OneByte 0x39%byte I.
+Proof.
+  intros c.
+  simpl is_digit in |- *.
+  ipso
+    (classification.range.specification
+      (Utf8.OneByte 0x30%byte I) (Utf8.OneByte 0x39%byte I) &c).
+Qed.
+
+End digit. (* classification.digit *)
+
+Module upper. (* classification.upper *)
+
+(* classification.upper.specification *)
+Theorem specification
+  : forall (c : Utf8) .
+      is_upper c = true <-> Utf8.OneByte 0x41%byte I <= c /\ c <= Utf8.OneByte 0x5a%byte I.
+Proof.
+  intros c.
+  simpl is_upper in |- *.
+  ipso
+    (classification.range.specification
+      (Utf8.OneByte 0x41%byte I) (Utf8.OneByte 0x5a%byte I) &c).
+Qed.
+
+End upper. (* classification.upper *)
+
+Module lower. (* classification.lower *)
+
+(* classification.lower.specification *)
+Theorem specification
+  : forall (c : Utf8) .
+      is_lower c = true <-> Utf8.OneByte 0x61%byte I <= c /\ c <= Utf8.OneByte 0x7a%byte I.
+Proof.
+  intros c.
+  simpl is_lower in |- *.
+  ipso
+    (classification.range.specification
+      (Utf8.OneByte 0x61%byte I) (Utf8.OneByte 0x7a%byte I) &c).
+Qed.
+
+End lower. (* classification.lower *)
+
+Module letter. (* classification.letter *)
+
+(* classification.letter.specification *)
+Theorem specification
+  : forall (c : Utf8) . is_letter c = true <-> is_upper c = true \/ is_lower c = true.
+Proof.
+  intros c.
+  simpl is_letter in |- *.
+  simpl Bool.or in |- *.
+  match (is_upper &c) with | | end.
+  - divide et impera.
+    + intro e.
+      ipso (disjoin e, _).
+    + intro d.
+      quod idem est.
+  - divide et impera.
+    + intro e.
+      ipso (disjoin _, e).
+    + intro d.
+      match &d with | e | e end.
+      * ex e quodlibet.
+      * ipso &e.
+Qed.
+
+End letter. (* classification.letter *)
+
+Module whitespace. (* classification.whitespace *)
+
+(* classification.whitespace.specification *)
+Theorem specification
+  : forall (c : Utf8) .
+      is_whitespace c = true
+      <-> c = Utf8.OneByte 0x20%byte I
+        \/ (Utf8.OneByte 0x09%byte I <= c /\ c <= Utf8.OneByte 0x0d%byte I).
+Proof.
+  intros c.
+  let proof r :=
+    classification.range.specification
+      (Utf8.OneByte 0x09%byte I) (Utf8.OneByte 0x0d%byte I) &c.
+  simpl is_whitespace in |- *.
+  simpl Bool.or in |- *.
+  match (eq &c (Utf8.OneByte 0x20%byte I)) with | | end |- e.
+  - let proof s :=
+      Comparable.comparison.equality.reflection
+        (compare := compare) (lt := LessThan) &c (Utf8.OneByte 0x20%byte I).
+    divide et impera.
+    + intro t.
+      ipso (disjoin (modus aequans &s, &e), _).
+    + intro d.
+      quod idem est.
+  - let proof s :=
+      Comparable.comparison.equality.reflection
+        (compare := compare) (lt := LessThan) &c (Utf8.OneByte 0x20%byte I).
+    divide et impera.
+    + intro t.
+      ipso (disjoin _, (modus aequans &r, &t)).
+    + intro d.
+      match &d with | q | q end.
+      * let proof t := modus aequans &s, &q.
+        leibniz &e in &t.
+        ex t quodlibet.
+      * ipso (modus aequans &r, &q).
+Qed.
+
+End whitespace. (* classification.whitespace *)
+
+(* No character is both upper and lower case: one that were would lie
+ * between [a] and [Z], and [Z] comes before [a].
+ *)
+(* classification.exclusion *)
+Theorem exclusion : forall (c : Utf8) . Bool.and (is_upper c) (is_lower c) = false.
+Proof.
+  intros c.
+  match (is_upper &c) with | | end |- u.
+  - match (is_lower &c) with | | end |- l.
+    + let proof s := modus aequans (classification.upper.specification &c), &u.
+      let proof t := modus aequans (classification.lower.specification &c), &l.
+      match &s with | _ high end.
+      match &t with | low _ end.
+      let proof b :=
+        Comparable.order.transitivity
+          (compare := compare) (lt := LessThan)
+          (Utf8.OneByte 0x61%byte I) &c (Utf8.OneByte 0x5a%byte I) &low &high.
+      let proof r :=
+        Comparable.order.reflection
+          (compare := compare) (lt := LessThan)
+          (Utf8.OneByte 0x61%byte I) (Utf8.OneByte 0x5a%byte I).
+      let proof f := modus aequans &r, &b.
+      simpl Comparable.le in &f.
+      simpl in &f.
+      ex &f quodlibet.
+    + simpl in |- *.
+      quod idem est.
+  - simpl in |- *.
+    quod idem est.
+Qed.
+
+End classification. (* classification *)
+
+Module uppercasing. (* uppercasing *)
+
+(* uppercasing.invariance *)
+Theorem invariance : forall (c : Utf8) . is_lower c = false -> to_upper c = c.
+Proof.
+  intros c h.
+  match (to_ascii &c) with | | a end |- e.
+  - simpl to_upper in |- *.
+    leibniz &e in |- *.
+    simpl in |- *.
+    quod idem est.
+  - let proof i := conversion.ascii.inversion &c &a &e.
+    leibniz <- &i in &h |- *.
+    leibniz (conversion.ascii.classification.lower &a) in &h.
+    leibniz (conversion.ascii.uppercasing &a), (Ascii.uppercasing.invariance &a &h) in |- *.
+    quod idem est.
+Qed.
+
+(* uppercasing.idempotence *)
+Theorem idempotence : forall (c : Utf8) . to_upper (to_upper c) = to_upper c.
+Proof.
+  intros c.
+  match (to_ascii &c) with | | a end |- e.
+  - lemma u : to_upper &c = &c.
+    {
+      simpl to_upper in |- *.
+      leibniz &e in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &u, &u in |- *.
+    quod idem est.
+  - let proof i := conversion.ascii.inversion &c &a &e.
+    leibniz <- &i in |- *.
+    leibniz
+      (conversion.ascii.uppercasing &a),
+      (conversion.ascii.uppercasing (Ascii.to_upper &a)),
+      (Ascii.uppercasing.idempotence &a)
+      in |- *.
+    quod idem est.
+Qed.
+
+(* Turning a character lower case first changes nothing [to_upper] makes of it. *)
+(* uppercasing.absorption *)
+Theorem absorption : forall (c : Utf8) . to_upper (to_lower c) = to_upper c.
+Proof.
+  intros c.
+  match (to_ascii &c) with | | a end |- e.
+  - lemma l : to_lower &c = &c.
+    {
+      simpl to_lower in |- *.
+      leibniz &e in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &l in |- *.
+    quod idem est.
+  - let proof i := conversion.ascii.inversion &c &a &e.
+    leibniz <- &i in |- *.
+    leibniz
+      (conversion.ascii.lowercasing &a),
+      (conversion.ascii.uppercasing (Ascii.to_lower &a)),
+      (conversion.ascii.uppercasing &a),
+      (Ascii.uppercasing.absorption &a)
+      in |- *.
+    quod idem est.
+Qed.
+
+Module inversion. (* uppercasing.inversion *)
+
+(* uppercasing.inversion.lowercasing *)
+Theorem lowercasing : forall (c : Utf8) . is_upper c = true -> to_upper (to_lower c) = c.
+Proof.
+  intros c h.
+  let proof x := classification.exclusion &c.
+  leibniz &h in &x.
+  match (Bool.conjunction.identity (is_lower &c)) with | l _ end.
+  leibniz &l in &x.
+  leibniz (uppercasing.absorption &c) in |- *.
+  ipso (uppercasing.invariance &c &x).
+Qed.
+
+End inversion. (* uppercasing.inversion *)
+
+End uppercasing. (* uppercasing *)
+
+Module lowercasing. (* lowercasing *)
+
+(* lowercasing.invariance *)
+Theorem invariance : forall (c : Utf8) . is_upper c = false -> to_lower c = c.
+Proof.
+  intros c h.
+  match (to_ascii &c) with | | a end |- e.
+  - simpl to_lower in |- *.
+    leibniz &e in |- *.
+    simpl in |- *.
+    quod idem est.
+  - let proof i := conversion.ascii.inversion &c &a &e.
+    leibniz <- &i in &h |- *.
+    leibniz (conversion.ascii.classification.upper &a) in &h.
+    leibniz (conversion.ascii.lowercasing &a), (Ascii.lowercasing.invariance &a &h) in |- *.
+    quod idem est.
+Qed.
+
+(* lowercasing.idempotence *)
+Theorem idempotence : forall (c : Utf8) . to_lower (to_lower c) = to_lower c.
+Proof.
+  intros c.
+  match (to_ascii &c) with | | a end |- e.
+  - lemma l : to_lower &c = &c.
+    {
+      simpl to_lower in |- *.
+      leibniz &e in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &l, &l in |- *.
+    quod idem est.
+  - let proof i := conversion.ascii.inversion &c &a &e.
+    leibniz <- &i in |- *.
+    leibniz
+      (conversion.ascii.lowercasing &a),
+      (conversion.ascii.lowercasing (Ascii.to_lower &a)),
+      (Ascii.lowercasing.idempotence &a)
+      in |- *.
+    quod idem est.
+Qed.
+
+(* Turning a character upper case first changes nothing [to_lower] makes of it. *)
+(* lowercasing.absorption *)
+Theorem absorption : forall (c : Utf8) . to_lower (to_upper c) = to_lower c.
+Proof.
+  intros c.
+  match (to_ascii &c) with | | a end |- e.
+  - lemma u : to_upper &c = &c.
+    {
+      simpl to_upper in |- *.
+      leibniz &e in |- *.
+      simpl in |- *.
+      quod idem est.
+    }
+    leibniz &u in |- *.
+    quod idem est.
+  - let proof i := conversion.ascii.inversion &c &a &e.
+    leibniz <- &i in |- *.
+    leibniz
+      (conversion.ascii.uppercasing &a),
+      (conversion.ascii.lowercasing (Ascii.to_upper &a)),
+      (conversion.ascii.lowercasing &a),
+      (Ascii.lowercasing.absorption &a)
+      in |- *.
+    quod idem est.
+Qed.
+
+Module inversion. (* lowercasing.inversion *)
+
+(* lowercasing.inversion.uppercasing *)
+Theorem uppercasing : forall (c : Utf8) . is_lower c = true -> to_lower (to_upper c) = c.
+Proof.
+  intros c h.
+  let proof x := classification.exclusion &c.
+  leibniz &h in &x.
+  match (Bool.conjunction.identity (is_upper &c)) with | _ r end.
+  leibniz &r in &x.
+  leibniz (lowercasing.absorption &c) in |- *.
+  ipso (lowercasing.invariance &c &x).
+Qed.
+
+End inversion. (* lowercasing.inversion *)
+
+End lowercasing. (* lowercasing *)
+
 End Utf8. (* Utf8 *)
 
 (* The counterpart of the abbreviation inside the module: a client writes
  * [Utf8], not [Utf8.T].
  *)
 Abbreviation Utf8 := Utf8.T.
+
+(* Makes the notations declared in [Module Utf8] usable in every file that
+ * imports this one, as [(x < y)%u8c] or under an opened [jwa_utf8_scope].
+ *)
+Export (notations) Utf8.
 
 (* A character is written as a string of one character under its key,
  * ["A"%u8c], and a closed one prints back so.
@@ -690,3 +1265,8 @@ String Notation Utf8.T Utf8.from_source_bytes Utf8.to_source_bytes
  * [%u8c].
  *)
 Bind Scope jwa_utf8_scope with Utf8.T.
+
+(* Declared inside [Module Utf8], whose proofs use it; an instance declared
+ * there is dropped at the module's [End], so it is announced again here.
+ *)
+Existing Instance Utf8.comparable.
