@@ -105,6 +105,10 @@ Definition data_text_all_delivers_ascii_comparison_antisymmetry
       Ascii.compare x y = Comparison.transpose (Ascii.compare y x)
   := Ascii.comparison.antisymmetry.
 
+Definition data_text_all_delivers_ascii_comparable
+  : forall (x : Ascii) (y : Ascii) . (x < y)%ac \/ x = y \/ (y < x)%ac
+  := Comparable.order.strict.trichotomy.
+
 Definition data_text_all_computes_ascii_code
   : Ascii.code "A"%ac = UInt8.from_byte 0x41%byte
   := Identity.reflexivity _.
@@ -304,6 +308,11 @@ Definition data_text_all_delivers_ascii_str_comparison_antisymmetry
   : forall (s : AsciiStr) (t : AsciiStr) .
       AsciiStr.compare s t = Comparison.transpose (AsciiStr.compare t s)
   := AsciiStr.comparison.antisymmetry.
+
+Definition data_text_all_delivers_ascii_str_comparable
+  : forall (s : AsciiStr) (t : AsciiStr) .
+      AsciiStr.LessThan s t \/ s = t \/ AsciiStr.LessThan t s
+  := Comparable.order.strict.trichotomy.
 
 Definition data_text_all_computes_ascii_str_compare
   : AsciiStr.compare "Apple"%a "apple"%a = Comparison.Lt
