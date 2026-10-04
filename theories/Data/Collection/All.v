@@ -23,6 +23,7 @@ From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.Nat0.
 From jwa Require Export Data.Option.
 
+From jwa Require Export Data.Collection.BST.
 From jwa Require Export Data.Collection.BinaryTree.
 From jwa Require Export Data.Collection.List.
 From jwa Require Export Data.Collection.Membership.
