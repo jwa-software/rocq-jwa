@@ -65,7 +65,7 @@
 
 ## Interfaces
 
-Each interface is a class over a container `F : Type -> Type`, and each type on this page has an instance of all three:
+Each interface is a class over a container `F : Type -> Type`, and each type on this page has an instance of all three. `Functor` has a section of its own after this one.
 
 | Class | What it holds | `List` | `NonEmptyList` | `BinaryTree` |
 |:---|:---|:---|:---|:---|
@@ -76,3 +76,13 @@ Each interface is a class over a container `F : Type -> Type`, and each type on 
 - **One name serves every container.** `Sized.cardinality (1 :: 2 :: 3 :: [])` and `Sized.cardinality t` are both `3`, and `Functor.map Nat0.inc` maps a list or a tree.
 - **`Sized` derives emptiness.** `Sized.is_empty` and `Sized.is_not_empty` answer a `Bool`, and `Sized.emptiness.reflection` states `Assert (is_empty x) <-> cardinality x = Nat0.Zero`.
 - **`Sized` and `Membership` state no law.** A count alone, or a relation alone, constrains nothing; a law that relates one of them to another operation is the container's own, as `List.length.additivity.over.concatenation` is.
+
+---
+
+## Functor
+
+- **The problem.** One change is applied to every element of a container, whatever the container: add one to each number of a list, of a tree, of an `Option`. Each type has a `map` of its own. A function or a proof written once for all of them needs one name for it, and the laws that make "apply to every element" mean the same everywhere.
+- **The class.** `Functor F`, for a container `F : Type -> Type`, has the operation `Functor.map : (A -> B) -> F A -> F B` and two laws. `Functor.identity` is `map (fun a . a) x = x`: a `map` that changes no element changes nothing. `Functor.composition` is `map g (map f x) = map (fun a . g (f a)) x`: two passes are one pass that makes both changes.
+- **Instances.** `List_functor`, `NonEmptyList_functor` and `BinaryTree_functor`. `Option_functor`, under which `Functor.map Nat0.inc (Some 1)` is `Some 2` and `None` stays `None`. `Product_functor` and `Coproduct_functor`, which map the second component of a pair and the right side of a coproduct.
+- **In a proof.** `Functor.map Nat0.inc` maps a list, a tree or an `Option`, the instance found from its argument. `Functor.composition A B C f g x` is the second law for whichever container `x` is in, so a statement proved from it holds of all six.
+- **What it does not say.** How many elements there are, or in which order. That `map` keeps the length of a list, or the size of a tree, is each container's own law: `List.mapping.preservation.length`, `BinaryTree.mapping.preservation.size`.
