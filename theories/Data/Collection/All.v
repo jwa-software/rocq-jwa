@@ -13,8 +13,9 @@ From jwa Require Export Core.All.
 (* An umbrella exports every type the interfaces under it name: [Nat0]
  * for the index [nth], [take] and [drop] count with, [Option] for what [nth]
  * returns, [Nat] for [NonEmptyList]'s length, [Bool] for the deciders,
- * [Comparison] for what [compare] returns and [Comparable] for the premise of
- * its laws.
+ * [Comparison] for what [compare] returns, [Comparable] for the premise of
+ * its laws, and [Product] for the pairs that [pop], [zip], [unzip],
+ * [partition], [split_at] and [BST.pop_minimum] return.
  *)
 From jwa Require Export Data.Base.Bool.
 From jwa Require Export Data.Base.Comparison.
@@ -22,7 +23,9 @@ From jwa Require Export Data.Comparable.
 From jwa Require Export Data.Number.Nat.
 From jwa Require Export Data.Number.Nat0.
 From jwa Require Export Data.Option.
+From jwa Require Export Data.Product.
 
+From jwa Require Export Data.Collection.BST.
 From jwa Require Export Data.Collection.BinaryTree.
 From jwa Require Export Data.Collection.List.
 From jwa Require Export Data.Collection.Membership.

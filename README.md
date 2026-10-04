@@ -64,7 +64,7 @@ Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a f
 - [Numbers](docs/numbers.md): the number types, their conversions, arithmetic and literals.
 - [Machine units](docs/machine.md): `Bit`, `Byte`, the words `HWord` to `QWord` with their byte order, and the fixed-width integers `UInt8` to `UInt64` and `Int8` to `Int64`, with their division and the conversions between widths.
 - [Text](docs/text.md): the characters `Ascii` and `Utf8`, the strings `AsciiStr` and `Utf8Str`, their order and case, the code points of `Utf8`, indexing and substrings of the strings, and how a string literal is read.
-- [Collections](docs/collections.md): the containers `List`, `NonEmptyList` and `BinaryTree`, their operations and laws, the conversions to `List`, and the interfaces `Functor`, `Sized` and `Membership`.
+- [Collections](docs/collections.md): the containers `List`, `NonEmptyList` and `BinaryTree`, their operations and laws, the conversions to `List`, the search tree `BST`, and the interfaces `Functor`, `Sized` and `Membership`.
 - [Layout](docs/layout.md): the layers, their directories and what each depends on.
 
 ---
