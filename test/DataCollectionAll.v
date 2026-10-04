@@ -259,3 +259,39 @@ Definition data_collection_all_delivers_binary_tree_conversion_any
   : forall (A : Type) (P : A -> Prop) (t : BinaryTree A) .
       BinaryTree.Any P t <-> List.Any P (BinaryTree.to_list t)
   := @BinaryTree.conversion.any.
+
+Definition data_collection_all_delivers_binary_tree_quantification_all_specification
+  : forall (A : Type) (P : A -> Prop) (t : BinaryTree A) .
+      BinaryTree.All P t <-> (forall (a : A) . BinaryTree.Contains a t -> P a)
+  := @BinaryTree.quantification.all.specification.
+
+Definition data_collection_all_delivers_binary_tree_quantification_any_specification
+  : forall (A : Type) (P : A -> Prop) (t : BinaryTree A) .
+      BinaryTree.Any P t <-> (forsome (a : A) . BinaryTree.Contains a t /\ P a)
+  := @BinaryTree.quantification.any.specification.
+
+Definition data_collection_all_delivers_bst_ordered
+  : forall (A : Type) (lt : A -> A -> Prop) (t : BinaryTree A) . Prop
+  := fun (A : Type) (lt : A -> A -> Prop) (t : BinaryTree A) . BST.Ordered lt t.
+
+Definition data_collection_all_computes_bst_contains
+  : BST.contains Nat0.compare 8%n0
+      (BinaryTree.Node
+        (BinaryTree.Node BinaryTree.Leaf 2%n0 BinaryTree.Leaf)
+        5%n0
+        (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf))
+    = true
+    /\ BST.contains Nat0.compare 3%n0
+        (BinaryTree.Node
+          (BinaryTree.Node BinaryTree.Leaf 2%n0 BinaryTree.Leaf)
+          5%n0
+          (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf))
+      = false
+  := conjoin (Identity.reflexivity _), (Identity.reflexivity _).
+
+Definition data_collection_all_delivers_bst_search_specification
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (a : A) (t : BinaryTree A) .
+        BST.Ordered lt t -> (BST.contains cmp a t = true <-> BinaryTree.Contains a t)
+  := @BST.search.specification.
