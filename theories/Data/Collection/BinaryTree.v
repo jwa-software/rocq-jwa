@@ -573,6 +573,21 @@ Proof.
     ipso (modus aequans &listed, &h').
 Qed.
 
+(* quantification.all.monotonicity *)
+Theorem monotonicity
+  : forall {A : Type} {P : A -> Prop} {Q : A -> Prop} {t : BinaryTree A} .
+      (forall (a : A) . P a -> Q a) -> All P t -> All Q t.
+Proof.
+  intros A P Q t weaker h.
+  modus aequans (quantification.all.specification &P &t), &h |- each.
+  lemma every : forall (a : &A) . Contains a &t -> &Q a.
+  {
+    intros a m.
+    ipso (&weaker &a (&each &a &m)).
+  }
+  ipso (modus aequans (quantification.all.specification &Q &t), &every).
+Qed.
+
 End all. (* quantification.all *)
 
 Module any. (* quantification.any *)
