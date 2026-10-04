@@ -19,7 +19,7 @@
 - **A relation is a function into `Prop`.** `R : A -> A -> Prop` takes two values, and `R x y` is the proposition that they are related: `Nat0.LessThan 3 5`, written `(3 < 5)%n0`.
 - **A class is about a relation, not about a type.** `<` and `<=` on `Nat0` are two relations, and the table gives them different rows.
 - **A field is read behind the name of its class:** `Transitive.transitivity`, `Total.totality`.
-- **The seven properties have no instance of their own.** Each is held by a larger class: `Equivalence` for `=` and `<->`, and the order classes for the `<` and `<=` of every type with a `Comparable` instance. A proof still asks for one property alone: `Transitive.transitivity` at `<` on `Nat0` is found through them.
+- **The seven properties have no instance of their own.** Each is held by a larger class: `Equivalence` for `=` and `<->`, and the classes of [Order](order.md) for the `<` and `<=` of every type with a `Comparable` instance. A proof still asks for one property alone: `Transitive.transitivity` at `<` on `Nat0` is found through them.
 
 `From jwa Require Import Relation.All` brings the classes. The examples on this page are in `Nat0`, under the key `%n0`.
 
