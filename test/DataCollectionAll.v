@@ -206,3 +206,56 @@ Definition data_collection_all_delivers_binary_tree_conversion_mapping
   : forall (A : Type) (B : Type) (f : A -> B) (t : BinaryTree A) .
       BinaryTree.to_list (BinaryTree.map f t) = List.map f (BinaryTree.to_list t)
   := @BinaryTree.conversion.mapping.
+
+Definition data_collection_all_delivers_binary_tree_height_bound
+  : forall (A : Type) (t : BinaryTree A) . (BinaryTree.height t <= BinaryTree.size t)%n0
+  := @BinaryTree.height.bound.
+
+Definition data_collection_all_delivers_binary_tree_mapping_preservation_height
+  : forall (A : Type) (B : Type) (f : A -> B) (t : BinaryTree A) .
+      BinaryTree.height (BinaryTree.map f t) = BinaryTree.height t
+  := @BinaryTree.mapping.preservation.height.
+
+Definition data_collection_all_delivers_binary_tree_mapping_preservation_membership
+  : forall (A : Type) (B : Type) (f : A -> B) (a : A) (t : BinaryTree A) .
+      BinaryTree.Contains a t -> BinaryTree.Contains (f a) (BinaryTree.map f t)
+  := @BinaryTree.mapping.preservation.membership.
+
+Definition data_collection_all_delivers_binary_tree_mirroring_involution
+  : forall (A : Type) (t : BinaryTree A) . BinaryTree.mirror (BinaryTree.mirror t) = t
+  := @BinaryTree.mirroring.involution.
+
+Definition data_collection_all_delivers_binary_tree_mirroring_preservation_size
+  : forall (A : Type) (t : BinaryTree A) .
+      BinaryTree.size (BinaryTree.mirror t) = BinaryTree.size t
+  := @BinaryTree.mirroring.preservation.size.
+
+Definition data_collection_all_delivers_binary_tree_mirroring_preservation_height
+  : forall (A : Type) (t : BinaryTree A) .
+      BinaryTree.height (BinaryTree.mirror t) = BinaryTree.height t
+  := @BinaryTree.mirroring.preservation.height.
+
+Definition data_collection_all_delivers_binary_tree_mirroring_preservation_membership
+  : forall (A : Type) (a : A) (t : BinaryTree A) .
+      BinaryTree.Contains a (BinaryTree.mirror t) <-> BinaryTree.Contains a t
+  := @BinaryTree.mirroring.preservation.membership.
+
+Definition data_collection_all_delivers_binary_tree_conversion_mirroring
+  : forall (A : Type) (t : BinaryTree A) .
+      BinaryTree.to_list (BinaryTree.mirror t) = List.reverse (BinaryTree.to_list t)
+  := @BinaryTree.conversion.mirroring.
+
+Definition data_collection_all_delivers_binary_tree_conversion_membership
+  : forall (A : Type) (a : A) (t : BinaryTree A) .
+      BinaryTree.Contains a t <-> List.Contains a (BinaryTree.to_list t)
+  := @BinaryTree.conversion.membership.
+
+Definition data_collection_all_delivers_binary_tree_conversion_all
+  : forall (A : Type) (P : A -> Prop) (t : BinaryTree A) .
+      BinaryTree.All P t <-> List.All P (BinaryTree.to_list t)
+  := @BinaryTree.conversion.all.
+
+Definition data_collection_all_delivers_binary_tree_conversion_any
+  : forall (A : Type) (P : A -> Prop) (t : BinaryTree A) .
+      BinaryTree.Any P t <-> List.Any P (BinaryTree.to_list t)
+  := @BinaryTree.conversion.any.
