@@ -295,3 +295,51 @@ Definition data_collection_all_delivers_bst_search_specification
       forall (a : A) (t : BinaryTree A) .
         BST.Ordered lt t -> (BST.contains cmp a t = true <-> BinaryTree.Contains a t)
   := @BST.search.specification.
+
+Definition data_collection_all_computes_bst_insert
+  : BST.insert Nat0.compare 3%n0
+      (BinaryTree.Node
+        (BinaryTree.Node BinaryTree.Leaf 2%n0 BinaryTree.Leaf)
+        5%n0
+        (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf))
+    = BinaryTree.Node
+        (BinaryTree.Node
+          BinaryTree.Leaf
+          2%n0
+          (BinaryTree.Node BinaryTree.Leaf 3%n0 BinaryTree.Leaf))
+        5%n0
+        (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf)
+  := Identity.reflexivity _.
+
+Definition data_collection_all_computes_bst_insert_present
+  : BST.insert Nat0.compare 5%n0 (BinaryTree.Node BinaryTree.Leaf 5%n0 BinaryTree.Leaf)
+    = BinaryTree.Node BinaryTree.Leaf 5%n0 BinaryTree.Leaf
+  := Identity.reflexivity _.
+
+Definition data_collection_all_computes_bst_insert_in_order
+  : BinaryTree.to_list
+      (BST.insert Nat0.compare 3%n0
+        (BST.insert Nat0.compare 8%n0 (BST.insert Nat0.compare 5%n0 BinaryTree.Leaf)))
+    = (3%n0 :: 5%n0 :: 8%n0 :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_collection_all_delivers_bst_insertion_all
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (P : A -> Prop) (a : A) (t : BinaryTree A) .
+        BinaryTree.All P (BST.insert cmp a t) <-> P a /\ BinaryTree.All P t
+  := @BST.insertion.all.
+
+Definition data_collection_all_delivers_bst_insertion_membership
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (a : A) (b : A) (t : BinaryTree A) .
+        BinaryTree.Contains b (BST.insert cmp a t) <-> b = a \/ BinaryTree.Contains b t
+  := @BST.insertion.membership.
+
+Definition data_collection_all_delivers_bst_insertion_preservation
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (a : A) (t : BinaryTree A) .
+        BST.Ordered lt t -> BST.Ordered lt (BST.insert cmp a t)
+  := @BST.insertion.preservation.
