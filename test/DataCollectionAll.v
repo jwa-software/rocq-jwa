@@ -343,3 +343,103 @@ Definition data_collection_all_delivers_bst_insertion_preservation
       forall (a : A) (t : BinaryTree A) .
         BST.Ordered lt t -> BST.Ordered lt (BST.insert cmp a t)
   := @BST.insertion.preservation.
+
+Definition data_collection_all_delivers_product
+  : forall (A : Type) (l : List A) . Option A
+  := fun (A : Type) (l : List A) . Option.map Product.first (List.pop l).
+
+Definition data_collection_all_delivers_binary_tree_quantification_all_monotonicity
+  : forall (A : Type) (P : A -> Prop) (Q : A -> Prop) (t : BinaryTree A) .
+      (forall (a : A) . P a -> Q a) -> BinaryTree.All P t -> BinaryTree.All Q t
+  := @BinaryTree.quantification.all.monotonicity.
+
+Definition data_collection_all_computes_bst_pop_minimum
+  : BST.pop_minimum
+      (BinaryTree.Node
+        (BinaryTree.Node BinaryTree.Leaf 2%n0 BinaryTree.Leaf)
+        5%n0
+        (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf))
+    = Some
+        (Product.introduction
+          2%n0
+          (BinaryTree.Node
+            BinaryTree.Leaf
+            5%n0
+            (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf)))
+  := Identity.reflexivity _.
+
+Definition data_collection_all_computes_bst_remove_root
+  : BST.remove Nat0.compare 5%n0
+      (BinaryTree.Node
+        (BinaryTree.Node BinaryTree.Leaf 2%n0 BinaryTree.Leaf)
+        5%n0
+        (BinaryTree.Node BinaryTree.Leaf 8%n0 BinaryTree.Leaf))
+    = BinaryTree.Node (BinaryTree.Node BinaryTree.Leaf 2%n0 BinaryTree.Leaf) 8%n0 BinaryTree.Leaf
+  := Identity.reflexivity _.
+
+Definition data_collection_all_computes_bst_remove_absent
+  : BST.remove Nat0.compare 9%n0 (BinaryTree.Node BinaryTree.Leaf 5%n0 BinaryTree.Leaf)
+    = BinaryTree.Node BinaryTree.Leaf 5%n0 BinaryTree.Leaf
+  := Identity.reflexivity _.
+
+Definition data_collection_all_computes_bst_remove_in_order
+  : BinaryTree.to_list
+      (BST.remove Nat0.compare 5%n0
+        (BST.insert Nat0.compare 3%n0
+          (BST.insert Nat0.compare 8%n0 (BST.insert Nat0.compare 5%n0 BinaryTree.Leaf))))
+    = (3%n0 :: 8%n0 :: [])%list
+  := Identity.reflexivity _.
+
+Definition data_collection_all_delivers_bst_extraction_absence_specification
+  : forall (A : Type) (t : BinaryTree A) . BST.pop_minimum t = None <-> t = BinaryTree.Leaf
+  := @BST.extraction.absence.specification.
+
+Definition data_collection_all_delivers_bst_extraction_membership
+  : forall (A : Type) (t : BinaryTree A) (m : A) (rest : BinaryTree A) .
+      BST.pop_minimum t = Some (Product.introduction m rest) ->
+      forall (b : A) . BinaryTree.Contains b t <-> b = m \/ BinaryTree.Contains b rest
+  := @BST.extraction.membership.
+
+Definition data_collection_all_delivers_bst_extraction_minimality
+  : forall (A : Type) (lt : A -> A -> Prop) .
+      (forall (x : A) (y : A) (z : A) . lt x y -> lt y z -> lt x z) ->
+      forall (t : BinaryTree A) (m : A) (rest : BinaryTree A) .
+        BST.Ordered lt t -> BST.pop_minimum t = Some (Product.introduction m rest) ->
+        BinaryTree.All (fun (b : A) . lt m b) rest
+  := @BST.extraction.minimality.
+
+Definition data_collection_all_delivers_bst_extraction_preservation
+  : forall (A : Type) (lt : A -> A -> Prop) (t : BinaryTree A) (m : A) (rest : BinaryTree A) .
+      BST.Ordered lt t -> BST.pop_minimum t = Some (Product.introduction m rest) ->
+      BST.Ordered lt rest
+  := @BST.extraction.preservation.
+
+Definition data_collection_all_delivers_bst_joining_membership
+  : forall (A : Type) (l : BinaryTree A) (r : BinaryTree A) (b : A) .
+      BinaryTree.Contains b (BST.join l r)
+      <-> BinaryTree.Contains b l \/ BinaryTree.Contains b r
+  := @BST.joining.membership.
+
+Definition data_collection_all_delivers_bst_joining_preservation
+  : forall (A : Type) (lt : A -> A -> Prop) .
+      (forall (x : A) (y : A) (z : A) . lt x y -> lt y z -> lt x z) ->
+      forall (b : A) (l : BinaryTree A) (r : BinaryTree A) .
+        BinaryTree.All (fun (x : A) . lt x b) l ->
+        BinaryTree.All (fun (x : A) . lt b x) r ->
+        BST.Ordered lt l -> BST.Ordered lt r -> BST.Ordered lt (BST.join l r)
+  := @BST.joining.preservation.
+
+Definition data_collection_all_delivers_bst_removal_membership
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (a : A) (b : A) (t : BinaryTree A) .
+        BST.Ordered lt t ->
+        (BinaryTree.Contains b (BST.remove cmp a t) <-> BinaryTree.Contains b t /\ ~ (b = a))
+  := @BST.removal.membership.
+
+Definition data_collection_all_delivers_bst_removal_preservation
+  : forall (A : Type) (cmp : A -> A -> Comparison) (lt : A -> A -> Prop) .
+      Comparable cmp lt ->
+      forall (a : A) (t : BinaryTree A) .
+        BST.Ordered lt t -> BST.Ordered lt (BST.remove cmp a t)
+  := @BST.removal.preservation.
