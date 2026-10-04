@@ -9,6 +9,7 @@ From jwa Require Import Data.Functor.
 From jwa Require Import Data.Number.Nat.
 From jwa Require Import Data.Number.Nat0.
 From jwa Require Import Tactics.Modus.
+From jwa Require Import Tactics.Witness.
 
 (* A module may carry the type's name; its members read [BinaryTree.map].
  * The type and its ctors are declared inside it: a ctor at the top level is
@@ -538,6 +539,77 @@ Proof.
 Qed.
 
 End conversion. (* conversion *)
+
+Module quantification. (* quantification *)
+
+(* Each quantifier, stated through membership. Both laws come back from
+ * [List]'s along [conversion], so neither is an induction of its own.
+ *)
+
+Module all. (* quantification.all *)
+
+(* quantification.all.specification *)
+Theorem specification
+  : forall {A : Type} (P : A -> Prop) (t : BinaryTree A) .
+      All P t <-> (forall (a : A) . Contains a t -> P a).
+Proof.
+  intros A P t.
+  let proof listed := conversion.all &P &t.
+  let proof each := List.quantification.all.specification &P (to_list &t).
+  divide et impera.
+  - intros h a m.
+    modus aequans &listed, &h |- h'.
+    modus aequans &each, &h' |- every.
+    modus aequans (conversion.membership &a &t), &m |- m'.
+    ipso (&every &a &m').
+  - intro h.
+    lemma every : forall (a : &A) . List.Contains a (to_list &t) -> &P a.
+    {
+      intros a m'.
+      modus aequans (conversion.membership &a &t), &m' |- m.
+      ipso (&h &a &m).
+    }
+    modus aequans &each, &every |- h'.
+    ipso (modus aequans &listed, &h').
+Qed.
+
+End all. (* quantification.all *)
+
+Module any. (* quantification.any *)
+
+(* quantification.any.specification *)
+Theorem specification
+  : forall {A : Type} (P : A -> Prop) (t : BinaryTree A) .
+      Any P t <-> (forsome (a : A) . Contains a t /\ P a).
+Proof.
+  intros A P t.
+  let proof listed := conversion.any &P &t.
+  let proof one := List.quantification.any.specification &P (to_list &t).
+  divide et impera.
+  - intro h.
+    modus aequans &listed, &h |- h'.
+    modus aequans &one, &h' |- found.
+    match &found with | a both end.
+    match &both with | m' pa end.
+    modus aequans (conversion.membership &a &t), &m' |- m.
+    exists &a.
+    ipso (conjoin &m, &pa).
+  - intro h.
+    match &h with | a both end.
+    match &both with | m pa end.
+    modus aequans (conversion.membership &a &t), &m |- m'.
+    lemma found : forsome (b : &A) . List.Contains b (to_list &t) /\ &P b.
+    {
+      exists &a.
+      ipso (conjoin &m', &pa).
+    }
+    modus aequans &one, &found |- h'.
+    ipso (modus aequans &listed, &h').
+Qed.
+
+End any. (* quantification.any *)
+
+End quantification. (* quantification *)
 
 End BinaryTree. (* BinaryTree *)
 
