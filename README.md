@@ -58,6 +58,9 @@ Every theory is built with `-noinit`, so **Rocq's prelude is never loaded**: a f
 
 - [Usage](docs/usage.md): installing the library and using it in a project of your own.
 - [The tactic language](docs/tactic.md): Ltac2 with Rocq's own tactics hidden, and the tactics that take their place.
+- [Algebra](docs/algebra.md): the nine classes from `Semigroup` to `Ring`, what each one says, the instances the library declares and how a proof uses them.
+- [Relations](docs/relations.md): the properties of a relation from `Reflexive` to `Trichotomous`, `Equivalence`, and `WellFounded` with the recursion that goes down a relation.
+- [Order](docs/order.md): the four order classes, and `Comparable`, through which a data type gets its `<`, `<=`, `min` and `max`.
 - [Numbers](docs/numbers.md): the number types, their conversions, arithmetic and literals.
 - [Machine units](docs/machine.md): `Bit`, `Byte`, the words `HWord` to `QWord` with their byte order, and the fixed-width integers `UInt8` to `UInt64` and `Int8` to `Int64`, with their division and the conversions between widths.
 - [Text](docs/text.md): the characters `Ascii` and `Utf8`, the strings `AsciiStr` and `Utf8Str`, their order and case, the code points of `Utf8`, indexing and substrings of the strings, and how a string literal is read.
