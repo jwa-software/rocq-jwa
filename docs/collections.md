@@ -10,7 +10,9 @@
 | `NonEmptyList A` | One element or more, in order | `(1 :: 2 :: [3])%non_empty_list`, `[1]%non_empty_list` |
 | `BinaryTree A` | A leaf, which holds nothing, or a node: one element between two subtrees | `BinaryTree.Node BinaryTree.Leaf 1 BinaryTree.Leaf` |
 
-`From jwa Require Import Data.Collection.All` brings the three types, the interfaces, and what their operations and laws name: the types `Nat0`, `Nat`, `Bool`, `Option` and `Comparison`, and the class `Comparable`. The examples on this page take their numbers in `Nat0` and are written with `jwa_list_scope` and `jwa_nat0_scope` open.
+`BST` is a module beside them and not a fourth type: it holds the rule that makes a `BinaryTree` a search tree, and the operations that follow that rule.
+
+`From jwa Require Import Data.Collection.All` brings the three types, `BST`, the interfaces, and what their operations and laws name: the types `Nat0`, `Nat`, `Bool`, `Option`, `Product` and `Comparison`, and the class `Comparable`. The examples on this page take their numbers in `Nat0` and are written with `jwa_list_scope` and `jwa_nat0_scope` open.
 
 ---
 
@@ -56,10 +58,26 @@
 - **`to_list` reads the tree in order:** the left subtree, the node's element, the right subtree. `BinaryTree.to_list t` is `1 :: 2 :: 3 :: []`.
 - **`map` keeps the shape.** `BinaryTree.map Nat0.inc t` holds `2`, `3` and `4` where `t` holds `1`, `2` and `3`. `BinaryTree.mapping.identity` and `BinaryTree.mapping.composition` are its two laws, and `BinaryTree.mapping.preservation` states that the size and the height stay, and that a member `a` of `t` gives the member `f a` of `map f t`.
 - **`mirror` exchanges the two subtrees of every node.** `BinaryTree.mirror t` lists as `3 :: 2 :: 1 :: []`. `BinaryTree.mirroring.involution` states `mirror (mirror t) = t`, and `BinaryTree.mirroring.preservation` that the size, the height and the members stay.
-- **Membership and the quantifiers are propositions:** `BinaryTree.Contains a t`, `BinaryTree.All P t` and `BinaryTree.Any P t`, each read in the order of `to_list`.
+- **Membership and the quantifiers are propositions:** `BinaryTree.Contains a t`, `BinaryTree.All P t` and `BinaryTree.Any P t`, each read in the order of `to_list`. `BinaryTree.quantification.all.specification` and `BinaryTree.quantification.any.specification` state both quantifiers through membership, and `BinaryTree.quantification.all.monotonicity` carries `All` from a property to a weaker one.
 - **The `conversion` laws carry each operation to `List`'s.** `BinaryTree.conversion.size` states `(|| to_list t ||) = size t`; `BinaryTree.conversion.mapping` and `BinaryTree.conversion.mirroring` state that `to_list` turns `map` into `List.map` and `mirror` into `List.reverse`; `BinaryTree.conversion.membership`, `BinaryTree.conversion.all` and `BinaryTree.conversion.any` state `Contains`, `All` and `Any` through `List`'s. Along them a statement about a tree moves to the list of its elements, and a `List` law comes back.
 - **Two trees may hold the same elements and differ.** `Node Leaf 1 (Node Leaf 2 Leaf)` and `Node (Node Leaf 1 Leaf) 2 Leaf` both list as `1 :: 2 :: []` and are two values, so a statement about what a tree holds goes through `to_list` or `Contains`, not through `=`.
 - **Induction has one hypothesis per subtree:** `match t with | Leaf | Node (l by IHl) a (r by IHr) end per BinaryTree.induction`.
+
+---
+
+## BST
+
+A search tree is a `BinaryTree` whose elements stand in order: at every node, the left subtree holds what is below the node's element, and the right subtree what is above it. `BST` adds no type. It holds that rule as the proposition `BST.Ordered`, and the operations `BST.contains`, `BST.insert` and `BST.remove`, which follow it. Below, `t` is the tree with `5` at the root, `2` on its left and `8` on its right, and the comparison is `Nat0.compare`.
+
+- **The rule is a proposition.** `BST.Ordered lt t` states, for every node, that each element of its left subtree is below its element and each element of its right subtree above it. `BinaryTree.Leaf` is ordered, and so is `t`, which lists as `2 :: 5 :: 8 :: []`.
+- **A search follows one path.** `BST.contains cmp a t` compares `a` with the element of a node and goes to one subtree, never to both: `BST.contains Nat0.compare 8 t` is `true`, and `BST.contains Nat0.compare 3 t` is `false`. `BST.search.specification` states that on an ordered tree the answer is the tree's membership, `contains cmp a t = true <-> BinaryTree.Contains a t`.
+- **`insert` puts an element at its place.** `BST.insert Nat0.compare 3 t` puts `3` on the right of `2`, and the tree then lists as `2 :: 3 :: 5 :: 8 :: []`. An element the tree already holds is not added again: `BST.insert Nat0.compare 5 t` is `t`. `BST.insertion.membership` states `Contains b (insert cmp a t) <-> b = a \/ Contains b t`, and `BST.insertion.preservation` that an ordered tree stays ordered.
+- **A tree built by `insert` is ordered.** It starts from `BinaryTree.Leaf` and every step keeps the rule: `5`, `8` and `3` inserted into a leaf, in that order, list as `3 :: 5 :: 8 :: []`.
+- **`remove` takes an element out.** `BST.remove Nat0.compare 5 t` puts `8`, the smallest element of the right subtree, at the root, and the tree then lists as `2 :: 8 :: []`; removing an element the tree does not hold changes nothing. `BST.removal.membership` states, for an ordered tree, `Contains b (remove cmp a t) <-> Contains b t /\ ~ (b = a)`, and `BST.removal.preservation` that the tree stays ordered.
+- **`remove` is built from two operations.** `BST.pop_minimum t` answers with the smallest element and the tree that is left, `Some` of the pair of `2` and the rest for `t`, and with `None` on a leaf; its laws are under `BST.extraction`. `BST.join l r` makes one tree of two where `l` lies wholly below `r`; its laws are under `BST.joining`.
+- **The comparison is an argument.** `contains`, `insert` and `remove` take `cmp`, as `List.compare` does, and their laws take `Comparable cmp lt` as a premise: `BST.search.specification Nat0.comparable` is the law at `Nat0`. The laws that read only the transitivity of `lt`, `BST.extraction.minimality` and `BST.joining.preservation`, take that alone.
+- **The type does not hold the rule.** A `BinaryTree` put together by hand need not be ordered, and on such a tree the laws say nothing: each one that needs the rule has `BST.Ordered lt t` as a premise. `BinaryTree.mirror` does not keep the rule either: `BST.contains Nat0.compare 8 (BinaryTree.mirror t)` is `false`.
+- **The tree is not balanced.** `1`, `2` and `3` inserted in that order make a chain of height `3`, where `t`, with three elements too, has height `2`. A search in a chain may go through every element.
 
 ---
 
